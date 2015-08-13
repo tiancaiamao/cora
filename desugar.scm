@@ -1,29 +1,76 @@
-(define desugar
-  (lambda (exp)
-    exp))
+(use matchable)
 
-;; cope with inner define
-(define lift-inner
-  (lambda (exp)
-    (match exp
-	   [(? symbol?) exp]
-	   [(? integer?) exp]
-	   [`(if ,test ,then ,else)
-	    `(if ,(lift-inner test)
-		 ,(lift-inner then)
-		 ,(lift-inner else))]
-	   [`(set! ,var ,val)
-	    `(set! ,var ,(lift-inner val))]
-	   [('lambda (bind ...) body ...)
-	    (let* ((bind$ '())
-		   (body$ (map (lambda (e)
-				 (if (and (pair? e) (eq? (car e) 'define))
-				     (begin
-				       (set! bind$ (cons (cadr e) bind$))
-				       `(set! ,(cadr e) ,(lift-inner (caddr e))))
-				     (lift-inner e)))
-			       body)))
-	      `(lambda (,@bind$ ,@bind) ,@body$))]
-	   [(f args ...)
-	    (map lift-inner exp)])))
+(define (desugar form)
+  (define (walk x)
+    (match x
+	   ((or (? boolean?) (? number?) (? char?) (? string?) (? vector?)) x)
+	   ((? symbol?) x)
+	   (('quote _) x)
+	   (('if x y) (walk `(if ,x ,y ($undefined))))
+	   (('if x y z) `(if ,(walk x) ,(walk y) ,(walk z)))
+	   (('begin x) (walk x))
+	   (('begin x1 xs ...)
+	    `(begin ,(walk x1) ,(walk `(begin ,@xs))))
+	   (('begin ('begin xs1 ...) more ...)
+	    (walk `(begin ,@xs1 ,@more)))
+	   (('set! var x)
+	    (let ((x (walk x)))
+	      `(set! ,var ,x)))
+	   (('lambda llist body ...)
+	    `($lambda ,llist
+		      ,(walk `(begin ,@body))))
+	   (('let ((vars vals) ...) body ...)
+	    (if (null? vars)
+		(walk `(begin ,@body))
+		`(let ,(map (lambda (var val) (list var (walk val))) vars vals)
+		   ,(walk `(begin ,@body)))))
+	   ((('lambda llist body ...) args ...)
+	    (let loop ((vars llist) (args args) (bs '()))
+	      (cond ((null? vars)
+		     (if (null? args)
+			 (walk `(let ,(reverse bs) ,@body))
+			 (error "too many arguments in manifest `lambda' call" x)))
+		    ((symbol? vars)
+		     (walk `(let ,(append (reverse bs) `((,vars (%list ,@args)))) ,@body)))
+		    ((null? args)
+		     (error "too few arguments in manifest `lambda' call" x))
+		    ((pair? vars)
+		     (loop (cdr vars) (cdr args) (cons (list (car vars) (car args)) bs)))
+		    (else (error "invalid lambda list" llist)))))
+	   #|
+	   (('$primitive name) x)
+	   (('$inline name xs ...)
+	   `($inline ,name ,@(map (cut walk <> env) xs)))
+	   (('$inline-test name cnd xs ...)
+	   `($inline-test ,name ,cnd ,@(map (cut walk <> env) xs)))
+	   (('$allocate t s xs ...)
+	   `($allocate ,t ,s ,@(map (cut walk <> env) xs)))
+	   |#
+	   (('define v x) `(define ,v ,(walk x)))
+	   ((op args ...) (map walk x))
+	   (_ (error "invalid expression" x))))
+  
+  (walk form))
 
+;; ----------tests----------
+(desugar 1)
+(desugar "string")
+(desugar 'abc)
+(desugar #t)
+(desugar ''a)
+(desugar '(if 1 2 3))
+(desugar '(begin 1 2 3))
+(desugar '(set! a 3))
+(desugar '(lambda (a b c) 1))
+(desugar '(lambda (a b . c) 1))
+(desugar '(lambda x 1))
+(desugar '(let ((a 3) (b 5)) #t))
+(desugar '((lambda (a b) 3) 1 2))
+(desugar '(define a 7))
+(desugar '(+ 1 2))
+(desugar '(let ((a 3) (b 5))
+	    (lambda (x y . z)
+	      (if (begin a b (+ z 1))
+		  ((lambda (x) x) z)
+		  (set! a 8)))))
+	      
