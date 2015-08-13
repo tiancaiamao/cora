@@ -1,4 +1,4 @@
-(use matchable)
+(load "match.scm")
 
 (define (desugar form)
   (define (walk x)
