@@ -3,7 +3,7 @@
 (define cps
   (lambda (exp)
     
-    (define trivial? (lambda (x) (memq x '(zero? add1 sub1 +))))
+    (define trivial? (lambda (x) (memq x '(zero? add1 sub1 + *))))
     (define id (lambda (v) v))
     (define ctx0 (lambda (v) `(k ,v)))
     (define fv (let ([n -1])
@@ -113,7 +113,7 @@
                (* n ((fact fact) (sub1 n))))))))))
 
 ;; print out CPSed function
-(pretty-print fact-cps)
+;; (pretty-print fact-cps)
 ;; =>
 ;; '(lambda (n k)
 ;;    ((lambda (fact k) (fact fact (lambda (v0) (v0 n k))))
@@ -126,7 +126,6 @@
 ;;             fact
 ;;             (lambda (v1) (v1 (sub1 n) (lambda (v2) (k (* n v2))))))))))
 ;;     k))
-
 
 ((eval fact-cps) 5 (lambda (v) v))
 ;; => 120
