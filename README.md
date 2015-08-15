@@ -1,4 +1,4 @@
-每个lisper都应该拥有他自己的lisp。
+**每个lisper都应该拥有他自己的lisp。**
 
 -------------
 
@@ -34,4 +34,16 @@ String	#x11		X
 Procedure	#x20			X	
 
 Record类型跟Vector相似，它的前两个slot包含记录tag(symbol)和id(fixnum)，用于确定Record的具体类型。Id为1用于error对象。
+
+## 寄存器使用
+
+rax,r11,r15 临时寄存器
+rcx,rdx,rsi,rdi,r8,r9,r10,r12 当前procedure的前7个寄存器
+rbx 当前闭包
+rcx 当前连续(一个procedure)
+rbp 分配指针
+r13 分配限制
+r14 包含内部值#f
+
+
 
