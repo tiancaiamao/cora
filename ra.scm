@@ -1,42 +1,95 @@
 ;; linear scan register allocation algorithm
 
-(define (compute-live-range exp) 42)
+(define-record-type interval 
+  (make-interval start end var)
+  interval?
+  (start interval-start interval-start-set!)
+  (end interval-end interval-end-set!)
+  (var interval-var interval-var-set!))
 
-(define live-range '((a . (1 . 4)) (b . (2 . 3)) (c . (1 . 5)) (d . (3 . 5))))
-(define active '((a . r1) (b . r2) (c . r3)))
-(define free-regs '(r4 r5))
-(define internals '())
+;; closure is poor man's object
+(define (make-active size)
+  (let ((active (make-vector (+ size 1)))
+	(head 0)
+	(tail 0))
+    (define (add-active interval register)
+      'TODO)
+    (define (remove-actives value fn)
+      'TODO)
+    (define (tail-active)
+      'TODO)
+    (define (pop-active)
+      'TODO)
+    (define (full-active)
+      'TODO)
+    (define (for-each)
+      'TODO)
+    (lambda (msg)
+      (case msg
+	('add add-creative)
+	('removes remove-actives)
+	('tail tail-active)
+	('pop pop-active)
+	('full full-active)
+	('for-each for-each)))))
 
+(define (make-available ls)
+  (let ((available ls))
+    (define (push x)
+      (set! available (cons x available)))
+    (define (pop)
+      (let ((ret (car available)))
+	(set! available (cdr available))
+	ret))
+    (lambda (msg)
+      (case msg 
+	('push push)
+	('pop pop)))))
+  
 
-(define (live-range->intervals lr)
-  ;; sort by begin point
-)
+(define (expire-old-intervals interval active available fn)
+  ((active 'remove-actives) (interval-start interval)
+   (lambda (x)
+     ((available 'push) (cdr x))
+     (fn x))))
 
-(define (ra live-range free-regs)
-  (let ((intervals (live-range->intervals live-range))
-	(active '()))
+;; interval => interval
+;; return the interval to be spill
+(define (spill-at-interval interval active)
+  (let ((last-interval (active 'tail)))
+    (if (> (interval-end last-interval) (interval-end interval))
+	(let ((ret ((active 'pop))))
+	  ((active 'add) interval)
+	  ret)
+	interval)))
+
+(define (linear-scan-register-allocation intervals registers)
+  (let ((result '())
+	(active (make-active (length intervals)))
+	(available (make-available registers)))
+
+    (define (add-to-result x)
+      (lambda (x) 
+	(set! result (cons 
+		      (cons (interval-var (car x)) (cdr x))
+		      result))))
+    
     (for-each (lambda (interval)
-		(expire-old-intervals (interval-start interval))
-		(if (null? free-regs)
-		    (split-at-interval (interval-start interval))
-		    (let ((reg (car free-regs)))
-		      (set! free-regs (cdr free-regs))
-		      (set! active (cons reg interval)))))
-	      intervals)))
+		(expire-old-intervals interval active available
+				      add-to-result)
+		(if ((active 'full))
+		    (spill-at-interval active)
+		    (let ((tmp ((available 'pop))))
+		      ((active 'add) tmp))))
+	      intervals)
+    ((active 'for-each) add-to-result)
 
-(define (expire-old-intervals now)
-  (filter (lambda (reg-interval)
-	    (let ((interval (cdr reg-interval))
-		  (reg (car reg-interval)))
-	      (if (< (interval-end interval) now)
-		  (begin
-		    (set! free-regs (cons reg free-regs))
-		    #t)
-		  #f)))
-	  active))
+    result))  
 
-(define (spill-at-interval i)
-  (let ((spill (last active)))
-    (if (> (interval-end spill) (interval-end i))
-	)))
-		  
+(define (liveness-analysis exp)
+  'TODO)
+
+(define (ra exp)
+  (let* ((intervals (liveness-analysis))
+	 (linear-scan-register-allocation intervals '(rcx rdx rex rsi rdi rax)))
+    'TODO))
