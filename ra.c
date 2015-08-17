@@ -75,7 +75,7 @@ void pushAvailable(int registerIdx) {
 void expireOldIntervals(int intervalIdx) {
   int i, tmp;
   
-  for (i=activeHead; i<activeTail; i = (i+1) % activeSize) {
+  for (i=activeHead; i!=activeTail; i = (i+1) % activeSize) {
     tmp = active[i].intervalIdx;
     if (intervals[tmp].end > intervals[intervalIdx].start) {
       activeHead = i;
@@ -83,6 +83,8 @@ void expireOldIntervals(int intervalIdx) {
     }
 
     result[tmp] = active[i].registerIdx;
+
+    activeHead = (activeHead + 1) % activeSize;
     pushAvailable(active[i].registerIdx);
   }
 }
