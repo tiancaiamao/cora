@@ -7,6 +7,7 @@
 desugar.scm 去语法糖
 cps.scm CPS变换
 cc.scm 闭包变换
+ra.scm 寄存器分配
 
 ## 数据表示
 
