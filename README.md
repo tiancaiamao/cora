@@ -38,13 +38,20 @@ Record类型跟Vector相似，它的前两个slot包含记录tag(symbol)和id(fi
 
 ## 寄存器使用
 
-rax,r11,r15 临时寄存器
-rcx,rdx,rsi,rdi,r8,r9,r10,r12 当前procedure的前7个寄存器
+rax,r11,临时寄存器
+r15,rcx,rdx,rsi,rdi,r8,r9,r10 参数寄存器
 rbx 当前闭包
-rcx 当前连续(一个procedure)
-rbp 分配指针
+r12 当前连续
+rbp 分配位置
 r13 分配限制
 r14 包含内部值#f
 
+入口从C函数进来，加载C的标准库，进入main函数，做一些初始化工作。
 
+scheme的入口函数是_scheme_entry，一旦进入这个函数，永不返回，直至程序退出。
 
+接下来scheme可以调用C的函数，但是C中不能调用scheme。
+
+使用x86_64 System V ABI。调用C之前需要保存rcx,rdx,rsi,rdi,r8,r9,r10(如果使用)，然后设置C的参数rdi,rsi,rdx,rcx,r8,r9。
+
+scheme栈跟C栈相互独立。

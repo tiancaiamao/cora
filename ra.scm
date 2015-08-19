@@ -1,6 +1,6 @@
 ;; linear scan register allocation algorithm
 
-(define-record-type interval 
+(define-record-type interval
   (make-interval start end var)
   interval?
   (start interval-start interval-start-set!)
@@ -14,7 +14,7 @@
 	(head 0)
 	(tail 0)
 	(lastSlot (- size 1)))
-    
+
     (define (add-active interval register)
       (if (= head tail)
 	  (begin
@@ -25,13 +25,13 @@
 	    (let loop ((i pos))
 	      (let ((current (car (vector-ref active i))))
 		(if (> (interval-end current) (interval-end interval))
-		    (begin 
+		    (begin
 		      (vector-set! active (+ i 1) (vector-ref active i))
 		      (loop (if (= i 0) lastSlot (- i 1))))
 		    (set! pos (modulo (+ i 1) size)))))
 	    (vector-set! active pos (cons interval register))
 	    (set! tail (modulo (+ tail 1) size)))))
-    
+
     (define (remove-actives value fn)
       (let loop ((i head))
 	(if (not (= i tail))
@@ -45,12 +45,12 @@
 
     (define (tail-active)
       (vector-ref active (if (= tail 0)
-			     lastSlot 
+			     lastSlot
 			     (- tail 1))))
 
     (define (pop-active)
       (let ((pos (if (= tail 0)
-		     lastSlot 
+		     lastSlot
 		     (- tail 1))))
 	(set! tail pos)
 	(vector-ref active pos)))
@@ -68,7 +68,7 @@
       (display head)
       (display tail)
       active)
-    
+
     (lambda (msg)
       (case msg
 	('add add-active)
@@ -88,7 +88,7 @@
 	(set! available (cdr available))
 	ret))
     (lambda (msg)
-      (case msg 
+      (case msg
 	('push push)
 	('pop pop)))))
 
@@ -121,10 +121,10 @@
       (display "add-to-result:")
       (display x)
       (newline)
-      (set! result (cons 
+      (set! result (cons
 		    (cons (interval-var (car x)) (cdr x))
 		    result)))
-    
+
     (vector-for-each (lambda (interval)
 		       (expire-old-intervals interval active available
 					     add-to-result)
