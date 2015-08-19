@@ -5,21 +5,26 @@
 // 001 fixnum
 // 000 pointer
 // 010 bool
-// 100 char
-// 110 other
-
-// 1110 void
 // 1010 true
 // 0010 false
+// 100 char
+// 110 other
+// 1110 undefined
+// 10110 null
+// 11110 eof
 
 typedef union Value_t* Value;
 
 #define INTERMEDIA_TYPE_MASK	 0x00f00007L
-#define CLOSURE			 0x00100000L
-#define CONS			 0x00200000L
-#define VECTOR			 0x00300000L
-#define ENV				 0x00400000L
-#define SYMBOL			 0x00500000L
+#define SYMBOL		 0x01
+#define CONS			 0x02
+#define VECTOR	   0x03
+#define PORT       0x08
+#define PROMISE    0x09
+#define RECORD     0x0a
+#define FLONUM     0x10
+#define STRING     0x11
+#define CLOSURE		 0x20
 
 #define FORWARD_BIT 0x10000000L
 
