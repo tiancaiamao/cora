@@ -2,16 +2,21 @@
 #include <stdarg.h>
 #include <stdint.h>  // for intptr_t
 
-// 001 fixnum
-// 000 pointer
-// 010 bool
-// 1010 true
-// 0010 false
-// 100 char
-// 110 other
-// 1110 undefined
-// 10110 null
-// 11110 eof
+// 01 fixnum
+// 00 pointer
+// 10 other
+
+// 0110 bool
+// 1010 char
+// 1110 special object
+
+// 00110 true
+// 10110 false
+
+//  01110 null
+//  11110 undefined
+// 101110 unbound
+// 111110 eof
 
 typedef union Value_t* Value;
 
@@ -26,7 +31,7 @@ typedef union Value_t* Value;
 #define STRING     0x11
 #define CLOSURE		 0x20
 
-#define FORWARD_BIT 0x10000000L
+#define FORWARD_BIT 1<<63
 
 typedef intptr_t Tag;
 typedef void (*Lambda)() ;
