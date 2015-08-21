@@ -58,7 +58,26 @@ if变跳转 （去掉了if）
   (call-with-values (lambda () (uncover exp))
     (lambda (e _) e)))
 
-(define (flatten-lambda exp) #f)
+(define (flatten-lambda exp)
+  (define globals '())
+  (define (flatten exp)
+    (match exp
+           ((? (lambda (x) (or (symbol? x)
+                               (number? x)
+                               (string? x)
+                               (boolean? x))))
+            exp)
+           (('if a b c) `(if ,(flatten a) ,(flatten b) ,(flatten c)))
+           (('begin x ...) `(begin ,@(map flatten x)))
+           (('set! var val) `(set! ,var ,(flatten val)))
+           (('lambda (vars ...) body ...)
+            (let ((L (gensym 'L)))
+              (for-each flatten body)
+              (set! globals (cons (cons L exp) globals))
+              L))
+           ((f x ...) (map flatten exp))))
+  (let ((exp* (flatten exp)))
+    `(top ,globals ,exp*)))
 
 #|
 (define remove-let
