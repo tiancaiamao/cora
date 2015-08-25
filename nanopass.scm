@@ -80,9 +80,43 @@ if变跳转 （去掉了if）
     `(top ,globals ,exp*)))
 
 
+(define argument-registers '(r14 r15 rcx rdx rsi rdi r8 r9 r10))
 (define (impose-calling-conventions exp)
 
-  )
+  (define (callee vars regs idx)
+    (cond
+     ((null? vars) '())
+     ((null? regs)
+      (cons `(set! ,(car vars) (stack-ref ,idx))
+            (callee (cdr vars) regs (+ idx 1))))
+     (else
+      (cons `(set! ,(car vars) ,(car regs))
+            (callee (cdr vars) (cdr regs) idx)))))
+
+  (define (caller vars regs idx)
+    (cond
+     ((null? vars) '())
+     ((null? regs)
+      (cons `(stack-set! ,idx ,(car vars))
+            (caller (cdr vars) '() (+ idx 1))))
+     (else
+      (cons `(set! ,(car regs) ,(car vars))
+            (caller (cdr vars) (cdr regs) idx)))))
+
+  (match exp
+         ((? (lambda (x) (or (symbol? x)
+                             (number? x)
+                             (string? x)
+                             (boolean? x))))
+          exp)
+         (('if a b c) `(if ,(impose-calling-conventions a) ,(impose-calling-conventions b) ,(impose-calling-conventions c)))
+         (('begin x ...) `(begin ,@(map impose-calling-conventions x)))
+         (('set! var val) `(set! ,var ,(impose-calling-conventions val)))
+         (('lambda (vars ...) body ...)
+          `(lambda () ,@(callee vars argument-registers 0)
+                  ,@(map impose-calling-conventions body)))
+         ((f x ...)
+          `(begin ,@(caller x argument-registers 0) (jump ,f)))))
 
 #|
 (define remove-let
