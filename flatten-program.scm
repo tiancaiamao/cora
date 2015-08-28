@@ -1,9 +1,9 @@
 #|
 (letrec ([f$1 (lambda ()
                 (begin
-                  (set! #<disp rbp 0> rax)
+                  (set! <disp rbp 0) rax)
                   (set! rax (+ rax rax))
-                  (set! rax (+ rax #<disp rbp 0>))
+                  (set! rax (+ rax (disp rbp 0)))
                   (r15)))])
   (set! rax 17)
   (f$1))
@@ -12,9 +12,9 @@
  (set! rax 17)
  (jump f$1)
  f$1
- (set! #<disp rbp 0> rax)
+ (set! (disp rbp 0) rax)
  (set! rax (+ rax rax))
- (set! rax (+ rax #<disp rbp 0>))
+ (set! rax (+ rax (disp rbp 0)))
  (jump r15))
 |#
 

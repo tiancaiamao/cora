@@ -110,6 +110,25 @@
 (define return-address-register 'r15)
 (define allocation-pointer-register 'rdx)
 
+(define max-frame-var
+  (make-parameter 100))
+
+(define frame-vars '())
+
+(define frame-var?
+  (lambda (x)
+    (and (symbol? x)
+         (assq x frame-vars))))
+
+(define frame-var->index
+  (lambda (fv)
+    (cdr (assq fv frame-vars))))
+
+(define index->frame-var
+  (lambda (n)
+    (when (> n (max-frame-var)) (max-frame-var n))
+    (string->symbol (string-append "fv" (number->string n)))))
+
 (define-syntax emit-program
   (syntax-rules ()
     [(_ code code* ...)
