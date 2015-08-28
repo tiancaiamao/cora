@@ -1,12 +1,20 @@
 #|
-Program ->  (code Statement+)
-Statement   ->  (set! Var1 int64)
-|   (set! Var1 Var2)
-|   (set! Var1 (Binop Var1 int32))
-|   (set! Var1 (Binop Var1 Var2))
-Var     ->  rax | rcx | rdx | rbx | rbp | rsi | rdi
-|   r8 | r9 | r10 | r11 | r12 | r13 | r14 | r15
-Binop   ->  + | - | *
+(code
+ (set! rax 17)
+ (jump f$1)
+ f$1
+ (set! #<disp rbp 0> rax)
+ (set! rax (+ rax rax))
+ (set! rax (+ rax #<disp rbp 0>))
+ (jump r15))
+=>
+movq $17, %rax
+jmp L1
+L1:
+movq %rax, 0(%rbp)
+addq %rax, %rax
+addq 0(%rbp), %rax
+jmp *%r15   
 |#
 (define generate-x86-64
   (lambda (p)
