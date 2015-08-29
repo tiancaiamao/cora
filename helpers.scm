@@ -200,3 +200,35 @@
       "$"
       (let ([suffix (or (extract-suffix sym) (unique-suffix))])
         (substring suffix 0 (string-length suffix)))))))
+
+(define uvar?
+  (lambda (x)
+    (and (symbol? x)
+         (let* ([s (symbol->string x)] [n (string-length s)])
+           (define (s0 i)
+             (and (not (fx= i -1))
+                  (cond
+                   [(and (char<=? #\0 (string-ref s i))
+                         (char<=? (string-ref s i) #\9))
+                    (s1 (fx- i 1))]
+                   [else #f])))
+           (define (s1 i)
+             (and (not (fx= i -1))
+                  (let ([c (string-ref s i)])
+                    (cond
+                     [(and (char<=? #\1 (string-ref s i))
+                           (char<=? (string-ref s i) #\9))
+                      (s1 (fx- i 1))]
+                     [(char=? c #\.) #t]
+                     [(char=? c #\0) (s2 (fx- i 1))]
+                     [else #f]))))
+           (define (s2 i)
+             (and (not (fx= i -1))
+                  (let ([c (string-ref s i)])
+                    (cond
+                     [(and (char<=? #\1 (string-ref s i))
+                           (char<=? (string-ref s i) #\9))
+                      (s1 (fx- i 1))]
+                     [(char=? c #\0) (s2 (fx- i 1))]
+                     [else #f]))))
+           (s0 (fx- n 1))))))
