@@ -155,3 +155,48 @@
        (emit 'popq 'rbp)
        (emit 'popq 'rbx)
        (emit 'ret))]))
+
+(define union
+  (lambda (set1 set2)
+    (let loop ([s1 set1])
+      (cond
+       [(null? s1) set2]
+       [(memq (car s1) set2) (loop (cdr s1))]
+       [else (cons (car s1) (loop (cdr s1)))]))))
+
+(define make-begin
+  (lambda (p)
+    (define helper
+      (lambda (ls ret)
+        (cond
+         ((null? ls) ret)
+         (else
+          (match (car ls)
+                 (('begin x x* ...)
+                  (helper (cdr ls) (helper `(,x ,@x*) ret)))
+                 (('begin x)
+                  (helper (cdr ls) (cons x ret)))
+                 (x (helper (cdr ls) (cons x ret))))))))
+    (let ((ret (helper p '())))
+      (cond
+       ((null? ret) '())
+       ((null? (cdr ret)) (car ret))
+       (else
+        (cons 'begin (reverse ret)))))))
+
+(define id (lambda (x) x))
+
+(define count 0)
+(define unique-suffix
+  (lambda ()
+    (set! count (+ count 1))
+    (number->string count)))
+
+(define unique-label
+  (lambda (sym)
+    (string->symbol
+     (string-append
+      (extract-root sym)
+      "$"
+      (let ([suffix (or (extract-suffix sym) (unique-suffix))])
+        (substring suffix 0 (string-length suffix)))))))
