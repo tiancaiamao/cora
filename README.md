@@ -4,10 +4,11 @@
 
 ## 文件说明
 
-desugar.scm 去语法糖
-cps.scm CPS变换
-cc.scm 闭包变换
-ra.scm 寄存器分配
+canonicalize-expression.scm 去掉法糖
+cps-convert.scm CPS变换
+convert-closures.scm 闭包变换
+liveness-analysis.scm 活跃变量分析
+assign-register.scm 线性扫描的寄存器分配算法
 
 ## 数据表示
 
@@ -58,3 +59,15 @@ scheme的入口函数是_scheme_entry，一旦进入这个函数，永不返回�
 使用x86_64 System V ABI。调用C之前需要保存rcx,rdx,rsi,rdi,r8,r9,r10(如果使用)，然后设置C的参数rdi,rsi,rdx,rcx,r8,r9。
 
 scheme栈跟C栈相互独立。
+
+## 参考资料
+
+nanopass是Indiana大学编译器课程使用的一种教学方法。好像除了[A Nanopass Framework for Compiler Education](www.cs.indiana.edu/~dyb/pubs/nano-jfp.pdf)这篇文章，并没有太多公开的详细的资料。我在网上收集了一些他们课程的东西并在[博客上整理了一些](http://zenlife.tk/nanopass0.md)。
+
+cps变换和闭包变换都是通过matt的[博客](http://matt.might.net/articles/cps-conversion/)学习的，讲的非常好。不过最后实现cps是基于王垠的40行代码的。
+
+垃圾回收和运行时的设计是根据论文Cheney on the M.T.A
+
+实现上面主要参考了[yscheme](https://github.com/yinwang0/)和[bones](http://www.call-with-current-continuation.org/bones/)，这两个都是直接将scheme编译成汇编的编译器。
+
+实现使用的编译器是[chicken](http://www.call-cc.org/)。
