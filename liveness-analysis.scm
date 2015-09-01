@@ -84,7 +84,7 @@
     (define program
       (lambda (p)
         (match p
-               [('letrec [(label (lambda () body)) ...] tail)
+               [('letrec [(label ('lambda () body)) ...] tail)
                 (let ((body1 (map program body))
                       (tail1 (program tail)))
                   `(letrec ,(map build-function label body1) ,tail1))]

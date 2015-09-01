@@ -1,5 +1,32 @@
-;; linear scan register allocation algorithm
+#|
+(letrec ([f$1 (lambda ()
+                (locals (x.1 y.2)
+                        (intervals (x1 s1 . e1) (y2 s2 . e2))
+                        (if (true)
+                            (begin
+                              (set! x.1 3)
+                              (set! y.2 x.1))
+                            (f$1))))])
+  (locals ()
+          (begin
+            (set! r8 3)
+            (set! r9 10))))
+=>
+(letrec ([f$1 (lambda ()
+                (locate ([x.1 r8] [y.2 r9])
+                        (if (if (= x.1 1) (true) (> y.2 1000))
+                            (begin (set! rax y.2) (r15))
+                            (begin
+                              (set! y.2 (* y.2 2))
+                              (set! rax x.1)
+                              (set! rax (logand rax 1))
+                              (if (= rax 0) (set! y.2 (+ y.2 1)) (nop))
+                              (set! x.1 (sra x.1 1))
+                              (f$1)))))])
+  (locate () (begin (set! r8 3) (set! r9 10) (f$1))))
+|#
 
+;; linear scan register allocation algorithm
 (define-record-type interval
   (make-interval start end var)
   interval?
@@ -152,11 +179,37 @@
 (linear-scan-register-allocation intervals registers)
 |#
 
-(define assign-registers 'TODO)
+(define assign-registers
+  (lambda (p)
 
-#|
-(define (ra exp)
-  (let* ((intervals (liveness-analysis))
-	 (linear-scan-register-allocation intervals '(rcx rdx rex rsi rdi rax)))
-    'TODO))
-|#
+    (define transform
+      (lambda (input)
+        (set! input (sort input
+                          (lambda (x y)
+                            (< (cadr x) (cadr y)))))
+        (let ((ret (make-vector (length input))))
+          (let loop ((i 0)
+                     (ls input))
+            (if (not (null? ls))
+                (begin
+                  (vector-set! ret i (car ls))
+                  (loop (+ i 1) (cdr input)))))
+          ret)))
+
+    (define build-function (lambda (label body) `(,label (lambda () ,body))))
+    (define transform-interval
+      (lambda (x)
+        (linear-scan-register-allocation
+         (transform x)
+         '(rcx rdx rex rsi rdi rax))))
+
+    (match p
+           [('letrec [(label ('lambda ()
+                               ('locals bind intervals body))) ...]
+              ('locals btail itail tail))
+            (let* ((intervals1 (map  transform-interval intervals))
+                   (body* (map (lambda (interval body)
+                                 `(locate ,interval ,body))
+                               intervals1 body)))
+              `(letrec (map build-function label body*)
+                 (locate ,btail ,(transform-interval itail) ,tail)))])))
