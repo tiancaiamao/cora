@@ -1,8 +1,5 @@
-(load "match.scm")
-
 (define cps
   (lambda (exp)
-    
     (define trivial? (lambda (x) (memq x '(zero? add1 sub1 + *))))
     (define id (lambda (v) v))
     (define ctx0 (lambda (v) `(k ,v)))
@@ -31,7 +28,7 @@
 	     (('lambda (x) body)
 	      (ctx `(lambda (,x k) ,(cps1 body ctx0))))
 	     ((f es ...)
-	      (cps1 f 
+	      (cps1 f
 		    (lambda (rf)
 		      (cps1* es
 			     (lambda (res)
@@ -52,6 +49,8 @@
 			      (k (cons first remain)))))))))
 
     (cps1 exp id)))
+
+(define cps-convert cps)
 
 (cps '(+ 1 2))
 (cps '(+ (begin (set! a 3) a) b))

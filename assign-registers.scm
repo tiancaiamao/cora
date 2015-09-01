@@ -152,8 +152,7 @@
 (linear-scan-register-allocation intervals registers)
 |#
 
-(define (liveness-analysis exp)
-  'TODO)
+(define assign-registers 'TODO)
 
 #|
 (define (ra exp)

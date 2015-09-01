@@ -146,3 +146,5 @@
            ((f es ...)
             (map closure-convert exp))
            (else (error "unhandled exp: " exp)))))
+
+(define convert-closures closure-convert)

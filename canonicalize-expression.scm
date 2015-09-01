@@ -1,5 +1,3 @@
-(load "match.scm")
-
 (define (desugar form)
   (define (walk x)
     (match x
@@ -49,10 +47,13 @@
 	   (('define v x) `(define ,v ,(walk x)))
 	   ((op args ...) (map walk x))
 	   (_ (error "invalid expression" x))))
-  
+
   (walk form))
 
+(define canonicalize-expression desugar)
+
 ;; ----------tests----------
+#|
 (desugar 1)
 (desugar "string")
 (desugar 'abc)
@@ -73,4 +74,4 @@
 	      (if (begin a b (+ z 1))
 		  ((lambda (x) x) z)
 		  (set! a 8)))))
-	      
+|#

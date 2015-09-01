@@ -19,7 +19,7 @@
 
 (define compile
   (nanopass
-   expand-syntax
+;;   expand-syntax
    canonicalize-expression
 
    cps-convert
