@@ -182,6 +182,7 @@
 (define assign-registers
   (lambda (p)
 
+    ;; ((x.1 3 . 2) (y.2 2 . -1)) => #(#<interval> #<interval>)
     (define transform
       (lambda (input)
         (set! input (sort input
@@ -191,17 +192,22 @@
           (let loop ((i 0)
                      (ls input))
             (if (not (null? ls))
-                (begin
-                  (vector-set! ret i (car ls))
-                  (loop (+ i 1) (cdr input)))))
+                (let* ((raw (car ls))
+                       (interval (make-interval (cadr raw) (cddr raw) (car raw))))
+                  (vector-set! ret i interval)
+                  (loop (+ i 1) (cdr ls)))))
           ret)))
 
     (define build-function (lambda (label body) `(,label (lambda () ,body))))
+
+    ;; (intervals (x.1 3 . 2) (y.2 2 . -1)) => ((y.2 . rcx) (x.1 . rcx))
     (define transform-interval
       (lambda (x)
-        (linear-scan-register-allocation
-         (transform x)
-         '(rcx rdx rex rsi rdi rax))))
+        (let* ((vec (cdr x))
+               (intervals (transform vec)))
+          (linear-scan-register-allocation
+           intervals
+           '(rcx rdx rex rsi rdi rax)))))
 
     (match p
            [('letrec [(label ('lambda ()
@@ -211,5 +217,21 @@
                    (body* (map (lambda (interval body)
                                  `(locate ,interval ,body))
                                intervals1 body)))
-              `(letrec (map build-function label body*)
+              `(letrec ,(map build-function label body*)
                  (locate ,btail ,(transform-interval itail) ,tail)))])))
+
+#|
+(assign-registers
+ '(letrec ((f$1 (lambda ()
+                  (locals (x.1 y.2)
+                          (intervals (x.1 3 . 2) (y.2 2 . -1))
+                          (if (true)
+                              (begin
+                                (set! x.1 3)
+                                (set! y.2 x.1))
+                              (f$1))))))
+    (locals ()
+            (intervals (r8 2 . -1) (r9 1 . -1))
+            (begin (set! r8 3)
+                  (set! r9 10)))))
+|#
