@@ -9,12 +9,10 @@
 (load "expose-frame-var.scm")
 (load "expose-basic-blocks.scm")
 (load "finalize-locations.scm")
-(load "assign-registers.scm")
 (load "liveness-analysis.scm")
-
-(load "convert-closures.scm")
-
+(load "assign-registers.scm")
 (load "cps-convert.scm")
+(load "convert-closures.scm")
 (load "canonicalize-expression.scm")
 
 (define compile
@@ -23,8 +21,10 @@
    canonicalize-expression
 
    cps-convert
-
    convert-closures
+
+   remove-complex-opera
+   impose-calling-conventions
 
    liveness-analysis
    assign-registers

@@ -201,6 +201,11 @@
       (let ([suffix (or (extract-suffix sym) (unique-suffix))])
         (substring suffix 0 (string-length suffix)))))))
 
+(define unique-name
+  (lambda (sym)
+    (string->symbol
+     (string-append (extract-root sym) "." (unique-suffix)))))
+
 (define uvar?
   (lambda (x)
     (and (symbol? x)
@@ -232,3 +237,8 @@
                      [(char=? c #\0) (s2 (fx- i 1))]
                      [else #f]))))
            (s0 (fx- n 1))))))
+
+(define int64?
+  (lambda (x)
+    (and (and (integer? x) (exact? x))
+         (<= (- (expt 2 63)) x (- (expt 2 63) 1)))))
