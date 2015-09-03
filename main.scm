@@ -14,6 +14,7 @@
 (load "cps-convert.scm")
 (load "convert-closures.scm")
 (load "canonicalize-expression.scm")
+(load "remove-complex-opera.scm")
 
 (define compile
   (nanopass
@@ -24,7 +25,9 @@
    convert-closures
 
    remove-complex-opera
-   impose-calling-conventions
+   flatten-set
+
+;;   impose-calling-conventions
 
    liveness-analysis
    assign-registers
