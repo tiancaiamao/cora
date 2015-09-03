@@ -15,6 +15,7 @@
 (load "convert-closures.scm")
 (load "canonicalize-expression.scm")
 (load "remove-complex-opera.scm")
+(load "impose-calling-conventions.scm")
 
 (define compile
   (nanopass
@@ -26,9 +27,7 @@
 
    remove-complex-opera
    flatten-set
-
-;;   impose-calling-conventions
-
+   impose-calling-conventions
    liveness-analysis
    assign-registers
    finalize-locations
