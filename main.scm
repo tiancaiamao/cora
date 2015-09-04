@@ -11,7 +11,6 @@
 (load "finalize-locations.scm")
 (load "liveness-analysis.scm")
 (load "assign-registers.scm")
-(load "cps-convert.scm")
 (load "convert-closures.scm")
 (load "canonicalize-expression.scm")
 (load "remove-complex-opera.scm")
@@ -22,7 +21,6 @@
 ;;   expand-syntax
    canonicalize-expression
 
-   cps-convert
    convert-closures
 
    remove-complex-opera
