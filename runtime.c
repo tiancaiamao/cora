@@ -441,3 +441,23 @@ static void printValue(Value obj) {
         // TODO
     }
 }
+
+struct frame {
+  void *tag;
+  void *retaddr;
+  struct frame* oldfp;
+  char data[];
+};
+
+struct capture_frame {
+  void *tag;
+  void *retaddr;
+  struct frame* oldfp;
+  struct hook* hook;
+  struct capture_frame *nextcfp;
+};
+
+struct hook {
+  void *tag;
+  struct capture_frame *cfp;
+};
