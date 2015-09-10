@@ -18,14 +18,35 @@
 
 (define compile
   (nanopass
-;;   expand-syntax
-   canonicalize-expression
 
+   parse-scheme
+   convert-complex-datum
+   uncover-assigned
+   purify-letrec
+   convert-assignments
+   remove-anonymous-lambda
+   sanitize-binding-forms
+   uncover-free
    convert-closures
+   introduce-procedure-primitives
+   lift-letrec
+   normalize-context
+   specify-representation
+   uncover-locals
+   remove-let
+   verify-uil
+
+
+;;   expand-syntax
+;;   canonicalize-expression
+;;   convert-closures
 
    remove-complex-opera
-   flatten-set
+   flatten-set!
    impose-calling-conventions
+
+;;   uncover-frame-conflict
+
    liveness-analysis
    assign-registers
    finalize-locations
