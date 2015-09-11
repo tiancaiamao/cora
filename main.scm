@@ -6,6 +6,7 @@
 ;; --------passes-----------
 (load "parse-scheme.scm")
 (load "convert-complex-datum.scm")
+(load "uncover-assigned.scm")
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
 ;(load "expose-frame-var.scm")
@@ -22,6 +23,7 @@
   (nanopass
    parse-scheme
    convert-complex-datum
+   uncover-assigned
 
    ;;   uncover-assigned
    ;;   purify-letrec

@@ -1,3 +1,23 @@
+;; '(1 (2 (3 4 5)))
+;; =>
+;; (cons '1 (cons (cons '2 (cons (cons '3 (cons '4 (cons '5 '()))) '())) '()))
+;;
+;; '#(32 (33 33) 34)
+;; =>
+;; (let ([tmp.1 (make-vector '3)])
+;;     (begin
+;;        (vector-set! tmp.1 '0 32)
+;;        (vector-set! tmp.1 '1 (cons '33 (cons '33 '())))
+;;        (vector-set! tmp.1 '2 34))
+;;        tmp.1)
+;;
+;; (let ([f.1 (lambda () (cons '(1 . 2) '(3 . 4)))])
+;;    (cons (f.1) (f.1)))
+;; =>
+;; (let ([tmp.13 (cons '1 '2)] [tmp.12 (cons '3 '4)])
+;;    (let ([f.1 (lambda () (cons tmp.13 tmp.12))])
+;;      (cons (f.1) (f.1))))
+;;
 (define convert-complex-datum
   (lambda (x)
     (define constants '())
