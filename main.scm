@@ -10,6 +10,7 @@
 (load "purify-letrec.scm")
 (load "convert-assignments.scm")
 (load "remove-anonymous-lambda.scm")
+(load "sanitize-binding-forms.scm")
 
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
@@ -32,7 +33,7 @@
    convert-assignments
 
    remove-anonymous-lambda
-                                        ;   sanitize-binding-forms
+   sanitize-binding-forms
                                         ;   uncover-free
                                         ;   convert-closures
                                         ;   introduce-procedure-primitives
