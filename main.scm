@@ -14,6 +14,7 @@
 (load "uncover-free.scm")
 (load "convert-closures.scm")
 (load "introduce-procedure-primitives.scm")
+(load "lift-letrec.scm")
 
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
@@ -37,10 +38,12 @@
 
    remove-anonymous-lambda
    sanitize-binding-forms
+
    uncover-free
    convert-closures
    introduce-procedure-primitives
-                                        ;   lift-letrec
+
+   lift-letrec
                                         ;   normalize-context
                                         ;   specify-representation
                                         ;   uncover-locals
