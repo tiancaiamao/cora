@@ -13,6 +13,7 @@
 (load "sanitize-binding-forms.scm")
 (load "uncover-free.scm")
 (load "convert-closures.scm")
+(load "introduce-procedure-primitives.scm")
 
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
@@ -38,8 +39,7 @@
    sanitize-binding-forms
    uncover-free
    convert-closures
-
-                                        ;   introduce-procedure-primitives
+   introduce-procedure-primitives
                                         ;   lift-letrec
                                         ;   normalize-context
                                         ;   specify-representation
