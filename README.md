@@ -70,6 +70,29 @@ scheme栈跟C栈相互独立。
 
 为了支持continuation而引入CPS，而编译器为了优化做的工作却正是把CPS引入的东西删除，那么将CPS作为一个编译步骤是否有意义？
 
+## 编译过程
+
+Part 1: From intermediate language to x86 assembly code.
+
+ * 1 Assembly code
+ * 2 Program flattening
+ * 3 Basic blocks
+ * 4 Register assignment
+ * 5 Memory allocation
+ * 6 Calling conventions
+ * 7 Lay out call frames
+ * 8 Finish universal intermediate lang
+
+Part 2: From Scheme to intermediate language
+
+ * 9  Local variables and lets
+ * 10 Object memory representations
+ * 11 Letrecs and contexts
+ * 12 Closure conversion
+ * 13 Optimize calls and lambdas
+ * 14 Complex literals and assignments
+ * 15 Parsing and wrap-up
+
 ## 运行时设计
 
 每个普通frame包含：
