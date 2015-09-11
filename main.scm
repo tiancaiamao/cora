@@ -7,6 +7,9 @@
 (load "parse-scheme.scm")
 (load "convert-complex-datum.scm")
 (load "uncover-assigned.scm")
+(load "purify-letrec.scm")
+(load "convert-assignments.scm")
+
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
 ;(load "expose-frame-var.scm")
@@ -24,10 +27,9 @@
    parse-scheme
    convert-complex-datum
    uncover-assigned
-
-   ;;   uncover-assigned
-   ;;   purify-letrec
-   ;;   convert-assignments
+   purify-letrec
+   convert-assignments
+   
                                         ;   remove-anonymous-lambda
                                         ;   sanitize-binding-forms
                                         ;   uncover-free
