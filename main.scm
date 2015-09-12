@@ -30,8 +30,8 @@
 ;(load "remove-complex-opera.scm")
 ;(load "impose-calling-conventions.scm")
 
-(define compile
-  (nanopass
+(compiler-passes
+ '(
    parse-scheme
    convert-complex-datum
    uncover-assigned
@@ -43,10 +43,11 @@
 
    uncover-free
    convert-closures
-   introduce-procedure-primitives
 
+   introduce-procedure-primitives
    lift-letrec
    normalize-context
+
                                         ;   specify-representation
                                         ;   uncover-locals
                                         ;   remove-let

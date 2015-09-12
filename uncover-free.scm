@@ -28,6 +28,7 @@
   (lambda (x)
     (define primitives
       '(+ - * <= < = >= > procedure? boolean? car cdr cons eq? fixnum? make-vector null? pair? set-car! set-cdr! vector? vector-length vector-ref vector-set! void ))
+    (define (prim? x) (memq x primitives))
     (define uncover
       (lambda (x)
         (match x
