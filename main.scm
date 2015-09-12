@@ -17,6 +17,7 @@
 (load "lift-letrec.scm")
 
 (load "normalize-context.scm")
+(load "specify-representation.scm")
 
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
@@ -47,8 +48,7 @@
    introduce-procedure-primitives
    lift-letrec
    normalize-context
-
-                                        ;   specify-representation
+   specify-representation
                                         ;   uncover-locals
                                         ;   remove-let
                                         ;   verify-uil
