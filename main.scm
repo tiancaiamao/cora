@@ -15,9 +15,11 @@
 (load "convert-closures.scm")
 (load "introduce-procedure-primitives.scm")
 (load "lift-letrec.scm")
-
 (load "normalize-context.scm")
 (load "specify-representation.scm")
+(load "uncover-locals.scm")
+(load "remove-let.scm")
+(load "verify-uil.scm")
 
 ;(load "generate-x86-64.scm")
 ;(load "flatten-program.scm")
@@ -49,10 +51,10 @@
    lift-letrec
    normalize-context
    specify-representation
-                                        ;   uncover-locals
-                                        ;   remove-let
-                                        ;   verify-uil
+   uncover-locals
+   remove-let
 
+;;   verify-uil
 
    ;;   expand-syntax
    ;;   canonicalize-expression
