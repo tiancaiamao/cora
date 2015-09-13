@@ -36,7 +36,7 @@
     (define build-function (lambda (label body) `(,label (lambda () ,body))))
 
     (match x
-           [('letrec ([label* (lambda () body*)] ...) tail)
+           [(letrec ([,label* (lambda () ,body*)] ...) ,tail)
             (let* ((body1 (map currying body*))
                    (defs (map build-function label* body1)))
               `(letrec ,defs ,(currying tail)))]
@@ -51,24 +51,25 @@
            (frame-conflict ,ct
            ,(finalize tail `((,uvar* . ,loc*) ...) final?)))))]
            |#
-           [('locate ([uvar* loc*] ...) tail)
+           [(locate ([,uvar* ,loc*] ...) ,tail)
             (if final?
                 (finalize tail (map cons uvar* loc*) final?)
                 `(locate ([,uvar* ,loc*] ...) ,tail))]
-           [('begin es ...)
-            `(begin ,@(map currying es))]
-           [('if a b c)
+           [(begin ,es* ...)
+            `(begin ,@(map currying es*))]
+           [(if ,a ,b ,c)
             `(if ,(currying a) ,(currying b) ,(currying c))]
-           [('set! x (binop y z))
+           [(set! ,x (,binop ,y ,z))
             `(set! ,(currying x) (,binop ,(currying y) ,(currying z)))]
-           [('set! x y)
+           [(set! ,x ,y)
             (if (eq? x y) `(nop) `(set! ,(currying x) ,(currying y)))]
-           [(op x y)
+           [(,op ,x ,y)
             `(,op ,(currying x) ,(currying y))]
-           [(triv live* ...)
+           [(,triv ,live* ...)
             (if final? `(,triv) `(,triv ,live* ...))]
-           [(? uvar?) (lookup x env)]
-           [x x])))
+           [,v (guard (uvar? v))
+               (lookup x env)]
+           [,x x])))
 
 (define finalize-frame-locations (lambda (x) (finalize x '() #f)))
 (define finalize-locations       (lambda (x) (finalize x '() #t)))

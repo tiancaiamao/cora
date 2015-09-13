@@ -68,9 +68,9 @@
    uncover-frame-conflict
    liveness-analysis
    assign-registers
-   finalize-locations
 
    |#
+   finalize-locations
    expose-frame-var
    expose-basic-blocks
    flatten-program
