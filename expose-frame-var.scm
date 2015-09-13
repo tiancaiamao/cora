@@ -25,15 +25,15 @@
     (define expose
       (lambda (p)
         (match p
-               [('begin stmt ...)
-                `(begin ,@(map expose stmt))]
-               [('set! p (op a b))
+               [(begin ,stmt* ...)
+                `(begin ,@(map expose stmt*))]
+               [(set! ,p (,op ,a ,b))
                 `(set! ,(expose p) (,op ,(expose a) ,(expose b)))]
-               [('set! var val)
+               [(set! ,var ,val)
                 `(set! ,(expose var) ,(expose val))]
-               [(? frame-var?)
-                `(disp ,frame-pointer-register ,(* 8 (frame-var->index p)))]
-               [var var])))
+               [,x (guard (frame-var? x))
+                   `(disp ,frame-pointer-register ,(* 8 (frame-var->index p)))]
+               [,var var])))
 
     (define map-label-to-def
       (lambda (label* body*)
@@ -44,7 +44,7 @@
     (define program
       (lambda (x)
         (match x
-               [('letrec ([label* ('lambda () tail*)] ...) tail-p ...)
+               [(letrec ([,label* (lambda () ,tail*)] ...) ,tail-p ...)
                 (let ((output (map-label-to-def label* tail*))
                       (ev-tail (map expose tail-p)))
                   `(letrec ,output ,@ev-tail))])))

@@ -69,9 +69,9 @@
    liveness-analysis
    assign-registers
    finalize-locations
-   expose-frame-var
 
    |#
+   expose-frame-var
    expose-basic-blocks
    flatten-program
    generate-x86-64
