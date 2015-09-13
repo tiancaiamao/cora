@@ -24,11 +24,11 @@
     (define flatten
       (lambda (p)
         (match p
-               [('begin stmt ...)
-                (map flatten stmt)]
-               [('set! var (op a b)) p]
-               [('set! var val) p]
-               [(label) `(jump ,label)])))
+               [(begin ,stmt* ...)
+                (map flatten stmt*)]
+               [(set! ,var (,op ,a ,b)) p]
+               [(set! ,var ,val) p]
+               [(,label) `(jump ,label)])))
 
     (define make-body
       (lambda (label* body*)
@@ -39,7 +39,7 @@
     (define program
       (lambda (x)
         (match x
-               [('letrec ([label* ('lambda () tail*)] ...) tail-p ...)
+               [(letrec ([,label* (lambda () ,tail*)] ...) ,tail-p ...)
                 (let ((tail (map flatten tail-p))
                       (defn (make-body label* tail*)))
                   `(code ,@tail ,@defn))])))

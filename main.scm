@@ -22,8 +22,8 @@
 (load "remove-let.scm")
 (load "verify-uil.scm")
 
-;(load "generate-x86-64.scm")
-;(load "flatten-program.scm")
+(load "generate-x86-64.scm")
+(load "flatten-program.scm")
 ;(load "expose-frame-var.scm")
 ;(load "expose-basic-blocks.scm")
 ;(load "finalize-locations.scm")
@@ -40,6 +40,7 @@
    ;;   canonicalize-expression
    ;;   convert-closures
 
+   #|
    parse-scheme
    convert-complex-datum
    uncover-assigned
@@ -57,6 +58,7 @@
    uncover-locals
    remove-let
    verify-uil
+   |#
 
 
    #|
@@ -69,9 +71,10 @@
    finalize-locations
    expose-frame-var
    expose-basic-blocks
+
+   |#
    flatten-program
    generate-x86-64
-   |#
    ))
 
 #!eof
