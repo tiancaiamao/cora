@@ -60,41 +60,37 @@
     (define rem
       (lambda (p)
         (match p
-               [('locals (local* ...) tail)
+               [(locals (,local* ...) ,tail)
                 (let ((tail (rem tail)))
                   `(locals (,@local* ,@new-local*) ,tail))]
 
-               [('if a b c) `(if ,(rem a) ,(rem b) ,(rem c))]
-               [('begin ef* ... tail) (make-begin (map rem (cdr p)))]
-               [('set! uvar val) `(set! ,uvar ,(rem val))]
+               [(if ,a ,b ,c) `(if ,(rem a) ,(rem b) ,(rem c))]
+               [(begin ,ef* ... ,tail) (make-begin (map rem (cdr p)))]
+               [(set! ,uvar ,val) `(set! ,uvar ,(rem val))]
 
-               [('+ a b) (handle-operands '+ a b)]
-               [('- a b) (handle-operands '- a b)]
-               [('* a b) (handle-operands '* a b)]
-               [('sra a b) (handle-operands 'sra a b)]
-               [('logand a b) (handle-operands 'logand a b)]
-               [('logor a b) (handle-operands 'logor a b)]
+               [(,op ,a ,b) (guard (memq op '(+ - * sra logand logor)))
+                (handle-operands op a b)]
 
-               [(op arg ...)
+               [(,op ,arg ...)
                 (let ((op1 (rem op))
                       (arg (map rem arg)))
                   (let* ((trivial-tail (map make-trivial `(,op1 ,@arg)))
                          (vars (map extract-vars trivial-tail))
                          (stmts (map extract-stmts trivial-tail)))
                     (make-tail stmts vars)))]
-               [triv triv])))
+               [,triv triv])))
 
     (define extract-vars
       (lambda (tail-expr)
         (match tail-expr
-               [(stmt* ... tail) (if (trivial? tail) tail)]
-               [triv triv])))
+               [(,stmt* ... ,tail) (if (trivial? tail) tail)]
+               [,triv triv])))
 
     (define extract-stmts
       (lambda (tail-expr)
         (match tail-expr
-               [(stmt* ... tail) stmt*]
-               [triv '()])))
+               [(,stmt* ... ,tail) stmt*]
+               [,triv '()])))
 
     (define make-tail
       (lambda (stmts vars)
@@ -103,7 +99,7 @@
     (define build-function (lambda (label body fml) `(,label (lambda ,fml ,body))))
 
     (match x
-           [('letrec ((label* ('lambda (fmt** ...) body*)) ...) body)
+           [(letrec ((,label* (lambda (,fmt** ...) ,body*)) ...) ,body)
             (let ((body (rem body))
                   (body* (map rem body*)))
               `(letrec ,(map build-function label* body* fmt**)
