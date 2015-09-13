@@ -9,42 +9,35 @@
                anon.4))])
   ((f.3 '3) '8))
 |#
-(define-who remove-anonymous-lambda
-  (define primitives
-    '(+ - * <= < = >= > procedure? boolean? car cdr cons eq? fixnum? make-vector null? pair? set-car! set-cdr! vector? vector-length vector-ref vector-set! void))
-  (define lambda-expr?
-    (lambda (expr)
-      (match expr
-             [(lambda (,uvar* ...) ,x) #t]
-             [,x #f])))
-  (define (Immediate imm)
-    (cond
-     [(memq imm '(#t #f ())) imm]
-     [(and (integer? imm) (exact? imm))
-      (unless (fixnum-range? imm)
-              (error who "integer ~s is out of fixnum range" imm))
-      imm]
-     [else (error who "invalid Immediate ~s" imm)]))
-  (define Expr
-    (lambda (flag)
-      (lambda (expr)
-        (match expr
-               [(if ,[(Expr 1)-> test] ,[(Expr 1) -> conseq] ,[(Expr 1) -> alt]) `(if ,test ,conseq ,alt)]
-               [(quote ,[Immediate -> im]) `(quote ,im)]
-               [(let ([,uvar* ,[(Expr 0) -> exp*]] ...) ,[(Expr 1) -> tail]) `(let ([,uvar* ,exp*] ...) ,tail)]
-               [(begin ,[(Expr 1) -> exp*] ... ,[(Expr flag) -> exp]) `(begin ,exp* ... ,exp)]
-               [(letrec ([,uvar* (lambda (,param* ...) ,[(Expr 1) -> tail*])] ...) ,[(Expr flag) -> tail]) `(letrec ([,uvar* (lambda (,param* ...) ,tail*)] ...) ,tail)]
-               [(lambda (,uvar* ...) ,x) (Lambda expr flag)]
-               [(,prim ,[(Expr 1) -> x*] ...) (guard (memq prim primitives)) `(,prim ,x* ...)]
-               [(,[(Expr 1) -> x] ,[(Expr 1) -> y*] ...) `(,x ,y* ...)]
-               [,x (guard (uvar? x)) x]))))
-  (define Lambda
-    (lambda (exp flag)
-      (match exp
-             [(lambda (,uvar* ...) ,[(Expr 1) -> x])
-              (if (eq? flag 0) 
-                  `(lambda (,uvar* ...) ,x)
-                  (let ([anon-var (unique-name 'anon)])
-                    `(letrec ([,anon-var (lambda (,uvar* ...) ,x)]) ,anon-var)))])))
-	(lambda (x)
-		((Expr 0) x)))
+(define remove-anonymous-lambda
+  (lambda (x)
+    (define rem-bd
+      (lambda (bd*)
+        (let loop ([bd* bd*] [bd^ '()])
+          (cond
+           [(null? bd*) (reverse bd^)]
+           [else
+            (match (car bd*)
+              [(,lab (lambda (,fml* ...) ,body))
+               (loop (cdr bd*) (cons `(,lab (lambda (,fml* ...) ,(rem body))) bd^))]
+              [,x (loop (cdr bd*) (cons (rem x) bd^))])]))))
+    (define rem
+      (lambda (x)
+        (match x
+          [(let ,bd* ,[e])
+           `(let ,(rem-bd bd*) ,e)]
+          [(letrec ([,uvar* (lambda (,fml** ...) ,[x*])] ...) ,[e])
+           `(letrec ([,uvar* (lambda (,fml** ...) ,x*)] ...) ,e)]
+          [(lambda (,fml* ...) ,[body])
+           (let ([lab (unique-name 'anon)])
+             `(letrec ([,lab (lambda (,fml* ...) ,body)]) ,lab))]
+          [(if ,[t] ,[c] ,[a])
+           `(if ,t ,c ,a)]
+          [(begin ,[ef*] ...)
+           `(begin ,ef* ...)]
+          [(quote ,imm)
+           `(quote ,imm)]
+          [(,[f] ,[x*] ...)
+           `(,f ,x* ...)]
+          [,x x])))
+    (rem x)))

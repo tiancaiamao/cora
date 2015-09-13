@@ -69,3 +69,12 @@
      [else (error who "invalid Immediate ~s" imm)]))
   (lambda (x)
     (Expr x)))
+
+#!eof
+
+(convert-closures '(lambda (u.41) (free () u.41)))
+(convert-closures '(let ([x.1 '3])
+                     (letrec ([f.2 (lambda ()
+                                     (free (x.1)
+                                           x.1))])
+                       (f.2))))

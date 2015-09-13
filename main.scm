@@ -35,38 +35,33 @@
 
 (compiler-passes
  '(
+   ;;   expand-syntax
+   ;;   canonicalize-expression
+   ;;   convert-closures
+
    parse-scheme
    convert-complex-datum
    uncover-assigned
    purify-letrec
    convert-assignments
-
    remove-anonymous-lambda
    sanitize-binding-forms
-
    uncover-free
    convert-closures
-
    introduce-procedure-primitives
    lift-letrec
    normalize-context
    specify-representation
    uncover-locals
    remove-let
+   verify-uil
 
-;;   verify-uil
-
-   ;;   expand-syntax
-   ;;   canonicalize-expression
-   ;;   convert-closures
-
-                                        ;   remove-complex-opera
-                                        ;   flatten-set!
-                                        ;   impose-calling-conventions
-
-   ;;   uncover-frame-conflict
 
    #|
+   remove-complex-opera
+   flatten-set!
+   impose-calling-conventions
+   uncover-frame-conflict
    liveness-analysis
    assign-registers
    finalize-locations
@@ -76,3 +71,17 @@
    generate-x86-64
    |#
    ))
+
+#!eof
+
+(tracer '#t)
+
+(compile '(let ((fact '()))
+             (set! fact (lambda (n)
+                          (if (= n 0)
+                              1
+                              (* n (fact (- n 1))))))
+             (fact 5)))
+
+(compile '(if 1 2 (lambda (x) x)))
+(compile '(lambda (u.1) u.1))
