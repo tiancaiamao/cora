@@ -27,6 +27,7 @@
 (load "expose-basic-blocks.scm")
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
+(load "flatten-set.scm")
 ;(load "liveness-analysis.scm")
 ;(load "assign-registers.scm")
 ;(load "canonicalize-expression.scm")
@@ -60,9 +61,8 @@
 
    verify-uil
    remove-complex-opera
-
-   #|
    flatten-set!
+   #|
    impose-calling-conventions
    uncover-frame-conflict
    liveness-analysis

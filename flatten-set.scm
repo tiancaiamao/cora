@@ -13,31 +13,30 @@
   (f$1 tmp.6 tmp.8))
 |#
 
-(define flatten-set
+(define flatten-set!
   (lambda (x)
 
     (define flatten1
-      (lambda (var expr) 
+      (lambda (var expr)
         (match expr
-               [('begin ef* ... val) `(begin ,@(map flatten ef*) (set! ,var ,val))]
-               [('if a b c) `(if ,(flatten a) ,(flatten1 var b) ,(flatten1 var c))]
-               [_ `(set! ,var ,expr)])))
+               [(begin ,ef* ... ,val) `(begin ,@(map flatten ef*) (set! ,var ,val))]
+               [(if ,a ,b ,c) `(if ,(flatten a) ,(flatten1 var b) ,(flatten1 var c))]
+               [,x `(set! ,var ,expr)])))
 
     (define flatten
       (lambda (x)
         (match x
-               [('locals (uvar* ...) tail) `(locals ,uvar* ,(flatten tail))]
-               [('begin ef* ... tail) (make-begin (map flatten (cdr x)))]
-               [('if a b c) `(if ,(flatten a) ,(flatten b) ,(flatten c))]
-               [('set! var val) (flatten1 var val)]
-               [_ x]
-               )))
+               [(locals (,uvar* ...) ,tail) `(locals ,uvar* ,(flatten tail))]
+               [(begin ,ef* ... ,tail) (make-begin (map flatten (cdr x)))]
+               [(if ,a ,b ,c) `(if ,(flatten a) ,(flatten b) ,(flatten c))]
+               [(set! ,var ,val) (flatten1 var val)]
+               [,x x])))
 
     (define build-function (lambda (label body fml) `(,label (lambda ,fml ,body))))
 
     (match x
-           [('letrec ([label* (lambda (fml** ...) body*)] ...)
-              body)
+           [(letrec ([,label* (lambda (,fml** ...) ,body*)] ...)
+              ,body)
             (let ((body* (map flatten body*))
                   (body (flatten body)))
               `(letrec ,(map build-function label* body* fml**) ,body))])))
