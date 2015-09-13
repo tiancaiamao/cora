@@ -79,12 +79,4 @@
 (load "main.scm")
 (tracer '#t)
 
-(compile '(let ((fact '()))
-             (set! fact (lambda (n)
-                          (if (= n 0)
-                              1
-                              (* n (fact (- n 1))))))
-             (fact 5)))
-
 (compile '(if 1 2 (lambda (x) x)))
-(compile '((lambda (u.1) u.1) 7))

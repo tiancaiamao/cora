@@ -14,7 +14,7 @@ L1:
 movq %rax, 0(%rbp)
 addq %rax, %rax
 addq 0(%rbp), %rax
-jmp *%r15   
+jmp *%r15
 |#
 (define generate-x86-64
   (lambda (p)
@@ -45,33 +45,27 @@ jmp *%r15
     (define emit-test
       (lambda (test v)
         (match test
-               [(op a b)
+               [(,op ,a ,b)
                 (emit 'cmpq b a)
                 (emit-jump (relop-lookup op #t) v)]
-               [('not (op a b))
+               [(not (,op ,a ,b))
                 (emit 'cmpq b a)
                 (emit-jump (relop-lookup op #f) v)])))
 
     (define generate
       (lambda (exp)
         (match exp
-               (('code stmt* ...) (for-each generate stmt*))
-               (('set! x (op y z))
+               ((code ,stmt* ...) (for-each generate stmt*))
+               ((set! ,x (,op ,y ,z))
                 (emit (binop-lookup op) z y))
-               (('set! x y)
+               ((set! ,x ,y)
                 (if (label? x)
                     (emit 'leaq y x)
                     (emit 'movq y x)))
-               (('if test ('jump v)) (emit-test test v))
+               ((if ,test (jump ,v)) (emit-test test v))
                ((jump ,v) (emit-jump 'jmp v))
-               ((? label?) (emit-label exp)))))
+               (,x (guard label?) (emit-label exp))
+               (,err (error 'generate "invalid statement ~a" err)))))
 
     (emit-program
      (generate p))))
-
-#|
-(code
-  (set! rax 8)
-  (set! rcx 3)
-  (set! rax (- rax rcx)))
-|#
