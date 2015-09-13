@@ -41,7 +41,7 @@
     (define program
       (lambda (x)
         (match x
-               [('letrec ([label* (lambda () body*)] ...) tail)
+               [(letrec ([,label* (lambda () ,body*)] ...) ,tail)
                 (let ((body1 (map expose body*))
                       (tail1 (expose tail)))
                   (for-each add-function label* body1)
@@ -50,9 +50,10 @@
     (define expose
       (lambda (x)
         (match x
-               [('begin es ...) (make-begin (map expose es))]
-               [(triv) `(,triv)]
-               [('if test then else)
+               [(begin ,es* ...) (make-begin (map expose es*))]
+               [(,triv) x]
+               [(set! ,loc ,triv) x]
+               [(if ,test ,then ,else)
                 (let ((Lthen (unique-label 't))
                       (Lelse (unique-label 'e)))
                   (let ((then1 (expose then))
@@ -60,16 +61,15 @@
                     (add-function Lthen then1)
                     (add-function Lelse else1)
                     (pred test Lthen Lelse)))]
-               [('set! loc triv) x]
-               [x x])))
+               [,x x])))
 
     (define pred
       (lambda (p true-label false-label)
         (match p
-               [('true) `(,true-label)]
-               [('false) `(,false-label)]
-               [('begin es ...) (map expose es)]
-               [('if a b c)
+               [(true) `(,true-label)]
+               [(false) `(,false-label)]
+               [(begin es* ...) (map expose es*)]
+               [(if ,a ,b ,c)
                 (let ((Lb (unique-label 't))
                       (Lc (unique-label 'e))
                       (b1 (pred b true-label false-label))
@@ -77,6 +77,6 @@
                   (add-function Lb b1)
                   (add-function Lc c1)
                   (pred a Lb Lc))]
-               [(op v1 v2) `(if ,p (,true-label) (,false-label))])))
+               [(,op ,v1 ,v2) `(if ,p (,true-label) (,false-label))])))
 
     (program p)))
