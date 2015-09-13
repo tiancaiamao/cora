@@ -9,6 +9,7 @@
 (load "uncover-assigned.scm")
 (load "purify-letrec.scm")
 (load "convert-assignments.scm")
+(load "optimize-direct-call.scm")
 (load "remove-anonymous-lambda.scm")
 (load "sanitize-binding-forms.scm")
 (load "uncover-free.scm")
@@ -44,6 +45,7 @@
    uncover-assigned
    purify-letrec
    convert-assignments
+   optimize-direct-call
    remove-anonymous-lambda
    sanitize-binding-forms
    uncover-free
@@ -74,6 +76,7 @@
 
 #!eof
 
+(load "main.scm")
 (tracer '#t)
 
 (compile '(let ((fact '()))
@@ -84,4 +87,4 @@
              (fact 5)))
 
 (compile '(if 1 2 (lambda (x) x)))
-(compile '(lambda (u.1) u.1))
+(compile '((lambda (u.1) u.1) 7))
