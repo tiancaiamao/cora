@@ -35,7 +35,7 @@
          [(null? loads) (reverse (append regs fvs))]
          [else
           (match (car loads)
-                 [('set! dst src)
+                 [(set! ,dst ,src)
                   (if (register? src)
                       (rev-load (cdr loads) (cons `(set! ,src ,dst) regs) fvs)
                       (rev-load (cdr loads) regs (cons `(set! ,src ,dst) fvs)))])])))
@@ -44,13 +44,13 @@
       (lambda (rp new-fv*)
         (lambda (x)
           (match x
-                 [('if a b c) x]
-                 [('begin ef* ...)
+                 [(if ,a ,b ,c) x]
+                 [(begin ,ef* ...)
                   `(begin ,@(map (impose rp new-fv*) ef*))]
-                 [('set! var val) x]
-                 [(or ('nop) ('true) ('false)) x]
-                 [(or ('+ a b) ('- a b) ('* a b)) x]
-                 [(triv loc* ...)
+                 [(set! ,var ,val) x]
+                 [(,v) (guard (memq v '(nop true false))) x]
+                 [(,op ,a ,b) (guard (memq op '(+ - *))) x]
+                 [(,triv ,loc* ...)
                   (let* ([l* (load-params loc* parameter-registers index->frame-var 0 '())]
                          [rl* (rev-load l* '() '())])
                     `(begin
@@ -60,12 +60,12 @@
                               ,return-address-register
                               ,allocation-pointer-register
                               ,@(map cadr rl*))))]
-                 [_ x]))))
+                 [,x x]))))
 
     (define Body
       (lambda (bd fml*)
         (match bd
-               [('locals (locals* ...) tail)
+               [(locals (,locals* ...) ,tail)
                 (let* ([loads (load-params fml* parameter-registers index->frame-var 0 '())]
                        [rp (unique-name 'rp)]
                        [new-fv* '()]
@@ -79,12 +79,13 @@
     (define build-function (lambda (label body) `(,label (lambda () ,body))))
 
     (match x
-           [('letrec ([label* ('lambda (fml** ...) body*)] ...) body)
+           [(letrec ([,label* (lambda (,fml** ...) ,body*)] ...) ,body)
             (let ([bd* (map Body body* fml**)]
                   [bd (Body body '())])
               `(letrec ,(map build-function label* bd*) ,bd))])))
 
-#|
+#!eof
+
 (impose-calling-conventions
  '(letrec ((f$1 (lambda (a b c)
                   (locals ()
@@ -93,4 +94,3 @@
                             (set! t.9 (+ t.8 7)))))))
     (locals ()
             (+ a 1))))
-|#
