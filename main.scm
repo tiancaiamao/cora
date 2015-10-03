@@ -28,11 +28,11 @@
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
 (load "flatten-set.scm")
+(load "impose-calling-conventions.scm")
 ;(load "liveness-analysis.scm")
 ;(load "assign-registers.scm")
 ;(load "canonicalize-expression.scm")
 ;(load "remove-complex-opera.scm")
-;(load "impose-calling-conventions.scm")
 
 (compiler-passes
  '(
@@ -40,7 +40,6 @@
    ;;   canonicalize-expression
    ;;   convert-closures
 
-   #|
    parse-scheme
    convert-complex-datum
    uncover-assigned
@@ -57,14 +56,14 @@
    specify-representation
    uncover-locals
    remove-let
-   |#
 
    verify-uil
    remove-complex-opera
    flatten-set!
    impose-calling-conventions
+
    #|
-   uncover-frame-conflict
+
    liveness-analysis
    assign-registers
 
