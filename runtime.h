@@ -10,8 +10,26 @@ struct PCB {
   void* FrameRedline;
   void* NextK;
   void* SystemStack;
+  void* StackBase;
 };
-typedef PCB_t struct PCB;
+typedef struct PCB PCB_t;
+
+struct Continuation {
+  /* The field TAG is set to the constant value "continuation_tag". */
+  ikptr_t		tag;
+  /* The field TOP is a raw memory pointer referencing a machine word on
+     the top  freezed frame; such  machine word contains the  address of
+     the  code execution  return point  of this  continuation, in  other
+     words: the address of the next assembly instruction to execute when
+     returning to this continuation. */
+  void*	top;
+  /* The field  SIZE is  the number  of bytes in  all the  freezed stack
+     frames  this continuation  references.  It  is the  sum of  all the
+     freezed frame sizes. */
+  uint64_t size;
+  struct Continuation* next;
+};
+typedef struct Continuation Continuation_t;
 
 /** --------------------------------------------------------------------
  ** Basic object related macros.

@@ -20,12 +20,25 @@ http://marcomaggi.github.io/docs/vicare-scheme.html/objects-refs.html#objects-re
 
 ## 寄存器使用
 
-rax,r11,临时寄存器
-r14,r15,rcx,rdx,rsi,rdi,r8,r9,r10 参数寄存器
-rbx 当前闭包
-r12 当前连续
-rbp 分配位置
-r13 分配限制
+AAR(Accumulator and Arguments count Register)
+
+用于汇编指令结果、函数参数数量、函数返回值、返回值数量。实际映射到EAX。
+
+APR(Allocation Point Register) 
+
+用于scheme的堆的分配指针。实际映射到EBP
+
+CPR(Closure Pointer Register)
+
+用于当前闭包。实际映射到EDI
+
+FPR(Frame Pointer Register)
+
+帧指针寄存器。实际映射到ESP
+
+PCR(Process Control Register)
+
+指向在内存中的PCB结构，实际映射到ESI
 
 入口从C函数进来，加载C的标准库，进入main函数，做一些初始化工作。
 
@@ -68,24 +81,13 @@ Part 2: From Scheme to intermediate language
 
 ## 运行时设计
 
-每个普通frame包含：
+scheme跟C使用不同的栈。运行C代码时，scheme的栈状态保存在PCB结构体中。运行scheme代码时，scheme的栈的状态由FPR以及PCB结构中的一些字段和PC寄存器表示。
 
-* tag
-* retaddr 返回地址
-* oldfp 调用者的frame地址
-* 局部变量和参数
+栈内存段起点是PCB中的StackBase，结束是PCB中的FrameBase。只有栈溢出时，StackBase才会变化，而FrameBase在每次栈溢出或者创建连续对象的时候都会变化。
 
-捕获frame包含：
+函数调用的帧在栈的高位空间，向下增长。4K的分段栈，如果使用达到了FrameRedline，则需要一个新的分段栈，将调用帧放在新栈中。每次进入一个函数时都会检测是否溢出。
 
-* tag
-* retaddr 返回地址
-* oldfp 被suspend的函数的frame地址
-* hook 指向hook
-* nextcfp 用于把捕获frame结构链起来
 
-堆用于通用分配，实际数据都放到堆中。
-
-frame使用的空间由hp和hp_limit决定。两个相同大小的buffer交替使用。当frame溢出后，将当前的buffer中有效的frame回收到另一个frame中。
 
 ## 参考资料
 
