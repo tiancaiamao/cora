@@ -69,3 +69,11 @@ jmp *%r15
 
     (emit-program
      (generate p))))
+
+#!eof
+
+(generate-x86-64
+ '(code (set! rcx r15) (set! rax 24) (set! rax (+ rax 40))
+        (set! rax rax) (jump rp.27)))
+
+(emit-jump 'jmp 'rp.27)

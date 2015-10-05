@@ -67,9 +67,68 @@
             `(,op ,(currying x) ,(currying y))]
            [(,triv ,live* ...)
             (if final? `(,triv) `(,triv ,live* ...))]
+           [(,triv) (guard (uvar? triv))
+            `(,(lookup x env))]
            [,v (guard (uvar? v))
                (lookup x env)]
            [,x x])))
 
 (define finalize-frame-locations (lambda (x) (finalize x '() #f)))
 (define finalize-locations       (lambda (x) (finalize x '() #t)))
+
+(define-who finalize-locations
+  (define Var
+    (lambda (env)
+      (lambda (v)
+        (if (uvar? v) (cdr (assq v env)) v))))
+  (define Triv
+    (lambda (env)
+      (lambda (t)
+        (if (uvar? t) (cdr (assq t env)) t))))
+  (define Pred
+    (lambda (env)
+      (lambda (pr)
+        (match pr
+          [(true) '(true)]
+          [(false) '(false)]
+          [(if ,[test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
+          [(begin ,[(Effect env) -> ef*] ... ,[pr]) `(begin ,ef* ... ,pr)]
+          [(,predop ,[(Triv env) -> x] ,[(Triv env) -> y]) `(,predop ,x ,y)]
+          [,pr (error who "invalid Pred ~s" pr)]))))
+  (define Effect
+    (lambda (env)
+      (lambda (ef)
+        (match ef
+          [(nop) '(nop)]
+          [(set! ,[(Var env) -> x]
+             (,binop ,[(Triv env) -> y] ,[(Triv env) -> z]))
+           `(set! ,x (,binop ,y ,z))]
+          [(set! ,[(Var env) -> x] ,[(Triv env) -> y]) 
+           (if (eq? y x) `(nop) `(set! ,x ,y))]
+					[(mset! ,[(Var env) -> base] ,[(Var env) -> offset] ,[(Var env) -> val])
+						`(mset! ,base ,offset ,val)]
+          [(begin ,[ef] ,[ef*] ...) `(begin ,ef ,ef* ...)]
+          [(if ,[(Pred env) -> test] ,[conseq] ,[altern])
+           `(if ,test ,conseq ,altern)]
+          [(return-point ,rplab ,[(Tail env) -> tail])
+           	`(return-point ,rplab ,tail)]
+          [,ef (error who "invalid Effect ~s" ef)]))))
+  (define Tail
+    (lambda (env)
+      (lambda (tail)
+        (match tail
+          [(begin ,[(Effect env) -> ef*] ... ,[tail]) `(begin ,ef* ... ,tail)]
+          [(if ,[(Pred env) -> test] ,[conseq] ,[altern])
+           `(if ,test ,conseq ,altern)]
+          [(,[(Triv env) -> t]) `(,t)]
+          [,tail (error who "invalid Tail ~s" tail)]))))
+  (define Body
+    (lambda (bd)
+      (match bd
+        [(locate ([,uvar* ,loc*] ...) ,tail) ((Tail (map cons uvar* loc*)) tail)]
+        [,bd (error who "invalid Body ~s" bd)])))
+  (lambda (x)
+    (match x
+      [(letrec ([,label* (lambda () ,[Body -> bd*])] ...) ,[Body -> bd])
+       `(letrec ([,label* (lambda () ,bd*)] ...) ,bd)]
+      [,x (error who "invalid Program ~s" x)])))

@@ -21,18 +21,20 @@
 (load "uncover-locals.scm")
 (load "remove-let.scm")
 (load "verify-uil.scm")
+(load "remove-complex-opera.scm")
+(load "flatten-set.scm")
+(load "impose-calling-conventions.scm")
+
+(load "old.scm")
 
 (load "generate-x86-64.scm")
 (load "flatten-program.scm")
 (load "expose-basic-blocks.scm")
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
-(load "flatten-set.scm")
-(load "impose-calling-conventions.scm")
 ;(load "liveness-analysis.scm")
 ;(load "assign-registers.scm")
 ;(load "canonicalize-expression.scm")
-;(load "remove-complex-opera.scm")
 
 (compiler-passes
  '(
@@ -56,23 +58,23 @@
    specify-representation
    uncover-locals
    remove-let
-
    verify-uil
    remove-complex-opera
    flatten-set!
    impose-calling-conventions
 
-   #|
+   old
 
+   #|
    liveness-analysis
    assign-registers
+   |#
 
    finalize-locations
    expose-frame-var
    expose-basic-blocks
    flatten-program
    generate-x86-64
-   |#
    ))
 
 #!eof
@@ -80,4 +82,5 @@
 (load "main.scm")
 (tracer '#t)
 
-(compile '(if 1 2 (lambda (x) x)))
+(compile '(+ 3 5))
+

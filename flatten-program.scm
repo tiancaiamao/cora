@@ -4,7 +4,7 @@
                   (set! <disp rbp 0) rax)
                   (set! rax (+ rax rax))
                   (set! rax (+ rax (disp rbp 0)))
-                  (r15)))])
+                  (r15))])
   (set! rax 17)
   (f$1))
 =>
@@ -39,9 +39,18 @@
     (define program
       (lambda (x)
         (match x
-               [(letrec ([,label* (lambda () ,tail*)] ...) ,tail-p ...)
-                (let ((tail (map flatten tail-p))
-                      (defn (make-body label* tail*)))
-                  `(code ,@tail ,@defn))])))
+               [(letrec ([,label* (lambda () ,tail*)] ...) ,(flatten -> tail))
+                `(code ,@tail ,@(make-body label* tail*))])))
 
     (program p)))
+
+#!eof
+
+(flatten-program
+ '(letrec ()
+    (begin
+      (set! rcx r15)
+      (set! rax 24)
+      (set! rax (+ rax 40))
+      (set! rax rax)
+      (rp.25))))
