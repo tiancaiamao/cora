@@ -1,12 +1,7 @@
 ;; ---------utils-----------
 (load "match.ss")
 (load "helpers.ss")
-(load "fmts.pretty")
 (load "driver.ss")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; optimization switches
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; global variable automatically set by test-all-analyze,
 ; don't change by hand!
@@ -129,8 +124,6 @@
 
 (define error-handler (lambda args args))
 
-;; --------pass combinator------
-;; (load "nanopass.scm")
 ;; --------passes-----------
 (load "parse-scheme.scm")
 (load "convert-complex-datum.scm")
@@ -140,7 +133,6 @@
 (load "optimize-direct-call.scm")
 (load "remove-anonymous-lambda.scm")
 (load "sanitize-binding-forms.scm")
-;(load "uncover-free.scm")
 (load "convert-closures.scm")
 (load "introduce-procedure-primitives.scm")
 (load "lift-letrec.scm")
@@ -160,9 +152,6 @@
 (load "expose-basic-blocks.scm")
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
-                                        ;(load "liveness-analysis.scm")
-                                        ;(load "assign-registers.scm")
-                                        ;(load "canonicalize-expression.scm")
 
 (define test-all-analyze
   (lambda ()
@@ -202,15 +191,11 @@
                    convert-complex-datum
                    uncover-assigned
                    purify-letrec
-                   ; pre-optimize
                    convert-assignments
                    optimize-direct-call
                    remove-anonymous-lambda
                    sanitize-binding-forms
-                                        ;  uncover-free
                    convert-closures
-                   ;analyze-closure-size ;;;
-                                        ;  optimize-known-call
                    introduce-procedure-primitives
                    lift-letrec
                    normalize-context
@@ -233,70 +218,20 @@
                    finalize-locations
                    expose-frame-var
                    expose-basic-blocks
-               ;    optimize-jumps
                    flatten-program
-                                        ;  analyze-code-size ;;;
-                   generate-x86-64  ;; turn it on only on 64-bit machines
+                   generate-x86-64
                    ))
 
-#|
-(compiler-passes
- '(
-   ;;   expand-syntax
-   ;;   canonicalize-expression
-   ;;   convert-closures
-
-   parse-scheme
-   convert-complex-datum
-   uncover-assigned
-   purify-letrec
-   convert-assignments
-
-   ;; optimize-direct-call
-
-   remove-anonymous-lambda
-   sanitize-binding-forms
-   uncover-free
-   convert-closures
-
-   introduce-procedure-primitives
-   lift-letrec
-   normalize-context
-   specify-representation
-
-   uncover-locals
-   remove-let
-   verify-uil
-
-   remove-complex-opera
-   flatten-set!
-   impose-calling-conventions
-
-   old
-
-   #|
-   liveness-analysis
-   assign-registers
-   |#
-
-   finalize-locations
-   expose-frame-var
-   expose-basic-blocks
-   flatten-program
-   generate-x86-64
-   ))
-|#
-
-(tracer 'generate-x86-64)
+(tracer #t)
 (trusted-passes #t)
+
+#!eof
+
+(load "main.scm")
 
 (test-one
  '(let ((a 3)
         (b 5))
     (set! a 7)
     (* a b)))
-
-#!eof
-
-(load "main.scm")
 
