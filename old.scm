@@ -84,9 +84,7 @@
       [(locals (,uvar* ...)
          (new-frames (,frame** ...) ,tail))
        (let ([ct (map (lambda (x) (cons x '())) uvar*)]
-             [tail^ (if *enable-forward-locations*
-                        (forward-locations tail '())
-                        tail)])
+             [tail^ tail])
          (letv* ([(live* spill* call-live*)
                   (uncover-conflict-helper
                    tail^
@@ -95,7 +93,7 @@
               (new-frames (,frame** ...)
                  (spills ,spill*
                      (frame-conflict ,ct
-                         (call-live ,call-live* 
+                         (call-live ,call-live*
                              ,tail^)))))))])))
 
 
@@ -110,9 +108,7 @@
                   (locate (,home* ...)
                     (frame-conflict ,fv-ct ,tail))))
        (let ([ct (map (lambda (x) (cons x '())) (union local* ulocal*))]
-             [tail^ (if *enable-forward-locations*
-                        (forward-locations tail ulocal*)
-                        tail)])
+             [tail^ tail])
          (let-values ([(live* spill* call-live*)
                        (uncover-conflict-helper
                         tail^

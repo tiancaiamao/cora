@@ -210,44 +210,42 @@
       (lambda (env tail?)
         (lambda (x)
           (match x
-            [(,letr ([,uvar* ,[(optimize env #f) -> val*]] ...)
-               (assigned (,as* ...) ,expr))
-             (guard (memq letr '(let letrec)))
-             (letv* ([(env^ bd^)
-                      (separate (lambda (b) (and (not (memq (car b) as*))
-                                                 (const? (cadr b))))
-                                `([,uvar* ,val*] ...))]
-                     [(expr^) ((optimize (append (list->alist env^) env) #t) expr)])
-                 (let ([val* (map make-quote val*)])
-                   `(,letr ([,uvar* ,val*] ...)
-                      (assigned (,as* ...) ,expr^))))]
-            [(lambda (,x* ...)
-               (assigned (,as* ...) ,[(optimize env #t) -> body]))
-             `(lambda (,x* ...) (assigned (,as* ...) ,body))]
-            [(begin ,[(optimize env #t) -> ef*] ...)
-             `(begin ,ef* ...)]
-            [(if ,[(optimize env #f) -> t]
-                 ,[(optimize env #t) -> c]
-                 ,[(optimize env #t) -> a])
-             (cond
-              [(const? t) (if t c a)]
-              [else `(if ,(make-quote t) ,c ,a)])]
-            [(set! ,x ,[(optimize env #t) -> v])
-             `(set! ,x ,v)]
-            [(quote ,imm)
-             (if tail? (make-quote imm) imm)]
-            [(,f ,x* ...)
-             (let ([ff ((optimize env #f) f)]
-                   [xx* (map (optimize env #f) x*)])
-               (cond
-                [(and (procedure? ff) (andall (map const? xx*)))
-                 (if tail?
-                     (make-quote (apply ff xx*))
-                     (apply ff xx*))]
-                [else (let ([xx* (map make-quote xx*)])
-                        `(,(if (procedure? ff) f ff) ,xx* ...))]))]
-            [,x (let ([val (lookup x env)])
-                  (if tail? (make-quote val) val))]))))
-    (if *enable-pre-optimize*
-        ((optimize env0 #t) x)
-        x)))
+                 [(,letr ([,uvar* ,[(optimize env #f) -> val*]] ...)
+                         (assigned (,as* ...) ,expr))
+                  (guard (memq letr '(let letrec)))
+                  (letv* ([(env^ bd^)
+                           (separate (lambda (b) (and (not (memq (car b) as*))
+                                                      (const? (cadr b))))
+                                     `([,uvar* ,val*] ...))]
+                          [(expr^) ((optimize (append (list->alist env^) env) #t) expr)])
+                         (let ([val* (map make-quote val*)])
+                           `(,letr ([,uvar* ,val*] ...)
+                                   (assigned (,as* ...) ,expr^))))]
+                 [(lambda (,x* ...)
+                    (assigned (,as* ...) ,[(optimize env #t) -> body]))
+                  `(lambda (,x* ...) (assigned (,as* ...) ,body))]
+                 [(begin ,[(optimize env #t) -> ef*] ...)
+                  `(begin ,ef* ...)]
+                 [(if ,[(optimize env #f) -> t]
+                      ,[(optimize env #t) -> c]
+                      ,[(optimize env #t) -> a])
+                  (cond
+                   [(const? t) (if t c a)]
+                   [else `(if ,(make-quote t) ,c ,a)])]
+                 [(set! ,x ,[(optimize env #t) -> v])
+                  `(set! ,x ,v)]
+                 [(quote ,imm)
+                  (if tail? (make-quote imm) imm)]
+                 [(,f ,x* ...)
+                  (let ([ff ((optimize env #f) f)]
+                        [xx* (map (optimize env #f) x*)])
+                    (cond
+                     [(and (procedure? ff) (andall (map const? xx*)))
+                      (if tail?
+                          (make-quote (apply ff xx*))
+                          (apply ff xx*))]
+                     [else (let ([xx* (map make-quote xx*)])
+                             `(,(if (procedure? ff) f ff) ,xx* ...))]))]
+                 [,x (let ([val (lookup x env)])
+                       (if tail? (make-quote val) val))]))))
+    x))

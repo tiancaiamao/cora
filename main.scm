@@ -3,16 +3,6 @@
 (load "helpers.ss")
 (load "driver.ss")
 
-; global variable automatically set by test-all-analyze,
-; don't change by hand!
-(define *enable-analyze* #f)
-
-(define *enable-forward-locations* #f)
-(define *enable-pre-optimize* #f)
-(define *enable-optimize-jumps* #f)
-(define *enable-closure-optimization* #f)
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; new primitive tags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -130,7 +120,6 @@
 (load "uncover-assigned.scm")
 (load "purify-letrec.scm")
 (load "convert-assignments.scm")
-(load "optimize-direct-call.scm")
 (load "remove-anonymous-lambda.scm")
 (load "sanitize-binding-forms.scm")
 (load "convert-closures.scm")
@@ -153,46 +142,12 @@
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
 
-(define test-all-analyze
-  (lambda ()
-    (define bool->word
-      (lambda (x)
-        (if x "Yes" "No")))
-    (fluid-let ([*enable-analyze* #t]
-                [*all-closures* '()]
-                [*all-code-size* '()])
-      (test-all)
-      (printf "\n** Options **
-        forward-locations:     ~a
-        closure optimization:  ~a
-        pre-optimization:      ~a
-        optimize jumps:        ~a\n\n"
-              (bool->word *enable-forward-locations*)
-              (bool->word *enable-closure-optimization*)
-              (bool->word *enable-pre-optimize*)
-              (bool->word *enable-optimize-jumps*))
-      (printf "** closure analysis report **
-       total closures created:  ~a
-       total free var:          ~a
-       average free var:        ~a\n\n"
-              (length *all-closures*)
-              (apply + *all-closures*)
-              (exact->inexact (/ (apply + *all-closures*)
-                                 (length *all-closures*))))
-      (printf "** code length report **
-       total code length:    ~a
-       average code length:  ~a\n"
-              (apply + *all-code-size*)
-              (exact->inexact (/ (apply + *all-code-size*)
-                                 (length *all-code-size*)))))))
-
 (compiler-passes '(
                    parse-scheme
                    convert-complex-datum
                    uncover-assigned
                    purify-letrec
                    convert-assignments
-                   optimize-direct-call
                    remove-anonymous-lambda
                    sanitize-binding-forms
                    convert-closures
