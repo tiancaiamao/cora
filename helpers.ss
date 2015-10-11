@@ -72,7 +72,7 @@
 ;;;
 ;;;   (max-frame-var) returns the current max frame var set up by the system.
 ;;;   (max-frame-var n) sets the max frame var to n
-;;;   
+;;;
 ;;;   fv0, fv1, ..., fvN, where N is (max-frame-var), are all defined
 ;;;   to refer to the proper frame location within the stack, based
 ;;;   at fp, the frame-pointer register.  That is, a reference to fv3 is
