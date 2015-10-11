@@ -1,5 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lift-letrec
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; function: lift letrec to the top
 ; input: A11 grammar in which letrec can appear anywhere
 ; output: similar grammar but letrec only appears at top of program
+
 (define lift-letrec
   (lambda (x)
     (define defs '())

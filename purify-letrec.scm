@@ -1,3 +1,15 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; purify-letrec ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; This pass uses a transformation in between the simpler transformation and
+; the more sophisticated transformation. It classify only two kinds of
+; letrec bindings: those bind lambdas and those bind other expressions. It
+; doesn't separate "simple" and "complex" expressions in order to simplify
+; the pass. Unnecessary assignments for simple expressions will be removed
+; by my optimization pass forward-locations, but neither forward-locations
+; nor optimize-known-call can optimize code produced by mixing lambdas with
+; other expressions in letrec, so I decided to separate lambdas and other
+; expressions.
+
+
 #|
 (letrec ((x e) ...)
   (assigned (x! ...)
@@ -12,74 +24,86 @@
               body)))
 |#
 
-(define-who purify-letrec
-  (define primitives
-    '(+ - * <= < = >= > procedure? boolean? car cdr cons eq? fixnum? make-vector null? pair? set-car! set-cdr! vector? vector-length vector-ref vector-set! void ))
-  (define lambda-expr?
-    (lambda (expr)
-      (match expr
-             [(lambda (,uvar* ...) ,x) #t]
-             [,x #f])))
-  (define simple-expr?
-    (lambda (expr uvar*)
-      (match expr
-             [,uvar (guard (uvar? uvar)) (if (memq uvar uvar*) #f #t)]
-             [(if ,[test] ,[conseq] ,[alt]) (and test conseq alt)]
-             [(quote ,datum) #t]
-             [(begin ,[expr*] ... ,[tail]) (and expr* tail)]
-             [(set! ,x ,[rhs]) (if (memq x uvar*) #f rhs)]
-             [(,prim ,[expr*] ...) (guard (memq prim primitives))  (and expr*)]
-             [(,[expr] ,[rem*] ...) (and expr rem*)]
-             [,x #f])))
-  (define Expr
-    (lambda (expr)
-      (match expr
-             [,uvar (guard (uvar? uvar)) uvar]
-             [(if ,[Expr -> test] ,[Expr -> conseq] ,[Expr -> alt]) `(if ,test ,conseq ,alt)]
-             [(quote ,datum) `(quote ,datum)]
-             [(begin ,[Expr -> expr*] ... ,[Expr -> tail]) `(begin ,expr* ... ,tail)]
-             [(lambda (,uvar* ...)
-                (assigned (,assign* ...)
-                          ,[Expr -> tail])) `(lambda (,uvar* ...)
-                                               (assigned (,assign* ...) ,tail))]
-             [(letrec ([,uvar* ,[Expr -> exp*]] ...)
-                (assigned (,assign* ...)
-                          ,[Expr -> tail]))
-              (let ([all-pure (seperate-lambdas assign* uvar* exp*)])
-                (if (eq? all-pure #t)
-                    `(letrec ([,uvar* ,exp*] ...)
-                       ,(if (null? assign*) `(,tail ...) `(assigned (,assign* ...) ,tail))) ;;;If the list of assigned is null then we dont add it to the output
-                          ;;; Hence I will be dealing with 2 different letrec forms in the output
-                    (let* ([new* (map generate-uvar uvar*)]
-                           [new-set! (map generate-set! new* uvar*)])
-                      `(let ([,uvar* (void)] ...)
-                         (assigned (,uvar* ...)
-                                   (begin
-                                     (let ([,new* ,exp*] ...)
-                                       (assigned ()
-                                                 ,(make-begin new-set!)))
-                                     ,tail))))))]
-             [(let ([,uvar* ,[Expr -> exp*]] ...)
-                (assigned (,assign* ...)
-                          ,[Expr -> tail]))
-              `(let ([,uvar* ,exp*] ...)
-                 (assigned (,assign* ...)
-                           ,tail))]
-             [(set! ,x ,[Expr -> rhs]) `(set! ,x ,rhs) ]
-             [(,prim ,[Expr -> expr*] ...) (guard (memq prim primitives))  `(,prim ,expr* ...)]
-             [(,[Expr -> expr] ,[Expr -> rem*] ...) `(,expr ,rem* ...) ])))
-  (define seperate-lambdas ;;; traverses over the exps bound by letrec to see if they all are pure, if they are then true else false
-    (lambda (assign* uvar* exp*)
-      (cond
-       [(and (null? assign*) (null? uvar*)) #t]
-				;;;Lambda Expression
-       [(and (null? assign*) (lambda-expr? (car exp*))) (seperate-lambdas assign* (cdr uvar*) (cdr exp*))]
-       [else #f])))
-	(define generate-set! 	;;; generates the set! in the inner-let expression
-		(lambda (x y)
-      `(set! ,y ,x)))
-	(define generate-uvar 	;;x.5 will be converted into a new unique also beginning with x
-		(lambda (uvar)
-			(unique-name (string->symbol (extract-root uvar)))))
-	(lambda (x)
-		(Expr x)))
+(define purify-letrec
+  (lambda (x)
+    (define orall
+      (lambda (ls)
+        (cond
+         [(null? ls) #f]
+         [(car ls) #t]
+         [else (orall (cdr ls))])))
+    (define not-simple?
+      (lambda (x* e in-lam?)
+        (match e
+          [(letrec ([,uvar* ,[expr*]] ...) ,[expr])
+           (and (null? (intersection x* uvar*)) (or (orall expr*) expr))]
+          [(let ([,uvar* ,[expr*]] ...) ,[expr])
+           (or (orall expr*) (and (null? (intersection x* uvar*)) expr))]
+          [(lambda (,uvar* ...) ,body)
+           (and (null? (intersection x* uvar*)) (not-simple? x* body #t))]
+          [(assigned (,as* ...) ,[body]) body]
+          [(begin ,[ef*] ...)
+           (orall ef*)]
+          [(if ,[t] ,[c] ,[a])
+           (or t c a)]
+          [(set! ,[x] ,[v])
+           (or x v)]
+          [(quote ,imm) #f]
+          [(,f ,[x*] ...) (guard (prim? f))
+           (orall x*)]
+          [(,[fx*] ...) (or (not in-lam?) (orall fx*))]
+          [,e (memq e x*)])))
+    (define classify
+      (lambda (df* as*)
+        (let ([lhs* (map car df*)])
+          (let loop ([df* df*] [simple* '()] [lambda* '()] [complex* '()])
+            (cond
+             [(null? df*) (values simple* lambda* complex*)]
+             [else
+              (let ([new-bd (cons (caar df*) (purify-letrec (cdar df*)))])
+                (match new-bd
+                  [(,lab (lambda (,u* ...) ,body)) (guard (memq lab as*))
+                   (loop (cdr df*) simple* lambda* (cons new-bd complex*))]
+                  [(,lab (lambda (,u* ...) ,body))
+                   (loop (cdr df*) simple* (cons new-bd lambda*) complex*)]
+                  [(,lab ,e)
+                   (guard (not (not-simple? lhs* e #f)))
+                   (loop (cdr df*) (cons new-bd simple*) lambda* complex*)]
+                  [,new-bd
+                   (loop (cdr df*) simple* lambda* (cons new-bd complex*))]))])))))
+    (match x
+      [(letrec ,df* (assigned (,as* ...) ,[body]))
+       (letv* ([(simple* lambda* complex*) (classify df* as*)])
+         (match complex*
+           [([,x* ,e*] ...)
+            (let* ([tmp* (map (lambda (x) (unique-name 'tmp)) x*)]
+                   [body1 (if (null? complex*)
+                              body
+                              `(begin
+                                 (let ([,tmp* ,e*] ...)
+                                   (assigned () (begin (set! ,x* ,tmp*) ...)))
+                                 ,body))]
+                   [body2 (if (null? lambda*)
+                              body1
+                              `(letrec ,lambda* ,body1))]
+                   [body3 (if (null? complex*)
+                              body2
+                              `(let ([,x* (void)] ...)
+                                 (assigned (,x* ...) ,body2)))])
+              (if (null? simple*)
+                  body3
+                  (let ([as^ (intersection as* (map car simple*))])
+                    `(let ,simple* (assigned ,as^ ,body3)))))]))]
+      [(let ([,uvar* ,[expr*]] ...) (assigned (,as* ...) ,[expr]))
+       `(let ([,uvar* ,expr*] ...) (assigned (,as* ...) ,expr))]
+      [(lambda (,uvar* ...) (assigned (,as* ...) ,[body]))
+       `(lambda (,uvar* ...) (assigned (,as* ...) ,body))]
+      [(begin ,[ef*] ...)
+       `(begin ,ef* ...)]
+      [(if ,[t] ,[c] ,[a])
+       `(if ,t ,c ,a)]
+      [(set! ,x ,[v])
+       `(set! ,x ,v)]
+      [(,[f] ,[x*] ...)
+       `(,f ,x* ...)]
+      [,x x])))

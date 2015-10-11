@@ -22,124 +22,137 @@
 ;;;datum is a constant, pair of datums, or vector of datums; and
 ;;;var is an arbitrary symbol.
 
-(define-who parse-scheme
-  ;;;checks if x is #t #f () or fixnum
-  (define (datum? x)
-    (or (constant? x)
-        (if (pair? x)
-            (and (datum? (car x)) (datum? (cdr x)))
-            (and (vector? x) (andmap datum? (vector->list x))))))
-   ;;; checks if x is a constant
-  (define (constant? x)
-    (or (memq x '(() #t #f))
-        (and (integer? x) (exact? x) (fixnum-range? x))))
-  ;;; primitives and te number of arguments they are supposed to take
-  (define primitives
-    '((+ . 2) (- . 2) (* . 2) (<= . 2) (< . 2) (= . 2)
-      (>= . 2) (> . 2) (boolean? . 1) (car . 1) (cdr . 1)
-      (cons . 2) (eq? . 2) (fixnum? . 1) (make-vector . 1)
-      (null? . 1) (pair? . 1) (procedure? . 1) (set-car! . 2)
-      (set-cdr! . 2) (vector? . 1) (vector-length . 1)
-      (vector-ref . 2) (vector-set! . 3) (void . 0)))
-  ;;; since each occurence of a symbol will be replaced by a uvar identified in our language by symbol.suffix eg x -> x.1
-  ;;; generate returns a tuple of the symbol and the corresponding uvar
-  (define generate
-    (lambda (uvar)
-      `(,uvar . ,(unique-name uvar))))
-  ;;; if x is a datum process it else return error in Datum expression, will be called only when we encounter an expression of the form
-  ;;; (quote ,datum)
-  (define Datum
-    (lambda (x)
-      (match x
-             [,x (guard (datum? x)) x]
-             [,x (error who "error in Datum Expression ~s" x)])))
-  ;;; The adjust function implements the shadowing of variables, if we have (letrec x (lambda (x) (+ 5 x)))
-  ;;; the x in lambda expression will be shadowed by the parameter in the lambda expression and hence the x in letrec epression will no longer be valid here
-  (define adjust
-    (lambda (new-list old-list)
-      (cond
-       [(null? new-list) old-list]
-       [else (let* ([x (caar new-list)] [res (assq x old-list)])
-               (if res (adjust (cdr new-list) (cons (car new-list) (remq res old-list))) (adjust (cdr new-list) (cons (car new-list) old-list))))])))
-  ;;; checks if the list of parameters passed to a lambda or the set of bindings for a let and letrec are unique
-  (define check-unique
-    (lambda (uvar* result* expr)
-      (cond
-       [(null? uvar*) #t]
-       [(memq (car uvar*) result*) (error who "duplicate variables in expression ~s " expr)]
-       [else (check-unique (cdr uvar*) (cons (car uvar*) result*) expr)])))
-  ;;; env is a mapping between symbols and the corresponding uvars applicable to the expression we are now processing
-  (define Expr
-    (lambda (env)
-      (lambda (expr)
-        (match expr
-               [(begin ,[(Expr env) -> expr*] ... ,[(Expr env) -> expr]) (guard (not (assq 'begin env))) `(begin ,expr* ... ,expr)]
-               [(if ,[(Expr env) -> test] ,[(Expr env) -> conseq]) (guard (not (assq 'if env))) `(if ,test ,conseq (void))] ;;; one-armed if's
-               [(if ,[(Expr env) -> test] ,[(Expr env) -> conseq] ,[(Expr env) -> alt]) (guard (not (assq 'if env))) `(if ,test ,conseq ,alt)]
-               [(letrec ([,uvar* ,expr*] ...) ,tail* ...)
-                (guard (not (assq 'letrec env)))
-                (if (null? tail*)
-                    (error who "Tail Expression in ~s must have atleast one value" expr)
-                    (let* ([unique-name (check-unique uvar* '() expr)] ;;; check if all bindings unique
-                           [local-letrec (map generate uvar*)] ;;;create a new-list of symbol to uvar mappings
-                           [new-env (adjust local-letrec env)] ;;; add new-list to the existing env implemening shadowing
-                           [new-exp* (map (Expr new-env) expr*)] ;;;process the exprs passing the new enviornment
-                           [new-tail (map (Expr new-env) tail*)])
-                      `(letrec ([,(map cdr local-letrec) ,new-exp*] ...) 
-                         ,(make-begin new-tail))))]
-               [(let ([,uvar* ,expr*] ...) ,tail* ...)
-                (guard (not (assq 'let env)))
-                (if (null? tail*)
-                    (error who "Tail Expression in ~s must have atleast one value" expr)
-                    (let* ([unique-name (check-unique uvar* '() expr)]
-                           [local-letrec (map generate uvar*)]
-                           [new-env (append local-letrec env)]
-                           [new-exp* (map (Expr env) expr*)]
-                           [new-tail (map (Expr new-env) tail*)])
-                      `(let ([,(map cdr local-letrec) ,new-exp*] ...) 
-                         ,(make-begin new-tail))))]
-               [(lambda (,uvar* ...) ,tail* ...)
-                (guard (not (assq 'lambda env)))
-                (if (null? tail*)
-                    (error who "Tail Expression in ~s must have atleast one value" expr)
-                    (let* ([unique (check-unique uvar* '() expr)]
-                           [local-bindings* (map generate uvar*)]
-                           [new-env (adjust local-bindings* env)]
-                           [new-tail (map (Expr new-env) tail*)]) ;;; Everytime I encounter a lambda-expression, I create a new enviornment
-                      `(lambda (,(map cdr local-bindings*) ...) ,(make-begin new-tail))))]
-               [(and ,x* ...)
-                (guard (not (assq 'and env)))
-                (cond 
-                 [(null? x*) (quote #t)]
-                 [(= (length x*) 1) ((Expr env) (car x*))]
-                 [else `(if ,((Expr env) (car x*)) ,((Expr env) `(and ,(cdr x*) ...)) (quote #f))])]
-               [(or ,x* ...)
-                (guard (not (assq 'or env)))
-                (cond
-                 [(null? x*) (quote #f)]
-                 [(= (length x*) 1) ((Expr env) (car x*))]
-                 [else
-                  (let ([temp (unique-name 't)])
-                    `(let ([,temp ,((Expr env) (car x*))])
-                       (if ,temp ,temp ,((Expr env) `(or ,(cdr x*) ...)))))])]
-               [(not ,[(Expr env) -> x]) (guard (not (assq 'not env)))
-                `(if ,x (quote #f) (quote #t))]
-               [(set! ,x ,y)
-                (guard (not (assq 'set! env)))
-                (cond
-                 [(and (symbol? x) (assq x env)) `(set! ,(cdr (assq x env)) ,((Expr env) y))]
-                 [else (error who "Either ~s is not a symbol or ~s is not bound" x x)])]
-               [(quote ,[Datum -> x]) (guard (not (assq 'quote env))) `(quote ,x)]
-               [(,prim ,[(Expr env) -> x*] ...) (guard (and (assq prim primitives) (not (assq prim env))))
-                (if (= (length x*) (cdr (assq prim primitives))) 
-                    `(,prim ,x* ...)
-                    (error who "Invalid arguments to primitive ~s " prim))]
-               [,x (guard (symbol? x)) 
-                   (cond
-                    [(assq x env) (cdr (assq x env))]
-                    [else (error who "unbound variable ~s " x)])] ;;maybe we will need to replace the uvar by a new expression e.g y will be replaced by y.1
-               [,x (guard (constant? x)) `(quote ,x)]
-               [(,[(Expr env) -> x] ,[(Expr env) -> x*] ...) `(,x ,x* ...)]
-               [,x (error who "Invalid Expression ~s" x)]))))
-	(lambda (x)
-		((Expr '()) x)))
+(define parse-scheme
+  (lambda (x)
+    (define env0
+      '([+              .  (+              2)]
+        [-              .  (-              2)]
+        [*              .  (*              2)]
+        [logand         .  (logand         2)]
+        [logor          .  (logor          2)]
+        [sra            .  (sra            2)]
+
+        [=              .  (=              2)]
+        [<              .  (<              2)]
+        [>              .  (>              2)]
+        [<=             .  (<=             2)]
+        [>=             .  (>=             2)]
+
+        [boolean?       .  (boolean?       1)]
+        [eq?            .  (eq?            2)]
+        [fixnum?        .  (fixnum?        1)]
+        [null?          .  (null?          1)]
+        [pair?          .  (pair?          1)]
+        [box?           .  (box?           1)]
+        [vector?        .  (vector?        1)]
+        [procedure?     .  (procedure?     1)]
+
+        [cons           .  (cons           2)]
+        [car            .  (car            1)]
+        [cdr            .  (cdr            1)]
+        [set-car!       .  (set-car!       2)]
+        [set-cdr!       .  (set-cdr!       2)]
+
+        [box            .  (box            1)]
+        [unbox          .  (unbox          1)]
+        [set-box!       .  (set-box!       2)]
+
+        [make-vector    .  (make-vector    1)]
+        [vector-length  .  (vector-length  1)]
+        [vector-ref     .  (vector-ref     2)]
+        [vector-set!    .  (vector-set!    3)]
+        [void           .  (void           0)]))
+
+    (define get-name cadr)
+    (define get-argn caddr)
+    (define unique-check
+      (lambda (ls)
+        (cond
+         [(null? ls) '()]
+         [(not (symbol? (car ls)))
+          (error 'parse-scheme "parameter must be a symbol, but got ~a" (car ls))]
+         [(memq (car ls) (cdr ls))
+          (error 'parse-scheme "duplicated parameter ~a" (car ls))]
+         [else (cons (car ls) (unique-check (cdr ls)))])))
+    (define parse
+      (lambda (env)
+        (lambda (x)
+          (match x
+            [,x (guard (number? x))
+             (if (and (exact? x) (fixnum-range? x))
+                 `(quote ,x)
+                 (error 'parse-scheme "not an exact number or out of range ~a" x))]
+            [,x (guard (or (boolean? x) (null? x)))
+             `(quote ,x)]
+            [,x (guard (symbol? x))
+             (cond
+              [(assq x env) => cadr]
+              [else (error 'parse-scheme "unbound variable ~a" x)])]
+            [#(,[x*] ...)
+             `(quote #(,x* ...))]
+            [(,f ,x* ...) (guard (assq f env))
+             (let ([p (assq f env)])
+               (if (and (get-argn p) (not (= (length x*) (get-argn p))))
+                   (error 'parse-scheme
+                          "procedure ~a expects ~a arguments, but got ~a"
+                          f (get-argn p) (length x*))
+                   (map (parse env) `(,f ,x* ...))))]
+            [(if ,[t] ,[c])
+             `(if ,t ,c (void))]
+            [(if ,[t] ,[c] ,[a])
+             `(if ,t ,c ,a)]
+            [(and ,x* ...)
+             (cond
+              [(null? x*) #t]
+              [(null? (cdr x*)) ((parse env) (car x*))]
+              [else `(if ,((parse env) (car x*))
+                         ,((parse env) `(and ,@(cdr x*)))
+                         '#f)])]
+            [(or ,x* ...)
+             (cond
+              [(null? x*) #f]
+              [(null? (cdr x*)) ((parse env) (car x*))]
+              [else
+               (let ([tmp (unique-name 'tmp)])
+                 `(let ([,tmp ,((parse env) (car x*))])
+                    (if ,tmp ,tmp ,((parse env) `(or ,@(cdr x*))))))])]
+            [(not ,[x])
+             `(if ,x '#f '#t)]
+            [(begin ,[ef*] ...)
+             (cond
+              [(null? ef*)
+               (error 'parse-scheme "body of begin cannot be empty")]
+              [else `(begin ,ef* ...)])]
+            [(lambda (,u* ...) ,e1 ,e2* ...)
+             (let* ([w* (map unique-name (unique-check u*))]
+                    [new-bd* (map (lambda (x y) `(,x . (,y #f))) u* w*)]
+                    [body (if (null? e2*) e1 `(begin ,e1 ,e2* ...))]
+                    [e^ ((parse (append new-bd* env)) body)])
+               `(lambda (,w* ...) ,e^))]
+            [(,let/rec ([,u* ,e*] ...) ,e1 ,e2* ...)
+             (guard (memq let/rec '(letrec let)))
+             (let* ([w* (map unique-name (unique-check u*))]
+                    [new-bd* (map (lambda (x y z)
+                                    (match z
+                                      [(lambda (,x* ...) ,e1 ,e2 ...)
+                                       `(,x . (,y ,(length x*)))]
+                                      [,z `(,x . (,y #f))]))
+                                  u* w* e*)]
+                    [new-env* (append new-bd* env)]
+                    [body (if (null? e2*) e1 `(begin ,e1 ,e2* ...))]
+                    [e*^ (if (eq? let/rec 'let)
+                             (map (parse env) e*)
+                             (map (parse new-env*) e*))]
+                    [body^ ((parse new-env*) body)])
+               `(,let/rec ([,w* ,e*^] ...) ,body^))]
+            [(set! ,x ,[v])
+             (cond
+              [(not (symbol? x))
+               (error 'parse-scheme "can only assign to variables, but got ~a" x)]
+              [(assq x env) => (lambda (p) `(set! ,(cadr p) ,v))]
+              [else (error 'parse-scheme "unbound variable ~a" x)])]
+            [(quote ,imm) `(quote ,imm)]
+            [(,[f] ,[x*] ...)
+             `(,f ,x* ...)]
+            [,x (error 'parse-scheme "illegal program ~a" x)]))))
+    ((parse env0) x)))

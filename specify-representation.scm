@@ -1,3 +1,7 @@
+;;;;;;;;;;;;;;;;;;;;; specify-representation ;;;;;;;;;;;;;;;;;;;;;
+
+;; box, unbox and set-box! added
+
 #|
 (* e1 e2) => (* e1 (sra e2 3))
 (car e) => (mref e offset-car)
@@ -24,171 +28,158 @@
 
 (eq? e1 e2) => (= e1 e2)
 |#
-(define-who specify-representation
-	;;; Handles operators that we encounter in <Value> context
-	(define handle-operator
-		(lambda (rator rand*)
-			(cond
-				[(eq? rator 'cons) 
-					(let ([first (unique-name 't)] [second (unique-name 't)] [third (unique-name 't)])
-						`(let ([,first ,(car rand*)] [,second ,(cadr rand*)])
-							(let ([,third (+ (alloc ,size-pair) ,tag-pair)])
-								(begin
-									(mset! ,third ,(- disp-car tag-pair) ,first)
-									(mset! ,third ,(- disp-cdr tag-pair) ,second)
-									,third))))]
-				;;; The - expression is necessary below because when we create a pair we tag it and hence the pointer gets displaced by a value
-				;;; given by tag-pair, all we do is subbtract it to get the real value of the pointer
-				[(eq? rator 'car)
-					`(mref ,(car rand*) ,(- disp-car tag-pair))]
-				[(eq? rator 'cdr)
-					`(mref ,(car rand*) ,(- disp-cdr tag-pair))]
-				;; The arguments to a make-vector can either be a variable or constant and hence the if statemnt is neccessary
-				[(eq? rator 'make-vector)
-					(let ([size-var (unique-name 't)] [size (car rand*)])
-						(if (integer? size)
-							`(let ([,size-var (+ (alloc ,(+ disp-vector-data size)) ,tag-vector)])
-									(begin
-										(mset! ,size-var ,(- disp-vector-length tag-vector) ,size)
-										,size-var))
-							`(let ([,size-var (+ (alloc (+ ,disp-vector-data ,size)) ,tag-vector)])
-									(begin
-										(mset! ,size-var ,(- disp-vector-length tag-vector) ,size)
-										,size-var))
-						))]
-				;;; a make-procedure expression looks like (make-procedure label num-args)
-				;;; size is specified by the number of args and the func-name is given by func
-				;;; I have used the same code used by make-vvector with the few changes I mentioned above
-				;;; I should be reporting an error in-case the number-of-args is a variable
-				;;; but I am not currently doing so							
-				[(eq? rator 'make-procedure)
-					(let ([size-var (unique-name 't)] [size (cadr rand*)] [func (car rand*)])
-						(if (integer? size)
-							`(let ([,size-var (+ (alloc ,(+ disp-procedure-data size)) ,tag-procedure)])
-									(begin
-										(mset! ,size-var ,(- disp-procedure-code tag-procedure) ,func)
-										,size-var))
-							`(let ([,size-var (+ (alloc (+ ,disp-procedure-data ,size)) ,tag-procedure)])
-									(begin
-										(mset! ,size-var ,(- disp-procedure-code tag-procedure) ,func)
-										,size-var))
-						))]
-				[(eq? rator 'vector-length)
-					`(mref ,(car rand*) ,(- disp-vector-length tag-vector))]
-				;;; similar to vector-length
-				[(eq? rator 'procedure-code)
-					`(mref ,(car rand*) ,(- disp-procedure-code tag-procedure))]
-				[(eq? rator 'vector-ref)
-					(let ([value (cadr rand*)])
-						(if (integer? value) 
-								`(mref ,(car rand*) ,(+ (- disp-vector-data tag-vector) value))
-								`(mref ,(car rand*) (+ ,(- disp-vector-data tag-vector) ,value))))]
-				;;; similar to vector-ref
-				[(eq? rator 'procedure-ref)
-					(let ([value (cadr rand*)])
-						(if (integer? value) 
-								`(mref ,(car rand*) ,(+ (- disp-procedure-data tag-procedure) value))
-								`(mref ,(car rand*) (+ ,(- disp-procedure-data tag-procedure) ,value))))]
-				[(or (eq? rator '+) (eq? rator '-)) `(,rator ,@rand*)])))
-	;;; handles operators that can be encountered in <Effect> context
-	;;; since we are using set-car! we need to convert that to mset!
-	(define handle-effect-ops
-		(lambda (rator rand*)
-			(cond
-				[(eq? rator 'set-car!) `(mset! ,(car rand*) ,(- disp-car tag-pair) ,(cadr rand*))]
-				[(eq? rator 'set-cdr!) `(mset! ,(car rand*) ,(- disp-cdr tag-pair) ,(cadr rand*))]
-				[(eq? rator 'vector-set!)
-					(let ([value (cadr rand*)])
-						(if (integer? value) 
-								`(mset! ,(car rand*) ,(+ (- disp-vector-data tag-vector) value) ,(caddr rand*))
-				 				`(mset! ,(car rand*) (+ ,(- disp-vector-data tag-vector) ,value) ,(caddr rand*))))]
-			 ;;; similar to vector-set!
-			  [(eq? rator 'procedure-set!)
-					(let ([value (cadr rand*)])
-						(if (integer? value) 
-								`(mset! ,(car rand*) ,(+ (- disp-procedure-data tag-procedure) value) ,(caddr rand*))
-				 				`(mset! ,(car rand*) (+ ,(- disp-procedure-data tag-procedure) ,value) ,(caddr rand*))))])))
-	;;; Handles operators that we can encounter in <Effect> context
-	(define handle-pred-op
-		(lambda (rator rand*)
-			(cond 
-				[(memq rator '(> < = <= >= )) `(,rator ,@rand*)]
-				[(eq? rator 'eq?) `(= ,@rand*)] ;;; eq can be converted to = operator in scheme
-				;;; For all other primitives we unmask the values and check if the tag matches the particular data-type
-				;;; we are checking for 
-				[(eq? rator 'boolean?)
-					`(= (logand ,(car rand*) ,mask-boolean) ,tag-boolean)]
-				[(eq? rator 'vector?)
-					`(= (logand ,(car rand*) ,mask-vector) ,tag-vector)]
-				[(eq? rator 'fixnum?)
-					`(= (logand ,(car rand*) ,mask-fixnum) ,tag-fixnum)]
-				[(eq? rator 'null?)
-					(Pred `(eq? ,(car rand*) '()))]
-				[(eq? rator 'pair?)
-					`(= (logand ,(car rand*) ,mask-pair) ,tag-pair)]
-				[(eq? rator 'procedure?)
-					`(= (logand ,(car rand*) ,mask-procedure) ,tag-procedure)])))
-	(define val-primitive?
-		(lambda (x)
-			(memq x '(+ - car cdr cons make-vector vector-length vector-ref procedure-ref procedure-code make-procedure))))
-	(define effect-primitive?
-		(lambda (x)
-			(memq x '(set-car! set-cdr! vector-set! procedure-set!))))
-	(define predicate-primitive?
-		(lambda (x)
-			(memq x '(<= < > = >= boolean? eq? fixnum? null? pair? vector? procedure?))))
-	(define Value
-		(lambda (val)
-			(match val
-				[,x (guard (or (label? x) (uvar? x) (integer? x))) x]
-				[(quote ,[Immediate -> imm]) imm]
-				[(mref ,x ,y) val]
-				[(if ,[Pred -> test] ,[Value -> conseq] ,[Value -> alt]) `(if ,test ,conseq ,alt)]
-				[(begin ,[Effect -> ef*] ... ,[Value -> ef]) `(begin ,ef* ... ,ef)]
-				[(let ([,uvar* ,[Value -> value*]] ...) ,[Value -> tail]) 
-					`(let ([,uvar* ,value*] ...) ,tail)]
-				[(void) $void] ;;In case void is encountered return its value
-				;;; Multiplication I have handled using a different case as we dont need to shift both the operands by 8 everytime
-				[(* ,[Value -> a] ,[Value -> b])
-					(cond
-						[(and (integer? a) (integer? b)) `(* ,(sra a shift-fixnum) ,b)]
-						[(integer? a) `(* ,b ,(sra a shift-fixnum))]
-						[(integer? b) `(* ,a ,(sra b shift-fixnum))]
-						[else `(* ,a (sra ,b ,shift-fixnum))])]
-				[(,value-prim ,[Value -> val*] ...) (guard (val-primitive? value-prim)) 
-					(handle-operator value-prim val*)]
-				[(,[Value -> val] ,[Value -> val*] ...) `(,val ,val* ...)])))
-	(define Effect
-		(lambda (ef)
-			(match ef
-				[(nop) '(nop)]
-				[(if ,[Pred -> test] ,[Effect -> conseq] ,[Effect -> alt]) `(if ,test ,conseq ,alt)]
-				[(begin ,[Effect -> ef*] ... ,[Effect -> ef]) `(begin ,ef* ... ,ef)]
-				[(let ([,uvar* ,[Value -> value*]] ...) ,[Effect -> tail]) 
-					`(let ([,uvar* ,value*] ...) ,tail)]
-				[(,effect-prim ,[Value -> val*] ...) (guard (effect-primitive? effect-prim)) 
-				 	(handle-effect-ops effect-prim val*)]
-				[(,[Value -> val] ,[Value -> val*] ...) `(,val ,val* ...)])))
-	;; Function for Immediate Primitives, we have well-defined values for #t,#f and '()
-	;; For integers we shift the value by 3 bits (since we use the lower 3 bits as tag)
-	(define Immediate
-		(lambda (im)
-			(match im
-				[#t $true]
-				[#f $false]
-				[() $nil]
-				[,t (guard (integer? t)) (ash t shift-fixnum)])))
-	(define Pred
-		(lambda (pred)
-			(match pred
-				[(true) '(true)]
-				[(false) '(false)]
-				[(if ,[Pred -> test] ,[Pred -> conseq] ,[Pred -> alt]) `(if ,test ,conseq ,alt)]
-				[(begin ,[Effect -> ef*] ... ,[Pred -> ef]) `(begin ,ef* ... ,ef) ]
-				[(let ([,uvar* ,[Value -> value*]] ...) ,[Pred -> tail]) `(let ([,uvar* ,value*] ...) ,tail)  ]
-				[(,pred-prim ,[Value -> val*] ...) (guard (predicate-primitive? pred-prim)) (handle-pred-op pred-prim val*)])))
-	(lambda (prog)
-		(match prog
-			[(letrec ([,label* (lambda (,uvar* ...) ,[Value -> val*])] ...) ,[Value -> tail]) 
-				`(letrec ([,label* (lambda (,uvar* ...) ,val*)] ...) ,tail)]
-			[,x (error who "invalid program ~s" x)])))
+(define specify-representation
+  (lambda (x)
+    (define trivial?
+      (lambda (x)
+        (or (number? x) (memq x (list $false $true $nil $void)))))
+    (match x
+      ; basic grammar structures
+      [(letrec ([,label (lambda (,uvar* ...) ,[body*])] ...) ,[body])
+       `(letrec ([,label (lambda (,uvar* ...) ,body*)] ...) ,body)]
+      [(if ,[test] ,[conseq] ,[alt])
+       `(if ,test ,conseq ,alt)]
+      [(begin ,[ef*] ...)
+       `(begin ,ef* ...)]
+      [(let ([,x* ,[v*]] ...) ,[body])
+       `(let ([,x* ,v*] ...) ,body)]
+
+      ; type and equivalence predicates
+      [(eq? ,[x] ,[y]) `(= ,x ,y)]
+      [(null? ,[e])
+       (specify-representation `(eq? ,e '()))]
+      [(pair? ,[e])
+       `(= (logand ,e ,mask-pair) ,tag-pair)]
+      [(box? ,[e])
+       `(= (logand ,e ,mask-box) ,tag-box)]
+      [(boolean? ,[e])
+       `(= (logand ,e ,mask-boolean) ,tag-boolean)]
+      [(fixnum? ,[e])
+       `(= (logand ,e ,mask-fixnum) ,tag-fixnum)]
+      [(vector? ,[e])
+       `(= (logand ,e ,mask-vector) ,tag-vector)]
+      [(procedure? ,[e])
+       `(= (logand ,e ,mask-procedure) ,tag-procedure)]
+
+      ; numbers
+      [(,op ,[m] ,[n]) (guard (memq op '(+ - < <= >= > =)))
+       `(,op ,m ,n)]
+      [(* ,[m] ,[n])
+       (cond
+        [(number? m) `(* ,(sra m shift-fixnum) ,n)]
+        [(number? n) `(* ,(sra n shift-fixnum) ,m)]
+        [else `(* (sra ,m ,shift-fixnum) ,n)])]
+
+      ; pairs
+      [(cons ,[e1] ,[e2])
+       (let* ([offset-car (- disp-car tag-pair)]
+              [offset-cdr (- disp-cdr tag-pair)]
+              [tmp (unique-name 't)]
+              [tmp-car (if (trivial? e1) e1 (unique-name 't))]
+              [tmp-cdr (if (trivial? e2) e2 (unique-name 't))]
+              [bd-car (if (trivial? e1) `() `((,tmp-car ,e1)))]
+              [bd-cdr (if (trivial? e2) `() `((,tmp-cdr ,e2)))]
+              [body1 `(let ([,tmp (+ (alloc ,size-pair) ,tag-pair)])
+                        (begin
+                          (mset! ,tmp ,offset-car ,tmp-car)
+                          (mset! ,tmp ,offset-cdr ,tmp-cdr)
+                          ,tmp))])
+         (if (or (not (null? bd-car)) (not (null? bd-cdr)))
+             `(let (,@bd-car ,@bd-cdr) ,body1)
+             body1))]
+      [(set-car! ,[e1] ,[e2])
+       (let ([offset-car (- disp-car tag-pair)])
+         `(mset! ,e1 ,offset-car ,e2))]
+      [(set-cdr! ,[e1] ,[e2])
+       (let ([offset-cdr (- disp-cdr tag-pair)])
+         `(mset! ,e1 ,offset-cdr ,e2))]
+      [(car ,[e])
+       (let ([offset-car (- disp-car tag-pair)])
+         `(mref ,e ,offset-car))]
+      [(cdr ,[e])
+       (let ([offset-cdr (- disp-cdr tag-pair)])
+         `(mref ,e ,offset-cdr))]
+
+      ; boxes
+      [(box ,[e])
+       (let* ([offset-box (- tag-box)]
+              [tmp (unique-name 't)]
+              [tmp-e (if (trivial? e) e (unique-name 't))]
+              [bd-e (if (trivial? e) `() `((,tmp-e ,e)))]
+              [body1 `(let ([,tmp (+ (alloc ,size-box) ,tag-box)])
+                        (begin
+                          (mset! ,tmp ,offset-box ,tmp-e)
+                          ,tmp))])
+         (if (null? bd-e) body1 `(let (,@bd-e) ,body1)))]
+      [(set-box! ,[e1] ,[e2])
+       (let ([offset-box (- tag-box)])
+         `(mset! ,e1 ,offset-box ,e2))]
+      [(unbox ,[e])
+       (let ([offset-box (- tag-box)])
+         `(mref ,e ,offset-box))]
+
+      ; vectors
+      [(make-vector ,[k])
+       (let ([offset-vector-length (- disp-vector-length tag-vector)]
+             [tmp (unique-name 't)])
+         (cond
+          [(number? k)
+           `(let ([,tmp (+ (alloc ,(+ disp-vector-data k)) ,tag-vector)])
+              (begin
+                (mset! ,tmp ,offset-vector-length ,k)
+                ,tmp))]
+          [else
+           (let ([tmp1 (unique-name 't)]
+                 [tmp2 (unique-name 't)])
+             `(let ([,tmp1 ,k])
+                (let ([,tmp2 (+ (alloc (+ ,disp-vector-data ,tmp1)) ,tag-vector)])
+                  (begin
+                    (mset! ,tmp2 ,offset-vector-length ,tmp1)
+                    ,tmp2))))]))]
+      [(vector-set! ,[e1] ,[e2] ,[e3])
+       (let ([offset-vector-data (- disp-vector-data tag-vector)])
+         (cond
+          [(number? e2)
+           `(mset! ,e1 ,(+ offset-vector-data e2) ,e3)]
+          [else
+           `(mset! ,e1 (+ ,offset-vector-data ,e2) ,e3)]))]
+      [(vector-ref ,[e1] ,[e2])
+       (let ([offset-vector-data (- disp-vector-data tag-vector)])
+         (cond
+          [(number? e2)
+           `(mref ,e1 ,(+ offset-vector-data e2))]
+          [else
+           `(mref ,e1 (+ ,offset-vector-data ,e2))]))]
+      [(vector-length ,[e1])
+       (let ([offset-vector-length (- disp-vector-length tag-vector)])
+         `(mref ,e1 ,offset-vector-length))]
+
+      ; procedre
+      [(make-procedure ,label ,[n])
+       (let ([offset-procedure-code (- disp-procedure-code tag-procedure)]
+             [tmp (unique-name 't)])
+         `(let ([,tmp (+ (alloc ,(+ disp-procedure-data n)) ,tag-procedure)])
+            (begin
+              (mset! ,tmp ,offset-procedure-code ,label)
+              ,tmp)))]
+      [(procedure-set! ,[e1] ,[e2] ,[e3])
+       (let ([offset-procedure-data (- disp-procedure-data tag-procedure)])
+         `(mset! ,e1 ,(+ offset-procedure-data e2) ,e3))]
+      [(procedure-code ,[e])
+       (let ([offset-procedure-code (- disp-procedure-code tag-procedure)])
+         `(mref ,e ,offset-procedure-code))]
+      [(procedure-ref ,[e1] ,[e2])
+       (let ([offset-procedure-data (- disp-procedure-data tag-procedure)])
+         `(mref ,e1 ,(+ offset-procedure-data e2)))]
+
+      ; immediates
+      [(quote ,n) (guard (number? n))
+       (ash n shift-fixnum)]
+      [(quote #f) $false]
+      [(quote #t) $true]
+      [(quote ()) $nil]
+      [(void) $void]
+
+      ; procedure calls goes last because it could match other cases
+      [(,[f] ,[x*] ...) `(,f ,x* ...)]
+      [,x x])))

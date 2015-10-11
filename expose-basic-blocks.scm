@@ -29,61 +29,6 @@
 
 (define expose-basic-blocks
   (lambda (p)
-
-    (define functions '())
-    (define build-function
-      (lambda (label body)
-        `(,label (lambda () ,body))))
-    (define add-function
-      (lambda (label body)
-        (set! functions (cons (build-function label body) functions))))
-
-    (define program
-      (lambda (x)
-        (match x
-               [(letrec ([,label* (lambda () ,body*)] ...) ,tail)
-                (let ((body1 (map expose body*))
-                      (tail1 (expose tail)))
-                  (for-each add-function label* body1)
-                  `(letrec (,@functions) ,tail1))])))
-
-    (define expose
-      (lambda (x)
-        (match x
-               [(begin ,es* ...) (make-begin (map expose es*))]
-               [(,triv) x]
-               [(set! ,loc ,triv) x]
-               [(if ,test ,then ,else)
-                (let ((Lthen (unique-label 't))
-                      (Lelse (unique-label 'e)))
-                  (let ((then1 (expose then))
-                        (else1 (expose else)))
-                    (add-function Lthen then1)
-                    (add-function Lelse else1)
-                    (pred test Lthen Lelse)))]
-               [,x x])))
-
-    (define pred
-      (lambda (p true-label false-label)
-        (match p
-               [(true) `(,true-label)]
-               [(false) `(,false-label)]
-               [(begin es* ...) (map expose es*)]
-               [(if ,a ,b ,c)
-                (let ((Lb (unique-label 't))
-                      (Lc (unique-label 'e))
-                      (b1 (pred b true-label false-label))
-                      (c1 (pred c true-label false-label)))
-                  (add-function Lb b1)
-                  (add-function Lc c1)
-                  (pred a Lb Lc))]
-               [(,op ,v1 ,v2) `(if ,p (,true-label) (,false-label))])))
-
-    (program p)))
-
-(define expose-basic-blocks
-  (lambda (p)
-    (define id (lambda (x) x))
     (define new-def* '())
     (define add-def
       (lambda (def)

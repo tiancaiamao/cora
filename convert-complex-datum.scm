@@ -1,3 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;; convert-complex-datum ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; This pass converts vector and pair constants and lift them out to the top
+; of the program, making them global variables. The heart of the pass is
+; convert-const, it converts a single quoted form into a binding which is
+; then pushed onto the mutable list constants. It then outputs the
+; temporary which represents the constant to its original context. Finally
+; after all constants are converted, the bindings are wrapped around the
+; whole program, making them global.
+
 ;; '(1 (2 (3 4 5)))
 ;; =>
 ;; (cons '1 (cons (cons '2 (cons (cons '3 (cons '4 (cons '5 '()))) '())) '()))

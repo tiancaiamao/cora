@@ -1,3 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;; sanitize-binding-forms ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; separate bindings in lets. make the lambdas be bound by a letrec and
+;; others by a let.
+
 #|
 (let ([x.4 '0] [f.2 (lambda (x.1) x.1)] [y.3 '1])
   (+ x.4 (f.2 y.3)))
@@ -5,6 +10,7 @@
 (letrec ([f.2 (lambda (x.1) x.1)])
   (let ([y.3 '1] [x.4 '0]) (+ x.4 (f.2 y.3))))
 |#
+
 (define sanitize-binding-forms
   (lambda (x)
     (define sanitize

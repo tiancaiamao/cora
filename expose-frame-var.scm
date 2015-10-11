@@ -1,3 +1,9 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Pass: expose-frame-var
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; This pass turns fv0, fv1, ... into displacement forms. It also adjusts
+; frame var numbers by tracking the changes to frame-pointer-register.
 #|
 (letrec ([f$1 (lambda ()
                 (begin
@@ -21,32 +27,46 @@
 |#
 (define expose-frame-var
   (lambda (p)
-
+    (define fp-offset 0)
+    (define m@p
+      (lambda (f ls)
+        (cond
+         [(null? ls) '()]
+         [else
+          (let ((first (f (car ls))))
+            (cons first (m@p f (cdr ls))))])))
     (define expose
       (lambda (p)
         (match p
-               [(begin ,stmt* ...)
-                `(begin ,@(map expose stmt*))]
-               [(set! ,p (,op ,a ,b))
-                `(set! ,(expose p) (,op ,(expose a) ,(expose b)))]
-               [(set! ,var ,val)
-                `(set! ,(expose var) ,(expose val))]
-               [,x (guard (frame-var? x))
-                   `(disp ,frame-pointer-register ,(* 8 (frame-var->index p)))]
-               [,var var])))
-
-    (define map-label-to-def
-      (lambda (label* body*)
-        (map (lambda (label body)
-               `(,label (lambda () ,(expose body))))
-             label* body*)))
-
-    (define program
-      (lambda (x)
-        (match x
-               [(letrec ([,label* (lambda () ,tail*)] ...) ,tail-p ...)
-                (let ((output (map-label-to-def label* tail*))
-                      (ev-tail (map expose tail-p)))
-                  `(letrec ,output ,@ev-tail))])))
-
-    (program p)))
+          [(letrec ([,label* (lambda () ,tail*)] ...) ,tail)
+           (let ([saved fp-offset])
+             `(letrec ([,label* (lambda () ,(begin (set! fp-offset saved)
+                                                   (expose tail*)))] ...)
+                ,(begin (set! fp-offset saved) (expose tail))))]
+          [(begin ,ef* ... ,tail)
+           `(begin ,@(m@p expose `(,ef* ... ,tail)))]
+          [(if ,test ,conseq ,alt)
+           (let* ([test^ (expose test)]
+                  [saved fp-offset]
+                  [conseq^ (begin (set! fp-offset saved) (expose conseq))]
+                  [alt^ (begin (set! fp-offset saved) (expose alt))])
+             `(if ,test^ ,conseq^ ,alt^))]
+          [(set! ,var (,op ,triv1 ,triv2))
+           (guard (eq? var frame-pointer-register))
+           (set! fp-offset ((eval op) fp-offset triv2))
+           `(set! ,var (,op ,triv1 ,triv2))]
+          [(set! ,[var] (,op/mref ,[triv1] ,[triv2]))
+           `(set! ,var (,op/mref ,triv1 ,triv2))]
+          [(set! ,[var] ,[triv])
+           `(set! ,var ,triv)]
+          [(mset! ,base ,off ,val)
+           `(mset! ,base ,off ,val)]
+          [(return-point ,label ,[tail])
+           `(return-point ,label ,tail)]
+          [(,[triv] ,[triv*] ...) `(,triv ,triv* ...)]
+          [,v (guard (frame-var? v))
+              (make-disp-opnd frame-pointer-register
+                              (- (fxsll (frame-var->index v) align-shift)
+                                 fp-offset))]
+          [,p p])))
+    (expose p)))

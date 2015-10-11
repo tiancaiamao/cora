@@ -1,3 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;; remove-anonymous-lambda ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; transform lambdas which are not on the RHS of let and letrec into
+;; letrec's.
+
 #|
 (let ([f.3 (lambda (x.1)
              (lambda (y.2)
@@ -9,6 +14,7 @@
                anon.4))])
   ((f.3 '3) '8))
 |#
+
 (define remove-anonymous-lambda
   (lambda (x)
     (define rem-bd

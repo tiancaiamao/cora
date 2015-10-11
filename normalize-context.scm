@@ -1,3 +1,6 @@
+;;;;;;;;;;;;;;;;;;;;; normalize-context ;;;;;;;;;;;;;;;;;;;;;
+;; box, unbox, set-box! added
+
 #|
 (normalize-context
  '(letrec ()
@@ -39,19 +42,21 @@
              `(if ,t ,c ,a)]
             [(let ([,uvar ,[(norm 'v) -> e*]] ...) ,[(norm ct) -> e])
              `(let ([,uvar ,e*] ...) ,e)]
+
             [(quote ,x)
              (case ct
                [e `(nop)]
                [p (if (eq? x #f) `(false) `(true))]
                [v `(quote ,x)])]
             [(,f! ,[(norm 'v) ->  x*] ...)
-             (guard (memq f! '(set-car! set-cdr! vector-set! procedure-set!)))
+             (guard (memq f! '(set-car! set-cdr! set-box!
+                                        vector-set! procedure-set!)))
              (case ct
                [e `(,f! ,x* ...)]
                [p `(begin (,f! ,x* ...) (true))]
                [v `(begin (,f! ,x* ...) (void))])]
             [(,f? ,x* ...)
-             (guard (memq f? '(eq? pair? null? boolean?
+             (guard (memq f? '(eq? pair? box? null? boolean?
                                    fixnum? vector? procedure?
                                < <= >= > =)))
              (case ct
@@ -61,7 +66,8 @@
             [(,f ,x* ...)
              (guard (memq f '(+ - * logand logor sra cons car cdr void
                                 make-vector vector-ref vector-length
-                                make-procedure procedure-ref procedure-code)))
+                                make-procedure procedure-ref procedure-code
+                                box unbox)))
              (case ct
                [e (make-nopless-begin `(,@(map (norm 'e) `(,x* ...)) (nop)))]
                [p `(if (eq? (,f ,@(map (norm 'v) `(,x* ...))) '#f) (false) (true))]

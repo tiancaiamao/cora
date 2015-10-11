@@ -20,29 +20,42 @@
 
 (define flatten-program
   (lambda (p)
-
     (define flatten
-      (lambda (p)
+      (lambda (p next-l)
         (match p
-               [(begin ,stmt* ...)
-                (map flatten stmt*)]
-               [(set! ,var (,op ,a ,b)) p]
-               [(set! ,var ,val) p]
-               [(,label) `(jump ,label)])))
-
-    (define make-body
-      (lambda (label* body*)
-        (apply append (map (lambda (label body)
-                             `(,label ,@(flatten body)))
-                           label* body*))))
-
-    (define program
-      (lambda (x)
-        (match x
-               [(letrec ([,label* (lambda () ,tail*)] ...) ,(flatten -> tail))
-                `(code ,@tail ,@(make-body label* tail*))])))
-
-    (program p)))
+          [(letrec ,[flatten-defs -> def*] ,[tail])
+           (let ([tail (cond
+                        [(null? def*) tail]
+                        [else
+                         (match tail
+                           [(,st* ... (jump ,tail)) (guard (eq? tail (caar def*)))
+                            `(,st* ...)]
+                           [,tail tail])])])
+             `(code ,@tail ,def* ... ...))]
+          [(,label* (lambda () ,[tail*])) `(,label* ,@tail*)]
+          [(begin ,[ef*] ... ,[tail]) `(,ef* ... ... ,@tail)]
+          [(if ,test (,conseq) (,alt))
+           (cond [(eq? conseq next-l)
+                  `((if (not ,test) (jump ,alt)))]
+                 [(eq? alt next-l)
+                  `((if ,test (jump ,conseq)))]
+                 [else `((if ,test (jump ,conseq)) (jump ,alt))])]
+          [(set! ,a ,b) `((set! ,a ,b))]
+          [(mset! ,base ,off ,val) `((mset! ,base ,off ,val))]
+          [(,[triv]) (if (eq? triv next-l) '() `((jump ,triv)))]
+          [,p p])))
+    (define flatten-defs
+      (lambda (defs)
+        (match defs
+          [() '()]
+          [([,lab (lambda () ,body)]) `(,(flatten `(,lab (lambda () ,body)) #f))]
+          [([,lab1 (lambda () ,body1)]
+            [,lab2 (lambda () ,body2)]
+            [,lab3 (lambda () ,body3)] ...)
+           `(,(flatten `(,lab1 (lambda () ,body1)) lab2)
+             ,@(flatten-defs `([,lab2 (lambda () ,body2)]
+                               [,lab3 (lambda () ,body3)]...)))])))
+    (flatten p #f)))
 
 #!eof
 

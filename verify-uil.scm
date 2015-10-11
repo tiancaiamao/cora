@@ -1,3 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; verify-uil
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; verify-uil accept a single value and verifies that the value is a valid
+;;; program in the UIL grammar. There are just a few trivial changed to add
+;;; mref, alloc, and mset!
+
 (define-who verify-uil
   (define verify-x-list
     (lambda (x* x? what)
@@ -29,10 +37,10 @@
     (lambda (label* uvar*)
       (lambda (val)
         (match val
+          [(alloc ,[(Value label* uvar*) -> n]) (void)]
+          [(mref ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> off]) (void)]
           [(if ,[(Pred label* uvar*) -> test] ,[conseq] ,[altern]) (void)]
           [(begin ,[(Effect label* uvar*) -> ef*] ... ,[val]) (void)]
-					[(alloc ,[(Value label* uvar*) -> mem-size]) (void)]	;;clause for alloc
-					[(mref ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> offset]) (void)] ;;clause for mref
           [(sra ,[x] ,y)
            (unless (uint6? y)
              (error who "invalid sra operand ~s" y))]
@@ -51,8 +59,11 @@
           [(set! ,var ,[(Value label* uvar*) -> val])
            (unless (memq var uvar*)
              (error who "assignment to unbound var ~s" var))]
-					[(mset! ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> offset] ,[(Value label* uvar*) -> val]) (void)] ;;clause for mset!
-          [(,[(Value label* uvar*) -> rator] 
+          [(mset! ,[(Value label* uvar*) -> base]
+                  ,[(Value label* uvar*) -> off]
+                  ,[(Value label* uvar*) -> val])
+           (void)]
+          [(,[(Value label* uvar*) -> rator]
              ,[(Value label* uvar*) -> rand*] ...)
            (void)]
           [,ef (error who "invalid Effect ~s" ef)]))))
@@ -71,17 +82,17 @@
   (define Tail
     (lambda (tail label* uvar*)
       (match tail
+        [(alloc ,[(Value label* uvar*) -> n]) (void)]
+        [(mref ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> off]) (void)]
         [(if ,[(Pred label* uvar*) -> test] ,[conseq] ,[altern]) (void)]
         [(begin ,[(Effect label* uvar*) -> ef*] ... ,[tail]) (void)]
-				[(alloc ,[(Value label* uvar*) -> mem-size]) (void)]			;;clause for alloc
-				[(mref ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> offset]) (void)] ;;clause for mref
         [(sra ,[(Value label* uvar*) -> x] ,y)
          (unless (uint6? y)
            (error who "invalid sra operand ~s" y))]
         [(,binop ,[(Value label* uvar*) -> x] ,[(Value label* uvar*) -> y])
          (guard (memq binop '(+ - * logand logor sra)))
          (void)]
-        [(,[(Value label* uvar*) -> rator] 
+        [(,[(Value label* uvar*) -> rator]
            ,[(Value label* uvar*) -> rand*] ...)
          (void)]
         [,[(Triv label* uvar*) -> triv] (void)])))
