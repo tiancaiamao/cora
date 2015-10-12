@@ -74,8 +74,7 @@
 (load "main.scm")
 
 (test-one
- '(let ((a 3)
+ '(let ([f (lambda (x) x)]
         (b 5))
-    (set! a 7)
-    (* a b)))
+    (f b)))
 

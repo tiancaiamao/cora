@@ -86,9 +86,9 @@
                   [rl* (rev-load l* '() '())])
              `(begin
                 ,@rl*
-                (set! ,return-address-register ,rp) ; tail-call optimization
+                ;(set! ,return-address-register ,rp) ; tail-call optimization
                 (,triv ,frame-pointer-register
-                       ,return-address-register
+                       ;,return-address-register
                        ,allocation-pointer-register
                        ,@(map cadr rl*))))]
           [(,triv ,loc* ...) (guard (not (binop? triv))
@@ -101,9 +101,9 @@
              `(return-point ,label      ;;; difference
                (begin
                  ,@rl*
-                 (set! ,return-address-register ,label) ;;; difference
+                 ;(set! ,return-address-register ,label) ;;; difference
                  (,triv ,frame-pointer-register
-                        ,return-address-register
+                        ;,return-address-register
                         ,allocation-pointer-register
                         ,@(map cadr rl*)))))]
           [,x `(begin (set! ,return-value-register ,x)
@@ -121,7 +121,8 @@
            `(locals (,locals* ... ,@fml* ,rp ,@(apply append (unbox new-fv*)))
               (new-frames ,(unbox new-fv*)
                ,(make-begin
-                 `((set! ,rp ,return-address-register)
+                 `(
+                   ;(set! ,rp ,return-address-register)
                    ,@loads
                    ,tail)))))])))
   (lambda (x)

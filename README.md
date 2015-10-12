@@ -20,25 +20,11 @@ http://marcomaggi.github.io/docs/vicare-scheme.html/objects-refs.html#objects-re
 
 ## 寄存器使用
 
-AAR(Accumulator and Arguments count Register)
-
-用于汇编指令结果、函数参数数量、函数返回值、返回值数量。实际映射到EAX。
-
-APR(Allocation Point Register) 
-
-用于scheme的堆的分配指针。实际映射到EBP
-
-CPR(Closure Pointer Register)
-
-用于当前闭包。实际映射到EDI
-
-FPR(Frame Pointer Register)
-
-帧指针寄存器。实际映射到ESP
-
-PCR(Process Control Register)
-
-指向在内存中的PCB结构，实际映射到ESI
+* return-value-register 用于汇编指令结果、函数参数数量、函数返回值、返回值数量。实际映射到rax
+* allocation-pointer-register 用于scheme的堆的分配指针。实际映射到rbp
+* frame-pointer-register 帧指针寄存器。实际映射到rsp
+* process-control-register 指向在内存中的PCB结构，实际映射到rsi
+* closure-pointer-register 用于当前闭包。实际映射到rdi
 
 入口从C函数进来，加载C的标准库，进入main函数，做一些初始化工作。
 
