@@ -213,26 +213,26 @@
          r13 r14 r15 heap-size stack-size $check-heap-overflow mref mset!
 	 reset-machine-state!  parameter-registers caller-saved-registers
 	 frame-pointer-register return-value-register
-	 ;return-address-register
-   allocation-pointer-register)
+	 return-address-register allocation-pointer-register)
   (define heap-offset (/ (+ (most-positive-fixnum) 1) 2))
 
   (define registers
-    '(rax rcx rdx rbx rsp rbp rsi rdi r8 r9 r10 r11 r12 r13 r14 r15))
+    '(rax rcx rdx rbx rbp rsi rdi r8 r9 r10 r11 r12 r13 r14 r15))
 
   (define register?
     (lambda (x)
       (memq x registers)))
 
  ; calling conventions
-  (define return-value-register 'rax)
-  (define allocation-pointer-register 'rdp)
-  (define frame-pointer-register 'rsp)
   (define process-control-register 'rsi)
   (define closure-pointer-register 'rdi)
 
   (define caller-saved-registers registers)
   (define parameter-registers '(r8 r9))
+  (define frame-pointer-register 'rbp)
+  (define return-value-register 'rax)
+  (define return-address-register 'r15)
+  (define allocation-pointer-register 'rdx)
 
   (define rax)
   (define rcx)
@@ -329,8 +329,44 @@
       (set! r13 #x7c7c7c7c7c7c7c7d)
       (set! r14 #x7c7c7c7c7c7c7c7e)
       (set! r15 #x7c7c7c7c7c7c7c7f)
-      (set! frame-pointer-register 0)
-      (set! allocation-pointer-register heap-offset)
+      (case frame-pointer-register
+        [(rax) (set! rax 0)]
+        [(rcx) (set! rcx 0)]
+        [(rdx) (set! rdx 0)]
+        [(rbx) (set! rbx 0)]
+        [(rbp) (set! rbp 0)]
+        [(rsi) (set! rsi 0)]
+        [(rdi) (set! rdi 0)]
+        [(r8) (set! r8 0)]
+        [(r9) (set! r9 0)]
+        [(r10) (set! r10 0)]
+        [(r11) (set! r11 0)]
+        [(r12) (set! r12 0)]
+        [(r13) (set! r13 0)]
+        [(r14) (set! r14 0)]
+        [(r15) (set! r15 0)]
+        [else (error who
+                     "unrecognized frame-pointer-register ~s"
+                     frame-pointer-register)])
+      (case allocation-pointer-register
+        [(rax) (set! rax heap-offset)]
+        [(rcx) (set! rcx heap-offset)]
+        [(rdx) (set! rdx heap-offset)]
+        [(rbx) (set! rbx heap-offset)]
+        [(rbp) (set! rbp heap-offset)]
+        [(rsi) (set! rsi heap-offset)]
+        [(rdi) (set! rdi heap-offset)]
+        [(r8) (set! r8 heap-offset)]
+        [(r9) (set! r9 heap-offset)]
+        [(r10) (set! r10 heap-offset)]
+        [(r11) (set! r11 heap-offset)]
+        [(r12) (set! r12 heap-offset)]
+        [(r13) (set! r13 heap-offset)]
+        [(r14) (set! r14 heap-offset)]
+        [(r15) (set! r15 heap-offset)]
+        [else (error who
+                     "unrecognized allocation-pointer-register ~s"
+                     allocation-pointer-register)])
       (vector-fill! the-stack #x3b3b3b3b3b3b3b3b)
       (vector-fill! the-heap #x5d5d5d5d5d5d5d5d)))
 
@@ -692,11 +728,11 @@
        (emit 'pushq 'r15)
        (emit 'movq 'rdi frame-pointer-register)
        (emit 'movq 'rsi allocation-pointer-register)
-       ;(emit 'leaq "_scheme_exit(%rip)" return-address-register)
+       (emit 'leaq "_scheme_exit(%rip)" return-address-register)
        code code* ...
        (emit-label "_scheme_exit")
-       ;(unless (eq? return-value-register 'rax)
-       ;  (emit 'movq return-value-register 'rax))
+       (unless (eq? return-value-register 'rax)
+               (emit 'movq return-value-register 'rax))
        (emit 'popq 'r15)
        (emit 'popq 'r14)
        (emit 'popq 'r13)
