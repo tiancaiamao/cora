@@ -3,10 +3,10 @@
 #include <stdint.h>
 
 struct PCB {
-  void* AllocationPointer;
-  void* AllocationRedline;
-  void* FramePointer;
-  void* FrameBase;
+  void* ap; // allocation pointer
+  void* ab; // allocation base
+  void* fp; // frame pointer
+  void* fb; // frame base
   void* FrameRedline;
   void* NextK;
   void* SystemStack;

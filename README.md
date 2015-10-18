@@ -20,11 +20,11 @@ http://marcomaggi.github.io/docs/vicare-scheme.html/objects-refs.html#objects-re
 
 ## 寄存器使用
 
-* return-value-register 用于汇编指令结果、函数参数数量、函数返回值、返回值数量。实际映射到rax
-* allocation-pointer-register 用于scheme的堆的分配指针。实际映射到rbp
-* frame-pointer-register 帧指针寄存器。实际映射到rsp
-* process-control-register 指向在内存中的PCB结构，实际映射到rsi
-* closure-pointer-register 用于当前闭包。实际映射到rdi
+* return-value-register 用于汇编指令结果、函数参数数量、函数返回值、返回值数量
+* allocation-pointer-register 用于scheme的堆的分配指针
+* frame-pointer-register 帧指针寄存器
+* process-control-register 指向在内存中的PCB结构
+* closure-pointer-register 用于当前闭包
 
 入口从C函数进来，加载C的标准库，进入main函数，做一些初始化工作。
 
@@ -41,6 +41,25 @@ scheme栈跟C栈相互独立。
 我决定不要实现continuation了。这是一个实现开销大，使用场景有限的feature。之前是想做CPS来实现continuation的。CPS的缺点是它引入了很多lambda算子（即闭包）。
 
 为了支持continuation而引入CPS，而编译器为了优化做的工作却正是把CPS引入的东西删除，那么将CPS作为一个编译步骤是否有意义？
+
+## 与C的交互
+
+角色定位是scheme语言为宿主，C只是辅助。只支持scheme中调用C，不支持C中调用scheme。
+
+在scheme中写(c-call xxx)会调用C语言实现的xxx函数。函数的原型是
+
+    void* xxx(struct *PCB pcb)
+
+实现时，scheme这边会对c-call做处理。(c-call xxx)会被生成类似下面的汇编:
+
+    ;; 保存PCB结构到scheme的栈中
+    movq %rbp 0(%rbp) ;; 保存PCB->fp
+    movq %rdx 8(%rbp) ;; 保存PCB->ap
+    pushq %rbp ;; 将参数进栈
+    callq xxx
+    movq 8(%rbp) %rdx ;; 恢复PCB->ap
+    ;; 不需要恢复PCB->fp，因为fp用的是rbp寄存器是callee-save的
+
 
 ## 编译过程
 

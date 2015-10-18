@@ -224,9 +224,6 @@
       (memq x registers)))
 
  ; calling conventions
-  (define process-control-register 'rsi)
-  (define closure-pointer-register 'rdi)
-
   (define caller-saved-registers registers)
   (define parameter-registers '(r8 r9))
   (define frame-pointer-register 'rbp)

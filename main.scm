@@ -34,21 +34,26 @@
 (compiler-passes '(
                    parse-scheme
                    convert-complex-datum
+
                    uncover-assigned
                    purify-letrec
                    convert-assignments
+
                    remove-anonymous-lambda
                    sanitize-binding-forms
                    convert-closures
+
                    introduce-procedure-primitives
                    lift-letrec
                    normalize-context
                    specify-representation
+
                    uncover-locals
                    remove-let
                    verify-uil
                    remove-complex-opera*
                    impose-calling-conventions
+
                    uncover-frame-conflict
                    pre-assign-frame
                    assign-new-frame
@@ -59,6 +64,7 @@
                     assign-registers
                     (break when everybody-home?)
                     assign-frame)
+
                    finalize-locations
                    expose-frame-var
                    expose-basic-blocks
@@ -72,9 +78,11 @@
 #!eof
 
 (load "main.scm")
-
+(tracer #t)
 (test-one
- '(let ([f (lambda (x) x)]
+ '(let ((a 3)
         (b 5))
-    (f b)))
-
+    (let ((f (lambda (x) (+ x a)))
+          (g (lambda (x) (- a b))))
+      (set! a 7)
+      (+ (f 5) (g 4)))))
