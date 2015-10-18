@@ -61,7 +61,9 @@
         [vector-length  .  (vector-length  1)]
         [vector-ref     .  (vector-ref     2)]
         [vector-set!    .  (vector-set!    3)]
-        [void           .  (void           0)]))
+        [void           .  (void           0)]
+
+        [foreign-call         .  (foreign-call         1)]))
 
     (define get-name cadr)
     (define get-argn caddr)
@@ -84,6 +86,8 @@
                  (error 'parse-scheme "not an exact number or out of range ~a" x))]
             [,x (guard (or (boolean? x) (null? x)))
              `(quote ,x)]
+            [,x (guard (string? x))
+                       `(quote ,x)]
             [,x (guard (symbol? x))
              (cond
               [(assq x env) => cadr]

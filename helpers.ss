@@ -810,6 +810,10 @@
 (define disp-procedure-code 0)
 (define disp-procedure-data 8)
 
+(define mask-string #b111)
+(define tag-string  #b100)
+(define disp-string-data 8)
+
 (define mask-boolean   #b11110111)
 (define tag-boolean    #b00000110)
 

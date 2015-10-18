@@ -21,7 +21,7 @@
   (define Triv
     (lambda (label* uvar*)
       (lambda (t)
-        (unless (or (label? t) (uvar? t) (and (integer? t) (exact? t)))
+        (unless (or (label? t) (uvar? t) (and (integer? t) (exact? t)) (symbol? t))
           (error who "invalid Triv ~s" t))
         (when (and (integer? t) (exact? t))
           (unless (int64? t)
@@ -84,6 +84,7 @@
       (match tail
         [(alloc ,[(Value label* uvar*) -> n]) (void)]
         [(mref ,[(Value label* uvar*) -> base] ,[(Value label* uvar*) -> off]) (void)]
+        [(foreign-call ,[(Value label* uvar*) -> base]) (void)]
         [(if ,[(Pred label* uvar*) -> test] ,[conseq] ,[altern]) (void)]
         [(begin ,[(Effect label* uvar*) -> ef*] ... ,[tail]) (void)]
         [(sra ,[(Value label* uvar*) -> x] ,y)
@@ -114,3 +115,5 @@
        ((Body label*) bd '())]
       [,x (error who "invalid Program ~s" x)])
     x))
+
+#!eof

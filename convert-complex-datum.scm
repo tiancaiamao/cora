@@ -61,7 +61,7 @@
                 `(if ,t ,c ,a)]
                [(set! ,x ,[v])
                 `(set! ,x ,v)]
-               [(quote ,imm) (guard (or (number? imm) (boolean? imm) (null? imm)))
+               [(quote ,imm) (guard (or (number? imm) (boolean? imm) (null? imm) (string? imm)))
                 `(quote ,imm)]
                [(quote ,imm)
                 (let ([tmp (unique-name 'tmp)]
@@ -73,3 +73,7 @@
                [,x x])))
     (let ([x* (convert x)])
       (if (null? constants) x* `(let ,constants ,x*)))))
+
+#!eof
+
+(convert-complex-datum (parse-scheme '3))

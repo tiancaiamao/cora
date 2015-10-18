@@ -47,7 +47,8 @@
                 cons car cdr set-car! set-cdr!
                 box unbox set-box!
                 make-vector vector-length vector-ref vector-set!
-                void))))
+                void
+                foreign-call))))
 
 (define binop?
   (lambda (x)

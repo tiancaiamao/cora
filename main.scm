@@ -86,3 +86,7 @@
           (g (lambda (x) (- a b))))
       (set! a 7)
       (+ (f 5) (g 4)))))
+
+(test-one '(c-call 'fuck)) 
+(test-one '(procedure? '3))
+(test-one "asdf")

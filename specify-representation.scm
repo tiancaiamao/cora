@@ -175,6 +175,16 @@
       ; immediates
       [(quote ,n) (guard (number? n))
        (ash n shift-fixnum)]
+      [(quote ,str) (guard (string? str))
+       (let ([tmp (unique-name 't)]
+             [label (unique-label 'str)])
+         `(let ([,tmp (+ (alloc ,(+ disp-string-data (string-length str))) ,tag-string)])
+            (begin
+              (constant-init
+               ,label
+               ,str)
+              (mset! ,tmp 0 ,label)
+              ,tmp)))]
       [(quote #f) $false]
       [(quote #t) $true]
       [(quote ()) $nil]
@@ -183,3 +193,8 @@
       ; procedure calls goes last because it could match other cases
       [(,[f] ,[x*] ...) `(,f ,x* ...)]
       [,x x])))
+
+#!eof
+
+(pretty-print (specify-representation ''"abcd"))
+(specify-representation ''3)
