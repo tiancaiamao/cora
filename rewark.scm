@@ -217,36 +217,20 @@
                [,other x])))
 
     (match x
-           [(program ((,label* ,[impose -> code*]) ...)
-                     (locals ,(lv* ...) ,[impose -> body]))
-            42])))
-
+           [(program ([,label* ,[impose -> code*]] ...)
+                     (,constants* ...)
+                     (locals (,lv* ...) ,[impose -> body]))
             `(program ((,label* ,code*) ...)
-                      ,(constants ...)
-                      (locals ,(lv* ...) ,body))])))
+                      (,constants* ...)
+                      (locals (,lv* ...) ,body))])))
 
 (impose-calling-conversions
- '(program ([f$1 (code () (a b c)
-                       (locals () (+ a b)))])
-           (locals (a b) 1)))
-
-(convert-assignment '(let ((a 3) (b 5))
-                       (begin
-                         (set! b 8)
-                         (set! a 4))))
-
-(closure-convert '(lambda (a 3)
-                    (lambda ()
-                      (+ a 1))))
-
-(free-vars '(lambda () (+ a 1)))
-
-(closure-convert '(+ a 1))
-(closure-convert 'a)
-(free-vars '(+ a 1))
-(intersection '(a) '())
-(free-vars 'a.1)
-
+ '(program
+          ([f$1 (code ()
+                      ()
+                      (locals (a b) (f a b)))])
+          ()
+          (locals () 1)))
 (compiler-passes
  '(
    alpha-conversion
