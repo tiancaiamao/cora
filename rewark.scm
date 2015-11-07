@@ -184,32 +184,51 @@
                       ,constants ...
                       (locals ,new ,body))])))
 
-#!eof
+(define impose-calling-conversions
+  (lambda (x)
 
-(remove-let
- '(program
-   ((f$1 (code () () (let ((a 3) (b 5)) (+ a b)))))
-   ()
-   (closure $f1)))
+    (define help1 (lambda (x i) `(set! ,x ,(string->symbol (format "pos~a" i)))))
+    (define help2 (lambda (x i) `(set! ,(string->symbol (format "pos~a" i)) ,x)))
+    (define help3
+      (lambda (lst i ret fn)
+        (if (null? lst)
+            ret
+            (help3 (cdr lst) (+ i 1) (cons (fn (car lst) i) ret) fn))))
+    (define send (lambda (vars) (help3 vars 0 '() help2)))
+    (define receive (lambda (vars) (help3 vars 0 '() help1)))
 
-(closure-convert '(lambda () (+ a 1)))
-(closure-convert '(lambda (x) x))
+    (define impose
+      (lambda (x)
+        (match x
+               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
+               [(begin ,[s*] ...) `(begin ,s* ...)]
+               [(set! ,x ,[y]) `(set! ,x ,y)]
+               [(code (,fv* ...)
+                      (,var* ...)
+                      (locals (,lv* ...) ,[body]))
+                (let ([init (receive var*)])
+                  `(code (,fv* ...)
+                         (locals (,lv* ... ,var* ...)
+                                 ,(cons 'begin init)
+                                 ,body)))]
+               [(,f ,a* ...)
+                (let ([init (send a*)])
+                  `(begin ,@init (call ,f)))]
+               [,other x])))
 
-(load "rewark.scm")
-(transform '(closure f$1 a))
-(transform '(code () (a 3) (closure f$1 a)))
-(transform '(code (a) () (+ a 1)))
-(transform '"abcd")
-(transform '(+ a 1))
-(transform '(closure f$1 a))
+    (match x
+           [(program ((,label* ,[impose -> code*]) ...)
+                     (locals ,(lv* ...) ,[impose -> body]))
+            42])))
 
-(lift-constants
- '(program
-   ((f$2 (code () (a 3) (closure f$1 a)))
-    (f$1 (code (a) () (+ a 1))))
-   "abcd"))
+            `(program ((,label* ,code*) ...)
+                      ,(constants ...)
+                      (locals ,(lv* ...) ,body))])))
 
-   (closure f$2)) )
+(impose-calling-conversions
+ '(program ([f$1 (code () (a b c)
+                       (locals () (+ a b)))])
+           (locals (a b) 1)))
 
 (convert-assignment '(let ((a 3) (b 5))
                        (begin
