@@ -122,6 +122,7 @@
     (define immediate? (lambda (x) (or (number? x) (null? x) (boolean? x) (symbol? x))))
 
     (define constants '())
+    (define add-constants (lambda (x) (set! constants (cons x constants))))
 
     (define (transform x)
       (match x
@@ -132,8 +133,7 @@
                [(assoc e constants) => caddr]
                [else
                 (let ([label (unique-name 'c)])
-                  (set! constants
-                        (cons `(,e (constant-ref ,label)) constants))
+                  (add-constants `(,e (constant-ref ,label)))
                   `(constant-ref ,label))])]
              [,e (guard (string? e)) (transform `(quote ,e))]
              [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
@@ -152,7 +152,45 @@
                         ,constants
                         ,body1))])))
 
+(define remove-let
+  (lambda (x)
+    (define locals* '())
+    (define add-local (lambda (x) (set! locals* (cons x locals*))))
+    (define uncover1
+      (lambda (x)
+        (set! locals* '())
+        (let ((x^ (uncover x)))
+          (values locals* x^))))
+    (define uncover
+      (lambda (x)
+        (match x
+               [(begin ,[s*] ...) `(begin ,s* ...)]
+               [(let ((,x* ,[v*]) ...) ,[body])
+                (for-each add-local x*)
+                `(begin (set! ,x* ,v*) ... ,body)]
+               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
+               [(set! ,x ,[y]) `(set! ,x ,y)]
+               [(,[f] ,[a*] ...) `(,f ,a* ...)]
+               [,other other])))
+    (match x
+           [(program ((,label* (code (,cvar* ...)
+                                     (,uvar* ...)
+                                     ,[uncover1 -> new* body*])) ...)
+                     ,constants ...
+                     ,[uncover1 -> new body])
+            `(program ((,label* (code (,cvar* ... )
+                                      (,uvar* ...)
+                                      (locals ,new* ,body*))) ...)
+                      ,constants ...
+                      (locals ,new ,body))])))
+
 #!eof
+
+(remove-let
+ '(program
+   ((f$1 (code () () (let ((a 3) (b 5)) (+ a b)))))
+   ()
+   (closure $f1)))
 
 (closure-convert '(lambda () (+ a 1)))
 (closure-convert '(lambda (x) x))
@@ -194,6 +232,7 @@
  '(
    alpha-conversion
    convert-assignment
-   lift-constants
    closure-conversion
+   lift-constants
+   remove-let
    ))
