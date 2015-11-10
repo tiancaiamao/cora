@@ -3,6 +3,8 @@
 (load "driver.ss")
 (load "util.scm")
 
+(load "liveness-analysis.scm")
+(load "assign-registers.scm")
 
 (define (constant? x) (or (boolean? x) (null? x) (number? x) (string? x)))
 (define (primitive? x) (memq x '(procedure? void foreign-call + - * /)))
@@ -224,6 +226,11 @@
                       (,constants* ...)
                       (locals (,lv* ...) ,body))])))
 
+(define register-allocation
+  (lambda (x)
+    ))
+
+
 (impose-calling-conversions
  '(program
           ([f$1 (code ()
@@ -231,6 +238,7 @@
                       (locals (a b) (f a b)))])
           ()
           (locals () 1)))
+
 (compiler-passes
  '(
    alpha-conversion
@@ -238,4 +246,7 @@
    closure-conversion
    lift-constants
    remove-let
+   impose-calling-conversion
+   liveness-analysis
+   assign-registers
    ))
