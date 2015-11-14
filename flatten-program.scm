@@ -23,6 +23,39 @@
     (define flatten
       (lambda (p next-l)
         (match p
+          [(program ,[flatten-defs -> def*] ,[tail])
+           (let ([tail (cond
+                        [(null? def*) tail]
+                        [else
+                         (match tail
+                           [(,st* ... (jump ,tail)) (guard (eq? tail (caar def*)))
+                            `(,st* ...)]
+                           [,tail tail])])])
+             `(program ,@tail ,def* ... ...))]
+          [(,label* (code () ,[tail*])) `(,label* ,@tail*)]
+          [(begin ,[ef*] ... ,[tail]) `(,ef* ... ... ,@tail)]
+          [(if ,test (,conseq) (,alt))
+           (cond [(eq? conseq next-l)
+                  `((if (not ,test) (jump ,alt)))]
+                 [(eq? alt next-l)
+                  `((if ,test (jump ,conseq)))]
+                 [else `((if ,test (jump ,conseq)) (jump ,alt))])]
+          [(set! ,a ,b) `((set! ,a ,b))]
+          [(mset! ,base ,off ,val) `((mset! ,base ,off ,val))]
+          [(,[triv]) (if (eq? triv next-l) '() `((jump ,triv)))]
+          [,p p])))
+    (define flatten-defs
+      (lambda (defs)
+        (match defs
+               [() '()]
+               [([,lab (code () ,body)]) `(,(flatten `(,lab (code () ,body)) #f))])))
+    (flatten p #f)))
+
+(define flatten-program
+  (lambda (p)
+    (define flatten
+      (lambda (p next-l)
+        (match p
           [(letrec ,[flatten-defs -> def*] ,[tail])
            (let ([tail (cond
                         [(null? def*) tail]

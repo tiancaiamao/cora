@@ -25,112 +25,45 @@
             body)))
 |#
 
-(define-who impose-calling-conventions
-  (define nfv
-    (lambda (n)
-      (unique-name 'nfv)))
-  (define load-params
-    (lambda (fml* regs fv-fun fv-n seq)
-      (cond
-       [(null? fml*) (reverse seq)]
-       [(null? regs)
-        (load-params (cdr fml*) '() fv-fun (add1 fv-n)
-                     (cons `(set! ,(car fml*) ,(fv-fun fv-n)) seq))]
-       [else
-        (load-params (cdr fml*) (cdr regs) fv-fun fv-n
-                     (cons `(set! ,(car fml*) ,(car regs)) seq))])))
-  (define rev-load
-    (lambda (loads regs fvs)
-      (cond
-       [(null? loads) (reverse (append regs fvs))]
-       [else
-        (match (car loads)
-          [(set! ,dst ,src) (guard (register? src))
-           (rev-load (cdr loads) (cons `(set! ,src ,dst) regs) fvs)]
-          [(set! ,dst ,src)
-           (rev-load (cdr loads) regs (cons `(set! ,src ,dst) fvs))])])))
-  (define get-nfv
-    (lambda (loads)
-;      (filter (lambda (x) (not register?)) (map caddr loads))
-      (cond
-       [(null? loads) '()]
-       [else
-        (match (car loads)
-          [(set! ,dst ,src) (guard (register? src))
-           (get-nfv (cdr loads))]
-          [(set! ,dst ,src)
-           (cons src (get-nfv (cdr loads)))])])))
-  (define impose
-    (lambda (rp ct new-fv*)
+(define impose-calling-conversions
+  (lambda (x)
+
+    (define help1 (lambda (x i) `(set! ,x ,(string->symbol (format "pos~a" i)))))
+    (define help2 (lambda (x i) `(set! ,(string->symbol (format "pos~a" i)) ,x)))
+    (define help3
+      (lambda (lst i ret fn)
+        (if (null? lst)
+            ret
+            (help3 (cdr lst) (+ i 1) (cons (fn (car lst) i) ret) fn))))
+    (define send (lambda (vars) (help3 vars 0 '() help2)))
+    (define receive (lambda (vars) (help3 vars 0 '() help1)))
+
+    (define impose
       (lambda (x)
         (match x
-          [(if ,[test] ,[conseq] ,[alt])
-           `(if ,test ,conseq ,alt)]
-          [(begin ,[(impose rp 'seq new-fv*) -> e*] ... ,[tail])
-           `(begin ,e* ... ,tail)]
-          [(,m/set! ,x ... (,op ,y ,z)) (guard (memq m/set! '(set! mset!))
-                                               (or (binop? op) (eq? op 'mref)))
-           `(,m/set! ,x ... (,op ,y ,z))]
-          [(,m/set! ,var ... (,f ,x* ...)) (guard (memq m/set! '(set! mset!)))
-           (make-begin `(,((impose rp 'rhs new-fv*) `(,f ,x* ...))
-                         (,m/set! ,var ... ,return-value-register)))]
-          [(,m/set! ,var ... ,val) (guard (memq m/set! '(set! mset!)))
-           `(,m/set! ,var ... ,val)]
-          [(,x) (guard (member x '(nop true false))) `(,x)]
-          [(,relop ,a ,b) (guard (relop? relop))
-           `(,relop ,a ,b)]
-          [(,triv ,loc* ...) (guard (not (binop? triv))
-                                    (not (eq? triv 'mref))
-                                    (eq? ct 'tail))
-           (let* ([l* (load-params loc* parameter-registers index->frame-var 0 '())]
-                  [rl* (rev-load l* '() '())])
-             `(begin
-                ,@rl*
-                (set! ,return-address-register ,rp) ; tail-call optimization
-                (,triv ,frame-pointer-register
-                       ,return-address-register
-                       ,allocation-pointer-register
-                       ,@(map cadr rl*))))]
-          [(,triv ,loc* ...) (guard (not (binop? triv))
-                                    (not (eq? triv 'mref))
-                                    (not (eq? ct 'tail)))
-           (let* ([l* (load-params loc* parameter-registers nfv 0 '())]
-                  [rl* (rev-load l* '() '())]
-                  [label (unique-label 'ret)])
-             (set-box! new-fv* (cons (get-nfv l*) (unbox new-fv*)))
-             `(return-point ,label      ;;; difference
-               (begin
-                 ,@rl*
-                 (set! ,return-address-register ,label) ;;; difference
-                 (,triv ,frame-pointer-register
-                        ,return-address-register
-                        ,allocation-pointer-register
-                        ,@(map cadr rl*)))))]
-          [,x `(begin (set! ,return-value-register ,x)
-                      (,rp ,frame-pointer-register
-                           ,return-value-register
-                           ,allocation-pointer-register))]))))
-  (define Body
-    (lambda (bd fml*)
-      (match bd
-        [(locals (,locals* ...) ,tail)
-         (let* ([loads (load-params fml* parameter-registers index->frame-var 0 '())]
-                [rp (unique-name 'rp)]
-                [new-fv* (box '())]
-                [tail ((impose rp 'tail new-fv*) tail)])
-           `(locals (,locals* ... ,@fml* ,rp ,@(apply append (unbox new-fv*)))
-              (new-frames ,(unbox new-fv*)
-               ,(make-begin
-                 `(
-                   (set! ,rp ,return-address-register)
-                   ,@loads
-                   ,tail)))))])))
-  (lambda (x)
+               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
+               [(begin ,[s*] ...) `(begin ,s* ...)]
+               [(set! ,x ,[y]) `(set! ,x ,y)]
+               [(code (,fv* ...)
+                      (,var* ...)
+                      (locals (,lv* ...) ,[body]))
+                (let ([init (receive var*)])
+                  `(code (,fv* ...)
+                         (locals (,lv* ... ,var* ...)
+                                 ,(cons 'begin init)
+                                 ,body)))]
+               [(,f ,a* ...)
+                (let ([init (send a*)])
+                  `(begin ,@init (call ,f)))]
+               [,other x])))
+
     (match x
-      [(letrec ([,label* (lambda (,fml** ...) ,bd*)] ...) ,bd)
-       (let ([bd* (map Body bd* fml**)]
-             [bd (Body bd '())])
-         `(letrec ([,label* (lambda () ,bd*)] ...) ,bd))])))
+           [(program ([,label* ,[impose -> code*]] ...)
+                     (,constants* ...)
+                     (locals (,lv* ...) ,[impose -> body]))
+            `(program ((,label* ,code*) ...)
+                      (,constants* ...)
+                      (locals (,lv* ...) ,body))])))
 
 #!eof
 

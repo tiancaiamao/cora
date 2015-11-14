@@ -109,3 +109,6 @@
       [(,e* ...) `(begin ,@(flatten `(begin ,e* ...)))])))
 
 (define error-handler (lambda args args))
+
+(define (constant? x) (or (boolean? x) (null? x) (number? x) (string? x)))
+(define (primitive? x) (memq x '(procedure? void foreign-call + - * /)))

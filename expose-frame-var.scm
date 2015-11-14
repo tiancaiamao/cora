@@ -25,6 +25,7 @@
     (set! rax 17)
     (f$1)))
 |#
+
 (define expose-frame-var
   (lambda (p)
     (define fp-offset 0)
@@ -38,9 +39,9 @@
     (define expose
       (lambda (p)
         (match p
-          [(letrec ([,label* (lambda () ,tail*)] ...) ,tail)
+          [(program ([,label* (code () ,tail*)] ...) ,tail)
            (let ([saved fp-offset])
-             `(letrec ([,label* (lambda () ,(begin (set! fp-offset saved)
+             `(program ([,label* (code () ,(begin (set! fp-offset saved)
                                                    (expose tail*)))] ...)
                 ,(begin (set! fp-offset saved) (expose tail))))]
           [(begin ,ef* ... ,tail)
@@ -61,8 +62,6 @@
            `(set! ,var ,triv)]
           [(mset! ,base ,off ,val)
            `(mset! ,base ,off ,val)]
-          [(return-point ,label ,[tail])
-           `(return-point ,label ,tail)]
           [(,[triv] ,[triv*] ...) `(,triv ,triv* ...)]
           [,v (guard (frame-var? v))
               (make-disp-opnd frame-pointer-register
@@ -70,3 +69,4 @@
                                  fp-offset))]
           [,p p])))
     (expose p)))
+

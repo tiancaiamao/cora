@@ -30,47 +30,24 @@
 (load "expose-basic-blocks.scm")
 (load "expose-frame-var.scm")
 (load "finalize-locations.scm")
+(load "liveness-analysis.scm")
+(load "assign-registers.scm")
 
-(compiler-passes '(
-                   parse-scheme
-                   convert-complex-datum
-
-                   uncover-assigned
-                   purify-letrec
-                   convert-assignments
-
-                   remove-anonymous-lambda
-                   sanitize-binding-forms
-                   convert-closures
-
-                   introduce-procedure-primitives
-                   lift-letrec
-                   normalize-context
-                   specify-representation
-
-                   uncover-locals
-                   remove-let
-                   verify-uil
-                   remove-complex-opera*
-                   impose-calling-conventions
-
-                   uncover-frame-conflict
-                   pre-assign-frame
-                   assign-new-frame
-                   (iterate
-                    finalize-frame-locations
-                    select-instructions
-                    uncover-register-conflict
-                    assign-registers
-                    (break when everybody-home?)
-                    assign-frame)
-
-                   finalize-locations
-                   expose-frame-var
-                   expose-basic-blocks
-                   flatten-program
-                   generate-x86-64
-                   ))
+(compiler-passes
+ '(
+   alpha-conversion
+   convert-assignment
+   closure-conversion
+   lift-constants
+   remove-let
+   impose-calling-conversions
+   liveness-analysis
+   assign-registers
+   finalize-locations ;; remove variable
+   expose-frame-var
+   remove-if
+   flatten-program
+   ))
 
 (tracer #t)
 (trusted-passes #t)

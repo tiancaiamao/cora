@@ -6,27 +6,32 @@
 
 (define remove-let
   (lambda (x)
-    (define rem1
+    (define locals* '())
+    (define add-local (lambda (x) (set! locals* (cons x locals*))))
+    (define uncover1
       (lambda (x)
-        (make-begin (rem x))))
-    (define rem
+        (set! locals* '())
+        (let ((x^ (uncover x)))
+          (values locals* x^))))
+    (define uncover
       (lambda (x)
         (match x
-          [(letrec ((,label* (lambda (,uvar* ...)
-                               (locals (,local* ...) ,[rem1 -> body*]))) ...)
-             (locals (,local ...) ,[rem1 -> body]))
-           `(letrec ((,label* (lambda (,uvar* ...)
-                                (locals (,local* ...) ,body*))) ...)
-              (locals (,local ...) ,body))]
-          [(begin ,[s*] ...) `((begin ,s* ... ...))]
-          [(let ((,x* ,[v*]) ...) ,[body])
-           (let ([set* `((set! ,x* ,@v*) ...)])
-             `(,(make-begin `(,@set* ,@body))))]
-          [(if ,[test] ,[conseq] ,[alt])
-           `((if ,@test ,@conseq ,@alt))]
-          [(alloc ,[n]) `((alloc ,@n))]
-          [(mset! ,[base] ,[off] ,[val]) `((mset! ,@base ,@off ,@val))]
-          [(set! ,x ,[y]) `((set! ,x ,@y))]
-          [(,[f] ,[a*] ...) `((,@f ,a* ... ...))]
-          [,other `(,other)])))
-    (rem x)))
+               [(begin ,[s*] ...) `(begin ,s* ...)]
+               [(let ((,x* ,[v*]) ...) ,[body])
+                (for-each add-local x*)
+                `(begin (set! ,x* ,v*) ... ,body)]
+               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
+               [(set! ,x ,[y]) `(set! ,x ,y)]
+               [(,[f] ,[a*] ...) `(,f ,a* ...)]
+               [,other other])))
+    (match x
+           [(program ((,label* (code (,cvar* ...)
+                                     (,uvar* ...)
+                                     ,[uncover1 -> new* body*])) ...)
+                     ,constants ...
+                     ,[uncover1 -> new body])
+            `(program ((,label* (code (,cvar* ... )
+                                      (,uvar* ...)
+                                      (locals ,new* ,body*))) ...)
+                      ,constants ...
+                      (locals ,new ,body))])))

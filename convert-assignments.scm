@@ -21,49 +21,37 @@
       (cons y.1 (car z.2)))))
 |#
 
-(define convert-assignments
+(define convert-assignment
   (lambda (x)
-    (define make-bindings
-      (lambda (as* bd*)
-        (let loop ([bd* bd*] [bdo* '()] [env* '()])
-          (cond
-           [(null? bd*) (values (reverse bdo*) (reverse env*))]
-           [(and (not (pair? (car bd*))) (memq (car bd*) as*))
-            (let ([new (unique-name (car bd*))])
-              (loop (cdr bd*)
-                    (cons new bdo*)
-                    (cons `(,(car bd*) (box ,new)) env*)))]
-           [(and (pair? (car bd*)) (memq (caar bd*) as*))
-            (let ([new (unique-name (caar bd*))])
-              (loop (cdr bd*)
-                    (cons `[,new ,(cadar bd*)] bdo*)
-                    (cons `[,(caar bd*) (box ,new)] env*)))]
-           [else
-            (loop (cdr bd*) (cons (car bd*) bdo*) env*)]))))
-    (define convert
-      (lambda (x env)
+    (define transform
+      (lambda (x)
         (match x
-          [(letrec ([,uvar* ,[expr*]] ...) ,[body])
-           `(letrec ([,uvar* ,expr*] ...) ,body)]
-          [(let ([,uvar* ,[expr*]] ...) (assigned (,as* ...) ,expr))
-           (let-values ([(bd* env*) (make-bindings as* `([,uvar* ,expr*] ...))])
-             (let ([body (if (null? env*)
-                             (convert expr (append as* env))
-                             `(let ,env* ,(convert expr (append as* env))))])
-               (if (null? bd*) body `(let ,bd* ,body))))]
-          [(lambda (,uvar* ...) (assigned (,as* ...) ,body))
-           (let-values ([(bd* env*) (make-bindings as* `(,uvar* ...))])
-             `(lambda ,bd*
-                ,(if (null? env*)
-                     (convert body (append as* env))
-                     `(let ,env* ,(convert body (append as* env))))))]
-          [(begin ,[ef*] ...)
-           `(begin ,ef* ...)]
-          [(if ,[t] ,[c] ,[a])
-           `(if ,t ,c ,a)]
-          [(set! ,x ,[v])
-           (if (memq x env) `(set-box! ,x ,v) `(set! ,x ,v))]
-          [(,[f] ,[x*] ...)
-           `(,f ,x* ...)]
-          [,x (if (memq x env) `(unbox ,x) x)])))
-    (convert x '())))
+               [(quote ,imm) (values x '())]
+               [(if ,[transform -> t l1] ,[transform -> c l2] ,[transform -> a l3])
+                (values `(if ,t ,c ,a) (union l1 l2 l3))]
+               [(begin ,[transform -> ef* as*] ...)
+                (values `(begin ,ef* ...) (apply union as*))]
+               [(set! ,n ,[transform -> v l1])
+                (values `(set-box! ,n ,v) (cons n l1))]
+               [(lambda (,u* ...) ,[transform -> body l1])
+                (values x l1)]
+               [(let ([,n* ,[transform -> v* l1*]] ...) ,(transform -> body l2))
+                (let* ([pairs '()]
+                       [bd (map (lambda (n v)
+                                  (if (memq n l2)
+                                      (let ([tmp (unique-name n)])
+                                        (set! pairs (cons (list n tmp) pairs))
+                                        (list tmp `(box ,v)))
+                                      (list n v))) n* v*)])
+                  (if (null? pairs)
+                      (values x (union l2 (apply union l1*)))
+                      (values
+                       `(let (,bd ...)
+                          (let (,pairs ...)
+                            ,body))
+                       (union l2 (apply union l1*)))))]
+               [(,[transform -> f af*] ,[transform -> x* ax*] ...)
+                (values `(,f ,x* ...) (union af* (apply union ax*)))]
+               [,x (values x '())])))
+    (let-values ([(e _) (transform x)])
+      e)))
