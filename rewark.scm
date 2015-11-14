@@ -226,10 +226,165 @@
                       (,constants* ...)
                       (locals (,lv* ...) ,body))])))
 
-(define register-allocation
+(define finalize-locations
   (lambda (x)
-    ))
 
+    (define lookup
+      (lambda (v env)
+        (let ((slot (assq v env)))
+          (if slot (cdr slot) v))))
+
+    (define finalize
+      (lambda (x env)
+        (match x
+               [(program ([,label* (code () , [bd*])] ...) , [bd])
+                `(program ([,label* (code () ,bd*)] ...) ,bd)]
+               [(locate ([,uvar* ,loc*] ...) ,tail)
+                (finalize tail `((,uvar* . ,loc*) ...))]
+               [(begin , [ef*] ... , [tail])
+                `(begin ,ef* ... ,tail)]
+               [(if , [test] , [conseq] , [altern])
+                `(if ,test ,conseq ,altern)]
+               [(set! ,[x] (,binop ,[y] ,[z]))
+                `(set! ,x (,binop ,y ,z))]
+               [(set! ,[x] ,[y])
+                (if (eq? x y) `(nop) `(set! ,x ,y))]
+               [(mset! ,[base] ,[off] ,[val])
+                `(mset! ,base ,off ,val)]
+               [(mref ,[base] ,[off])
+                `(mref ,base ,off)]
+               [(,op ,[x] ,[y]) (guard (or (binop? op) (relop? op)))
+                `(,op ,x ,y)]
+               [(,[triv] ,[live*] ...) `(,triv)]
+               [,v (guard (uvar? v)) (lookup v env)]
+               [,x x])))
+
+    (finalize x '())))
+
+(define expose-frame-var
+  (lambda (p)
+    (define fp-offset 0)
+    (define m@p
+      (lambda (f ls)
+        (cond
+         [(null? ls) '()]
+         [else
+          (let ((first (f (car ls))))
+            (cons first (m@p f (cdr ls))))])))
+    (define expose
+      (lambda (p)
+        (match p
+          [(program ([,label* (code () ,tail*)] ...) ,tail)
+           (let ([saved fp-offset])
+             `(program ([,label* (code () ,(begin (set! fp-offset saved)
+                                                   (expose tail*)))] ...)
+                ,(begin (set! fp-offset saved) (expose tail))))]
+          [(begin ,ef* ... ,tail)
+           `(begin ,@(m@p expose `(,ef* ... ,tail)))]
+          [(if ,test ,conseq ,alt)
+           (let* ([test^ (expose test)]
+                  [saved fp-offset]
+                  [conseq^ (begin (set! fp-offset saved) (expose conseq))]
+                  [alt^ (begin (set! fp-offset saved) (expose alt))])
+             `(if ,test^ ,conseq^ ,alt^))]
+          [(set! ,var (,op ,triv1 ,triv2))
+           (guard (eq? var frame-pointer-register))
+           (set! fp-offset ((eval op) fp-offset triv2))
+           `(set! ,var (,op ,triv1 ,triv2))]
+          [(set! ,[var] (,op/mref ,[triv1] ,[triv2]))
+           `(set! ,var (,op/mref ,triv1 ,triv2))]
+          [(set! ,[var] ,[triv])
+           `(set! ,var ,triv)]
+          [(mset! ,base ,off ,val)
+           `(mset! ,base ,off ,val)]
+          [(,[triv] ,[triv*] ...) `(,triv ,triv* ...)]
+          [,v (guard (frame-var? v))
+              (make-disp-opnd frame-pointer-register
+                              (- (fxsll (frame-var->index v) align-shift)
+                                 fp-offset))]
+          [,p p])))
+    (expose p)))
+
+(define remove-if
+  (lambda (p)
+    (define new-def* '())
+    (define add-def
+      (lambda (def)
+        (set! new-def* (union `(,def) new-def*))))
+    (define shortcut
+      (lambda (seq)
+        (define cut
+          (lambda (p)
+            (match p
+                   [(if (true) ,a ,b) a]
+                   [(if (false) ,a ,b) b]
+                   [,p p])))
+        (map cut seq)))
+    (define make-def
+      (lambda (l seq)
+        (match (shortcut seq)
+               [() '()]
+               [((,triv)) (guard (and *enable-optimize-jumps* (label? triv)))
+                `((,triv))]
+               [,seq
+                (let ([label (if (label? l) l (unique-label l))])
+                  (add-def `(,label (lambda () ,(make-begin seq))))
+                  `((,label)))])))
+    (define expose1 (lambda (p) (make-begin (expose `(,p) id))))
+    (define expose
+      (lambda (seq C)
+        (match seq
+               [(letrec ([,label* (lambda () ,[expose1 -> e1*])] ...) ,[expose1 -> e2*])
+                `(letrec ((,label* (lambda () ,e1*)) ... ,new-def* ...) ,e2*)]
+               [((begin ,s ...)) (expose `(,s ...) C)]
+               [((if ,test ,conseq ,alt) ,t* ...)
+                (let* ([er* (if (null? t*) '() (make-def 'j (expose `(,t* ...) C)))]
+                       [C^ (if (null? t*) C (lambda (eh*) (C `(,@eh* ,@er*))))]
+                       [ec* (make-def 'c (expose `(,conseq) C^))]
+                       [ea* (make-def 'a (expose `(,alt) C^))])
+                  (expose `(,test) (lambda (et*)
+                                     (shortcut `((if ,@et* ,@ec* ,@ea*))))))]
+               [((return-point ,label ,tail) ,t* ...)
+                (let ([et* (make-def label (expose `(,t* ...) C))])
+                  (expose `(,tail) (lambda (eh*) eh*)))]
+               [(,h ,t ,t* ...)
+                (expose `(,h) (lambda (eh*) `(,@eh* ,@(expose `(,t ,t* ...) C))))]
+               [((nop)) (C '())]
+               [,other (C other)])))
+    (expose p id)))
+
+(define flatten-program
+  (lambda (p)
+    (define flatten
+      (lambda (p next-l)
+        (match p
+          [(program ,[flatten-defs -> def*] ,[tail])
+           (let ([tail (cond
+                        [(null? def*) tail]
+                        [else
+                         (match tail
+                           [(,st* ... (jump ,tail)) (guard (eq? tail (caar def*)))
+                            `(,st* ...)]
+                           [,tail tail])])])
+             `(program ,@tail ,def* ... ...))]
+          [(,label* (code () ,[tail*])) `(,label* ,@tail*)]
+          [(begin ,[ef*] ... ,[tail]) `(,ef* ... ... ,@tail)]
+          [(if ,test (,conseq) (,alt))
+           (cond [(eq? conseq next-l)
+                  `((if (not ,test) (jump ,alt)))]
+                 [(eq? alt next-l)
+                  `((if ,test (jump ,conseq)))]
+                 [else `((if ,test (jump ,conseq)) (jump ,alt))])]
+          [(set! ,a ,b) `((set! ,a ,b))]
+          [(mset! ,base ,off ,val) `((mset! ,base ,off ,val))]
+          [(,[triv]) (if (eq? triv next-l) '() `((jump ,triv)))]
+          [,p p])))
+    (define flatten-defs
+      (lambda (defs)
+        (match defs
+               [() '()]
+               [([,lab (code () ,body)]) `(,(flatten `(,lab (code () ,body)) #f))])))
+    (flatten p #f)))
 
 (impose-calling-conversions
  '(program
@@ -246,7 +401,11 @@
    closure-conversion
    lift-constants
    remove-let
-   impose-calling-conversion
+   impose-calling-conversions
    liveness-analysis
    assign-registers
+   finalize-locations ;; remove variable
+   expose-frame-var
+   remove-if
+   flatten-program
    ))
