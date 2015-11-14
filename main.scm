@@ -24,16 +24,17 @@
  '(
    alpha-conversion
    convert-assignment
-   closure-conversion
+   closure-convert
    lift-constants
    remove-let
    impose-calling-conversions
    liveness-analysis
    assign-registers
-   finalize-locations ;; remove variable
+   finalize-locations
    expose-frame-var
    remove-if
    flatten-program
+   ;; generate-x86-64
    ))
 
 (tracer #t)
