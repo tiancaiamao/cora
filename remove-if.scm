@@ -17,18 +17,18 @@
       (lambda (l seq)
         (match (shortcut seq)
                [() '()]
-               [((,triv)) (guard (and *enable-optimize-jumps* (label? triv)))
+               [((,triv)) (guard (and (label? triv)))
                 `((,triv))]
                [,seq
                 (let ([label (if (label? l) l (unique-label l))])
-                  (add-def `(,label (lambda () ,(make-begin seq))))
+                  (add-def `(,label (code () ,(make-begin seq))))
                   `((,label)))])))
     (define expose1 (lambda (p) (make-begin (expose `(,p) id))))
     (define expose
       (lambda (seq C)
         (match seq
-               [(letrec ([,label* (lambda () ,[expose1 -> e1*])] ...) ,[expose1 -> e2*])
-                `(letrec ((,label* (lambda () ,e1*)) ... ,new-def* ...) ,e2*)]
+               [(program ([,label* (code () ,[expose1 -> e1*])] ...) ,[expose1 -> e2*])
+                `(program ((,label* (code () ,e1*)) ... ,new-def* ...) ,e2*)]
                [((begin ,s ...)) (expose `(,s ...) C)]
                [((if ,test ,conseq ,alt) ,t* ...)
                 (let* ([er* (if (null? t*) '() (make-def 'j (expose `(,t* ...) C)))]
@@ -37,11 +37,29 @@
                        [ea* (make-def 'a (expose `(,alt) C^))])
                   (expose `(,test) (lambda (et*)
                                      (shortcut `((if ,@et* ,@ec* ,@ea*))))))]
-               [((return-point ,label ,tail) ,t* ...)
-                (let ([et* (make-def label (expose `(,t* ...) C))])
-                  (expose `(,tail) (lambda (eh*) eh*)))]
                [(,h ,t ,t* ...)
                 (expose `(,h) (lambda (eh*) `(,@eh* ,@(expose `(,t ,t* ...) C))))]
                [((nop)) (C '())]
                [,other (C other)])))
     (expose p id)))
+
+#!eof
+
+(remove-if
+ '(program
+   ([f$1 (code ()
+               (begin
+                 (if rbx
+                     (if rcx (set! rdx 3) (set! rax rdx))
+                     (set! rbx 5))
+                 (set! rcx 6)))])
+   (f$1)))
+
+(program
+ ((f$1 (code () (if rbx (c$10) (a$11))))
+  (a$11 (code () (begin (set! rbx 5) (j$7))))
+  (c$10 (code () (if rcx (c$8) (a$9))))
+  (a$9 (code () (begin (set! rax rdx) (j$7))))
+  (c$8 (code () (begin (set! rdx 3) (j$7))))
+  (j$7 (code () (set! rcx 6))))
+ (f$1))

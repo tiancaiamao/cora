@@ -22,6 +22,7 @@
 
 (compiler-passes
  '(
+   #|
    alpha-conversion
    convert-assignment
    closure-convert
@@ -32,6 +33,7 @@
    assign-registers
    finalize-locations
    expose-frame-var
+   |#
    remove-if
    flatten-program
    ;; generate-x86-64
@@ -44,6 +46,15 @@
 
 (load "main.scm")
 (tracer #t)
+(test-one
+ '(program
+   ([f$1 (code ()
+               (begin
+                 (if rbx
+                     (if rcx rdx rax)
+                     (set! rbx 5))
+                 (set! rcx 6)))])
+   (f$1)))
 (test-one
  '(let ((a 3)
         (b 5))
