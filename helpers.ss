@@ -641,8 +641,15 @@
 
 ;;; operands
 
-(define-record disp-opnd (reg offset))
 (define-record index-opnd (breg ireg))
+(define make-disp-opnd
+  (lambda (reg offset) `(disp ,reg ,offset)))
+(define disp-opnd?
+  (lambda (x)
+    (and (eq? (car x) 'disp)
+         (= (length x) 3))))
+(define disp-opnd-reg cadr)
+(define disp-opnd-offset caddr)
 (module ()
   (record-writer (type-descriptor disp-opnd)
     (lambda (x p wr)

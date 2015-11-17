@@ -111,7 +111,15 @@ jmp *%r15
 #!eof
 
 (generate-x86-64
- '(code (set! rcx r15) (set! rax 24) (set! rax (+ rax 40))
-        (set! rax rax) (jump rp.27)))
+ '(code (set! rcx r15)
+        (set! rax 24)
+        (set! rax (+ rax 40))
+        (set! rax rax)
+        (jump rp.27)))
+
+(generate-x86-64
+ '(set! (disp-opnd rbp 0) rax))
+
+(disp-opnd? #<disp rbp 0> )
 
 (emit-jump 'jmp 'rp.27)

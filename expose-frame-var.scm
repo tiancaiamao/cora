@@ -1,29 +1,25 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Pass: expose-frame-var
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ; This pass turns fv0, fv1, ... into displacement forms. It also adjusts
 ; frame var numbers by tracking the changes to frame-pointer-register.
 #|
-(letrec ([f$1 (lambda ()
-                (begin
-                  (set! fv0 rax)
-                  (set! rax (+ rax rax))
-                  (set! rax (+ rax fv0))
-                  (r15)))])
-  (begin
-    (set! rax 17)
-    (f$1)))
+(program ([f$1 (code ()
+                     (begin
+                       (set! fv0 rax)
+                       (set! rax (+ rax rax))
+                       (set! rax (+ rax fv0))
+                       (r15)))])
+         (begin
+           (set! rax 17)
+           (f$1)))
 =>
-(letrec ([f$1 (lambda ()
-                (begin
-                  (set! (disp rbp 0) rax)
-                  (set! rax (+ rax rax))
-                  (set! rax (+ rax (disp rbp 0)))
-                  (r15)))])
-  (begin
-    (set! rax 17)
-    (f$1)))
+(program ([f$1 (code ()
+                     (begin
+                       (set! (disp rbp 0) rax)
+                       (set! rax (+ rax rax))
+                       (set! rax (+ rax (disp rbp 0)))
+                       (r15)))])
+         (begin
+           (set! rax 17)
+           (f$1)))
 |#
 
 (define expose-frame-var
@@ -70,3 +66,25 @@
           [,p p])))
     (expose p)))
 
+#!eof
+
+(expose-frame-var
+ '(program ([f$1 (code ()
+                       (begin
+                         (set! fv0 rax)
+                         (set! rax (+ rax rax))
+                         (set! rax (+ rax fv0))
+                         (r15)))])
+           (begin
+             (set! rax 17)
+             (f$1))))
+
+(program
+ ((f$1 (code
+        ()
+        (begin
+          (set! #<disp rbp 0> rax)
+          (set! rax (+ rax rax))
+          (set! rax (+ rax #<disp rbp 0>))
+          (r15)))))
+ (begin (set! rax 17) (f$1)))

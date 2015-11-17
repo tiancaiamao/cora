@@ -50,3 +50,13 @@
  f$1
  (set! rax (+ rax rax))
  (jump r15))
+
+(flatten-program
+ '(program
+   ((f$1 (code () (if rbx (c$10) (a$11))))
+    (a$11 (code () (begin (set! rbx 5) (j$7))))
+    (c$10 (code () (if rcx (c$8) (a$9))))
+    (a$9 (code () (begin (set! rax rdx) (j$7))))
+    (c$8 (code () (begin (set! rdx 3) (j$7))))
+    (j$7 (code () (set! rcx 6))))
+   (f$1)))
