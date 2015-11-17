@@ -84,8 +84,8 @@
     (define top
       (lambda (p)
         (match p
-               [(program [(,label (code () ,[body])) ...] ,[tail])
-                `(program [,label (code () ,body)] ... ,tail)]
+               [(program ([,label (code () ,[body])] ...) ,[tail])
+                `(program ([,label (code () ,body)] ...) ,tail)]
                [(locals ,bind ,body)
                 (begin
                   (set! intervals '())

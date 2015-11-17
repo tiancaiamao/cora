@@ -148,9 +148,9 @@
         (available (make-available registers)))
 
     (define (add-to-result x)
-      (display "add-to-result:")
-      (display x)
-      (newline)
+      ;;(display "add-to-result:")
+      ;;(display x)
+      ;;(newline)
       (set! result (cons
                     (cons (interval-var (car x)) (cdr x))
                     result)))
@@ -167,8 +167,6 @@
     ((active 'for-each) add-to-result)
 
     result))
-
-#!eof
 
 ;; test linear-scan-register-allocation
 #|
@@ -220,21 +218,36 @@
             (let ((body1 (map (lambda (interval body)
                                 `(locate ,interval ,body))
                               intervals body)))
-              `(program [(,label (code () ,body)) ...]
-                        (locate ,btail ,itail ,tail)))])))
+              `(program ([,label (code () ,body1)] ...)
+                        (locate ,itail ,tail)))])))
 
-#|
+#!eof
 (assign-registers
- '(program ((f$1 (code ()
+ '(program ([f$1 (code ()
                        (locals (x.1 y.2)
                                (intervals (x.1 3 . 2) (y.2 2 . -1))
                                (if (true)
                                    (begin
                                      (set! x.1 3)
                                      (set! y.2 x.1))
-                                   (f$1))))))
+                                   (f$1))))])
            (locals ()
                    (intervals (r8 2 . -1) (r9 1 . -1))
                    (begin (set! r8 3)
                           (set! r9 10)))))
-|#
+
+(assign-registers
+ '(program
+  ((f$1 (code
+         ()
+         (locals
+          (a.1 b.2 c.3)
+          (intervals (a.1 6 . 4) (c.3 4 . 2) (b.2 5 . 1))
+          (begin
+            (set! a.1 r8)
+            (set! b.2 fv0)
+            (set! c.3 (+ a.1 2))
+            (if (< c.3 0) (nop) (set! c.3 (+ c.3 b.2)))
+            (set! b.2 (+ c.3 1))
+            (r15 3 b.2))))))
+  (locals () (intervals (rax 0 . -1)) (set! rax 3))))

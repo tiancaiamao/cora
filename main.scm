@@ -29,10 +29,10 @@
    lift-constants
    remove-let
    impose-calling-conversions
+   |#
    liveness-analysis
    assign-registers
    finalize-locations
-   |#
    expose-frame-var
    remove-if
    flatten-program
@@ -46,22 +46,19 @@
 
 (load "main.scm")
 (tracer #t)
+
 (test-one
- '(program
-  ([f$1 (code ()
-              (begin
-                (if rbx
-                    (if rcx (set! rdx 3) (set! rax rdx))
-                    (set! rbx 5))
-                (set! rcx 6)))])
-  (f$1)))
-(test-one
- '(let ((a 3)
-        (b 5))
-    (let ((f (lambda (x) (+ x a)))
-          (g (lambda (x) (- a b))))
-      (set! a 7)
-      (+ (f 5) (g 4)))))
+ '(program [(f$1 (code ()
+                       (locals (a.1 b.2 c.3)
+                               (begin
+                                 (set! a.1 r8)
+                                 (set! b.2 fv0)
+                                 (set! c.3 (+ a.1 2))
+                                 (if (< c.3 0) (nop) (set! c.3 (+ c.3 b.2)))
+                                 (set! b.2 (+ c.3 1))
+                                 (r15 3 b.2)))))]
+           (locals () (set! rax 3))))
+
 
 (test-one '(c-call 'fuck))
 (test-one '(procedure? '3))

@@ -651,6 +651,7 @@
 (define disp-opnd-reg cadr)
 (define disp-opnd-offset caddr)
 (module ()
+        #|
   (record-writer (type-descriptor disp-opnd)
     (lambda (x p wr)
       (display-string "#<disp " p)
@@ -658,6 +659,7 @@
       (display-string " " p)
       (wr (disp-opnd-offset x) p)
       (display-string ">" p)))
+        |#
 
   (record-writer (type-descriptor index-opnd)
     (lambda (x p wr)
