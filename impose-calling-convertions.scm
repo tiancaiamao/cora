@@ -25,11 +25,11 @@
             body)))
 |#
 
-(define impose-calling-conventions
+(define impose-calling-convertions
   (lambda (x)
 
-    (define help1 (lambda (x i) `(set! ,x ,(string->symbol (format "pos~a" i)))))
-    (define help2 (lambda (x i) `(set! ,(string->symbol (format "pos~a" i)) ,x)))
+    (define help1 (lambda (x i) `(set! ,x ,(string->symbol (format "in~a" i)))))
+    (define help2 (lambda (x i) `(set! ,(string->symbol (format "out~a" i)) ,x)))
     (define help3
       (lambda (lst i ret fn)
         (if (null? lst)
@@ -42,72 +42,58 @@
       (lambda (x)
         (match x
                [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
-               [(begin ,[s*] ...) `(begin ,s* ...)]
-               [(set! ,x ,[y]) `(set! ,x ,y)]
+               [(begin ,[s*] ...) (make-begin s*)]
+               [(set! ,var ,[val]) `(set! ,var ,val)]
                [(code (,fv* ...)
                       (,var* ...)
                       (locals (,lv* ...) ,[body]))
-                (let ([init (receive var*)])
-                  `(code (,fv* ...)
+                (let ([init (receive var*)]
+                      [body1 (if (pair? body)
+                                 (cdr body)
+                                 body)])
+                  `(code ()
                          (locals (,lv* ... ,var* ...)
-                                 ,(cons 'begin init)
-                                 ,body)))]
-               [(,f ,a* ...)
+                                 ,(make-begin (append init body1)))))]
+               [(,f ,a* ...) (guard (not (primitive? f)))
                 (let ([init (send a*)])
                   `(begin ,@init (call ,f)))]
-               [,other x])))
+               [,other other])))
 
     (match x
            [(program ([,label* ,[impose -> code*]] ...)
-                     ;(,constants* ...)
+                                        ;(,constants* ...)
                      (locals (,lv* ...) ,[impose -> body]))
             `(program ((,label* ,code*) ...)
-                     ; (,constants* ...)
+                                        ; (,constants* ...)
                       (locals (,lv* ...) ,body))])))
 
 #!eof
 
-(impose-calling-conventions
+(impose-calling-convertions
  '(program ([f$1 (code () (x.2 x.5)
                        (locals (t.8 t.9)
                                (begin
                                  (set! t.8 (* x.2 x.5))
                                  (set! t.9 (+ t.8 7)))))])
-           (locals ()
+           (locals (a)
                    (+ a 1))))
-
 (program
  ([f$1 (code ()
-             (locals (t.8 t.9 x.2 x.5)
-                     (begin
-                       (set! x.5 pos1)
-                       (set! x.2 pos0))
-                     (begin
-                       (set! t.8
-                             (begin
-                               (set! pos1 x.5)
-                               (set! pos0 x.2)
-                               (call *)))
-                       (set! t.9
-                             (begin
-                               (set! pos1 7)
-                               (set! pos0 t.8)
-                               (call +))))))])
- (locals ()
-         (begin
-           (set! pos1 1)
-           (set! pos0 a)
-           (call +))))
+             (locals
+              (t.8 t.9 x.2 x.5)
+              (begin
+                (set! x.5 in1)
+                (set! x.2 in0)
+                (set! t.8 (* x.2 x.5))
+                (set! t.9 (+ t.8 7)))))])
+ (locals (a) (+ a 1)))
 
-(impose-calling-conventions
- '(letrec ([anon$16 (lambda (fp.17 x.15)
-                      (locals (t.20 t.19) x.15))])
-    (locals
-     (anon.16 t.18 t.20 t.19)
-     (begin
-       (set! t.20 (alloc 8))
-       (set! t.18 (+ t.20 2))
-       (set! t.19 mset!)
-       (t.19 t.18 -2 anon$16)
-       (set! anon.16 t.18)
-       anon.16))))
+
+(impose-calling-convertions
+ '(program ([f$3 (code (fact.1) (n.2)
+                       (locals ()
+                               (if (= n.2 0)
+                                   1
+                                   (* n.2 (fact.1 (- n.2 1))))))])
+           (locals (a)
+                   (+ a 1))))
