@@ -15,31 +15,27 @@
 
 (define flatten-set!
   (lambda (x)
-
     (define flatten1
       (lambda (var expr)
         (match expr
-               [(begin ,ef* ... ,val) `(begin ,@(map flatten ef*) (set! ,var ,val))]
-               [(if ,a ,b ,c) `(if ,(flatten a) ,(flatten1 var b) ,(flatten1 var c))]
-               [,x `(set! ,var ,expr)])))
-
+               [(begin ,[flatten -> ef*] ... ,val) `(begin ,@ef* (set! ,var ,val))]
+               [(if ,[flatten -> a] ,[b] ,[c]) `(if ,a ,b ,c)]
+               [,x `(set! ,var ,x)])))
     (define flatten
       (lambda (x)
         (match x
-               [(locals (,uvar* ...) ,tail) `(locals ,uvar* ,(flatten tail))]
-               [(begin ,ef* ... ,tail) (make-begin (map flatten (cdr x)))]
-               [(if ,a ,b ,c) `(if ,(flatten a) ,(flatten b) ,(flatten c))]
+               [(locals (,uvar* ...) ,[tail]) `(locals (,uvar* ...) ,tail)]
+               [(begin ,[ef*] ... ,[tail]) (make-begin `(,ef* ... ,tail))]
+               [(if ,[a] ,[b] ,[c]) `(if ,a ,b ,c)]
                [(set! ,var ,val) (flatten1 var val)]
-               [,x x])))
-
-    (define build-function (lambda (label body fml) `(,label (lambda ,fml ,body))))
-
+               [,e e])))
     (match x
-           [(letrec ([,label* (lambda (,fml** ...) ,body*)] ...)
-              ,body)
-            (let ((body* (map flatten body*))
-                  (body (flatten body)))
-              `(letrec ,(map build-function label* body* fml**) ,body))])))
+           [(program ([,label* (code (,fv** ...) (,fml** ...)
+                                     ,[flatten -> body*])] ...)
+                     ,[flatten -> body])
+            `(program ([,label* (code (,fv** ...) (,fml** ...)
+                                      ,body*)] ...)
+                      ,body)])))
 
 #!eof
 
@@ -53,7 +49,7 @@
                              (set! t.7 (begin
                                          (set! t.6 (- n.2 1))
                                          (fact.1 t.6)))
-                             (* n.2 t.7)))))))
+                             (* n.2 t.7)))))])
    (locals (fact.1 t.5 t.4)
            (begin
              (set! fact.1
@@ -61,4 +57,4 @@
                      (set! t.5 3)
                      (set! t.4 t5)
                      t.4))
-             (closure f$3 fact.1))))
+             (closure f$3 fact.1)))))
