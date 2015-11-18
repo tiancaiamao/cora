@@ -33,39 +33,34 @@
 
     (let ([x1 (convert x)])
       `(program ,labels
-             ,(convert x1)))))(define closure-convert
-  (lambda (x)
+                ,(convert x1)))))
 
-    (define (free-vars exp)
-      (match exp
-             [,x (guard (or (primitive? x) (constant? x))) '()]
-             [,x (guard (symbol? x)) (list x)]
-             [(lambda (,u* ...) ,[body])
-              (difference body u*)]
-             [(if ,[t] ,[c] ,[a]) (union t c a)]
-             [(begin ,[es*] ...) (apply union es*)]
-             [(set! ,[n] ,[v]) (union n v)]
-             [(,[f] ,[x*] ...) (union f (apply union x*))]))
+#!eof
 
-    (define labels '())
+(closure-convert
+ '(let ([a 3] [b 5])
+    (lambda ()
+      (+ a b))))
 
-    (define convert
-      (lambda (x)
-        (match x
-               [,x (guard (or (primitive? x) (constant? x))) x]
-               [,x (guard (symbol? x)) x]
-               [(lambda (,u* ...) ,body)
-                (let* ([body1 (convert body)]
-                       [fv (difference (free-vars body) u*)]
-                       [label (unique-label 'f)])
-                  (set! labels (cons
-                                `[,label (code (,fv ...) (,u* ...) ,body1)]
-                                labels))
-                  `(closure ,label ,@fv))]
-               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
-               [(set! ,n ,[v]) `(set! ,n ,v)]
-               [(,[f] ,[x*] ...) `(,f ,x* ...)])))
+(program
+ ([f$5 (code (a b) ()
+             (+ a b))])
+ (let ([a 3] [b 5])
+   (closure f$5 a b)))
 
-    (let ([x1 (convert x)])
-      `(program ,labels
-             ,(convert x1)))))
+(closure-convert
+ '(let ([fact.6 '()])
+    (lambda (n.7)
+      (if (= n.7 0)
+          1
+          (* n.7 (fact.6 (- n.7 1)))))))
+
+(program
+ ((f$8 (code
+        (fact.6)
+        (n.7)
+        (if (= n.7 0)
+            1
+            (* n.7 (fact.6 (- n.7 1)))))))
+ (let ([fact.6 '()])
+   (closure f$8 fact.6)))

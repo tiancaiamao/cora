@@ -34,3 +34,12 @@
                 `(,f ,x* ...)]
                [,x (error 'alpha-conversion (format "wrong input: ~a" x))])))
     (transform x '())))
+
+#!eof
+
+(alpha-conversion
+ '(let ([fact '()])
+    (lambda (n)
+      (if (= n 0)
+          1
+          (* n (fact (- n 1)))))))

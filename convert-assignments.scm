@@ -55,3 +55,13 @@
                [,x (values x '())])))
     (let-values ([(e _) (transform x)])
       e)))
+
+#!eof
+
+(convert-assignment
+ '(let ([x.3 '10] [y.1 '11] [z.2 '12])
+    (assigned (x.3 z.2)
+              (begin
+                (set! x.3 (+ x.3 y.1))
+                (set! z.2 (* y.1 '2))
+                (cons y.1 z.2)))))

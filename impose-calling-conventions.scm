@@ -25,7 +25,7 @@
             body)))
 |#
 
-(define impose-calling-conversions
+(define impose-calling-conventions
   (lambda (x)
 
     (define help1 (lambda (x i) `(set! ,x ,(string->symbol (format "pos~a" i)))))
@@ -59,22 +59,45 @@
 
     (match x
            [(program ([,label* ,[impose -> code*]] ...)
-                     (,constants* ...)
+                     ;(,constants* ...)
                      (locals (,lv* ...) ,[impose -> body]))
             `(program ((,label* ,code*) ...)
-                      (,constants* ...)
+                     ; (,constants* ...)
                       (locals (,lv* ...) ,body))])))
 
 #!eof
 
 (impose-calling-conventions
- '(letrec ((f$1 (lambda (a b c)
-                  (locals ()
-                          (begin
-                            (set! t.8 (* x.2 x.5))
-                            (set! t.9 (+ t.8 7)))))))
-    (locals ()
-            (+ a 1))))
+ '(program ([f$1 (code () (x.2 x.5)
+                       (locals (t.8 t.9)
+                               (begin
+                                 (set! t.8 (* x.2 x.5))
+                                 (set! t.9 (+ t.8 7)))))])
+           (locals ()
+                   (+ a 1))))
+
+(program
+ ([f$1 (code ()
+             (locals (t.8 t.9 x.2 x.5)
+                     (begin
+                       (set! x.5 pos1)
+                       (set! x.2 pos0))
+                     (begin
+                       (set! t.8
+                             (begin
+                               (set! pos1 x.5)
+                               (set! pos0 x.2)
+                               (call *)))
+                       (set! t.9
+                             (begin
+                               (set! pos1 7)
+                               (set! pos0 t.8)
+                               (call +))))))])
+ (locals ()
+         (begin
+           (set! pos1 1)
+           (set! pos0 a)
+           (call +))))
 
 (impose-calling-conventions
  '(letrec ([anon$16 (lambda (fp.17 x.15)

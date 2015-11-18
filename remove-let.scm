@@ -1,9 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; remove-let
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; This pass converts let expressions into assignments.
-
 (define remove-let
   (lambda (x)
     (define locals* '())
@@ -35,3 +29,27 @@
                                       (locals ,new* ,body*))) ...)
                       ,constants ...
                       (locals ,new ,body))])))
+
+#!eof
+
+(remove-let
+ '(program
+   ((f$8 (code
+          (fact.6)
+          (n.7)
+          (if (= n.7 0)
+              1
+              (* n.7 (fact.6 (- n.7 1)))))))
+   (let ([fact.6 '()])
+     (closure f$8 fact.6))))
+
+(program
+ ((f$8 (code (fact.6) (n.7)
+             (locals ()
+                     (if (= n.7 0)
+                         1
+                         (* n.7 (fact.6 (- n.7 1))))))))
+ (locals (fact.6)
+         (begin
+           (set! fact.6 '())
+           (closure f$8 fact.6))))

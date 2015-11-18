@@ -22,20 +22,20 @@
 
 (compiler-passes
  '(
-   #|
    alpha-conversion
-   convert-assignment
+   ;convert-assignment
    closure-convert
-   lift-constants
+   ;lift-constants
    remove-let
+   #|
    impose-calling-conversions
-   |#
    liveness-analysis
    assign-registers
    finalize-locations
    expose-frame-var
    remove-if
    flatten-program
+   |#
    ;; generate-x86-64
    ))
 
