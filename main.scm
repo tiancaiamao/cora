@@ -11,6 +11,8 @@
 (load "closure-convert.scm")
 (load "lift-constants.scm")
 (load "remove-let.scm")
+(load "flatten-set.scm")
+(load "remove-complex-opera.scm")
 (load "impose-calling-convertions.scm")
 (load "liveness-analysis.scm")
 (load "assign-registers.scm")
@@ -27,6 +29,8 @@
    closure-convert
    ;lift-constants
    remove-let
+   remove-complex-opera
+   flatten-set!
    impose-calling-convertions
    #|
    liveness-analysis

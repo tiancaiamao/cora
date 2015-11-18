@@ -40,3 +40,25 @@
             (let ((body* (map flatten body*))
                   (body (flatten body)))
               `(letrec ,(map build-function label* body* fml**) ,body))])))
+
+#!eof
+
+(flatten-set!
+ '(program
+   ([f$3 (code (fact.1) (n.2)
+               (locals (t.7 t.6)
+                       (if (= n.2 0)
+                           1
+                           (begin
+                             (set! t.7 (begin
+                                         (set! t.6 (- n.2 1))
+                                         (fact.1 t.6)))
+                             (* n.2 t.7)))))))
+   (locals (fact.1 t.5 t.4)
+           (begin
+             (set! fact.1
+                   (begin
+                     (set! t.5 3)
+                     (set! t.4 t5)
+                     t.4))
+             (closure f$3 fact.1))))

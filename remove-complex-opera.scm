@@ -31,110 +31,118 @@
   (+ x.1 1))
 |#
 
+(define-who remove-complex-opera
+  (define (Body bd)
+    (define (simple? x)
+      (or (uvar? x) (label? x) (and (integer? x) (exact? x))
+          (memq x '(+ - * logand logor sra mref closure)) (memq x '(= < <= > >=))))
+    (define new-local* '())
+    (define (new-t)
+      (let ([t (unique-name 't)])
+        (set! new-local* (cons t new-local*))
+        t))
+    (define (trivialize-call expr*)
+      (let-values ([(call set*) (break-down-expr* expr*)])
+        (make-begin `(,@set* ,call))))
+    (define break-down-expr*
+			(lambda (expr*)
+				(match expr*
+	        [() (values '() '())]
+					[(alloc . ,[break-down-expr* -> rest* set*])
+						(values `(alloc ,rest* ...) set*)]
+					[(mset! . ,[break-down-expr* -> rest* set*])
+						(values `(mset! ,rest* ...) set*)]
+	        [(,s . ,[break-down-expr* -> rest* set*]) 
+	         (guard (simple? s)) 
+	         (values `(,s ,rest* ...) set*)]
+	        [(,[Value -> expr] . , [break-down-expr* -> rest* set*])
+	         (let ([t (new-t)]) 
+	           (values `(,t ,rest* ...) `((set! ,t ,expr) ,set* ...)))]
+	        [,expr* (error who "invalid Expr ~s" expr*)])))
+    (define Value
+			(lambda (val)
+				(match val
+	        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
+	        [(begin ,[Effect -> ef*] ... ,[val]) (make-begin `(,ef* ... ,val))]
+					[(alloc ,[Value -> val]) (trivialize-call `(alloc ,val))]
+					[(,binop ,[Value -> x] ,[ Value -> y])
+	         (guard (memq binop '(+ - * logand logor sra mref)))
+	         (trivialize-call `(,binop ,x ,y))]
+	        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
+	        [,tr tr])))
+    (define (Effect ef)
+      (match ef
+        [(nop) '(nop)]
+				[(mset! ,[Value -> val1] ,[Value -> val2] ,[Value -> val3]) (trivialize-call `(mset! ,val1 ,val2 ,val3))]
+        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
+        [(begin ,[ef*] ... ,[ef]) (make-begin `(,ef* ... ,ef))]
+        [(set! ,var ,[Value -> val]) `(set! ,var ,val)]
+        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
+        [,ef (error who "invalid Effect ~s" ef)]))
+    (define (Pred pr)
+      (match pr
+        [(true) '(true)]
+        [(false) '(false)]
+        [(if ,[test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
+        [(begin ,[Effect -> ef*] ... ,[pr]) (make-begin `(,ef* ... ,pr))]
+        [(,predop ,x ,y)
+         (guard (memq predop '(< <= = >= >)))
+         (trivialize-call `(,predop ,x ,y))]
+        [,pr (error who "invalid Pred ~s" pr)]))
+    (define (Tail tail)
+      (match tail
+        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
+        [(begin ,[Effect -> ef*] ... ,[tail]) (make-begin `(,ef* ... ,tail))]
+				[(alloc ,[Value -> val]) (trivialize-call `(alloc ,val))]
+        [(,binop ,[Value -> x] ,[Value -> y])
+         (guard (memq binop '(+ - * logand logor sra mref)))
+         (trivialize-call `(,binop ,x ,y))]
+        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
+        [,tr tr]))
+    (match bd
+      [(locals (,local* ...) ,[Tail -> tail])
+       `(locals (,local* ... ,new-local* ...) ,tail)]
+      [,bd (error who "invalid Body ~s" bd)]))
+  (lambda (x)
+    (match x
+      [(program ([,label* (code (,fv** ...) (,fml** ...) ,[Body -> bd*])] ...) 
+         ,[Body -> bd])
+       `(program ([,label* (code (,fv** ...) (,fml** ...) ,bd*)] ...) ,bd)]
+      [,x (error who "invalid Program ~s" x)])))
 
-(define remove-complex-opera*
-  (lambda (exp)
-    (define temp* #f)
-    (define new-t
-      (lambda ()
-        (let ([t (unique-name 't)])
-          (set-box! temp* (cons t (unbox temp*)))
-          t)))
-    (define rem1
-      (lambda (exp)
-        (set! temp* (box '()))
-        (let ([exp* (make-begin (rem `(,exp) 'id id))])
-          (values (unbox temp*) exp*))))
-    (define rem
-      (lambda (exp ct C)
-        (match exp
-          [(letrec ([,label* (lambda (,fml** ...)
-                               (locals (,local1* ...)
-                                 ,[rem1 -> new* tail*]))] ...)
-             (locals (,local2* ...) ,[rem1 -> new tail]))
-           `(letrec ([,label* (lambda (,fml** ...)
-                                (locals (,local1* ... ,new* ...) ,tail*))] ...)
-              (locals (,local2* ... ,new ...) ,tail))]
-          [((begin ,e* ... ,t))
-           (let ([vt* (rem `(,t) ct
-                           (lambda (vt*)
-                             (case ct
-                               [(fun arg mref)
-                                (let ([t@ (new-t)])
-                                  `((set! ,t@ ,@vt*) ,@(C `(,t@))))]
-                               [else (C vt*)])))])
-             (rem `(,e* ...) 'seq
-                  (lambda (ve*) `(,@ve* ,@vt*))))]
-          [(,a ,a* ...) (guard (eq? ct 'arg*))
-           (rem `(,a) 'arg
-                (lambda (v1*)
-                  (rem `(,a* ...) 'arg*
-                       (lambda (v2*) (C `(,@v1* ,@v2*))))))]
-          [(,h ,t ,t* ...)
-           (let ([vt* (rem `(,t ,t* ...) ct C)])
-             (rem `(,h) 'seq
-                  (lambda (vh*) `(,@vh* ,@vt*))))]
-          [((if ,test ,conseq ,alt))
-           (case ct
-             [(fun arg mref)
-              (let* ([t@ (new-t)]
-                     [ctx (lambda (v*) `((set! ,t@ ,@v*)))]
-                     [ec (make-begin (rem `(,conseq) 'rhs ctx))]
-                     [ea (make-begin (rem `(,alt) 'rhs ctx))])
-                (rem `(,test) 'test
-                     (lambda (vt*) `((if ,@vt* ,ec ,ea) ,@(C `(,t@))))))]
-             [rhs
-              (let ([ec (make-begin (rem `(,conseq) ct C))]
-                    [ea (make-begin (rem `(,alt) ct C))])
-                (rem `(,test) 'test
-                     (lambda (vt*) `((if ,@vt* ,ec ,ea)))))]
-             [else
-              (let ([ec (make-begin (rem `(,conseq) 'id id))]
-                    [ea (make-begin (rem `(,alt) 'id id))])
-                (rem `(,test) 'test
-                     (lambda (vt*) (C `((if ,@vt* ,ec ,ea))))))])]
-          [((set! ,x ,y))
-           (C (rem `(,x) 'lhs
-                   (lambda (vx*)
-                     (rem `(,y) 'rhs
-                          (lambda (vy*) `((set! ,@vx* ,@vy*)))))))]
-          [((,a)) (guard (memq a '(nop true false))) (C `((,a)))]
-          [((alloc ,n))
-           (rem `(,n) 'arg
-                (lambda (vn*)
-                  (let ([addr (new-t)])
-                    `((set! ,addr ,allocation-pointer-register)
-                      (set! ,allocation-pointer-register
-                            (+ ,allocation-pointer-register ,@vn*))
-                      ,@(C `(,addr))))))]
+#!eof
 
-          [((mset! ,base ,off ,val))
-           (C (rem `(,base) 'mref
-                   (lambda (vb*)
-                     (rem `(,off) 'mref
-                          (lambda (vo*)
-                            (rem `(,val) 'rhs
-                                 (lambda (vv*)
-                                   `((mset! ,@vb* ,@vo* ,@vv*)))))))))]
-          [((mref ,base ,off))
-           (rem `(,base) 'mref
-                (lambda (vb*)
-                  (rem `(,off) 'mref
-                       (lambda (vo*)
-                         (case ct
-                           [(fun mref)
-                            (let ([t@ (new-t)])
-                              `((set! ,t@ (mref ,@vb* ,@vo*)) ,@(C `(,t@))))]
-                           [else (C `((mref ,@vb* ,@vo*)))])))))]
-          [((,f ,a* ...))
-           (rem `(,f) 'fun
-                (lambda (vf*)
-                  (rem `(,a* ...) 'arg*
-                       (lambda (va*)
-                         (case ct
-                           [(fun arg mref)
-                            (let ([t@ (new-t)])
-                              `((set! ,t@ (,@vf* ,@va*)) ,@(C `(,t@))))]
-                           [else (C `((,@vf* ,@va*)))])))))]
-          [,exp (C exp)])))
-    (rem exp 'id id)))
+(remove-complex-opera*
+ '(program ([fact$1 (code () (n.2)
+                          (locals ()
+                                  (if (= n.2 0)
+                                      8
+                                      (* (sra n.2 3) (fact$1 (- n.2 8))))))])
+           (locals () (begin (fact$1 40)))))
+
+(program
+ ((fact$1
+   (code () (n.2)
+         (locals
+          (t.47 t.46 t.45)
+          (if (= n.2 0)
+              8
+              (begin
+                (set! t.47 (sra n.2 3))
+                (set! t.46 (begin
+                             (set! t.45 (- n.2 8))
+                             (fact$1 t.45)))
+                (* t.47 t.46)))))))
+ (locals () (fact$1 40)))
+
+(remove-complex-opera*
+ '(program
+   ((f$8 (code (fact.6) (n.7)
+               (locals ()
+                       (if (= n.7 0)
+                           1
+                           (* n.7 (fact.6 (- n.7 1))))))))
+   (locals (fact.6)
+           (begin
+             (set! fact.6 '())
+             (closure f$8 fact.6)))))
