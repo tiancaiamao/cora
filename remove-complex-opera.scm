@@ -41,74 +41,44 @@
       (let ([t (unique-name 't)])
         (set! new-local* (cons t new-local*))
         t))
-    (define (trivialize-call expr*)
-      (let-values ([(call set*) (break-down-expr* expr*)])
+    (define (remove0 expr*)
+      (let-values ([(call set*) (remove1 expr*)])
         (make-begin `(,@set* ,call))))
-    (define break-down-expr*
-			(lambda (expr*)
-				(match expr*
-	        [() (values '() '())]
-					[(alloc . ,[break-down-expr* -> rest* set*])
-						(values `(alloc ,rest* ...) set*)]
-					[(mset! . ,[break-down-expr* -> rest* set*])
-						(values `(mset! ,rest* ...) set*)]
-	        [(,s . ,[break-down-expr* -> rest* set*]) 
-	         (guard (simple? s)) 
-	         (values `(,s ,rest* ...) set*)]
-	        [(,[Value -> expr] . , [break-down-expr* -> rest* set*])
-	         (let ([t (new-t)]) 
-	           (values `(,t ,rest* ...) `((set! ,t ,expr) ,set* ...)))]
-	        [,expr* (error who "invalid Expr ~s" expr*)])))
-    (define Value
-			(lambda (val)
-				(match val
-	        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
-	        [(begin ,[Effect -> ef*] ... ,[val]) (make-begin `(,ef* ... ,val))]
-					[(alloc ,[Value -> val]) (trivialize-call `(alloc ,val))]
-					[(,binop ,[Value -> x] ,[ Value -> y])
-	         (guard (memq binop '(+ - * logand logor sra mref)))
-	         (trivialize-call `(,binop ,x ,y))]
-	        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
-	        [,tr tr])))
-    (define (Effect ef)
-      (match ef
-        [(nop) '(nop)]
-				[(mset! ,[Value -> val1] ,[Value -> val2] ,[Value -> val3]) (trivialize-call `(mset! ,val1 ,val2 ,val3))]
-        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
-        [(begin ,[ef*] ... ,[ef]) (make-begin `(,ef* ... ,ef))]
-        [(set! ,var ,[Value -> val]) `(set! ,var ,val)]
-        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
-        [,ef (error who "invalid Effect ~s" ef)]))
-    (define (Pred pr)
-      (match pr
-        [(true) '(true)]
-        [(false) '(false)]
-        [(if ,[test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
-        [(begin ,[Effect -> ef*] ... ,[pr]) (make-begin `(,ef* ... ,pr))]
-        [(,predop ,x ,y)
-         (guard (memq predop '(< <= = >= >)))
-         (trivialize-call `(,predop ,x ,y))]
-        [,pr (error who "invalid Pred ~s" pr)]))
-    (define (Tail tail)
-      (match tail
-        [(if ,[Pred -> test] ,[conseq] ,[altern]) `(if ,test ,conseq ,altern)]
-        [(begin ,[Effect -> ef*] ... ,[tail]) (make-begin `(,ef* ... ,tail))]
-				[(alloc ,[Value -> val]) (trivialize-call `(alloc ,val))]
-        [(,binop ,[Value -> x] ,[Value -> y])
-         (guard (memq binop '(+ - * logand logor sra mref)))
-         (trivialize-call `(,binop ,x ,y))]
-        [(,rator ,rand* ...) (trivialize-call `(,rator ,rand* ...))]
-        [,tr tr]))
+    (define remove1
+      (lambda (expr*)
+        (match expr*
+               [() (values '() '())]
+               [(,s . ,[remove1 -> rest* set*])
+                (guard (simple? s))
+                (values `(,s ,rest* ...) set*)]
+               [(,[remove -> expr] . ,[remove1 -> rest* set*])
+                (let ([t (new-t)])
+                  (values `(,t ,rest* ...) `((set! ,t ,expr) ,set* ...)))]
+               [,expr* (error who "invalid Expr ~s" expr*)])))
+    (define remove
+      (lambda (x)
+        (match x
+               [(true) '(true)]
+               [(false) '(false)]
+               [(nop) '(nop)]
+               [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
+               [(begin ,[ef*] ... ,[val]) (make-begin `(,ef* ... ,val))]
+               [(set! ,var ,[val]) `(set! ,var ,val)]
+               [(,op ,[x] ,[y])
+                (guard (memq op '(+ - * logand logor sra mref < <= = >= >)))
+                (remove0 `(,op ,x ,y))]
+               [(,rator ,rand* ...) (remove0 `(,rator ,rand* ...))]
+               [,tr tr])))
     (match bd
-      [(locals (,local* ...) ,[Tail -> tail])
-       `(locals (,local* ... ,new-local* ...) ,tail)]
-      [,bd (error who "invalid Body ~s" bd)]))
+           [(locals (,local* ...) ,[remove -> tail])
+            `(locals (,local* ... ,new-local* ...) ,tail)]
+           [,bd (error who "invalid Body ~s" bd)]))
   (lambda (x)
     (match x
-      [(program ([,label* (code (,fv** ...) (,fml** ...) ,[Body -> bd*])] ...) 
-         ,[Body -> bd])
-       `(program ([,label* (code (,fv** ...) (,fml** ...) ,bd*)] ...) ,bd)]
-      [,x (error who "invalid Program ~s" x)])))
+           [(program ([,label* (code (,fv** ...) (,fml** ...) ,[Body -> bd*])] ...) 
+                     ,[Body -> bd])
+            `(program ([,label* (code (,fv** ...) (,fml** ...) ,bd*)] ...) ,bd)]
+           [,x (error who "invalid Program ~s" x)])))
 
 #!eof
 
@@ -146,3 +116,10 @@
            (begin
              (set! fact.6 '())
              (closure f$8 fact.6)))))
+
+
+
+
+
+
+

@@ -88,6 +88,10 @@
                 (set! t.9 (+ t.8 7)))))])
  (locals (a) (+ a 1)))
 
+(impose
+ '(if (= n.2 0)
+      1
+      (* n.2 (fact.1 (- n.2 1)))))
 
 (impose-calling-convertions
  '(program ([f$3 (code (fact.1) (n.2)
