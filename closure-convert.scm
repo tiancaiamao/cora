@@ -1,6 +1,6 @@
 (define closure-convert
   (lambda (x)
-
+    (define labels '())
     (define (free-vars exp)
       (match exp
              [,x (guard (or (primitive? x) (constant? x))) '()]
@@ -11,17 +11,14 @@
              [(begin ,[es*] ...) (apply union es*)]
              [(set! ,[n] ,[v]) (union n v)]
              [(,[f] ,[x*] ...) (union f (apply union x*))]))
-
-    (define labels '())
-
     (define convert
-      (lambda (x)
+      (lambda (x global)
         (match x
                [,x (guard (or (primitive? x) (constant? x))) x]
                [,x (guard (symbol? x)) x]
                [(lambda (,u* ...) ,body)
-                (let* ([body1 (convert body)]
-                       [fv (difference (free-vars body) u*)]
+                (let* ([body1 (convert body global)]
+                       [fv (difference (free-vars body) (append u* global))]
                        [label (unique-label 'f)])
                   (set! labels (cons
                                 `[,label (code (,fv ...) (,u* ...) ,body1)]
@@ -30,17 +27,22 @@
                [(if ,[t] ,[c] ,[a]) `(if ,t ,c ,a)]
                [(set! ,n ,[v]) `(set! ,n ,v)]
                [(,[f] ,[x*] ...) `(,f ,x* ...)])))
-
-    (let ([x1 (convert x)])
-      `(program ,labels
-                ,(convert x1)))))
+    (match x
+           [(program ,global ,exp ...)
+            (let ([body (map (lambda (x) (convert x global)) exp)])
+              `(program ,labels ,body ...))])))
 
 #!eof
 
 (closure-convert
- '(let ([a 3] [b 5])
-    (lambda ()
-      (+ a b))))
+ '(program ()
+           (let ([a 3] [b 5])
+             (lambda ()
+               (+ a b)))))
+
+(closure-convert
+ '(program (fact)
+           (set! fact (lambda (n) (if (= n 0) 1 (* n (fact (- n 1))))))))
 
 (program
  ([f$5 (code (a b) ()
@@ -64,3 +66,9 @@
             (* n.7 (fact.6 (- n.7 1)))))))
  (let ([fact.6 '()])
    (closure f$8 fact.6)))
+
+(let ([fact ()])
+  (set! fact (lambda (n)
+               (if (= n 0)
+                   1
+                   (* n (fact (- n 1)))))))

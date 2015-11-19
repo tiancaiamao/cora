@@ -47,13 +47,11 @@
                [(code (,fv* ...)
                       (,var* ...)
                       (locals (,lv* ...) ,[body]))
-                (let ([init (receive var*)]
-                      [body1 (if (pair? body)
-                                 (cdr body)
-                                 body)])
+                (let* ([init (receive var*)]
+                      [body1 (make-begin `(,@init ,body))])
                   `(code ()
                          (locals (,lv* ... ,var* ...)
-                                 ,(make-begin (append init body1)))))]
+                                 ,body1)))]
                [(,f ,a* ...) (guard (not (primitive? f)))
                 (let ([init (send a*)])
                   `(begin ,@init (call ,f)))]
@@ -101,3 +99,20 @@
                                    (* n.2 (fact.1 (- n.2 1))))))])
            (locals (a)
                    (+ a 1))))
+
+(impose-calling-convertions
+ '(program
+   ((f$3 (code (fact.1) (n.2)
+               (locals (t.7 t.6)
+                       (if (= n.2 0)
+                           1
+                           (begin
+                             (set! t.6 (- n.2 1))
+                             (set! t.7 (fact.1 t.6))
+                             (* n.2 t.7)))))))
+   (locals (fact.1 t.5 t.4)
+           (begin
+             (set! t.5 quote)
+             (set! t.4 ())
+             (set! fact.1 (t.5 t.4))
+             (closure f$3 fact.1)))))
