@@ -30,10 +30,10 @@
                [(set! ,var ,val) (flatten1 var val)]
                [,e e])))
     (match x
-           [(program ([,label* (code (,fv** ...) (,fml** ...)
+           [(program ([,label* (code ()
                                      ,[flatten -> body*])] ...)
                      ,[flatten -> body])
-            `(program ([,label* (code (,fv** ...) (,fml** ...)
+            `(program ([,label* (code ()
                                       ,body*)] ...)
                       ,body)])))
 

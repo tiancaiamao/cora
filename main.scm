@@ -24,14 +24,14 @@
 
 (compiler-passes
  '(
-   alpha-conversion
+   ;alpha-conversion
    ;convert-assignment
    closure-convert
    ;lift-constants
    remove-let
    remove-complex-opera
-   flatten-set!
    impose-calling-convertions
+   flatten-set!
    #|
    liveness-analysis
    assign-registers
@@ -52,6 +52,21 @@
 (tracer #t)
 
 (test-one
+ '(program
+   (set! gv0 (lambda (n)
+               (if (= n 0)
+                   1
+                   (* n (gv0 (- n 1))))))))
+
+(make-begin '((begin
+              (set! t.6 n)
+              (set! t.4 gv0)
+              (set! t.2 n)
+              (set! t.3 (- t.2 1))
+              (set! t.5 (begin (set! out0 t.3) (call t.4) rax))
+              (* t.6 t.5))))
+
+(test-one
  '(let ([fact '()])
     (lambda (n)
       (if (= n 0)
@@ -61,4 +76,3 @@
 
 (test-one '(c-call 'fuck))
 (test-one '(procedure? '3))
-(test-one "asdf")

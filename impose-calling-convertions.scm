@@ -54,7 +54,7 @@
                                  ,body1)))]
                [(,f ,a* ...) (guard (not (primitive? f)))
                 (let ([init (send a*)])
-                  `(begin ,@init (call ,f)))]
+                  `(begin ,@init (call ,f) rax))]
                [,other other])))
 
     (match x
