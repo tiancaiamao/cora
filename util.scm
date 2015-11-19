@@ -112,3 +112,10 @@
 
 (define (constant? x) (or (boolean? x) (null? x) (number? x) (string? x)))
 (define (primitive? x) (memq x '(procedure? void foreign-call + - * / = closure)))
+
+(define global-var?
+  (lambda (x)
+    (and (symbol? x)
+         (let ([str (symbol->string x)])
+           (and (> (string-length str) 2)
+                (string=? (substring str 0 2) "gv"))))))

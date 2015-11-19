@@ -4,6 +4,7 @@
     (define (free-vars exp)
       (match exp
              [,x (guard (or (primitive? x) (constant? x))) '()]
+             [,x (guard (global-var? x)) '()]
              [,x (guard (symbol? x)) (list x)]
              [(lambda (,u* ...) ,[body])
               (difference body u*)]
@@ -12,13 +13,13 @@
              [(set! ,[n] ,[v]) (union n v)]
              [(,[f] ,[x*] ...) (union f (apply union x*))]))
     (define convert
-      (lambda (x global)
+      (lambda (x)
         (match x
                [,x (guard (or (primitive? x) (constant? x))) x]
                [,x (guard (symbol? x)) x]
                [(lambda (,u* ...) ,body)
-                (let* ([body1 (convert body global)]
-                       [fv (difference (free-vars body) (append u* global))]
+                (let* ([body1 (convert body)]
+                       [fv (difference (free-vars body) (append u*))]
                        [label (unique-label 'f)])
                   (set! labels (cons
                                 `[,label (code (,fv ...) (,u* ...) ,body1)]
@@ -28,21 +29,23 @@
                [(set! ,n ,[v]) `(set! ,n ,v)]
                [(,[f] ,[x*] ...) `(,f ,x* ...)])))
     (match x
-           [(program ,global ,exp ...)
-            (let ([body (map (lambda (x) (convert x global)) exp)])
-              `(program ,labels ,body ...))])))
+           [(program ,[convert -> body] ...)
+            `(program ,labels ,body ...)])))
 
 #!eof
 
 (closure-convert
- '(program ()
-           (let ([a 3] [b 5])
-             (lambda ()
-               (+ a b)))))
+ '(program 
+   (let ([a 3] [b 5])
+     (lambda ()
+       (+ a b)))))
 
 (closure-convert
- '(program (fact)
-           (set! fact (lambda (n) (if (= n 0) 1 (* n (fact (- n 1))))))))
+ '(program
+   (set! gv0 (lambda (n)
+               (if (= n 0)
+                   1
+                   (* n (gv0 (- n 1))))))))
 
 (program
  ([f$5 (code (a b) ()
