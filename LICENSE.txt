@@ -1,4 +1,4 @@
-Copyright (C) 2011, 2017 Arthur <tiancaiamao@gmail.com>
+Copyright (C) 2017 Arthur <tiancaiamao@gmail.com>
 Copyright (C) 2011, 2017 Göran Weinholt <goran@weinholt.se>
 Copyright (C) 2011 Per Odlund <per.odlund@gmail.com>
 

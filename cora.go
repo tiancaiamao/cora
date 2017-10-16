@@ -46,12 +46,12 @@ var conschemedirs []string = []string{
 const dirsep = "/"
 const pathsep = ":"
 
-var boot = flag.String("boot", "", "conscheme boot image file")
+var boot = flag.String("boot", "", "cora boot image file")
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 var memprofile = flag.String("memprofile", "", "write memory profile to this file")
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: conscheme [OPTION]... [FILE]...\n")
+	fmt.Fprintf(os.Stderr, "Usage: cora [OPTION]... [FILE]...\n")
 	flag.PrintDefaults()
 	os.Exit(1)
 }
@@ -72,7 +72,7 @@ func findimage() *vm.Deserializer {
 	if *boot != "" {
 		d, e := tryimage(*boot)
 		if e != nil {
-			fmt.Fprintf(os.Stderr, "Not a conscheme image file: %v\n", e)
+			fmt.Fprintf(os.Stderr, "Not a cora image file: %v\n", e)
 			usage()
 		}
 		return d
