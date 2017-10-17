@@ -1,4 +1,5 @@
 ;; -*- mode: scheme; coding: utf-8 -*-
+;; Copyright (C) 2017 Arthur <tiancaiamao@gmail.com>
 ;; Copyright (C) 2011 Göran Weinholt <goran@weinholt.se>
 
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -369,6 +370,56 @@
                          ;; the default else case
                          `((else (,loop)))))))))))
 
+(define extract-match-rules
+  (lambda (l)
+    (if (null? l)
+        '()
+        (let ((a (car l))
+              (b (caddr l)))
+          (cons (list a b)
+                (extract-match-rules (cdddr l)))))))
+;; (extract-match-rules '(a -> 1 b -> 42))
+
+(define ppat
+  (lambda (val pat kt kf)
+    (cond
+     ((number? pat) `(if (equal? ,val ,pat) ,kt ,kf))
+     ((string? pat) `(if (equal? ,val ,pat) ,kt ,kf))
+     ((symbol? pat)	`(let ((,pat ,val)) ,kt))
+     ((null? pat)	`(if (null? ,val) ,kt ,kf))
+     ((and (pair? pat) (eq? 'quote (car pat))) `(if (eq? ,val ,pat) ,kt ,kf))
+     (#t (let ((p1 (car pat))
+               (p2 (cdr pat))
+               (v1 (gensym))
+               (v2 (gensym)))
+           `(if (pair? ,val)
+                (let ((,v1 (car ,val))
+                      (,v2 (cdr ,val)))
+                  ,(ppat v1 p1 (ppat v2 p2 kt kf) kf))
+                ,kf))))))
+;; (ppat 2 '((a 1) (b 2)) '#t '#f)
+
+(define rewrite-match
+  (lambda (val pats)
+    (if (null? pats)
+        '(error "no match")
+        (let ((pat (caar pats))
+              (action (cadar pats))
+              (remain (cdr pats)))
+          `(let ((tmp ,val))
+             ,(ppat 'tmp pat action (rewrite-match val remain)))))))
+;; (rewrite-match 2 '((a 1) (b 2)))
+
+(define-macro (match value . patterns)
+  (rewrite-match value (extract-match-rules patterns)))
+;; (match 234
+;;        1 -> 1
+;;        "str" -> 2
+;;        '() -> 3
+;;        'a -> 4
+;;        (1 . b) -> b
+;;        x -> 6
+;;        _ -> 42)
 
 (define (formals-to-list x)
   (cond ((null? x) x)
