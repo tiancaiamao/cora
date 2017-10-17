@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+//go:generate esc -o=image.go compiler/conscheme.image.pre-built
+
 package main
 
 import (
@@ -76,6 +78,13 @@ func findimage() *vm.Deserializer {
 			usage()
 		}
 		return d
+	}
+
+	embedFS := FS(false)
+	if f, err := embedFS.Open("/compiler/conscheme.image.pre-built"); err == nil {
+		if d, err := vm.NewReader(f); err == nil {
+			return d
+		}
 	}
 
 	dirs := conschemedirs
