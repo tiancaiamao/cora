@@ -386,6 +386,11 @@
             (reverse acc)
             (lp (cons (apply f (car l) (map car ls)) acc) (cdr l) (map cdr ls))))))
 
+(define (foldl f v ls)
+  (if (null? ls)
+      v
+      (foldl f (f (car ls) v) (cdr ls))))
+
 ;; FIXME: takes n>=1 lists
 (define (for-each f l)
   (if (null? l)

@@ -421,6 +421,75 @@
 ;;        x -> 6
 ;;        _ -> 42)
 
+(define (extract-func-rules1 input cache result)
+  (match input
+         ()                 -> (reverse result)
+         ('-> act . remain) -> (let ((tmp (list (reverse cache) act)))
+                                 (extract-func-rules1 remain '() (cons tmp result)))
+         (a . b)            -> (extract-func-rules1 b (cons a cache) result)))
+
+(define (extract-func-rules input)
+  (extract-func-rules1 input '() '()))
+;; (extract-func-rules '(x y -> x
+;;                   1 x -> x))
+
+(define all-same-list1
+  (lambda (x l)
+    (cond
+     ((null? l) x)
+     ((eq? (car l) x) (all-same-list1 x (cdr l)))
+     (else #f))))
+
+(define all-same-list
+  (lambda (l)
+    (if (null? l) #f
+        (all-same-list1 (car l) (cdr l)))))
+;; (all-same-list '(1 2 3 4 5))
+;; (all-same-list '(1 1 1 1 1))
+
+(define check-rules-arity
+  (lambda (rules)
+    (let* ((collected (map (lambda (x) (length (car x))) rules))
+           (arity (all-same-list collected)))
+      (if (not arity)
+          (error "wrong pattern parameters")
+          arity))))
+
+(define generate-args-list1
+  (lambda (n ret)
+    (if (<= n 0) ret
+        (generate-args-list1 (- n 1) (cons (gensym "a") ret)))))
+
+(define generate-args-list
+  (lambda (n) (generate-args-list1 n '())))
+;; (generate-args-list 5)
+
+(define insert->
+  (lambda (x)
+    (cons (car x) (cons '-> (cdr x)))))
+
+(define rules->
+  (lambda (rules)
+    (let ((rules1 (map insert-> rules)))
+      (foldl (lambda (ls x) (append x ls)) '() rules1))))
+
+(define rewrite-func
+  (lambda (f rules)
+    (let* ((arity (check-rules-arity rules))
+           (args (generate-args-list arity))
+           (rules1 (rules-> rules)))
+      `(define ,f
+         (lambda ,args
+           (match (list ,@args)
+                  ,@rules1))))))
+;; (rewrite-func 'fact '(((0) 1) ((n) (* n (fact (- n 1))))))
+
+(define-macro (func f . rules)
+  (rewrite-func f (extract-func-rules rules)))
+;; (func fact
+;;       0 -> 1
+;;       n -> (* n (fact (- n 1))))
+
 (define (formals-to-list x)
   (cond ((null? x) x)
         ((symbol? x) (list x))
