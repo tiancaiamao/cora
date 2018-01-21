@@ -1,0 +1,43 @@
+(define de-bruijn
+  Exp -> (de-bruijn0 [] Exp))
+
+(define de-bruijn0
+  Env [] -> [$const []]
+  Env X -> [$const X] where (or (boolean? X) (number? X) (string? X))
+  Env [let X Y Z] -> [$app [$abs (de-bruijn0 (cons X Env) Z)] (de-bruijn0 Env Y)]
+  Env [lambda X Y] -> [$abs (de-bruijn0 (cons X Env) Y)]
+  Env [freeze X] -> [$freeze (de-bruijn0 Env X)]
+  Env [if X Y Z] -> [$if (de-bruijn0 Env X) (de-bruijn0 Env Y) (de-bruijn0 Env Z)]
+  Env [do X Y] -> [$do (de-bruijn0 Env X) (de-bruijn0 Env Y)]
+  Env [defun F X Y] -> [$defun F (de-bruijn0 Env (defun-rewrite X Y))]
+  Env [cond | L] -> (de-bruijn0 Env (cond-rewrite L))
+  Env [and X Y] -> [$if (de-bruijn0 Env X) (de-bruijn0 Env Y) [$const false]]
+  Env [or X Y] -> [$if (de-bruijn0 Env X) [$const true] (de-bruijn0 Env Y)]
+  Env [trap-error X Y] -> [$trap (de-bruijn0 Env X) (de-bruijn0 Env Y)]
+  Env [F | X] -> [$prim F | (map (de-bruijn0 Env) X)] where (primitive? F)
+  Env [F | X] -> [$app (de-bruijn0 Env F) | (map (de-bruijn0 Env) X)]
+  Env X -> (de-bruijn-index X Env))
+
+(define de-bruijn-index
+  X E <- (find-env X E)
+  X _ -> [$symbol X])
+
+(define find-env
+  S E -> (find-env0 S 0 E))
+
+(define find-env0
+  S I [] -> (fail)
+  S I [S | _] -> [$var I]
+  S I [_ | E] -> (find-env0 S (+ I 1) E))
+
+(define defun-rewrite
+  [] Y -> [freeze Y]
+  X Y -> (defun-rewrite0 X Y))
+
+(define defun-rewrite0
+  [] Y -> Y
+  [X | L] Y -> [lambda X (defun-rewrite0 L Y)])
+
+(define cond-rewrite
+  [] -> [simple-error "no match cond"]
+  [[X Y] | L] -> [if X Y (cond-rewrite L)])
