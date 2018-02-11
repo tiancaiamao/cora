@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"path"
 	"plugin"
-	"os"
-	"fmt"
 
 	"github.com/tiancaiamao/shen-go/kl"
 	"github.com/tiancaiamao/shen-go/vm"
@@ -31,8 +31,6 @@ func main() {
 	vm.BootstrapCora()
 
 	m := vm.New()
-	m.RegistNativeCall("plugin-bind", 2, pluginBind(m))
-
 	m.Eval(kl.Cons(kl.MakeSymbol("shen.shen"), kl.Nil))
 	return
 }

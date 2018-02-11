@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (define credits
   -> (do (output "Cora, my own lisp!~%")
+         (output "Inspired by the awesome Shen language.~%")
          (output "Copyright (C) 2018 Arthur Mao <tiancaiamao@gmail.com>~%")))
 
 (define initialise_environment

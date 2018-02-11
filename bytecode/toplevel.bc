@@ -7,6 +7,7 @@
 ((iFreeze (iMark) (iConst shen.initialise_environment) (iGetF) (iApply) (iPop) (iMark) (iConst shen.prompt) (iGetF) (iApply) (iPop) (iFreeze (iGrab) (iMark) (iConst stoutput) (iGetF) (iApply) (iAccess 0) (iPrimCall 17) (iConst pr) (iGetF) (iTailApply)) (iSetJmp (iMark) (iConst shen.read-evaluate-print) (iGetF) (iApply) (iClearJmp)) (iPop) (iConst shen.*continue-repl-loop*) (iPrimCall 36) (iJF (iConst shen.loop) (iGetF) (iTailApply)) (iJMP (iConst exit) (iReturn))) (iConst shen.loop) (iDefun) (iReturn) (iHalt))
 
 ((iFreeze (iMark) (iMark) (iConst stoutput) (iGetF) (iApply) (iConst "Cora, my own lisp!
+") (iConst shen.prhush) (iGetF) (iApply) (iPop) (iMark) (iMark) (iConst stoutput) (iGetF) (iApply) (iConst "Inspired by the awesome Shen language!
 ") (iConst shen.prhush) (iGetF) (iApply) (iPop) (iMark) (iConst stoutput) (iGetF) (iApply) (iConst "Copyright (C) 2018 Arthur Mao <tiancaiamao@gmail.com>
 ") (iConst shen.prhush) (iGetF) (iTailApply)) (iConst shen.credits) (iDefun) (iReturn) (iHalt))
 
