@@ -64,15 +64,6 @@ type scmBoolean struct {
 	bool
 }
 
-type scmProcedure struct {
-	scmHead
-	name  string
-	arg   []Obj
-	arity int
-	body  Obj
-	env   *Environment
-}
-
 type ScmPrimitive struct {
 	scmHead
 	id       int
@@ -152,13 +143,6 @@ func mustVector(o Obj) []Obj {
 	}
 	tmp := (*scmVector)(unsafe.Pointer(o))
 	return tmp.vector
-}
-
-func mustProcedure(o Obj) *scmProcedure {
-	if (*o) != scmHeadProcedure {
-		panic("mustProcedure")
-	}
-	return (*scmProcedure)(unsafe.Pointer(o))
 }
 
 func mustString(o Obj) string {
@@ -345,22 +329,6 @@ func MakeSymbol(s string) Obj {
 	tmp := scmSymbol{
 		scmHeadSymbol,
 		idx,
-	}
-	return &tmp.scmHead
-}
-
-func makeProcedure(arg Obj, body Obj, env *Environment) Obj {
-	tmp := scmProcedure{
-		scmHead: scmHeadProcedure,
-		body:    body,
-		env:     env,
-	}
-	if *arg == scmHeadSymbol {
-		tmp.arg = []Obj{arg}
-		tmp.arity = 1
-	} else {
-		tmp.arg = ListToSlice(arg)
-		tmp.arity = len(tmp.arg)
 	}
 	return &tmp.scmHead
 }

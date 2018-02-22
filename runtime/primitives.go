@@ -500,8 +500,6 @@ func objHash(x Obj) int {
 		}
 	case scmHeadPair:
 		sum = objHash(car(x)) ^ objHash(cdr(x))
-	case scmHeadProcedure:
-		sum = sum ^ *((*int)(unsafe.Pointer(mustProcedure(x))))
 	case scmHeadStream:
 		sum = sum ^ *((*int)(unsafe.Pointer(mustStream(x))))
 	case scmHeadPrimitive:

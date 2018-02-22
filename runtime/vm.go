@@ -103,7 +103,6 @@ func New() *VM {
 	m.RegistNativeCall("load-bytecode", 1, m.loadBytecode)
 	m.RegistNativeCall("load-file", 1, m.loadFile)
 	m.RegistNativeCall("load-plugin", 1, m.loadPlugin)
-	m.RegistNativeCall("plugin-bind", 2, m.pluginBind)
 	m.RegistNativeCall("primitive?", 1, NativeIsPrimitive)
 	m.RegistNativeCall("primitive-arity", 1, NativePrimitiveArity)
 	m.RegistNativeCall("primitive-id", 1, NativePrimitiveID)
@@ -576,15 +575,6 @@ type Compiler interface {
 var prototype *VM
 var compiler Compiler
 
-type compileWithEvaluator struct {
-	*Evaluator
-}
-
-func (cc *compileWithEvaluator) KLToSexpByteCode(klambda Obj) Obj {
-	input := Cons(MakeSymbol("kl->bytecode"), Cons(RconsForm(klambda), Nil))
-	return cc.Eval(input)
-}
-
 func (m *VM) KLToSexpByteCode(klambda Obj) Obj {
 	// TODO: Better way to do it?
 	// tailcall (kl->bytecode klambda)
@@ -631,15 +621,6 @@ func (m *VM) Eval(sexp Obj) (res Obj) {
 	}
 	res = m.Run(code)
 	return
-}
-
-func BootstrapKL() {
-	evaluator := NewEvaluator()
-	evaluator.Silence = true
-	evaluator.LoadFile("compiler/primitive.kl")
-	evaluator.LoadFile("compiler/de-bruijn.kl")
-	evaluator.LoadFile("compiler/compile.kl")
-	compiler = &compileWithEvaluator{evaluator}
 }
 
 func BootstrapMin() {
@@ -783,29 +764,6 @@ func (m *VM) loadPlugin(args ...Obj) Obj {
 	}
 
 	f(m)
-	return args[0]
-}
-
-// (native plugin-bind "/path/to/plugin.so" [bit-shift 2 "BitLeftShift"])
-func (m *VM) pluginBind(args ...Obj) Obj {
-	pluginPath := GetString(args[0])
-	bindInfo := getBindInfo(args[1])
-	p, err := plugin.Open(pluginPath)
-	if err != nil {
-		return MakeError(err.Error())
-	}
-
-	for _, info := range bindInfo {
-		f, err := p.Lookup(info.PluginFunc)
-		if err != nil {
-			return MakeError(err.Error())
-		}
-		if funcAddr, ok := f.(func(...Obj) Obj); !ok {
-			return MakeError(fmt.Sprintf("func %s signature is illeagel", info.PluginFunc))
-		} else {
-			m.RegistNativeCall(info.Name, info.Arity, funcAddr)
-		}
-	}
 	return args[0]
 }
 
