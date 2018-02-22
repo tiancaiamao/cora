@@ -9,8 +9,7 @@ import (
 	"path"
 	"plugin"
 
-	"github.com/tiancaiamao/shen-go/kl"
-	"github.com/tiancaiamao/shen-go/vm"
+	"github.com/tiancaiamao/cora/runtime"
 )
 
 var pprof bool
@@ -27,36 +26,36 @@ func main() {
 	if pprof {
 		go http.ListenAndServe(":8080", nil)
 	}
-	vm.Boot = boot
-	vm.BootstrapCora()
+	runtime.Boot = boot
+	runtime.BootstrapCora()
 
-	m := vm.New()
-	m.Eval(kl.Cons(kl.MakeSymbol("shen.shen"), kl.Nil))
+	m := runtime.New()
+	m.Eval(runtime.Cons(runtime.MakeSymbol("shen.shen"), runtime.Nil))
 	return
 }
 
 // (native plugin-bind "plugin" [bit-shift 2 "BitLeftShift"])
-func pluginBind(m *vm.VM) func(...kl.Obj) kl.Obj {
-	return func(args ...kl.Obj) kl.Obj {
-		pluginName := kl.GetString(args[0])
+func pluginBind(m *runtime.VM) func(...runtime.Obj) runtime.Obj {
+	return func(args ...runtime.Obj) runtime.Obj {
+		pluginName := runtime.GetString(args[0])
 		pluginPath := path.Join("/home/genius/project/src/github.com/tiancaiamao/shen-go/pkg/prelude", pluginName)
 		if _, err := os.Stat(pluginPath); err != nil {
-			return kl.MakeError(err.Error())
+			return runtime.MakeError(err.Error())
 		}
 		bindInfo := getBindInfo(args[1])
 
 		p, err := plugin.Open(pluginPath)
 		if err != nil {
-			return kl.MakeError(err.Error())
+			return runtime.MakeError(err.Error())
 		}
 
 		for _, info := range bindInfo {
 			f, err := p.Lookup(info.PluginFunc)
 			if err != nil {
-				return kl.MakeError(err.Error())
+				return runtime.MakeError(err.Error())
 			}
-			if funcAddr, ok := f.(func(...kl.Obj) kl.Obj); !ok {
-				return kl.MakeError(fmt.Sprintf("func %s signature is illeagel", info.PluginFunc))
+			if funcAddr, ok := f.(func(...runtime.Obj) runtime.Obj); !ok {
+				return runtime.MakeError(fmt.Sprintf("func %s signature is illeagel", info.PluginFunc))
 			} else {
 				m.RegistNativeCall(info.Name, info.Arity, funcAddr)
 			}
@@ -71,15 +70,15 @@ type bindInfo struct {
 	PluginFunc string
 }
 
-func getBindInfo(l kl.Obj) []bindInfo {
+func getBindInfo(l runtime.Obj) []bindInfo {
 	ret := make([]bindInfo, 0, 1)
-	for l != kl.Nil {
-		name := kl.GetSymbol(kl.Car(l))
-		l = kl.Cdr(l)
-		arity := kl.GetInteger(kl.Car(l))
-		l = kl.Cdr(l)
-		pluginName := kl.GetString(kl.Car(l))
-		l = kl.Cdr(l)
+	for l != runtime.Nil {
+		name := runtime.GetSymbol(runtime.Car(l))
+		l = runtime.Cdr(l)
+		arity := runtime.GetInteger(runtime.Car(l))
+		l = runtime.Cdr(l)
+		pluginName := runtime.GetString(runtime.Car(l))
+		l = runtime.Cdr(l)
 		ret = append(ret, bindInfo{name, arity, pluginName})
 	}
 	return ret
