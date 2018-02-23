@@ -160,11 +160,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (define limit
   Vector -> (<-address Vector 0))
 
-(define symbol?
-  X -> false where (or (boolean? X) (number? X) (string? X))
-  X -> (trap-error (let String (str X)
-                     (analyse-symbol? String)) (/. E false)))
-
 (define analyse-symbol?
   "" -> false
   (@s S Ss) -> (and (alpha? S)
@@ -540,9 +535,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (define nth
   1 [X | _] -> X
   N [_ | Y] -> (nth (- N 1) Y))
-
-(define integer?
-  N -> (and (number? N) (let Abs (abs N) (integer-test? Abs (magless Abs 1)))))
 
 (define abs
   N -> (if (> N 0) N (- 0 N)))

@@ -16,7 +16,6 @@ const (
 	iApply
 	iMark
 	iTailApply
-	iPrimCall
 	iConst
 	iReturn
 	iHalt
@@ -40,7 +39,6 @@ var instructionTable = []instructionInfo{
 	{iPop, "POP"},
 	{iApply, "APPLY"},
 	{iMark, "MARK"},
-	{iPrimCall, "PRIMCALL"},
 	{iNativeCall, "NATIVECALL"},
 	{iConst, "CONST"},
 	{iReturn, "RETURN"},
@@ -82,8 +80,6 @@ func (i instruction) String() string {
 		return "APPLY"
 	case iTailApply:
 		return fmt.Sprintf("TAILAPPLY %d", instructionOPN(i))
-	case iPrimCall:
-		return "PRIMCALL"
 	case iNativeCall:
 		return fmt.Sprintf("NATIVECALL %d", instructionOPN(i))
 	case iConst:
@@ -200,14 +196,6 @@ func (a *Assember) CONST(o Obj) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) PRIMCALL(id int) {
-	if id >= (1 << codeBitShift) {
-		panic("overflow instruct bits")
-	}
-	inst := instruction((iPrimCall << codeBitShift) | id)
-	a.buf = append(a.buf, inst)
-}
-
 func (a *Assember) NATIVECALL(id int) {
 	if id >= (1 << codeBitShift) {
 		panic("overflow instruct bits")
@@ -234,8 +222,6 @@ func (a *Assember) Compile() Code {
 			ret = append(ret, opMark)
 		case iTailApply:
 			ret = append(ret, opTailApply)
-		case iPrimCall:
-			ret = append(ret, opPrimCall(instructionOPN(inst)))
 		case iConst:
 			n := instructionOPN(inst)
 			o := a.consts[n]
@@ -292,9 +278,6 @@ func (a *Assember) FromSexp(input Obj) error {
 		case "iAccess":
 			n := GetInteger(Cadr(obj))
 			a.ACCESS(n)
-		case "iPrimCall":
-			n := GetInteger(Cadr(obj))
-			a.PRIMCALL(n)
 		case "iNativeCall":
 			n := GetInteger(Cadr(obj))
 			a.NATIVECALL(n)

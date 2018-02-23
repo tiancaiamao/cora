@@ -72,9 +72,6 @@
   [[defun fail | _] | Y] -> (@s "(defun fail () shen.fail!)" (list->string Y))
   [X | Y] -> (@s (make-string "~R~%~%" X) (list->string Y)))
 
-(load "compiler/primitive.cora")
-(load "compiler/de-bruijn.cora")
-(load "compiler/compile.cora")
 (set *maximum-print-sequence-size* 2000)
 
 (map (function make-file)

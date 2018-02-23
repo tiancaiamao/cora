@@ -7,15 +7,16 @@ import (
 
 func TestProcedureCall(t *testing.T) {
 	var a Assember
-	// ((lambda x (lambda y (+ x y))) 1 2)
+	// ((lambda x (lambda y (native "primitive.+" x y))) 1 2)
 	a.CONST(MakeInteger(2))
 	a.CONST(MakeInteger(1))
-	a.FREEZE(6)
+	a.FREEZE(7)
 	a.GRAB()
 	a.GRAB()
+	a.CONST(MakeString("primitive.+"))
 	a.ACCESS(1)
 	a.ACCESS(0)
-	a.PRIMCALL(23)
+	a.NATIVECALL(3)
 	a.RETURN()
 	a.TAILAPPLY()
 	a.HALT()
@@ -84,9 +85,9 @@ func TestNativeCall(t *testing.T) {
 	vm := New()
 	vm.RegistNativeCall("hello", 0, helloWorld)
 
-	runTest(vm, "(native hello)", MakeString("hello world"), t)
-	runTest(vm, "(native bbc)", MakeError("unknown native function:bbc"), t)
-	runTest(vm, "(native hello 1)", MakeError("wrong arity for native hello"), t)
+	runTest(vm, `(native "hello")`, MakeString("hello world"), t)
+	runTest(vm, `(native "bbc")`, MakeError("unknown native function:bbc"), t)
+	runTest(vm, `(native "hello" 1)`, MakeError("wrong arity for native hello"), t)
 }
 
 func helloWorld(...Obj) Obj {
@@ -256,10 +257,10 @@ func TestKLToBytecode(t *testing.T) {
 	tests := [][2]string{
 		[2]string{
 			"(cons 1 ())",
-			"((iConst 1) (iConst ()) (iPrimCall 34) (iReturn) (iHalt))"},
+			"((iConst ()) (iConst 1) (iConst cons) (iGetF) (iTailApply) (iHalt))"},
 		[2]string{
 			"(+ 1 2)",
-			"((iConst 1) (iConst 2) (iPrimCall 23) (iReturn) (iHalt))",
+			"((iConst 2) (iConst 1) (iConst +) (iGetF) (iTailApply) (iHalt))",
 		},
 		[2]string{
 			"(defun f () 1)",
@@ -294,5 +295,5 @@ func testKLToBytecode(t *testing.T, input, expect string) {
 
 func init() {
 	Boot = ".."
-	BootstrapMin()
+	BootstrapCora()
 }

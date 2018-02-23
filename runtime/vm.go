@@ -103,9 +103,6 @@ func New() *VM {
 	m.RegistNativeCall("load-bytecode", 1, m.loadBytecode)
 	m.RegistNativeCall("load-file", 1, m.loadFile)
 	m.RegistNativeCall("load-plugin", 1, m.loadPlugin)
-	m.RegistNativeCall("primitive?", 1, NativeIsPrimitive)
-	m.RegistNativeCall("primitive-arity", 1, NativePrimitiveArity)
-	m.RegistNativeCall("primitive-id", 1, NativePrimitiveID)
 	return m
 }
 
@@ -117,6 +114,19 @@ func newVM() *VM {
 		nativeFunc: make(map[string]*ScmPrimitive),
 	}
 	initSymbolTable()
+
+	for _, v := range allPrimitives {
+		str := "primitive." + v.Name
+		m.RegistNativeCall(str, v.Required, v.Function)
+	}
+	m.RegistNativeCall("primitive.eval-kl", 1, func(args ...Obj) Obj {
+		tmp := auxVM.Get()
+		tmp.nativeFunc = m.nativeFunc
+		result := tmp.Eval(args[0])
+		auxVM.Put(tmp)
+		return result
+	})
+
 	return m
 }
 
@@ -461,40 +471,6 @@ func opHalt(m *VM) {
 	m.status = statusHalt
 }
 
-func opPrimCall(id int) instFunc {
-	return func(m *VM) {
-		m.pc++
-		prim := GetPrimitiveByID(id)
-		args := m.stack[m.top-prim.Required : m.top]
-
-		if enableDebug {
-			debugf("PRIMCALL %s\n", prim.Name)
-		}
-
-		var result Obj
-		// Ugly hack: set function should not be global.
-		switch prim.Name {
-		case "set":
-			result = PrimSet(args[0], args[1])
-		case "value":
-			result = PrimValue(args[0])
-		case "eval-kl":
-			tmp := auxVM.Get()
-			tmp.nativeFunc = m.nativeFunc
-			result = tmp.Eval(args[0])
-			auxVM.Put(tmp)
-		default:
-			result = prim.Function(args...)
-		}
-
-		m.stack[m.top-prim.Required] = result
-		m.top = m.top - prim.Required + 1
-		if IsError(result) {
-			m.status = statusException
-		}
-	}
-}
-
 func opNativeCall(arity int) instFunc {
 	return func(m *VM) {
 		m.pc++
@@ -624,10 +600,6 @@ func (m *VM) Eval(sexp Obj) (res Obj) {
 }
 
 func BootstrapMin() {
-	prototype.RegistNativeCall("primitive?", 1, NativeIsPrimitive)
-	prototype.RegistNativeCall("primitive-arity", 1, NativePrimitiveArity)
-	prototype.RegistNativeCall("primitive-id", 1, NativePrimitiveID)
-
 	prototype.mustLoadBytecode(MakeString("primitive.bc"))
 	prototype.mustLoadBytecode(MakeString("de-bruijn.bc"))
 	prototype.mustLoadBytecode(MakeString("compile.bc"))
@@ -646,14 +618,6 @@ func BootstrapCora() {
 	prototype.mustLoadBytecode(MakeString("writer.bc"))
 	prototype.mustLoadBytecode(MakeString("macros.bc"))
 	prototype.mustLoadBytecode(MakeString("declarations.bc"))
-}
-
-func BootstrapShen() {
-	BootstrapCora()
-	prototype.mustLoadBytecode(MakeString("sequent.bc"))
-	prototype.mustLoadBytecode(MakeString("prolog.bc"))
-	prototype.mustLoadBytecode(MakeString("t-star.bc"))
-	prototype.mustLoadBytecode(MakeString("types.bc"))
 }
 
 var Boot string

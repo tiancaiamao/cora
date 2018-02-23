@@ -46,8 +46,8 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "tl", Required: 1, Function: primTail},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons", Required: 2, Function: primCons},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons?", Required: 1, Function: primIsPair},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1, Function: PrimValue},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2, Function: PrimSet},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "not", Required: 1, Function: primNot},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "if", Required: 3, Function: primIf},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "symbol?", Required: 1, Function: primIsSymbol},
@@ -60,40 +60,6 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 }
 
 var primitiveIdx map[string]*ScmPrimitive
-
-func NativeIsPrimitive(args ...Obj) Obj {
-	if *args[0] != scmHeadSymbol {
-		return False
-	}
-	str := GetSymbol(args[0])
-	_, ok := primitiveIdx[str]
-	if ok {
-		return True
-	}
-	return False
-}
-
-func NativePrimitiveArity(args ...Obj) Obj {
-	str := GetSymbol(args[0])
-	prim, ok := primitiveIdx[str]
-	if !ok {
-		return MakeInteger(-1)
-	}
-	return MakeInteger(prim.Required)
-}
-
-func NativePrimitiveID(args ...Obj) Obj {
-	str := GetSymbol(args[0])
-	prim, ok := primitiveIdx[str]
-	if !ok {
-		return MakeError("not a primitive")
-	}
-	return MakeInteger(prim.id)
-}
-
-func GetPrimitiveByID(id int) *ScmPrimitive {
-	return allPrimitives[id]
-}
 
 func PrimNumberAdd(args ...Obj) Obj {
 	x1 := mustNumber(args[0])
@@ -235,15 +201,15 @@ func or(args ...Obj) Obj {
 	return True
 }
 
-func PrimSet(key Obj, val Obj) Obj {
-	sym := mustSymbol(key)
+func PrimSet(args ...Obj) Obj {
+	sym := mustSymbol(args[0])
 	symVal := &symbolArray[sym.offset]
-	symVal.value = val
-	return val
+	symVal.value = args[1]
+	return args[1]
 }
 
-func PrimValue(key Obj) Obj {
-	sym := mustSymbol(key)
+func PrimValue(args ...Obj) Obj {
+	sym := mustSymbol(args[0])
 	symVal := &symbolArray[sym.offset]
 	if symVal.value != nil {
 		return symVal.value
