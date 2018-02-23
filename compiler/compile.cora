@@ -5,6 +5,7 @@
         [$if X Y Z] -> (append (compile1 X) [[iJF | (compile1 Y)] | [[iJMP | (compile1 Z)]]])
         [$do X Y] -> (append (compile1 X) [[iPop] | (compile1 Y)])
         [$defun F L] -> (append (compile1 L) [[iConst F] [iDefun]])
+        [$native | L] -> (append (compile-arg-list L) [[iNativeCall (length L)]])
         [$prim F | X] -> (compile-primitive-call F X)
         [$app F | X] -> [[iMark] | (append (compile-apply F X) [[iApply]])]
         [$abs Body] -> [[iFreeze | [[iGrab] | (compile-tail Body)]]]

@@ -1,11 +1,11 @@
 (define primitive?
-        X -> (native primitive? X))
+        X -> (native "primitive?" X))
 
 (define primitive-arity
-        X -> (native primitive-arity X))
+        X -> (native "primitive-arity" X))
 
 (define primitive-id
-        X -> (native primitive-id X))
+        X -> (native "primitive-id" X))
 
 
 (defun fail () fail!)

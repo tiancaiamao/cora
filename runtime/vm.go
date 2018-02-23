@@ -498,7 +498,7 @@ func opPrimCall(id int) instFunc {
 func opNativeCall(arity int) instFunc {
 	return func(m *VM) {
 		m.pc++
-		method := GetSymbol(m.stack[m.top-arity])
+		method := mustString(m.stack[m.top-arity])
 		if enableDebug {
 			debugf("NativeCall %s\n", method)
 		}
