@@ -1,9 +1,7 @@
 package runtime
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 )
 
 type instruction uint32
@@ -27,25 +25,6 @@ const (
 	iClearJmp
 	iNativeCall
 )
-
-type instructionInfo struct {
-	id   instruction
-	name string
-}
-
-var instructionTable = []instructionInfo{
-	{iAccess, "ACCESS"},
-	{iGrab, "GRAB"},
-	{iPop, "POP"},
-	{iApply, "APPLY"},
-	{iMark, "MARK"},
-	{iNativeCall, "NATIVECALL"},
-	{iConst, "CONST"},
-	{iReturn, "RETURN"},
-	{iHalt, "HALT"},
-}
-
-var instructionStrToInfo map[string]*instructionInfo
 
 const (
 	codeBitShift = 24
@@ -108,49 +87,49 @@ func (i instruction) String() string {
 	return "UNKNOWN"
 }
 
-type Assember struct {
+type assember struct {
 	buf    []instruction
 	consts []Obj
 }
 
-func (a *Assember) ACCESS(i int) {
+func (a *assember) ACCESS(i int) {
 	inst := instruction((iAccess << codeBitShift) | i)
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) RETURN() {
+func (a *assember) RETURN() {
 	a.buf = append(a.buf, instruction(iReturn<<codeBitShift))
 }
 
-func (a *Assember) APPLY() {
+func (a *assember) APPLY() {
 	a.buf = append(a.buf, instruction(iApply<<codeBitShift))
 }
 
-func (a *Assember) TAILAPPLY() {
+func (a *assember) TAILAPPLY() {
 	a.buf = append(a.buf, instruction(iTailApply<<codeBitShift))
 }
 
-func (a *Assember) HALT() {
+func (a *assember) HALT() {
 	a.buf = append(a.buf, instruction(iHalt<<codeBitShift))
 }
 
-func (a *Assember) CLEARJMP() {
+func (a *assember) CLEARJMP() {
 	a.buf = append(a.buf, instruction(iClearJmp<<codeBitShift))
 }
 
-func (a *Assember) DEFUN() {
+func (a *assember) DEFUN() {
 	a.buf = append(a.buf, instruction(iDefun<<codeBitShift))
 }
 
-func (a *Assember) FREEZE(i int) {
+func (a *assember) FREEZE(i int) {
 	inst := instruction((iFreeze << codeBitShift) | i)
 	a.buf = append(a.buf, inst)
 }
-func (a *Assember) GRAB() {
+func (a *assember) GRAB() {
 	a.buf = append(a.buf, instruction(iGrab<<codeBitShift))
 }
 
-func (a *Assember) JF(i int) {
+func (a *assember) JF(i int) {
 	if i >= (1 << codeBitShift) {
 		panic("overflow instruct bits")
 	}
@@ -158,7 +137,7 @@ func (a *Assember) JF(i int) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) JMP(i int) {
+func (a *assember) JMP(i int) {
 	if i >= (1 << codeBitShift) {
 		panic("overflow instruct bits")
 	}
@@ -166,7 +145,7 @@ func (a *Assember) JMP(i int) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) SETJMP(i int) {
+func (a *assember) SETJMP(i int) {
 	if i >= (1 << codeBitShift) {
 		panic("overflow instruct bits")
 	}
@@ -174,19 +153,19 @@ func (a *Assember) SETJMP(i int) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) POP() {
+func (a *assember) POP() {
 	a.buf = append(a.buf, instruction(iPop<<codeBitShift))
 }
 
-func (a *Assember) MARK() {
+func (a *assember) MARK() {
 	a.buf = append(a.buf, instruction(iMark<<codeBitShift))
 }
 
-func (a *Assember) GetF() {
+func (a *assember) GetF() {
 	a.buf = append(a.buf, instruction(iGetF<<codeBitShift))
 }
 
-func (a *Assember) CONST(o Obj) {
+func (a *assember) CONST(o Obj) {
 	idx := len(a.consts)
 	a.consts = append(a.consts, o)
 	if idx >= (1 << codeBitShift) {
@@ -196,7 +175,7 @@ func (a *Assember) CONST(o Obj) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) NATIVECALL(id int) {
+func (a *assember) NATIVECALL(id int) {
 	if id >= (1 << codeBitShift) {
 		panic("overflow instruct bits")
 	}
@@ -204,7 +183,7 @@ func (a *Assember) NATIVECALL(id int) {
 	a.buf = append(a.buf, inst)
 }
 
-func (a *Assember) Compile() Code {
+func (a *assember) Compile() Code {
 	ret := make([]instFunc, 0, len(a.buf))
 	for _, inst := range a.buf {
 		switch instructionCode(inst) {
@@ -254,23 +233,7 @@ func (a *Assember) Compile() Code {
 	return ret
 }
 
-func (a *Assember) Encode(str string) (*Code, error) {
-	inputs := strings.Split(str, "\n")
-	for _, input := range inputs {
-		var inst string
-		_, err := fmt.Sscanf(input, "%s ", &inst)
-		if err != nil {
-			return nil, err
-		}
-		_, ok := instructionStrToInfo[inst]
-		if !ok {
-			return nil, errors.New("invalid instruct " + inst)
-		}
-	}
-	return nil, errors.New("fuck")
-}
-
-func (a *Assember) FromSexp(input Obj) error {
+func (a *assember) FromSexp(input Obj) error {
 	objs := ListToSlice(input)
 	for _, obj := range objs {
 		id := GetSymbol(Car(obj))
@@ -294,7 +257,7 @@ func (a *Assember) FromSexp(input Obj) error {
 		case "iGrab":
 			a.GRAB()
 		case "iFreeze":
-			var a1 Assember
+			var a1 assember
 			a1.FromSexp(Cdr(obj))
 			a.FREEZE(len(a1.buf))
 			adjustConst(a1.buf, len(a.consts))
@@ -311,21 +274,21 @@ func (a *Assember) FromSexp(input Obj) error {
 		case "iGetF":
 			a.GetF()
 		case "iJF":
-			var a1 Assember
+			var a1 assember
 			a1.FromSexp(Cdr(obj))
 			a.JF(len(a1.buf) + 1) // Follow by a JMP
 			adjustConst(a1.buf, len(a.consts))
 			a.buf = append(a.buf, a1.buf...)
 			a.consts = append(a.consts, a1.consts...)
 		case "iJMP":
-			var a1 Assember
+			var a1 assember
 			a1.FromSexp(Cdr(obj))
 			a.JMP(len(a1.buf))
 			adjustConst(a1.buf, len(a.consts))
 			a.buf = append(a.buf, a1.buf...)
 			a.consts = append(a.consts, a1.consts...)
 		case "iSetJmp":
-			var a1 Assember
+			var a1 assember
 			a1.FromSexp(Cdr(obj))
 			a.SETJMP(len(a1.buf))
 			adjustConst(a1.buf, len(a.consts))

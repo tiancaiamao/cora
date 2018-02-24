@@ -86,7 +86,7 @@ type scmBoolean struct {
 	bool
 }
 
-type ScmPrimitive struct {
+type scmPrimitive struct {
 	scmHead
 	id       int
 	Name     string
@@ -136,8 +136,8 @@ func IsSymbol(o Obj) bool {
 	return *o == scmHeadSymbol
 }
 
-func MakePrimitive(name string, arity int, f func(...Obj) Obj) *ScmPrimitive {
-	return &ScmPrimitive{
+func makePrimitive(name string, arity int, f func(...Obj) Obj) *scmPrimitive {
+	return &scmPrimitive{
 		scmHead:  scmHeadPrimitive,
 		Name:     name,
 		Required: arity,
@@ -145,18 +145,18 @@ func MakePrimitive(name string, arity int, f func(...Obj) Obj) *ScmPrimitive {
 	}
 }
 
-func isPrimitive(o Obj) (bool, *ScmPrimitive) {
+func isPrimitive(o Obj) (bool, *scmPrimitive) {
 	if *o != scmHeadPrimitive {
 		return false, nil
 	}
-	return true, (*ScmPrimitive)(unsafe.Pointer(o))
+	return true, (*scmPrimitive)(unsafe.Pointer(o))
 }
 
-func mustPrimitive(o Obj) *ScmPrimitive {
+func mustPrimitive(o Obj) *scmPrimitive {
 	if *o != scmHeadPrimitive {
 		panic("mustPrimitive")
 	}
-	return (*ScmPrimitive)(unsafe.Pointer(o))
+	return (*scmPrimitive)(unsafe.Pointer(o))
 }
 
 func mustVector(o Obj) []Obj {
@@ -297,7 +297,7 @@ func GetSymbol(o Obj) string {
 	return symbolArray[mustSymbol(o).offset].str
 }
 
-func BindSymbolFunc(sym Obj, f Obj) {
+func bindSymbolFunc(sym Obj, f Obj) {
 	o := &symbolArray[mustSymbol(sym).offset]
 	o.function = f
 }

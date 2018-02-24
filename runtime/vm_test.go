@@ -6,7 +6,7 @@ import (
 )
 
 func TestProcedureCall(t *testing.T) {
-	var a Assember
+	var a assember
 	// ((lambda x (lambda y (native "primitive.+" x y))) 1 2)
 	a.CONST(MakeInteger(2))
 	a.CONST(MakeInteger(1))
@@ -22,15 +22,15 @@ func TestProcedureCall(t *testing.T) {
 	a.HALT()
 	code := a.Compile()
 
-	vm := New()
+	vm := NewVM()
 	o := vm.Run(code)
-	if PrimEqual(o, MakeInteger(3)) != True {
+	if primEqual(o, MakeInteger(3)) != True {
 		t.Error("failed!")
 	}
 }
 
 func TestVM(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(* 4 7)", MakeInteger(28), t)
 	runTest(vm, "(if true 3 2)", MakeInteger(3), t)
 	runTest(vm, "(cond (true 1) (false 2))", MakeInteger(1), t)
@@ -52,19 +52,19 @@ func runTest(vm *VM, input string, result Obj, t *testing.T) {
 		t.Error(err)
 	}
 
-	code, err := klToByteCode(sexp, compiler)
+	code, err := klToCode(sexp)
 	if err != nil {
 		t.Error("input to kl bytecode fail", input)
 	}
 
 	o := vm.Run(code)
-	if PrimEqual(o, result) != True {
+	if primEqual(o, result) != True {
 		t.Error("failed!", input)
 	}
 }
 
 func TestTrapError(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	// If exception handle is not quit leave VM a clean state,
 	// run it twice, something goes wrong.
 	runTest(vm, "(trap-error (value XXX) (lambda E ((freeze 42))))", MakeInteger(42), t)
@@ -82,7 +82,7 @@ func TestTrapError(t *testing.T) {
 }
 
 func TestNativeCall(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	vm.RegistNativeCall("hello", 0, helloWorld)
 
 	runTest(vm, `(native "hello")`, MakeString("hello world"), t)
@@ -95,14 +95,14 @@ func helloWorld(...Obj) Obj {
 }
 
 func TestOrder(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(defun f (x y) y)", MakeSymbol("f"), t)
 	runTest(vm, "((lambda D ((lambda Fill D) (f 1 2))) 42)", MakeInteger(42), t)
 	runTest(vm, "(let D 42 (let Fill (f 1 2) D))", MakeInteger(42), t)
 }
 
 func TestReverse(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	res := Cons(MakeInteger(3), Cons(MakeInteger(2), Cons(MakeInteger(1), Nil)))
 	runTest(vm, "(defun reverse-h (L R) (if (= L ()) R (reverse-h (tl L) (cons (hd L) R))))", MakeSymbol("reverse-h"), t)
 	runTest(vm, "(defun reverse (X) (reverse-h X ()))", MakeSymbol("reverse"), t)
@@ -110,7 +110,7 @@ func TestReverse(t *testing.T) {
 }
 
 func TestB521(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(+ (let X 7 (let Y 2 (if (if (= X 7) (< Y 0) (<= 0 Y)) 77 88))) 99)", MakeInteger(187), t)
 	runTest(vm, "(if (= (+ 7 (* 2 4)) (- 20 (+ (+ 1 1) (+ (+ 1 1) 1)))) (+ 1 (+ 1 (+ 1 (+ 1 (+ 1 10))))) 0)", MakeInteger(15), t)
 	runTest(vm, `(cons (let F (lambda H (lambda V (* H V)))
@@ -178,7 +178,7 @@ func TestB521(t *testing.T) {
 }
 
 func TestCPSFib(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, `
 (defun fib (n k)
   (if (or (= n 0) (= n 1))
@@ -192,7 +192,7 @@ func TestCPSFib(t *testing.T) {
 }
 
 func TestCall(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(defun a (u v w x) (if (= u 0) (b v w x) (a (- u 1) v w x)))", MakeSymbol("a"), t)
 	runTest(vm, "(defun b (q r x) (let p (* q r) (e (* q r) p x)))", MakeSymbol("b"), t)
 	runTest(vm, "(defun c (x) (* 5 x))", MakeSymbol("c"), t)
@@ -202,7 +202,7 @@ func TestCall(t *testing.T) {
 }
 
 func TestVectorLength(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(defun visit (V N) (trap-error (do (<-address V N) true) (lambda X false)))", MakeSymbol("visit"), t)
 	runTest(vm, `
 (defun vector-length-h (V N)
@@ -214,7 +214,7 @@ func TestVectorLength(t *testing.T) {
 }
 
 func TestCountLeaves(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, `(defun count-leaves (p)
   (if (cons? p)
       (+ (count-leaves (hd p))
@@ -233,7 +233,7 @@ func TestCountLeaves(t *testing.T) {
 }
 
 func TestFreeze(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(defun thaw (X) (X))", MakeSymbol("thaw"), t)
 	runTest(vm, `(defun add-ths (T1 T2 T3 T4)
 		(+ (+ (thaw T1) (thaw T2))
@@ -242,7 +242,7 @@ func TestFreeze(t *testing.T) {
 }
 
 func TestFrancisFrenandez(t *testing.T) {
-	vm := New()
+	vm := NewVM()
 	runTest(vm, "(defun to-bool (X) (not (= X false)))", MakeSymbol("to-bool"), t)
 	runTest(vm, `(and (to-bool
       (+ ((if (not (to-bool (cons 1 2)))
@@ -281,14 +281,14 @@ func testKLToBytecode(t *testing.T, input, expect string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bc := compiler.KLToSexpByteCode(klambda)
+	bc := klToSexpByteCode(klambda)
 
 	bc1, err := r2.Read()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if PrimEqual(bc, bc1) != True {
+	if primEqual(bc, bc1) != True {
 		t.Errorf("input:%s\n expect:%s\n get:%s\n", input, expect, ObjString(bc))
 	}
 }

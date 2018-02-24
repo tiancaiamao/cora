@@ -37,7 +37,7 @@ type VM struct {
 	pc        int       // pc register refer to the position in current code
 	savedAddr []address // saved return address
 
-	nativeFunc map[string]*ScmPrimitive
+	nativeFunc map[string]*scmPrimitive
 
 	// jumpBuf is used to implement exception, similar to setjmp/longjmp in C.
 	cc []jumpBuf
@@ -91,7 +91,7 @@ var auxVM pool
 var stackMarkDummyValue int
 var stackMark = MakeRaw(&stackMarkDummyValue)
 
-func New() *VM {
+func NewVM() *VM {
 	m := newVM()
 	m.RegistNativeCall("load-bytecode", 1, m.loadBytecode)
 	m.RegistNativeCall("load-file", 1, m.loadFile)
@@ -104,43 +104,27 @@ func newVM() *VM {
 		stack:      make([]Obj, initStackSize),
 		env:        make([]Obj, 0, 256),
 		volatile:   make([]Obj, 0, 256),
-		nativeFunc: make(map[string]*ScmPrimitive),
+		nativeFunc: make(map[string]*scmPrimitive),
 	}
-	initSymbolTable()
 
 	for _, v := range allPrimitives {
-		str := "primitive." + v.Name
-		m.RegistNativeCall(str, v.Required, v.Function)
+		m.RegistNativeCall(v.Name, v.Required, v.Function)
 	}
-	m.RegistNativeCall("primitive.eval-kl", 1, func(args ...Obj) Obj {
-		tmp := auxVM.Get()
-		tmp.nativeFunc = m.nativeFunc
-		result := tmp.Eval(args[0])
-		auxVM.Put(tmp)
-		return result
-	})
+	m.RegistNativeCall("primitive.eval-kl", 1, m.primEvalKL)
 
 	return m
 }
 
-func (m *VM) RegistNativeCall(name string, arity int, f func(...Obj) Obj) {
-	m.nativeFunc[name] = MakePrimitive(name, arity, f)
+func (m *VM) primEvalKL(args ...Obj) Obj {
+	tmp := auxVM.Get()
+	tmp.nativeFunc = m.nativeFunc
+	result := tmp.Eval(args[0])
+	auxVM.Put(tmp)
+	return result
 }
 
-func initSymbolTable() {
-	dir, _ := os.Getwd()
-	PrimSet(MakeSymbol("*stinput*"), MakeStream(os.Stdin))
-	PrimSet(MakeSymbol("*stoutput*"), MakeStream(os.Stdout))
-	PrimSet(MakeSymbol("*home-directory*"), MakeString(dir))
-	PrimSet(MakeSymbol("*language*"), MakeString("Go"))
-	PrimSet(MakeSymbol("*implementation*"), MakeString("bytecode"))
-	PrimSet(MakeSymbol("*relase*"), MakeString(runtime.Version()))
-	PrimSet(MakeSymbol("*os*"), MakeString(runtime.GOOS))
-	PrimSet(MakeSymbol("*porters*"), MakeString("Arthur Mao"))
-	PrimSet(MakeSymbol("*port*"), MakeString("0.0.1"))
-
-	// Extended by shen-go implementation
-	PrimSet(MakeSymbol("*package-path*"), MakeString(PackagePath()))
+func (m *VM) RegistNativeCall(name string, arity int, f func(...Obj) Obj) {
+	m.nativeFunc[name] = makePrimitive(name, arity, f)
 }
 
 func (m *VM) Run(code Code) Obj {
@@ -391,7 +375,7 @@ func opDefun(m *VM) {
 	m.pc++
 	symbol := m.stack[m.top-1]
 	function := m.stack[m.top-2]
-	BindSymbolFunc(symbol, function)
+	bindSymbolFunc(symbol, function)
 	m.top--
 	m.stack[m.top-1] = m.stack[m.top]
 	if enableDebug {
@@ -527,17 +511,12 @@ func (m *VM) Debug() {
 	}
 }
 
-type Compiler interface {
-	KLToSexpByteCode(Obj) Obj
-}
-
 var prototype *VM
-var compiler Compiler
 
-func (m *VM) KLToSexpByteCode(klambda Obj) Obj {
+func klToSexpByteCode(klambda Obj) Obj {
 	// TODO: Better way to do it?
 	// tailcall (kl->bytecode klambda)
-	var a Assember
+	var a assember
 	a.CONST(klambda)
 	a.CONST(MakeSymbol("kl->bytecode"))
 	a.GetF()
@@ -545,15 +524,15 @@ func (m *VM) KLToSexpByteCode(klambda Obj) Obj {
 	a.HALT()
 
 	code := a.Compile()
-	return m.Run(code)
+	return prototype.Run(code)
 }
 
-func klToByteCode(klambda Obj, cc Compiler) (Code, error) {
-	bc := cc.KLToSexpByteCode(klambda)
+func klToCode(klambda Obj) (Code, error) {
+	bc := klToSexpByteCode(klambda)
 	if IsError(bc) || bc == Nil {
 		return nil, errors.New("klToByteCode return some thing wrong:" + ObjString(bc))
 	}
-	var a Assember
+	var a assember
 	err := a.FromSexp(bc)
 	if err != nil {
 		return nil, err
@@ -574,7 +553,7 @@ func (m *VM) Eval(sexp Obj) (res Obj) {
 		}
 	}()
 
-	code, err := klToByteCode(sexp, compiler)
+	code, err := klToCode(sexp)
 	if err != nil {
 		return MakeError(err.Error())
 	}
@@ -582,15 +561,14 @@ func (m *VM) Eval(sexp Obj) (res Obj) {
 	return
 }
 
-func BootstrapMin() {
+func bootstrapMin() {
 	prototype.mustLoadBytecode(MakeString("primitive.bc"))
 	prototype.mustLoadBytecode(MakeString("de-bruijn.bc"))
 	prototype.mustLoadBytecode(MakeString("compile.bc"))
-	compiler = prototype
 }
 
 func BootstrapCora() {
-	BootstrapMin()
+	bootstrapMin()
 	prototype.mustLoadBytecode(MakeString("toplevel.bc"))
 	prototype.mustLoadBytecode(MakeString("core.bc"))
 	prototype.mustLoadBytecode(MakeString("sys.bc"))
@@ -631,7 +609,7 @@ func (m *VM) loadBytecode(args ...Obj) Obj {
 	r := NewSexpReader(f)
 	obj, err := r.Read()
 	for err == nil {
-		var a Assember
+		var a assember
 		if err1 := a.FromSexp(obj); err1 != nil {
 			return MakeError(err1.Error())
 		}
@@ -714,26 +692,6 @@ func (m *VM) loadPlugin(args ...Obj) Obj {
 	return args[0]
 }
 
-type bindInfo struct {
-	Name       string
-	Arity      int
-	PluginFunc string
-}
-
-func getBindInfo(l Obj) []bindInfo {
-	ret := make([]bindInfo, 0, 1)
-	for l != Nil {
-		name := GetSymbol(Car(l))
-		l = Cdr(l)
-		arity := GetInteger(Car(l))
-		l = Cdr(l)
-		pluginName := GetString(Car(l))
-		l = Cdr(l)
-		ret = append(ret, bindInfo{name, arity, pluginName})
-	}
-	return ret
-}
-
 var stdDebug io.Writer
 
 func debugf(format string, a ...interface{}) {
@@ -742,6 +700,22 @@ func debugf(format string, a ...interface{}) {
 
 func debugln(a ...interface{}) {
 	fmt.Fprintln(stdDebug, a...)
+}
+
+func initSymbolTable() {
+	dir, _ := os.Getwd()
+	primSet(MakeSymbol("*stinput*"), MakeStream(os.Stdin))
+	primSet(MakeSymbol("*stoutput*"), MakeStream(os.Stdout))
+	primSet(MakeSymbol("*home-directory*"), MakeString(dir))
+	primSet(MakeSymbol("*language*"), MakeString("Go"))
+	primSet(MakeSymbol("*implementation*"), MakeString("bytecode"))
+	primSet(MakeSymbol("*relase*"), MakeString(runtime.Version()))
+	primSet(MakeSymbol("*os*"), MakeString(runtime.GOOS))
+	primSet(MakeSymbol("*porters*"), MakeString("Arthur Mao"))
+	primSet(MakeSymbol("*port*"), MakeString("0.0.1"))
+
+	// Extended by shen-go implementation
+	primSet(MakeSymbol("*package-path*"), MakeString(PackagePath()))
 }
 
 func init() {
@@ -765,19 +739,11 @@ func init() {
 	symbolArray = make([]symbolArrayObj, 0, 4096)
 	trieRoot = &trieNode{}
 
-	instructionStrToInfo = make(map[string]*instructionInfo)
-	for i := 0; i < len(instructionTable); i++ {
-		v := &instructionTable[i]
-		instructionStrToInfo[v.name] = v
-	}
-
-	primitiveIdx = make(map[string]*ScmPrimitive)
-	for i, prim := range allPrimitives {
-		prim.id = i
-		primitiveIdx[prim.Name] = prim
-	}
 	if enableDebug {
 		stdDebug, _ = os.OpenFile("debug.log", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	}
+
+	initSymbolTable()
+
 	prototype = newVM()
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func TestInstruction(t *testing.T) {
-	var a Assember
+	var a assember
 	a.CONST(MakeInteger(4))
 	a.CONST(MakeInteger(7))
 	a.GRAB()
@@ -48,7 +48,7 @@ func TestFromSexp(t *testing.T) {
 		t.Error(err)
 	}
 
-	var a Assember
+	var a assember
 	err = a.FromSexp(sexp)
 	if err != nil {
 		t.Error(err)

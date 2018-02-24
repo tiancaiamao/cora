@@ -25,7 +25,7 @@ func main() {
 	runtime.Boot = boot
 	runtime.BootstrapCora()
 
-	m := runtime.New()
+	m := runtime.NewVM()
 	m.Eval(runtime.Cons(runtime.MakeSymbol("shen.shen"), runtime.Nil))
 	return
 }

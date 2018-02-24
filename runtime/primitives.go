@@ -6,62 +6,55 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
-	"unsafe"
 )
 
-var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "load-file", Required: 1},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "type", Required: 2, Function: typeFunc},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "get-time", Required: 1, Function: getTime},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "eval-kl", Required: 1},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "close", Required: 1, Function: closeStream},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "open", Required: 2, Function: openStream},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-byte", Required: 1, Function: primReadByte},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "write-byte", Required: 2, Function: writeByte},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "absvector?", Required: 1, Function: isVector},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "<-address", Required: 2, Function: primVectorGet},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "address->", Required: 3, Function: primVectorSet},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "absvector", Required: 1, Function: primAbsvector},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "str", Required: 1, Function: primStr},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "<=", Required: 2, Function: lessEqual},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: ">=", Required: 2, Function: greatEqual},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "<", Required: 2, Function: lessThan},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: ">", Required: 2, Function: greatThan},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "error-to-string", Required: 1, Function: primErrorToString},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "simple-error", Required: 1, Function: simpleError},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "=", Required: 2, Function: PrimEqual},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "-", Required: 2, Function: primNumberSubtract},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "*", Required: 2, Function: primNumberMultiply},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "/", Required: 2, Function: primNumberDivide},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "+", Required: 2, Function: PrimNumberAdd},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "string->n", Required: 1, Function: primStringToNumber},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "n->string", Required: 1, Function: primNumberToString},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "number?", Required: 1, Function: primIsNumber},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "string?", Required: 1, Function: primIsString},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "pos", Required: 2, Function: pos},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "tlstr", Required: 1, Function: primTailString},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cn", Required: 2, Function: stringConcat},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "intern", Required: 1, Function: primIntern},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "hd", Required: 1, Function: PrimHead},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "tl", Required: 1, Function: primTail},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons", Required: 2, Function: primCons},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons?", Required: 1, Function: primIsPair},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1, Function: PrimValue},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2, Function: PrimSet},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "not", Required: 1, Function: primNot},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "if", Required: 3, Function: primIf},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "symbol?", Required: 1, Function: primIsSymbol},
-	// &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "native", Required: 9999},
-	// &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "hash", Required: 2, Function: primHash},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-bytelist", Required: 1, Function: primReadFileAsByteList},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-string", Required: 1, Function: primReadFileAsString},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "variable?", Required: 1, Function: primIsVariable},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "integer?", Required: 1, Function: primIsInteger},
+var allPrimitives []*scmPrimitive = []*scmPrimitive{
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.type", Required: 2, Function: typeFunc},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.get-time", Required: 1, Function: getTime},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.close", Required: 1, Function: closeStream},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.open", Required: 2, Function: openStream},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.read-byte", Required: 1, Function: primReadByte},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.write-byte", Required: 2, Function: writeByte},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.absvector?", Required: 1, Function: isVector},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.<-address", Required: 2, Function: primVectorGet},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.address->", Required: 3, Function: primVectorSet},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.absvector", Required: 1, Function: primAbsvector},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.str", Required: 1, Function: primStr},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.<=", Required: 2, Function: lessEqual},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.>=", Required: 2, Function: greatEqual},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.<", Required: 2, Function: lessThan},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.>", Required: 2, Function: greatThan},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.error-to-string", Required: 1, Function: primErrorToString},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.simple-error", Required: 1, Function: simpleError},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.=", Required: 2, Function: primEqual},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.-", Required: 2, Function: primNumberSubtract},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.*", Required: 2, Function: primNumberMultiply},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive./", Required: 2, Function: primNumberDivide},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.+", Required: 2, Function: primNumberAdd},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.string->n", Required: 1, Function: primStringToNumber},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.n->string", Required: 1, Function: primNumberToString},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.number?", Required: 1, Function: primIsNumber},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.string?", Required: 1, Function: primIsString},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.pos", Required: 2, Function: pos},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.tlstr", Required: 1, Function: primTailString},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.cn", Required: 2, Function: stringConcat},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.intern", Required: 1, Function: primIntern},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.hd", Required: 1, Function: primHead},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.tl", Required: 1, Function: primTail},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.cons", Required: 2, Function: primCons},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.cons?", Required: 1, Function: primIsPair},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.value", Required: 1, Function: primValue},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.set", Required: 2, Function: primSet},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.not", Required: 1, Function: primNot},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.if", Required: 3, Function: primIf},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.symbol?", Required: 1, Function: primIsSymbol},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.read-file-as-bytelist", Required: 1, Function: primReadFileAsByteList},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.read-file-as-string", Required: 1, Function: primReadFileAsString},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.variable?", Required: 1, Function: primIsVariable},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.integer?", Required: 1, Function: primIsInteger},
 }
 
-var primitiveIdx map[string]*ScmPrimitive
-
-func PrimNumberAdd(args ...Obj) Obj {
+func primNumberAdd(args ...Obj) Obj {
 	x1 := mustNumber(args[0])
 	y1 := mustNumber(args[1])
 	return MakeNumber(x1.val + y1.val)
@@ -96,7 +89,7 @@ func primIntern(args ...Obj) Obj {
 	return MakeSymbol(str)
 }
 
-func PrimHead(args ...Obj) Obj {
+func primHead(args ...Obj) Obj {
 	return car(args[0])
 }
 
@@ -201,14 +194,14 @@ func or(args ...Obj) Obj {
 	return True
 }
 
-func PrimSet(args ...Obj) Obj {
+func primSet(args ...Obj) Obj {
 	sym := mustSymbol(args[0])
 	symVal := &symbolArray[sym.offset]
 	symVal.value = args[1]
 	return args[1]
 }
 
-func PrimValue(args ...Obj) Obj {
+func primValue(args ...Obj) Obj {
 	sym := mustSymbol(args[0])
 	symVal := &symbolArray[sym.offset]
 	if symVal.value != nil {
@@ -409,7 +402,7 @@ func primIf(args ...Obj) Obj {
 	return MakeError("primIf")
 }
 
-func PrimEqual(args ...Obj) Obj {
+func primEqual(args ...Obj) Obj {
 	return equal(args[0], args[1])
 }
 
@@ -422,60 +415,6 @@ func primIsSymbol(args ...Obj) Obj {
 		return True
 	}
 	return False
-}
-
-// A --> number --> number
-func primHash(args ...Obj) Obj {
-	mod := mustNumber(args[1]).val
-	ret := objHash(args[0]) % int(mod)
-	return MakeInteger(ret)
-}
-
-func objHash(x Obj) int {
-	// initialize value is its type, then mixed with value part.
-	sum := (int)(*x)
-	switch *x {
-	case scmHeadNull:
-	case scmHeadBoolean:
-		if x == True {
-			sum = sum<<23 + 17
-		} else {
-			sum = sum<<23 + 13
-		}
-	case scmHeadNumber:
-		sum = sum<<23 + *((*int)(unsafe.Pointer(&mustNumber(x).val)))
-	case scmHeadString:
-		str := mustString(x)
-		for _, s := range str {
-			sum = ((sum + 13) << 7) + int(s)
-		}
-	case scmHeadSymbol:
-		str := GetSymbol(x)
-		for _, s := range str {
-			sum = ((sum + 13) << 7) + int(s)
-		}
-	case scmHeadVector:
-		objs := mustVector(x)
-		for _, o := range objs {
-			sum = ((sum + 17) << 13) + objHash(o)
-		}
-	case scmHeadError:
-		str := mustError(x).err
-		for _, s := range str {
-			sum = ((sum + 123) << 7) + int(s)
-		}
-	case scmHeadPair:
-		sum = objHash(car(x)) ^ objHash(cdr(x))
-	case scmHeadStream:
-		sum = sum ^ *((*int)(unsafe.Pointer(mustStream(x))))
-	case scmHeadPrimitive:
-		for _, s := range mustPrimitive(x).Name {
-			sum = ((sum + 17) << 7) + int(s)
-		}
-	case scmHeadRaw:
-		sum = sum ^ *((*int)(unsafe.Pointer(mustStream(x))))
-	}
-	return sum
 }
 
 func primReadFileAsByteList(args ...Obj) Obj {
