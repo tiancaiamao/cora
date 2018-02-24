@@ -71,3 +71,4 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (defun read-file-as-bytelist (X) (native "primitive.read-file-as-bytelist" X))
 (defun read-file-as-string (X) (native "primitive.read-file-as-string" X))
 (defun address-> (X Y Z) (native "primitive.address->" X Y Z))
+(defun load-plugin (X) (native "primitive.load-plugin" X))

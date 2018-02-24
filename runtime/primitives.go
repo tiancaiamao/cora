@@ -5,10 +5,12 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"plugin"
 	"time"
 )
 
 var allPrimitives []*scmPrimitive = []*scmPrimitive{
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.load-plugin", Required: 1, Function: primLoadPlugin},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.eval-kl", Required: 1, Function: primEvalKL},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.get-time", Required: 1, Function: getTime},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.close", Required: 1, Function: closeStream},
@@ -52,6 +54,27 @@ var allPrimitives []*scmPrimitive = []*scmPrimitive{
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.read-file-as-string", Required: 1, Function: primReadFileAsString},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.variable?", Required: 1, Function: primIsVariable},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.integer?", Required: 1, Function: primIsInteger},
+}
+
+func primLoadPlugin(args ...Obj) Obj {
+	pluginPath := GetString(args[0])
+	p, err := plugin.Open(pluginPath)
+	if err != nil {
+		return MakeError(err.Error())
+	}
+
+	entry, err := p.Lookup("Main")
+	if err != nil {
+		return MakeError(err.Error())
+	}
+
+	f, ok := entry.(func())
+	if !ok {
+		return MakeError("plugin Main should be func(*vm.VM)")
+	}
+
+	f()
+	return args[0]
 }
 
 func primNumberAdd(args ...Obj) Obj {

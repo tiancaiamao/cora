@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"plugin"
 	"runtime"
 	"sync"
 	"time"
@@ -612,66 +611,6 @@ func loadBytecode(args ...Obj) Obj {
 	return args[0]
 }
 
-func loadFile(args ...Obj) Obj {
-	file := GetString(args[0])
-	var filePath string
-	if _, err := os.Stat(file); err == nil {
-		filePath = file
-	} else {
-		filePath = path.Join(PackagePath(), file)
-		if _, err := os.Stat(filePath); err != nil {
-			return MakeError(err.Error())
-		}
-	}
-
-	f, err := os.Open(filePath)
-	if err != nil {
-		return MakeError(err.Error())
-	}
-	defer f.Close()
-
-	r := NewSexpReader(f)
-	for {
-		exp, err := r.Read()
-		if err != nil {
-			if err != io.EOF {
-				return MakeError(err.Error())
-			}
-			break
-		}
-
-		tmp := auxVM.Get()
-		res := tmp.Eval(exp)
-		auxVM.Put(tmp)
-
-		if IsError(res) {
-			return res
-		}
-	}
-	return args[0]
-}
-
-func loadPlugin(args ...Obj) Obj {
-	pluginPath := GetString(args[0])
-	p, err := plugin.Open(pluginPath)
-	if err != nil {
-		return MakeError(err.Error())
-	}
-
-	entry, err := p.Lookup("Main")
-	if err != nil {
-		return MakeError(err.Error())
-	}
-
-	f, ok := entry.(func())
-	if !ok {
-		return MakeError("plugin Main should be func(*vm.VM)")
-	}
-
-	f()
-	return args[0]
-}
-
 var stdDebug io.Writer
 
 func debugf(format string, a ...interface{}) {
@@ -728,9 +667,6 @@ func init() {
 	for _, v := range allPrimitives {
 		RegistNativeCall(v.Name, v.Required, v.Function)
 	}
-	RegistNativeCall("load-file", 1, loadFile)
-	RegistNativeCall("load-bytecode", 1, loadBytecode)
-	RegistNativeCall("load-plugin", 1, loadPlugin)
 
 	prototype = newVM()
 }
