@@ -21,12 +21,34 @@ const (
 	scmHeadString            = 4
 	scmHeadSymbol            = 5
 	scmHeadBoolean           = 6
-	scmHeadProcedure         = 14
+	scmHeadClosure           = 14
 	scmHeadStream            = 17
 	scmHeadPrimitive         = 21
 	scmHeadError             = 22
 	scmHeadRaw               = 42
 )
+
+type scmClosure struct {
+	scmHead
+	code Code
+	env  []Obj
+}
+
+func makeClosure(code Code, env []Obj) Obj {
+	tmp := scmClosure{
+		scmHead: scmHeadClosure,
+		code:    code,
+		env:     env,
+	}
+	return &tmp.scmHead
+}
+
+func mustClosure(o Obj) *scmClosure {
+	if (*o) != scmHeadClosure {
+		panic("mustClosure")
+	}
+	return (*scmClosure)(unsafe.Pointer(o))
+}
 
 type scmNumber struct {
 	scmHead
@@ -383,7 +405,7 @@ func (o *scmHead) GoString() string {
 		}
 	case scmHeadError:
 		return fmt.Sprintf("Error(%s)", mustError(o).err)
-	case scmHeadProcedure:
+	case scmHeadClosure:
 		return fmt.Sprintf("#procedure")
 	case scmHeadStream:
 		return fmt.Sprintf("#stream")

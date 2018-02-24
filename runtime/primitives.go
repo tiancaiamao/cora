@@ -140,8 +140,8 @@ func primStr(args ...Obj) Obj {
 		return MakeString(fmt.Sprintf("%d", int(f.val)))
 	case scmHeadString:
 		return MakeString(fmt.Sprintf(`"%s"`, mustString(args[0])))
-	case scmHeadProcedure:
-		return MakeString("#<procedure>")
+	case scmHeadClosure:
+		return MakeString("#<closure>")
 	case scmHeadPrimitive:
 		prim := mustPrimitive(args[0])
 		return MakeString(fmt.Sprintf("#<primitive %s>", prim.Name))

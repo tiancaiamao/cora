@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"sync"
 	"time"
-	"unsafe"
 )
 
 // Go doesn't provide MACRO like C, but the compiler optimization can eliminate dead code "if false XX".
@@ -61,12 +60,6 @@ type address struct {
 	code    Code
 	env     []Obj
 	envMark int
-}
-
-type Procedure struct {
-	scmHead int
-	code    Code
-	env     []Obj
 }
 
 const initStackSize = 128
@@ -203,7 +196,7 @@ func (m *VM) handleException() {
 	m.savedAddr = m.savedAddr[:jmpBuf.savedAddrPos]
 	m.savedAddr = append(m.savedAddr, jmpBuf.address)
 	// longjmp... tail apply
-	closure := (*Procedure)(unsafe.Pointer(jmpBuf.closure))
+	closure := mustClosure(jmpBuf.closure)
 	m.code = closure.code
 	m.pc = 0
 	m.env = closure.env
@@ -277,15 +270,12 @@ func opFreeze(n int) instFunc {
 		m.pc++
 		// create closure directly
 		// nearly the same with grab, but if need zero arguments.
-		tmp := &Procedure{
-			code: m.code[m.pc:],
-			env:  m.envClose(),
-		}
-		raw := MakeRaw(&tmp.scmHead)
+		env := m.envClose()
+		proc := makeClosure(m.code[m.pc:], m.envClose())
 		if enableDebug {
-			debugf("FREEZE len(env)=%d\n", len(tmp.env))
+			debugf("FREEZE len(env)=%d\n", len(env))
 		}
-		m.stackPush(raw)
+		m.stackPush(proc)
 		m.pc += n
 	}
 }
@@ -303,12 +293,8 @@ func opGrab(m *VM) {
 	m.top--
 	if v := m.stack[m.top]; v == stackMark {
 		// make closure if there are not enough arguments
-		tmp := Procedure{
-			code: m.code[m.pc-1:],
-			env:  m.envClose(),
-		}
-		raw := MakeRaw(&tmp.scmHead)
-		m.stackPush(raw)
+		proc := makeClosure(m.code[m.pc-1:], m.envClose())
+		m.stackPush(proc)
 
 		// return to saved address
 		savedAddr := m.savedAddr[len(m.savedAddr)-1]
@@ -354,8 +340,7 @@ func opReturn(m *VM) {
 		// similar to tail apply
 		m.top--
 		obj := m.stack[m.top]
-		// TODO: panic if obj is not a closure
-		closure := (*Procedure)(unsafe.Pointer(obj))
+		closure := mustClosure(obj)
 		m.code = closure.code
 		m.pc = 0
 		m.env = closure.env
@@ -369,8 +354,7 @@ func opTailApply(m *VM) {
 	}
 	m.top--
 	obj := m.stack[m.top]
-	// TODO: panic if obj is not a closure
-	closure := (*Procedure)(unsafe.Pointer(obj))
+	closure := mustClosure(obj)
 	// The only different with Apply is that TailApply doesn't save return address.
 	m.code = closure.code
 	m.pc = 0
@@ -385,8 +369,7 @@ func opApply(m *VM) {
 		debugf("APPLY %d\n", m.top)
 	}
 	obj := m.stack[m.top]
-	// TODO: panic if obj is not a closure
-	closure := (*Procedure)(unsafe.Pointer(obj))
+	closure := mustClosure(obj)
 	// save return address
 	m.savedAddr = append(m.savedAddr, address{m.pc, m.code, m.env, m.envMark})
 	// set pc to closure code
