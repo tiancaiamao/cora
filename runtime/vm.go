@@ -92,9 +92,6 @@ var nativeFunc = make(map[string]*scmPrimitive)
 
 func NewVM() *VM {
 	m := newVM()
-	RegistNativeCall("load-bytecode", 1, m.loadBytecode)
-	RegistNativeCall("load-file", 1, m.loadFile)
-	RegistNativeCall("load-plugin", 1, m.loadPlugin)
 	return m
 }
 
@@ -569,13 +566,13 @@ func BootstrapCora() {
 var Boot string
 
 func (m *VM) mustLoadBytecode(args ...Obj) {
-	res := m.loadBytecode(args...)
+	res := loadBytecode(args...)
 	if IsError(res) {
 		panic(ObjString(res))
 	}
 }
 
-func (m *VM) loadBytecode(args ...Obj) Obj {
+func loadBytecode(args ...Obj) Obj {
 	fileName := GetString(args[0])
 	var f io.ReadCloser
 	var err error
@@ -615,7 +612,7 @@ func (m *VM) loadBytecode(args ...Obj) Obj {
 	return args[0]
 }
 
-func (m *VM) loadFile(args ...Obj) Obj {
+func loadFile(args ...Obj) Obj {
 	file := GetString(args[0])
 	var filePath string
 	if _, err := os.Stat(file); err == nil {
@@ -654,7 +651,7 @@ func (m *VM) loadFile(args ...Obj) Obj {
 	return args[0]
 }
 
-func (m *VM) loadPlugin(args ...Obj) Obj {
+func loadPlugin(args ...Obj) Obj {
 	pluginPath := GetString(args[0])
 	p, err := plugin.Open(pluginPath)
 	if err != nil {
@@ -666,12 +663,12 @@ func (m *VM) loadPlugin(args ...Obj) Obj {
 		return MakeError(err.Error())
 	}
 
-	f, ok := entry.(func(*VM))
+	f, ok := entry.(func())
 	if !ok {
 		return MakeError("plugin Main should be func(*vm.VM)")
 	}
 
-	f(m)
+	f()
 	return args[0]
 }
 
@@ -731,6 +728,9 @@ func init() {
 	for _, v := range allPrimitives {
 		RegistNativeCall(v.Name, v.Required, v.Function)
 	}
+	RegistNativeCall("load-file", 1, loadFile)
+	RegistNativeCall("load-bytecode", 1, loadBytecode)
+	RegistNativeCall("load-plugin", 1, loadPlugin)
 
 	prototype = newVM()
 }
