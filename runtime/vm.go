@@ -37,8 +37,6 @@ type VM struct {
 	pc        int       // pc register refer to the position in current code
 	savedAddr []address // saved return address
 
-	nativeFunc map[string]*scmPrimitive
-
 	// jumpBuf is used to implement exception, similar to setjmp/longjmp in C.
 	cc []jumpBuf
 
@@ -90,41 +88,28 @@ func (p *pool) Put(v *VM) {
 var auxVM pool
 var stackMarkDummyValue int
 var stackMark = MakeRaw(&stackMarkDummyValue)
+var nativeFunc = make(map[string]*scmPrimitive)
 
 func NewVM() *VM {
 	m := newVM()
-	m.RegistNativeCall("load-bytecode", 1, m.loadBytecode)
-	m.RegistNativeCall("load-file", 1, m.loadFile)
-	m.RegistNativeCall("load-plugin", 1, m.loadPlugin)
+	RegistNativeCall("load-bytecode", 1, m.loadBytecode)
+	RegistNativeCall("load-file", 1, m.loadFile)
+	RegistNativeCall("load-plugin", 1, m.loadPlugin)
 	return m
 }
 
 func newVM() *VM {
 	m := &VM{
-		stack:      make([]Obj, initStackSize),
-		env:        make([]Obj, 0, 256),
-		volatile:   make([]Obj, 0, 256),
-		nativeFunc: make(map[string]*scmPrimitive),
+		stack:    make([]Obj, initStackSize),
+		env:      make([]Obj, 0, 256),
+		volatile: make([]Obj, 0, 256),
 	}
-
-	for _, v := range allPrimitives {
-		m.RegistNativeCall(v.Name, v.Required, v.Function)
-	}
-	m.RegistNativeCall("primitive.eval-kl", 1, m.primEvalKL)
 
 	return m
 }
 
-func (m *VM) primEvalKL(args ...Obj) Obj {
-	tmp := auxVM.Get()
-	tmp.nativeFunc = m.nativeFunc
-	result := tmp.Eval(args[0])
-	auxVM.Put(tmp)
-	return result
-}
-
-func (m *VM) RegistNativeCall(name string, arity int, f func(...Obj) Obj) {
-	m.nativeFunc[name] = makePrimitive(name, arity, f)
+func RegistNativeCall(name string, arity int, f func(...Obj) Obj) {
+	nativeFunc[name] = makePrimitive(name, arity, f)
 }
 
 func (m *VM) Run(code Code) Obj {
@@ -445,7 +430,7 @@ func opNativeCall(arity int) instFunc {
 		if enableDebug {
 			debugf("NativeCall %s\n", method)
 		}
-		proc, ok := m.nativeFunc[method]
+		proc, ok := nativeFunc[method]
 		if !ok {
 			m.stack[m.top-1] = MakeError("unknown native function:" + method)
 			m.status = statusException
@@ -616,7 +601,6 @@ func (m *VM) loadBytecode(args ...Obj) Obj {
 		code := a.Compile()
 
 		tmp := auxVM.Get()
-		tmp.nativeFunc = m.nativeFunc
 		res := tmp.Run(code)
 		auxVM.Put(tmp)
 
@@ -660,7 +644,6 @@ func (m *VM) loadFile(args ...Obj) Obj {
 		}
 
 		tmp := auxVM.Get()
-		tmp.nativeFunc = m.nativeFunc
 		res := tmp.Eval(exp)
 		auxVM.Put(tmp)
 
@@ -744,6 +727,10 @@ func init() {
 	}
 
 	initSymbolTable()
+
+	for _, v := range allPrimitives {
+		RegistNativeCall(v.Name, v.Required, v.Function)
+	}
 
 	prototype = newVM()
 }

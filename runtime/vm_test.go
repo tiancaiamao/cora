@@ -83,7 +83,7 @@ func TestTrapError(t *testing.T) {
 
 func TestNativeCall(t *testing.T) {
 	vm := NewVM()
-	vm.RegistNativeCall("hello", 0, helloWorld)
+	RegistNativeCall("hello", 0, helloWorld)
 
 	runTest(vm, `(native "hello")`, MakeString("hello world"), t)
 	runTest(vm, `(native "bbc")`, MakeError("unknown native function:bbc"), t)
@@ -294,6 +294,5 @@ func testKLToBytecode(t *testing.T, input, expect string) {
 }
 
 func init() {
-	Boot = ".."
 	BootstrapCora()
 }

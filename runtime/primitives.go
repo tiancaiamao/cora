@@ -9,7 +9,7 @@ import (
 )
 
 var allPrimitives []*scmPrimitive = []*scmPrimitive{
-	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.type", Required: 2, Function: typeFunc},
+	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.eval-kl", Required: 1, Function: primEvalKL},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.get-time", Required: 1, Function: getTime},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.close", Required: 1, Function: closeStream},
 	&scmPrimitive{scmHead: scmHeadPrimitive, Name: "primitive.open", Required: 2, Function: openStream},
@@ -363,11 +363,6 @@ func getTime(args ...Obj) Obj {
 	return MakeError(fmt.Sprintf("get-time does not understand the parameter %s", kind))
 }
 
-func typeFunc(args ...Obj) Obj {
-	// TODO: seems meanless
-	return args[0]
-}
-
 func primIsString(args ...Obj) Obj {
 	if *args[0] == scmHeadString {
 		return True
@@ -465,4 +460,11 @@ func primIsInteger(args ...Obj) Obj {
 		return True
 	}
 	return False
+}
+
+func primEvalKL(args ...Obj) Obj {
+	tmp := auxVM.Get()
+	result := tmp.Eval(args[0])
+	auxVM.Put(tmp)
+	return result
 }

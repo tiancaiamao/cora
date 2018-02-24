@@ -74,6 +74,9 @@
 
 (set *maximum-print-sequence-size* 2000)
 
+(load "compiler/de-bruijn.cora")
+(load "compiler/compile.cora")
+
 (map (function make-file)
      ["compiler/toplevel.cora"
       "compiler/core.cora"
