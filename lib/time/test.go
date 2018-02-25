@@ -12,5 +12,5 @@ func now(args ...runtime.Obj) runtime.Obj {
 }
 
 func Main() {
-	runtime.RegistNativeCall("test.now", 0, now)
+	runtime.RegistNativeCall("time.now", 0, now)
 }
