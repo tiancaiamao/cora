@@ -1,0 +1,2 @@
+(defun cd (X) (native "prelude.cd" X))
+(defun pwd () (native "prelude.pwd"))

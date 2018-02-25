@@ -1,0 +1,4 @@
+(package time []
+         (native "load-plugin" "time.so")
+         (defun now () (native "time.now"))	
+)

@@ -8,7 +8,7 @@ import (
 
 func PackagePath() string {
 	gopath := os.Getenv("GOPATH")
-	return path.Join(gopath, "src/github.com/tiancaiamao/shen-go")
+	return path.Join(gopath, "src/github.com/tiancaiamao/cora")
 }
 
 func cadr(o Obj) Obj {

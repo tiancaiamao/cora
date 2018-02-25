@@ -1,9 +1,0 @@
-(package time 
-	(native load-plugin "time.so"
-		[["Now" xxx 0]
-		 ["Sub" xxx 1]
-		 ["YYY" xxx 2]])
-
-	(define now
-		-> (native time.now))
-)

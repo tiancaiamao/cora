@@ -542,6 +542,12 @@ func (m *VM) Eval(sexp Obj) (res Obj) {
 	return
 }
 
+func Eval(sexp Obj) Obj {
+	vm := auxVM.Get()
+	defer auxVM.Put(vm)
+	return vm.Eval(sexp)
+}
+
 func bootstrapMin() {
 	prototype.mustLoadBytecode(MakeString("primitive.bc"))
 	prototype.mustLoadBytecode(MakeString("de-bruijn.bc"))
@@ -632,8 +638,6 @@ func initSymbolTable() {
 	primSet(MakeSymbol("*os*"), MakeString(runtime.GOOS))
 	primSet(MakeSymbol("*porters*"), MakeString("Arthur Mao"))
 	primSet(MakeSymbol("*port*"), MakeString("0.0.1"))
-
-	// Extended by shen-go implementation
 	primSet(MakeSymbol("*package-path*"), MakeString(PackagePath()))
 }
 
