@@ -40,8 +40,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   Env [do X Y] -> [$do (de-bruijn0 Env X) (de-bruijn0 Env Y)]
   Env [defun F X Y] -> [$defun F (de-bruijn0 Env (defun-rewrite X Y))]
   Env [cond | L] -> (de-bruijn0 Env (cond-rewrite L))
-  Env [and X Y] -> [$if (de-bruijn0 Env X) (de-bruijn0 Env Y) [$const false]]
-  Env [or X Y] -> [$if (de-bruijn0 Env X) [$const true] (de-bruijn0 Env Y)]
+  Env [and X Y] -> (de-bruijn0 Env [if X [if Y true false] false])
+  Env [or X Y] -> (de-bruijn0 Env [if X true [if Y true false]])
   Env [trap-error X Y] -> [$trap (de-bruijn0 Env X) (de-bruijn0 Env Y)]
   Env [native | L] -> [$native | (map (de-bruijn0 Env) L)]
   Env [F | X] -> [$app (de-bruijn0 Env F) | (map (de-bruijn0 Env) X)]
