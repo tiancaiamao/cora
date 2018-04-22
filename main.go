@@ -5,7 +5,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/tiancaiamao/cora/runtime"
+	"github.com/tiancaiamao/shen-go/runtime"
 )
 
 var pprof bool
