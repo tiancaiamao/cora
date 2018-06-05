@@ -1,0 +1,74 @@
+(defun fact (N)
+       (if (= N 0)
+           1
+           (* N (fact (- N 1)))))
+
+'(defun fact (N) (if (= N 0) 1 (* N (fact (- N 1)))))'
+
+(fact 5)
+
+(defun sum (X, Y)
+       (if (= X 0)
+           Y
+           (sum (- X 1) (+ Y 1))))
+
+'(defun sum (X Y) (if (= X 0) Y (sum (- X 1) (+ Y 1))))'
+
+(symbol? (defun id (X) X))
+
+(sum 9999999 111111)
+
+(if "sd" 4 7)
+(+ X 1)
+
+(and true false)
+(and true true)
+(and (simple-error "sdf") 1)
+
+(or true false)
+(or false false)
+(or true true)
+
+(cond (true 3) (false 5))
+(cond (false 3) (false 5))
+
+(set X 3)
+(set "xxx" 3)
+
+(let X 3 Y)
+(do (let X aaa (set X 3)) (value aaa))
+
+(<-address (absvector 1) 4)
+(let X 10 (trap-error (cn x 2) (lambda E X)))
+(trap-error
+  (yyy (trap-error (xxx 3)
+               (lambda X  42)) 4)
+               (lambda X true))
+
+(trap-error (yyy (trap-error (xxx 3) (lambda X  42)) 4) (lambda X true))
+
+(= x (cn x ""))
+(= x (cn "" x))
+(= x (cn (pos x 0) (tlstr x)))
+(= (pos x 0) (n->string (string->n x)))
+(= (intern x) (intern x))
+(do (set x y) (= (value x) y))
+(= y (set x y))
+(= x (trap-error (simple-error x) (lambda E (error-to-string E))))
+(= x (hd (cons x y)))
+(= y (tl (cons x y)))
+(= 3 (eval-kl (cons + (cons 1 (cons 2 ())))))
+(= (+ 1 2) ((+ 1) 2))
+(boolean? true)
+(boolean? false)
+(boolean? (intern "true"))
+(boolean? (intern "false"))
+
+(symbol? true)
+(symbol? false)
+(symbol? (intern "true"))
+(symbol? (intern "false"))
+(symbol? (lambda X X))
+(symbol? (value *stinput*))
+(trap-error (simple-error "") (lambda E (symbol? E)))
+(symbol? ())

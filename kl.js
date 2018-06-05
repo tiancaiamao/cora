@@ -98,6 +98,7 @@ class Parser {
 }
 
 var fs = require('fs');
+var process = require('process');
 
 function Symbol(name) {
     this.name = name;
@@ -106,6 +107,8 @@ function Symbol(name) {
 function isSymbol(s) {
     return s instanceof Symbol;
 }
+
+function err(x) { throw new Error(x); };
 
 function Cons(x, y) {
     this.hd = x;
@@ -139,6 +142,14 @@ function isCons(x) {
     return x instanceof Cons;
 }
 
+function isFunction(x) {
+    return x instanceof Function;
+}
+
+function isError(x) {
+    return x instanceof Error;
+}
+
 function isString(x) {
     return typeof x === 'string';
 }
@@ -155,12 +166,16 @@ function isNumber(x) {
     return typeof x === 'number';
 }
 
+function isStream(x) {
+    return x instanceof fs.ReadStream || x instanceof fs.WriteStream;
+}
+
 function hd(o) {
-    return o.car();
+    return mustCons(o).car();
 }
 
 function tl(o) {
-    return o.cdr();
+    return mustCons(o).cdr();
 }
 
 function cadr(x) {
@@ -172,7 +187,9 @@ function caddr(x) {
 }
 
 function intern(str) {
-    return new Symbol(str);
+    if (str === "true") return true;
+    if (str === "false") return false;
+    return new Symbol(mustString(str));
 }
 
 function map(f, x) {
@@ -277,7 +294,7 @@ Env.prototype.isVariable = function(name) {
         ptr = ptr.parent;
     };
     return false;
-}
+};
 
 function kl2js(kl, env, tail) {
     // literal
@@ -293,7 +310,7 @@ function kl2js(kl, env, tail) {
         if (env.isVariable(str)) {
             return str;
         }
-        return "new Symbol(\"" + str + "\")";
+        return "new Symbol(\"" + kl.name + "\")";
     }
 
     if (kl instanceof Cons) {
@@ -317,14 +334,14 @@ function kl2js(kl, env, tail) {
                 return lambdaExpr2js(hd(remain), cadr(remain), env);
             } else if (car.name === "freeze") {
                 return freezeExpr2js(hd(remain), env);
+            } else if (car.name === "and") {
+                return andExpr2js(hd(remain), cadr(remain), env);
+            } else if (car.name === "or") {
+                return orExpr2js(hd(remain), cadr(remain), env);
             } else if (car.name === "trap-error") {
                 return trapErrorExpr2js(hd(remain), cadr(remain), env, tail);
             } else if (car.name === "do") {
                 return doExpr2js(hd(remain), cadr(remain), env, tail);
-            } else if (car.name === "set") {
-                return setExpr2js(hd(remain), cadr(remain), env, tail);
-            } else if (car.name === "value") {
-                return valueExpr2js(hd(remain), env);
             }
             // apply symbol function
             return applyExpr2js(car, remain, env, tail);
@@ -340,7 +357,15 @@ function ifExpr2js(testExpr, succExpr, failExpr, env, tail) {
     let test = kl2js(testExpr, env, false);
     let succ = kl2js(succExpr, env, tail);
     let fail = kl2js(failExpr, env, tail);
-    return "(" + test + " === true) ? ("+ succ + ") : (" + fail + ")";
+    return "(mustBoolean(" + test + ") === true) ? ("+ succ + ") : (" + fail + ")";
+}
+
+function andExpr2js(x, y, env) {
+    return "(mustBoolean(" + kl2js(x, env, false) + ") && mustBoolean(" + kl2js(y, env, false) + "))";
+}
+
+function orExpr2js(x, y, env) {
+    return "(mustBoolean(" + kl2js(x, env, false) + ") || mustBoolean(" + kl2js(y, env, false) + "))";
 }
 
 function letExpr2js(varExpr, valExpr, bodyExpr, env, tail) {
@@ -372,6 +397,7 @@ var startTime = new Date().getTime();
 function defun(name, f, arity) {
     f.arity = arity;
     primitive[name] = f;
+    return new Symbol(name);
 }
 
 function eq(x, y) {
@@ -389,7 +415,7 @@ function eq(x, y) {
 }
 
 function klSet(x, y) {
-    symbols[x.name] = y;
+    symbols[mustSymbol(x).name] = y;
     return y;
 }
 
@@ -401,7 +427,8 @@ function toStr(x) {
     if (isFunction(x)) return `<Function ${x.klName}>`;
     if (isArray(x)) return `<Vector ${x.length}>`;
     if (isError(x)) return `<Error "${x.message}">`;
-    if (isPipe(x)) return `<Stream ${x.name}>`;
+    if (isStream(x)) return `<Stream ${x.name}>`;
+    if (x === undefined) return err("str(undefined)");
     return '' + x;
 }
 
@@ -421,7 +448,7 @@ function klClose(stream) {
 
 function readByte(stream) {
     let ret =  stream.read(1);
-    if (ret == null) {return err('empty stream');};
+    if (ret == null) {return -1;}
     return ret[0];
 }
 
@@ -430,19 +457,61 @@ function writeByte(num, stream) {
     return num;
 }
 
-defun("if", function(c, x, y) {return c ? x : y;}, 3);
-defun("and", function(x, y) {return x && y;}, 2);
+function mustNumber(x) {
+    if (typeof x !== 'number') {
+        return err("mustNumber");
+    }
+    return x;
+}
+
+function mustBoolean(x) {
+    if (typeof x !== 'boolean') {
+        return err("mustBoolean");
+    }
+    return x;
+}
+
+function mustString(x) {
+    if (typeof x !== 'string') {
+        return err("mustString");
+    }
+    return x;
+}
+
+function mustSymbol(x) {
+    if (x instanceof Symbol === false) {
+        return err("mustSymbol");
+    }
+    return x;
+}
+
+function mustCons(x) {
+    if (x instanceof Cons === false) {
+        return err("mustCons");
+    }
+    return x;
+}
+
+defun("if", function(c, x, y) {return mustBoolean(c) ? x : y;}, 3);
+defun("and", function(x, y) {return mustBoolean(x) && mustBoolean(y);}, 2);
+defun("or", function(x, y) {return mustBoolean(x) || mustBoolean(y);}, 2);
+defun("not", function(x) {return !mustBoolean(x);}, 1);
 defun("set", klSet, 2);
-defun("value", function(x, y) { return symbols[x.name];}, 1);
-defun("or", function(x, y) {return x || y;}, 2);
-defun("+", function(x, y) {return x + y;}, 2);
-defun("-", function(x, y) {return x - y;}, 2);
-defun("*", function(x, y) {return x * y;}, 2);
-defun("/", function(x, y) {return x / y;}, 2);
-defun("<", function(x, y) {return x < y;}, 2);
-defun(">", function(x, y) {return x > y;}, 2);
-defun("<=", function(x, y) {return x <= y;}, 2);
-defun(">=", function(x, y) {return x >= y;}, 2);
+defun("value", function(x, y) {
+    let ret  = symbols[mustSymbol(x).name];
+    if (ret === undefined) {
+        return err(x.name + ' is not bound');
+    }
+    return ret;
+}, 1);
+defun("+", function(x, y) {return mustNumber(x) + mustNumber(y);}, 2);
+defun("-", function(x, y) {return mustNumber(x) - mustNumber(y);}, 2);
+defun("*", function(x, y) {return mustNumber(x) * mustNumber(y);}, 2);
+defun("/", function(x, y) {return mustNumber(x) / mustNumber(y);}, 2);
+defun("<", function(x, y) {return mustNumber(x) < mustNumber(y);}, 2);
+defun(">", function(x, y) {return mustNumber(x) > mustNumber(y);}, 2);
+defun("<=", function(x, y) {return mustNumber(x) <= mustNumber(y);}, 2);
+defun(">=", function(x, y) {return mustNumber(x) >= mustNumber(y);}, 2);
 defun("=", eq, 2);
 defun("number?", isNumber, 1);
 defun("cons", cons, 2);
@@ -453,16 +522,24 @@ defun("intern", intern, 1);
 defun("string?", isString, 1);
 defun("str", toStr, 1);
 defun("pos", function(s, x) {return s[x];}, 2);
-defun("tlstr", function(s) {return s.slict(1);}, 2);
-defun("cn", function(x, y) {return x + y;}, 2);
-defun("string->n", function(x) {return x.charCodeAt(0);}, 1);
-defun("n->string", function(n) {return String.fromCharCode(n);}, 1);
+defun("tlstr", function(s) {return mustString(s).slice(1);}, 1);
+defun("cn", function(x, y) {return mustString(x) + mustString(y);}, 2);
+defun("string->n", function(x) {return mustString(x).charCodeAt(0);}, 1);
+defun("n->string", function(n) {return String.fromCharCode(mustNumber(n));}, 1);
 defun("absvector", function(n) {return new Array(n).fill(null);}, 1);
-defun("<-address", function(a, i) {return a[i];}, 2);
+defun("<-address", function(a, i) {
+    if (a instanceof Array === false) {
+        return err('address need an vector');
+    }
+    if (mustNumber(i) >= a.length) {
+        return err('index out of range for vector');
+    }
+    return a[i];
+}, 2);
 defun("address->", function(a, i, x) {a[i] = x; return a;}, 3);
 defun("absvector?", isArray, 1);
 defun("eval-kl", function(kl) {return eval(kl2js(kl, new Env([], null)), true);}, 1);
-defun("simple-error", function(e) {return err(e.toString());}, 1);
+defun("simple-error", function(e) {return err(mustString(e));}, 1);
 defun("error-to-string", function(e) {return e.message;}, 1);
 defun("get-time", function(mode) {
     if (mode.name === 'unix') return new Date().getTime();
@@ -474,17 +551,34 @@ defun("close", klClose, 1);
 defun("read-byte", readByte, 1);
 defun("write-byte", writeByte, 2);
 
+klSet(new Symbol("*stinput*"), process.stdin);
+klSet(new Symbol("*stoutput*"), process.stdout);
+klSet(new Symbol("*home-directory*"), "/home/genius");
+klSet(new Symbol("*language*"), "javascript");
+klSet(new Symbol("*implementation*"), "compiler");
+klSet(new Symbol("*relase*"), "0.0.1");
+klSet(new Symbol("*os*"), "linux");
+klSet(new Symbol("*porters*"), "Arthur Mao");
+klSet(new Symbol("*port*"), "0.0.1");
+
+// overwrite
+defun("symbol?", function(x) {return x instanceof Symbol;}, 1);
+defun("integer?", function(x) {return typeof x === 'number';}, 1);
+
 function klFun(f, arity) {
     f.arity = arity;
     return f;
 }
 
 function klApply(fn, ...args) {
+    if (fn.arity === undefined) {
+        return err("can't klApply invalid function");
+    }
     if (fn.arity == args.length) {
         return fn(...args);
     }
     if (fn.arity < args.length) {
-        return klApply(fn(...args.slice(0, fn.arity)), args.slice(fn.arity));
+        return klApply(fn(...args.slice(0, fn.arity)), ...args.slice(fn.arity));
     }
     return klFun(function(...more) {
         return klApply(fn, ...args.concat(more));
@@ -540,14 +634,6 @@ function doExpr2js(exp1, exp2, env, tail) {
     return "(function(){" + str1 +  "; return " + str2 + ";})()";
 }
 
-function setExpr2js(name, value, env, tail) {
-    return  "klSet(\"" + name.name + "\", " + kl2js(value, env, tail) + ")";
-}
-
-function valueExpr2js(name, env) {
-    return "symbols[\"" + name.name +"\"]";
-}
-
 function freezeExpr2js(body, env) {
     return "klFun(function() { return " + kl2js(body, env, true) + "}, 0)";
 }
@@ -556,6 +642,25 @@ function trapErrorExpr2js(body, handle, env, tail) {
     let bodyStr = kl2js(body, env, false);
     let handleStr = kl2js(handle, env, tail);
     return "(function(){ try { return " + bodyStr + ";} catch (err) { return klTailApply(" + handleStr + ", err);} })()";
+}
+
+function testkl(str) {
+    let exp = Parser.parseString(str);
+    return kl2js(exp, new Env([], null), false);
+}
+
+defun("shen->kl", function(S) {
+    return (function(){
+        let Parsed = klTailApply(primitive["read-from-string"], S);
+        return new Trampoline(primitive["shen.elim-def"], klTailApply(primitive["shen.proc-input+"], klTailApply(primitive["hd"], Parsed)));})();}, 1)
+
+function shen2js(str) {
+    let sexp = klTailApply(primitive["shen->kl"], str);
+    return kl2js(sexp, new Env([], null), false);
+}
+
+function pp(x) {
+    return klTailApply(primitive["shen.insert"], x, "~R");
 }
 
 const files = [
@@ -598,6 +703,6 @@ function concatAll(lists) {
     return lists.reduce((x, y) => x.concat(y), []);
 }
 
-const fullText = concatAll([defuns, toplevels]).map(function(kl){return kl2js(kl, new Env([], null), false);}).join('\n\n');
+const fullText = concatAll([defuns, toplevels]).map(function(kl){return kl2js(kl, new Env([], null), false);}).join(';\n\n');
 
 fs.writeFile('cora.js', fullText, console.error);
