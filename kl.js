@@ -298,7 +298,9 @@ Env.prototype.isVariable = function(name) {
 
 function kl2js(kl, env, tail) {
     // literal
-    if (kl == null) return 'null';
+    if (kl === null) return 'null';
+    if (kl === true) return 'true';
+    if (kl === false) return 'false';
     if (isNumber(kl)) return kl.toString();
     if (isString(kl)) return '"' + escape(kl) + '"';
 
@@ -667,25 +669,20 @@ const files = [
     'toplevel.kl',
     'core.kl',
     'sys.kl',
-    'dict.kl',
-    'sequent.kl',
     'yacc.kl',
     'reader.kl',
-    'prolog.kl',
     'track.kl',
     'load.kl',
     'writer.kl',
     'macros.kl',
     'declarations.kl',
-    't-star.kl',
-    'types.kl'
 ];
 
 const defuns = [];
 const toplevels = [];
 
 for (let file of files) {
-    const text = fs.readFileSync("/home/genius/project/src/github.com/tiancaiamao/shen-go/ShenOSKernel-21.0/klambda/" + file, 'utf-8');
+    const text = fs.readFileSync(file, 'utf-8');
     const exprs = Parser.parseAllString(text);
     for (let expr of exprs) {
         if (isCons(expr)) {
@@ -705,4 +702,4 @@ function concatAll(lists) {
 
 const fullText = concatAll([defuns, toplevels]).map(function(kl){return kl2js(kl, new Env([], null), false);}).join(';\n\n');
 
-fs.writeFile('cora.js', fullText, console.error);
+fs.writeFile('export.js', fullText, console.error);
