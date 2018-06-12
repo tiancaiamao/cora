@@ -1,104 +1,5 @@
-class Parser {
-    static parseString(text) {
-        return new Parser(text).parse();
-    }
-    static parseAllString(text) {
-        return new Parser(text).parseAll();
-    }
-    constructor(text) {
-        this.text = text;
-        this.pos = 0;
-    }
-    get current() {
-        return this.text[this.pos];
-    }
-    get next() {
-        return this.text[this.pos + 1];
-    }
-    get done() {
-        return this.pos >= this.text.length;
-    }
-    get more() {
-        return !this.done;
-    }
-    skipWhitespace() {
-        while (this.more && /\s/.test(this.current)) this.skipOne();
-    }
-    skipOne() {
-        this.pos++;
-    }
-    static isDigit(ch) {
-        return ch !== undefined && /\d/.test(ch);
-    }
-    static isSign(ch) {
-        return ch !== undefined && /[\-\+]/.test(ch);
-    }
-    static isSymbolChar(ch) {
-        return ch !== undefined && /[^\s\(\)]/.test(ch);
-    }
-    readString() {
-        this.skipOne();
-        const start = this.pos;
-        while (this.current !== '"') {
-            if (this.done) throw new Error('unexpected end of input');
-            this.skipOne();
-        }
-        const end = this.pos;
-        this.skipOne();
-        return this.text.substring(start, end);
-    }
-    readNumber() {
-        const start = this.pos;
-        if (this.more && Parser.isSign(this.current)) this.skipOne();
-        while (this.more && Parser.isDigit(this.current)) this.skipOne();
-        if (this.more && this.current === '.') {
-            this.skipOne();
-            while (this.more && Parser.isDigit(this.current)) this.skipOne();
-        }
-        const end = this.pos;
-        return parseFloat(this.text.substring(start, end));
-    }
-    readSymbol() {
-        const start = this.pos;
-        while (this.more && Parser.isSymbolChar(this.current)) this.skipOne();
-        const end = this.pos;
-        return new Symbol(this.text.substring(start, end));
-    }
-    parse() {
-        this.skipWhitespace();
-        if (this.done) throw new Error('unexpected end of input');
-        if (this.current === '(') {
-            this.skipOne();
-            const children = [];
-            let child = this.parse();
-            while (child !== undefined) {
-                children.push(child);
-                child = this.parse();
-            }
-            return arrayToCons(children);
-        }
-        if (this.current === ')') {
-            this.skipOne();
-            return undefined;
-        }
-        if (this.current === '"') return this.readString();
-        if (Parser.isDigit(this.current) ||
-            (Parser.isSign(this.current) && Parser.isDigit(this.next))) return this.readNumber();
-        return this.readSymbol();
-    }
-    parseAll() {
-        this.skipWhitespace();
-        const results = [];
-        while (this.more) {
-            results.push(this.parse());
-            this.skipWhitespace();
-        }
-        return results;
-    }
-}
-
-var fs = require('fs');
-var process = require('process');
+var primitive = {};
+var symbols = {};
 
 function Symbol(name) {
     this.name = name;
@@ -114,6 +15,7 @@ function Cons(x, y) {
     this.hd = x;
     this.tl = y;
 }
+
 Cons.prototype = {
     car : function() {
         return this.hd;
@@ -122,7 +24,6 @@ Cons.prototype = {
         return this.tl;
     }
 };
-
 
 function cons(x, y) {
     return new Cons(x, y);
@@ -164,10 +65,6 @@ function isSymbol(x) {
 
 function isNumber(x) {
     return typeof x === 'number';
-}
-
-function isStream(x) {
-    return x instanceof fs.ReadStream || x instanceof fs.WriteStream;
 }
 
 function hd(o) {
@@ -273,12 +170,6 @@ function consToArray(x) {
         x = tl(x);
     }
     return array;
-}
-
-function arrayToCons(x) {
-    let result = null;
-    for (let i = x.length - 1; i >= 0; i--) result = new Cons(x[i], result);
-    return result;
 }
 
 function Env(locals, parent) {
@@ -392,8 +283,6 @@ function defunExpr2js(fun, args, bodyExpr, env) {
     return "defun(\"" + fun.name + "\", " + "function("+ localsString + ") { return " + body + " ;}, " + locals.length.toString() + ");";
 }
 
-var primitive = {};
-var symbols = {};
 var startTime = new Date().getTime();
 
 function defun(name, f, arity) {
@@ -429,34 +318,8 @@ function toStr(x) {
     if (isFunction(x)) return `<Function ${x.klName}>`;
     if (isArray(x)) return `<Vector ${x.length}>`;
     if (isError(x)) return `<Error "${x.message}">`;
-    if (isStream(x)) return `<Stream ${x.name}>`;
     if (x === undefined) return err("str(undefined)");
     return '' + x;
-}
-
-function klOpen(path, mode) {
-    if (mode.name == "in") {
-        return fs.createReadStream(path);
-    }
-    if (mode.name == "out") {
-        return fs.createWriteStream(path);
-    }
-    return err("in valid mode");
-}
-
-function klClose(stream) {
-    stream.destroy();
-}
-
-function readByte(stream) {
-    let ret =  stream.read(1);
-    if (ret == null) {return -1;}
-    return ret[0];
-}
-
-function writeByte(num, stream) {
-    let ret =  stream.write(Buffer.from[num]);
-    return num;
 }
 
 function mustNumber(x) {
@@ -548,10 +411,8 @@ defun("get-time", function(mode) {
     if (mode.name === 'run') return new Date().getTime() - startTime;
     return err("get-time only accepts 'unix or 'run");
 }, 1);
-defun("open", klOpen, 2);
-defun("close", klClose, 1);
-defun("read-byte", readByte, 1);
-defun("write-byte", writeByte, 2);
+defun("symbol?", function(x) {return x instanceof Symbol;}, 1);
+defun("integer?", function(x) {return typeof x === 'number';}, 1);
 
 klSet(new Symbol("*stinput*"), process.stdin);
 klSet(new Symbol("*stoutput*"), process.stdout);
@@ -562,10 +423,6 @@ klSet(new Symbol("*relase*"), "0.0.1");
 klSet(new Symbol("*os*"), "linux");
 klSet(new Symbol("*porters*"), "Arthur Mao");
 klSet(new Symbol("*port*"), "0.0.1");
-
-// overwrite
-defun("symbol?", function(x) {return x instanceof Symbol;}, 1);
-defun("integer?", function(x) {return typeof x === 'number';}, 1);
 
 function klFun(f, arity) {
     f.arity = arity;
@@ -598,6 +455,14 @@ function klTailApply(fn, ...args) {
         ret = klApply(ret.f, ...ret.args);
     };
     return ret;
+}
+
+function call(name, ...args) {
+    let prim = primitive[name];
+    if (prim === undefined || prim.arity == undefined) {
+        return err('primitive not defined:' + name);
+    }
+    return klTailApply(prim, ...args);
 }
 
 function applyExpr2js(fn, args, env, tail) {
@@ -646,60 +511,31 @@ function trapErrorExpr2js(body, handle, env, tail) {
     return "(function(){ try { return " + bodyStr + ";} catch (err) { return klTailApply(" + handleStr + ", err);} })()";
 }
 
-function testkl(str) {
-    let exp = Parser.parseString(str);
-    return kl2js(exp, new Env([], null), false);
-}
-
 defun("shen->kl", function(S) {
     return (function(){
         let Parsed = klTailApply(primitive["read-from-string"], S);
-        return new Trampoline(primitive["shen.elim-def"], klTailApply(primitive["shen.proc-input+"], klTailApply(primitive["hd"], Parsed)));})();}, 1)
+        return new Trampoline(primitive["shen.elim-def"], klTailApply(primitive["shen.proc-input+"], klTailApply(primitive["hd"], Parsed)));})();}, 1);
 
-function shen2js(str) {
-    let sexp = klTailApply(primitive["shen->kl"], str);
-    return kl2js(sexp, new Env([], null), false);
-}
+defun("kl->js", function(kl) {return kl2js(kl, new Env([], null), false);}, 1);
 
-function pp(x) {
-    return klTailApply(primitive["shen.insert"], x, "~R");
-}
-
-const files = [
-    'toplevel.kl',
-    'core.kl',
-    'sys.kl',
-    'yacc.kl',
-    'reader.kl',
-    'track.kl',
-    'load.kl',
-    'writer.kl',
-    'macros.kl',
-    'declarations.kl',
-];
-
-const defuns = [];
-const toplevels = [];
-
-for (let file of files) {
-    const text = fs.readFileSync(file, 'utf-8');
-    const exprs = Parser.parseAllString(text);
-    for (let expr of exprs) {
-        if (isCons(expr)) {
-            if (isSymbol(expr.hd) && expr.hd.name === 'defun') {
-                defuns.push(expr);
-            } else {
-                toplevels.push(expr);
-            }
-        }
-    }
-}
-
-
-function concatAll(lists) {
-    return lists.reduce((x, y) => x.concat(y), []);
-}
-
-const fullText = concatAll([defuns, toplevels]).map(function(kl){return kl2js(kl, new Env([], null), false);}).join(';\n\n');
-
-fs.writeFile('export.js', fullText, console.error);
+module.exports = {
+    Symbol: Symbol,
+    isSymbol: isSymbol,
+    Cons: Cons,
+    isCons: isCons,
+    Trampoline: Trampoline,
+    klTailApply: klTailApply,
+    Env: Env,
+    kl2js: kl2js,
+    mustBoolean: mustBoolean,
+    hd: hd,
+    tl: tl,
+    eq: eq,
+    cons: cons,
+    intern: intern,
+    defun: defun,
+    call: call,
+    err: err,
+    primitive: primitive,
+    klFun: klFun,
+};
