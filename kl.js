@@ -90,19 +90,6 @@ function intern(str) {
     return new Symbol(mustString(str));
 }
 
-function map(f, x) {
-    var fake = new Cons(null, null);
-    var p = fake;
-    while(x != null) {
-        var value = f(hd(x));
-        var tmp = new Cons(value, null);
-        p.tl = tmp;
-        p = tmp;
-        x = x.cdr();
-    }
-    return fake.tl;
-}
-
 function escape(s) {
     if (isSymbol(s)) s = s.name;
     let result = '';
@@ -197,7 +184,7 @@ function kl2js(kl, env, tail) {
     if (isString(kl)) return '"' + escape(kl) + '"';
 
     // symbol
-    if (kl instanceof Symbol) {
+    if (isSymbol(kl)) {
         let str = rename(kl.name);
         if (str === "true") return "true";
         if (str === "false") return "false";
@@ -207,7 +194,7 @@ function kl2js(kl, env, tail) {
         return "new Symbol(\"" + kl.name + "\")";
     }
 
-    if (kl instanceof Cons) {
+    if (isCons(kl)) {
         let car = kl.car();
         let remain = kl.cdr();
 
@@ -271,14 +258,8 @@ function letExpr2js(varExpr, valExpr, bodyExpr, env, tail) {
 }
 
 function defunExpr2js(fun, args, bodyExpr, env) {
-    let locals = consToArray(map(function(s){return rename(s.name);}, args));
-    let localsString = "";
-    for (let i=0; i<locals.length; i++) {
-        if (i != 0) {
-            localsString += ", ";
-        }
-        localsString += locals[i];
-    }
+    let locals = consToArray(args).map(function(s){return rename(s.name);});
+    let localsString = locals.join(', ');
     let env1 = new Env(locals, env);
     let body = kl2js(bodyExpr, env1, true);
     return "defun(\"" + fun.name + "\", " + "function("+ localsString + ") { return " + body + " ;}, " + locals.length.toString() + ")";
@@ -422,6 +403,10 @@ defun("read-file-as-charlist", function(filePath) {
     }
     return ret;
 }, 1);
+defun("write-to-file", function(File, Text) {
+    fs.writeFileSync(File, Text);
+    return Text;
+}, 2);
 
 klSet(new Symbol("*stinput*"), process.stdin);
 klSet(new Symbol("*stoutput*"), process.stdout);
@@ -475,8 +460,7 @@ function call(name, ...args) {
 }
 
 function applyExpr2js(fn, args, env, tail) {
-    let args1 = map(function(x) {return kl2js(x, env, false);}, args);
-    let argsArray = consToArray(args1);
+    let argsArray = consToArray(args).map(function(x) {return kl2js(x, env, false);}, args);
     let argsStr = "";
     let fnStr;
     if (fn instanceof Symbol) {
@@ -489,7 +473,7 @@ function applyExpr2js(fn, args, env, tail) {
         fnStr = kl2js(fn, env, false);
     }
     for (let i=0; i<argsArray.length; i++) {
-            argsStr = argsStr + ", " + argsArray[i];
+        argsStr = argsStr + ", " + argsArray[i];
     }
     if (tail) {
         return "new Trampoline(" + fnStr + argsStr + ")";
@@ -519,11 +503,6 @@ function trapErrorExpr2js(body, handle, env, tail) {
     let handleStr = kl2js(handle, env, tail);
     return "(function(){ try { return " + bodyStr + ";} catch (err) { return klTailApply(" + handleStr + ", err);} })()";
 }
-
-defun("shen->kl", function(S) {
-    return (function(){
-        let Parsed = klTailApply(primitive["read-from-string"], S);
-        return new Trampoline(primitive["shen.elim-def"], klTailApply(primitive["shen.proc-input+"], klTailApply(primitive["hd"], Parsed)));})();}, 1);
 
 defun("kl->js", function(kl) {return kl2js(kl, new Env([], null), false);}, 1);
 

@@ -2,8 +2,6 @@
 
 (defun read-file-as-bytelist (V2473) (shen.read-file-as-Xlist V2473 (lambda S (read-byte S))))
 
-(defun read-file-as-charlist (V2475) (shen.read-file-as-Xlist V2475 (lambda S (read-char-code S))))
-
 (defun shen.read-file-as-Xlist (V2478 V2479) (let Stream (open V2478 in) (let X (V2479 Stream) (let Xs (shen.read-file-as-Xlist-help Stream V2479 X ()) (let Close (close Stream) (reverse Xs))))))
 
 (defun shen.read-file-as-Xlist-help (V2484 V2485 V2486 V2487) (cond ((= -1 V2486) V2487) (true (shen.read-file-as-Xlist-help V2484 V2485 (V2485 V2484) (cons V2486 V2487)))))

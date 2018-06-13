@@ -23,12 +23,3 @@ typechecked in " (shen.app (inferences) " inferences
 (defun shen.removetype (V2856 V2857) (cond ((= () V2857) ()) ((and (cons? V2857) (and (cons? (hd V2857)) (= (hd (hd V2857)) V2856))) (shen.removetype (hd (hd V2857)) (tl V2857))) ((cons? V2857) (cons (hd V2857) (shen.removetype V2856 (tl V2857)))) (true (shen.f_error shen.removetype))))
 
 (defun shen.<sig+rest> (V2859) (let Parse_shen.<signature> (shen.<signature> V2859) (if (not (= (fail) Parse_shen.<signature>)) (let Parse_<!> (<!> Parse_shen.<signature>) (if (not (= (fail) Parse_<!>)) (shen.pair (hd Parse_<!>) (shen.hdtl Parse_shen.<signature>)) (fail))) (fail))))
-
-(defun write-to-file (V2862 V2863) (let Stream (open V2862 out) (let String (if (string? V2863) (shen.app V2863 "
-
-" shen.a) (shen.app V2863 "
-
-" shen.s)) (let Write (pr String Stream) (let Close (close Stream) V2863)))))
-
-
-

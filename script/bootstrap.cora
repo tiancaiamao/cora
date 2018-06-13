@@ -60,24 +60,24 @@
   ".cora" -> ".kl"
   (@s S Ss) -> (@s S (klfile Ss)))
 
+  \* Needed for 19.2, doesn't prefix `shen` correctly *\
+  \* shen.fail! prints as "...", needs to be handled separately *\
 (define list->string
   [] -> ""
-  \* Needed for 19.2, doesn't prefix `shen` correctly *\
   [[defun shen | Args] | Body] -> (list->string [[defun shen.shen | Args] | Body])
-  \* shen.fail! prints as "...", needs to be handled separately *\
   [[defun fail | _] | Y] -> (@s "(defun fail () shen.fail!)" (list->string Y))
   [X | Y] -> (@s (make-string "~R~%~%" X) (list->string Y)))
 
 (set *maximum-print-sequence-size* 2000)
 
 (map (function make-file)
-     ["toplevel.cora"
-      "core.cora"
-      "sys.cora"
-      "yacc.cora"
-      "reader.cora"
-      "track.cora"
-      "load.cora"
-      "writer.cora"
-      "macros.cora"
-      "declarations.cora"])
+     ["../src/toplevel.cora"
+      "../src/core.cora"
+      "../src/sys.cora"
+      "../src/yacc.cora"
+      "../src/reader.cora"
+      "../src/track.cora"
+      "../src/load.cora"
+      "../src/writer.cora"
+      "../src/macros.cora"
+      "../src/declarations.cora"])
