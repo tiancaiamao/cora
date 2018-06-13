@@ -1,4 +1,4 @@
-var Parser = require('../parser');
+var Parser = require('./parser');
 var fs = require('fs');
 var process = require('process');
 var kl = require('../kl');
@@ -44,6 +44,6 @@ const fullText = concatAll([defuns, toplevels]).map(function(sexp){return kl.cal
 
 const headerText = "var kl = require('./kl'); let defun = kl.defun; let klTailApply = kl.klTailApply; let Symbol = kl.Symbol; let err = kl.err; let primitive = kl.primitive; let mustBoolean = kl.mustBoolean; let Trampoline = kl.Trampoline; let klFun = kl.klFun;\n";
 
-const tailText = ";\n\nmodule.exports = {defun: kl.defun,call: kl.call,api: kl}\n";
+const tailText = ";\n\nmodule.exports = {call: kl.call,api: {defun: kl.defun, hd : kl.hd, tl: kl.tl, cons: kl.cons, eq: kl.eq, intern: kl.intern}}\n";
 
 fs.writeFile('cora.js', headerText + fullText + tailText, console.error);

@@ -1,3 +1,4 @@
+var fs = require('fs');
 var primitive = {};
 var symbols = {};
 
@@ -413,6 +414,14 @@ defun("get-time", function(mode) {
 }, 1);
 defun("symbol?", function(x) {return x instanceof Symbol;}, 1);
 defun("integer?", function(x) {return typeof x === 'number';}, 1);
+defun("read-file-as-charlist", function(filePath) {
+    let data = fs.readFileSync(filePath);
+    let ret = null;
+    for (let i=data.length-1; i>=0; i--) {
+        ret = cons(data[i], ret);
+    }
+    return ret;
+}, 1);
 
 klSet(new Symbol("*stinput*"), process.stdin);
 klSet(new Symbol("*stoutput*"), process.stdout);
@@ -518,6 +527,7 @@ defun("shen->kl", function(S) {
 
 defun("kl->js", function(kl) {return kl2js(kl, new Env([], null), false);}, 1);
 
+// This module is for internal usage, all the variables in this file could be exported.
 module.exports = {
     Symbol: Symbol,
     isSymbol: isSymbol,

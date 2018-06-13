@@ -523,8 +523,6 @@ defun("read-char-code", function(V2471) { return new Trampoline(primitive["read-
 
 defun("read-file-as-bytelist", function(V2473) { return new Trampoline(primitive["shen.read-file-as-Xlist"], V2473, klFun(function(S) { return new Trampoline(primitive["read-byte"], S);}, 1)) ;}, 1);;
 
-defun("read-file-as-charlist", function(V2475) { return new Trampoline(primitive["shen.read-file-as-Xlist"], V2475, klFun(function(S) { return new Trampoline(primitive["read-char-code"], S);}, 1)) ;}, 1);;
-
 defun("shen.read-file-as-Xlist", function(V2478, V2479) { return (function(){let Stream = klTailApply(primitive["open"], V2478, new Symbol("in")); return (function(){let X = klTailApply(V2479, Stream); return (function(){let Xs = klTailApply(primitive["shen.read-file-as-Xlist-help"], Stream, V2479, X, null); return (function(){let Close = klTailApply(primitive["close"], Stream); return new Trampoline(primitive["reverse"], Xs);})();})();})();})() ;}, 2);;
 
 defun("shen.read-file-as-Xlist-help", function(V2484, V2485, V2486, V2487) { return (mustBoolean(klTailApply(primitive["="], -1, V2486)) === true) ? (V2487) : ((mustBoolean(true) === true) ? (new Trampoline(primitive["shen.read-file-as-Xlist-help"], V2484, V2485, klTailApply(V2485, V2484), klTailApply(primitive["cons"], V2486, V2487))) : (err("no cond match"))) ;}, 4);;
@@ -975,4 +973,4 @@ klTailApply(primitive["put"], klTailApply(primitive["intern"], "shen"), new Symb
 
 klTailApply(primitive["for-each"], klFun(function(Entry) { return new Trampoline(primitive["shen.set-lambda-form-entry"], Entry);}, 1), klTailApply(primitive["cons"], klTailApply(primitive["cons"], new Symbol("shen.datatype-error"), klFun(function(X) { return new Trampoline(primitive["shen.datatype-error"], X);}, 1)), klTailApply(primitive["cons"], klTailApply(primitive["cons"], new Symbol("shen.tuple"), klFun(function(X) { return new Trampoline(primitive["shen.tuple"], X);}, 1)), klTailApply(primitive["cons"], klTailApply(primitive["cons"], new Symbol("shen.pvar"), klFun(function(X) { return new Trampoline(primitive["shen.pvar"], X);}, 1)), klTailApply(primitive["cons"], klTailApply(primitive["cons"], new Symbol("shen.dictionary"), klFun(function(X) { return new Trampoline(primitive["shen.dictionary"], X);}, 1)), klTailApply(primitive["mapcan"], klFun(function(X) { return new Trampoline(primitive["shen.lambda-form-entry"], X);}, 1), klTailApply(primitive["external"], klTailApply(primitive["intern"], "shen"))))))));
 
-module.exports = {defun: kl.defun,call: kl.call,api: kl}
+module.exports = {call: kl.call,api: {defun: kl.defun, hd : kl.hd, tl: kl.tl, cons: kl.cons, eq: kl.eq, intern: kl.intern}}

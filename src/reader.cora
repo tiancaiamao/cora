@@ -36,9 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (define read-file-as-bytelist
   File -> (read-file-as-Xlist File (/. S (read-byte S))))
 
-(define read-file-as-charlist
-  File -> (read-file-as-Xlist File (/. S (read-char-code S))))
-
 (define read-file-as-Xlist
   File F -> (let Stream (open File in)
                  X (F Stream)

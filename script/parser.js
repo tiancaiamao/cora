@@ -1,4 +1,4 @@
-var {Symbol, Cons} = require('./kl');
+var {Symbol, Cons} = require('../kl');
 
 function arrayToCons(x) {
     let result = null;
