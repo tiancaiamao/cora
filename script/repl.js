@@ -17,7 +17,8 @@ rl.on('line', (line) => {
     let sexp = cora.call("on-line-read", data + line);
     if (eq(hd(sexp), intern("ok"))) {
         data = '';
-        console.log(hd(tl(sexp)));
+        let str = cora.call('shen.insert', hd(tl(sexp)), "~S");
+        console.log(str);
     } else if (eq(hd(sexp), intern("more"))) {
         data = data + '\n' + line;
         console.log("..");

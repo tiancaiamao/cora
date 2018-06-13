@@ -281,7 +281,7 @@ function defunExpr2js(fun, args, bodyExpr, env) {
     }
     let env1 = new Env(locals, env);
     let body = kl2js(bodyExpr, env1, true);
-    return "defun(\"" + fun.name + "\", " + "function("+ localsString + ") { return " + body + " ;}, " + locals.length.toString() + ");";
+    return "defun(\"" + fun.name + "\", " + "function("+ localsString + ") { return " + body + " ;}, " + locals.length.toString() + ")";
 }
 
 var startTime = new Date().getTime();
