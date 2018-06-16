@@ -9,6 +9,14 @@ defun(name, func, arity)
     cora.defun("hello-from-js", function() {
         console.log("hello world from javascript");
     }, 0)
+    
+eval is the universal machine
+js 层
+kl 层
+cora 层
+
+下层的东西不应该依赖更上层的东西
+而上层的东西，靠下层提供。从这个角度上层，所有代码都应该用 cora 来写。
 
 ### js 为主，cora 是一个 js 的库
 
@@ -91,3 +99,4 @@ call
 Trampoline
 Env
 klTailApply
+

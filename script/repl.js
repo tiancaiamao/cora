@@ -1,5 +1,5 @@
 var cora = require('../cora');
-var {eq, hd, tl, intern} = cora.api;
+var {defun, eq, hd, tl, intern} = cora.api;
 
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -8,25 +8,20 @@ const rl = readline.createInterface({
     prompt: 'cora> '
 });
 
+defun('console-log', function(str) {console.log(str);}, 1);
 cora.call('load', 'repl.cora');
 
-let data = '';
-
 rl.prompt();
+let data = '';
 rl.on('line', (line) => {
-    let sexp = cora.call("on-line-read", data + line);
-    if (eq(hd(sexp), intern("ok"))) {
+    data += line;
+    let res = cora.call('handle', data);
+    if (res === true) {
         data = '';
-        let str = cora.call('shen.insert', hd(tl(sexp)), "~S");
-        console.log(str);
-    } else if (eq(hd(sexp), intern("more"))) {
-        data = data + '\n' + line;
-        console.log("..");
-    } else if (eq(hd(sexp), intern("err"))) {
-        data = '';
-        console.log('error:' + hd(tl(sexp)));
+        rl.prompt();
+    } else {
+        data += '\n';
     }
-    rl.prompt();
 }).on('close', () => {
     console.log('Have a great day!');
     process.exit(0);

@@ -1,8 +1,27 @@
-(define on-line-read
-        Str -> (trap-error
-                  (let Sexp (read-from-string Str)
-                       KL (shen.elim-def (shen.proc-input+ (hd Sexp)))
-                       (trap-error
-                          [ok (eval-kl KL)]
-                          (/. X [err (error-to-string X)])))
-                  (/. X [more])))
+(define safe-read-sexp
+  Str -> (trap-error
+                   [ok (read-from-string Str)]
+                   (/. E more)))
+
+(define sexp-to-kl
+  [Sexp] -> [ok (shen.elim-def (shen.proc-input+ Sexp))])
+
+(define eval-kl-print
+  KL -> (trap-error
+          (let Res (eval-kl KL)
+               _ (console-log (shen.insert Res "~S"))
+               [ok ""])
+          (/. X
+             (do (console-log (error-to-string X)) err))))
+
+(define fmap
+  [ok Data] [F | More] -> (fmap (F Data) More)
+  [ok _] [] -> true
+  more _ -> false
+  Other _ -> true)
+
+(define handle
+  Str -> (fmap [ok Str]
+                [(function safe-read-sexp)
+                 (function sexp-to-kl)
+                 (function eval-kl-print)]))
