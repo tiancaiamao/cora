@@ -4,7 +4,7 @@
                    (/. E more)))
 
 (define sexp-to-kl
-  [Sexp] -> [ok (shen.elim-def (shen.proc-input+ Sexp))])
+  X -> [ok (shen.elim-def (shen.proc-input+ X))])
 
 (define eval-kl-print
   KL -> (trap-error
@@ -15,13 +15,16 @@
              (do (console-log (error-to-string X)) err))))
 
 (define fmap
-  [ok Data] [F | More] -> (fmap (F Data) More)
-  [ok _] [] -> true
-  more _ -> false
-  Other _ -> true)
+  [F | More] [ok Data]  -> (fmap More (F Data))
+  [] [ok _]  -> true
+  _ more -> false
+  _ Other -> true)
+
+(define handle-sexp-list
+  SS -> (let Eval (fmap [(function sexp-to-kl) (function eval-kl-print)])
+             (fold-left (/. _ Eval) more (map (/. X [ok X]) SS))))
 
 (define handle
-  Str -> (fmap [ok Str]
-                [(function safe-read-sexp)
-                 (function sexp-to-kl)
-                 (function eval-kl-print)]))
+  Str -> (fmap [(function safe-read-sexp)
+                (function handle-sexp-list)]
+                [ok Str]))
