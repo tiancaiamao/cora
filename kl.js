@@ -161,18 +161,37 @@ function consToArray(x) {
 }
 
 function Env(locals, parent) {
-    this.locals = locals;
+    if (parent == null) {
+        this.idx = 0;
+    } else {
+        this.idx = parent.idx + 1;
+    }
+    var arr = new Array();
+    for (let i = 0; i<locals.length; i++) {
+        let exists = parent.findVariable(locals[i]);
+        if (exists !== null) {
+            arr[i] = {name: locals[i], rename: rename(locals[i]) + '$' + this.idx};
+        } else {
+            arr[i] = {name: locals[i], rename: rename(locals[i])};
+        }
+    }
+    this.locals = arr;
     this.parent = parent;
 }
-Env.prototype.isVariable = function(name) {
-    var ptr = this;
+
+Env.prototype.findVariable = function(name) {
+    let ptr = this;
+    let cmp = function(obj) {
+        return obj.name === name;
+    };
     while(ptr != null) {
-        if (ptr.locals.includes(name)) {
-            return true;
+        let obj = ptr.locals.find(cmp);
+        if (obj !== undefined) {
+            return obj;
         }
         ptr = ptr.parent;
     };
-    return false;
+    return null;
 };
 
 function kl2js(kl, env, tail) {
@@ -185,11 +204,11 @@ function kl2js(kl, env, tail) {
 
     // symbol
     if (isSymbol(kl)) {
-        let str = rename(kl.name);
-        if (str === "true") return "true";
-        if (str === "false") return "false";
-        if (env.isVariable(str)) {
-            return str;
+        if (kl.name === "true") return "true";
+        if (kl.name === "false") return "false";
+        let varItem = env.findVariable(kl.name);
+        if (varItem !== null) {
+            return varItem.rename;
         }
         return "new Symbol(\"" + kl.name + "\")";
     }
@@ -250,17 +269,17 @@ function orExpr2js(x, y, env) {
 }
 
 function letExpr2js(varExpr, valExpr, bodyExpr, env, tail) {
-    let name = rename(varExpr.name);
     let valStr = kl2js(valExpr, env, false);
-    let env1 = new Env([name], env);
+    let env1 = new Env([mustSymbol(varExpr).name], env);
+    let name = env1.locals[0].rename;
     let body = kl2js(bodyExpr, env1, tail);
-    return "(function(){let " + name + " = " + valStr + "; return " + body + ";})()";
+    return "(function(){var " + name + " = " + valStr + "; return " + body + ";})()";
 }
 
 function defunExpr2js(fun, args, bodyExpr, env) {
-    let locals = consToArray(args).map(function(s){return rename(s.name);});
-    let localsString = locals.join(', ');
+    let locals = consToArray(args).map(function(s){return s.name;});
     let env1 = new Env(locals, env);
+    let localsString = env1.locals.map(function(varItem){return varItem.rename;}).join(', ');
     let body = kl2js(bodyExpr, env1, true);
     return "defun(\"" + fun.name + "\", " + "function("+ localsString + ") { return " + body + " ;}, " + locals.length.toString() + ")";
 }
@@ -464,8 +483,9 @@ function applyExpr2js(fn, args, env, tail) {
     let argsStr = "";
     let fnStr;
     if (fn instanceof Symbol) {
-        if (env.isVariable(fn.name)) {
-            fnStr = fn.name;
+        let varItem = env.findVariable(fn.name);
+        if (varItem !== null) {
+            fnStr = varItem.rename;
         } else {
             fnStr = "primitive[\"" + fn.name + "\"]";
         }
@@ -482,8 +502,8 @@ function applyExpr2js(fn, args, env, tail) {
 }
 
 function lambdaExpr2js(varExpr, bodyExpr, env) {
-    let name = rename(varExpr.name);
-    let env1 = new Env([varExpr.name], env);
+    let env1 = new Env([mustSymbol(varExpr).name], env);
+    let name = env1.locals[0].rename;
     let body = kl2js(bodyExpr, env1, true);
     return "klFun(function(" + name + ") { return " + body + ";}, 1)";
 }
