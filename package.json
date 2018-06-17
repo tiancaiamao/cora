@@ -1,27 +1,32 @@
 {
-  "name": "corascript",
-  "version": "0.0.1",
-  "description": "cora is a lisp dialect compile to javascript",
-  "main": "lib/cora.js",
-  "directories": {
-    "doc": "doc"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tiancaiamao/cora.git"
-  },
-  "keywords": [
-    "lisp",
-    "shen",
-    "cora"
-  ],
-  "author": "Arthur Mao",
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/tiancaiamao/cora/issues"
-  },
-  "homepage": "https://github.com/tiancaiamao/cora#readme"
+    "name": "corascript",
+    "version": "0.0.2",
+    "description": "cora is a lisp dialect compile to javascript",
+    "main": "lib/cora.js",
+    "directories": {
+        "doc": "doc"
+    },
+    "bin": {
+        "cora": "./bin/cora"
+    },
+    "scripts": {
+        "generate": "node script/generate.js",
+        "repl": "./bin/cora",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tiancaiamao/cora.git"
+    },
+    "keywords": [
+        "lisp",
+        "shen",
+        "cora"
+    ],
+    "author": "Arthur Mao",
+    "license": "BSD-3-Clause",
+    "bugs": {
+        "url": "https://github.com/tiancaiamao/cora/issues"
+    },
+    "homepage": "https://github.com/tiancaiamao/cora#readme"
 }
