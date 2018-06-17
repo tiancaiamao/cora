@@ -22,7 +22,7 @@ const defuns = [];
 const toplevels = [];
 
 for (let file of files) {
-    const text = fs.readFileSync("../dist/kl/" + file, 'utf-8');
+    const text = fs.readFileSync("../klambda/" + file, 'utf-8');
     const exprs = Parser.parseAllString(text);
     for (let expr of exprs) {
         if (isCons(expr)) {
@@ -46,4 +46,4 @@ const headerText = "var kl = require('./kl'); let defun = kl.defun; let klTailAp
 
 const tailText = ";\n\nmodule.exports = {call: kl.call,api: {defun: kl.defun, hd : kl.hd, tl: kl.tl, cons: kl.cons, eq: kl.eq, intern: kl.intern}}\n";
 
-fs.writeFile('cora.js', headerText + fullText + tailText, console.error);
+fs.writeFile('../lib/cora.js', headerText + fullText + tailText, console.error);
