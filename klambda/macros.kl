@@ -8,7 +8,7 @@
 
 (defun shen.input-macro (V1917) (cond ((and (cons? V1917) (and (= lineread (hd V1917)) (= () (tl V1917)))) (cons lineread (cons (cons stinput ()) ()))) ((and (cons? V1917) (and (= input (hd V1917)) (= () (tl V1917)))) (cons input (cons (cons stinput ()) ()))) ((and (cons? V1917) (and (= read (hd V1917)) (= () (tl V1917)))) (cons read (cons (cons stinput ()) ()))) ((and (cons? V1917) (and (= input+ (hd V1917)) (and (cons? (tl V1917)) (= () (tl (tl V1917)))))) (cons input+ (cons (hd (tl V1917)) (cons (cons stinput ()) ())))) ((and (cons? V1917) (and (= read-byte (hd V1917)) (= () (tl V1917)))) (cons read-byte (cons (cons stinput ()) ()))) ((and (cons? V1917) (and (= read-char-code (hd V1917)) (= () (tl V1917)))) (cons read-char-code (cons (cons stinput ()) ()))) (true V1917)))
 
-(defun shen.compose (V1920 V1921) (cond ((= () V1920) V1921) ((cons? V1920) (shen.compose (tl V1920) ((hd V1920) V1921))) (true (shen.f_error shen.compose))))
+(defun shen.compose (V1920 V1921) (cond ((= () V1920) V1921) ((and (cons? V1920) (symbol? (hd V1920))) (shen.compose (tl V1920) ((function (hd V1920)) V1921))) ((cons? V1920) (shen.compose (tl V1920) ((hd V1920) V1921))) (true (shen.f_error shen.compose))))
 
 (defun shen.compile-macro (V1923) (cond ((and (cons? V1923) (and (= compile (hd V1923)) (and (cons? (tl V1923)) (and (cons? (tl (tl V1923))) (= () (tl (tl (tl V1923)))))))) (cons compile (cons (hd (tl V1923)) (cons (hd (tl (tl V1923))) (cons (cons lambda (cons E (cons (cons if (cons (cons cons? (cons E ())) (cons (cons error (cons "parse error here: ~S~%" (cons E ()))) (cons (cons error (cons "parse error~%" ())) ())))) ()))) ()))))) (true V1923)))
 

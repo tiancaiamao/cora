@@ -28,5 +28,6 @@
     "bugs": {
         "url": "https://github.com/tiancaiamao/cora/issues"
     },
-    "homepage": "https://github.com/tiancaiamao/cora#readme"
+    "homepage": "https://github.com/tiancaiamao/cora#README",
+    "dependencies": {}
 }

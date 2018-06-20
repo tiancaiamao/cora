@@ -60,6 +60,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (define compose
   [] X -> X
+  [F | Fs] X -> (compose Fs ((function F) X)) where (symbol? F)
   [F | Fs] X -> (compose Fs (F X)))
 
 (define compile-macro
