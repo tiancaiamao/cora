@@ -1,4 +1,4 @@
-(define macro-tag (gensym "macro"))
+(define macro-tag (gensym 'macro))
 (define (make-macro func env)
   (vector macro-tag func env))
 
@@ -11,7 +11,7 @@
 (define (macro-env x)
   (vector-ref x 2))
 
-(define generated-tag (gensym "generated"))
+(define generated-tag (gensym 'generated))
 
 (define (make-generated name uid)
   (vector generated-tag name uid))
@@ -25,7 +25,7 @@
 (define (generated-name x)
   (vector-ref x 1))
 
-(define special-tag (gensym "special"))
+(define special-tag (gensym 'special))
 
 (define (make-special f)
   (vector special-tag f))
@@ -131,17 +131,17 @@
         (cons 'lambda (make-special expand-lambda))
         (cons 'defmacro (make-special expand-defmacro))))
 
-(expand '(defmacro swap!
-           (lambda (exp rename)
-             (let ((%let (rename 'let))
-                   (%set (rename 'set!))
-                   (x (cadr exp))
-                   (y (caddr exp)))
-               `(,%let ((tmp ,x))
-                       (,%set ,x ,y)
-                       (,%set ,y tmp)))))
-        '() (init-env))
+;; (expand '(defmacro swap!
+;;            (lambda (exp rename)
+;;              (let ((%let (rename 'let))
+;;                    (%set (rename 'set!))
+;;                    (x (cadr exp))
+;;                    (y (caddr exp)))
+;;                `(,%let ((tmp ,x))
+;;                        (,%set ,x ,y)
+;;                        (,%set ,y tmp)))))
+;;         '() (init-env))
 
-(set! *macro* '())
+;; (set! *macro* '())
 
-(expand '(swap! a b) '() (init-env))
+;; (expand '(swap! a b) '() (init-env))

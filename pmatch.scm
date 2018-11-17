@@ -95,16 +95,10 @@
 
 ;; (match exp [X | Y] -> X  42 -> "sdf")
 ;; (pmatch exp ([X | Y] X) (42 "sdf"))
-(defmacro match
-  (lambda (input rename)
-    (let ((exp (cadr input)))
-      (pmatch exp (split-rules (cddr input))))))
-
-;; (define-syntax match
-;;   (er-macro-transformer
-;;    (lambda (input rename compare)
+;; (defmacro match
+;;    (lambda (input rename)
 ;;      (let ((exp (cadr input)))
-;;        (pmatch exp (split-rules (cddr input)))))))
+;;        (pmatch exp (split-rules (cddr input))))))
 
 
 ;; input: (defun f a b -> c    d e -> h)
@@ -112,15 +106,15 @@
 ;;            (pmatch (list g0 g1)
 ;;                   ((cons a b) x)
 ;;                   ((cons d e) h))))
-(defmacro defun
-  (lambda (input rename)
-    (let* ((fname (cadr input))
-           (rules (extract-rules (cddr input)))
-           (narg (rule-arg-count (cddr input)))
-           (args (generate-args narg '()))
-           (tmp (gensym)))
-      `(define ,fname
-         (lambda ,args
-           (let ((,tmp (list ,@args)))
-             ,(pmatch tmp
-                      rules)))))))
+;; (defmacro defun
+;;   (lambda (input rename)
+;;     (let* ((fname (cadr input))
+;;            (rules (extract-rules (cddr input)))
+;;            (narg (rule-arg-count (cddr input)))
+;;            (args (generate-args narg '()))
+;;            (tmp (gensym)))
+;;       `(define ,fname
+;;          (lambda ,args
+;;            (let ((,tmp (list ,@args)))
+;;              ,(pmatch tmp
+;;                       rules)))))))
