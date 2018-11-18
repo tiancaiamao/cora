@@ -59,7 +59,7 @@
 
 
 ;; a b -> c d e -> f
-;; (((cons a b) c) ((cons d e) f))
+;; (((cons a (cons b '())) c) ((cons d (cons e '())) f))
 (define (extract-rules input)
   (extract-rules-h input '() '()))
 
@@ -69,7 +69,7 @@
    ((eq? (car input) '->)
     (extract-rules-h (cddr input)
                      '()
-                     (cons (list (extract-rule-rcons (cdr pat) (car pat)) (cadr input)) ret)))
+                     (cons (list (extract-rule-rcons pat ''()) (cadr input)) ret)))
    (else (extract-rules-h (cdr input)
                           (cons (car input) pat)
                           ret))))
