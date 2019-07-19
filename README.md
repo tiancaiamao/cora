@@ -1,5 +1,19 @@
-This brilliant guy only allow two languages in this hallowed source repository: C and Lisp.
+闭包是可视化的 (lambda (a) 3 (b . 5))
 
-So nothing here yet...
+(let a 3 b 5 ...)
 
-There is a `go` branch which maybe just one step from perfect.
+if
+begin
+lambda
+
+有 quote
+
+first class macro
+
+set 是函数而不是特殊表
+
+严格尾递归
+partial apply
+
+内置 pattern match
+func 宏

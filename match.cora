@@ -1,0 +1,127 @@
+(defun with-rewrite (body)
+  (cond
+   ((null? (cdr body)) (car body))
+   (#t `((lambda (,(car body))
+           ,(with-rewrite (cddr body)))
+         ,(cadr body)))))
+
+;; (with-rewrite  '(a 3 b 5 (+ a b)))
+
+(defun match-cons-expander (pat expr body cc)
+  (with x (list-ref pat 1)
+        y (list-ref pat 2)
+        name (gensym)
+        body1 (match1 x `(car ,name)
+                      (match1 y `(cdr ,name)
+                              body
+                              cc)
+                      cc)
+        `(with ,name ,expr
+               (if (pair? ,name)
+                   ,body1
+                   (,cc)))))
+
+(defun match-list-expander* (pat expr body cc)
+  (if (null? pat)
+      `(if (null? ,expr) ,body (,cc))
+      (with body1
+            (match1 (car pat) `(car ,expr)
+                    (match1 (cons 'list (cdr pat)) `(cdr ,expr)
+                            body cc) cc)
+            `(if (and (pair? ,expr) (not (null? ,expr)))
+                 ,body1
+                 (,cc)))))
+
+(defun match-list-expander (pat expr body cc)
+  (match-list-expander* (cdr pat) expr body cc))
+
+(defun rewrite-list-rest-pattern (pat)
+  (if (null? (cdr pat))
+      (car pat)
+      `(cons ,(car pat) ,(rewrite-list-rest-pattern (cdr  pat)))))
+
+(defun match1 (pat expr body cc)
+  (with literal? (lambda (x) (and (atom? x) (not (symbol? x))))
+        (cond
+         ((literal? pat) `(if (equal? ,pat ,expr) ,body (,cc)))
+         ((symbol? pat) `(with ,pat ,expr ,body))
+         ((pair? pat) (case (car pat)
+                        ('quote `(if (equal? ,pat ,expr) ,body (,cc)))
+                        ('list (match-list-expander pat expr body cc))
+                        ('cons (match-cons-expander pat expr body cc))
+                        ('list-rest (with pat1 (rewrite-list-rest-pattern (cdr pat))
+                                          (match1 pat1 expr body cc)))))
+         (#t (error (str "match fail " pat))))))
+
+(defun extract-rule-action (rules cc)
+  (with action (car (cdr rules))
+        (if (and (pair? action)
+                 (eq? (car action) 'where))
+            `(if ,(cadr action)
+                 ,(caddr action)
+                 (,cc))
+            action)))
+
+(defun match-helper (value rules)
+  (cond
+   ((null? rules) `(error "no match-help found!"))
+   ((and (pair? rules) (pair? (cdr rules)))
+    (with pat (car rules)
+          cc (gensym)
+          action (extract-rule-action rules cc)
+          curr (match1 pat value action cc)
+          rest (match-helper value (cdr (cdr rules)))
+          `(with ,cc (lambda () ,rest)
+                 ,curr)))))
+
+;; (match (cons 1 2)
+;;   (cons a 1) a
+;;   x 42)
+
+(defun extract-rules1 (input current result)
+  (match input
+    ()	(reverse result)
+    (list-rest '=> act 'where pred remain)
+    (with pat (cons 'list (reverse current))
+          (extract-rules1 remain () (cons (list 'where pred act) (cons pat result))))
+    (list-rest '=> act remain)
+    (with pat (cons 'list (reverse current))
+          (extract-rules1 remain () (cons act (cons pat result))))
+    (cons x y)	(extract-rules1 y (cons x current) result)))
+
+(defun extract-rules (input)
+  (extract-rules1 input () ()))
+
+(defun rules-patterns (res rules)
+  (if (null? rules)
+      (reverse res)
+      (rules-patterns (cons (car rules) res) (cddr rules))))
+
+;; (rules-patterns () '((list 0) 1 (list n)
+;;                      (* n (fact (- n 1)))))
+
+(defun rules-arg-count (rules)
+  (with pats (rules-patterns () rules)
+        len (lambda (x) (length (cdr x)))
+        counts (map len pats)
+        n (car counts)
+        dif (lambda (x) (not (= n x)))
+        (if (not (null? (filter dif (cdr counts))))
+            (error "inconsistent func rule args count")
+            n)))
+
+;; (rules-arg-count '((list 0) 1 (list n)
+;;                    (* n (fact (- n 1)))))
+
+(defun gen-parameters (n)
+  (if (= n 0)
+      ()
+      (cons (gensym) (gen-parameters (- n 1)))))
+
+;; (func fact
+;;       0 N => N
+;;       X N => (fact (- X 1) (* X N)))
+
+;; (func my-reverse
+;;       res () => res
+;;       res (cons a b) => (my-reverse (cons a res) b))
