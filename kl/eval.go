@@ -84,6 +84,7 @@ func (ctl *controlFlow) Exception(err Obj) {
 }
 
 var lambdaSym = MakeSymbol("lambda")
+var macroSym = MakeSymbol("macro")
 
 func (e *Evaluator) eval(ctl *controlFlow) {
 	exp := ctl.exp
@@ -117,6 +118,11 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		case "quote":
 			ctl.Return(car(exp))
 			return
+		case "if": // (if a b c)
+			if listLength(pair.cdr) == 3 {
+				e.evalIf(car(exp), cadr(exp), caddr(exp), env, ctl)
+				return
+			}
 		case "lambda": // (lambda (x y) x)
 			if env == Nil {
 				ctl.Return(ctl.exp)
@@ -124,11 +130,9 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 				ctl.Return(makeProcedure(car(exp), cadr(exp), env))
 			}
 			return
-		case "if": // (if a b c)
-			if listLength(pair.cdr) == 3 {
-				e.evalIf(car(exp), cadr(exp), caddr(exp), env, ctl)
-				return
-			}
+		case "macro": // (macro sexp body)
+			ctl.Return(ctl.exp)
+			return
 		// case "trap-error": // (trap-error ~body ~handler)
 		// 	e.evalTrapError(exp, env, ctl)
 		// 	return
@@ -157,11 +161,21 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		return
 	}
 
-	args := e.evalArgumentList(pair.cdr, env)
-	if !ctl.inException && len(args) == 1 && *args[0] == scmHeadError {
-		ctl.Exception(args[0])
+	// macro expand (macro args body)
+	if ok, _ := isPair(fn); ok && car(fn) == macroSym {
+		body := car(cdr(cdr(fn)))
+		pair := cons(car(cdr(fn)), ctl.exp)
+		menv := cons(pair, Nil)
+		expanded := e.trampoline(body, menv)
+		ctl.TailEval(expanded, env)
 		return
 	}
+
+	args := e.evalArgumentList(pair.cdr, env)
+	// if !ctl.inException && len(args) == 1 && *args[0] == scmHeadError {
+	// 	ctl.Exception(args[0])
+	// 	return
+	// }
 	ctl.TailApply(fn, args)
 	return
 }

@@ -4,7 +4,9 @@ Inspired by scheme, shen, femtolisp
 
 lisp1
 
-## 闭包是可视化的 (lambda (a) 3 (b . 5) (c . 7))
+## 闭包是可视化的
+
+(lambda (a) 3 (b . 5) (c . 7))
 
 (let a 3 b 5 ...)
 
@@ -21,5 +23,6 @@ lambda
 
 ## 严格尾递归
 ## partial apply
+
 ## 内置 pattern match
 ## func 宏
