@@ -20,32 +20,6 @@ func envExtend(env Obj, params Obj, args Obj) (Obj, Obj, Obj) {
 	return env, params, args
 }
 
-// func (env *Environment) Get(sym string) (Obj, bool) {
-// 	for env != nil {
-// 		if v, ok := env.bind[sym]; ok {
-// 			return v, true
-// 		}
-// 		env = env.parent
-// 	}
-// 	return Nil, false
-// }
-
-// func (env *Environment) Extend(symbols, values []Obj) *Environment {
-// 	if len(symbols) == 0 {
-// 		return env
-// 	}
-
-// 	bind := make(map[string]Obj)
-// 	for i := 0; i < len(symbols); i++ {
-// 		name := GetSymbol(symbols[i])
-// 		bind[name] = values[i]
-// 	}
-// 	return &Environment{
-// 		parent: env,
-// 		bind:   bind,
-// 	}
-// }
-
 type controlFlowKind int
 
 const (
@@ -109,18 +83,13 @@ func (ctl *controlFlow) Exception(err Obj) {
 	ctl.kind = controlFlowReturn
 }
 
-var (
-	lambdaSym = MakeSymbol("lambda")
-	quoteSym  = MakeSymbol("quote")
-	ifSym     = MakeSymbol("if")
-	doSym     = MakeSymbol("do")
-)
+var lambdaSym = MakeSymbol("lambda")
 
 func (e *Evaluator) eval(ctl *controlFlow) {
 	exp := ctl.exp
 	env := ctl.env
 
-	// fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
+	fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
 
 	switch *exp { // handle constant
 	case scmHeadNumber, scmHeadString, scmHeadVector, scmHeadBoolean, scmHeadNull, scmHeadProcedure, scmHeadPrimitive:
@@ -132,7 +101,11 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		if val, ok := envGet(env, exp); ok {
 			ctl.Return(val)
 		} else {
-			ctl.Return(mustSymbol(exp).value)
+			s := mustSymbol(exp)
+			if s.value == nil {
+				ctl.Return(MakeError("symbol value not found:" + s.str))
+			}
+			ctl.Return(s.value)
 		}
 		return
 	}
@@ -179,39 +152,19 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 	}
 
 	fn := e.trampoline(pair.car, env)
-	// if *fn == scmHeadError {
-	// 	ctl.Exception(fn)
-	// 	return
-	// }
+	if *fn == scmHeadError {
+		ctl.Exception(fn)
+		return
+	}
 
 	args := e.evalArgumentList(pair.cdr, env)
-	// if !ctl.inException && len(args) == 1 && *args[0] == scmHeadError {
-	// 	ctl.Exception(args[0])
-	// 	return
-	// }
+	if !ctl.inException && len(args) == 1 && *args[0] == scmHeadError {
+		ctl.Exception(args[0])
+		return
+	}
 	ctl.TailApply(fn, args)
 	return
 }
-
-// func (e *Evaluator) evalFunction(fn Obj, env Obj) Obj {
-// 	if ok, _ := isSymbol(fn); ok {
-// 		str := GetSymbol(fn)
-// 		if proc, ok := envGet(env, fn); ok {
-// 			return proc
-// 		}
-// 		if val, ok := e.functionTable[str]; ok {
-// 			return val
-// 		}
-// 	}
-
-// 	switch *fn {
-// 	case scmHeadPrimitive, scmHeadProcedure:
-// 		return fn
-// 	case scmHeadPair:
-// 		return e.trampoline(fn, env)
-// 	}
-// 	panic(fmt.Sprintf("can't apply non function: %#v", (*scmHead)(fn)))
-// }
 
 func (e *Evaluator) evalIf(a, b, c Obj, env Obj, ctl *controlFlow) {
 	t := e.trampoline(a, env)
@@ -271,22 +224,11 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	f := ctl.f
 	args := ctl.args
 
-	// fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
+	fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
 
 	if *f == scmHeadPrimitive {
 		prim := mustPrimitive(f)
 		fargs := ListToSlice(args)
-		// switch {
-		// case prim.Name == "native":
-		// 	method := GetSymbol(args[0])
-		// 	prim1, ok := e.nativeFunc[method]
-		// 	if !ok {
-		// 		ctl.Return(MakeError("undefined native " + method))
-		// 		return
-		// 	}
-		// 	prim = prim1
-		// 	ctl.Return(prim.Function(args[1:]...))
-		// 	return
 		if len(fargs) < prim.Required {
 			ctl.Return(partialApply(prim, fargs))
 			return
@@ -300,9 +242,7 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	body := car(cdr(cdr(f)))
 	env := cdr(cdr(cdr(f)))
 
-	// fmt.Println("origin env: ", ObjString(env))
 	env, params, args = envExtend(env, params, args)
-	fmt.Println("env:", ObjString(env), "params:", ObjString(params), "args:", ObjString(args))
 	if params != Nil {
 		// Partial apply
 		proc := makeProcedure(params, body, env)
@@ -310,7 +250,6 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 		ctl.Return(proc)
 		return
 	}
-	// fmt.Println("new env: ", ObjString(env))
 
 	ctl.TailEval(body, env)
 }
