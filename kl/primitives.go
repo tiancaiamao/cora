@@ -46,8 +46,8 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "tl", Required: 1, Function: primTail},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons", Required: 2, Function: primCons},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "cons?", Required: 1, Function: primIsPair},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1},
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2},
+	// &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2, Function: primSet},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "not", Required: 1, Function: primNot},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "if", Required: 3, Function: primIf},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "symbol?", Required: 1, Function: primIsSymbol},
@@ -124,6 +124,12 @@ func primNumberDivide(args ...Obj) Obj {
 	x1 := mustNumber(args[0])
 	y1 := mustNumber(args[1])
 	return MakeNumber(x1.val / y1.val)
+}
+
+func primSet(args ...Obj) Obj {
+	s := mustSymbol(args[0])
+	s.value = args[1]
+	return args[1]
 }
 
 func primIntern(args ...Obj) Obj {

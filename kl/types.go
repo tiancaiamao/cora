@@ -342,23 +342,9 @@ func MakeSymbol(s string) Obj {
 	return &tmp.scmHead
 }
 
-func makeProcedure(arg Obj, body Obj, env Obj) Obj {
+func makeProcedure(params Obj, body Obj, env Obj) Obj {
 	// (lambda arg body env)
-	return cons(MakeSymbol("lambda"), cons(arg, cons(body, env)))
-
-	// tmp := scmProcedure{
-	// 	scmHead: scmHeadProcedure,
-	// 	body:    body,
-	// 	env:     env,
-	// }
-	// if *arg == scmHeadSymbol {
-	// 	tmp.arg = []Obj{arg}
-	// 	tmp.arity = 1
-	// } else {
-	// 	tmp.arg = ListToSlice(arg)
-	// 	tmp.arity = len(tmp.arg)
-	// }
-	// return &tmp.scmHead
+	return cons(lambdaSym, cons(params, cons(body, env)))
 }
 
 func ObjString(o Obj) string {

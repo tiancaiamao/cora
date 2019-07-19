@@ -9,15 +9,15 @@ func envGet(env Obj, sym Obj) (Obj, bool) {
 	return assq(sym, env)
 }
 
-func envExtend(env Obj, params Obj, args Obj) Obj {
-	for params != Nil {
+func envExtend(env Obj, params Obj, args Obj) (Obj, Obj, Obj) {
+	for params != Nil && args != Nil {
 		pair := cons(car(params), car(args))
 		env = cons(pair, env)
 
 		params = cdr(params)
 		args = cdr(args)
 	}
-	return env
+	return env, params, args
 }
 
 // func (env *Environment) Get(sym string) (Obj, bool) {
@@ -109,11 +109,18 @@ func (ctl *controlFlow) Exception(err Obj) {
 	ctl.kind = controlFlowReturn
 }
 
+var (
+	lambdaSym = MakeSymbol("lambda")
+	quoteSym  = MakeSymbol("quote")
+	ifSym     = MakeSymbol("if")
+	doSym     = MakeSymbol("do")
+)
+
 func (e *Evaluator) eval(ctl *controlFlow) {
 	exp := ctl.exp
 	env := ctl.env
 
-	fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
+	// fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
 
 	switch *exp { // handle constant
 	case scmHeadNumber, scmHeadString, scmHeadVector, scmHeadBoolean, scmHeadNull, scmHeadProcedure, scmHeadPrimitive:
@@ -144,20 +151,11 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 				ctl.Return(makeProcedure(car(exp), cadr(exp), env))
 			}
 			return
-		case "and":
-			e.evalAnd(car(exp), cadr(exp), env, ctl)
-			return
-		case "or":
-			e.evalOr(car(exp), cadr(exp), env, ctl)
-			return
 		case "if": // (if a b c)
 			if listLength(pair.cdr) == 3 {
 				e.evalIf(car(exp), cadr(exp), caddr(exp), env, ctl)
 				return
-			} // if may also be a function for partial apply
-		case "cond": // (cond (false 1) (true 2))
-			e.evalCond(exp, env, ctl)
-			return
+			}
 		// case "trap-error": // (trap-error ~body ~handler)
 		// 	e.evalTrapError(exp, env, ctl)
 		// 	return
@@ -167,6 +165,15 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 				return
 			}
 			ctl.TailEval(cadr(exp), env)
+			return
+		case "and":
+			e.evalAnd(car(exp), cadr(exp), env, ctl)
+			return
+		case "or":
+			e.evalOr(car(exp), cadr(exp), env, ctl)
+			return
+		case "cond": // (cond (false 1) (true 2))
+			e.evalCond(exp, env, ctl)
 			return
 		}
 	}
@@ -264,10 +271,11 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	f := ctl.f
 	args := ctl.args
 
-	fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
+	// fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
 
 	if *f == scmHeadPrimitive {
 		prim := mustPrimitive(f)
+		fargs := ListToSlice(args)
 		// switch {
 		// case prim.Name == "native":
 		// 	method := GetSymbol(args[0])
@@ -279,14 +287,10 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 		// 	prim = prim1
 		// 	ctl.Return(prim.Function(args[1:]...))
 		// 	return
-		// case len(args) < prim.Required:
-		// 	ctl.Return(partialApply(prim.Required, args, nil, f))
-		// 	return
-		// case len(args) == prim.Required:
-		// 	ctl.Return(prim.Function(args...))
-		// 	return
-		// }
-		fargs := ListToSlice(args)
+		if len(fargs) < prim.Required {
+			ctl.Return(partialApply(prim, fargs))
+			return
+		}
 		ctl.Return(prim.Function(fargs...))
 		return
 	}
@@ -296,67 +300,51 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	body := car(cdr(cdr(f)))
 	env := cdr(cdr(cdr(f)))
 
-	fmt.Println("origin env: ", ObjString(env))
-	env = envExtend(env, params, args)
-	fmt.Println("new env: ", ObjString(env))
+	// fmt.Println("origin env: ", ObjString(env))
+	env, params, args = envExtend(env, params, args)
+	fmt.Println("env:", ObjString(env), "params:", ObjString(params), "args:", ObjString(args))
+	if params != Nil {
+		// Partial apply
+		proc := makeProcedure(params, body, env)
+		fmt.Println("proc:", ObjString(proc))
+		ctl.Return(proc)
+		return
+	}
+	// fmt.Println("new env: ", ObjString(env))
 
 	ctl.TailEval(body, env)
-
-	// nargs := length(args)
-	// switch {
-	// case len(args) < proc.arity:
-	// 	ctl.Return(partialApply(proc.arity, args, proc.env, f))
-	// 	return
-	// case len(args) == proc.arity:
-	// 	newEnv := proc.env.Extend(proc.arg, args)
-	// 	ctl.TailEval(proc.body, newEnv)
-	// 	return
-	// case len(args) > proc.arity:
-	// 	newEnv := proc.env.Extend(proc.arg, args[:proc.arity])
-	// 	res := e.trampoline(proc.body, newEnv)
-	// 	ctl.TailApply(res, args[proc.arity:])
-	// 	return
-	// }
 }
 
-// partialApply works when Required > providArgs
-// func partialApply(required int, providArgs []Obj, env Obj, proc Obj) Obj {
-// 	// Partial apply...
-// 	// (f x y z) => (lambda (z) (f x y z)) with x y in env
-// 	symbols := makeTempSymbols(required)
-// 	env1 := env.Extend(symbols[:len(providArgs)], providArgs)
-
-// 	args := Nil
-// 	for i, count := len(symbols)-1, required-len(providArgs); count > 0; count-- {
-// 		args = cons(symbols[i], args)
-// 		i--
-// 	}
-
-// 	body := Nil
-// 	for i := len(symbols) - 1; i >= 0; i-- {
-// 		body = cons(symbols[i], body)
-// 	}
-// 	body = cons(proc, body)
-
-// 	return makeProcedure(args, body, env1)
-// }
+// partialApply works when providArgs < prim.Required
+func partialApply(prim *ScmPrimitive, provideArgs []Obj) Obj {
+	// Partial apply...
+	// (f x y z) => (lambda (z) (f x y z)) with x y in env
+	args := makeTempSymbols(prim.Required - len(provideArgs))
+	body := args
+	for i := len(provideArgs) - 1; i >= 0; i-- {
+		body = cons(provideArgs[i], body)
+	}
+	body = cons(MakeSymbol(prim.Name), body)
+	return makeProcedure(args, body, Nil)
+}
 
 func (e *Evaluator) evalArgumentList(args Obj, env Obj) Obj {
-	// reuse the memory of args
-	ret := args
+	var ret scmPair
+	ret.cdr = Nil
+	p := &ret
 	for args != Nil {
-		curr := mustPair(args)
-		v := e.trampoline(curr.car, env)
-		curr.car = v
+		v := e.trampoline(car(args), env)
+		p.cdr = cons(v, Nil)
+		p = mustPair(p.cdr)
 		args = cdr(args)
 	}
-	return ret
+	return ret.cdr
 }
 
-func makeTempSymbols(n int) []Obj {
-	ret := make([]Obj, n)
+func makeTempSymbols(n int) Obj {
+	ret := Nil
 	for i := 0; i < n; i++ {
-		ret[i] = MakeSymbol(fmt.Sprintf("tmp%d", i))
+		ret = cons(MakeSymbol(fmt.Sprintf("tmp%d", i)), ret)
 	}
 	return ret
 }

@@ -1,7 +1,6 @@
 package kl
 
 import (
-	"fmt"
 	"math"
 	"os"
 	"path"
@@ -40,12 +39,7 @@ func reverse(o Obj) Obj {
 func assq(o, l Obj) (Obj, bool) {
 	for l != Nil {
 		p := car(l)
-		fmt.Println("in assq:", ObjString(p), ObjString(car(p)), ObjString(o))
-		if car(p) == o {
-			fmt.Println("symbol equal??")
-		}
 		if equal(car(p), o) == True {
-			fmt.Println("wtf ???")
 			return cdr(p), true
 		}
 		l = cdr(l)
