@@ -26,3 +26,13 @@ lambda
 
 ## 内置 pattern match
 ## func 宏
+
+
+(macro sexp (if (cadr sexp) true (caddr sexp)))
+(or 1 2)
+
+(defmacro name (x) body)
+
+(set (quote name) (macro x body))
+
+(macro )

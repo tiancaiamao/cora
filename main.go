@@ -12,10 +12,11 @@ import (
 )
 
 var pprof bool
-var shen bool
+var bootFile string
 
 func init() {
 	flag.BoolVar(&pprof, "pprof", false, "enable pprof")
+	flag.StringVar(&bootFile, "boot", "init.cora", "the init file for bootstrap")
 }
 
 func main() {
@@ -26,6 +27,11 @@ func main() {
 	}
 
 	e := kl.NewEvaluator()
+	if len(bootFile) > 0 {
+		e.Silence = true
+		e.LoadFile(bootFile)
+		e.Silence = false
+	}
 	r := kl.NewSexpReader(os.Stdin)
 	for i := 0; ; i++ {
 		fmt.Printf("%d #> ", i)

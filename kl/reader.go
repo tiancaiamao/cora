@@ -18,6 +18,8 @@ func NewSexpReader(r io.Reader) *SexpReader {
 	}
 }
 
+var quoteSym = MakeSymbol("quote")
+
 func (r *SexpReader) Read() (Obj, error) {
 	b, err := peekFirstRune(r.reader)
 	if err != nil {
@@ -25,8 +27,13 @@ func (r *SexpReader) Read() (Obj, error) {
 	}
 
 	switch b {
-	case rune('^'):
-		return r.readerMacro()
+	case rune('\''):
+		obj, err := r.Read()
+		if err != nil {
+			return obj, err
+		}
+		return cons(quoteSym, cons(obj, Nil)), nil
+		// return quoteMacro(obj)
 	case rune('('):
 		return r.readSexp()
 	case rune('"'):
@@ -48,40 +55,40 @@ func (r *SexpReader) Read() (Obj, error) {
 	return tokenToObj(string(r.buf)), err
 }
 
-func (r *SexpReader) readerMacro() (Obj, error) {
-	rune, _, err := r.reader.ReadRune()
-	if err != nil {
-		return Nil, err
-	}
-	obj, err := r.Read()
-	if err != nil {
-		return obj, err
-	}
+// func (r *SexpReader) readerMacro() (Obj, error) {
+// 	rune, _, err := r.reader.ReadRune()
+// 	if err != nil {
+// 		return Nil, err
+// 	}
+// 	obj, err := r.Read()
+// 	if err != nil {
+// 		return obj, err
+// 	}
 
-	switch rune {
-	case '\'': // quote macro
-		return quoteMacro(obj)
-	}
+// 	switch rune {
+// 	case '\'': // quote macro
+// 		return quoteMacro(obj)
+// 	}
 
-	return obj, nil
-}
+// 	return obj, nil
+// }
 
-func RconsForm(o Obj) Obj {
-	return rconsForm(o)
-}
+// func RconsForm(o Obj) Obj {
+// 	return rconsForm(o)
+// }
 
-func rconsForm(o Obj) Obj {
-	if *o == scmHeadPair {
-		return cons(MakeSymbol("cons"),
-			cons(rconsForm(car(o)),
-				cons(rconsForm(cdr(o)), Nil)))
-	}
-	return o
-}
+// func rconsForm(o Obj) Obj {
+// 	if *o == scmHeadPair {
+// 		return cons(MakeSymbol("cons"),
+// 			cons(rconsForm(car(o)),
+// 				cons(rconsForm(cdr(o)), Nil)))
+// 	}
+// 	return o
+// }
 
-func quoteMacro(o Obj) (Obj, error) {
-	return rconsForm(o), nil
-}
+// func quoteMacro(o Obj) (Obj, error) {
+// 	return rconsForm(o), nil
+// }
 
 func (r *SexpReader) readString() (Obj, error) {
 	r.resetBuf()

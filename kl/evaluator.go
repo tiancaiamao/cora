@@ -23,14 +23,8 @@ func NewEvaluator() *Evaluator {
 		e.functionTable[prim.Name] = Obj(&prim.scmHead)
 	}
 	// Overload for primitive set and value.
-	tmp := &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "set", Required: 2, Function: e.primSet}
-	e.functionTable["set"] = Obj(&tmp.scmHead)
-	tmp = &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "value", Required: 1, Function: e.primValue}
-	e.functionTable["value"] = Obj(&tmp.scmHead)
-	tmp = &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "eval-kl", Required: 1, Function: e.primEvalKL}
-	e.functionTable["eval-kl"] = Obj(&tmp.scmHead)
-	tmp = &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "load-file", Required: 1, Function: e.primLoadFile}
-	e.functionTable["load-file"] = Obj(&tmp.scmHead)
+	primLoad := mustSymbol(MakeSymbol("load")).value
+	mustPrimitive(primLoad).Function = e.primLoadFile
 
 	e.nativeFunc = make(map[string]*ScmPrimitive)
 	e.RegistNativeCall(MakePrimitive("primitive?", 1, NativeIsPrimitive))
@@ -97,7 +91,7 @@ func (e *Evaluator) LoadFile(file string) Obj {
 			break
 		}
 
-		res := e.trampoline(exp, nil)
+		res := e.trampoline(exp, Nil)
 		if *res == scmHeadError {
 			return res
 		}

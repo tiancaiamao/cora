@@ -10,7 +10,7 @@ import (
 )
 
 var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
-	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "load-file", Required: 1},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "load", Required: 1},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "type", Required: 2, Function: typeFunc},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "get-time", Required: 1, Function: getTime},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "eval-kl", Required: 1},
@@ -57,6 +57,7 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-string", Required: 1, Function: primReadFileAsString},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "variable?", Required: 1, Function: primIsVariable},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "integer?", Required: 1, Function: primIsInteger},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "gensym", Required: 1, Function: primGenSym},
 }
 
 var primitiveIdx map[string]*ScmPrimitive
@@ -145,6 +146,15 @@ func primIntern(args ...Obj) Obj {
 
 func PrimHead(args ...Obj) Obj {
 	return car(args[0])
+}
+
+var genIdx uint64
+
+func primGenSym(args ...Obj) Obj {
+	s := mustSymbol(args[0])
+	str := fmt.Sprintf("#%s%d", s.str, genIdx)
+	genIdx++
+	return MakeSymbol(str)
 }
 
 func primTail(args ...Obj) Obj {

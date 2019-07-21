@@ -90,7 +90,7 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 	exp := ctl.exp
 	env := ctl.env
 
-	fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
+	// fmt.Println("evaling exp:", ObjString(exp), "in env:", ObjString(env))
 
 	switch *exp { // handle constant
 	case scmHeadNumber, scmHeadString, scmHeadVector, scmHeadBoolean, scmHeadNull, scmHeadProcedure, scmHeadPrimitive:
@@ -133,9 +133,6 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		case "macro": // (macro sexp body)
 			ctl.Return(ctl.exp)
 			return
-		// case "trap-error": // (trap-error ~body ~handler)
-		// 	e.evalTrapError(exp, env, ctl)
-		// 	return
 		case "do": // (do A A)
 			if tmp := e.trampoline(car(exp), env); *tmp == scmHeadError {
 				ctl.Exception(tmp)
@@ -143,6 +140,9 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 			}
 			ctl.TailEval(cadr(exp), env)
 			return
+		// case "trap-error": // (trap-error ~body ~handler)
+		// 	e.evalTrapError(exp, env, ctl)
+		// 	return
 		case "and":
 			e.evalAnd(car(exp), cadr(exp), env, ctl)
 			return
@@ -167,6 +167,7 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		pair := cons(car(cdr(fn)), ctl.exp)
 		menv := cons(pair, Nil)
 		expanded := e.trampoline(body, menv)
+		// fmt.Println("after extend:", ObjString(expanded))
 		ctl.TailEval(expanded, env)
 		return
 	}
@@ -238,7 +239,7 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	f := ctl.f
 	args := ctl.args
 
-	fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
+	// fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
 
 	if *f == scmHeadPrimitive {
 		prim := mustPrimitive(f)
@@ -260,7 +261,7 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	if params != Nil {
 		// Partial apply
 		proc := makeProcedure(params, body, env)
-		fmt.Println("proc:", ObjString(proc))
+		// fmt.Println("proc:", ObjString(proc))
 		ctl.Return(proc)
 		return
 	}
