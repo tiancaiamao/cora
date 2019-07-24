@@ -57,8 +57,20 @@ de"`, MakeString("abc\nde")},
 }
 
 func TestReaderMacro(t *testing.T) {
-	a, _ := NewSexpReader(strings.NewReader("^'(a b c)")).Read()
-	b, _ := NewSexpReader(strings.NewReader("(cons a (cons b (cons c ())))")).Read()
+	a, _ := NewSexpReader(strings.NewReader("'(a b c)")).Read()
+	b, _ := NewSexpReader(strings.NewReader("(quote (a b c))")).Read()
+	if equal(a, b) == False {
+		t.Error("fail:", ObjString(a), ObjString(b))
+	}
+
+	a, _ = NewSexpReader(strings.NewReader("[a b c]")).Read()
+	b, _ = NewSexpReader(strings.NewReader("(list a b c))")).Read()
+	if equal(a, b) == False {
+		t.Error("fail:", ObjString(a), ObjString(b))
+	}
+
+	a, _ = NewSexpReader(strings.NewReader("[a b . c]")).Read()
+	b, _ = NewSexpReader(strings.NewReader("(list-rest a b c))")).Read()
 	if equal(a, b) == False {
 		t.Error("fail:", ObjString(a), ObjString(b))
 	}

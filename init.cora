@@ -7,7 +7,7 @@
 (set 'rcons
      (lambda (exp)
        (if (cons? exp)
-           (cons (quote cons)
+           (cons 'cons
                  (cons (car exp)
                        (cons (rcons (cdr exp)) ())))
            ())))
@@ -15,6 +15,7 @@
 (set 'equal? =)
 (set 'list
      (macro exp (rcons (cdr exp))))
+
 (set 'defmacro
      (macro exp (list 'set (list 'quote (cadr exp))
                       (list 'macro (car (caddr exp)) (cadddr exp)))))
@@ -27,6 +28,14 @@
   (list 'set (list 'quote (cadr exp))
         (list 'lambda (caddr exp)
               (cadddr exp))))
+
+(defun rcons1 (pat)
+  (if (null? (cdr pat))
+      (car pat)
+      (list 'cons (car pat) (rcons1 (cdr pat)))))
+
+(set 'list-rest
+     (macro exp (rcons1 (cdr exp))))
 
 (defun reverse-h (res l)
   (if (cons? l)

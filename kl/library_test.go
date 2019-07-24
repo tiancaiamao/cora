@@ -66,11 +66,11 @@ func TestAssq(t *testing.T) {
 	y := cons(MakeSymbol("b"), MakeInteger(2))
 	z := cons(MakeSymbol("c"), MakeInteger(3))
 	l := cons(x, cons(y, cons(z, Nil)))
-	r1 := assq(MakeSymbol("c"), l)
+	r1, _ := assq(MakeSymbol("c"), l)
 	if !(mustNumber(r1).val == 3) {
 		t.Error("assq fail")
 	}
-	r2 := assq(MakeSymbol("ss"), l)
+	r2, _ := assq(MakeSymbol("ss"), l)
 	if r2 != Nil {
 		t.Error("assq fail 2")
 	}

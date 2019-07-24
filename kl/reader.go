@@ -33,9 +33,20 @@ func (r *SexpReader) Read() (Obj, error) {
 			return obj, err
 		}
 		return cons(quoteSym, cons(obj, Nil)), nil
-		// return quoteMacro(obj)
 	case rune('('):
 		return r.readSexp()
+	case rune('['):
+		tmp, rest, err := r.readListMacro()
+		if err != nil {
+			return Nil, err
+		}
+		var hd Obj
+		if rest {
+			hd = MakeSymbol("list-rest")
+		} else {
+			hd = MakeSymbol("list")
+		}
+		return cons(hd, tmp), nil
 	case rune('"'):
 		return r.readString()
 	}
@@ -54,41 +65,6 @@ func (r *SexpReader) Read() (Obj, error) {
 
 	return tokenToObj(string(r.buf)), err
 }
-
-// func (r *SexpReader) readerMacro() (Obj, error) {
-// 	rune, _, err := r.reader.ReadRune()
-// 	if err != nil {
-// 		return Nil, err
-// 	}
-// 	obj, err := r.Read()
-// 	if err != nil {
-// 		return obj, err
-// 	}
-
-// 	switch rune {
-// 	case '\'': // quote macro
-// 		return quoteMacro(obj)
-// 	}
-
-// 	return obj, nil
-// }
-
-// func RconsForm(o Obj) Obj {
-// 	return rconsForm(o)
-// }
-
-// func rconsForm(o Obj) Obj {
-// 	if *o == scmHeadPair {
-// 		return cons(MakeSymbol("cons"),
-// 			cons(rconsForm(car(o)),
-// 				cons(rconsForm(cdr(o)), Nil)))
-// 	}
-// 	return o
-// }
-
-// func quoteMacro(o Obj) (Obj, error) {
-// 	return rconsForm(o), nil
-// }
 
 func (r *SexpReader) readString() (Obj, error) {
 	r.resetBuf()
@@ -115,6 +91,30 @@ func (r *SexpReader) readSexp() (Obj, error) {
 	return reverse(ret), err
 }
 
+func (r *SexpReader) readListMacro() (Obj, bool, error) {
+	var rest, finish bool
+	var obj Obj
+	ret := Nil
+	b, err := peekFirstRune(r.reader)
+	for err == nil && !finish {
+		switch b {
+		case rune('.'):
+			rest = true
+			b, err = peekFirstRune(r.reader)
+		case rune(']'):
+			finish = true
+		default:
+			r.reader.UnreadRune()
+			obj, err = r.Read()
+			if err == nil {
+				ret = cons(obj, ret)
+				b, err = peekFirstRune(r.reader)
+			}
+		}
+	}
+	return reverse(ret), rest, err
+}
+
 func (r *SexpReader) resetBuf() {
 	r.buf = r.buf[:0]
 }
@@ -132,7 +132,7 @@ func peekFirstRune(r *bufio.Reader) (rune, error) {
 }
 
 func notSymbolChar(c rune) bool {
-	return unicode.IsSpace(c) || c == '(' || c == '"' || c == ')'
+	return unicode.IsSpace(c) || c == '(' || c == '"' || c == ')' || c == '[' || c == ']'
 }
 
 func tokenToObj(str string) Obj {
