@@ -34,10 +34,50 @@
 (defun cps-convert (ast)
   (cps ast 'halt))
 
+(func union
+      [] s2 => s2
+      [x . y] s2 => (union y s2) where (elem? x s2)
+      [x . y] s2 => (cons x (union y s2)))
 
-(defun closure-convert (ast)
-  )
+(func diff
+      [] _ => []
+      [x . y] s2 => (diff y s2) where (elem? x s2)
+      [x . y] s2 => (cons x (diff y s2)))
+
+(func foldl
+      f acc [] => acc
+      f acc [x . y] => (foldl f (f acc x) y))
+
+(func free-vars
+      x => [] where (or (number? x) (string? x) (boolean? x))
+      x => [] where (elem? x '(+ - * / =))
+      x => [x] where (symbol? x)
+      ['lambda args body] => (diff (free-vars body) args)
+      [f . args] => (foldl union [] (map free-vars [f . args])))
+
+(func pos-in-list0
+      _ x [] => -1
+      pos x [a . b] => pos where (= x a)
+      pos x [a . b] => (pos-in-list0 (+ pos 1) x b))
+
+(defun pos-in-list (x l)
+  (pos-in-list0 0 x l))
 
 (func convert
-      )
+      self fvs x => x where (or (number? x) (string? x) (boolean? x))
+      self fvs var => (let pos (pos-in-list var fvs)
+                           (if (= -1 pos)
+                               var
+                             ['%closure-ref self pos])) where (symbol? var)
+      self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
+      self fvs ['lambda args body] =>
+      (let fvs1 (free-vars ['lambda args body])
+           self1 (gensym 'clo)
+           ['closure ['lambda (cons self1 args) (convert self1 fvs1 body)] . fvs1])
+      self fvs [f . args] => (map (convert self fvs) [f . args]))
 
+(defun closure-convert (ast)
+  (convert '_ [] ast))
+
+
+(closure-convert '(lambda (x) (lambda (y) (+ x y))))
