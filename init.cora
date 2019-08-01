@@ -19,10 +19,6 @@
 (set 'defmacro
      (macro exp (list 'set (list 'quote (cadr exp))
                       (list 'macro (car (caddr exp)) (cadddr exp)))))
-(defmacro or (exp)
-  (if (cadr exp)
-      true
-      (caddr exp)))
 
 (defmacro defun (exp)
   (list 'set (list 'quote (cadr exp))
@@ -53,6 +49,7 @@
   (map-h () f l))
 
 (defun atom? (x) (not (cons? x)))
+(defun boolean? (x) (or (= x true) (= x false)))
 
 (defun rewrite-let (params args exp)
   (if (null? (cdr exp))
