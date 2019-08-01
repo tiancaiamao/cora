@@ -56,6 +56,13 @@
 (defun map (f l)
   (map-h () f l))
 
+(defun elem? (x l)
+  (if (cons? l)
+      (if (= (car l) x)
+          true
+          (elem? x (cdr l)))
+      false))
+
 (defun atom? (x) (not (cons? x)))
 (defun boolean? (x) (or (= x true) (= x false)))
 

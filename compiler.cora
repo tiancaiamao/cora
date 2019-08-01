@@ -1,0 +1,43 @@
+(func cps
+      lit cc => [cc lit] where (or (symbol? lit) (string? lit) (number? lit) (boolean? lit))
+      ['if a b c] cc => (let va (gensym 'r)
+                             (cps a ['lambda [va]
+                                             ['if va
+                                                 (cps b cc)
+                                                 (cps c cc)]]))
+      ['do x y] cc => (cps x ['lambda ['_] (cps y cc)])
+      ['lambda args body] cc => (let k (gensym 'k)
+                                     [cc ['lambda (cons k args)
+                                                  (cps body k)]])
+      [['lambda [] body] []] cc =>  (cps body cc)
+      [['lambda [x] body] a] cc => (cps a ['lambda [x] (cps body cc)])
+      [['lambda [x y] body] a b] cc => (cps a ['lambda [x]
+                                                (cps b ['lambda [y]
+                                                                (cps body cc)])])
+      [op . args] cc => (cps-args []
+                                  (lambda (nargs) [cc (cons op nargs)])
+                                  args) where (elem? op ['+ '- '* '/ '=])
+      [f . args] cc => (let f0 (gensym 'f)
+                            (let cc1 (cps-args []
+                                               (lambda (nargs) (cons f0 (cons cc args)))
+                                               args)
+                                 (cps f ['lambda [f0]
+                                                 cc1]))))
+
+(func cps-args
+      res fn [] => (fn (reverse res))
+      res fn [x . y] => (let x0 (gensym 'arg)
+                                (cps x ['lambda [x0]
+                                       (cps-args (cons x0 res)
+                                                 fn y)])))
+
+(defun cps-convert (ast)
+  (cps ast 'halt))
+
+
+(defun closure-convert (ast)
+  )
+
+(func convert
+      )
+
