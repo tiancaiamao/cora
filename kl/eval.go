@@ -146,7 +146,7 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 		case "and":
 			e.evalAnd(car(exp), cadr(exp), env, ctl)
 			return
-		case "or":
+		case "#or":
 			e.evalOr(car(exp), cadr(exp), env, ctl)
 			return
 		case "cond": // (cond (false 1) (true 2))

@@ -25,6 +25,14 @@
         (list 'lambda (caddr exp)
               (cadddr exp))))
 
+
+(defmacro or (exp)
+  (cond
+   ((= (cadr exp) true) true)
+   ((= (caddr exp) true) true)
+   ((not (null? (cdddr exp))) (list '#or (cadr exp) (cons 'or (cddr exp))))
+   (true (cons '#or (cdr exp)))))
+
 (defun rcons1 (pat)
   (if (null? (cdr pat))
       (car pat)
