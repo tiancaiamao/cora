@@ -1,5 +1,12 @@
+(defun builtin? (x)
+  (elem? x '(+ - * / = set halt)))
+
+(defun non-evaluate? (lit)
+  (or (symbol? lit) (string? lit) (number? lit) (boolean? lit)))
+
 (func cps
-      lit cc => [cc lit] where (or (symbol? lit) (string? lit) (number? lit) (boolean? lit))
+      lit cc => [cc lit] where (non-evaluate? lit)
+      ['quote x] cc => [cc ['quote x]]
       ['if a b c] cc => (let va (gensym 'r)
                              (cps a ['lambda [va]
                                              ['if va
@@ -16,20 +23,22 @@
                                                                 (cps body cc)])])
       [op . args] cc => (cps-args []
                                   (lambda (nargs) [cc (cons op nargs)])
-                                  args) where (elem? op ['+ '- '* '/ '=])
+                                  args) where (builtin? op)
       [f . args] cc => (let f0 (gensym 'f)
                             (let cc1 (cps-args []
-                                               (lambda (nargs) (cons f0 (cons cc args)))
+                                               (lambda (nargs) (cons f0 (cons cc nargs)))
                                                args)
                                  (cps f ['lambda [f0]
                                                  cc1]))))
 
 (func cps-args
       res fn [] => (fn (reverse res))
+      res fn [x . y] => (cps-args (cons x res) fn y) where (or (symbol? x) (non-evaluate? x))
+      res fn [['quote x] . y] => (cps-args (cons ['quote x] res) fn y)
       res fn [x . y] => (let x0 (gensym 'arg)
-                                (cps x ['lambda [x0]
-                                       (cps-args (cons x0 res)
-                                                 fn y)])))
+                             (cps x ['lambda [x0]
+                                  (cps-args (cons x0 res)
+                                            fn y)])))
 
 (defun cps-convert (ast)
   (cps ast 'halt))
@@ -50,7 +59,7 @@
 
 (func free-vars
       x => [] where (or (number? x) (string? x) (boolean? x))
-      x => [] where (elem? x '(+ - * / =))
+      x => [] where (builtin? x)
       x => [x] where (symbol? x)
       ['lambda args body] => (diff (free-vars body) args)
       [f . args] => (foldl union [] (map free-vars [f . args])))
@@ -65,6 +74,7 @@
 
 (func convert
       self fvs x => x where (or (number? x) (string? x) (boolean? x))
+      _ _ ['quote x] => ['quote x]
       self fvs var => (let pos (pos-in-list var fvs)
                            (if (= -1 pos)
                                var
@@ -73,11 +83,24 @@
       self fvs ['lambda args body] =>
       (let fvs1 (free-vars ['lambda args body])
            self1 (gensym 'clo)
-           ['closure ['lambda (cons self1 args) (convert self1 fvs1 body)] . fvs1])
-      self fvs [f . args] => (map (convert self fvs) [f . args]))
+           ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] . fvs1])
+      self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
+      self fvs [f . args] => [f . (map (convert self fvs) args)] where (builtin? f)
+      self fvs [f . args] => (let f0 (convert self fvs f)
+                                  args0 (map (convert self fvs) args)
+                                  [['%closure-ref f0 0] . args0]))
 
 (defun closure-convert (ast)
   (convert '_ [] ast))
 
+(cps-convert '(do
+                  (set 'square (lambda (x) (* x x)))
+                  (+ (square 5) 1)))
 
-(closure-convert '(lambda (x) (lambda (y) (+ x y))))
+((lambda (#arg17887)
+   ((lambda (_)
+      ((lambda (#f17834)
+         (#f17834 (lambda (#arg17807)
+                    (halt (+ #arg17807 1))) 5)) square))
+    (set (quote square) #arg17887)))
+ (lambda (#k17907 x) (#k17907 (* x x))))
