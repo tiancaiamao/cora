@@ -34,6 +34,7 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "*", Required: 2, Function: primNumberMultiply},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "/", Required: 2, Function: primNumberDivide},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "+", Required: 2, Function: PrimNumberAdd},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "%", Required: 2, Function: primNumberMod},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "string->n", Required: 1, Function: primStringToNumber},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "n->string", Required: 1, Function: primNumberToString},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "number?", Required: 1, Function: primIsNumber},
@@ -101,6 +102,12 @@ func NativePrimitiveID(args ...Obj) Obj {
 
 func GetPrimitiveByID(id int) *ScmPrimitive {
 	return allPrimitives[id]
+}
+
+func primNumberMod(args ...Obj) Obj {
+	x := mustInteger(args[0])
+	y := mustInteger(args[1])
+	return MakeInteger(x % y)
 }
 
 func PrimNumberAdd(args ...Obj) Obj {

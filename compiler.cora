@@ -88,19 +88,106 @@
       self fvs [f . args] => [f . (map (convert self fvs) args)] where (builtin? f)
       self fvs [f . args] => (let f0 (convert self fvs f)
                                   args0 (map (convert self fvs) args)
-                                  [['%closure-ref f0 0] . args0]))
+                                  [['%closure-func f0] f0 . args0]))
 
 (defun closure-convert (ast)
   (convert '_ [] ast))
 
-(cps-convert '(do
-                  (set 'square (lambda (x) (* x x)))
-                  (+ (square 5) 1)))
+;; (cps-convert '(do
+;;                   (set 'square (lambda (x) (* x x)))
+;;                   (+ (square 5) 1)))
 
-((lambda (#arg17887)
-   ((lambda (_)
-      ((lambda (#f17834)
-         (#f17834 (lambda (#arg17807)
-                    (halt (+ #arg17807 1))) 5)) square))
-    (set (quote square) #arg17887)))
- (lambda (#k17907 x) (#k17907 (* x x))))
+
+;; (set '%closure list)
+;; (defun %closure-func (x) (list-ref x 0))
+
+;; (closure-convert '((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) (#f4065 (lambda (#arg4038) (halt (+ #arg4038 1))) 5)) square)) (set (quote square) #arg4118))) (lambda (#k4138 x) (#k4138 (* x x)))))
+
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(func code-gen
+      bc mp x return => (let reg (gensym 'reg)
+                          (return (cons ['<- reg x] bc)
+                                  (cons (cons x reg) mp)
+                                  reg)) where (number? x)
+      bc mp var return => (let find (assq var mp)
+                                    reg (gensym 'reg)
+                                    (if (null? find)
+                                        (return (cons ['<- reg var] bc)
+                                                (cons (cons var reg) mp)
+                                                reg)
+                                        (return bc mp reg))) where (symbol? var)
+      bc mp ['if x y z] return =>
+      (code-gen bc mp x
+                (lambda (bc1 mp1 r1)
+                  (code-gen bc1 mp1 y
+                            (lambda (bc2 mp2 r2)
+                              (code-gen bc2 mp2 z
+                                        (lambda (bc3 mp3 r3)
+                                          (let reg (gensym 'reg)
+                                            (return (cons ['<- reg 'if r1 r2 r3] bc3) mp3 reg))))))))
+      bc mp [['lambda params body] . args] return =>
+      (code-gen-args [] bc mp args
+                     (lambda (bc1 mp1 reg-list)
+                       (code-gen bc1
+                                 (code-gen-prepare params reg-list mp1) body return)))
+      bc mp ['lambda params body] return =>
+      (code-gen-params 0 bc mp params
+                       (lambda (bc1 mp1)
+                         (code-gen bc1 mp1 body return)))
+      bc mp [op x y] return =>
+      (code-gen bc mp x
+                (lambda (bc1 mp1 r1)
+                  (code-gen bc1 mp1 y
+                            (lambda (bc2 mp2 r2)
+                              (let reg (gensym 'reg)
+                                (return (cons ['<- reg [op r1 r2]] bc2) mp2
+                                        reg)))))) where (builtin? op)
+      bc mp [f . args] return =>
+      (code-gen-args [] bc mp args
+                     (lambda (bc1 mp1 reg-list)
+                       (code-gen-call 0 reg-list bc1 mp1
+                                      (lambda (bc2 mp2)
+                                        (return (cons 'jump bc2) mp2 (gensym 'reg)))))))
+
+(func code-gen-call
+      idx [] bc mp return => (return bc mp)
+      idx [x . y] bc mp return => (code-gen-call (+ idx 1)
+                                                 y
+                                                 (cons ['<- 'stack idx x] bc)
+                                                 mp
+                                                 return))
+
+(func code-gen-prepare
+      [] [] mp => mp
+      [var . vars] [reg . regs] mp => (code-gen-prepare vars regs (cons (cons var reg) mp)))
+
+(func code-gen-args
+      regs bc mp [] return => (return bc mp regs)
+      regs bc mp [x . y] return => (code-gen bc mp x
+                                             (lambda (bc1 mp1 r1)
+                                               (code-gen-args (cons r1 regs) bc1 mp y return))))
+
+(func code-gen-params
+      idx bc mp [] return => (return bc mp)
+      idx bc mp [x . y] return => (let reg (gensym 'reg)
+                                    (code-gen-params (+ idx 1)
+                                                     (cons ['<- 'stack idx reg] bc)
+                                                     (cons [x . reg] mp)
+                                                     y return)))
+
+(defun code-generate (ast)
+  (code-gen [] [] '_ ast
+            (lambda (bc mp reg)
+              bc)))
+
+;; (code-gen [] [] 42 (lambda (bc mp reg) 444))
+;; (code-gen [] [] 'a (lambda (bc mp reg) bc))
+;; (code-gen [] [] '(if a 4 c) (lambda (bc mp reg) bc))
+;; (code-gen [] [] '(+ a 3) (lambda (bc mp reg) bc))
+;; (code-gen [] [] '((lambda (a b) (+ a b)) 3 5) (lambda (bc mp reg) bc))
+;; (code-gen [] [] '(lambda (a b) (+ a b)) (lambda (bc mp reg) bc))
+;; (code-gen [] [] '(f a b) (lambda (bc mp reg) bc))

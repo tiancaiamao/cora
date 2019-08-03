@@ -105,6 +105,7 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 			s := mustSymbol(exp)
 			if s.value == nil {
 				ctl.Return(MakeError("symbol value not found:" + s.str))
+				return
 			}
 			ctl.Return(s.value)
 		}
