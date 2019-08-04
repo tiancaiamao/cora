@@ -90,18 +90,36 @@
                                   args0 (map (convert self fvs) args)
                                   [['%closure-func f0] f0 . args0]))
 
-(defun closure-convert (ast)
+(func collect-lambda
+      res ['if a b c] return => (collect-lambda-list [] res [a b c]
+                                                     (lambda (res ls)
+                                                       (return res (cons 'if ls))))
+      res [['lambda params body] . args] return =>
+      (collect-lambda res body (lambda (res1 body1)
+                                 (collect-lambda-list [] res1 args
+                                                      (lambda (res2 args1)
+                                                        (return res2 [['lambda params body1] . args1])))))
+      res ['%closure lam . fvs] return => (let name (gensym 'clofun)
+                                            (return (cons [name lam] res) ['%closure name . fvs]))
+      res [f . args] return => (collect-lambda-list [] res args
+                                                    (lambda (res1 args1)
+                                                      (return res1 (cons f args1))))
+      res x return => (return res x))
+
+(func collect-lambda-list
+      res init [] return => (return init (reverse res))
+      res init [x . y] return => (collect-lambda init x
+                                                 (lambda (init1 x1)
+                                                   (collect-lambda-list (cons x1 res) init1 y return))))
+
+(defun closure-convert-debug (ast)
   (convert '_ [] ast))
 
-;; (cps-convert '(do
-;;                   (set 'square (lambda (x) (* x x)))
-;;                   (+ (square 5) 1)))
-
-
-;; (set '%closure list)
-;; (defun %closure-func (x) (list-ref x 0))
-
-;; (closure-convert '((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) (#f4065 (lambda (#arg4038) (halt (+ #arg4038 1))) 5)) square)) (set (quote square) #arg4118))) (lambda (#k4138 x) (#k4138 (* x x)))))
+(defun closure-convert (ast)
+  (let res (convert '_ [] ast)
+    (collect-lambda [] res
+                    (lambda (res1 ast1)
+                      (cons [(gensym 'clofun) ['lambda () ast1]] res1)))))
 
 (func assq
       var [] => ()
@@ -114,12 +132,12 @@
                                   (cons (cons x reg) mp)
                                   reg)) where (number? x)
       bc mp var return => (let find (assq var mp)
-                                    reg (gensym 'reg)
-                                    (if (null? find)
-                                        (return (cons ['<- reg var] bc)
-                                                (cons (cons var reg) mp)
-                                                reg)
-                                        (return bc mp reg))) where (symbol? var)
+                            (if (null? find)
+                                (let reg (gensym 'reg)
+                                  (return (cons ['<- reg var] bc)
+                                          (cons (cons var reg) mp)
+                                          reg))
+                                (return bc mp (cdr find)))) where (symbol? var)
       bc mp ['if x y z] return =>
       (code-gen bc mp x
                 (lambda (bc1 mp1 r1)
@@ -138,6 +156,13 @@
       (code-gen-params 0 bc mp params
                        (lambda (bc1 mp1)
                          (code-gen bc1 mp1 body return)))
+      bc mp ['halt x] return => (code-gen bc mp x
+                                          (lambda (bc1 mp1 reg)
+                                            (return (cons 'halt (cons ['<- 'stack 0 reg] bc1))
+                                                    mp1
+                                                    reg)))
+      bc mp ['quote x] return => (let reg (gensym 'reg)
+                                   (return (cons ['<- reg 'intern x] bc) mp reg))
       bc mp [op x y] return =>
       (code-gen bc mp x
                 (lambda (bc1 mp1 r1)
@@ -146,10 +171,27 @@
                               (let reg (gensym 'reg)
                                 (return (cons ['<- reg [op r1 r2]] bc2) mp2
                                         reg)))))) where (builtin? op)
-      bc mp [f . args] return =>
+      bc mp ['%closure func . args] return =>
       (code-gen-args [] bc mp args
                      (lambda (bc1 mp1 reg-list)
-                       (code-gen-call 0 reg-list bc1 mp1
+                       (let reg (gensym 'reg)
+                         (return (cons ['<- reg 'closure func . reg-list] bc1)
+                                 mp1
+                                 reg))))
+      bc mp ['%closure-func clo] return => (code-gen bc mp clo
+                                              (lambda (bc1 mp1 reg)
+                                                (return (cons ['<- 'pc reg] bc1) mp1 reg)))
+      bc mp ['%closure-ref clo n] return => (code-gen bc mp clo
+                                                      (lambda (bc1 mp1 r1)
+                                                        (let reg (gensym 'reg)
+                                                          (return
+                                                           (cons ['<- reg 'env r1 n] bc1)
+                                                           mp1
+                                                           reg))))
+      bc mp [f . args] return =>
+      (code-gen-args [] bc mp [f . args]
+                     (lambda (bc1 mp1 reg-list)
+                       (code-gen-call 0 (cdr reg-list) bc1 mp1
                                       (lambda (bc2 mp2)
                                         (return (cons 'jump bc2) mp2 (gensym 'reg)))))))
 
@@ -166,7 +208,7 @@
       [var . vars] [reg . regs] mp => (code-gen-prepare vars regs (cons (cons var reg) mp)))
 
 (func code-gen-args
-      regs bc mp [] return => (return bc mp regs)
+      regs bc mp [] return => (return bc mp (reverse regs))
       regs bc mp [x . y] return => (code-gen bc mp x
                                              (lambda (bc1 mp1 r1)
                                                (code-gen-args (cons r1 regs) bc1 mp y return))))
@@ -175,14 +217,22 @@
       idx bc mp [] return => (return bc mp)
       idx bc mp [x . y] return => (let reg (gensym 'reg)
                                     (code-gen-params (+ idx 1)
-                                                     (cons ['<- 'stack idx reg] bc)
+                                                     (cons ['<- reg 'stack idx] bc)
                                                      (cons [x . reg] mp)
                                                      y return)))
 
-(defun code-generate (ast)
-  (code-gen [] [] '_ ast
+(defun code-generate-debug (ast)
+  (code-gen [] [] ast
             (lambda (bc mp reg)
-              bc)))
+              (reverse bc))))
+
+(defun code-generate (inputs)
+  (map (lambda (x)
+         (let bc (code-generate-debug (cadr x))
+           (cons ['label (car x)] bc)))
+       inputs))
+
+
 
 ;; (code-gen [] [] 42 (lambda (bc mp reg) 444))
 ;; (code-gen [] [] 'a (lambda (bc mp reg) bc))
@@ -191,3 +241,17 @@
 ;; (code-gen [] [] '((lambda (a b) (+ a b)) 3 5) (lambda (bc mp reg) bc))
 ;; (code-gen [] [] '(lambda (a b) (+ a b)) (lambda (bc mp reg) bc))
 ;; (code-gen [] [] '(f a b) (lambda (bc mp reg) bc))
+
+
+;; (cps-convert '(do
+;;                   (set 'square (lambda (x) (* x x)))
+;;                   (+ (square 5) 1)))
+
+
+;; (set '%closure list)
+;; (defun %closure-func (x) (list-ref x 0))
+
+;; (closure-convert '((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) (#f4065 (lambda (#arg4038) (halt (+ #arg4038 1))) 5)) square)) (set (quote square) #arg4118))) (lambda (#k4138 x) (#k4138 (* x x)))))
+
+
+;; (code-generate '((#clofun35259 (lambda () ((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) ((%closure-func #f4065) #f4065 (%closure #clofun35155) 5)) square)) (set (quote square) #arg4118))) (%closure #clofun35255)))) (#clofun35255 (lambda (#clo34911 #k4138 x) ((%closure-func #k4138) #k4138 (* x x)))) (#clofun35155 (lambda (#clo34666 #arg4038) (halt (+ #arg4038 1))))))
