@@ -128,13 +128,13 @@
 
 (func code-gen
       bc mp x return => (let reg (gensym 'reg)
-                          (return (cons ['<- reg x] bc)
+                          (return (cons ['const x reg] bc)
                                   (cons (cons x reg) mp)
                                   reg)) where (number? x)
       bc mp var return => (let find (assq var mp)
                             (if (null? find)
                                 (let reg (gensym 'reg)
-                                  (return (cons ['<- reg var] bc)
+                                  (return (cons ['mov var reg] bc)
                                           (cons (cons var reg) mp)
                                           reg))
                                 (return bc mp (cdr find)))) where (symbol? var)
@@ -146,7 +146,7 @@
                               (code-gen bc2 mp2 z
                                         (lambda (bc3 mp3 r3)
                                           (let reg (gensym 'reg)
-                                            (return (cons ['<- reg 'if r1 r2 r3] bc3) mp3 reg))))))))
+                                            (return (cons ['if r1 r2 r3 reg] bc3) mp3 reg))))))))
       bc mp [['lambda params body] . args] return =>
       (code-gen-args [] bc mp args
                      (lambda (bc1 mp1 reg-list)
@@ -158,34 +158,34 @@
                          (code-gen bc1 mp1 body return)))
       bc mp ['halt x] return => (code-gen bc mp x
                                           (lambda (bc1 mp1 reg)
-                                            (return (cons 'halt (cons ['<- 'stack 0 reg] bc1))
+                                            (return (cons ['halt] (cons ['stack-set 0 reg] bc1))
                                                     mp1
                                                     reg)))
       bc mp ['quote x] return => (let reg (gensym 'reg)
-                                   (return (cons ['<- reg 'intern x] bc) mp reg))
+                                   (return (cons ['intern x reg] bc) mp reg))
       bc mp [op x y] return =>
       (code-gen bc mp x
                 (lambda (bc1 mp1 r1)
                   (code-gen bc1 mp1 y
                             (lambda (bc2 mp2 r2)
                               (let reg (gensym 'reg)
-                                (return (cons ['<- reg [op r1 r2]] bc2) mp2
+                                (return (cons ['builtin [op r1 r2] reg] bc2) mp2
                                         reg)))))) where (builtin? op)
       bc mp ['%closure func . args] return =>
       (code-gen-args [] bc mp args
                      (lambda (bc1 mp1 reg-list)
                        (let reg (gensym 'reg)
-                         (return (cons ['<- reg 'closure func . reg-list] bc1)
+                         (return (cons ['closure [func . reg-list] reg] bc1)
                                  mp1
                                  reg))))
       bc mp ['%closure-func clo] return => (code-gen bc mp clo
                                               (lambda (bc1 mp1 reg)
-                                                (return (cons ['<- 'pc reg] bc1) mp1 reg)))
+                                                (return (cons ['mov reg 'm.pc] bc1) mp1 reg)))
       bc mp ['%closure-ref clo n] return => (code-gen bc mp clo
                                                       (lambda (bc1 mp1 r1)
                                                         (let reg (gensym 'reg)
                                                           (return
-                                                           (cons ['<- reg 'env r1 n] bc1)
+                                                           (cons ['closure-get r1 n reg] bc1)
                                                            mp1
                                                            reg))))
       bc mp [f . args] return =>
@@ -193,13 +193,13 @@
                      (lambda (bc1 mp1 reg-list)
                        (code-gen-call 0 (cdr reg-list) bc1 mp1
                                       (lambda (bc2 mp2)
-                                        (return (cons 'jump bc2) mp2 (gensym 'reg)))))))
+                                        (return (cons ['jump] bc2) mp2 (gensym 'reg)))))))
 
 (func code-gen-call
       idx [] bc mp return => (return bc mp)
       idx [x . y] bc mp return => (code-gen-call (+ idx 1)
                                                  y
-                                                 (cons ['<- 'stack idx x] bc)
+                                                 (cons ['stack-get idx x] bc)
                                                  mp
                                                  return))
 
@@ -217,7 +217,7 @@
       idx bc mp [] return => (return bc mp)
       idx bc mp [x . y] return => (let reg (gensym 'reg)
                                     (code-gen-params (+ idx 1)
-                                                     (cons ['<- reg 'stack idx] bc)
+                                                     (cons ['stack-set idx reg] bc)
                                                      (cons [x . reg] mp)
                                                      y return)))
 
