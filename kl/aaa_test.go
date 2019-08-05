@@ -59,74 +59,41 @@ func halt(m *VM1) {
 	m.pc = nil
 }
 
-func gen1(m *VM1) {
-	var k6, x1 Obj
-	k6 = m.stack[1]
-	x1 = m.stack[2]
-
-	tmp0 := closureFn(k6)
-	tmp1 := primNumberMultiply(x1, x1)
-
-	m.pc = tmp0
-	m.stack[0] = k6
-	m.stack[1] = tmp1
-}
-
-func gen2(m *VM1) {
-	var r4 Obj
-	r4 = m.stack[1]
-	var r2 Obj
-	r2 = PrimNumberAdd(r4, makeInteger(1))
-
-	m.pc = halt
-	m.stack[0] = r2
-}
-
-func gen3(m *VM1) {
-	var r5 Obj
-	r5 = makeClosure(gen1)
-	r3 := funSet(MakeSymbol("square"), r5)
-
-	tmp0 := closureFn(r3)
-	tmp1 := makeClosure(gen2)
-
-	m.pc = tmp0
-	m.stack[0] = r3
-	m.stack[1] = tmp1
-	m.stack[2] = makeInteger(5)
-}
-
 func clofun35259(m *VM1) {
-	reg35801 := makeClosure(clofun35255)
-	reg35864 := MakeSymbol("square")
-	reg35887 := funSet(reg35864, reg35801)
-	reg35952 := reg35887
-	m.pc = closureFn(reg35952)
-	reg36068 := makeClosure(clofun35155)
-	reg36088 := makeInteger(5)
-	m.stack[0] = reg35952
-	m.stack[1] = reg36068
-	m.stack[2] = reg36088
+	reg9159 := makeClosure(clofun35255)
+	reg9222 := MakeSymbol("square")
+	reg9245 := funSet(reg9222, reg9159)
+	_ = reg9245
+	reg9310 := GetSymbolValue(reg9222)
+	m.pc = closureFn(reg9310)
+	reg9426 := makeClosure(clofun35155)
+	reg9446 := MakeInteger(5)
+	m.stack[0] = reg9310
+	m.stack[1] = reg9426
+	m.stack[2] = reg9446
 	return
 }
-
 func clofun35255(m *VM1) {
-	// reg36124 := m.stack[0]
-	reg36128 := m.stack[1]
-	reg36132 := m.stack[2]
-	m.pc = closureFn(reg36128)
-	reg36293 := primNumberMultiply(reg36132, reg36132)
-	m.stack[0] = reg36128
-	m.stack[1] = reg36293
+	reg9482 := m.stack[0]
+	_ = reg9482
+	reg9486 := m.stack[1]
+	_ = reg9486
+	reg9490 := m.stack[2]
+	_ = reg9490
+	m.pc = closureFn(reg9486)
+	reg9651 := primNumberMultiply(reg9490, reg9490)
+	m.stack[0] = reg9486
+	m.stack[1] = reg9651
 	return
 }
-
 func clofun35155(m *VM1) {
-	// reg36326 := m.stack[0]
-	reg36330 := m.stack[1]
-	reg36404 := MakeInteger(1)
-	reg36405 := PrimNumberAdd(reg36330, reg36404)
-	m.stack[0] = reg36405
+	reg9684 := m.stack[0]
+	_ = reg9684
+	reg9688 := m.stack[1]
+	_ = reg9688
+	reg9762 := MakeInteger(1)
+	reg9763 := PrimNumberAdd(reg9688, reg9762)
+	m.stack[0] = reg9763
 	m.pc = nil
 	return
 }

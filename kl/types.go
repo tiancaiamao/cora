@@ -292,10 +292,9 @@ func GetSymbol(o Obj) string {
 // 	o.function = f
 // }
 
-// func GetSymbolValue(sym Obj) Obj {
-// 	o := &symbolArray[mustSymbol(sym).offset]
-// 	return o.value
-// }
+func GetSymbolValue(sym Obj) Obj {
+	return mustSymbol(sym).value
+}
 
 func cons(x, y Obj) Obj {
 	tmp := scmPair{

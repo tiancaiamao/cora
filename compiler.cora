@@ -180,7 +180,7 @@
                                  reg))))
       bc mp ['%closure-func clo] return => (code-gen bc mp clo
                                               (lambda (bc1 mp1 reg)
-                                                (return (cons ['mov reg 'm.pc] bc1) mp1 reg)))
+                                                (return (cons ['savepc reg] bc1) mp1 reg)))
       bc mp ['%closure-ref clo n] return => (code-gen bc mp clo
                                                       (lambda (bc1 mp1 r1)
                                                         (let reg (gensym 'reg)
@@ -199,7 +199,7 @@
       idx [] bc mp return => (return bc mp)
       idx [x . y] bc mp return => (code-gen-call (+ idx 1)
                                                  y
-                                                 (cons ['stack-get idx x] bc)
+                                                 (cons ['stack-set idx x] bc)
                                                  mp
                                                  return))
 
@@ -217,7 +217,7 @@
       idx bc mp [] return => (return bc mp)
       idx bc mp [x . y] return => (let reg (gensym 'reg)
                                     (code-gen-params (+ idx 1)
-                                                     (cons ['stack-set idx reg] bc)
+                                                     (cons ['stack-get idx reg] bc)
                                                      (cons [x . reg] mp)
                                                      y return)))
 
