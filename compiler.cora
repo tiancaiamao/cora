@@ -1,12 +1,27 @@
 (defun builtin? (x)
   (elem? x '(+ - * / = set halt)))
 
-(defun non-evaluate? (lit)
-  (or (symbol? lit) (string? lit) (number? lit) (boolean? lit)))
+(func parse
+      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x))
+      _ ['quote x] => ['quote x]
+      env x => (if (elem? x env) x ['%global x]) where (symbol? x)
+      env ['lambda args body] => ['lambda args (parse (append args env) body)]
+      env ['if . args] => ['if . (map (parse env) args)]
+      env ['do x y] => ['do (parse env x) (parse env y)]
+      env [op . args] => [['%builtin op] . (map (parse env) args)] where (builtin? op)
+      env ls => (map (parse env) ls))
+
+(defun parse-ast (x) (parse () x))
+
+(func cps-protect?
+      ['%const x] => true
+      ['%global x] => true
+      ['quote x] => true
+      x => true where (symbol? x)
+      x => false)
 
 (func cps
-      lit cc => [cc lit] where (non-evaluate? lit)
-      ['quote x] cc => [cc ['quote x]]
+      lit cc => [cc lit] where (cps-protect? lit)
       ['if a b c] cc => (let va (gensym 'r)
                              (cps a ['lambda [va]
                                              ['if va
@@ -14,34 +29,33 @@
                                                  (cps c cc)]]))
       ['do x y] cc => (cps x ['lambda ['_] (cps y cc)])
       ['lambda args body] cc => (let k (gensym 'k)
-                                     [cc ['lambda (cons k args)
-                                                  (cps body k)]])
+                                  [cc ['lambda (cons k args)
+                                        (cps body k)]])
       [['lambda [] body] []] cc =>  (cps body cc)
       [['lambda [x] body] a] cc => (cps a ['lambda [x] (cps body cc)])
       [['lambda [x y] body] a b] cc => (cps a ['lambda [x]
                                                 (cps b ['lambda [y]
-                                                                (cps body cc)])])
-      [op . args] cc => (cps-args []
-                                  (lambda (nargs) [cc (cons op nargs)])
-                                  args) where (builtin? op)
+                                                         (cps body cc)])])
+      [['%builtin op] . args] cc => (cps-args []
+                                             (lambda (nargs) [cc (cons ['%builtin op] nargs)])
+                                             args)
       [f . args] cc => (let f0 (gensym 'f)
-                            (let cc1 (cps-args []
-                                               (lambda (nargs) (cons f0 (cons cc nargs)))
-                                               args)
-                                 (cps f ['lambda [f0]
-                                                 cc1]))))
+                         (let cc1 (cps-args []
+                                            (lambda (nargs) (cons f0 (cons cc nargs)))
+                                            args)
+                           (cps f ['lambda [f0]
+                                    cc1]))))
 
 (func cps-args
       res fn [] => (fn (reverse res))
-      res fn [x . y] => (cps-args (cons x res) fn y) where (or (symbol? x) (non-evaluate? x))
-      res fn [['quote x] . y] => (cps-args (cons ['quote x] res) fn y)
+      res fn [x . y] => (cps-args (cons x res) fn y) where (non-evaluate? x)
       res fn [x . y] => (let x0 (gensym 'arg)
                              (cps x ['lambda [x0]
                                   (cps-args (cons x0 res)
                                             fn y)])))
 
 (defun cps-convert (ast)
-  (cps ast 'halt))
+  (cps ast '(%builtin halt)))
 
 (func union
       [] s2 => s2
@@ -57,9 +71,15 @@
       f acc [] => acc
       f acc [x . y] => (foldl f (f acc x) y))
 
+(func convert-protect?
+      ['%const x] => true
+      ['%global x] => true
+      ['%builtin op] => true
+      ['quote x] => true
+      x => false)
+
 (func free-vars
-      x => [] where (or (number? x) (string? x) (boolean? x))
-      x => [] where (builtin? x)
+      x => [] where (convert-protect? x)
       x => [x] where (symbol? x)
       ['lambda args body] => (diff (free-vars body) args)
       [f . args] => (foldl union [] (map free-vars [f . args])))
@@ -73,19 +93,18 @@
   (pos-in-list0 0 x l))
 
 (func convert
-      self fvs x => x where (or (number? x) (string? x) (boolean? x))
-      _ _ ['quote x] => ['quote x]
+      _ _ x => x where (convert-protect? x)
       self fvs var => (let pos (pos-in-list var fvs)
-                           (if (= -1 pos)
-                               var
-                             ['%closure-ref self pos])) where (symbol? var)
+                        (if (= -1 pos)
+                            var
+                            ['%closure-ref self pos])) where (symbol? var)
       self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
       self fvs ['lambda args body] =>
       (let fvs1 (free-vars ['lambda args body])
            self1 (gensym 'clo)
            ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] . fvs1])
       self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
-      self fvs [f . args] => [f . (map (convert self fvs) args)] where (builtin? f)
+      self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
       self fvs [f . args] => (let f0 (convert self fvs f)
                                   args0 (map (convert self fvs) args)
                                   [['%closure-func f0] f0 . args0]))
@@ -127,7 +146,7 @@
       var [_ . y] => (assq var y))
 
 (func code-gen
-      bc mp x return => (let reg (gensym 'reg)
+      bc mp ['%const x] return => (let reg (gensym 'reg)
                           (return (cons ['const x reg] bc)
                                   (cons (cons x reg) mp)
                                   reg)) where (number? x)
@@ -163,14 +182,21 @@
                                                     reg)))
       bc mp ['quote x] return => (let reg (gensym 'reg)
                                    (return (cons ['intern x reg] bc) mp reg))
-      bc mp [op x y] return =>
+      bc mp ['%global x] return => (let reg (gensym 'reg)
+                                     (return (cons ['global x reg] bc) mp reg))
+      bc mp [['%builtin op] x] return => (code-gen bc mp x
+                                                   (lambda (bc1 mp1 x1)
+                                                     (let reg (gensym 'reg)
+                                                       (return (cons ['builtin [op x1] reg] bc1)
+                                                               mp1 reg))))
+      bc mp [['%builtin op] x y] return =>
       (code-gen bc mp x
                 (lambda (bc1 mp1 r1)
                   (code-gen bc1 mp1 y
                             (lambda (bc2 mp2 r2)
                               (let reg (gensym 'reg)
                                 (return (cons ['builtin [op r1 r2] reg] bc2) mp2
-                                        reg)))))) where (builtin? op)
+                                        reg))))))
       bc mp ['%closure func . args] return =>
       (code-gen-args [] bc mp args
                      (lambda (bc1 mp1 reg-list)

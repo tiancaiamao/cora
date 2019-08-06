@@ -59,41 +59,41 @@ func halt(m *VM1) {
 	m.pc = nil
 }
 
-func clofun35259(m *VM1) {
-	reg9159 := makeClosure(clofun35255)
-	reg9222 := MakeSymbol("square")
-	reg9245 := funSet(reg9222, reg9159)
-	_ = reg9245
-	reg9310 := GetSymbolValue(reg9222)
-	m.pc = closureFn(reg9310)
-	reg9426 := makeClosure(clofun35155)
-	reg9446 := MakeInteger(5)
-	m.stack[0] = reg9310
-	m.stack[1] = reg9426
-	m.stack[2] = reg9446
+func clofun20806(m *VM1) {
+	reg20870 := makeClosure(clofun20802)
+	reg20939 := MakeSymbol("square")
+	reg20964 := funSet(reg20939, reg20870)
+	_ = reg20964
+	reg21015 := GetSymbolValue(MakeSymbol("square"))
+	m.pc = closureFn(reg21015)
+	reg21141 := makeClosure(clofun20672)
+	reg21163 := MakeInteger(5)
+	m.stack[0] = reg21015
+	m.stack[1] = reg21141
+	m.stack[2] = reg21163
 	return
 }
-func clofun35255(m *VM1) {
-	reg9482 := m.stack[0]
-	_ = reg9482
-	reg9486 := m.stack[1]
-	_ = reg9486
-	reg9490 := m.stack[2]
-	_ = reg9490
-	m.pc = closureFn(reg9486)
-	reg9651 := primNumberMultiply(reg9490, reg9490)
-	m.stack[0] = reg9486
-	m.stack[1] = reg9651
+func clofun20802(m *VM1) {
+	reg21201 := m.stack[0]
+	_ = reg21201
+	reg21205 := m.stack[1]
+	_ = reg21205
+	reg21209 := m.stack[2]
+	_ = reg21209
+	m.pc = closureFn(reg21205)
+	reg21384 := primNumberMultiply(reg21209, reg21209)
+	m.stack[0] = reg21205
+	m.stack[1] = reg21384
 	return
 }
-func clofun35155(m *VM1) {
-	reg9684 := m.stack[0]
-	_ = reg9684
-	reg9688 := m.stack[1]
-	_ = reg9688
-	reg9762 := MakeInteger(1)
-	reg9763 := PrimNumberAdd(reg9688, reg9762)
-	m.stack[0] = reg9763
+func clofun20672(m *VM1) {
+	reg21419 := m.stack[0]
+	_ = reg21419
+	reg21423 := m.stack[1]
+	_ = reg21423
+	reg21505 := MakeInteger(1)
+	reg21506 := PrimNumberAdd(reg21423, reg21505)
+	m.stack[0] = reg21506
 	m.pc = nil
 	return
 }
@@ -101,7 +101,7 @@ func clofun35155(m *VM1) {
 func TestXX(t *testing.T) {
 	var m VM1
 	m.stack = make([]Obj, 20)
-	m.pc = clofun35259
+	m.pc = clofun20806
 	trampoline(&m)
 
 	fmt.Println(ObjString(m.stack[0]))

@@ -190,6 +190,11 @@
 (defun filter (fn l)
   (filter-h () fn l))
 
+(defun append (l1 l2)
+       (if (= l1 ())
+           l2
+           (cons (car l1) (append (cdr l1) l2))))
+
 (defun rules-arg-count (rules)
   (let pats (rules-patterns () rules)
     len (lambda (x) (length (cdr x)))

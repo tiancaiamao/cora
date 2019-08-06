@@ -99,6 +99,10 @@ func generateFunc(w *os.File, sexp kl.Obj) error {
 			sym := kl.Cadr(inst)
 			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
 			fmt.Fprintf(w, "%s := MakeSymbol(\"%s\")\n", symbolString(dst), symbolString(sym))
+		case "global":
+			sym := kl.Cadr(inst)
+			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			fmt.Fprintf(w, "%s := GetSymbolValue(MakeSymbol(\"%s\"))\n", symbolString(dst), symbolString(sym))
 		case "builtin":
 			// (builtin (OP ARG1 ARG2 ...) DST)
 			src := kl.Cadr(inst)
@@ -107,9 +111,6 @@ func generateFunc(w *os.File, sexp kl.Obj) error {
 		case "jump":
 			// (jump)
 			fmt.Fprintf(w, "return\n}\n")
-		case "halt":
-			// (halt)
-			fmt.Fprintf(w, "m.pc = nil\nreturn\n}\n")
 		case "if":
 		default:
 			return fmt.Errorf("unknown instruct: %s", kind)
@@ -128,6 +129,8 @@ func generateBuiltinCall(w *os.File, src, dst kl.Obj) {
 	case "set":
 		fmt.Fprintf(w, "%s := funSet(%s, %s)\n", symbolString(dst), symbolString(input[1]), symbolString(input[2]))
 		fmt.Fprintf(w, "_ = %s\n", symbolString(dst))
+	case "halt":
+		fmt.Fprintf(w, "m.stack[0] = %s\nm.pc = nil\nreturn\n}\n", symbolString(input[1]))
 	default:
 		fmt.Fprintf(w, "error, unknown builtin %s\n", kl.GetSymbol(input[0]))
 	}
