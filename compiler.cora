@@ -1,32 +1,17 @@
 (defun builtin? (x)
   (elem? x '(+ - * / = set halt)))
 
-(func parse
-      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x))
-      _ ['quote x] => ['quote x]
-      env x => (if (elem? x env) x ['%global x]) where (symbol? x)
-      env ['lambda args body] => ['lambda args (parse (append args env) body)]
-      env ['if . args] => ['if . (map (parse env) args)]
-      env ['do x y] => ['do (parse env x) (parse env y)]
-      env [op . args] => [['%builtin op] . (map (parse env) args)] where (builtin? op)
-      env ls => (map (parse env) ls))
-
-(defun parse-ast (x) (parse () x))
-
-(func cps-protect?
-      ['%const x] => true
-      ['%global x] => true
-      ['quote x] => true
-      x => true where (symbol? x)
-      x => false)
+(defun cps-protect? (x)
+  (or (number? x) (string? x) (boolean? x) (symbol? x)
+      (and (pair? x) (= (car x) 'quote))))
 
 (func cps
       lit cc => [cc lit] where (cps-protect? lit)
       ['if a b c] cc => (let va (gensym 'r)
-                             (cps a ['lambda [va]
-                                             ['if va
-                                                 (cps b cc)
-                                                 (cps c cc)]]))
+                          (cps a ['lambda [va]
+                                   ['if va
+                                        (cps b cc)
+                                        (cps c cc)]]))
       ['do x y] cc => (cps x ['lambda ['_] (cps y cc)])
       ['lambda args body] cc => (let k (gensym 'k)
                                   [cc ['lambda (cons k args)
@@ -36,26 +21,39 @@
       [['lambda [x y] body] a b] cc => (cps a ['lambda [x]
                                                 (cps b ['lambda [y]
                                                          (cps body cc)])])
-      [['%builtin op] . args] cc => (cps-args []
-                                             (lambda (nargs) [cc (cons ['%builtin op] nargs)])
-                                             args)
-      [f . args] cc => (let f0 (gensym 'f)
-                         (let cc1 (cps-args []
-                                            (lambda (nargs) (cons f0 (cons cc nargs)))
-                                            args)
-                           (cps f ['lambda [f0]
-                                    cc1]))))
+      [op . args] cc => (cps-args []
+                                  (lambda (nargs) [cc (cons op nargs)])
+                                  args) where (builtin? op)
+      [f . args] cc => (if (symbol? f)
+                           (cps-args []
+                                     (lambda (nargs) (cons f (cons cc nargs)))
+                                     args)
+                           (let f0 (gensym 'f)
+                             (let cc1 (cps-args []
+                                                (lambda (nargs) (cons f0 (cons cc nargs)))
+                                                args)
+                               (cps f ['lambda [f0]
+                                        cc1])))))
 
 (func cps-args
       res fn [] => (fn (reverse res))
-      res fn [x . y] => (cps-args (cons x res) fn y) where (non-evaluate? x)
+      res fn [x . y] => (cps-args (cons x res) fn y) where (cps-protect? x)
       res fn [x . y] => (let x0 (gensym 'arg)
                              (cps x ['lambda [x0]
                                   (cps-args (cons x0 res)
                                             fn y)])))
 
 (defun cps-convert (ast)
-  (cps ast '(%builtin halt)))
+  (cps ast 'halt))
+
+(func parse
+      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x))
+      _ ['quote x] => ['quote x]
+      env x => (if (elem? x env) x ['%global x]) where (symbol? x)
+      env ['lambda args body] => ['lambda args (parse (append args env) body)]
+      env ['if . args] => ['if . (map (parse env) args)]
+      env [op . args] => [['%builtin op] . (map (parse env) args)] where (builtin? op)
+      env ls => (map (parse env) ls))
 
 (func union
       [] s2 => s2
@@ -82,6 +80,7 @@
       x => [] where (convert-protect? x)
       x => [x] where (symbol? x)
       ['lambda args body] => (diff (free-vars body) args)
+      [if x y z] => (foldl union [] (map free-vars [x y z]))
       [f . args] => (foldl union [] (map free-vars [f . args])))
 
 (func pos-in-list0
@@ -132,10 +131,10 @@
                                                    (collect-lambda-list (cons x1 res) init1 y return))))
 
 (defun closure-convert-debug (ast)
-  (convert '_ [] ast))
+  (convert '_ [] (parse [] ast)))
 
 (defun closure-convert (ast)
-  (let res (convert '_ [] ast)
+  (let res (convert '_ [] (parse [] ast))
     (collect-lambda [] res
                     (lambda (res1 ast1)
                       (cons [(gensym 'clofun) ['lambda () ast1]] res1)))))
@@ -276,6 +275,7 @@
 
 ;; (set '%closure list)
 ;; (defun %closure-func (x) (list-ref x 0))
+;; (defun %closure-ref (x n) (list-ref x (+ n 1)))
 
 ;; (closure-convert '((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) (#f4065 (lambda (#arg4038) (halt (+ #arg4038 1))) 5)) square)) (set (quote square) #arg4118))) (lambda (#k4138 x) (#k4138 (* x x)))))
 
