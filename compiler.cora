@@ -44,7 +44,7 @@
                                             fn y)])))
 
 (defun cps-convert (ast)
-  (cps ast 'halt))
+  (cps ast '(lambda (x) (halt x))))
 
 (func parse
       _ x => ['%const x] where (or (number? x) (string? x) (boolean? x))
@@ -112,13 +112,20 @@
       res ['if a b c] return => (collect-lambda-list [] res [a b c]
                                                      (lambda (res ls)
                                                        (return res (cons 'if ls))))
+      res ['lambda params body] return =>
+      (let name (gensym 'clofun)
+        (collect-lambda res body
+                        (lambda (res1 body1)
+                          (return (cons [name ['lambda params body1]] res1)
+                                  name))))
       res [['lambda params body] . args] return =>
       (collect-lambda res body (lambda (res1 body1)
                                  (collect-lambda-list [] res1 args
                                                       (lambda (res2 args1)
                                                         (return res2 [['lambda params body1] . args1])))))
-      res ['%closure lam . fvs] return => (let name (gensym 'clofun)
-                                            (return (cons [name lam] res) ['%closure name . fvs]))
+      res ['%closure lam . fvs] return => (collect-lambda res lam
+                                                          (lambda (res1 name)
+                                                            (return res1 ['%closure name . fvs])))
       res [f . args] return => (collect-lambda-list [] res args
                                                     (lambda (res1 args1)
                                                       (return res1 (cons f args1))))
@@ -276,6 +283,9 @@
 ;; (set '%closure list)
 ;; (defun %closure-func (x) (list-ref x 0))
 ;; (defun %closure-ref (x n) (list-ref x (+ n 1)))
+;; (defun %global (x) x)
+;; (defun %builtin (x) x)
+;; (defun %const (x) x)
 
 ;; (closure-convert '((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) (#f4065 (lambda (#arg4038) (halt (+ #arg4038 1))) 5)) square)) (set (quote square) #arg4118))) (lambda (#k4138 x) (#k4138 (* x x)))))
 
