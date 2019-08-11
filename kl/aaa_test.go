@@ -59,50 +59,78 @@ func halt(m *VM1) {
 	m.pc = nil
 }
 
-func clofun20806(m *VM1) {
-	reg20870 := makeClosure(clofun20802)
-	reg20939 := MakeSymbol("square")
-	reg20964 := funSet(reg20939, reg20870)
-	_ = reg20964
-	reg21015 := GetSymbolValue(MakeSymbol("square"))
-	m.pc = closureFn(reg21015)
-	reg21141 := makeClosure(clofun20672)
-	reg21163 := MakeInteger(5)
-	m.stack[0] = reg21015
-	m.stack[1] = reg21141
-	m.stack[2] = reg21163
-	return
-}
-func clofun20802(m *VM1) {
-	reg21201 := m.stack[0]
-	_ = reg21201
-	reg21205 := m.stack[1]
-	_ = reg21205
-	reg21209 := m.stack[2]
-	_ = reg21209
-	m.pc = closureFn(reg21205)
-	reg21384 := primNumberMultiply(reg21209, reg21209)
-	m.stack[0] = reg21205
-	m.stack[1] = reg21384
-	return
-}
-func clofun20672(m *VM1) {
-	reg21419 := m.stack[0]
-	_ = reg21419
-	reg21423 := m.stack[1]
-	_ = reg21423
-	reg21505 := MakeInteger(1)
-	reg21506 := PrimNumberAdd(reg21423, reg21505)
-	m.stack[0] = reg21506
-	m.pc = nil
-	return
-}
-
 func TestXX(t *testing.T) {
 	var m VM1
 	m.stack = make([]Obj, 20)
-	m.pc = clofun20806
+	m.pc = clofun17313
 	trampoline(&m)
 
 	fmt.Println(ObjString(m.stack[0]))
+}
+
+func clofun17313(m *VM1) {
+	reg18689 := makeClosure(clofun16875)
+	reg18758 := MakeSymbol("fact")
+	reg18783 := funSet(reg18758, reg18689)
+	_ = reg18783
+	reg18852 := GetSymbolValue(MakeSymbol("fact"))
+	m.pc = closureFn(reg18852)
+	reg18874 := GetSymbolValue(MakeSymbol("fact"))
+	reg18899 := makeClosure(clofun16732)
+	reg18921 := MakeInteger(5)
+	m.stack[0] = reg18874
+	m.stack[1] = reg18899
+	m.stack[2] = reg18921
+	return
+}
+func clofun16875(m *VM1) {
+	reg18959 := m.stack[0]
+	_ = reg18959
+	reg18963 := m.stack[1]
+	_ = reg18963
+	reg18967 := m.stack[2]
+	_ = reg18967
+	reg19052 := MakeInteger(0)
+	reg19053 := PrimEqual(reg18967, reg19052)
+	if reg19053 == True {
+		m.pc = closureFn(reg18963)
+		reg19242 := MakeInteger(1)
+		m.stack[0] = reg18963
+		m.stack[1] = reg19242
+		return
+	} else {
+		reg19343 := MakeInteger(1)
+		reg19344 := primNumberSubtract(reg18967, reg19343)
+		reg19413 := GetSymbolValue(MakeSymbol("fact"))
+		m.pc = closureFn(reg19413)
+		reg19435 := GetSymbolValue(MakeSymbol("fact"))
+		reg19544 := makeClosure(clofun17042, reg18963, reg18967)
+		m.stack[0] = reg19435
+		m.stack[1] = reg19544
+		m.stack[2] = reg19344
+		return
+	}
+}
+func clofun17042(m *VM1) {
+	reg19610 := m.stack[0]
+	_ = reg19610
+	reg19614 := m.stack[1]
+	_ = reg19614
+	reg19705 := closureRef(reg19610, 0)
+	m.pc = closureFn(reg19705)
+	reg19757 := closureRef(reg19610, 0)
+	reg19827 := closureRef(reg19610, 1)
+	reg19852 := primNumberMultiply(reg19827, reg19614)
+	m.stack[0] = reg19757
+	m.stack[1] = reg19852
+	return
+}
+func clofun16732(m *VM1) {
+	reg19887 := m.stack[0]
+	_ = reg19887
+	reg19891 := m.stack[1]
+	_ = reg19891
+	m.stack[0] = reg19891
+	m.pc = nil
+	return
 }

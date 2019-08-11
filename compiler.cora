@@ -166,12 +166,13 @@
       bc mp ['if x y z] return =>
       (code-gen bc mp x
                 (lambda (bc1 mp1 r1)
-                  (code-gen bc1 mp1 y
-                            (lambda (bc2 mp2 r2)
-                              (code-gen bc2 mp2 z
-                                        (lambda (bc3 mp3 r3)
+                  (code-gen [] mp1 y
+                            (lambda (bcy mp2 r2)
+                              (code-gen [] mp2 z
+                                        (lambda (bcz mp3 r3)
                                           (let reg (gensym 'reg)
-                                            (return (cons ['if r1 r2 r3 reg] bc3) mp3 reg))))))))
+                                            (return (cons ['if r1 (reverse bcy)
+                                                               (reverse bcz)] bc) mp3 reg))))))))
       bc mp [['lambda params body] . args] return =>
       (code-gen-args [] bc mp args
                      (lambda (bc1 mp1 reg-list)
