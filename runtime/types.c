@@ -1,43 +1,13 @@
-#include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
+#include "types.h"
 
-typedef uintptr_t Obj;
+typedef uint8_t scmHeadType;
 
-// 000 fixnum
-// 001 non-fixnum
-// 001 symbol
-// 011 cons
-// 101 immediate const (boolean, null, undef...)
-// 111 general pointer (string, vector, number, error...)
-#define TAG_FIXNUM 0x0
-#define TAG_SYMBOL 0x1
-#define TAG_CONS 0x3
-#define TAG_IMMEDIATE_CONST 0x5
-#define TAG_PTR 0x7
-
-#define TAG_SHIFT 3
-#define TAG_MASK 0x7
-
-// 1-101 boolean
-// 0-101 other constant
-#define TAG_BOOLEAN 0xd
-
-#define tag(x) ((x) & TAG_MASK)
-#define iscons(x) (tag(x) == TAG_CONS)
-#define issymbol(x) (tag(x) == TAG_SYMBOL)
-#define isfixnum(x) (((x) & 1) == 0)
-#define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
-
-const Obj True = ((1 << (TAG_SHIFT+1)) & TAG_BOOLEAN);
-const Obj False = ((2 << (TAG_SHIFT+1)) & TAG_BOOLEAN);
-const Obj Nil = ((666 << (TAG_SHIFT+1)) & TAG_IMMEDIATE_CONST);
-const Obj Undef = ((42 << TAG_SHIFT) & TAG_IMMEDIATE_CONST);
-
-typedef int scmHead;
 enum {
 	scmHeadNumber,
 	scmHeadCons,
@@ -52,11 +22,16 @@ enum {
 	scmHeadError,
 };
 
-#define ptr(x) ((void*)((x)&~TAG_PTR))
-#define fixnum(x) (((uint)(x))>>1)
-#define car(v) (((struct scmCons*)(ptr(v)))->car)
-#define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
-#define cons makeCons
+const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
+const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
+const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
+const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
+
+typedef struct {
+  uint8_t mark;
+  scmHeadType type;
+} scmHead;
+
 
 struct scmCons {
   scmHead head;
@@ -70,30 +45,56 @@ struct scmSymbol {
   char *str;
 };
 
+Obj
+GetSymbolValue(Obj sym) {
+  struct scmSymbol* s = ptr(sym);
+  return s->value;
+}
+
 struct scmString {
   scmHead head;
   int sz;
   char data[];
 };
 
-struct VM;
-typedef void(*ClosureFn)(struct VM*);
 
-struct VM {
-  Obj* stack;
-  ClosureFn pc;
-};
+struct Managed;
+
+struct VM*
+newVM() {
+  struct VM* m = malloc(sizeof(struct VM));
+  m->size = 16;
+  m->idx = 0;
+  m->stack = malloc(sizeof(Obj) * m->size);
+  m->pc = NULL;
+  return m;
+}
 
 struct scmClosure {
   scmHead head;
   ClosureFn fn;
+  int count;
   Obj args[];
 };
 
-void* newObj(scmHead tp, int sz) {
+
+static void gcKeep(struct Managed* frame, scmHead* o);
+
+struct Managed {
+  scmHead** data;
+  int size;
+  int cap;
+};
+
+struct Managed mem;
+
+void*
+newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
   assert(((Obj)p & TAG_PTR) == 0);
-  *p = tp;
+  p->mark = 0;
+  p->type = tp;
+  gcKeep(&mem, p);
   return (void*)p;
 }
 
@@ -108,7 +109,7 @@ Obj makeString(char *s, int len) {
   int sz = len + sizeof(struct scmString);
   struct scmString* str = newObj(scmHeadString, sz);
   str->sz = len;
-  memcpy(str->data, s, len);
+  memcpy(&str->data[0], s, len);
   return ((Obj)(&str->head) | TAG_PTR);
 }
 
@@ -135,13 +136,189 @@ Obj makeSymbol(char *s) {
   return ((Obj)(p->sym)) | TAG_SYMBOL;
 }
 
-#define intern(x) makeSymbol(x)
+Obj
+makeClosure(ClosureFn fn, int count, ...) {
+  int sz = sizeof(struct scmClosure) + count*sizeof(Obj);
+  struct scmClosure* clo = newObj(scmHeadClosure, sz);
+  clo->fn = fn;
+  clo->count = count;
 
-Obj makeClosure(ClosureFn fn, ...) {
-  Obj val;
-  va_list args;
-  va_start(args, fn);
-  val = va_arg(args, Obj);
-  va_end(args);
+  va_list ap;
+  va_start(ap, count);
+  for (int i=0; i<count; i++) {
+    clo->args[i] = va_arg(ap, Obj);
+  }
+  va_end(ap);
+
+  return ((Obj)(&clo->head) | TAG_PTR);
 }
 
+ClosureFn
+closureFn(Obj o) {
+  struct scmClosure* clo = ptr(o);
+  return clo->fn;
+}
+
+Obj
+closureRef(Obj o, int idx) {
+  struct scmClosure* clo = ptr(o);
+  return clo->args[idx];
+}
+
+static void init() {
+  mem.cap = 1024;
+  mem.size = 0;
+  mem.data = (scmHead**)malloc(sizeof(scmHead*) * mem.cap);
+}
+
+static void
+gcKeep(struct Managed* frame, scmHead* o) {
+  if (frame->size <= frame->cap) {
+    scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*));
+    memcpy(data, frame->data, frame->size * sizeof(scmHead*));
+    free(frame->data);
+    frame->data = data;
+    frame->cap = 2 * frame->cap;
+  }
+  frame->data[frame->size] = o;
+  frame->size++;
+}
+
+#define notptr(x) ((tag(x) == TAG_FIXNUM) || (tag(x) == TAG_IMMEDIATE_CONST))
+
+static void
+mark(Obj o) {
+  if (notptr(o)) {
+    return;
+  }
+  scmHead* head = ptr(o);
+  if (head->mark != 0) {
+    return; // already marked
+  }
+
+  switch (head->type) {
+  case scmHeadVector:
+    // TODO
+    break;
+  case scmHeadString:
+    break;
+  case scmHeadClosure:
+    {
+      struct scmClosure* clo = (void*)head;
+      for (int i=0; i < clo->count; i++) {
+        mark(clo->args[i]);
+      }
+      break;
+    }
+  case scmHeadSymbol:
+    mark(((struct scmSymbol*)(head))->value);
+    break;
+  default:
+    break;
+  }
+  head->mark = 1;
+}
+
+static void
+sweep(struct Managed *frame) {
+  int pos = 0;
+  for (int i = 0; i < frame->size; i++) {
+    scmHead* ptr = frame->data[i];
+    if (ptr->mark) {
+      ptr->mark = 0;
+      frame->data[pos] = ptr;
+      pos++;
+    } else {
+      free(ptr);
+    }
+  }
+  frame->size = pos;
+}
+
+void
+gc(struct VM* m) {
+  for (int i=0; i < m->idx; i++) {
+    Obj o = m->stack[i];
+    mark(o);
+  }
+  sweep(&mem);
+}
+
+Obj funSet(Obj sym, Obj val) {
+  struct scmSymbol* s = ptr(sym);
+  s->value = val;
+  return val;
+}
+
+#ifdef _UNIT_TEST_
+
+#include <stdio.h>
+
+
+static void
+clofun(struct VM *m) {
+}
+
+void testBasic() {
+  printf("test basic...");
+  Obj p = cons(fixnum(3), Nil);
+  Obj hd = car(p);
+  Obj tl = cdr(p);
+  assert(hd == fixnum(3));
+  assert(tl == Nil);
+  assert(iscons(p));
+
+  Obj s = intern("test");
+  Obj s1 = intern("test");
+  Obj s2 = intern("xxx");
+  assert(s == s1);
+  assert(s != s2);
+
+  assert(isboolean(s) == false);
+  assert(isboolean(True));
+  assert(isboolean(False));
+  assert(isboolean(Nil) == false);
+  assert(isboolean(Undef) == false);
+
+  Obj x = makeString("asdf", 4);
+  assert(tag(x) == TAG_PTR);
+  assert(((scmHead*)ptr(x))->type == scmHeadString);
+
+  Obj clo = makeClosure(clofun, 3, fixnum(5), s, hd);
+  assert(closureFn(clo) == clofun);
+  assert(closureRef(clo, 0) == fixnum(5));
+  assert(closureRef(clo, 1) == s);
+  assert(closureRef(clo, 2) == hd);
+
+  printf("success\n");
+}
+
+void testGC() {
+  printf("test gc...");
+
+  struct VM* m = newVM();
+
+  Obj s = makeString("abcd", 4);
+  Obj o = cons(fixnum(4), Nil);
+  Obj x = cons(fixnum(5), o);
+  Obj j = cons(fixnum(6), x);
+  m->stack[0] = j;
+  m->idx = 1;
+
+  gc(m);
+
+  assert(car(o) == fixnum(4));
+  assert(cdr(j) == x);
+
+  free(m);
+
+  printf("success\n");
+}
+
+int main(int argc, char *argv[]) {
+  init();
+  testBasic();
+  testGC();
+}
+
+#endif
