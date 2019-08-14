@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "types.h"
 
+#include <stdio.h>
+
 typedef uint8_t scmHeadType;
 
 enum {
@@ -60,8 +62,17 @@ struct scmString {
 
 struct Managed;
 
+static bool initialized = false;
+
+static void init();
+
 struct VM*
 newVM() {
+  if (initialized == false) {
+    init();
+    initialized = true;
+  }
+
   struct VM* m = malloc(sizeof(struct VM));
   m->size = 16;
   m->idx = 0;
@@ -125,6 +136,7 @@ Obj makeSymbol(char *s) {
   for(; *s; s++) {
     if (p->child[*s] == NULL) {
       struct trieNode *n = malloc(sizeof(struct trieNode));
+      memset(n, 0, sizeof(struct trieNode));
       p->child[*s] = n;
     }
     p = p->child[*s];
@@ -156,16 +168,19 @@ makeClosure(ClosureFn fn, int count, ...) {
 ClosureFn
 closureFn(Obj o) {
   struct scmClosure* clo = ptr(o);
+  assert(clo->head.type == scmHeadClosure);
   return clo->fn;
 }
 
 Obj
 closureRef(Obj o, int idx) {
   struct scmClosure* clo = ptr(o);
+  assert(clo->head.type == scmHeadClosure);
   return clo->args[idx];
 }
 
-static void init() {
+static void
+init() {
   mem.cap = 1024;
   mem.size = 0;
   mem.data = (scmHead**)malloc(sizeof(scmHead*) * mem.cap);
@@ -173,14 +188,15 @@ static void init() {
 
 static void
 gcKeep(struct Managed* frame, scmHead* o) {
-  if (frame->size <= frame->cap) {
-    scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*));
-    memcpy(data, frame->data, frame->size * sizeof(scmHead*));
-    free(frame->data);
-    frame->data = data;
-    frame->cap = 2 * frame->cap;
-  }
+  /* if (frame->size == frame->cap) { */
+  /*   scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*)); */
+  /*   memcpy(data, frame->data, frame->size * sizeof(scmHead*)); */
+  /*   free(frame->data); */
+  /*   frame->data = data; */
+  /*   frame->cap = 2 * frame->cap; */
+  /* } */
   frame->data[frame->size] = o;
+  /* printf("frame size = %d\n", frame->size); */
   frame->size++;
 }
 
@@ -259,6 +275,38 @@ static void
 clofun(struct VM *m) {
 }
 
+void testSymbol() {
+  printf("test symbol...");
+
+  Obj x = intern("asd");
+  funSet(intern("fact"), x);
+  intern("667");
+  intern("abde");
+  intern("abde");
+  intern("zz");
+
+  assert(root.child['z'] != NULL);
+  assert(root.child['z']->sym == NULL);
+
+  struct trieNode* y = root.child['a']->child['s']->child['d'];
+  assert(ptr((Obj)(y->sym)) == ptr(x));
+
+  Obj f1 = GetSymbolValue(intern("fact"));
+  Obj f2 = GetSymbolValue(intern("fact"));
+  Obj f3 = GetSymbolValue(intern("fact"));
+  Obj f4 = GetSymbolValue(intern("fact"));
+  Obj f5 = GetSymbolValue(intern("fact"));
+  Obj f6 = GetSymbolValue(intern("fact"));
+  assert(f1 == x);
+  assert(f2 == x);
+  assert(f3 == x);
+  assert(f4 == x);
+  assert(f5 == x);
+  assert(f6 == x);
+
+  printf("success\n");
+}
+
 void testBasic() {
   printf("test basic...");
   Obj p = cons(fixnum(3), Nil);
@@ -316,7 +364,7 @@ void testGC() {
 }
 
 int main(int argc, char *argv[]) {
-  init();
+  testSymbol();
   testBasic();
   testGC();
 }
