@@ -50,8 +50,8 @@ struct VM* newVM();
 
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
-Obj GetSymbolValue(Obj sym);
-Obj funSet(Obj sym, Obj val);
+Obj symbolGet(Obj sym);
+Obj symbolSet(Obj sym, Obj val);
 
 Obj makeClosure(ClosureFn fn, int count, ...);
 Obj closureRef(Obj o, int idx);

@@ -47,12 +47,6 @@ struct scmSymbol {
   char *str;
 };
 
-Obj
-GetSymbolValue(Obj sym) {
-  struct scmSymbol* s = ptr(sym);
-  return s->value;
-}
-
 struct scmString {
   scmHead head;
   int sz;
@@ -88,7 +82,6 @@ struct scmClosure {
   Obj args[];
 };
 
-
 static void gcKeep(struct Managed* frame, scmHead* o);
 
 struct Managed {
@@ -99,7 +92,7 @@ struct Managed {
 
 struct Managed mem;
 
-void*
+static void*
 newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
   assert(((Obj)p & TAG_PTR) == 0);
@@ -149,6 +142,22 @@ Obj makeSymbol(char *s) {
 }
 
 Obj
+symbolGet(Obj sym) {
+  assert(issymbol(sym));
+  struct scmSymbol* s = ptr(sym);
+  assert(s->head.type == scmHeadSymbol);
+  return s->value;
+}
+
+Obj symbolSet(Obj sym, Obj val) {
+  assert(issymbol(sym));
+  struct scmSymbol* s = ptr(sym);
+  assert(s->head.type == scmHeadSymbol);
+  s->value = val;
+  return val;
+}
+
+Obj
 makeClosure(ClosureFn fn, int count, ...) {
   int sz = sizeof(struct scmClosure) + count*sizeof(Obj);
   struct scmClosure* clo = newObj(scmHeadClosure, sz);
@@ -188,15 +197,14 @@ init() {
 
 static void
 gcKeep(struct Managed* frame, scmHead* o) {
-  /* if (frame->size == frame->cap) { */
-  /*   scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*)); */
-  /*   memcpy(data, frame->data, frame->size * sizeof(scmHead*)); */
-  /*   free(frame->data); */
-  /*   frame->data = data; */
-  /*   frame->cap = 2 * frame->cap; */
-  /* } */
+  if (frame->size == frame->cap) {
+    scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*));
+    memcpy(data, frame->data, frame->size * sizeof(scmHead*));
+    free(frame->data);
+    frame->data = data;
+    frame->cap = 2 * frame->cap;
+  }
   frame->data[frame->size] = o;
-  /* printf("frame size = %d\n", frame->size); */
   frame->size++;
 }
 
@@ -260,12 +268,6 @@ gc(struct VM* m) {
   sweep(&mem);
 }
 
-Obj funSet(Obj sym, Obj val) {
-  struct scmSymbol* s = ptr(sym);
-  s->value = val;
-  return val;
-}
-
 #ifdef _UNIT_TEST_
 
 #include <stdio.h>
@@ -275,11 +277,12 @@ static void
 clofun(struct VM *m) {
 }
 
-void testSymbol() {
+static void
+testSymbol() {
   printf("test symbol...");
 
   Obj x = intern("asd");
-  funSet(intern("fact"), x);
+  symbolSet(intern("fact"), x);
   intern("667");
   intern("abde");
   intern("abde");
@@ -291,12 +294,12 @@ void testSymbol() {
   struct trieNode* y = root.child['a']->child['s']->child['d'];
   assert(ptr((Obj)(y->sym)) == ptr(x));
 
-  Obj f1 = GetSymbolValue(intern("fact"));
-  Obj f2 = GetSymbolValue(intern("fact"));
-  Obj f3 = GetSymbolValue(intern("fact"));
-  Obj f4 = GetSymbolValue(intern("fact"));
-  Obj f5 = GetSymbolValue(intern("fact"));
-  Obj f6 = GetSymbolValue(intern("fact"));
+  Obj f1 = symbolGet(intern("fact"));
+  Obj f2 = symbolGet(intern("fact"));
+  Obj f3 = symbolGet(intern("fact"));
+  Obj f4 = symbolGet(intern("fact"));
+  Obj f5 = symbolGet(intern("fact"));
+  Obj f6 = symbolGet(intern("fact"));
   assert(f1 == x);
   assert(f2 == x);
   assert(f3 == x);
@@ -307,7 +310,8 @@ void testSymbol() {
   printf("success\n");
 }
 
-void testBasic() {
+static void
+testBasic() {
   printf("test basic...");
   Obj p = cons(fixnum(3), Nil);
   Obj hd = car(p);
@@ -341,7 +345,8 @@ void testBasic() {
   printf("success\n");
 }
 
-void testGC() {
+static void
+testGC() {
   printf("test gc...");
 
   struct VM* m = newVM();
@@ -364,6 +369,7 @@ void testGC() {
 }
 
 int main(int argc, char *argv[]) {
+  init();
   testSymbol();
   testBasic();
   testGC();

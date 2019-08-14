@@ -45,9 +45,9 @@ void clofun16875(struct VM* m) {
 	} else {
 		Obj reg19343 = 2;
 		Obj reg19344 = reg18967 - reg19343;
-    Obj reg19413 = GetSymbolValue(globalSymbolFact);
+    Obj reg19413 = symbolGet(globalSymbolFact);
 		m->pc = closureFn(reg19413);
-		Obj reg19435 = GetSymbolValue(globalSymbolFact);
+		Obj reg19435 = symbolGet(globalSymbolFact);
 		Obj reg19544 = makeClosure(clofun17042, 2, reg18963, reg18967);
 		m->stack[0] = reg19435;
 		m->stack[1] = reg19544;
@@ -67,10 +67,10 @@ void clofun16732(struct VM* m) {
 void clofun17313(struct VM* m) {
 	Obj reg18689 = makeClosure(clofun16875, 0);
 	Obj reg18758 = globalSymbolFact;
-	Obj reg18783 = funSet(reg18758, reg18689);
-  Obj reg18852 = GetSymbolValue(globalSymbolFact);
+	Obj reg18783 = symbolSet(reg18758, reg18689);
+  Obj reg18852 = symbolGet(globalSymbolFact);
 	m->pc = closureFn(reg18852);
-	Obj reg18874 = GetSymbolValue(globalSymbolFact);
+	Obj reg18874 = symbolGet(globalSymbolFact);
 	Obj reg18899 = makeClosure(clofun16732, 0);
 	Obj reg18921 = 10;
 	m->stack[0] = reg18874;
