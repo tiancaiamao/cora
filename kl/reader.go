@@ -123,10 +123,28 @@ func (r *SexpReader) appendBuf(b rune) {
 	r.buf = append(r.buf, b)
 }
 
-func peekFirstRune(r *bufio.Reader) (rune, error) {
+func peekFirstRune0(r *bufio.Reader) (rune, error) {
 	b, _, err := r.ReadRune()
 	for err == nil && unicode.IsSpace(b) {
 		b, _, err = r.ReadRune()
+	}
+	return b, err
+}
+
+func peekFirstRune(r *bufio.Reader) (rune, error) {
+	b, err := peekFirstRune0(r)
+	// Skip comment started with ;;
+	if err == nil && b == ';' {
+		b, _, err = r.ReadRune()
+		if err == nil && b == ';' {
+			var b1 byte
+			for err == nil && b1 != '\n' {
+				b1, err = r.ReadByte()
+			}
+			if err == nil {
+				b, err = peekFirstRune0(r)
+			}
+		}
 	}
 	return b, err
 }

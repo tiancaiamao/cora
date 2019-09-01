@@ -26,6 +26,7 @@ func TestSexpReader(t *testing.T) {
 				cons(MakeInteger(3), Nil))))},
 		{`"abc
 de"`, MakeString("abc\nde")},
+		{"abc ;; this is a comment", MakeSymbol("abc")},
 	}
 	for _, test := range tests {
 		r := NewSexpReader(strings.NewReader(test.input))
