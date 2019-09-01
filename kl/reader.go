@@ -133,20 +133,29 @@ func peekFirstRune0(r *bufio.Reader) (rune, error) {
 
 func peekFirstRune(r *bufio.Reader) (rune, error) {
 	b, err := peekFirstRune0(r)
-	// Skip comment started with ;;
-	if err == nil && b == ';' {
-		b, _, err = r.ReadRune()
-		if err == nil && b == ';' {
-			var b1 byte
-			for err == nil && b1 != '\n' {
-				b1, err = r.ReadByte()
-			}
-			if err == nil {
-				b, err = peekFirstRune0(r)
-			}
-		}
+	for b == ';' {
+		b, err = maybeSkipComment(r)
 	}
 	return b, err
+}
+
+func maybeSkipComment(r *bufio.Reader) (rune, error) {
+	if b, _ := r.ReadByte(); b != ';' {
+		r.UnreadByte()
+		return rune('b'), nil
+	}
+
+	// Skip comment started with ;;
+	var b byte
+	var err error
+	for err == nil && b != '\n' {
+		b, err = r.ReadByte()
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return peekFirstRune0(r)
 }
 
 func notSymbolChar(c rune) bool {
