@@ -56,9 +56,11 @@ var allPrimitives []*ScmPrimitive = []*ScmPrimitive{
 	// &ScmPrimitive{scmHead: scmHeadPrimitive, Name: "hash", Required: 2, Function: primHash},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-bytelist", Required: 1, Function: primReadFileAsByteList},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-string", Required: 1, Function: primReadFileAsString},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "read-file-as-sexp", Required: 1, Function: primReadFileAsSexp},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "variable?", Required: 1, Function: primIsVariable},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "integer?", Required: 1, Function: primIsInteger},
 	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "gensym", Required: 1, Function: primGenSym},
+	&ScmPrimitive{scmHead: scmHeadPrimitive, Name: "generate-c", Required: 2, Function: GenerateC},
 }
 
 var primitiveIdx map[string]*ScmPrimitive
@@ -592,4 +594,20 @@ func primIsInteger(args ...Obj) Obj {
 		return True
 	}
 	return False
+}
+
+func primReadFileAsSexp(args ...Obj) Obj {
+	filePath := mustString(args[0])
+	f, err := os.Open(filePath)
+	if err != nil {
+		return MakeError(err.Error())
+	}
+	defer f.Close()
+
+	r := NewSexpReader(f)
+	exp, err := r.Read()
+	if err != nil {
+		return MakeError(err.Error())
+	}
+	return exp
 }

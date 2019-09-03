@@ -1,92 +1,86 @@
-package main
+package kl
 
 import (
 	"fmt"
 	"os"
-
-	"github.com/tiancaiamao/cora/kl"
 )
 
-func genC() {
-	if len(os.Args) != 2 {
-		fmt.Println("usage: ./codegen xxx.bc")
-		os.Exit(-1)
-	}
+func GenerateC(args ...Obj) Obj {
+	filePath := mustString(args[0])
+	bc := ListToSlice(args[1])
 
-	f, err := os.Open(os.Args[1])
+	out, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("open file", err)
-		os.Exit(-1)
-	}
-	defer f.Close()
-
-	r := kl.NewSexpReader(f)
-	sexp, err := r.Read()
-	if err != nil {
-		fmt.Println("read sexp", err)
-	}
-
-	out, err := os.Create("a.go.txt")
-	if err != nil {
-		fmt.Println("create output", err)
-		os.Exit(-1)
+		return MakeError(fmt.Sprintf("open file fail %s", err))
 	}
 	defer out.Close()
-
-	bc := kl.ListToSlice(sexp)
 	for _, fn := range bc {
-		if err := generateCFunc(out, fn); err != nil {
-			fmt.Println(err)
-			break
+		if err := generateFunc(out, fn); err != nil {
+			return MakeError(err.Error())
 		}
 	}
-	return
+	return True
 }
 
-func generateCFunc(w *os.File, sexp kl.Obj) error {
+func symbolString(sym Obj) string {
+	str := GetSymbol(sym)
+	if str[0] == '#' {
+		return str[1:]
+	}
+	return str
+}
+
+func generateFunc(w *os.File, sexp Obj) error {
 	var finalBrack bool
-	instructs := kl.ListToSlice(sexp)
+	instructs := ListToSlice(sexp)
 	for _, inst := range instructs {
-		kind := kl.GetSymbol(kl.Car(inst))
+		kind := GetSymbol(Car(inst))
 		switch kind {
 		case "savepc":
 			// (savepc SRC)
-			fmt.Fprintf(w, "m->pc = closureFn(%s);\n", symbolString(kl.Cadr(inst)))
+			fmt.Fprintf(w, "m->pc = closureFn(%s);\n", symbolString(Cadr(inst)))
 		case "mov":
 			// (mov SRC DST)
-			src := kl.Cadr(inst)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			src := Cadr(inst)
+			dst := Car(Cdr(Cdr(inst)))
 			fmt.Fprintf(w, "%s = %s;\n", symbolString(dst), symbolString(src))
 		case "const":
 			// (const Number DST)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
-			fmt.Fprintf(w, "Obj %s = %d;\n", symbolString(dst), kl.GetInteger(kl.Cadr(inst))<<1)
+			// (const () DST)
+			dst := Car(Cdr(Cdr(inst)))
+			c := Cadr(inst)
+			switch {
+			case IsNumber(c):
+				fmt.Fprintf(w, "Obj %s = %d;\n", symbolString(dst), GetInteger(Cadr(inst))<<1)
+			case c == Nil:
+				fmt.Fprintf(w, "Obj %s = Nil;\n", symbolString(dst))
+			}
 		case "stack-get":
 			// (stack-get N DST)
-			n := kl.GetInteger(kl.Cadr(inst))
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			n := GetInteger(Cadr(inst))
+			dst := Car(Cdr(Cdr(inst)))
 			fmt.Fprintf(w, "Obj %s = m->stack[%d];\n", symbolString(dst), n)
 		case "stack-set":
 			// (stack-set N DST)
-			n := kl.GetInteger(kl.Cadr(inst))
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			n := GetInteger(Cadr(inst))
+			dst := Car(Cdr(Cdr(inst)))
 			fmt.Fprintf(w, "m->stack[%d] = %s;\n", n, symbolString(dst))
 		case "closure-get":
 			// (closure-get #reg19610 0 #reg19757)
-			clo := kl.Cadr(inst)
-			n := kl.GetInteger(kl.Car(kl.Cdr(kl.Cdr(inst))))
-			res := kl.Car(kl.Cdr(kl.Cdr(kl.Cdr(inst))))
+			clo := Cadr(inst)
+			n := GetInteger(Car(Cdr(Cdr(inst))))
+			res := Car(Cdr(Cdr(Cdr(inst))))
 			fmt.Fprintf(w, "Obj %s = closureRef(%s, %d);\n",
 				symbolString(res), symbolString(clo), n)
 		case "label":
 			// (label FuncName)
-			funcName := symbolString(kl.Cadr(inst))
+			funcName := symbolString(Cadr(inst))
 			fmt.Fprintf(w, "static void\n%s (struct VM* m) {\n", funcName)
 			finalBrack = true
 		case "closure":
 			// (closure (FuncName FV0 FV1 ...) DST)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
-			vals := kl.ListToSlice(kl.Cadr(inst))
+			dst := Car(Cdr(Cdr(inst)))
+			vals := ListToSlice(Cadr(inst))
 			args := symbolString(vals[0]) + fmt.Sprintf(", %d", len(vals)-1)
 			if len(vals) > 1 {
 				for i := 1; i < len(vals); i++ {
@@ -97,17 +91,17 @@ func generateCFunc(w *os.File, sexp kl.Obj) error {
 			fmt.Fprintf(w, "Obj %s = makeClosure(%s);\n", symbolString(dst), args)
 		case "intern":
 			// (intern Symbol DST)
-			sym := kl.Cadr(inst)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			sym := Cadr(inst)
+			dst := Car(Cdr(Cdr(inst)))
 			fmt.Fprintf(w, "Obj %s = intern(\"%s\");\n", symbolString(dst), symbolString(sym))
 		case "global":
-			sym := kl.Cadr(inst)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			sym := Cadr(inst)
+			dst := Car(Cdr(Cdr(inst)))
 			fmt.Fprintf(w, "Obj %s = symbolGet(intern(\"%s\"));\n", symbolString(dst), symbolString(sym))
 		case "builtin":
 			// (builtin (OP ARG1 ARG2 ...) DST)
-			src := kl.Cadr(inst)
-			dst := kl.Car(kl.Cdr(kl.Cdr(inst)))
+			src := Cadr(inst)
+			dst := Car(Cdr(Cdr(inst)))
 			generateCBuiltinCall(w, src, dst)
 		case "jump":
 			// (jump)
@@ -117,9 +111,9 @@ func generateCFunc(w *os.File, sexp kl.Obj) error {
 			}
 		case "if":
 			// (if a b c)
-			a := kl.Cadr(inst)
-			b := kl.Car(kl.Cdr(kl.Cdr(inst)))
-			c := kl.Car(kl.Cdr(kl.Cdr(kl.Cdr(inst))))
+			a := Cadr(inst)
+			b := Car(Cdr(Cdr(inst)))
+			c := Car(Cdr(Cdr(Cdr(inst))))
 			if err := generateCIfExpr(w, a, b, c); err != nil {
 				return err
 			}
@@ -130,22 +124,22 @@ func generateCFunc(w *os.File, sexp kl.Obj) error {
 	return nil
 }
 
-func generateCIfExpr(w *os.File, a, b, c kl.Obj) error {
+func generateCIfExpr(w *os.File, a, b, c Obj) error {
 	fmt.Fprintf(w, "if (%s == True) {\n", symbolString(a))
-	if err := generateCFunc(w, b); err != nil {
+	if err := generateFunc(w, b); err != nil {
 		return err
 	}
 	fmt.Fprintf(w, "} else {\n")
-	if err := generateCFunc(w, c); err != nil {
+	if err := generateFunc(w, c); err != nil {
 		return err
 	}
 	fmt.Fprintf(w, "}\n}\n")
 	return nil
 }
 
-func generateCBuiltinCall(w *os.File, src, dst kl.Obj) {
-	input := kl.ListToSlice(src)
-	switch kl.GetSymbol(input[0]) {
+func generateCBuiltinCall(w *os.File, src, dst Obj) {
+	input := ListToSlice(src)
+	switch GetSymbol(input[0]) {
 	case "+":
 		fmt.Fprintf(w, "Obj %s = %s + %s;\n", symbolString(dst), symbolString(input[1]), symbolString(input[2]))
 	case "*":
@@ -158,7 +152,13 @@ func generateCBuiltinCall(w *os.File, src, dst kl.Obj) {
 		fmt.Fprintf(w, "m->stack[0] = %s;\nm->pc = NULL;\nreturn;\n}\n", symbolString(input[1]))
 	case "=":
 		fmt.Fprintf(w, "Obj %s = PrimEqual(%s, %s);\n", symbolString(dst), symbolString(input[1]), symbolString(input[2]))
+	case "cons":
+		fmt.Fprintf(w, "Obj %s = cons(%s, %s);\n", symbolString(dst), symbolString(input[1]), symbolString(input[2]))
+	case "car":
+		fmt.Fprintf(w, "Obj %s = car(%s);\n", symbolString(dst), symbolString(input[1]))
+	case "cdr":
+		fmt.Fprintf(w, "Obj %s = cdr(%s);\n", symbolString(dst), symbolString(input[1]))
 	default:
-		fmt.Fprintf(w, "error, unknown builtin %s\n", kl.GetSymbol(input[0]))
+		fmt.Fprintf(w, "error, unknown builtin %s\n", GetSymbol(input[0]))
 	}
 }

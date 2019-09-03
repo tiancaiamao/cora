@@ -1,8 +1,8 @@
 (defun builtin? (x)
-  (elem? x '(+ - * / = set halt)))
+  (elem? x '(+ - * / = set halt car cdr cons)))
 
 (defun cps-protect? (x)
-  (or (number? x) (string? x) (boolean? x) (symbol? x)
+  (or (= x ()) (number? x)  (string? x) (boolean? x) (symbol? x)
       (and (pair? x) (= (car x) 'quote))))
 
 (func cps
@@ -47,7 +47,7 @@
   (cps ast '(lambda (x) (halt x))))
 
 (func parse
-      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x))
+      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
       _ ['quote x] => ['quote x]
       env x => (if (elem? x env) x ['%global x]) where (symbol? x)
       env ['lambda args body] => ['lambda args (parse (append args env) body)]
@@ -155,7 +155,7 @@
       bc mp ['%const x] return => (let reg (gensym 'reg)
                           (return (cons ['const x reg] bc)
                                   (cons (cons x reg) mp)
-                                  reg)) where (number? x)
+                                  reg))
       bc mp var return => (let find (assq var mp)
                             (if (null? find)
                                 (let reg (gensym 'reg)
@@ -292,3 +292,15 @@
 
 
 ;; (code-generate '((#clofun35259 (lambda () ((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) ((%closure-func #f4065) #f4065 (%closure #clofun35155) 5)) square)) (set (quote square) #arg4118))) (%closure #clofun35255)))) (#clofun35255 (lambda (#clo34911 #k4138 x) ((%closure-func #k4138) #k4138 (* x x)))) (#clofun35155 (lambda (#clo34666 #arg4038) (halt (+ #arg4038 1))))))
+
+(defun compile (x)
+  (let cps (cps-convert x)
+    (let lam (closure-convert cps)
+      (let bc (code-generate lam)
+        bc))))
+
+(defun compile-file (file)
+  (let sexp (read-file-as-sexp file)
+    (let bc (compile sexp)
+      (generate-c "gen.c" bc))))
+

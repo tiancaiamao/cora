@@ -19,147 +19,68 @@ Obj primNumberMultiply(Obj x, Obj y) {
   return (x * y) >> 1;
 }
 
-/* Obj globalSymbolFact; */
-
-/* void clofun17042(struct VM* m) { */
-/* 	Obj reg19610 = m->stack[0]; */
-/* 	Obj reg19614 = m->stack[1]; */
-/* 	Obj reg19705 = closureRef(reg19610, 0); */
-/* 	m->pc = closureFn(reg19705); */
-/* 	Obj reg19757 = closureRef(reg19610, 0); */
-/* 	Obj reg19827 = closureRef(reg19610, 1); */
-/* 	Obj reg19852 = (reg19827 * reg19614) >> 1; */
-/* 	m->stack[0] = reg19757; */
-/* 	m->stack[1] = reg19852; */
-/* 	return; */
-/* } */
-
-/* void clofun16875(struct VM* m) { */
-/* 	Obj reg18959 = m->stack[0]; */
-/* 	Obj reg18963 = m->stack[1]; */
-/* 	Obj reg18967 = m->stack[2]; */
-/* 	Obj reg19052 = 0; */
-/* 	Obj reg19053 = PrimEqual(reg18967, reg19052); */
-/* 	if (reg19053 == True) { */
-/* 		m->pc = closureFn(reg18963); */
-/* 		Obj reg19242 = 2; */
-/* 		m->stack[0] = reg18963; */
-/* 		m->stack[1] = reg19242; */
-/* 		return; */
-/* 	} else { */
-/* 		Obj reg19343 = 2; */
-/* 		Obj reg19344 = reg18967 - reg19343; */
-/*     Obj reg19413 = symbolGet(globalSymbolFact); */
-/* 		m->pc = closureFn(reg19413); */
-/* 		Obj reg19435 = symbolGet(globalSymbolFact); */
-/* 		Obj reg19544 = makeClosure(clofun17042, 2, reg18963, reg18967); */
-/* 		m->stack[0] = reg19435; */
-/* 		m->stack[1] = reg19544; */
-/* 		m->stack[2] = reg19344; */
-/* 		return; */
-/* 	} */
-/* } */
-
-/* void clofun16732(struct VM* m) { */
-/* 	Obj reg19887 = m->stack[0]; */
-/* 	Obj reg19891 = m->stack[1]; */
-/* 	m->stack[0] = reg19891; */
-/*   m->pc = NULL; */
-/* 	return; */
-/* } */
-
-/* void clofun17313(struct VM* m) { */
-/* 	Obj reg18689 = makeClosure(clofun16875, 0); */
-/* 	Obj reg18758 = globalSymbolFact; */
-/* 	Obj reg18783 = symbolSet(reg18758, reg18689); */
-/*   Obj reg18852 = symbolGet(globalSymbolFact); */
-/* 	m->pc = closureFn(reg18852); */
-/* 	Obj reg18874 = symbolGet(globalSymbolFact); */
-/* 	Obj reg18899 = makeClosure(clofun16732, 0); */
-/* 	Obj reg18921 = 10; */
-/* 	m->stack[0] = reg18874; */
-/* 	m->stack[1] = reg18899; */
-/* 	m->stack[2] = reg18921; */
-/* 	return; */
-/* } */
-
-/* void init() { */
-/*   globalSymbolFact = intern("fact"); */
-/* } */
-
-
-static void clofun17042 (struct VM* m);
-static void clofun16875 (struct VM* m);
-static void clofun16732 (struct VM* m);
+static void clofun8811 (struct VM* m);
+static void clofun8458 (struct VM* m);
+static void clofun8286 (struct VM* m);
 
 
 static void
-clofun17313 (struct VM* m) {
-Obj reg18689 = makeClosure(clofun16875, 0);
-Obj reg18758 = intern("fact");
-Obj reg18783 = symbolSet(reg18758, reg18689);
-Obj reg18852 = symbolGet(intern("fact"));
-m->pc = closureFn(reg18852);
-Obj reg18874 = symbolGet(intern("fact"));
-Obj reg18899 = makeClosure(clofun16732, 0);
-Obj reg18921 = 10;
-m->stack[0] = reg18874;
-m->stack[1] = reg18899;
-m->stack[2] = reg18921;
-return;
+clofun8811 (struct VM* m) {
+  Obj reg8875 = makeClosure(clofun8458, 0);
+  Obj reg8944 = intern("fact");
+  Obj reg8969 = symbolSet(reg8944, reg8875);
+  Obj reg9038 = symbolGet(intern("fact"));
+  m->pc = closureFn(reg9038);
+  Obj reg9060 = symbolGet(intern("fact"));
+  Obj reg9085 = makeClosure(clofun8286, 0);
+  Obj reg9107 = 2;
+  Obj reg9129 = 10;
+  m->stack[0] = reg9060;
+  m->stack[1] = reg9085;
+  m->stack[2] = reg9107;
+  m->stack[3] = reg9129;
+  return;
 }
 static void
-clofun16875 (struct VM* m) {
-Obj reg18959 = m->stack[0];
-Obj reg18963 = m->stack[1];
-Obj reg18967 = m->stack[2];
-Obj reg19052 = 0;
-Obj reg19053 = PrimEqual(reg18967, reg19052);
-if (reg19053 == True) {
-m->pc = closureFn(reg18963);
-Obj reg19242 = 2;
-m->stack[0] = reg18963;
-m->stack[1] = reg19242;
-return;
-} else {
-Obj reg19343 = 2;
-Obj reg19344 = reg18967 - reg19343;
-Obj reg19413 = symbolGet(intern("fact"));
-m->pc = closureFn(reg19413);
-Obj reg19435 = symbolGet(intern("fact"));
-Obj reg19544 = makeClosure(clofun17042, 2, reg18963, reg18967);
-m->stack[0] = reg19435;
-m->stack[1] = reg19544;
-m->stack[2] = reg19344;
-return;
-}
-}
-static void
-clofun17042 (struct VM* m) {
-Obj reg19610 = m->stack[0];
-Obj reg19614 = m->stack[1];
-Obj reg19705 = closureRef(reg19610, 0);
-m->pc = closureFn(reg19705);
-Obj reg19757 = closureRef(reg19610, 0);
-Obj reg19827 = closureRef(reg19610, 1);
-Obj reg19852 = primNumberMultiply(reg19827, reg19614);
-m->stack[0] = reg19757;
-m->stack[1] = reg19852;
-return;
+clofun8458 (struct VM* m) {
+  Obj reg9170 = m->stack[0];
+  Obj reg9174 = m->stack[1];
+  Obj reg9178 = m->stack[2];
+  Obj reg9182 = m->stack[3];
+  Obj reg9267 = 0;
+  Obj reg9268 = PrimEqual(reg9182, reg9267);
+  if (reg9268 == True) {
+    m->pc = closureFn(reg9174);
+    m->stack[0] = reg9174;
+    m->stack[1] = reg9178;
+    return;
+  } else {
+    Obj reg9605 = primNumberMultiply(reg9178, reg9182);
+    Obj reg9710 = 2;
+    Obj reg9711 = reg9182 - reg9710;
+    Obj reg9780 = symbolGet(intern("fact"));
+    m->pc = closureFn(reg9780);
+    Obj reg9802 = symbolGet(intern("fact"));
+    m->stack[0] = reg9802;
+    m->stack[1] = reg9174;
+    m->stack[2] = reg9605;
+    m->stack[3] = reg9711;
+    return;
+  }
 }
 static void
-clofun16732 (struct VM* m) {
-Obj reg19887 = m->stack[0];
-Obj reg19891 = m->stack[1];
-m->stack[0] = reg19891;
-m->pc = NULL;
-return;
+clofun8286 (struct VM* m) {
+  Obj reg9961 = m->stack[0];
+  Obj reg9965 = m->stack[1];
+  m->stack[0] = reg9965;
+  m->pc = NULL;
+  return;
 }
 
 int main(int argc, char *argv[]) {
   struct VM* m = newVM();
   /* init(); */
-	m->pc = clofun17313;
+	m->pc = clofun8811 ;
   trampoline(m);
   printf("... %ld\n", m->stack[0]);
 }
