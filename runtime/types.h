@@ -46,12 +46,26 @@ struct VM {
 };
 
 
+typedef uint8_t scmHeadType;
+
+typedef struct {
+  uint8_t mark;
+  scmHeadType type;
+} scmHead;
+
+struct scmCons {
+  scmHead head;
+  Obj car;
+  Obj cdr;
+};
+
 struct VM* newVM();
 
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
+Obj makeCons(Obj car, Obj cdr);
 
 Obj makeClosure(ClosureFn fn, int count, ...);
 Obj closureRef(Obj o, int idx);

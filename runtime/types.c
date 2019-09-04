@@ -8,8 +8,6 @@
 
 #include <stdio.h>
 
-typedef uint8_t scmHeadType;
-
 enum {
 	scmHeadNumber,
 	scmHeadCons,
@@ -28,18 +26,6 @@ const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
-
-typedef struct {
-  uint8_t mark;
-  scmHeadType type;
-} scmHead;
-
-
-struct scmCons {
-  scmHead head;
-  Obj car;
-  Obj cdr;
-};
 
 struct scmSymbol {
   scmHead head;

@@ -101,7 +101,8 @@
       self fvs ['lambda args body] =>
       (let fvs1 (free-vars ['lambda args body])
            self1 (gensym 'clo)
-           ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] . fvs1])
+           ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
+                                                 (map (convert self fvs) fvs1)])
       self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
       self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
       self fvs [f . args] => (let f0 (convert self fvs f)
