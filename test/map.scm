@@ -1,0 +1,6 @@
+(set (quote map)
+     (lambda (f l)
+       (if (= l ())
+           ()
+           (cons (f (car l))
+                 (map f (cdr l))))))
