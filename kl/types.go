@@ -124,6 +124,10 @@ func IsSymbol(o Obj) bool {
 	return *o == scmHeadSymbol
 }
 
+func IsString(o Obj) bool {
+	return *o == scmHeadString
+}
+
 func MakePrimitive(name string, arity int, f func(...Obj) Obj) *ScmPrimitive {
 	return &ScmPrimitive{
 		scmHead:  scmHeadPrimitive,

@@ -71,6 +71,8 @@ Obj makeClosure(ClosureFn fn, int count, ...);
 Obj closureRef(Obj o, int idx);
 ClosureFn closureFn(Obj o);
 
+Obj makeString(char *s, int len);
+
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define fixnum(x) (((uint)(x))>>1)
 #define car(v) (((struct scmCons*)(ptr(v)))->car)

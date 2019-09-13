@@ -14,6 +14,25 @@ func GenerateC(args ...Obj) Obj {
 		return MakeError(fmt.Sprintf("open file fail %s", err))
 	}
 	defer out.Close()
+
+	// Generate "#include ..."
+	fmt.Fprintf(out, "#include \"runtime.h\"\n")
+	fmt.Fprintf(out, "#include <stdlib.h>\n\n")
+
+	labelSym := MakeSymbol("label")
+	// Generate declare...
+	for _, fn := range bc {
+		first := Car(fn)
+		if ok, pair := isPair(first); ok && pair.car == labelSym {
+			fmt.Fprintf(out, "static void %s (struct VM* m);\n", symbolString(car(pair.cdr)))
+		} else {
+			fmt.Println("???  = ", ObjString(first))
+		}
+	}
+
+	fmt.Fprintf(out, "\n\n")
+
+	// Generate each function...
 	for _, fn := range bc {
 		if err := generateFunc(out, fn); err != nil {
 			return MakeError(err.Error())
@@ -47,13 +66,21 @@ func generateFunc(w *os.File, sexp Obj) error {
 		case "const":
 			// (const Number DST)
 			// (const () DST)
+			// (cons "xxx" DST)
 			dst := Car(Cdr(Cdr(inst)))
 			c := Cadr(inst)
 			switch {
 			case IsNumber(c):
 				fmt.Fprintf(w, "Obj %s = %d;\n", symbolString(dst), GetInteger(Cadr(inst))<<1)
+			case IsString(c):
+				str := GetString(c)
+				fmt.Fprintf(w, "Obj %s = makeString(\"%s\", %d);\n", symbolString(dst), str, len(str))
 			case c == Nil:
 				fmt.Fprintf(w, "Obj %s = Nil;\n", symbolString(dst))
+			case c == True:
+				fmt.Fprintf(w, "Obj %s = True;\n", symbolString(dst))
+			case c == False:
+				fmt.Fprintf(w, "Obj %s = False;\n", symbolString(dst))
 			}
 		case "stack-get":
 			// (stack-get N DST)
