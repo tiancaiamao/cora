@@ -1,5 +1,7 @@
 (set 'null? (lambda (x) (= x ())))
 (set 'cadr (lambda (x) (car (cdr x))))
+(set 'caar (lambda (x) (car (car x))))
+(set 'cdar (lambda (x) (cdr (car x))))
 (set 'cddr (lambda (x) (cdr (cdr x))))
 (set 'caddr (lambda (x) (car (cdr (cdr x)))))
 (set 'cadddr (lambda (x) (car (cdr (cdr (cdr x))))))
@@ -13,18 +15,106 @@
            ())))
 (set 'pair? cons?)
 (set 'equal? =)
-(set 'list
-     (macro exp (rcons (cdr exp))))
+(set 'reverse-h
+     (lambda (res l)
+       (if (cons? l)
+           (reverse-h (cons (car l) res) (cdr l))
+           res)))
+(set 'reverse (reverse-h ()))
+(set 'map-h
+     (lambda (res f l)
+       (if (cons? l)
+           (map-h (cons (f (car l)) res) f (cdr l))
+           (reverse res))))
+(set 'map (lambda (f l) (map-h () f l)))
 
-(set 'defmacro
-     (macro exp (list 'set (list 'quote (cadr exp))
-                      (list 'macro (car (caddr exp)) (cadddr exp)))))
+;; =============== The macro utilities ============
+(set '*macros* ())
+(set '*protect-symbol* (gensym 'protect))
+(set 'protect (lambda (x)
+                (cons *protect-symbol* x)))
+(set 'add-to-*macros*
+     (lambda (n v)
+       (set '*macros* (cons (cons n v) *macros*))))
+
+;; (func macroexpand1-h
+;;       [x . y] [(cons m fn) . macros] => (fn [x . y]) where (= m x)
+;;       input [_ . macros] => (macroexpand1-h input macros)
+;;       input [] => input)
+
+(set 'macroexpand1-h
+     (lambda (exp macros)
+       (if (= () macros)
+           exp
+           ((lambda (item)
+              (if (and (cons? exp)
+                       (= (car exp) (car item)))
+                  ((cdr item) exp)
+                  (macroexpand1-h exp (cdr macros))))
+            (car macros)))))
+
+(set 'macroexpand1
+     (lambda (exp)
+       (macroexpand1-h exp *macros*)))
+
+;; (func macroexpand
+;;       (cons x y) => y where (= x *protect-symbol*)
+;;       (cons x y) => (let exp1 (macroexpand1 (cons x y))
+;;                       (if (= exp1 (cons x y))
+;;                           (map macroexpand exp1)
+;;                           (macroexpand exp1)))
+;;       x => x)
+
+(set 'macroexpand
+     (lambda (exp)
+       (if (cons? exp)
+           (if (= (car exp) *protect-symbol*)
+               (cdr exp)
+               ((lambda (exp1)
+                  (if (= exp1 exp)
+                      (map macroexpand exp1)
+                      (macroexpand exp1)))
+                (macroexpand1 exp)))
+           exp)))
+
+;; (func defmacro-macro
+;;       ['defmacro name arg body] => ['add-to-*macros* ['quote name] ['lambda (protect arg) body]])
+
+(set (quote defmacro-macro)
+     (lambda (#p324739)
+       ((lambda (#cc324740)
+          (if (and (cons? (cons #p324739 ())) (not (null? (cons #p324739 ()))))
+              (if (and (cons? (car (cons #p324739 ()))) (not (null? (car (cons #p324739 ())))))
+                  (if (equal? (quote defmacro) (car (car (cons #p324739 ()))))
+                      (if (and (cons? (cdr (car (cons #p324739 ())))) (not (null? (cdr (car (cons #p324739 ()))))))
+                          ((lambda (name)
+                             (if (and (cons? (cdr (cdr (car (cons #p324739 ()))))) (not (null? (cdr (cdr (car (cons #p324739 ())))))))
+                                 ((lambda (arg)
+                                    (if (and (cons? (cdr (cdr (cdr (car (cons #p324739 ())))))) (not (null? (cdr (cdr (cdr (car (cons #p324739 ()))))))))
+                                        ((lambda (body)
+                                           (if (null? (cdr (cdr (cdr (cdr (car (cons #p324739 ())))))))
+                                               (if (null? (cdr (cons #p324739 ())))
+                                                   (cons (quote add-to-*macros*)
+                                                         (cons (cons (quote quote) (cons name ())) (cons (cons (quote lambda) (cons (protect arg) (cons body ()))) ()))) (#cc324740))
+                                               (#cc324740)))
+                                         (car (cdr (cdr (cdr (car (cons #p324739 ())))))))
+                                        (#cc324740)))
+                                  (car (cdr (cdr (car (cons #p324739 ()))))))
+                                 (#cc324740)))
+                           (car (cdr (car (cons #p324739 ())))))
+                          (#cc324740))
+                      (#cc324740))
+                  (#cc324740))
+              (#cc324740)))
+        (lambda () (error "no match-help found!")))))
+
+(add-to-*macros* 'defmacro defmacro-macro)
+(add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
 
 (defmacro defun (exp)
   (list 'set (list 'quote (cadr exp))
         (list 'lambda (caddr exp)
               (cadddr exp))))
-
 
 (defmacro or (exp)
   (cond
@@ -32,29 +122,6 @@
    ((= (caddr exp) true) true)
    ((not (null? (cdddr exp))) (list '#or (cadr exp) (cons 'or (cddr exp))))
    (true (cons '#or (cdr exp)))))
-
-(defun rcons1 (pat)
-  (if (null? (cdr pat))
-      (car pat)
-      (list 'cons (car pat) (rcons1 (cdr pat)))))
-
-(set 'list-rest
-     (macro exp (rcons1 (cdr exp))))
-
-(defun reverse-h (res l)
-  (if (cons? l)
-      (reverse-h (cons (car l) res) (cdr l))
-      res))
-
-(set 'reverse (reverse-h ()))
-
-(defun map-h (res f l)
-  (if (cons? l)
-      (map-h (cons (f (car l)) res) f (cdr l))
-      (reverse res)))
-
-(defun map (f l)
-  (map-h () f l))
 
 (defun elem? (x l)
   (if (cons? l)
@@ -77,6 +144,15 @@
 (defmacro let (exp)
   (rewrite-let () () (cdr exp)))
 
+(defun rcons1 (pat)
+  (if (null? (cdr pat))
+      (car pat)
+      (list 'cons (car pat) (rcons1 (cdr pat)))))
+
+(defmacro list-rest (exp)
+  (rcons1 (cdr exp)))
+
+;; =============== pattern match utilities =================
 (defun list-ref (l i)
   (if (= i 0)
       (car l)
@@ -153,6 +229,18 @@
 (defmacro match (exp)
   (match-helper (cadr exp) (cddr exp)))
 
+(defmacro match (exp)
+  (match-helper (cadr exp) (cddr exp)))
+
+(defmacro func (exp)
+  (let body (extract-rules (cddr exp))
+    (let nargs (rules-arg-count body)
+      (let args (gen-parameters nargs)
+        (list 'defun (cadr exp) args
+              (cons 'match (cons (cons 'list args)
+                                 body)))))))
+
+;; ================ the func macro ======================
 (defun extract-rules1 (input current result)
   (match input
     ()	(reverse result)

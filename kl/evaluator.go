@@ -1,6 +1,7 @@
 package kl
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -91,6 +92,11 @@ func (e *Evaluator) LoadFile(file string) Obj {
 			break
 		}
 
+		exp, err = e.MacroExpand(exp)
+		if err != nil {
+			return MakeError(err.Error())
+		}
+
 		res := e.trampoline(exp, Nil)
 		if *res == scmHeadError {
 			return res
@@ -115,6 +121,22 @@ func (e *Evaluator) Eval(exp Obj) (res Obj) {
 	}()
 	res = e.trampoline(exp, Nil)
 	return
+}
+
+func (e *Evaluator) MacroExpand(exp Obj) (Obj, error) {
+	expandSym := MakeSymbol("macroexpand")
+	if GetSymbolValue(expandSym) == nil {
+		return exp, nil
+	}
+
+	// If macroexpand function is available, use it to expand the input.
+	exp1 := cons(MakeSymbol("quote"), cons(exp, Nil))
+	input := cons(expandSym, cons(exp1, Nil))
+	res := e.trampoline(input, Nil)
+	if IsError(res) {
+		return Nil, errors.New(mustError(res).err)
+	}
+	return res, nil
 }
 
 func (e *Evaluator) RegistNativeCall(prim *ScmPrimitive) {

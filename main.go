@@ -43,6 +43,12 @@ func main() {
 			break
 		}
 
+		sexp, err = e.MacroExpand(sexp)
+		if err != nil {
+			fmt.Println("macro expand error:", kl.ObjString(sexp))
+			continue
+		}
+
 		res := e.Eval(sexp)
 		fmt.Println(kl.ObjString(res))
 	}
