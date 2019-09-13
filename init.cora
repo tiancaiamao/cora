@@ -67,22 +67,24 @@
 ;;                           (macroexpand exp1)))
 ;;       x => x)
 
-(set 'macroexpand
+(set 'macroexpand-boot
      (lambda (exp)
        (if (cons? exp)
            (cond
             ((= (car exp) *protect-symbol*) (cdr exp))
             ((= (car exp) 'lambda) (cons 'lambda
                                          (cons (cadr exp)
-                                               (cons (macroexpand (caddr exp))
+                                               (cons (macroexpand-boot (caddr exp))
                                                      ()))))
             ((= (car exp) 'quote) exp)
             (true ((lambda (exp1)
                      (if (= exp1 exp)
-                         (map macroexpand exp1)
-                       (macroexpand exp1)))
+                         (map macroexpand-boot exp1)
+                       (macroexpand-boot exp1)))
                    (macroexpand1 exp))))
          exp)))
+
+(set 'macroexpand macroexpand-boot)
 
 ;; (func defmacro-macro
 ;;       ['defmacro name arg body] => ['add-to-*macros* ['quote name] ['lambda arg body]])
@@ -213,17 +215,6 @@
 (defmacro match (exp)
   (match-helper (cadr exp) (cddr exp)))
 
-(defmacro match (exp)
-  (match-helper (cadr exp) (cddr exp)))
-
-(defmacro func (exp)
-  (let body (extract-rules (cddr exp))
-    (let nargs (rules-arg-count body)
-      (let args (gen-parameters nargs)
-        (list 'defun (cadr exp) args
-              (cons 'match (cons (cons 'list args)
-                                 body)))))))
-
 ;; ================ the func macro ======================
 (defun extract-rules1 (input current result)
   (match input
@@ -288,4 +279,52 @@
       (let args (gen-parameters nargs)
         (list 'defun (cadr exp) args
               (cons 'match (cons (cons 'list args)
-                    body)))))))
+                                 body)))))))
+
+(func walk
+      f [x . y] => (f (map (walk f) [x . y]))
+      f x => (f x))
+
+(func propagate-boolean-rule
+      ['cons? ['cons . _]] => true
+      ['car ['cons x _]] => x
+      ['cdr ['cons _ x]] => x
+      ['and true true] => true
+      ['null? ['cons . _]] => false
+      ['null? ()] => true
+      ['not true] => false
+      ['not false] => true
+      ['if true x _] => x
+      ['if false _ x] => x
+      x => x)
+
+(func propagate-boolean
+      ['lambda arg body] => ['lambda arg (propagate-boolean body)]
+      ['quote x] => ['quote x]
+      x => (walk propagate-boolean-rule x))
+
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(func beta-replace
+      env s => (let find (assq s env)
+                 (if (= () find)
+                     s
+                     (cdr find))) where (symbol? s)
+      env [['lambda [v] body] x] => (beta-replace (cons (cons v x) env) body) where (symbol? x)
+      env ['lambda args body] => (let nenv (filter (lambda (x) (elem? (car x) args)) env)
+                                     ['lambda args (beta-replace env body)])
+      env ['if x y z] => (cons 'if (map (beta-replace env) [x y z]))
+      env ['quote x] => ['quote x]
+      env [x . y] => (map (beta-replace env) [x . y])
+      env x => x)
+
+(defun simplify (exp)
+  (beta-replace () (propagate-boolean exp)))
+;; (set 'simplify propagate-boolean)
+
+;; update the macroexpand function, add the simplify phase
+(defun macroexpand (exp)
+  (simplify (macroexpand-boot exp)))

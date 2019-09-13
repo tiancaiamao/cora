@@ -147,10 +147,10 @@
                     (lambda (res1 ast1)
                       (cons [(gensym 'clofun) ['lambda () ast1]] res1)))))
 
-(func assq
-      var [] => ()
-      var [(cons x y) . _] => (cons x y) where (= var x)
-      var [_ . y] => (assq var y))
+;; (func assq
+;;       var [] => ()
+;;       var [(cons x y) . _] => (cons x y) where (= var x)
+;;       var [_ . y] => (assq var y))
 
 (func code-gen
       bc mp ['%const x] return => (let reg (gensym 'reg)
