@@ -84,7 +84,6 @@ func (ctl *controlFlow) Exception(err Obj) {
 }
 
 var lambdaSym = MakeSymbol("lambda")
-var macroSym = MakeSymbol("macro")
 
 func (e *Evaluator) eval(ctl *controlFlow) {
 	exp := ctl.exp
@@ -131,9 +130,6 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 				ctl.Return(makeProcedure(car(exp), cadr(exp), env))
 			}
 			return
-		case "macro": // (macro sexp body)
-			ctl.Return(ctl.exp)
-			return
 		case "do": // (do A A)
 			if tmp := e.trampoline(car(exp), env); *tmp == scmHeadError {
 				ctl.Exception(tmp)
@@ -159,17 +155,6 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 	fn := e.trampoline(pair.car, env)
 	if *fn == scmHeadError {
 		ctl.Exception(fn)
-		return
-	}
-
-	// macro expand (macro args body)
-	if ok, _ := isPair(fn); ok && car(fn) == macroSym {
-		body := car(cdr(cdr(fn)))
-		pair := cons(car(cdr(fn)), ctl.exp)
-		menv := cons(pair, Nil)
-		expanded := e.trampoline(body, menv)
-		// fmt.Println("after extend:", ObjString(expanded))
-		ctl.TailEval(expanded, env)
 		return
 	}
 
@@ -240,8 +225,6 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	f := ctl.f
 	args := ctl.args
 
-	// fmt.Println("apply:", ObjString(f), "  	to:", ObjString(args))
-
 	if *f == scmHeadPrimitive {
 		prim := mustPrimitive(f)
 		fargs := ListToSlice(args)
@@ -262,7 +245,6 @@ func (e *Evaluator) apply(ctl *controlFlow) {
 	if params != Nil {
 		// Partial apply
 		proc := makeProcedure(params, body, env)
-		// fmt.Println("proc:", ObjString(proc))
 		ctl.Return(proc)
 		return
 	}
