@@ -16,23 +16,20 @@ lambda
 
 ## 极简内核
 
-特殊表只有 quote lambda if do macro
+特殊表只有 quote lambda if do
 甚至连 set 都是函数而不是特殊表
 
-## first class macro
-
 ## 严格尾递归
+
 ## partial apply
 
 ## 内置 pattern match
+
+(match (cons 1 2)
+    (cons a b) a)
+
 ## func 宏
 
-
-(macro sexp (if (cadr sexp) true (caddr sexp)))
-(or 1 2)
-
-(defmacro name (x) body)
-
-(set (quote name) (macro x body))
-
-(macro )
+(func map
+  f [] => []
+  f [x . y] => [x . (map f y)])
