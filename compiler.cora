@@ -1,3 +1,28 @@
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(func beta-replace
+      env s => (let find (assq s env)
+                    (if (= () find)
+                        s
+                      (cdr find))) where (symbol? s)
+                      env [['lambda [v] body] x] => (beta-replace (cons (cons v x) env) body) where (symbol? x)
+                      env ['lambda args body] => (let nenv (filter (lambda (x) (elem? (car x) args)) env)
+                                                      ['lambda args (beta-replace env body)])
+                      env ['if x y z] => (cons 'if (map (beta-replace env) [x y z]))
+                      env ['quote x] => ['quote x]
+                      env [x . y] => (map (beta-replace env) [x . y])
+                      env x => x)
+
+(defun simplify (exp)
+  (beta-replace () (propagate-boolean exp)))
+
+;; update the macroexpand function, add the simplify phase
+(defun macroexpand (exp)
+  (simplify (propagate-boolean (macroexpand-boot exp))))
+
 (defun builtin? (x)
   (elem? x '(+ - * / = set halt car cdr cons)))
 
