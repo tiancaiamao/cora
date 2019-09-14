@@ -14,7 +14,6 @@
                        (cons (rcons (cdr exp)) ())))
            ())))
 (set 'pair? cons?)
-(set 'equal? =)
 (set 'reverse-h
      (lambda (res l)
        (if (cons? l)
@@ -180,10 +179,10 @@
 (defun match1 (pat expr body cc)
   (let literal? (lambda (x) (and (atom? x) (not (symbol? x))))
     (cond
-     ((literal? pat) (list 'if (list 'equal? pat expr) body (list cc)))
+     ((literal? pat) (list 'if (list '= pat expr) body (list cc)))
      ((symbol? pat) (list 'let pat expr body))
      ((pair? pat) (cond
-                   ((= (car pat) 'quote) (list 'if (list 'equal? pat expr) body (list cc)))
+                   ((= (car pat) 'quote) (list 'if (list '= pat expr) body (list cc)))
                    ((= (car pat) 'list) (match-list-expander pat expr body cc))
                    ((= (car pat) 'cons) (match-cons-expander pat expr body cc))
                    ((= (car pat) 'list-rest)
