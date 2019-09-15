@@ -19,22 +19,114 @@ Obj primNumberMultiply(Obj x, Obj y) {
   return (x * y) >> 1;
 }
 
+static int idx = 0;
 
-void clofun_recur (struct VM* m);
-void clo_xxx (struct VM* m);
+void entry1 (struct VM* m);
+void entry2 (struct VM* m);
+
+static
+void ctx0 (struct VM* m) {
+  switch (idx) {
+  case 0:
+    m->pc = entry2;
+    idx = 1;
+    return;
+  case 1:
+    printf("run === first finish\n");
+    m->pc = entry1;
+    idx = 2;
+    return;
+  case 2:
+    printf("run === calc finish\n");
+    m->pc = NULL;
+  }
+  return;
+}
+
+static
+void printObj(Obj o) {
+  if (isfixnum(o)) {
+    printf("%d\n", fixnum(o));
+  } else if (iscons(o)) {
+    printf("cons = ");
+    printObj(car(o));
+    printObj(cdr(o));
+  } else if (issymbol(o)) {
+    printf("symbol");
+  } else if (isboolean(o)) {
+    if (o == True) {
+      printf("true");
+    } else if (o == False) {
+      printf("false");
+    }
+  } else if (o == Nil) {
+    printf("nil");
+  } else if (tag(o) == TAG_PTR) {
+    scmHead* h = ptr(o);
+    switch (h->type) {
+    case scmHeadNumber:
+      printf("ptr number");
+      break;
+    case scmHeadCons:
+      printf("cons");
+      break;
+    case scmHeadVector:
+      printf("vector");
+      break;
+    case scmHeadNull:
+      printf("null");
+      break;
+    case scmHeadString:
+      printf("string");
+      break;
+    case scmHeadSymbol:
+      printf("symbol");
+      break;
+    case scmHeadBoolean:
+      printf("boolean");
+      break;
+    case scmHeadClosure:
+      printf("closure");
+      break;
+    case scmHeadStream:
+      printf("stream");
+      break;
+    case scmHeadPrimitive:
+      printf("primitive");
+      break;
+    case scmHeadError:
+      printf("error");
+      break;
+    default:
+      printf("ptr unknown type = %d\n", h->type);
+    };
+  } else {
+    printf("unknown %ld", o);
+  }
+}
 
 int main(int argc, char *argv[]) {
   struct VM* m = newVM();
   /* init(); */
-	m->pc = clofun_recur ;
-  trampoline(m);
-  Obj res = m->stack[0];
 
-  m->pc = clo_xxx;
-  trampoline(m);
-  res = m->stack[0];
+  symbolSet(intern("%ctx0"), makeClosure(ctx0, 0));
 
-  printf("... %ld\n", res);
+	/* m->pc = entry1; */
+
+  ctx0(m);
+
+  trampoline(m);
+
+  // stack[0] is the ctx0 closure itself, according to the calling conversion.
+  Obj res = m->stack[1];
+
+  /* m->pc = clo_xxx; */
+  /* trampoline(m); */
+  /* res = m->stack[0]; */
+
+  printObj(res);
+
+  /* printf("... %ld\n", res); */
   /* printf("... %ld\n", car(res)); */
   /* printf("... %ld\n", car(cdr(res))); */
   /* printf("... %ld\n", car(cdr(cdr(res)))); */

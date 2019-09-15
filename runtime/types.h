@@ -47,6 +47,19 @@ struct VM {
 
 
 typedef uint8_t scmHeadType;
+enum {
+	scmHeadNumber,
+	scmHeadCons,
+	scmHeadVector,
+	scmHeadNull,
+	scmHeadString,
+	scmHeadSymbol,
+	scmHeadBoolean,
+	scmHeadClosure,
+	scmHeadStream,
+	scmHeadPrimitive,
+	scmHeadError,
+};
 
 typedef struct {
   uint8_t mark;
@@ -66,6 +79,7 @@ Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
 Obj makeCons(Obj car, Obj cdr);
+Obj consp(Obj v);
 
 Obj makeClosure(ClosureFn fn, int count, ...);
 Obj closureRef(Obj o, int idx);

@@ -183,6 +183,8 @@ func generateCBuiltinCall(w *os.File, src, dst Obj) {
 		fmt.Fprintf(w, "Obj %s = cons(%s, %s);\n", symbolString(dst), symbolString(input[1]), symbolString(input[2]))
 	case "car":
 		fmt.Fprintf(w, "Obj %s = car(%s);\n", symbolString(dst), symbolString(input[1]))
+	case "cons?":
+		fmt.Fprintf(w, "Obj %s = consp(%s);\n", symbolString(dst), symbolString(input[1]))
 	case "cdr":
 		fmt.Fprintf(w, "Obj %s = cdr(%s);\n", symbolString(dst), symbolString(input[1]))
 	default:

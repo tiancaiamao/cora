@@ -8,20 +8,6 @@
 
 #include <stdio.h>
 
-enum {
-	scmHeadNumber,
-	scmHeadCons,
-	scmHeadVector,
-	scmHeadNull,
-	scmHeadString,
-	scmHeadSymbol,
-	scmHeadBoolean,
-	scmHeadClosure,
-	scmHeadStream,
-	scmHeadPrimitive,
-	scmHeadError,
-};
-
 const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
@@ -88,14 +74,24 @@ newObj(scmHeadType tp, int sz) {
   return (void*)p;
 }
 
-Obj makeCons(Obj car, Obj cdr) {
+Obj
+makeCons(Obj car, Obj cdr) {
   struct scmCons* p = newObj(scmHeadCons, sizeof(struct scmCons));
   p->car = car;
   p->cdr = cdr;
   return ((Obj)(&p->head) | TAG_CONS);
 }
 
-Obj makeString(char *s, int len) {
+Obj
+consp(Obj x) {
+  if (iscons(x)) {
+    return True;
+  }
+  return False;
+}
+
+Obj
+makeString(char *s, int len) {
   int sz = len + sizeof(struct scmString);
   struct scmString* str = newObj(scmHeadString, sz);
   str->sz = len;

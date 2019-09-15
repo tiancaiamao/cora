@@ -24,7 +24,7 @@
   (simplify (propagate-boolean (macroexpand-boot exp))))
 
 (defun builtin? (x)
-  (elem? x '(+ - * / = set halt car cdr cons)))
+  (elem? x '(+ - * / = set halt car cdr cons cons?)))
 
 (defun cps-protect? (x)
   (or (= x ()) (number? x)  (string? x) (boolean? x) (symbol? x)
@@ -68,8 +68,11 @@
                                   (cps-args (cons x0 res)
                                             fn y)])))
 
+;; (defun cps-convert (ast)
+;;   (cps ast '(lambda (x) (halt x))))
+
 (defun cps-convert (ast)
-  (cps ast '(lambda (x) (halt x))))
+  (cps ast '%ctx0))
 
 (func parse
       _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
@@ -136,8 +139,8 @@
 
 (func collect-lambda
       res ['if a b c] return => (collect-lambda-list [] res [a b c]
-                                                     (lambda (res ls)
-                                                       (return res (cons 'if ls))))
+                                                     (lambda (res1 ls)
+                                                       (return res1 (cons 'if ls))))
       res ['lambda params body] return =>
       (let name (gensym 'clofun)
         (collect-lambda res body
