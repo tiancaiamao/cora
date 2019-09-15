@@ -21,24 +21,20 @@ Obj primNumberMultiply(Obj x, Obj y) {
 
 static int idx = 0;
 
-void entry1 (struct VM* m);
-void entry2 (struct VM* m);
+void entry0 (struct VM* m);
 
 static
 void ctx0 (struct VM* m) {
   switch (idx) {
   case 0:
-    m->pc = entry2;
+    m->pc = entry0;
     idx = 1;
     return;
   case 1:
     printf("run === first finish\n");
-    m->pc = entry1;
+    m->pc = NULL;
     idx = 2;
     return;
-  case 2:
-    printf("run === calc finish\n");
-    m->pc = NULL;
   }
   return;
 }

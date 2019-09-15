@@ -23,6 +23,33 @@
 (defun macroexpand (exp)
   (simplify (propagate-boolean (macroexpand-boot exp))))
 
+(defmacro cond (exp)
+  (if (= () (cdr exp))
+      ['error "no cond match"]
+      (let curr (cadr exp)
+           ['if (car curr)
+           (cadr curr)
+           (cons 'cond (cddr exp))])))
+
+(func and-macro
+      ['and true true] => true
+      ['and false _] => false
+      ['and _ false] => false
+      ['and x y] => ['if x y false])
+
+(defmacro and (exp)
+  (and-macro exp))
+
+;; begin x y z ...
+;; (do x (do y z))
+(func rewrite-begin
+      [x] => x
+      [x y] => ['do x y]
+      [x . y] => ['do x (rewrite-begin y)])
+
+(defmacro begin (exp)
+  (rewrite-begin (cdr exp)))
+
 (defun builtin? (x)
   (elem? x '(+ - * / = set halt car cdr cons cons?)))
 

@@ -122,6 +122,8 @@ func (e *Evaluator) eval(ctl *controlFlow) {
 			if listLength(pair.cdr) == 3 {
 				e.evalIf(car(exp), cadr(exp), caddr(exp), env, ctl)
 				return
+			} else {
+				ctl.Exception(MakeError("if form need three args"))
 			}
 		case "lambda": // (lambda (x y) x)
 			if env == Nil {
