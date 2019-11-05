@@ -4,14 +4,18 @@
 #include <assert.h>
 
 Obj
-builtinAdd(Obj x, Obj y) {
+builtinAdd(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
   assert(isfixnum(x));
   assert(isfixnum(y));
   return makeNumber(fixnum(x) + fixnum(y));
 }
 
 Obj
-builtinEqual(Obj a, Obj b) {
+builtinEqual(Obj args[]) {
+  Obj a = args[0];
+  Obj b = args[1];
   if (eq(a, b)) {
     return True;
   }
@@ -19,19 +23,25 @@ builtinEqual(Obj a, Obj b) {
 }
 
 Obj
-builtinMul(Obj x, Obj y) {
+builtinMul(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
   return (x * y) >> 1;
 }
 
 Obj
-builtinSub(Obj x, Obj y) {
+builtinSub(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
   assert(isfixnum(x));
   assert(isfixnum(y));
   return makeNumber(fixnum(x) - (fixnum(y)));
 }
 
 Obj
-builtinDiv(Obj x, Obj y) {
+builtinDiv(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
   assert(isfixnum(x));
   assert(isfixnum(y));
   return makeNumber(fixnum(x) / (fixnum(y)));
@@ -39,11 +49,16 @@ builtinDiv(Obj x, Obj y) {
 
 
 Obj
-builtinSet(Obj sym, Obj val) {
+builtinSet(Obj args[]) {
+  Obj sym = args[0];
+  Obj val = args[1];
+  assert(issymbol(sym));
   return symbolSet(sym, val);
 }
 
 Obj
-builtinCons(Obj x, Obj y) {
+builtinCons(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
   return cons(x, y);
 }

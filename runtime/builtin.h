@@ -1,12 +1,12 @@
 #ifndef _primitive_h_
 #define _primitive_h_
 
-Obj builtinAdd(Obj x, Obj y);
-Obj builtinSub(Obj x, Obj y);
-Obj builtinMul(Obj x, Obj y);
-Obj builtinDiv(Obj x, Obj y);
-Obj builtinEqual(Obj x, Obj y);
-Obj builtinSet(Obj x, Obj y);
-Obj builtinCons(Obj x, Obj y);
+Obj builtinAdd(Obj args[]);
+Obj builtinSub(Obj args[]);
+Obj builtinMul(Obj args[]);
+Obj builtinDiv(Obj args[]);
+Obj builtinEqual(Obj args[]);
+Obj builtinSet(Obj args[]);
+Obj builtinCons(Obj args[]);
 
 #endif

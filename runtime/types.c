@@ -92,7 +92,7 @@ makeClosure(Obj params, Obj body, Obj env) {
 }
 
 Obj
-makeBuiltin(Obj fn(Obj x, Obj y), int required) {
+makeBuiltin(BuiltinFn fn, int required) {
   struct scmBuiltin* builtin = newObj(scmHeadBuiltin, sizeof(struct scmBuiltin));
   builtin->fn = fn;
   builtin->required = required;

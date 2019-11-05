@@ -113,13 +113,13 @@ envGet(Obj env, Obj exp) {
 }
 
 static Obj
-envExtend(Obj env, Obj *params, struct slice *args) {
-  int i = 0;
-  while ((*params) != Nil && (i < args->size)) {
-    Obj pair = cons(car(*params), args->data[i]);
+envExtend(Obj env, Obj *params, struct slice *args, int *pos) {
+  *pos = 0;
+  while ((*params) != Nil && ((*pos) < args->size)) {
+    Obj pair = cons(car(*params), args->data[(*pos)]);
     env = cons(pair, env);
     (*params) = cdr(*params);
-    i++;
+    (*pos) = (*pos) + 1;
   }
   return env;
 }
@@ -162,6 +162,8 @@ eval(struct controlFlow* ctx) {
 
   /* printf("eval:"); */
   /* sexpWrite(NULL, exp); */
+  /* printf("\tenv:"); */
+  /* sexpWrite(NULL, env); */
   /* printf("\n"); */
 
   if (tag(exp) != TAG_SYMBOL && tag(exp) != TAG_CONS) {
@@ -242,11 +244,21 @@ apply(struct controlFlow *ctx) {
       Obj params = clo->params;
       Obj body = clo->body;
       Obj env = clo->env;
-      env = envExtend(env, &params, args);
+      int used;
+      env = envExtend(env, &params, args, &used);
       if (params != Nil) {
-        // partial apply
+        // auto curry
         Obj clo = makeClosure(params, body, env);
         return ctxReturn(ctx, clo);
+      }
+      if (used < args->size) {
+        // partial apply
+        Obj fn = Eval(body, env);
+        for (int i = used; i < args->size; i++) {
+          args->data[i-used] = args->data[i];
+        }
+        args->size = args->size - used;
+        return ctxTailApply(ctx, fn);
       }
       return ctxTailEval(ctx, body, env);
     }
@@ -255,9 +267,16 @@ apply(struct controlFlow *ctx) {
     break;
   case scmHeadBuiltin:
     {
-      struct scmBuiltin* builtin = (struct scmBuiltin*)(ptr(f));
-      Obj res = builtin->fn(args->data[0], args->data[1]);
-      return ctxReturn(ctx, res);
+      struct scmBuiltin* builtin = ptr(f);
+      if (args->size == builtin->required) {
+        Obj res = builtin->fn(args->data);
+        return ctxReturn(ctx, res);
+      }
+      if (args->size < builtin->required) {
+        // TODO makeNative
+      }
+      // TODO args->size > builtin->required
+      perror("provided more args than required in builtin");
     }
   default:
     printf("fuck unknown TODO\n");
@@ -293,11 +312,6 @@ init() {
   symbolSet(makeSymbol("cons"), makeBuiltin(builtinCons, 2));
 }
 
-int main(int argc, char *argv[]) {
-  init();
-  return coraMain(argc, argv);
-}
-
 int coraMain(int argc, char *argv[]) {
   struct VM* m = newVM();
   Obj env = Nil;
@@ -310,4 +324,9 @@ int coraMain(int argc, char *argv[]) {
     printf("\n");
   }
   return 0;
+}
+
+int main(int argc, char *argv[]) {
+  init();
+  return coraMain(argc, argv);
 }

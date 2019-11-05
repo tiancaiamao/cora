@@ -83,7 +83,7 @@ struct scmNative {
 };
 
 
-typedef Obj(*BuiltinFn)(Obj x, Obj y);
+typedef Obj(*BuiltinFn)(Obj args[]);
 
 struct scmBuiltin {
   scmHead head;
@@ -125,7 +125,7 @@ ClosureFn closureFn(Obj o);
 
 Obj makeString(char *s, int len);
 Obj makeNumber(int v);
-Obj makeBuiltin(Obj fn(Obj x, Obj y), int required);
+Obj makeBuiltin(BuiltinFn fn, int required);
 
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define fixnum(x) ((x)>>1)
