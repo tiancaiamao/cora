@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include <stdbool.h>
 #include "types.h"
 
 #include <stdio.h>
@@ -12,12 +11,6 @@ const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
-
-struct scmSymbol {
-  scmHead head;
-  Obj value;
-  char *str;
-};
 
 struct scmString {
   scmHead head;
@@ -28,17 +21,8 @@ struct scmString {
 
 struct Managed;
 
-static bool initialized = false;
-
-static void init();
-
 struct VM*
 newVM() {
-  if (initialized == false) {
-    init();
-    initialized = true;
-  }
-
   struct VM* m = malloc(sizeof(struct VM));
   m->size = 16;
   m->idx = 0;
@@ -46,13 +30,6 @@ newVM() {
   m->pc = NULL;
   return m;
 }
-
-struct scmClosure {
-  scmHead head;
-  ClosureFn fn;
-  int count;
-  Obj args[];
-};
 
 static void gcKeep(struct Managed* frame, scmHead* o);
 
@@ -70,7 +47,7 @@ newObj(scmHeadType tp, int sz) {
   assert(((Obj)p & TAG_PTR) == 0);
   p->mark = 0;
   p->type = tp;
-  gcKeep(&mem, p);
+  /* gcKeep(&mem, p); */
   return (void*)p;
 }
 
@@ -91,6 +68,47 @@ consp(Obj x) {
 }
 
 Obj
+cadr(Obj x) {
+  return car(cdr(x));
+}
+
+Obj
+caddr(Obj x) {
+  return car(cdr(cdr(x)));
+}
+
+Obj
+cdddr(Obj x) {
+  return cdr(cdr(cdr(x)));
+}
+
+Obj
+makeClosure(Obj params, Obj body, Obj env) {
+  struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
+  clo->params = params;
+  clo->body = body;
+  clo->env = env;
+  return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+Obj
+makeBuiltin(Obj fn(Obj x, Obj y), int required) {
+  struct scmBuiltin* builtin = newObj(scmHeadBuiltin, sizeof(struct scmBuiltin));
+  builtin->fn = fn;
+  builtin->required = required;
+  return ((Obj)(&builtin->head) | TAG_PTR);
+}
+
+Obj
+makeNumber(int v) {
+  if (v < 99999999) {
+    return (Obj)((v<<1));
+  }
+  // TODO
+  return (Obj)(99999999);
+}
+
+Obj
 makeString(char *s, int len) {
   int sz = len + sizeof(struct scmString);
   struct scmString* str = newObj(scmHeadString, sz);
@@ -107,6 +125,10 @@ struct trieNode {
 struct trieNode root = {};
 
 Obj makeSymbol(char *s) {
+
+  /* printf("make a symbol === %s\n", s); */
+
+  char *old = s;
   struct trieNode* p = &root;
   for(; *s; s++) {
     if (p->child[*s] == NULL) {
@@ -117,9 +139,13 @@ Obj makeSymbol(char *s) {
     p = p->child[*s];
   }
   if (p->sym == NULL) {
-    struct scmSymbol* sym = newObj(scmHeadSymbol, sizeof(struct scmSymbol));
+    struct scmSymbol* sym = newObj(scmHeadSymbol, sizeof(struct scmSymbol)+strlen(old));
+    sym->value = Nil;
+    strcpy(sym->str, old);
     p->sym = sym;
+    /* printf("+++ "); */
   }
+
   return ((Obj)(p->sym)) | TAG_SYMBOL;
 }
 
@@ -140,16 +166,16 @@ Obj symbolSet(Obj sym, Obj val) {
 }
 
 Obj
-makeClosure(ClosureFn fn, int count, ...) {
-  int sz = sizeof(struct scmClosure) + count*sizeof(Obj);
-  struct scmClosure* clo = newObj(scmHeadClosure, sz);
+makeNative(ClosureFn fn, int required, ...) {
+  int sz = sizeof(struct scmNative) + required*sizeof(Obj);
+  struct scmNative* clo = newObj(scmHeadClosure, sz);
   clo->fn = fn;
-  clo->count = count;
+  clo->required = required;
 
   va_list ap;
-  va_start(ap, count);
-  for (int i=0; i<count; i++) {
-    clo->args[i] = va_arg(ap, Obj);
+  va_start(ap, required);
+  for (int i=0; i<required; i++) {
+    clo->captured[i] = va_arg(ap, Obj);
   }
   va_end(ap);
 
@@ -158,23 +184,16 @@ makeClosure(ClosureFn fn, int count, ...) {
 
 ClosureFn
 closureFn(Obj o) {
-  struct scmClosure* clo = ptr(o);
+  struct scmNative* clo = ptr(o);
   assert(clo->head.type == scmHeadClosure);
   return clo->fn;
 }
 
 Obj
 closureRef(Obj o, int idx) {
-  struct scmClosure* clo = ptr(o);
+  struct scmNative* clo = ptr(o);
   assert(clo->head.type == scmHeadClosure);
-  return clo->args[idx];
-}
-
-static void
-init() {
-  mem.cap = 1024;
-  mem.size = 0;
-  mem.data = (scmHead**)malloc(sizeof(scmHead*) * mem.cap);
+  return clo->captured[idx];
 }
 
 static void
@@ -208,11 +227,11 @@ mark(Obj o) {
     break;
   case scmHeadString:
     break;
-  case scmHeadClosure:
+  case scmHeadNative:
     {
-      struct scmClosure* clo = (void*)head;
-      for (int i=0; i < clo->count; i++) {
-        mark(clo->args[i]);
+      struct scmNative* clo = (void*)head;
+      for (int i=0; i < clo->required; i++) {
+        mark(clo->captured[i]);
       }
       break;
     }
@@ -250,9 +269,29 @@ gc(struct VM* m) {
   sweep(&mem);
 }
 
-#ifdef _UNIT_TEST_
+bool
+eq(Obj x, Obj y) {
+  if (x == y) {
+    return true;
+  }
+
+  if (iscons(x) && iscons(y)) {
+    if (!eq(car(x), car(y))) {
+      return false;
+    }
+    return eq(cdr(x), cdr(y));
+  }
+
+  return false;
+}
+
+#ifdef _TYPES_TEST_
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "types.h"
 
 
 static void
@@ -270,11 +309,11 @@ testSymbol() {
   intern("abde");
   intern("zz");
 
-  assert(root.child['z'] != NULL);
-  assert(root.child['z']->sym == NULL);
+  /* assert(root.child['z'] != NULL); */
+  /* assert(root.child['z']->sym == NULL); */
 
-  struct trieNode* y = root.child['a']->child['s']->child['d'];
-  assert(ptr((Obj)(y->sym)) == ptr(x));
+  /* struct trieNode* y = root.child['a']->child['s']->child['d']; */
+  /* assert(ptr((Obj)(y->sym)) == ptr(x)); */
 
   Obj f1 = symbolGet(intern("fact"));
   Obj f2 = symbolGet(intern("fact"));
@@ -301,6 +340,9 @@ testBasic() {
   assert(hd == fixnum(3));
   assert(tl == Nil);
   assert(iscons(p));
+  assert(!iscons(Nil));
+  assert(!iscons(True));
+  assert(!iscons(False));
 
   Obj s = intern("test");
   Obj s1 = intern("test");
@@ -318,7 +360,7 @@ testBasic() {
   assert(tag(x) == TAG_PTR);
   assert(((scmHead*)ptr(x))->type == scmHeadString);
 
-  Obj clo = makeClosure(clofun, 3, fixnum(5), s, hd);
+  Obj clo = makeNative(clofun, 3, fixnum(5), s, hd);
   assert(closureFn(clo) == clofun);
   assert(closureRef(clo, 0) == fixnum(5));
   assert(closureRef(clo, 1) == s);
@@ -350,11 +392,31 @@ testGC() {
   printf("success\n");
 }
 
+static void
+testEQ() {
+  printf("test eq...");
+
+  Obj sym = intern("asd");
+  Obj n = fixnum(42);
+
+  assert(eq(sym, intern("asd")));
+  assert(!eq(sym, n));
+
+  Obj p = cons(sym, n);
+  Obj q = cons(sym, n);
+  Obj z = cons(p, Nil);
+  Obj x = cons(sym, cons(n, Nil));
+  assert(eq(p, q));
+  assert(!eq(z, x));
+
+  printf("success\n");
+}
+
 int main(int argc, char *argv[]) {
-  init();
   testSymbol();
   testBasic();
-  testGC();
+  testEQ();
+  /* testGC(); */
 }
 
 #endif

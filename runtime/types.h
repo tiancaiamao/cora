@@ -2,6 +2,7 @@
 #define _TYPES_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uintptr_t Obj;
 
@@ -36,7 +37,8 @@ const Obj Nil;
 const Obj Undef;
 
 struct VM;
-typedef void(*ClosureFn)(struct VM*);
+struct scmNative;
+typedef Obj (*ClosureFn)(struct VM* vm, struct scmNative* self);
 
 struct VM {
   Obj* stack;
@@ -56,9 +58,10 @@ enum {
 	scmHeadSymbol,
 	scmHeadBoolean,
 	scmHeadClosure,
+	scmHeadBuiltin,
 	scmHeadStream,
-	scmHeadPrimitive,
 	scmHeadError,
+  scmHeadNative,
 };
 
 typedef struct {
@@ -72,25 +75,66 @@ struct scmCons {
   Obj cdr;
 };
 
+struct scmNative {
+  scmHead head;
+  ClosureFn fn;
+  int required;
+  Obj captured[];
+};
+
+
+typedef Obj(*BuiltinFn)(Obj x, Obj y);
+
+struct scmBuiltin {
+  scmHead head;
+  BuiltinFn fn;
+  int required;
+};
+
+struct scmClosure {
+  scmHead head;
+  Obj params;
+  Obj body;
+  Obj env;
+};
+
+struct scmSymbol {
+  scmHead head;
+  Obj value;
+  char str[];
+};
+
 struct VM* newVM();
 
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
+
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
+Obj cadr(Obj v);
+Obj caddr(Obj v);
+Obj cdddr(Obj v);
 
-Obj makeClosure(ClosureFn fn, int count, ...);
+Obj makeNative(ClosureFn fn, int count, ...);
+
+Obj makeClosure(Obj params, Obj body, Obj env);
 Obj closureRef(Obj o, int idx);
 ClosureFn closureFn(Obj o);
 
 Obj makeString(char *s, int len);
+Obj makeNumber(int v);
+Obj makeBuiltin(Obj fn(Obj x, Obj y), int required);
 
 #define ptr(x) ((void*)((x)&~TAG_PTR))
-#define fixnum(x) (((uint)(x))>>1)
+#define fixnum(x) ((x)>>1)
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 #define cons(x,y) makeCons(x,y)
+
+bool eq(Obj x, Obj y);
+
+Obj symQuote, symIf, symLambda, symDo;
 
 #endif
