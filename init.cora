@@ -46,8 +46,11 @@
        (if (= () macros)
            exp
            ((lambda (item)
-              (if (and (cons? exp)
-                       (= (car exp) (car item)))
+              (if (if (cons? exp)
+                      (if (= (car exp) (car item))
+                          true
+                        false)
+                    false)
                   ((cdr item) exp)
                   (macroexpand1-h exp (cdr macros))))
             (car macros)))))
@@ -69,18 +72,17 @@
 (set 'macroexpand-boot
      (lambda (exp)
        (if (cons? exp)
-           (cond
-            ((= (car exp) *protect-symbol*) (cdr exp))
-            ((= (car exp) 'lambda) (cons 'lambda
-                                         (cons (cadr exp)
-                                               (cons (macroexpand-boot (caddr exp))
-                                                     ()))))
-            ((= (car exp) 'quote) exp)
-            (true ((lambda (exp1)
-                     (if (= exp1 exp)
-                         (map macroexpand-boot exp1)
-                       (macroexpand-boot exp1)))
-                   (macroexpand1 exp))))
+           (if (= (car exp) *protect-symbol*)
+               (cdr exp)
+             (if (= (car exp) (quote lambda))
+                 (cons (quote lambda) (cons (cadr exp) (cons (macroexpand-boot (caddr exp)) ())))
+               (if (= (car exp) (quote quote))
+                   exp
+                 ((lambda (exp1)
+                    (if (= exp1 exp)
+                        (map macroexpand-boot exp1)
+                      (macroexpand-boot exp1)))
+                  (macroexpand1 exp)))))
          exp)))
 
 (set 'macroexpand macroexpand-boot)
@@ -93,6 +95,7 @@
        (cons 'add-to-*macros*
              (cons (cons 'quote (cons (cadr exp) ()))
                    (cons (cons 'lambda (cons (caddr exp) (cdddr exp))) ())))))
+
 (add-to-*macros* 'defmacro defmacro-macro)
 (add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
 

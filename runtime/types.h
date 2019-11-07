@@ -38,7 +38,8 @@ const Obj Undef;
 
 struct VM;
 struct scmNative;
-typedef Obj (*ClosureFn)(struct VM* vm, struct scmNative* self);
+struct controlFlow;
+typedef void (*ClosureFn)(struct controlFlow* ctx, struct scmNative* self);
 
 struct VM {
   Obj* stack;
@@ -79,12 +80,12 @@ struct scmNative {
   scmHead head;
   ClosureFn fn;
   int required;
-  Obj captured[];
+  int captured;
+  Obj data[];
 };
 
 
 typedef Obj(*BuiltinFn)(Obj args[]);
-
 struct scmBuiltin {
   scmHead head;
   BuiltinFn fn;
@@ -117,7 +118,7 @@ Obj cadr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
 
-Obj makeNative(ClosureFn fn, int count, ...);
+Obj makeNative(ClosureFn fn, int required, int captured, ...);
 
 Obj makeClosure(Obj params, Obj body, Obj env);
 Obj closureRef(Obj o, int idx);

@@ -139,8 +139,9 @@ Obj makeSymbol(char *s) {
     p = p->child[*s];
   }
   if (p->sym == NULL) {
-    struct scmSymbol* sym = newObj(scmHeadSymbol, sizeof(struct scmSymbol)+strlen(old));
-    sym->value = Nil;
+    int sz = sizeof(struct scmSymbol)+strlen(old)+1;
+    struct scmSymbol* sym = newObj(scmHeadSymbol, sz);
+    sym->value = Undef;
     strcpy(sym->str, old);
     p->sym = sym;
     /* printf("+++ "); */
@@ -166,16 +167,17 @@ Obj symbolSet(Obj sym, Obj val) {
 }
 
 Obj
-makeNative(ClosureFn fn, int required, ...) {
+makeNative(ClosureFn fn, int required, int captured, ...) {
   int sz = sizeof(struct scmNative) + required*sizeof(Obj);
-  struct scmNative* clo = newObj(scmHeadClosure, sz);
+  struct scmNative* clo = newObj(scmHeadNative, sz);
   clo->fn = fn;
   clo->required = required;
+  clo->captured = captured;
 
   va_list ap;
-  va_start(ap, required);
-  for (int i=0; i<required; i++) {
-    clo->captured[i] = va_arg(ap, Obj);
+  va_start(ap, captured);
+  for (int i=0; i<captured; i++) {
+    clo->data[i] = va_arg(ap, Obj);
   }
   va_end(ap);
 
@@ -193,7 +195,7 @@ Obj
 closureRef(Obj o, int idx) {
   struct scmNative* clo = ptr(o);
   assert(clo->head.type == scmHeadClosure);
-  return clo->captured[idx];
+  return clo->data[idx];
 }
 
 static void
@@ -231,7 +233,7 @@ mark(Obj o) {
     {
       struct scmNative* clo = (void*)head;
       for (int i=0; i < clo->required; i++) {
-        mark(clo->captured[i]);
+        mark(clo->data[i]);
       }
       break;
     }

@@ -123,16 +123,32 @@ func (e *Evaluator) Eval(exp Obj) (res Obj) {
 	return
 }
 
+func (e *Evaluator) Call(f Obj, args Obj) Obj {
+	var ctl = controlFlow{
+		kind: controlFlowApply,
+		f:    f,
+		args: cons(args, Nil),
+	}
+	for ctl.kind != controlFlowReturn {
+		switch ctl.kind {
+		case controlFlowEval:
+			e.eval(&ctl)
+		case controlFlowApply:
+			e.apply(&ctl)
+		}
+	}
+	return ctl.result
+}
+
 func (e *Evaluator) MacroExpand(exp Obj) (Obj, error) {
 	expandSym := MakeSymbol("macroexpand")
-	if GetSymbolValue(expandSym) == nil {
+	fn := GetSymbolValue(expandSym)
+	if fn == nil {
 		return exp, nil
 	}
 
 	// If macroexpand function is available, use it to expand the input.
-	exp1 := cons(MakeSymbol("quote"), cons(exp, Nil))
-	input := cons(expandSym, cons(exp1, Nil))
-	res := e.trampoline(input, Nil)
+	res := e.Call(fn, exp)
 	if IsError(res) {
 		return Nil, errors.New(mustError(res).err)
 	}

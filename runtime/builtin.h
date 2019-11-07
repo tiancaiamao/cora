@@ -8,5 +8,9 @@ Obj builtinDiv(Obj args[]);
 Obj builtinEqual(Obj args[]);
 Obj builtinSet(Obj args[]);
 Obj builtinCons(Obj args[]);
+Obj builtinCar(Obj args[]);
+Obj builtinCdr(Obj args[]);
+Obj builtinIsCons(Obj args[]);
+Obj builtinGensym(Obj args[]);
 
 #endif

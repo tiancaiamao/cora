@@ -310,6 +310,9 @@ printObj(Obj o) {
     case scmHeadBuiltin:
       printf("builtin");
       break;
+    case scmHeadNative:
+      printf("native");
+      break;
     case scmHeadError:
       printf("error");
       break;

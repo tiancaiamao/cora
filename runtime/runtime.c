@@ -6,7 +6,6 @@
 #include "builtin.h"
 #include "reader.h"
 
-
 typedef enum {
   controlFlowReturn = 1,
   controlFlowEval,
@@ -134,6 +133,17 @@ Eval(Obj exp, Obj env) {
   return trampoline(&ctx1);
 }
 
+Obj
+Call(Obj f, Obj arg) {
+  struct controlFlow ctx;
+  sliceBorrowInit(&ctx.args, ctx.cache, CONTROL_CACHE_SIZE);
+  ctx.kind = controlFlowApply;
+  ctx.env = Nil;
+  ctx.fn = f;
+  sliceAppend(&ctx.args, arg);
+  return trampoline(&ctx);
+}
+
 static void
 evalArgList(Obj args, Obj env, struct slice *s) {
   sliceReset(s);
@@ -160,11 +170,11 @@ eval(struct controlFlow* ctx) {
   Obj exp = ctx->exp;
   Obj env = ctx->env;
 
-  /* printf("eval:"); */
-  /* sexpWrite(NULL, exp); */
-  /* printf("\tenv:"); */
-  /* sexpWrite(NULL, env); */
-  /* printf("\n"); */
+    /* printf("eval:"); */
+    /* sexpWrite(NULL, exp); */
+    /* printf("\tenv:"); */
+    /* sexpWrite(NULL, env); */
+    /* printf("\n"); */
 
   if (tag(exp) != TAG_SYMBOL && tag(exp) != TAG_CONS) {
     return ctxReturn(ctx, exp);
@@ -190,7 +200,7 @@ eval(struct controlFlow* ctx) {
     /* printf("\n"); */
 
     Obj val = symbolGet(exp);
-    if (val == Nil) {
+    if (val == Undef) {
       char buf[100];
       int n = snprintf(buf, 100, "symbol not bind:%s", ((struct scmSymbol*)(ptr(exp)))->str);
       perror(buf);
@@ -227,15 +237,15 @@ apply(struct controlFlow *ctx) {
   Obj f = ctx->fn;
   struct slice* args = &ctx->args;
 
-  /* printf("apply:"); */
-  /* sexpWrite(NULL, f); */
-  /* printf("\n"); */
-  /* for (int i=0; i<args->size; i++) { */
-  /*   printf("args %d = ", i); */
-  /*   sexpWrite(NULL, args->data[i]); */
-  /*   printf("\n"); */
-  /* } */
-  /* printf("\n"); */
+    /* printf("apply:"); */
+    /* sexpWrite(NULL, f); */
+    /* printf("\n"); */
+    /* for (int i=0; i<args->size; i++) { */
+    /*   printf("args %d = ", i); */
+    /*   sexpWrite(NULL, args->data[i]); */
+    /*   printf("\n"); */
+    /* } */
+    /* printf("\n"); */
 
   switch (((scmHead*)(ptr(f)))->type) {
   case scmHeadClosure:
@@ -263,8 +273,23 @@ apply(struct controlFlow *ctx) {
       return ctxTailEval(ctx, body, env);
     }
   case scmHeadNative:
-    printf("fuck native TODO");
-    break;
+    {
+      struct scmNative* native = ptr(f);
+      int provided = native->captured + args->size;
+      if (provided == native->required) {
+        if (native->captured >= 0) {
+          // TODO adjust args position
+        }
+        native->fn(ctx, native);
+        return;
+      }
+      if (provided < native->required) {
+        // TODO auto curry
+        return ctxReturn(ctx, makeNative(native->fn, native->required, provided));
+      }
+      // partial apply
+      printf("fuck native TODO");
+    }
   case scmHeadBuiltin:
     {
       struct scmBuiltin* builtin = ptr(f);
@@ -296,20 +321,54 @@ trampoline(struct controlFlow *ctx) {
   return ctx->result;
 }
 
+
+static void
+nativeFn(struct controlFlow *ctx, struct scmNative *self) {
+  return ctxReturn(ctx, ctx->args.data[0]);
+}
+
+
+static Obj symMacroExpand;
+
 static void
 init() {
-  symQuote = makeSymbol("quote");
-  symIf = makeSymbol("if");
-  symLambda = makeSymbol("lambda");
-  symDo = makeSymbol("do");
+  symQuote = intern("quote");
+  symIf = intern("if");
+  symLambda = intern("lambda");
+  symDo = intern("do");
+  symMacroExpand = intern("macroexpand");
 
-  symbolSet(makeSymbol("+"), makeBuiltin(builtinAdd, 2));
-  symbolSet(makeSymbol("-"), makeBuiltin(builtinSub, 2));
-  symbolSet(makeSymbol("*"), makeBuiltin(builtinMul, 2));
-  symbolSet(makeSymbol("/"), makeBuiltin(builtinDiv, 2));
-  symbolSet(makeSymbol("="), makeBuiltin(builtinEqual, 2));
-  symbolSet(makeSymbol("set"), makeBuiltin(builtinSet, 2));
-  symbolSet(makeSymbol("cons"), makeBuiltin(builtinCons, 2));
+  symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
+  symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
+  symbolSet(intern("*"), makeBuiltin(builtinMul, 2));
+  symbolSet(intern("/"), makeBuiltin(builtinDiv, 2));
+  symbolSet(intern("="), makeBuiltin(builtinEqual, 2));
+  symbolSet(intern("set"), makeBuiltin(builtinSet, 2));
+  symbolSet(intern("cons"), makeBuiltin(builtinCons, 2));
+  symbolSet(intern("car"), makeBuiltin(builtinCar, 1));
+  symbolSet(intern("cdr"), makeBuiltin(builtinCdr, 1));
+  symbolSet(intern("cons?"), makeBuiltin(builtinIsCons, 1));
+  symbolSet(intern("gensym"), makeBuiltin(builtinGensym, 1));
+
+  symbolSet(intern("f"), makeNative(nativeFn, 1, 0));
+}
+
+static Obj
+macroExpand(Obj exp) {
+  Obj expand = symbolGet(symMacroExpand);
+  if (expand == Undef) {
+    return exp;
+  }
+
+
+  Obj res = Call(expand, exp);
+
+  /* printf("after expand = "); */
+  /* sexpWrite(NULL, res); */
+  /* printf("\n"); */
+
+
+  return res;
 }
 
 int coraMain(int argc, char *argv[]) {
@@ -319,7 +378,8 @@ int coraMain(int argc, char *argv[]) {
   while(1) {
     printf("#> ");
     Obj exp = sexpRead(stdin);
-    Obj res = Eval(exp, env);
+    Obj exp1 = macroExpand(exp);
+    Obj res = Eval(exp1, env);
     sexpWrite(stdout, res);
     printf("\n");
   }

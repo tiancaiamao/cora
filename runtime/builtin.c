@@ -62,3 +62,35 @@ builtinCons(Obj args[]) {
   Obj y = args[1];
   return cons(x, y);
 }
+
+Obj
+builtinCar(Obj args[]) {
+  assert(iscons(args[0]));
+  return car(args[0]);
+}
+
+Obj
+builtinCdr(Obj args[]) {
+  assert(iscons(args[0]));
+  return cdr(args[0]);
+}
+
+Obj
+builtinIsCons(Obj args[]) {
+  if (iscons(args[0])) {
+    return True;
+  }
+  return False;
+}
+
+static uint64_t genIdx = 0;
+
+Obj
+builtinGensym(Obj args[]) {
+  assert(issymbol(args[0]));
+  struct scmSymbol *sym = ptr(args[0]);
+  char tmp[200];
+  snprintf(tmp, 100, "#%s%ld", sym->str, genIdx);
+  genIdx++;
+  return intern(tmp);
+}
