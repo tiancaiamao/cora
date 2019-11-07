@@ -47,6 +47,29 @@ builtinDiv(Obj args[]) {
   return makeNumber(fixnum(x) / (fixnum(y)));
 }
 
+Obj
+builtinGT(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  if (fixnum(x) > fixnum(y)) {
+    return True;
+  }
+  return False;
+}
+
+Obj
+builtinLT(Obj args[]) {
+  Obj x = args[0];
+  Obj y = args[1];
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  if (fixnum(x) < fixnum(y)) {
+    return True;
+  }
+  return False;
+}
 
 Obj
 builtinSet(Obj args[]) {
@@ -93,4 +116,32 @@ builtinGensym(Obj args[]) {
   snprintf(tmp, 100, "#%s%ld", sym->str, genIdx);
   genIdx++;
   return intern(tmp);
+}
+
+Obj
+builtinNot(Obj args[]) {
+  assert(isboolean(args[0]));
+  if (args[0] == True) {
+    return False;
+  }
+  return True;
+}
+
+Obj
+builtinIsSymbol(Obj args[]) {
+  if (issymbol(args[0])) {
+    return True;
+  }
+  return False;
+}
+
+Obj
+builtinIsString(Obj args[]) {
+  Obj o = args[0];
+  if (tag(o) == TAG_PTR) {
+    if (((scmHead*)ptr(o))->type == scmHeadString) {
+      return True;
+    }
+  }
+  return False;
 }

@@ -5,7 +5,7 @@
 (set 'cddr (lambda (x) (cdr (cdr x))))
 (set 'caddr (lambda (x) (car (cdr (cdr x)))))
 (set 'cadddr (lambda (x) (car (cdr (cdr (cdr x))))))
-(set 'cdddr (lambda (x) (cdr (cdr (cdr (x))))))
+(set 'cdddr (lambda (x) (cdr (cdr (cdr x)))))
 (set 'rcons
      (lambda (exp)
        (if (cons? exp)
@@ -104,13 +104,6 @@
         (list 'lambda (caddr exp)
               (cadddr exp))))
 
-(defmacro or (exp)
-  (cond
-   ((= (cadr exp) true) true)
-   ((= (caddr exp) true) true)
-   ((not (null? (cdddr exp))) (list '#or (cadr exp) (cons 'or (cddr exp))))
-   (true (cons '#or (cdr exp)))))
-
 (defun elem? (x l)
   (if (cons? l)
       (if (= (car l) x)
@@ -119,7 +112,6 @@
       false))
 
 (defun atom? (x) (not (cons? x)))
-(defun boolean? (x) (or (= x true) (= x false)))
 
 (defun rewrite-let (params args exp)
   (if (null? (cdr exp))
@@ -131,6 +123,43 @@
 
 (defmacro let (exp)
   (rewrite-let () () (cdr exp)))
+
+
+(defmacro cond (exp)
+  (if (= () (cdr exp))
+      (list 'error "no cond match")
+    (let curr (cadr exp)
+         (list 'if (car curr)
+               (cadr curr)
+               (cons 'cond (cddr exp))))))
+
+(defun rewrite-or (l)
+  (if (= l ())
+      false
+    (if (= (car l) true)
+        true
+      (let more (rewrite-or (cdr l))
+           (if (= more true)
+               true
+             (list 'if (car l) true more))))))
+
+(defmacro or (exp)
+  (rewrite-or (cdr exp)))
+
+(defun rewrite-and (l)
+  (if (= () l)
+      true
+    (if (= (car l) false)
+        false
+      (let more (rewrite-and (cdr l))
+           (if (= more false)
+               false
+             (list 'if (car l) more false))))))
+
+(defmacro and (exp)
+  (rewrite-and (cdr exp)))
+
+(defun boolean? (x) (or (= x true) (= x false)))
 
 (defun rcons1 (pat)
   (if (null? (cdr pat))

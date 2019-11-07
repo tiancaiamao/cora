@@ -12,5 +12,10 @@ Obj builtinCar(Obj args[]);
 Obj builtinCdr(Obj args[]);
 Obj builtinIsCons(Obj args[]);
 Obj builtinGensym(Obj args[]);
+Obj builtinGT(Obj args[]);
+Obj builtinLT(Obj args[]);
+Obj builtinNot(Obj args[]);
+Obj builtinIsSymbol(Obj args[]);
+Obj builtinIsString(Obj args[]);
 
 #endif

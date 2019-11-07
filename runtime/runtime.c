@@ -299,6 +299,8 @@ apply(struct controlFlow *ctx) {
       }
       if (args->size < builtin->required) {
         // TODO makeNative
+        perror("not enough args for builtin");
+        exit(-1);
       }
       // TODO args->size > builtin->required
       perror("provided more args than required in builtin");
@@ -349,6 +351,11 @@ init() {
   symbolSet(intern("cdr"), makeBuiltin(builtinCdr, 1));
   symbolSet(intern("cons?"), makeBuiltin(builtinIsCons, 1));
   symbolSet(intern("gensym"), makeBuiltin(builtinGensym, 1));
+  symbolSet(intern(">"), makeBuiltin(builtinGT, 2));
+  symbolSet(intern("<"), makeBuiltin(builtinLT, 2));
+  symbolSet(intern("not"), makeBuiltin(builtinNot, 1));
+  symbolSet(intern("symbol?"), makeBuiltin(builtinIsSymbol, 1));
+  symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
 
   symbolSet(intern("f"), makeNative(nativeFn, 1, 0));
 }
