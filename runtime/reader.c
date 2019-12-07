@@ -307,9 +307,6 @@ printObj(Obj o) {
     case scmHeadStream:
       printf("stream");
       break;
-    case scmHeadBuiltin:
-      printf("builtin");
-      break;
     case scmHeadNative:
       printf("native");
       break;

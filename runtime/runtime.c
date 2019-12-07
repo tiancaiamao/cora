@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "types.h"
 #include "builtin.h"
 #include "reader.h"
@@ -12,91 +13,91 @@ typedef enum {
   controlFlowApply,
 } controlFlowKind;
 
-struct slice {
-  Obj *data;
-  int size;
-  int cap;
-  bool borrow;
-};
-
-
-void
-sliceInit(struct slice *s, int size, int cap) {
-  if (cap > 0) {
-    s->data = malloc(sizeof(cap) * sizeof(Obj));
-  } else {
-    s->data = 0;
-  }
-  s->size = size;
-  s->cap = cap;
-  s->borrow = false;
-}
-
-void
-sliceBorrowInit(struct slice *s, Obj *data, int cap) {
-  s->data = data;
-  s->cap = cap;
-  s->size = 0;
-  s->borrow = true;
-}
-
-void
-sliceAppend(struct slice *s, Obj o) {
-  if (s->size == s->cap) {
-    if (s->cap == 0) {
-      s->cap == 8;
-    } else {
-      s->cap = s->cap * 2;
-    }
-    void* buf = malloc(s->cap * sizeof(Obj));
-    memcpy(buf, s->data, s->size * sizeof(Obj));
-    if (!s->borrow) {
-      free(s->data);
-    }
-    s->data = buf;
-    s->borrow = false;
-  }
-
-  s->data[s->size] = o;
-  s->size = s->size + 1;
-}
-
-void
-sliceReset(struct slice *s) {
-  s->size = 0;
-}
-
 #define CONTROL_CACHE_SIZE 8
 
 struct controlFlow {
+  // controlFlowReturn: result = data[0]
+  // controlFlowEval: exp, env = data[0], data[1]
+  // controlFlowApply: fn, args = data[0], data[1] ...
   controlFlowKind kind;
-  Obj fn;
-  Obj result;
-  Obj exp;
-  Obj env;
   Obj cache[CONTROL_CACHE_SIZE];
-  struct slice args;
+  // data != &cache[0] means the data is malloced.
+  Obj *data;
+  int size;
+  int cap;
 };
 
-static void
+void
+ctxInit(struct controlFlow *ctx) {
+  ctx->data = &ctx->cache[0];
+  ctx->size = 0;
+  ctx->cap = CONTROL_CACHE_SIZE;
+}
+
+Obj
+ctxGet(struct controlFlow *ctx, int n) {
+  return ctx->data[n];
+}
+
+void
+ctxSet(struct controlFlow *ctx, int idx, Obj val) {
+  assert(ctx->size > idx);
+  ctx->data[idx] = val;
+}
+
+void
+ctxReset(struct controlFlow *ctx) {
+  ctx->size = 0;
+}
+
+void
+ctxAppend(struct controlFlow *ctx, Obj o) {
+  if (ctx->size >= ctx->cap) {
+    void* buf = malloc(ctx->cap * sizeof(Obj));
+    memcpy(buf, ctx->data, ctx->size * sizeof(Obj));
+    if (ctx->data != ctx->cache) {
+      free(ctx->data);
+    }
+    ctx->data = buf;
+  }
+
+  ctx->data[ctx->size] = o;
+  ctx->size = ctx->size + 1;
+}
+
+/* void */
+/* ctxReserve(struct controlFlow *ctx, int size) { */
+/*   if (size <= ctx->cap) { */
+/*     return; */
+/*   } */
+/*   Obj *tmp = malloc(size * sizeof(Obj)); */
+/*   memcpy(tmp, ctx->data, ctx->size * sizeof(Obj)); */
+/*   if (ctx->data != ctx->cache) { */
+/*     free(ctx->data); */
+/*   } */
+/*   ctx->data = tmp; */
+/*   ctx->cap = size; */
+/*   ctx->size = size; */
+/* } */
+
+void
 ctxReturn(struct controlFlow *ctx, Obj val) {
   ctx->kind = controlFlowReturn;
-  ctx->result = val;
+  ctx->size = 1;
+  ctxSet(ctx, 0, val);
 }
 
 static void
-ctxTailApply(struct controlFlow *ctx, Obj fn) {
+ctxTailApply(struct controlFlow *ctx) {
   ctx->kind = controlFlowApply;
-  ctx->fn = fn;
 }
 
 static void
 ctxTailEval(struct controlFlow *ctx, Obj exp, Obj env) {
   ctx->kind = controlFlowEval;
-  ctx->exp = exp;
-  ctx->env = env;
+  ctxSet(ctx, 0, exp);
+  ctxSet(ctx, 1, env);
 }
-
 
 static Obj trampoline(struct controlFlow *ctx);
 
@@ -112,10 +113,10 @@ envGet(Obj env, Obj exp) {
 }
 
 static Obj
-envExtend(Obj env, Obj *params, struct slice *args, int *pos) {
-  *pos = 0;
-  while ((*params) != Nil && ((*pos) < args->size)) {
-    Obj pair = cons(car(*params), args->data[(*pos)]);
+envExtend(Obj env, Obj *params, struct controlFlow *ctx, int *pos) {
+  *pos = 1;
+  while ((*params) != Nil && ((*pos) < ctx->size)) {
+    Obj pair = cons(car(*params), ctx->data[(*pos)]);
     env = cons(pair, env);
     (*params) = cdr(*params);
     (*pos) = (*pos) + 1;
@@ -126,30 +127,30 @@ envExtend(Obj env, Obj *params, struct slice *args, int *pos) {
 Obj
 Eval(Obj exp, Obj env) {
   struct controlFlow ctx1;
-  sliceBorrowInit(&ctx1.args, ctx1.cache, CONTROL_CACHE_SIZE);
+  ctxInit(&ctx1);
   ctx1.kind = controlFlowEval;
-  ctx1.exp = exp;
-  ctx1.env = env;
+  ctx1.size = 2;
+  ctxSet(&ctx1, 0, exp);
+  ctxSet(&ctx1, 1, env);
   return trampoline(&ctx1);
 }
 
-Obj
-Call(Obj f, Obj arg) {
-  struct controlFlow ctx;
-  sliceBorrowInit(&ctx.args, ctx.cache, CONTROL_CACHE_SIZE);
-  ctx.kind = controlFlowApply;
-  ctx.env = Nil;
-  ctx.fn = f;
-  sliceAppend(&ctx.args, arg);
-  return trampoline(&ctx);
-}
+/* Obj */
+/* Call(Obj f, Obj arg) { */
+/*   struct controlFlow ctx; */
+/*   ctxInit(&ctx); */
+/*   ctx.kind = controlFlowApply; */
+/*   ctx.env = Nil; */
+/*   ctx.fn = f; */
+/*   sliceAppend(&ctx.args, arg); */
+/*   return trampoline(&ctx); */
+/* } */
 
 static void
-evalArgList(Obj args, Obj env, struct slice *s) {
-  sliceReset(s);
+evalArgList(Obj args, Obj env, struct controlFlow *ctx) {
   for (Obj ptr = args; ptr != Nil; ptr = cdr(ptr)) {
     Obj tmp = Eval(car(ptr), env);
-    sliceAppend(s, tmp);
+    ctxAppend(ctx, tmp);
   }
 }
 
@@ -167,14 +168,14 @@ evalIf(struct controlFlow* ctx, Obj a, Obj b, Obj c, Obj env) {
 
 static void
 eval(struct controlFlow* ctx) {
-  Obj exp = ctx->exp;
-  Obj env = ctx->env;
+  Obj exp = ctxGet(ctx, 0);
+  Obj env = ctxGet(ctx, 1);
 
-    /* printf("eval:"); */
-    /* sexpWrite(NULL, exp); */
-    /* printf("\tenv:"); */
-    /* sexpWrite(NULL, env); */
-    /* printf("\n"); */
+  /* printf("eval:"); */
+  /* sexpWrite(NULL, exp); */
+  /* printf("\tenv:"); */
+  /* sexpWrite(NULL, env); */
+  /* printf("\n"); */
 
   if (tag(exp) != TAG_SYMBOL && tag(exp) != TAG_CONS) {
     return ctxReturn(ctx, exp);
@@ -228,24 +229,25 @@ eval(struct controlFlow* ctx) {
   }
 
   Obj fn = Eval(hd, env);
-  evalArgList(exp, env, &ctx->args);
-  return ctxTailApply(ctx, fn);
+  ctxReset(ctx);
+  ctxAppend(ctx, fn);
+  evalArgList(exp, env, ctx);
+  return ctxTailApply(ctx);
 }
 
 static void
 apply(struct controlFlow *ctx) {
-  Obj f = ctx->fn;
-  struct slice* args = &ctx->args;
+  Obj f = ctxGet(ctx, 0);
 
-    /* printf("apply:"); */
-    /* sexpWrite(NULL, f); */
-    /* printf("\n"); */
-    /* for (int i=0; i<args->size; i++) { */
-    /*   printf("args %d = ", i); */
-    /*   sexpWrite(NULL, args->data[i]); */
-    /*   printf("\n"); */
-    /* } */
-    /* printf("\n"); */
+  /* printf("apply:"); */
+  /* sexpWrite(NULL, f); */
+  /* printf("\n"); */
+  /* for (int i=0; i<args->size; i++) { */
+  /*   printf("args %d = ", i); */
+  /*   sexpWrite(NULL, args->data[i]); */
+  /*   printf("\n"); */
+  /* } */
+  /* printf("\n"); */
 
   switch (((scmHead*)(ptr(f)))->type) {
   case scmHeadClosure:
@@ -254,51 +256,53 @@ apply(struct controlFlow *ctx) {
       Obj params = clo->params;
       Obj body = clo->body;
       Obj env = clo->env;
-      int used;
-      env = envExtend(env, &params, args, &used);
+      int pos;
+      env = envExtend(env, &params, ctx, &pos);
       if (params != Nil) {
         // auto curry
         Obj clo = makeClosure(params, body, env);
         return ctxReturn(ctx, clo);
       }
-      if (used < args->size) {
-        // partial apply
+      if (pos < ctx->size) {
         Obj fn = Eval(body, env);
-        for (int i = used; i < args->size; i++) {
-          args->data[i-used] = args->data[i];
+        ctx->data[0] = fn;
+        int j = 1;
+        for (int i = pos; i < ctx->size; i++) {
+          ctx->data[j] = ctx->data[i];
+          j++;
         }
-        args->size = args->size - used;
-        return ctxTailApply(ctx, fn);
+        ctx->size = j;
+        return ctxTailApply(ctx);
       }
       return ctxTailEval(ctx, body, env);
     }
+  /* case scmHeadNative: */
+  /*   { */
+  /*     struct scmNative* native = ptr(f); */
+  /*     int provided = native->captured + args->size; */
+  /*     if (provided == native->required) { */
+  /*       if (native->captured >= 0) { */
+  /*         // TODO adjust args position */
+  /*       } */
+  /*       native->fn(ctx); */
+  /*       return; */
+  /*     } */
+  /*     if (provided < native->required) { */
+  /*       // TODO auto curry */
+  /*       return ctxReturn(ctx, makeNative(native->fn, native->required, provided)); */
+  /*     } */
+  /*     // partial apply */
+  /*     printf("fuck native TODO"); */
+  /*   } */
   case scmHeadNative:
     {
       struct scmNative* native = ptr(f);
-      int provided = native->captured + args->size;
-      if (provided == native->required) {
-        if (native->captured >= 0) {
-          // TODO adjust args position
-        }
-        native->fn(ctx, native);
+      if (ctx->size == native->required) {
+        native->fn(ctx);
         return;
       }
-      if (provided < native->required) {
-        // TODO auto curry
-        return ctxReturn(ctx, makeNative(native->fn, native->required, provided));
-      }
-      // partial apply
-      printf("fuck native TODO");
-    }
-  case scmHeadBuiltin:
-    {
-      struct scmBuiltin* builtin = ptr(f);
-      if (args->size == builtin->required) {
-        Obj res = builtin->fn(args->data);
-        return ctxReturn(ctx, res);
-      }
-      if (args->size < builtin->required) {
-        // TODO makeNative
+      if (ctx->size < native->required) {
+        // TODO makePartial
         perror("not enough args for builtin");
         exit(-1);
       }
@@ -320,17 +324,12 @@ trampoline(struct controlFlow *ctx) {
       apply(ctx);
     }
   }
-  return ctx->result;
+  return ctxGet(ctx, 0);
 }
-
-
-static void
-nativeFn(struct controlFlow *ctx, struct scmNative *self) {
-  return ctxReturn(ctx, ctx->args.data[0]);
-}
-
 
 static Obj symMacroExpand;
+
+void clofun184(struct controlFlow *ctx);
 
 static void
 init() {
@@ -340,24 +339,24 @@ init() {
   symDo = intern("do");
   symMacroExpand = intern("macroexpand");
 
-  symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
-  symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
-  symbolSet(intern("*"), makeBuiltin(builtinMul, 2));
-  symbolSet(intern("/"), makeBuiltin(builtinDiv, 2));
-  symbolSet(intern("="), makeBuiltin(builtinEqual, 2));
-  symbolSet(intern("set"), makeBuiltin(builtinSet, 2));
-  symbolSet(intern("cons"), makeBuiltin(builtinCons, 2));
-  symbolSet(intern("car"), makeBuiltin(builtinCar, 1));
-  symbolSet(intern("cdr"), makeBuiltin(builtinCdr, 1));
-  symbolSet(intern("cons?"), makeBuiltin(builtinIsCons, 1));
-  symbolSet(intern("gensym"), makeBuiltin(builtinGensym, 1));
-  symbolSet(intern(">"), makeBuiltin(builtinGT, 2));
-  symbolSet(intern("<"), makeBuiltin(builtinLT, 2));
-  symbolSet(intern("not"), makeBuiltin(builtinNot, 1));
-  symbolSet(intern("symbol?"), makeBuiltin(builtinIsSymbol, 1));
-  symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
+  symbolSet(intern("+"), makeNative(builtinAdd, 3, 0));
+  symbolSet(intern("-"), makeNative(builtinSub, 3, 0));
+  symbolSet(intern("*"), makeNative(builtinMul, 3, 0));
+  symbolSet(intern("/"), makeNative(builtinDiv, 3, 0));
+  symbolSet(intern("="), makeNative(builtinEqual, 3, 0));
+  symbolSet(intern("set"), makeNative(builtinSet, 3, 0));
+  symbolSet(intern("cons"), makeNative(builtinCons, 3, 0));
+  symbolSet(intern("car"), makeNative(builtinCar, 2, 0));
+  symbolSet(intern("cdr"), makeNative(builtinCdr, 2, 0));
+  symbolSet(intern("cons?"), makeNative(builtinIsCons, 2, 0));
+  symbolSet(intern("gensym"), makeNative(builtinGensym, 2, 0));
+  symbolSet(intern(">"), makeNative(builtinGT, 3, 0));
+  symbolSet(intern("<"), makeNative(builtinLT, 3, 0));
+  symbolSet(intern("not"), makeNative(builtinNot, 2, 0));
+  symbolSet(intern("symbol?"), makeNative(builtinIsSymbol, 2, 0));
+  symbolSet(intern("string?"), makeNative(builtinIsString, 2, 0));
 
-  symbolSet(intern("f"), makeNative(nativeFn, 1, 0));
+  symbolSet(intern("test"), makeNative(clofun184, 2, 0));
 }
 
 static Obj
@@ -367,15 +366,17 @@ macroExpand(Obj exp) {
     return exp;
   }
 
+  // TODO:
+  return Nil;
 
-  Obj res = Call(expand, exp);
+  /* Obj res = Call(expand, exp); */
 
   /* printf("after expand = "); */
   /* sexpWrite(NULL, res); */
   /* printf("\n"); */
 
 
-  return res;
+  /* return res; */
 }
 
 int coraMain(int argc, char *argv[]) {

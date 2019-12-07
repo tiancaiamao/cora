@@ -4,7 +4,7 @@ Inspired by scheme, shen, femtolisp
 
 lisp1
 
-## 闭包是可视化的
+## ~~闭包是可视化的~~
 
 (lambda (a) 3 (b . 5) (c . 7))
 

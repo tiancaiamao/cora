@@ -1,147 +1,153 @@
-#include "types.h"
-#include "reader.h"
+#include "runtime.h"
 #include <stdio.h>
 #include <assert.h>
 
-Obj
-builtinAdd(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
+void
+builtinAdd(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  return makeNumber(fixnum(x) + fixnum(y));
+  Obj ret = makeNumber(fixnum(x) + fixnum(y));
+  ctxReturn(ctx, ret);
 }
 
-Obj
-builtinEqual(Obj args[]) {
-  Obj a = args[0];
-  Obj b = args[1];
+void
+builtinEqual(struct controlFlow *ctx) {
+  Obj a = ctxGet(ctx, 1);
+  Obj b = ctxGet(ctx, 2);
+
   if (eq(a, b)) {
-    return True;
+    ctxReturn(ctx, True);
+    return;
   }
-  return False;
+  ctxReturn(ctx, False);
 }
 
-Obj
-builtinMul(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
-  return (x * y) >> 1;
+void
+builtinMul(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
+  Obj ret =  (x * y) >> 1;
+  ctxReturn(ctx, ret);
 }
 
-Obj
-builtinSub(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
+void
+builtinSub(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  return makeNumber(fixnum(x) - (fixnum(y)));
+  Obj ret = makeNumber(fixnum(x) - (fixnum(y)));
+  ctxReturn(ctx, ret);
 }
 
-Obj
-builtinDiv(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
+void
+builtinDiv(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  return makeNumber(fixnum(x) / (fixnum(y)));
+  Obj ret = makeNumber(fixnum(x) / (fixnum(y)));
+  ctxReturn(ctx, ret);
 }
 
-Obj
-builtinGT(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
+void
+builtinGT(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
   assert(isfixnum(x));
   assert(isfixnum(y));
   if (fixnum(x) > fixnum(y)) {
-    return True;
+    ctxReturn(ctx, True);
   }
-  return False;
+  ctxReturn(ctx, False);
 }
 
-Obj
-builtinLT(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
+void
+builtinLT(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
   assert(isfixnum(x));
   assert(isfixnum(y));
   if (fixnum(x) < fixnum(y)) {
-    return True;
+    ctxReturn(ctx, True);
   }
-  return False;
+  ctxReturn(ctx, False);
 }
 
-Obj
-builtinSet(Obj args[]) {
-  Obj sym = args[0];
-  Obj val = args[1];
+void
+builtinSet(struct controlFlow *ctx) {
+  Obj sym = ctxGet(ctx, 1);
+  Obj val = ctxGet(ctx, 2);
   assert(issymbol(sym));
-  return symbolSet(sym, val);
+  ctxReturn(ctx, symbolSet(sym, val));
 }
 
-Obj
-builtinCons(Obj args[]) {
-  Obj x = args[0];
-  Obj y = args[1];
-  return cons(x, y);
+void
+builtinCons(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
+  ctxReturn(ctx, cons(x, y));
 }
 
-Obj
-builtinCar(Obj args[]) {
-  assert(iscons(args[0]));
-  return car(args[0]);
+void
+builtinCar(struct controlFlow *ctx) {
+  assert(iscons(ctxGet(ctx, 1)));
+  ctxReturn(ctx, car(ctxGet(ctx, 1)));
 }
 
-Obj
-builtinCdr(Obj args[]) {
-  assert(iscons(args[0]));
-  return cdr(args[0]);
+void
+builtinCdr(struct controlFlow *ctx) {
+  assert(iscons(ctxGet(ctx, 1)));
+  ctxReturn(ctx, cdr(ctxGet(ctx, 1)));
 }
 
-Obj
-builtinIsCons(Obj args[]) {
-  if (iscons(args[0])) {
-    return True;
+void
+builtinIsCons(struct controlFlow *ctx) {
+  if (iscons(ctxGet(ctx, 1))) {
+    ctxReturn(ctx, True);
   }
-  return False;
+  ctxReturn(ctx, False);
 }
 
 static uint64_t genIdx = 0;
 
-Obj
-builtinGensym(Obj args[]) {
-  assert(issymbol(args[0]));
-  struct scmSymbol *sym = ptr(args[0]);
+void
+builtinGensym(struct controlFlow *ctx) {
+  Obj arg = ctxGet(ctx, 1);
+  assert(issymbol(arg));
+  struct scmSymbol *sym = ptr(arg);
   char tmp[200];
   snprintf(tmp, 100, "#%s%ld", sym->str, genIdx);
   genIdx++;
-  return intern(tmp);
+  ctxReturn(ctx, intern(tmp));
 }
 
-Obj
-builtinNot(Obj args[]) {
-  assert(isboolean(args[0]));
-  if (args[0] == True) {
-    return False;
+void
+builtinNot(struct controlFlow *ctx) {
+  assert(isboolean(ctxGet(ctx, 1)));
+  if (ctxGet(ctx, 1) == True) {
+    ctxReturn(ctx, False);
   }
-  return True;
+  ctxReturn(ctx, True);
 }
 
-Obj
-builtinIsSymbol(Obj args[]) {
-  if (issymbol(args[0])) {
-    return True;
+void
+builtinIsSymbol(struct controlFlow *ctx) {
+  if (issymbol(ctxGet(ctx, 1))) {
+    ctxReturn(ctx, True);
   }
-  return False;
+  ctxReturn(ctx, False);
 }
 
-Obj
-builtinIsString(Obj args[]) {
-  Obj o = args[0];
+void
+builtinIsString(struct controlFlow *ctx) {
+  Obj o = ctxGet(ctx, 1);
   if (tag(o) == TAG_PTR) {
     if (((scmHead*)ptr(o))->type == scmHeadString) {
-      return True;
+      ctxReturn(ctx, True);
     }
   }
-  return False;
+  ctxReturn(ctx, False);
 }

@@ -92,14 +92,6 @@ makeClosure(Obj params, Obj body, Obj env) {
 }
 
 Obj
-makeBuiltin(BuiltinFn fn, int required) {
-  struct scmBuiltin* builtin = newObj(scmHeadBuiltin, sizeof(struct scmBuiltin));
-  builtin->fn = fn;
-  builtin->required = required;
-  return ((Obj)(&builtin->head) | TAG_PTR);
-}
-
-Obj
 makeNumber(int v) {
   if (v < 99999999) {
     return (Obj)((v<<1));
@@ -167,32 +159,34 @@ Obj symbolSet(Obj sym, Obj val) {
 }
 
 Obj
-makeNative(ClosureFn fn, int required, int captured, ...) {
-  int sz = sizeof(struct scmNative) + required*sizeof(Obj);
+makeNative(nativeFuncPtr fn, int required, int captured, ...) {
+  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
   struct scmNative* clo = newObj(scmHeadNative, sz);
   clo->fn = fn;
   clo->required = required;
   clo->captured = captured;
 
-  va_list ap;
-  va_start(ap, captured);
-  for (int i=0; i<captured; i++) {
-    clo->data[i] = va_arg(ap, Obj);
+  if (captured > 0) {
+    va_list ap;
+    va_start(ap, captured);
+    for (int i=0; i<captured; i++) {
+      clo->data[i] = va_arg(ap, Obj);
+    }
+    va_end(ap);
   }
-  va_end(ap);
 
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-ClosureFn
-closureFn(Obj o) {
+nativeFuncPtr
+nativeFn(Obj o) {
   struct scmNative* clo = ptr(o);
   assert(clo->head.type == scmHeadClosure);
   return clo->fn;
 }
 
 Obj
-closureRef(Obj o, int idx) {
+nativeRef(Obj o, int idx) {
   struct scmNative* clo = ptr(o);
   assert(clo->head.type == scmHeadClosure);
   return clo->data[idx];

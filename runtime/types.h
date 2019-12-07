@@ -59,7 +59,7 @@ enum {
 	scmHeadSymbol,
 	scmHeadBoolean,
 	scmHeadClosure,
-	scmHeadBuiltin,
+	scmHeadPartial,
 	scmHeadStream,
 	scmHeadError,
   scmHeadNative,
@@ -76,20 +76,14 @@ struct scmCons {
   Obj cdr;
 };
 
+typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
+
 struct scmNative {
   scmHead head;
-  ClosureFn fn;
+  nativeFuncPtr fn;
   int required;
   int captured;
   Obj data[];
-};
-
-
-typedef Obj(*BuiltinFn)(Obj args[]);
-struct scmBuiltin {
-  scmHead head;
-  BuiltinFn fn;
-  int required;
 };
 
 struct scmClosure {
@@ -118,15 +112,14 @@ Obj cadr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
 
-Obj makeNative(ClosureFn fn, int required, int captured, ...);
+Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
 
 Obj makeClosure(Obj params, Obj body, Obj env);
-Obj closureRef(Obj o, int idx);
-ClosureFn closureFn(Obj o);
+Obj nativeRef(Obj o, int idx);
+nativeFuncPtr nativeFn(Obj o);
 
 Obj makeString(char *s, int len);
 Obj makeNumber(int v);
-Obj makeBuiltin(BuiltinFn fn, int required);
 
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define fixnum(x) ((x)>>1)
