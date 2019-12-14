@@ -310,6 +310,12 @@ printObj(Obj o) {
     case scmHeadNative:
       printf("native");
       break;
+    case scmHeadCurry:
+      {
+        struct scmCurry *res = (void*)h;
+        printf("curry %d", res->captured);
+        break;
+      }
     case scmHeadError:
       printf("error");
       break;

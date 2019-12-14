@@ -59,7 +59,7 @@ enum {
 	scmHeadSymbol,
 	scmHeadBoolean,
 	scmHeadClosure,
-	scmHeadPartial,
+	scmHeadCurry,
 	scmHeadStream,
 	scmHeadError,
   scmHeadNative,
@@ -81,6 +81,16 @@ typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
 struct scmNative {
   scmHead head;
   nativeFuncPtr fn;
+  // required is the argument number of the nativeFunc.
+  int required;
+  // captured is the size of the data, it's immutable after makeNative.
+  int captured;
+  Obj data[];
+};
+
+struct scmCurry {
+  scmHead head;
+  struct scmNative* fn;
   int required;
   int captured;
   Obj data[];
@@ -113,7 +123,8 @@ Obj caddr(Obj v);
 Obj cdddr(Obj v);
 
 Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
-
+Obj makeCurry(struct scmNative *fn, int required, int captured);
+void curryFill(Obj curry, int start, int end, Obj *base);
 Obj makeClosure(Obj params, Obj body, Obj env);
 Obj nativeRef(Obj o, int idx);
 nativeFuncPtr nativeFn(Obj o);

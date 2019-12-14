@@ -150,12 +150,32 @@ symbolGet(Obj sym) {
   return s->value;
 }
 
-Obj symbolSet(Obj sym, Obj val) {
+Obj
+symbolSet(Obj sym, Obj val) {
   assert(issymbol(sym));
   struct scmSymbol* s = ptr(sym);
   assert(s->head.type == scmHeadSymbol);
   s->value = val;
   return val;
+}
+
+Obj
+makeCurry(struct scmNative* fn, int required, int captured) {
+  int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
+  struct scmCurry* clo = newObj(scmHeadCurry, sz);
+  clo->fn = fn;
+  clo->required = required;
+  clo->captured = captured;
+  assert(captured > 0);
+  return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+void
+curryFill(Obj curry, int start, int end, Obj *base) {
+  struct scmCurry *dst = ptr(curry);
+  for (int i=start; i<end; i++) {
+    dst->data[i] = base[i - start];
+  }
 }
 
 Obj
@@ -188,7 +208,7 @@ nativeFn(Obj o) {
 Obj
 nativeRef(Obj o, int idx) {
   struct scmNative* clo = ptr(o);
-  assert(clo->head.type == scmHeadClosure);
+  assert(clo->head.type == scmHeadNative);
   return clo->data[idx];
 }
 

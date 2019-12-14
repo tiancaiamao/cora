@@ -45,40 +45,38 @@ ctxSet(struct controlFlow *ctx, int idx, Obj val) {
   ctx->data[idx] = val;
 }
 
-void
-ctxReset(struct controlFlow *ctx) {
-  ctx->size = 0;
+static void
+ctxReCap(struct controlFlow *ctx, int cap) {
+  void* buf = malloc(cap * sizeof(Obj));
+  memcpy(buf, ctx->data, ctx->size * sizeof(Obj));
+  if (ctx->data != ctx->cache) {
+    free(ctx->data);
+  }
+  ctx->cap = cap;
+  ctx->data = buf;
 }
 
 void
 ctxAppend(struct controlFlow *ctx, Obj o) {
   if (ctx->size >= ctx->cap) {
-    void* buf = malloc(ctx->cap * sizeof(Obj));
-    memcpy(buf, ctx->data, ctx->size * sizeof(Obj));
-    if (ctx->data != ctx->cache) {
-      free(ctx->data);
-    }
-    ctx->data = buf;
+    ctxReCap(ctx, 2 * ctx->cap);
   }
-
   ctx->data[ctx->size] = o;
   ctx->size = ctx->size + 1;
 }
 
-/* void */
-/* ctxReserve(struct controlFlow *ctx, int size) { */
-/*   if (size <= ctx->cap) { */
-/*     return; */
-/*   } */
-/*   Obj *tmp = malloc(size * sizeof(Obj)); */
-/*   memcpy(tmp, ctx->data, ctx->size * sizeof(Obj)); */
-/*   if (ctx->data != ctx->cache) { */
-/*     free(ctx->data); */
-/*   } */
-/*   ctx->data = tmp; */
-/*   ctx->cap = size; */
-/*   ctx->size = size; */
-/* } */
+void
+ctxResize(struct controlFlow *ctx, int size) {
+  if (ctx->cap < size) {
+    ctxReCap(ctx, size);
+  }
+  ctx->size = size;
+}
+
+void
+ctxReset(struct controlFlow *ctx) {
+  ctx->size = 0;
+}
 
 void
 ctxReturn(struct controlFlow *ctx, Obj val) {
@@ -236,15 +234,34 @@ eval(struct controlFlow* ctx) {
 }
 
 static void
+partialApply(struct controlFlow *ctx, int required) {
+  struct controlFlow ctx1;
+  ctxInit(&ctx1);
+  for (int i=0; i<required; i++) {
+    ctxAppend(&ctx1, ctxGet(ctx, i));
+  }
+  ctx1.kind = controlFlowApply;
+  Obj fn = trampoline(&ctx1);
+  ctx->data[0] = fn;
+  int dst = 1;
+  for (int i=required; i<ctx->size; i++) {
+    ctx->data[dst] = ctx->data[i];
+    dst++;
+  }
+  ctxResize(ctx, dst);
+  return ctxTailApply(ctx);
+}
+
+static void
 apply(struct controlFlow *ctx) {
   Obj f = ctxGet(ctx, 0);
 
   /* printf("apply:"); */
   /* sexpWrite(NULL, f); */
   /* printf("\n"); */
-  /* for (int i=0; i<args->size; i++) { */
+  /* for (int i=0; i<ctx->size; i++) { */
   /*   printf("args %d = ", i); */
-  /*   sexpWrite(NULL, args->data[i]); */
+  /*   sexpWrite(NULL, ctx->data[i]); */
   /*   printf("\n"); */
   /* } */
   /* printf("\n"); */
@@ -276,24 +293,6 @@ apply(struct controlFlow *ctx) {
       }
       return ctxTailEval(ctx, body, env);
     }
-  /* case scmHeadNative: */
-  /*   { */
-  /*     struct scmNative* native = ptr(f); */
-  /*     int provided = native->captured + args->size; */
-  /*     if (provided == native->required) { */
-  /*       if (native->captured >= 0) { */
-  /*         // TODO adjust args position */
-  /*       } */
-  /*       native->fn(ctx); */
-  /*       return; */
-  /*     } */
-  /*     if (provided < native->required) { */
-  /*       // TODO auto curry */
-  /*       return ctxReturn(ctx, makeNative(native->fn, native->required, provided)); */
-  /*     } */
-  /*     // partial apply */
-  /*     printf("fuck native TODO"); */
-  /*   } */
   case scmHeadNative:
     {
       struct scmNative* native = ptr(f);
@@ -301,13 +300,58 @@ apply(struct controlFlow *ctx) {
         native->fn(ctx);
         return;
       }
+
       if (ctx->size < native->required) {
-        // TODO makePartial
-        perror("not enough args for builtin");
-        exit(-1);
+        if (ctx->size == 1) {
+          // size = 1 means no arguments, ctx->data[0] is actually the fn itself
+          // Not need to make a curry object for this special case: (f) = f
+          return ctxReturn(ctx, f);
+        }
+        int required = native->required - ctx->size + 1; // +1 to include itself as the first arg.
+        Obj curry = makeCurry(native, required, ctx->size);
+        curryFill(curry, 0, ctx->size, ctx->data);
+        return ctxReturn(ctx, curry);
       }
-      // TODO args->size > builtin->required
-      perror("provided more args than required in builtin");
+
+      return partialApply(ctx, native->required);
+    }
+  case scmHeadCurry:
+    {
+      struct scmCurry* curry = ptr(f);
+      struct scmNative* native = curry->fn;
+      if (ctx->size == curry->required) {
+        assert(curry->required + curry->captured == native->required + 1);
+        ctxResize(ctx, native->required);
+        // Move call passed arguments to the right place.
+        int dst = native->required - 1;
+        int src = curry->required - 1; // ctx->size of overwrited in ctxResize!!!
+        while(src > 0) { // ignore data[0] because it's the curry object itself.
+          ctx->data[dst] = ctx->data[src];
+          dst--;
+          src--;
+        }
+        // Move curry captured arguments to the right place.
+        src = curry->captured - 1;
+        while(src >= 0) {
+          ctx->data[dst] = curry->data[src];
+          dst--;
+          src--;
+        }
+        assert(dst == -1);
+        assert(curry->fn == ptr(ctx->data[0]));
+        return ctxTailApply(ctx);
+      }
+
+      if (ctx->size < curry->required) {
+        int required = curry->required - (ctx->size - 1);
+        int captured = curry->captured + (ctx->size - 1);
+        Obj newCurry = makeCurry(native, required, captured);
+        curryFill(newCurry, 0, curry->captured, curry->data);
+        curryFill(newCurry, curry->captured, captured, &ctx->data[1]);
+        return ctxReturn(ctx, newCurry);
+      }
+
+      return partialApply(ctx, curry->required);
     }
   default:
     printf("fuck unknown TODO\n");
@@ -329,7 +373,7 @@ trampoline(struct controlFlow *ctx) {
 
 static Obj symMacroExpand;
 
-void clofun184(struct controlFlow *ctx);
+void testXXX(struct controlFlow *ctx);
 
 static void
 init() {
@@ -356,7 +400,7 @@ init() {
   symbolSet(intern("symbol?"), makeNative(builtinIsSymbol, 2, 0));
   symbolSet(intern("string?"), makeNative(builtinIsString, 2, 0));
 
-  symbolSet(intern("test"), makeNative(clofun184, 2, 0));
+  symbolSet(intern("test"), makeNative(testXXX, 4, 0));
 }
 
 static Obj
