@@ -36,18 +36,8 @@ const Obj False;
 const Obj Nil;
 const Obj Undef;
 
-struct VM;
 struct scmNative;
 struct controlFlow;
-typedef void (*ClosureFn)(struct controlFlow* ctx, struct scmNative* self);
-
-struct VM {
-  Obj* stack;
-  int size;
-  int idx;
-  ClosureFn pc;
-};
-
 
 typedef uint8_t scmHeadType;
 enum {
@@ -59,10 +49,8 @@ enum {
 	scmHeadSymbol,
 	scmHeadBoolean,
 	scmHeadClosure,
-	scmHeadCurry,
-	scmHeadStream,
-	scmHeadError,
   scmHeadNative,
+	scmHeadCurry,
 };
 
 typedef struct {
@@ -109,37 +97,37 @@ struct scmSymbol {
   char str[];
 };
 
-struct VM* newVM();
-
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
 
+#define cons(x, y) makeCons(x, y)
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
+#define car(v) (((struct scmCons*)(ptr(v)))->car)
+#define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
 Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
-Obj makeCurry(struct scmNative *fn, int required, int captured);
-void curryFill(Obj curry, int start, int end, Obj *base);
-Obj makeClosure(Obj params, Obj body, Obj env);
 Obj nativeRef(Obj o, int idx);
 nativeFuncPtr nativeFn(Obj o);
+
+Obj makeCurry(struct scmNative *fn, int required, int captured);
+void curryFill(Obj curry, int start, int end, Obj *base);
+
+Obj makeClosure(Obj params, Obj body, Obj env);
 
 Obj makeString(char *s, int len);
 Obj makeNumber(int v);
 
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define fixnum(x) ((x)>>1)
-#define car(v) (((struct scmCons*)(ptr(v)))->car)
-#define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
-#define cons(x,y) makeCons(x,y)
 
 bool eq(Obj x, Obj y);
 
-Obj symQuote, symIf, symLambda, symDo;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand;
 
 #endif

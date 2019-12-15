@@ -5,10 +5,12 @@
 #include "reader.h"
 
 Obj ctxGet(struct controlFlow *ctx, int n);
-Obj ctxSet(struct controlFlow *ctx, int n, Obj x);
-Obj ctxResize(struct controlFlow *ctx, int n);
+void ctxSet(struct controlFlow *ctx, int n, Obj x);
+void ctxResize(struct controlFlow *ctx, int n);
 void ctxAppend(struct controlFlow *ctx, Obj o);
 void ctxReturn(struct controlFlow *ctx, Obj val);
-Obj Call(Obj f, Obj arg);
+Obj Call(Obj sym, int nargs, ...);
+
+void coraInit();
 
 #endif

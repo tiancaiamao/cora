@@ -131,7 +131,7 @@
                                                         (return res2 [['lambda params body1] . args1])))))
       res ['%closure lam . fvs] return => (collect-lambda res lam
                                                           (lambda (res1 name)
-                                                            (return res1 ['%closure name . fvs])))
+                                                            (return res1 ['%closure name (length (cadr lam)) . fvs])))
       res [f . args] return => (collect-lambda-list [] res args
                                                     (lambda (res1 args1)
                                                       (return res1 (cons f args1))))

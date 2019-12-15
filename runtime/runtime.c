@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "types.h"
 #include "builtin.h"
 #include "reader.h"
+#include "runtime.h"
 
 typedef enum {
   controlFlowReturn = 1,
@@ -74,11 +76,6 @@ ctxResize(struct controlFlow *ctx, int size) {
 }
 
 void
-ctxReset(struct controlFlow *ctx) {
-  ctx->size = 0;
-}
-
-void
 ctxReturn(struct controlFlow *ctx, Obj val) {
   ctx->kind = controlFlowReturn;
   ctx->size = 1;
@@ -133,16 +130,23 @@ Eval(Obj exp, Obj env) {
   return trampoline(&ctx1);
 }
 
-/* Obj */
-/* Call(Obj f, Obj arg) { */
-/*   struct controlFlow ctx; */
-/*   ctxInit(&ctx); */
-/*   ctx.kind = controlFlowApply; */
-/*   ctx.env = Nil; */
-/*   ctx.fn = f; */
-/*   sliceAppend(&ctx.args, arg); */
-/*   return trampoline(&ctx); */
-/* } */
+Obj
+Call(Obj sym, int nargs, ...) {
+  Obj fn = symbolGet(sym);
+  struct controlFlow ctx;
+  ctxInit(&ctx);
+  ctx.kind = controlFlowApply;
+  ctxResize(&ctx, nargs+1);
+  ctxSet(&ctx, 0, fn);
+  va_list ap;
+  va_start(ap, nargs);
+  for (int i=0; i<nargs; i++) {
+    ctxSet(&ctx, i+1, va_arg(ap, Obj));
+  }
+  va_end(ap);
+
+  return trampoline(&ctx);
+}
 
 static void
 evalArgList(Obj args, Obj env, struct controlFlow *ctx) {
@@ -182,22 +186,8 @@ eval(struct controlFlow* ctx) {
   if (issymbol(exp)) {
     Obj bind = envGet(env, exp);
     if (bind != Nil) {
-
-      /* printf("get symbol from env:"); */
-      /* sexpWrite(NULL, exp); */
-      /* printf(" => "); */
-      /* sexpWrite(NULL, cdr(bind)); */
-      /* printf("\n"); */
-
       return ctxReturn(ctx, cdr(bind));
     }
-
-    /* printf("eval symbol:"); */
-    /* sexpWrite(NULL, exp); */
-    /* printf(" => "); */
-    /* sexpWrite(NULL, symbolGet(exp)); */
-    /* printf("\n"); */
-
     Obj val = symbolGet(exp);
     if (val == Undef) {
       char buf[100];
@@ -205,10 +195,6 @@ eval(struct controlFlow* ctx) {
       perror(buf);
     }
     return ctxReturn(ctx, val);
-  }
-
-  if (consp(exp) == False) {
-    // TODO
   }
 
   Obj hd = car(exp);
@@ -220,14 +206,14 @@ eval(struct controlFlow* ctx) {
       return evalIf(ctx, car(exp), cadr(exp), caddr(exp), env);
     } else if (hd == symLambda) { // (lambda (args) body)
       return ctxReturn(ctx, makeClosure(car(exp), cadr(exp), env));
-    } else if (hd == symDo) {
+    } else if (hd == symDo) { // (do x y)
       Eval(car(exp), env);
       return ctxTailEval(ctx, cadr(exp), env);
     }
   }
 
   Obj fn = Eval(hd, env);
-  ctxReset(ctx);
+  ctxResize(ctx, 0);
   ctxAppend(ctx, fn);
   evalArgList(exp, env, ctx);
   return ctxTailApply(ctx);
@@ -371,12 +357,8 @@ trampoline(struct controlFlow *ctx) {
   return ctxGet(ctx, 0);
 }
 
-static Obj symMacroExpand;
-
-void testXXX(struct controlFlow *ctx);
-
-static void
-init() {
+void
+coraInit() {
   symQuote = intern("quote");
   symIf = intern("if");
   symLambda = intern("lambda");
@@ -399,46 +381,4 @@ init() {
   symbolSet(intern("not"), makeNative(builtinNot, 2, 0));
   symbolSet(intern("symbol?"), makeNative(builtinIsSymbol, 2, 0));
   symbolSet(intern("string?"), makeNative(builtinIsString, 2, 0));
-
-  symbolSet(intern("test"), makeNative(testXXX, 4, 0));
-}
-
-static Obj
-macroExpand(Obj exp) {
-  Obj expand = symbolGet(symMacroExpand);
-  if (expand == Undef) {
-    return exp;
-  }
-
-  // TODO:
-  return Nil;
-
-  /* Obj res = Call(expand, exp); */
-
-  /* printf("after expand = "); */
-  /* sexpWrite(NULL, res); */
-  /* printf("\n"); */
-
-
-  /* return res; */
-}
-
-int coraMain(int argc, char *argv[]) {
-  struct VM* m = newVM();
-  Obj env = Nil;
-
-  while(1) {
-    printf("#> ");
-    Obj exp = sexpRead(stdin);
-    Obj exp1 = macroExpand(exp);
-    Obj res = Eval(exp1, env);
-    sexpWrite(stdout, res);
-    printf("\n");
-  }
-  return 0;
-}
-
-int main(int argc, char *argv[]) {
-  init();
-  return coraMain(argc, argv);
 }

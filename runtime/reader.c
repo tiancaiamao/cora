@@ -304,21 +304,15 @@ printObj(Obj o) {
     case scmHeadClosure:
       printf("closure");
       break;
-    case scmHeadStream:
-      printf("stream");
-      break;
     case scmHeadNative:
       printf("native");
       break;
     case scmHeadCurry:
       {
         struct scmCurry *res = (void*)h;
-        printf("curry %d", res->captured);
+        printf("curry");
         break;
       }
-    case scmHeadError:
-      printf("error");
-      break;
     default:
       printf("ptr unknown type = %d\n", h->type);
     };

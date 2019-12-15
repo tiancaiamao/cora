@@ -18,36 +18,12 @@ struct scmString {
   char data[];
 };
 
-
-struct Managed;
-
-struct VM*
-newVM() {
-  struct VM* m = malloc(sizeof(struct VM));
-  m->size = 16;
-  m->idx = 0;
-  m->stack = malloc(sizeof(Obj) * m->size);
-  m->pc = NULL;
-  return m;
-}
-
-static void gcKeep(struct Managed* frame, scmHead* o);
-
-struct Managed {
-  scmHead** data;
-  int size;
-  int cap;
-};
-
-struct Managed mem;
-
 static void*
 newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->mark = 0;
   p->type = tp;
-  /* gcKeep(&mem, p); */
   return (void*)p;
 }
 
@@ -116,10 +92,8 @@ struct trieNode {
 
 struct trieNode root = {};
 
-Obj makeSymbol(char *s) {
-
-  /* printf("make a symbol === %s\n", s); */
-
+Obj
+makeSymbol(char *s) {
   char *old = s;
   struct trieNode* p = &root;
   for(; *s; s++) {
@@ -212,78 +186,78 @@ nativeRef(Obj o, int idx) {
   return clo->data[idx];
 }
 
-static void
-gcKeep(struct Managed* frame, scmHead* o) {
-  if (frame->size == frame->cap) {
-    scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*));
-    memcpy(data, frame->data, frame->size * sizeof(scmHead*));
-    free(frame->data);
-    frame->data = data;
-    frame->cap = 2 * frame->cap;
-  }
-  frame->data[frame->size] = o;
-  frame->size++;
-}
+/* static void */
+/* gcKeep(struct Managed* frame, scmHead* o) { */
+/*   if (frame->size == frame->cap) { */
+/*     scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*)); */
+/*     memcpy(data, frame->data, frame->size * sizeof(scmHead*)); */
+/*     free(frame->data); */
+/*     frame->data = data; */
+/*     frame->cap = 2 * frame->cap; */
+/*   } */
+/*   frame->data[frame->size] = o; */
+/*   frame->size++; */
+/* } */
 
-#define notptr(x) ((tag(x) == TAG_FIXNUM) || (tag(x) == TAG_IMMEDIATE_CONST))
+/* #define notptr(x) ((tag(x) == TAG_FIXNUM) || (tag(x) == TAG_IMMEDIATE_CONST)) */
 
-static void
-mark(Obj o) {
-  if (notptr(o)) {
-    return;
-  }
-  scmHead* head = ptr(o);
-  if (head->mark != 0) {
-    return; // already marked
-  }
+/* static void */
+/* mark(Obj o) { */
+/*   if (notptr(o)) { */
+/*     return; */
+/*   } */
+/*   scmHead* head = ptr(o); */
+/*   if (head->mark != 0) { */
+/*     return; // already marked */
+/*   } */
 
-  switch (head->type) {
-  case scmHeadVector:
-    // TODO
-    break;
-  case scmHeadString:
-    break;
-  case scmHeadNative:
-    {
-      struct scmNative* clo = (void*)head;
-      for (int i=0; i < clo->required; i++) {
-        mark(clo->data[i]);
-      }
-      break;
-    }
-  case scmHeadSymbol:
-    mark(((struct scmSymbol*)(head))->value);
-    break;
-  default:
-    break;
-  }
-  head->mark = 1;
-}
+/*   switch (head->type) { */
+/*   case scmHeadVector: */
+/*     // TODO */
+/*     break; */
+/*   case scmHeadString: */
+/*     break; */
+/*   case scmHeadNative: */
+/*     { */
+/*       struct scmNative* clo = (void*)head; */
+/*       for (int i=0; i < clo->required; i++) { */
+/*         mark(clo->data[i]); */
+/*       } */
+/*       break; */
+/*     } */
+/*   case scmHeadSymbol: */
+/*     mark(((struct scmSymbol*)(head))->value); */
+/*     break; */
+/*   default: */
+/*     break; */
+/*   } */
+/*   head->mark = 1; */
+/* } */
 
-static void
-sweep(struct Managed *frame) {
-  int pos = 0;
-  for (int i = 0; i < frame->size; i++) {
-    scmHead* ptr = frame->data[i];
-    if (ptr->mark) {
-      ptr->mark = 0;
-      frame->data[pos] = ptr;
-      pos++;
-    } else {
-      free(ptr);
-    }
-  }
-  frame->size = pos;
-}
+/* static void */
+/* sweep(struct Managed *frame) { */
+/*   int pos = 0; */
+/*   for (int i = 0; i < frame->size; i++) { */
+/*     scmHead* ptr = frame->data[i]; */
+/*     if (ptr->mark) { */
+/*       ptr->mark = 0; */
+/*       frame->data[pos] = ptr; */
+/*       pos++; */
+/*     } else { */
+/*       free(ptr); */
+/*     } */
+/*   } */
+/*   frame->size = pos; */
+/* } */
 
-void
-gc(struct VM* m) {
-  for (int i=0; i < m->idx; i++) {
-    Obj o = m->stack[i];
-    mark(o);
-  }
-  sweep(&mem);
-}
+/* void */
+/* gc(struct VM* m) { */
+/*   for (int i=0; i < m->idx; i++) { */
+/*     Obj o = m->stack[i]; */
+/*     mark(o); */
+/*   } */
+/*   sweep(&mem); */
+/* } */
 
 bool
 eq(Obj x, Obj y) {

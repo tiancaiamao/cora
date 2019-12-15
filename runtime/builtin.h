@@ -1,5 +1,5 @@
-#ifndef _primitive_h_
-#define _primitive_h_
+#ifndef _builtin_h_
+#define _builtin_h_
 
 void builtinAdd(struct controlFlow* ctx);
 void builtinSub(struct controlFlow* ctx);

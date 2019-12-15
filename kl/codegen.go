@@ -19,16 +19,16 @@ func GenerateC(args ...Obj) Obj {
 	fmt.Fprintf(out, "#include \"runtime.h\"\n")
 	fmt.Fprintf(out, "#include <stdlib.h>\n\n")
 
-	// labelSym := MakeSymbol("label")
+	labelSym := MakeSymbol("label")
 	// Generate declare...
-	// for _, fn := range bc {
-	// 	first := Car(fn)
-	// 	if ok, pair := isPair(first); ok && pair.car == labelSym {
-	// 		fmt.Fprintf(out, "static void %s (struct VM* m);\n", symbolString(car(pair.cdr)))
-	// 	} else {
-	// 		fmt.Println("???  = ", ObjString(first))
-	// 	}
-	// }
+	for _, fn := range bc {
+		if Car(fn) == labelSym {
+			fmt.Fprintf(out, "static void %s (struct controlFlow *ctx);\n", symbolString(Cadr(fn)))
+		} else {
+			fmt.Println("???  = ", ObjString(Car(fn)))
+		}
+	}
+	fmt.Fprintf(out, "nativeFuncPtr export = %s;\n", symbolString(Cadr(bc[0])))
 
 	fmt.Fprintf(out, "\n\n")
 
@@ -85,13 +85,14 @@ func generateInst(w *os.File, inst Obj) error {
 		idx := Cadr(Cdr(Cdr(inst)))
 		fmt.Fprintf(w, "Obj %s = closureRef(%s, %d);\n", symbolString(dst), symbolString(clo), GetInteger(idx))
 	case "%closure":
-		// (closure DST FuncName FV0 FV1 ...)
+		// (closure DST FuncName Required FV0 FV1 ...)
 		tmp := ListToSlice(Cdr(inst))
 		dst := tmp[0]
 		funcName := tmp[1]
-		captured := tmp[2:]
+		required := tmp[2]
+		captured := tmp[3:]
 		args := fmt.Sprintf("%s , %d, %d", symbolString(funcName),
-			len(captured),
+			GetInteger(required),
 			len(captured))
 		for i := 0; i < len(captured); i++ {
 			args += ", "
@@ -108,10 +109,13 @@ func generateInst(w *os.File, inst Obj) error {
 		fmt.Fprintf(w, "return ctxReturn(ctx, %s);\n", symbolString(Cadr(inst)))
 	case "%call-def":
 		fn := Cadr(inst)
-		args := Cadr(Cdr(inst))
+		args := ListToSlice(Cadr(Cdr(inst)))
 		dst := Car(Cdr(Cdr(Cdr(inst))))
-		fmt.Fprintf(w, "Obj %s = Call(%s", symbolString(dst), symbolString(fn))
-		for _, arg := range ListToSlice(args) {
+		fmt.Fprintf(w, `Obj %s = Call(intern("%s"), %d`,
+			symbolString(dst),
+			symbolString(fn),
+			len(args))
+		for _, arg := range args {
 			fmt.Fprintf(w, ", ")
 			fmt.Fprintf(w, symbolString(arg))
 		}
@@ -146,13 +150,12 @@ func generateFunc(w *os.File, sexp Obj) error {
 	}
 	// (label FuncName (Args ...) Body)
 	funcName := symbolString(Cadr(sexp))
-	fmt.Fprintf(w, `static void
-%s(struct controlFlow *ctx, struct scmNative *self`, funcName)
-	args := Cadr(Cdr(sexp))
-	for _, arg := range ListToSlice(args) {
-		fmt.Fprintf(w, ", Obj %s", symbolString(arg))
+	fmt.Fprintf(w, "static void %s(struct controlFlow *ctx) {\n", funcName)
+
+	args := ListToSlice(Cadr(Cdr(sexp)))
+	for ith, arg := range args {
+		fmt.Fprintf(w, "Obj %s = ctxGet(ctx, %d);\n", symbolString(arg), ith)
 	}
-	fmt.Fprintf(w, ") {\n")
 
 	if err := generateInsts(w, Cdr(Cdr(Cdr(sexp)))); err != nil {
 		return err
@@ -176,28 +179,10 @@ func generateCIfExpr(w *os.File, a, b, c Obj) error {
 
 func generateCBuiltinCall(w *os.File, op, args, dst Obj) {
 	input := ListToSlice(args)
-	switch GetSymbol(op) {
-	case "+":
-		fmt.Fprintf(w, "Obj %s = builtinAdd(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "*":
-		fmt.Fprintf(w, "Obj %s = builtinMul(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "-":
-		fmt.Fprintf(w, "Obj %s = builtinSub(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "set":
-		fmt.Fprintf(w, "Obj %s = symbolSet(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "halt":
-		fmt.Fprintf(w, "m->stack[0] = %s;\nm->pc = NULL;\nreturn;\n}\n", symbolString(input[1]))
-	case "=":
-		fmt.Fprintf(w, "Obj %s = builtinEqual(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "cons":
-		fmt.Fprintf(w, "Obj %s = cons(%s, %s);\n", symbolString(dst), symbolString(input[0]), symbolString(input[1]))
-	case "car":
-		fmt.Fprintf(w, "Obj %s = car(%s);\n", symbolString(dst), symbolString(input[0]))
-	case "cons?":
-		fmt.Fprintf(w, "Obj %s = consp(%s);\n", symbolString(dst), symbolString(input[0]))
-	case "cdr":
-		fmt.Fprintf(w, "Obj %s = cdr(%s);\n", symbolString(dst), symbolString(input[0]))
-	default:
-		fmt.Fprintf(w, "error, unknown builtin %s\n", GetSymbol(op))
+	fmt.Fprintf(w, `Obj %s = Call(intern("%v"), %d`, symbolString(dst),
+		symbolString(op), len(input))
+	for _, arg := range input {
+		fmt.Fprintf(w, ", %s", symbolString(arg))
 	}
+	fmt.Fprintf(w, ");\n")
 }
