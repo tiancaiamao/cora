@@ -1,8 +1,7 @@
-all: cora runtime
+all: cora
 
-runtime:
+cora: libcora.a main.c
+	gcc -Iruntime main.c -Lruntime -lcora -o $@
+
+libcora.a:
 	make -C runtime
-	mv runtime/cora a.out
-
-cora:
-	go build -o cora cora.go

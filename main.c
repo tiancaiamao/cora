@@ -1,3 +1,7 @@
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "runtime.h"
 
 static Obj
@@ -20,8 +24,9 @@ macroExpand(Obj exp) {
   /* return res; */
 }
 
-static int
-repl() {
+int main(int argc, char *argv[]) {
+  coraInit();
+
   while(1) {
     printf("#> ");
     Obj exp = sexpRead(stdin);
@@ -30,10 +35,4 @@ repl() {
     sexpWrite(stdout, res);
     printf("\n");
   }
-  return 0;
-}
-
-int main(int argc, char *argv[]) {
-  coraInit();
-  return repl();
 }
