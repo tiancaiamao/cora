@@ -191,7 +191,7 @@ eval(struct controlFlow* ctx) {
     Obj val = symbolGet(exp);
     if (val == Undef) {
       char buf[100];
-      int n = snprintf(buf, 100, "symbol not bind:%s", ((struct scmSymbol*)(ptr(exp)))->str);
+      int n = snprintf(buf, 100, "symbol not bind:%s", symbolStr(exp));
       perror(buf);
     }
     return ctxReturn(ctx, val);
@@ -255,10 +255,9 @@ apply(struct controlFlow *ctx) {
   switch (((scmHead*)(ptr(f)))->type) {
   case scmHeadClosure:
     {
-      struct scmClosure* clo = ptr(f);
-      Obj params = clo->params;
-      Obj body = clo->body;
-      Obj env = clo->env;
+      Obj params = closureParams(f);
+      Obj body = closureBody(f);
+      Obj env = closureEnv(f);
       int pos;
       env = envExtend(env, &params, ctx, &pos);
       if (params != Nil) {
@@ -281,63 +280,67 @@ apply(struct controlFlow *ctx) {
     }
   case scmHeadNative:
     {
-      struct scmNative* native = ptr(f);
-      if (ctx->size == native->required) {
-        native->fn(ctx);
+      int required = nativeRequired(f);
+      if (ctx->size == required) {
+        nativeFuncPtr fun = nativeFn(f);
+        fun(ctx);
         return;
       }
 
-      if (ctx->size < native->required) {
+      if (ctx->size < required) {
         if (ctx->size == 1) {
           // size = 1 means no arguments, ctx->data[0] is actually the fn itself
           // Not need to make a curry object for this special case: (f) = f
           return ctxReturn(ctx, f);
         }
-        int required = native->required - ctx->size + 1; // +1 to include itself as the first arg.
-        Obj curry = makeCurry(native, required, ctx->size);
+        required = required - ctx->size + 1; // +1 to include itself as the first arg.
+        Obj curry = makeCurry(f, required, ctx->size);
         curryFill(curry, 0, ctx->size, ctx->data);
         return ctxReturn(ctx, curry);
       }
 
-      return partialApply(ctx, native->required);
+      return partialApply(ctx, required);
     }
   case scmHeadCurry:
     {
       struct scmCurry* curry = ptr(f);
-      struct scmNative* native = curry->fn;
-      if (ctx->size == curry->required) {
-        assert(curry->required + curry->captured == native->required + 1);
-        ctxResize(ctx, native->required);
+      int crequire = curryRequired(f);
+      int ccapture = curryCaptured(f);
+      Obj fn = curryFn(f);
+      if (ctx->size == crequire) {
+        int nr = nativeRequired(fn);
+        assert(crequire + ccapture == nr + 1);
+        ctxResize(ctx, nr);
         // Move call passed arguments to the right place.
-        int dst = native->required - 1;
-        int src = curry->required - 1; // ctx->size of overwrited in ctxResize!!!
+        int dst = nr - 1;
+        int src = crequire - 1; // ctx->size of overwrited in ctxResize!!!
         while(src > 0) { // ignore data[0] because it's the curry object itself.
           ctx->data[dst] = ctx->data[src];
           dst--;
           src--;
         }
         // Move curry captured arguments to the right place.
-        src = curry->captured - 1;
+        src = ccapture - 1;
         while(src >= 0) {
-          ctx->data[dst] = curry->data[src];
+          ctx->data[dst] = curryData(f)[src];
           dst--;
           src--;
         }
         assert(dst == -1);
-        assert(curry->fn == ptr(ctx->data[0]));
+        assert(fn == ctx->data[0]);
         return ctxTailApply(ctx);
       }
 
-      if (ctx->size < curry->required) {
-        int required = curry->required - (ctx->size - 1);
-        int captured = curry->captured + (ctx->size - 1);
-        Obj newCurry = makeCurry(native, required, captured);
-        curryFill(newCurry, 0, curry->captured, curry->data);
-        curryFill(newCurry, curry->captured, captured, &ctx->data[1]);
+      if (ctx->size < crequire) {
+        int required = crequire - (ctx->size - 1);
+        int captured = ccapture + (ctx->size - 1);
+        Obj newCurry = makeCurry(fn, required, captured);
+        curryFill(newCurry, 0, ccapture, curryData(f));
+        curryFill(newCurry, ccapture, captured, &ctx->data[1]);
         return ctxReturn(ctx, newCurry);
       }
 
-      return partialApply(ctx, curry->required);
+      return partialApply(ctx, crequire);
     }
   default:
     printf("fuck unknown TODO\n");

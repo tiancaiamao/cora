@@ -117,9 +117,8 @@ void
 builtinGensym(struct controlFlow *ctx) {
   Obj arg = ctxGet(ctx, 1);
   assert(issymbol(arg));
-  struct scmSymbol *sym = ptr(arg);
   char tmp[200];
-  snprintf(tmp, 100, "#%s%ld", sym->str, genIdx);
+  snprintf(tmp, 100, "#%s%ld", symbolStr(arg), genIdx);
   genIdx++;
   ctxReturn(ctx, intern(tmp));
 }

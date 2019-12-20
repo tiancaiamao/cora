@@ -267,8 +267,7 @@ printObj(Obj o) {
   } else if (iscons(o)) {
     printCons(o, true);
   } else if (issymbol(o)) {
-    struct scmSymbol* sym = ptr(o);
-    printf("%s", sym->str);
+    printf("%s", symbolStr(o));
   } else if (isboolean(o)) {
     if (o == True) {
       printf("true");

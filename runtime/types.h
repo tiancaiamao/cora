@@ -31,26 +31,28 @@ typedef uintptr_t Obj;
 #define isfixnum(x) (((x) & 1) == 0)
 #define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
 
-const Obj True;
-const Obj False;
-const Obj Nil;
-const Obj Undef;
+extern const Obj True;
+extern const Obj False;
+extern const Obj Nil;
+extern const Obj Undef;
 
-struct scmNative;
 struct controlFlow;
 
 typedef uint8_t scmHeadType;
 enum {
-	scmHeadNumber,
-	scmHeadCons,
-	scmHeadVector,
-	scmHeadNull,
-	scmHeadString,
-	scmHeadSymbol,
+  // Instant values.
 	scmHeadBoolean,
+	scmHeadNull,
+  // Number may be or may not be pointer.
+	scmHeadNumber,
+  // The followings are all pointer types.
+	scmHeadSymbol,
+	scmHeadCons,
 	scmHeadClosure,
   scmHeadNative,
 	scmHeadCurry,
+	scmHeadString,
+	scmHeadVector,
 };
 
 typedef struct {
@@ -58,49 +60,23 @@ typedef struct {
   scmHeadType type;
 } scmHead;
 
+typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
+
 struct scmCons {
   scmHead head;
   Obj car;
   Obj cdr;
 };
 
-typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
-
-struct scmNative {
-  scmHead head;
-  nativeFuncPtr fn;
-  // required is the argument number of the nativeFunc.
-  int required;
-  // captured is the size of the data, it's immutable after makeNative.
-  int captured;
-  Obj data[];
-};
-
-struct scmCurry {
-  scmHead head;
-  struct scmNative* fn;
-  int required;
-  int captured;
-  Obj data[];
-};
-
-struct scmClosure {
-  scmHead head;
-  Obj params;
-  Obj body;
-  Obj env;
-};
-
-struct scmSymbol {
-  scmHead head;
-  Obj value;
-  char str[];
-};
+#define ptr(x) ((void*)((x)&~TAG_PTR))
+#define fixnum(x) ((x)>>1)
+bool eq(Obj x, Obj y);
 
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
+const char* symbolStr(Obj sym);
 
 #define cons(x, y) makeCons(x, y)
 Obj makeCons(Obj car, Obj cdr);
@@ -113,20 +89,23 @@ Obj cdddr(Obj v);
 
 Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
 Obj nativeRef(Obj o, int idx);
+int nativeRequired(Obj o);
 nativeFuncPtr nativeFn(Obj o);
 
-Obj makeCurry(struct scmNative *fn, int required, int captured);
+Obj makeCurry(Obj fn, int required, int captured);
 void curryFill(Obj curry, int start, int end, Obj *base);
+int curryRequired(Obj curry);
+Obj curryCaptured(Obj curry);
+Obj curryFn(Obj curry);
+Obj* curryData(Obj curry);
 
 Obj makeClosure(Obj params, Obj body, Obj env);
+Obj closureParams(Obj);
+Obj closureBody(Obj);
+Obj closureEnv(Obj);
 
 Obj makeString(char *s, int len);
 Obj makeNumber(int v);
-
-#define ptr(x) ((void*)((x)&~TAG_PTR))
-#define fixnum(x) ((x)>>1)
-
-bool eq(Obj x, Obj y);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand;
 

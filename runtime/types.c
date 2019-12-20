@@ -3,9 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include "types.h"
-
 #include <stdio.h>
+#include "types.h"
 
 const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
@@ -16,6 +15,19 @@ struct scmString {
   scmHead head;
   int sz;
   char data[];
+};
+
+struct scmSymbol {
+  scmHead head;
+  Obj value;
+  char str[];
+};
+
+struct scmClosure {
+  scmHead head;
+  Obj params;
+  Obj body;
+  Obj env;
 };
 
 static void*
@@ -65,6 +77,27 @@ makeClosure(Obj params, Obj body, Obj env) {
   clo->body = body;
   clo->env = env;
   return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+Obj
+closureParams(Obj clo) {
+  struct scmClosure* c = ptr(clo);
+  assert(c->head.type == scmHeadClosure);
+  return c->params;
+}
+
+Obj
+closureBody(Obj clo) {
+  struct scmClosure* c = ptr(clo);
+  assert(c->head.type == scmHeadClosure);
+  return c->body;
+}
+
+Obj
+closureEnv(Obj clo) {
+  struct scmClosure* c = ptr(clo);
+  assert(c->head.type == scmHeadClosure);
+  return c->env;
 }
 
 Obj
@@ -133,8 +166,24 @@ symbolSet(Obj sym, Obj val) {
   return val;
 }
 
+const char*
+symbolStr(Obj sym) {
+  assert(issymbol(sym));
+  struct scmSymbol *s = ptr(sym);
+  assert(s->head.type == scmHeadSymbol);
+  return s->str;
+}
+
+struct scmCurry {
+  scmHead head;
+  Obj fn; // struct scmNative*
+  int required;
+  int captured;
+  Obj data[];
+};
+
 Obj
-makeCurry(struct scmNative* fn, int required, int captured) {
+makeCurry(Obj fn, int required, int captured) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
   clo->fn = fn;
@@ -151,6 +200,40 @@ curryFill(Obj curry, int start, int end, Obj *base) {
     dst->data[i] = base[i - start];
   }
 }
+
+int
+curryRequired(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->required;
+}
+
+Obj
+curryCaptured(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->captured;
+}
+
+Obj
+curryFn(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->fn;
+}
+
+Obj*
+curryData(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->data;
+}
+
+struct scmNative {
+  scmHead head;
+  nativeFuncPtr fn;
+  // required is the argument number of the nativeFunc.
+  int required;
+  // captured is the size of the data, it's immutable after makeNative.
+  int captured;
+  Obj data[];
+};
 
 Obj
 makeNative(nativeFuncPtr fn, int required, int captured, ...) {
@@ -174,90 +257,24 @@ makeNative(nativeFuncPtr fn, int required, int captured, ...) {
 
 nativeFuncPtr
 nativeFn(Obj o) {
-  struct scmNative* clo = ptr(o);
-  assert(clo->head.type == scmHeadClosure);
-  return clo->fn;
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  return native->fn;
+}
+
+int
+nativeRequired(Obj o) {
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  return native->required;
 }
 
 Obj
 nativeRef(Obj o, int idx) {
-  struct scmNative* clo = ptr(o);
-  assert(clo->head.type == scmHeadNative);
-  return clo->data[idx];
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  return native->data[idx];
 }
-
-/* static void */
-/* gcKeep(struct Managed* frame, scmHead* o) { */
-/*   if (frame->size == frame->cap) { */
-/*     scmHead** data = malloc(2 * frame->cap * sizeof(scmHead*)); */
-/*     memcpy(data, frame->data, frame->size * sizeof(scmHead*)); */
-/*     free(frame->data); */
-/*     frame->data = data; */
-/*     frame->cap = 2 * frame->cap; */
-/*   } */
-/*   frame->data[frame->size] = o; */
-/*   frame->size++; */
-/* } */
-
-/* #define notptr(x) ((tag(x) == TAG_FIXNUM) || (tag(x) == TAG_IMMEDIATE_CONST)) */
-
-/* static void */
-/* mark(Obj o) { */
-/*   if (notptr(o)) { */
-/*     return; */
-/*   } */
-/*   scmHead* head = ptr(o); */
-/*   if (head->mark != 0) { */
-/*     return; // already marked */
-/*   } */
-
-/*   switch (head->type) { */
-/*   case scmHeadVector: */
-/*     // TODO */
-/*     break; */
-/*   case scmHeadString: */
-/*     break; */
-/*   case scmHeadNative: */
-/*     { */
-/*       struct scmNative* clo = (void*)head; */
-/*       for (int i=0; i < clo->required; i++) { */
-/*         mark(clo->data[i]); */
-/*       } */
-/*       break; */
-/*     } */
-/*   case scmHeadSymbol: */
-/*     mark(((struct scmSymbol*)(head))->value); */
-/*     break; */
-/*   default: */
-/*     break; */
-/*   } */
-/*   head->mark = 1; */
-/* } */
-
-/* static void */
-/* sweep(struct Managed *frame) { */
-/*   int pos = 0; */
-/*   for (int i = 0; i < frame->size; i++) { */
-/*     scmHead* ptr = frame->data[i]; */
-/*     if (ptr->mark) { */
-/*       ptr->mark = 0; */
-/*       frame->data[pos] = ptr; */
-/*       pos++; */
-/*     } else { */
-/*       free(ptr); */
-/*     } */
-/*   } */
-/*   frame->size = pos; */
-/* } */
-
-/* void */
-/* gc(struct VM* m) { */
-/*   for (int i=0; i < m->idx; i++) { */
-/*     Obj o = m->stack[i]; */
-/*     mark(o); */
-/*   } */
-/*   sweep(&mem); */
-/* } */
 
 bool
 eq(Obj x, Obj y) {
@@ -274,139 +291,3 @@ eq(Obj x, Obj y) {
 
   return false;
 }
-
-#ifdef _TYPES_TEST_
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
-#include "types.h"
-
-
-static void
-clofun(struct VM *m) {
-}
-
-static void
-testSymbol() {
-  printf("test symbol...");
-
-  Obj x = intern("asd");
-  symbolSet(intern("fact"), x);
-  intern("667");
-  intern("abde");
-  intern("abde");
-  intern("zz");
-
-  /* assert(root.child['z'] != NULL); */
-  /* assert(root.child['z']->sym == NULL); */
-
-  /* struct trieNode* y = root.child['a']->child['s']->child['d']; */
-  /* assert(ptr((Obj)(y->sym)) == ptr(x)); */
-
-  Obj f1 = symbolGet(intern("fact"));
-  Obj f2 = symbolGet(intern("fact"));
-  Obj f3 = symbolGet(intern("fact"));
-  Obj f4 = symbolGet(intern("fact"));
-  Obj f5 = symbolGet(intern("fact"));
-  Obj f6 = symbolGet(intern("fact"));
-  assert(f1 == x);
-  assert(f2 == x);
-  assert(f3 == x);
-  assert(f4 == x);
-  assert(f5 == x);
-  assert(f6 == x);
-
-  printf("success\n");
-}
-
-static void
-testBasic() {
-  printf("test basic...");
-  Obj p = cons(fixnum(3), Nil);
-  Obj hd = car(p);
-  Obj tl = cdr(p);
-  assert(hd == fixnum(3));
-  assert(tl == Nil);
-  assert(iscons(p));
-  assert(!iscons(Nil));
-  assert(!iscons(True));
-  assert(!iscons(False));
-
-  Obj s = intern("test");
-  Obj s1 = intern("test");
-  Obj s2 = intern("xxx");
-  assert(s == s1);
-  assert(s != s2);
-
-  assert(isboolean(s) == false);
-  assert(isboolean(True));
-  assert(isboolean(False));
-  assert(isboolean(Nil) == false);
-  assert(isboolean(Undef) == false);
-
-  Obj x = makeString("asdf", 4);
-  assert(tag(x) == TAG_PTR);
-  assert(((scmHead*)ptr(x))->type == scmHeadString);
-
-  Obj clo = makeNative(clofun, 3, fixnum(5), s, hd);
-  assert(closureFn(clo) == clofun);
-  assert(closureRef(clo, 0) == fixnum(5));
-  assert(closureRef(clo, 1) == s);
-  assert(closureRef(clo, 2) == hd);
-
-  printf("success\n");
-}
-
-static void
-testGC() {
-  printf("test gc...");
-
-  struct VM* m = newVM();
-
-  Obj s = makeString("abcd", 4);
-  Obj o = cons(fixnum(4), Nil);
-  Obj x = cons(fixnum(5), o);
-  Obj j = cons(fixnum(6), x);
-  m->stack[0] = j;
-  m->idx = 1;
-
-  gc(m);
-
-  assert(car(o) == fixnum(4));
-  assert(cdr(j) == x);
-
-  free(m);
-
-  printf("success\n");
-}
-
-static void
-testEQ() {
-  printf("test eq...");
-
-  Obj sym = intern("asd");
-  Obj n = fixnum(42);
-
-  assert(eq(sym, intern("asd")));
-  assert(!eq(sym, n));
-
-  Obj p = cons(sym, n);
-  Obj q = cons(sym, n);
-  Obj z = cons(p, Nil);
-  Obj x = cons(sym, cons(n, Nil));
-  assert(eq(p, q));
-  assert(!eq(z, x));
-
-  printf("success\n");
-}
-
-int main(int argc, char *argv[]) {
-  testSymbol();
-  testBasic();
-  testEQ();
-  /* testGC(); */
-}
-
-#endif
