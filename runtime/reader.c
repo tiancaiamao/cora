@@ -206,7 +206,6 @@ sexpRead(FILE *in) {
   }
 
   if (c == EOF) {
-    fprintf(stderr, "read get EOF, what the fuck?");
     return Nil;
   }
 
@@ -268,7 +267,7 @@ printObj(Obj o) {
       printf("null");
       break;
     case scmHeadString:
-      printf("string");
+      printf("\"%s\"", stringStr(o));
       break;
     case scmHeadSymbol:
       printf("symbol");

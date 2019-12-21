@@ -149,3 +149,21 @@ builtinIsString(struct controlFlow *ctx) {
   }
   return ctxReturn(ctx, False);
 }
+
+void
+builtinLoad(struct controlFlow *ctx) {
+  Obj path = ctxGet(ctx, 1);
+  char *str = stringStr(path);
+  FILE *in = fopen(str, "r");
+  Obj ast = sexpRead(in);
+  while(ast != Nil) {
+    /* printf("read == \n"); */
+    /* sexpWrite(stdout, ast); */
+    /* printf("\n"); */
+    Obj exp = MacroExpand(ast);
+    Obj res = Eval(exp, Nil);
+    ast = sexpRead(in);
+  }
+  fclose(in);
+  return ctxReturn(ctx, path);
+}

@@ -87,6 +87,7 @@ Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
+Obj makeBuiltin(nativeFuncPtr fn, int required);
 Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
 Obj nativeRef(Obj o, int idx);
 int nativeRequired(Obj o);
@@ -103,6 +104,7 @@ Obj closureBody(Obj);
 Obj closureEnv(Obj);
 
 Obj makeString(char *s, int len);
+char* stringStr(Obj o);
 Obj makeNumber(int v);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand;

@@ -12,6 +12,7 @@ void ctxReturn(struct controlFlow *ctx, Obj val);
 
 Obj Call(Obj sym, int nargs, ...);
 Obj Eval(Obj exp, Obj env);
+Obj MacroExpand(Obj exp);
 
 void coraInit();
 

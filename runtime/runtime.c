@@ -149,6 +149,22 @@ Call(Obj sym, int nargs, ...) {
   return trampoline(&ctx);
 }
 
+Obj
+MacroExpand(Obj exp) {
+  Obj expand = symbolGet(symMacroExpand);
+  if (expand == Undef || expand == Nil) {
+    return exp;
+  }
+
+  Obj res = Call(symMacroExpand, 1, exp);
+
+  /* printf("after expand = "); */
+  /* sexpWrite(NULL, res); */
+  /* printf("\n"); */
+
+  return res;
+}
+
 static void
 evalArgList(Obj args, Obj env, struct controlFlow *ctx) {
   for (Obj ptr = args; ptr != Nil; ptr = cdr(ptr)) {
@@ -356,20 +372,21 @@ coraInit() {
   symDo = intern("do");
   symMacroExpand = intern("macroexpand");
 
-  symbolSet(intern("+"), makeNative(builtinAdd, 3, 0));
-  symbolSet(intern("-"), makeNative(builtinSub, 3, 0));
-  symbolSet(intern("*"), makeNative(builtinMul, 3, 0));
-  symbolSet(intern("/"), makeNative(builtinDiv, 3, 0));
-  symbolSet(intern("="), makeNative(builtinEqual, 3, 0));
-  symbolSet(intern("set"), makeNative(builtinSet, 3, 0));
-  symbolSet(intern("cons"), makeNative(builtinCons, 3, 0));
-  symbolSet(intern("car"), makeNative(builtinCar, 2, 0));
-  symbolSet(intern("cdr"), makeNative(builtinCdr, 2, 0));
-  symbolSet(intern("cons?"), makeNative(builtinIsCons, 2, 0));
-  symbolSet(intern("gensym"), makeNative(builtinGensym, 2, 0));
-  symbolSet(intern(">"), makeNative(builtinGT, 3, 0));
-  symbolSet(intern("<"), makeNative(builtinLT, 3, 0));
-  symbolSet(intern("not"), makeNative(builtinNot, 2, 0));
-  symbolSet(intern("symbol?"), makeNative(builtinIsSymbol, 2, 0));
-  symbolSet(intern("string?"), makeNative(builtinIsString, 2, 0));
+  symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
+  symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
+  symbolSet(intern("*"), makeBuiltin(builtinMul, 2));
+  symbolSet(intern("/"), makeBuiltin(builtinDiv, 2));
+  symbolSet(intern("="), makeBuiltin(builtinEqual, 2));
+  symbolSet(intern("set"), makeBuiltin(builtinSet, 2));
+  symbolSet(intern("cons"), makeBuiltin(builtinCons, 2));
+  symbolSet(intern("car"), makeBuiltin(builtinCar, 1));
+  symbolSet(intern("cdr"), makeBuiltin(builtinCdr, 1));
+  symbolSet(intern("cons?"), makeBuiltin(builtinIsCons, 1));
+  symbolSet(intern("gensym"), makeBuiltin(builtinGensym, 1));
+  symbolSet(intern(">"), makeBuiltin(builtinGT, 2));
+  symbolSet(intern("<"), makeBuiltin(builtinLT, 2));
+  symbolSet(intern("not"), makeBuiltin(builtinNot, 1));
+  symbolSet(intern("symbol?"), makeBuiltin(builtinIsSymbol, 1));
+  symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
+  symbolSet(intern("load"), makeBuiltin(builtinLoad, 1));
 }

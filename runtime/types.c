@@ -111,11 +111,20 @@ makeNumber(int v) {
 
 Obj
 makeString(char *s, int len) {
-  int sz = len + sizeof(struct scmString);
-  struct scmString* str = newObj(scmHeadString, sz);
+  // sz is the actural length but we malloc a extra byte to be compatible with C.
+  int alloc = len + sizeof(struct scmString) + 1;
+  struct scmString* str = newObj(scmHeadString, alloc);
   str->sz = len;
+  str->data[len] = '\0';
   memcpy(&str->data[0], s, len);
   return ((Obj)(&str->head) | TAG_PTR);
+}
+
+char*
+stringStr(Obj o) {
+  struct scmString* s = ptr(o);
+  assert(s->head.type == scmHeadString);
+  return s->data;
 }
 
 struct trieNode {
@@ -259,6 +268,11 @@ nativeRef(Obj o, int idx) {
   struct scmNative* native = ptr(o);
   assert(native->head.type == scmHeadNative);
   return native->data[idx];
+}
+
+Obj
+makeBuiltin(nativeFuncPtr fn, int required) {
+  return makeNative(fn, required+1, 0);
 }
 
 bool
