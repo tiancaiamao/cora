@@ -293,9 +293,9 @@ apply(struct controlFlow *ctx) {
           // Not need to make a curry object for this special case: (f) = f
           return ctxReturn(ctx, f);
         }
-        required = required - ctx->size + 1; // +1 to include itself as the first arg.
-        Obj curry = makeCurry(f, required, ctx->size);
-        curryFill(curry, 0, ctx->size, ctx->data);
+        required = required - ctx->size + 1; // +1 to include itself as the first argument.
+        Obj curry = makeCurry(required, ctx->size);
+        memcpy(curryData(curry), ctx->data, sizeof(Obj) * ctx->size);
         return ctxReturn(ctx, curry);
       }
 
@@ -303,40 +303,27 @@ apply(struct controlFlow *ctx) {
     }
   case scmHeadCurry:
     {
-      struct scmCurry* curry = ptr(f);
       int crequire = curryRequired(f);
       int ccapture = curryCaptured(f);
-      Obj fn = curryFn(f);
+      Obj fn = curryData(f)[0];
       if (ctx->size == crequire) {
         int nr = nativeRequired(fn);
         assert(crequire + ccapture == nr + 1);
         ctxResize(ctx, nr);
         // Move call passed arguments to the right place.
-        int dst = nr - 1;
-        int src = crequire - 1; // ctx->size of overwrited in ctxResize!!!
-        while(src > 0) { // ignore data[0] because it's the curry object itself.
-          ctx->data[dst] = ctx->data[src];
-          dst--;
-          src--;
-        }
+        // ignore data[0] because it's the curry object itself. */
+        memmove(&ctx->data[ccapture], &ctx->data[1], sizeof(Obj) * (ctx->size-1));
         // Move curry captured arguments to the right place.
-        src = ccapture - 1;
-        while(src >= 0) {
-          ctx->data[dst] = curryData(f)[src];
-          dst--;
-          src--;
-        }
-        assert(dst == -1);
-        assert(fn == ctx->data[0]);
+        memcpy(ctx->data, curryData(f), sizeof(Obj) * ccapture);
         return ctxTailApply(ctx);
       }
 
       if (ctx->size < crequire) {
         int required = crequire - (ctx->size - 1);
         int captured = ccapture + (ctx->size - 1);
-        Obj newCurry = makeCurry(fn, required, captured);
-        curryFill(newCurry, 0, ccapture, curryData(f));
-        curryFill(newCurry, ccapture, captured, &ctx->data[1]);
+        Obj newCurry = makeCurry(required, captured);
+        memcpy(curryData(newCurry), curryData(f), sizeof(Obj) * ccapture);
+        memcpy(&curryData(newCurry)[ccapture], &ctx->data[1], sizeof(Obj) * (ctx->size -1));
         return ctxReturn(ctx, newCurry);
       }
 

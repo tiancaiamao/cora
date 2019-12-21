@@ -92,11 +92,9 @@ Obj nativeRef(Obj o, int idx);
 int nativeRequired(Obj o);
 nativeFuncPtr nativeFn(Obj o);
 
-Obj makeCurry(Obj fn, int required, int captured);
-void curryFill(Obj curry, int start, int end, Obj *base);
+Obj makeCurry(int required, int captured);
 int curryRequired(Obj curry);
 Obj curryCaptured(Obj curry);
-Obj curryFn(Obj curry);
 Obj* curryData(Obj curry);
 
 Obj makeClosure(Obj params, Obj body, Obj env);

@@ -176,29 +176,20 @@ symbolStr(Obj sym) {
 
 struct scmCurry {
   scmHead head;
-  Obj fn; // struct scmNative*
   int required;
   int captured;
+  // The first element is scmNative and the remain is arguments.
   Obj data[];
 };
 
 Obj
-makeCurry(Obj fn, int required, int captured) {
+makeCurry(int required, int captured) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
-  clo->fn = fn;
   clo->required = required;
   clo->captured = captured;
   assert(captured > 0);
   return ((Obj)(&clo->head) | TAG_PTR);
-}
-
-void
-curryFill(Obj curry, int start, int end, Obj *base) {
-  struct scmCurry *dst = ptr(curry);
-  for (int i=start; i<end; i++) {
-    dst->data[i] = base[i - start];
-  }
 }
 
 int
@@ -211,12 +202,6 @@ Obj
 curryCaptured(Obj o) {
   struct scmCurry *curry = ptr(o);
   return curry->captured;
-}
-
-Obj
-curryFn(Obj o) {
-  struct scmCurry *curry = ptr(o);
-  return curry->fn;
 }
 
 Obj*
