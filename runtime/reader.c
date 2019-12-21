@@ -8,24 +8,22 @@
 
 static void printObj(Obj o);
 
-static char
-is_delimiter(int c) {
-	return isspace(c) || c == EOF ||
-		c == '('   || c == ')' ||
-		c == '"'   || c == ';';
-}
-
 static bool
-isIdentifier(int c) {
-	return !is_delimiter(c) && c != '\'';
-}
-
-static int
-peek(FILE *in) {
-  int c;
-  c = getc(in);
-  ungetc(c, in);
-  return c;
+isIdentifierChar(int c) {
+  switch (c) {
+  case '(':
+  case ')':
+  case '"':
+  case '\'':
+  case ';':
+  case '[':
+  case ']':
+    return false;
+  }
+  if (isspace(c) || c == EOF) {
+    return false;
+  }
+  return true;
 }
 
 static void
@@ -43,33 +41,6 @@ eatWhitespace(FILE *in) {
     ungetc(c, in);
     break;
   }
-}
-
-static void
-eat_expected_string(FILE *in, char *str) {
-	int c;
-	while (*str != '\0') {
-		c = getc(in);
-		if (c != *str) {
-			fprintf(stderr, "unexpected character '%c'\n", c);
-			exit(1);
-		}
-		str++;
-	}
-}
-
-static void
-peek_expected_delimiter(FILE *in) {
-	if (!is_delimiter(peek(in))) {
-		fprintf(stderr, "character not followed by delimiter\n");
-		exit(1);
-	}
-}
-
-static char
-peekFirstRune(FILE *in) {
-  eatWhitespace(in);
-  return peek(in);
 }
 
 static char
@@ -103,6 +74,34 @@ readCons(FILE *in) {
 }
 
 static Obj
+reverse(Obj o) {
+  Obj ret = Nil;
+  while (o != Nil) {
+    ret = cons(car(o), ret);
+    o = cdr(o);
+  }
+  return ret;
+}
+
+static Obj
+readListMacro(FILE *in) {
+  Obj hd = intern("list");
+  Obj ret = Nil;
+  char b = peekFirstChar(in);
+  while (b != EOF && b != ']') {
+    if (b == '.') {
+      hd = intern("list-rest");
+    } else {
+      ungetc(b, in);
+      Obj o = sexpRead(in);
+      ret = cons(o, ret);
+    }
+    b = peekFirstChar(in);
+  }
+  return cons(hd, reverse(ret));
+}
+
+static Obj
 readNumber(FILE *in) {
   char buf[30];
   memset(buf,0,30);
@@ -131,36 +130,10 @@ sexpRead(FILE *in) {
   eatWhitespace(in);
   c = getc(in);
 
-  /* printf("sexpRead start with char:::::%c\n", c); */
-
   // read a number
   if (isdigit(c)) {
     ungetc(c, in);
     return readNumber(in);
-  }
-
-  // read a symbol
-  if (isIdentifier(c)) {
-    i = 0;
-    while (isIdentifier(c)) {
-      buffer[i] = c;
-      i++;
-      c = getc(in);
-    }
-    if (is_delimiter(c)) {
-      buffer[i] = '\0';
-      ungetc(c, in);
-      if (strcmp(buffer, "true") == 0) {
-        return True;
-      }
-      if (strcmp(buffer, "false") == 0) {
-        return False;
-      }
-      return makeSymbol(buffer);
-    }
-    fprintf(stderr, "symbol not followed by delimiter. "
-            "Found '%c'\n", c);
-    exit(1);
   }
 
   // read quote
@@ -171,16 +144,15 @@ sexpRead(FILE *in) {
 
   // read the empty list or pair
   if (c == '(')	{
-    Obj ret = readCons(in);
-    return ret;
+    return readCons(in);
   }
 
-  if (c == EOF) {
-    fprintf(stderr, "read get EOF, what the fuck?");
-    return Nil;
+  // read list macro
+  if (c == '[') {
+    return readListMacro(in);
   }
 
-  /* read a string */
+  // read a string
   if (c == '"') {
     i = 0;
     while ((c = getc(in)) != '"') {
@@ -207,6 +179,35 @@ sexpRead(FILE *in) {
     }
     buffer[i] = '\0';
     return makeString(buffer, i);
+  }
+
+  // read a symbol
+  if (isIdentifierChar(c)) {
+    i = 0;
+    while (isIdentifierChar(c)) {
+      buffer[i] = c;
+      i++;
+      c = getc(in);
+    }
+    if (c != EOF) {
+      buffer[i] = '\0';
+      ungetc(c, in);
+      if (strcmp(buffer, "true") == 0) {
+        return True;
+      }
+      if (strcmp(buffer, "false") == 0) {
+        return False;
+      }
+      return makeSymbol(buffer);
+    }
+    fprintf(stderr, "symbol not followed by delimiter. "
+            "Found '%c'\n", c);
+    exit(1);
+  }
+
+  if (c == EOF) {
+    fprintf(stderr, "read get EOF, what the fuck?");
+    return Nil;
   }
 
   fprintf(stderr, "read illegal state\n");

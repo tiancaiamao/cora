@@ -14,10 +14,9 @@ macroExpand(Obj exp) {
 
   Obj res = Call(symMacroExpand, 1, exp);
 
-  printf("after expand = ");
-  sexpWrite(NULL, res);
-  printf("\n");
-
+  /* printf("after expand = "); */
+  /* sexpWrite(NULL, res); */
+  /* printf("\n"); */
 
   return res;
 }
