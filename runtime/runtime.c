@@ -20,7 +20,7 @@ typedef enum {
 struct controlFlow {
   // controlFlowReturn: result = data[0]
   // controlFlowEval: exp, env = data[0], data[1]
-  // controlFlowApply: fn, args = data[0], data[1] ...
+  // controlFlowApply: fn, args = data[0], data[1], data[2] ...
   controlFlowKind kind;
   Obj cache[CONTROL_CACHE_SIZE];
   // data != &cache[0] means the data is malloced.
@@ -90,6 +90,7 @@ ctxTailApply(struct controlFlow *ctx) {
 static void
 ctxTailEval(struct controlFlow *ctx, Obj exp, Obj env) {
   ctx->kind = controlFlowEval;
+  ctx->size = 2;
   ctxSet(ctx, 0, exp);
   ctxSet(ctx, 1, env);
 }

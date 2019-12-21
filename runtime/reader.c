@@ -15,13 +15,9 @@ is_delimiter(int c) {
 		c == '"'   || c == ';';
 }
 
-static char
-is_identifier(int c) {
-	return isalnum(c) || c == '!' || c == '$' || c == '%' ||
-		c == '&' || c == '*' || c == '+' || c == '-' ||
-		c == '.' || c == '/' || c == ':' || c == '<' ||
-		c == '=' || c == '>' || c == '?' || c == '@' ||
-		c == '^' || c == '_' || c == '~';
+static bool
+isIdentifier(int c) {
+	return !is_delimiter(c) && c != '\'';
 }
 
 static int
@@ -33,7 +29,7 @@ peek(FILE *in) {
 }
 
 static void
-eat_whitespace(FILE *in) {
+eatWhitespace(FILE *in) {
   int c;
   while ((c = getc(in)) != EOF) {
     if (isspace(c)) {
@@ -72,13 +68,13 @@ peek_expected_delimiter(FILE *in) {
 
 static char
 peekFirstRune(FILE *in) {
-  eat_whitespace(in);
+  eatWhitespace(in);
   return peek(in);
 }
 
 static char
 peekFirstChar(FILE *in) {
-  eat_whitespace(in);
+  eatWhitespace(in);
   return getc(in);
 }
 
@@ -92,29 +88,8 @@ readCons(FILE *in) {
 
   ungetc(c, in);
   Obj car = sexpRead(in);
-  /* printf("read car = ..."); */
-  /* printObj(car); */
-  /* printf("\n"); */
 
   c = peekFirstChar(in);
-  /* if (c == '.') { */
-  /*   // read improper list */
-  /*   c = peek(in); */
-  /*   if (!is_delimiter(c)) { */
-  /*     fprintf(stderr, "dot not followed by delimiter\n"); */
-  /*     exit(1); */
-  /*   } */
-  /*   cdr_obj = sexpRead(in); */
-  /*   eat_whitespace(in); */
-  /*   c = getc(in); */
-  /*   if (c != ')') { */
-  /*     fprintf(stderr, */
-  /*             "where was the trailing right paren?\n"); */
-  /*     exit(1); */
-  /*   } */
-  /*   ret = cons(car_obj, cdr_obj); */
-  /*   return ret; */
-  /* } */
   ungetc(c, in);
 
   /* read list */
@@ -153,7 +128,7 @@ sexpRead(FILE *in) {
   char buffer[512];
   Obj tmp;
 
-  eat_whitespace(in);
+  eatWhitespace(in);
   c = getc(in);
 
   /* printf("sexpRead start with char:::::%c\n", c); */
@@ -165,9 +140,9 @@ sexpRead(FILE *in) {
   }
 
   // read a symbol
-  if (is_identifier(c)) {
+  if (isIdentifier(c)) {
     i = 0;
-    while (is_identifier(c)) {
+    while (isIdentifier(c)) {
       buffer[i] = c;
       i++;
       c = getc(in);
@@ -275,7 +250,7 @@ printObj(Obj o) {
       printf("false");
     }
   } else if (o == Nil) {
-    printf("nil");
+    printf("()");
   } else if (tag(o) == TAG_PTR) {
     scmHead* h = ptr(o);
     switch (h->type) {
