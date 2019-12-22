@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
+#include "gc.h"
 
 const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
@@ -34,7 +35,7 @@ static void*
 newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
   assert(((Obj)p & TAG_PTR) == 0);
-  p->mark = 0;
+  p->visited = 0;
   p->type = tp;
   return (void*)p;
 }
@@ -45,6 +46,14 @@ makeCons(Obj car, Obj cdr) {
   p->car = car;
   p->cdr = cdr;
   return ((Obj)(&p->head) | TAG_CONS);
+}
+
+static void
+consGCFunc(void* f, void* t, struct GC *gc) {
+  struct scmCons *from = f;
+  struct scmCons *to = t;
+  to->car = gcCopy(from->car, gc);
+  to->cdr = gcCopy(from->cdr, gc);
 }
 
 Obj
@@ -77,6 +86,15 @@ makeClosure(Obj params, Obj body, Obj env) {
   clo->body = body;
   clo->env = env;
   return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+static void*
+closureGCFunc(void* f, void* t, struct GC *gc) {
+  struct scmClosure *from = f;
+  struct scmClosure *to = t;
+  to->params = gcCopy(from->params, gc);
+  to->body = gcCopy(from->body, gc);
+  to->env = gcCopy(from->env, gc);
 }
 
 Obj
@@ -158,6 +176,13 @@ makeSymbol(char *s) {
   return ((Obj)(p->sym)) | TAG_SYMBOL;
 }
 
+static void *
+symbolGCFunc(void* f, void* t, struct GC *gc) {
+  struct scmSymbol *from = f;
+  struct scmSymbol *to = t;
+  to->value = gcCopy(from->value, gc);
+}
+
 Obj
 symbolGet(Obj sym) {
   assert(issymbol(sym));
@@ -199,6 +224,15 @@ makeCurry(int required, int captured) {
   clo->captured = captured;
   assert(captured > 0);
   return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+static void*
+curryGCFunc(void* f, void* t, struct GC *gc) {
+  struct scmCurry *from = f;
+  struct scmCurry *to = t;
+  for (int i=0; i<from->captured; i++) {
+    to->data[i] = gcCopy(from->data[i], to);
+  }
 }
 
 int
@@ -249,6 +283,15 @@ makeNative(nativeFuncPtr fn, int required, int captured, ...) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
+static void
+nativeGCFunc(void* f, void* t, struct GC *gc) {
+  struct scmNative *from = f;
+  struct scmNative *to = t;
+  for (int i=0; i<from->captured; i++) {
+    to->data[i] = gcCopy(from->data[i], gc);
+  }
+}
+
 nativeFuncPtr
 nativeFn(Obj o) {
   struct scmNative* native = ptr(o);
@@ -261,6 +304,13 @@ nativeRequired(Obj o) {
   struct scmNative* native = ptr(o);
   assert(native->head.type == scmHeadNative);
   return native->required;
+}
+
+int
+nativeCaptured(Obj o) {
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  return native->captured;
 }
 
 Obj

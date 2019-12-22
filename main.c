@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
     Eval(loadFile, Nil);
   }
 
-  while(1) {
-    printf("#> ");
+  for (int i=0; ; i++) {
+    printf("%d #> ", i);
     Obj exp = sexpRead(stdin);
     Obj exp1 = MacroExpand(exp);
     Obj res = Eval(exp1, Nil);

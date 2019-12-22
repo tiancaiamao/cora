@@ -56,8 +56,10 @@ enum {
 };
 
 typedef struct {
-  uint8_t mark;
+  uint8_t visited;
   scmHeadType type;
+  uint16_t size;
+  void *forwarding;
 } scmHead;
 
 typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
@@ -91,6 +93,7 @@ Obj makeBuiltin(nativeFuncPtr fn, int required);
 Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
 Obj nativeRef(Obj o, int idx);
 int nativeRequired(Obj o);
+int nativeCaptured(Obj o);
 nativeFuncPtr nativeFn(Obj o);
 
 Obj makeCurry(int required, int captured);

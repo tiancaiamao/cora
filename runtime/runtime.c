@@ -7,6 +7,7 @@
 #include "types.h"
 #include "builtin.h"
 #include "reader.h"
+#include "gc.h"
 #include "runtime.h"
 
 typedef enum {
@@ -366,6 +367,7 @@ trampoline(struct controlFlow *ctx) {
 
 void
 coraInit() {
+  gc = gcNew();
   symQuote = intern("quote");
   symIf = intern("if");
   symLambda = intern("lambda");
