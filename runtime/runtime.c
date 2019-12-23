@@ -367,6 +367,7 @@ trampoline(struct controlFlow *ctx) {
 
 void
 coraInit() {
+  typesInit();
   gc = gcNew();
   symQuote = intern("quote");
   symIf = intern("if");

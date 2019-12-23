@@ -5,7 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
-#include "gc.h"
 
 const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
@@ -34,6 +33,7 @@ struct scmClosure {
 static void*
 newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
+  /* scmHead* p = gcAlloc(gc, sz); */
   assert(((Obj)p & TAG_PTR) == 0);
   p->visited = 0;
   p->type = tp;
@@ -143,6 +143,11 @@ stringStr(Obj o) {
   struct scmString* s = ptr(o);
   assert(s->head.type == scmHeadString);
   return s->data;
+}
+
+static void
+stringGCFunc(void* f, void* t, struct GC *gc) {
+  // TODO:
 }
 
 struct trieNode {
@@ -325,6 +330,12 @@ makeBuiltin(nativeFuncPtr fn, int required) {
   return makeNative(fn, required+1, 0);
 }
 
+
+static void
+vectorGCFunc(void* f, void* t, struct GC *gc) {
+  // TODO:
+}
+
 bool
 eq(Obj x, Obj y) {
   if (x == y) {
@@ -339,4 +350,15 @@ eq(Obj x, Obj y) {
   }
 
   return false;
+}
+
+void
+typesInit() {
+  gcRegistForType(scmHeadSymbol, symbolGCFunc);
+  gcRegistForType(scmHeadCons, consGCFunc);
+  gcRegistForType(scmHeadClosure, closureGCFunc);
+  gcRegistForType(scmHeadNative, nativeGCFunc);
+  gcRegistForType(scmHeadCurry, curryGCFunc);
+  gcRegistForType(scmHeadString, stringGCFunc);
+  gcRegistForType(scmHeadVector, vectorGCFunc);
 }
