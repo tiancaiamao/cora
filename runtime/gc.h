@@ -7,10 +7,9 @@
 typedef uint8_t scmHeadType;
 
 typedef struct {
-  uint8_t visited;
   scmHeadType type;
   uint16_t size;
-  void *forwarding;
+  uintptr_t forwarding;
 } scmHead;
 
 // 000 fixnum
@@ -39,14 +38,12 @@ typedef struct {
 #define isfixnum(x) (((x) & 1) == 0)
 #define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
 
-struct GC;
-
-struct GC *gc;
-struct GC* gcNew();
-
-typedef void (*gcFunc)(void* from, void* to, struct GC *gc);
-bool gcRegistForType(uint8_t type, gcFunc fn);
+extern struct GC gc;
+void gcInit(struct GC* gc);
+uintptr_t gcCopy(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
-void* gcCopy(void* head, struct GC *gc);
+
+typedef void (*gcFunc)(struct GC *gc, void* from, void* to);
+bool gcRegistForType(uint8_t type, gcFunc fn);
 
 #endif

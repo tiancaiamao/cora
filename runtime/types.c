@@ -17,12 +17,6 @@ struct scmString {
   char data[];
 };
 
-struct scmSymbol {
-  scmHead head;
-  Obj value;
-  char str[];
-};
-
 struct scmClosure {
   scmHead head;
   Obj params;
@@ -32,10 +26,8 @@ struct scmClosure {
 
 static void*
 newObj(scmHeadType tp, int sz) {
-  scmHead* p = malloc(sz);
-  /* scmHead* p = gcAlloc(gc, sz); */
+  scmHead* p = gcAlloc(&gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
-  p->visited = 0;
   p->type = tp;
   return (void*)p;
 }
@@ -49,11 +41,11 @@ makeCons(Obj car, Obj cdr) {
 }
 
 static void
-consGCFunc(void* f, void* t, struct GC *gc) {
+consGCFunc(struct GC *gc, void* f, void* t) {
   struct scmCons *from = f;
   struct scmCons *to = t;
-  to->car = gcCopy(from->car, gc);
-  to->cdr = gcCopy(from->cdr, gc);
+  to->car = gcCopy(gc, from->car);
+  to->cdr = gcCopy(gc, from->cdr);
 }
 
 Obj
@@ -88,13 +80,13 @@ makeClosure(Obj params, Obj body, Obj env) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-static void*
-closureGCFunc(void* f, void* t, struct GC *gc) {
+static void
+closureGCFunc(struct GC *gc, void* f, void* t) {
   struct scmClosure *from = f;
   struct scmClosure *to = t;
-  to->params = gcCopy(from->params, gc);
-  to->body = gcCopy(from->body, gc);
-  to->env = gcCopy(from->env, gc);
+  to->params = gcCopy(gc, from->params);
+  to->body = gcCopy(gc, from->body);
+  to->env = gcCopy(gc, from->env);
 }
 
 Obj
@@ -146,16 +138,32 @@ stringStr(Obj o) {
 }
 
 static void
-stringGCFunc(void* f, void* t, struct GC *gc) {
+stringGCFunc(struct GC *gc, void* f, void* t) {
   // TODO:
 }
 
 struct trieNode {
-  struct scmSymbol* sym;
+  Obj value;
+  char *sym;
   struct trieNode* child[256];
 };
 
 struct trieNode root = {};
+
+static void
+trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
+  node->value = gcCopy(gc, node->value);
+  for (int i=0; i<256; i++) {
+    if (node->child[i] != NULL) {
+      trieNodeGCFunc(gc, node->child[i]);
+    }
+  }
+}
+
+void
+gcGlobal(struct GC *gc) {
+  trieNodeGCFunc(gc, &root);
+}
 
 Obj
 makeSymbol(char *s) {
@@ -170,37 +178,26 @@ makeSymbol(char *s) {
     p = p->child[*s];
   }
   if (p->sym == NULL) {
-    int sz = sizeof(struct scmSymbol)+strlen(old)+1;
-    struct scmSymbol* sym = newObj(scmHeadSymbol, sz);
-    sym->value = Undef;
-    strcpy(sym->str, old);
-    p->sym = sym;
-    /* printf("+++ "); */
+    char* tmp = malloc(strlen(old) + 1);
+    strcpy(tmp, old);
+    p->sym = tmp;
+    p->value = Undef;
   }
 
-  return ((Obj)(p->sym)) | TAG_SYMBOL;
-}
-
-static void *
-symbolGCFunc(void* f, void* t, struct GC *gc) {
-  struct scmSymbol *from = f;
-  struct scmSymbol *to = t;
-  to->value = gcCopy(from->value, gc);
+  return (Obj)(p) | TAG_SYMBOL;
 }
 
 Obj
 symbolGet(Obj sym) {
   assert(issymbol(sym));
-  struct scmSymbol* s = ptr(sym);
-  assert(s->head.type == scmHeadSymbol);
+  struct trieNode* s = ptr(sym);
   return s->value;
 }
 
 Obj
 symbolSet(Obj sym, Obj val) {
   assert(issymbol(sym));
-  struct scmSymbol* s = ptr(sym);
-  assert(s->head.type == scmHeadSymbol);
+  struct trieNode* s = ptr(sym);
   s->value = val;
   return val;
 }
@@ -208,9 +205,8 @@ symbolSet(Obj sym, Obj val) {
 const char*
 symbolStr(Obj sym) {
   assert(issymbol(sym));
-  struct scmSymbol *s = ptr(sym);
-  assert(s->head.type == scmHeadSymbol);
-  return s->str;
+  struct trieNode *s = ptr(sym);
+  return s->sym;
 }
 
 struct scmCurry {
@@ -231,12 +227,12 @@ makeCurry(int required, int captured) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-static void*
-curryGCFunc(void* f, void* t, struct GC *gc) {
+static void
+curryGCFunc(struct GC *gc, void* f, void* t) {
   struct scmCurry *from = f;
   struct scmCurry *to = t;
   for (int i=0; i<from->captured; i++) {
-    to->data[i] = gcCopy(from->data[i], to);
+    to->data[i] = gcCopy(gc, from->data[i]);
   }
 }
 
@@ -289,11 +285,11 @@ makeNative(nativeFuncPtr fn, int required, int captured, ...) {
 }
 
 static void
-nativeGCFunc(void* f, void* t, struct GC *gc) {
+nativeGCFunc(struct GC *gc, void* f, void* t) {
   struct scmNative *from = f;
   struct scmNative *to = t;
   for (int i=0; i<from->captured; i++) {
-    to->data[i] = gcCopy(from->data[i], gc);
+    to->data[i] = gcCopy(gc, from->data[i]);
   }
 }
 
@@ -332,7 +328,7 @@ makeBuiltin(nativeFuncPtr fn, int required) {
 
 
 static void
-vectorGCFunc(void* f, void* t, struct GC *gc) {
+vectorGCFunc(struct GC *gc, void* f, void* t) {
   // TODO:
 }
 
@@ -354,7 +350,6 @@ eq(Obj x, Obj y) {
 
 void
 typesInit() {
-  gcRegistForType(scmHeadSymbol, symbolGCFunc);
   gcRegistForType(scmHeadCons, consGCFunc);
   gcRegistForType(scmHeadClosure, closureGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);

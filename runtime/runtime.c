@@ -209,8 +209,9 @@ eval(struct controlFlow* ctx) {
     Obj val = symbolGet(exp);
     if (val == Undef) {
       char buf[100];
-      int n = snprintf(buf, 100, "symbol not bind:%s", symbolStr(exp));
+      int n = snprintf(buf, 100, "symbol not bind:%s\n", symbolStr(exp));
       perror(buf);
+      assert(false);
     }
     return ctxReturn(ctx, val);
   }
@@ -367,8 +368,8 @@ trampoline(struct controlFlow *ctx) {
 
 void
 coraInit() {
+  gcInit(&gc);
   typesInit();
-  gc = gcNew();
   symQuote = intern("quote");
   symIf = intern("if");
   symLambda = intern("lambda");

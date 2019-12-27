@@ -269,9 +269,6 @@ printObj(Obj o) {
     case scmHeadString:
       printf("\"%s\"", stringStr(o));
       break;
-    case scmHeadSymbol:
-      printf("symbol");
-      break;
     case scmHeadBoolean:
       printf("boolean");
       break;

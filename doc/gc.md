@@ -47,3 +47,7 @@ gcCopy(scmHead* head, struct GC *gc) {
   return to;
 }
 ```
+
+还有可能成环问题
+
+递归栈 oom 问题

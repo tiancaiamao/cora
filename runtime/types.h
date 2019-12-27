@@ -18,10 +18,10 @@ enum {
   // Instant values.
 	scmHeadBoolean,
 	scmHeadNull,
+  // Symbol is a special pointer, but it's basically instant value.
   // Number may be or may not be pointer.
 	scmHeadNumber,
   // The followings are all pointer types.
-	scmHeadSymbol,
 	scmHeadCons,
 	scmHeadClosure,
   scmHeadNative,
@@ -80,5 +80,6 @@ char* stringStr(Obj o);
 Obj makeNumber(int v);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand;
+void gcSymbols(struct GC *gc);
 
 #endif
