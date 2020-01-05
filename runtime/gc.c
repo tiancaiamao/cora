@@ -1,30 +1,136 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
 #include <stddef.h>
 #include <assert.h>
 #include "gc.h"
 
-const int MEM_BLOCK_SIZE = 40*1024*1024;
+const int MEM_BLOCK_SIZE = 4*1024*1024;
 
-struct Area {
+struct Block {
   int offset;
   char *data;
 };
+
+static void
+blockInit(struct Block *block) {
+  block->data = malloc(MEM_BLOCK_SIZE);
+  block->offset = 0;
+}
+
+static void
+blockReset(struct Block *block) {
+  free(block->data);
+  block->offset = 0;
+}
+
+static bool
+blockContains(struct Block *block, void *p) {
+  if (p < (void*)block->data || p >= (void*)&block->data[block->offset]) {
+    return false;
+  }
+  return true;
+}
+
+#define alignto(p, bits)      (((p) >> bits) << bits)
+#define aligntonext(p, bits)  alignto(((p) + (1 << bits) - 1), bits)
+
+static scmHead*
+blockAlloc(struct Block *block, int size) {
+  if (block->offset + size > MEM_BLOCK_SIZE) {
+    return NULL;
+  }
+  size = aligntonext(size, TAG_SHIFT);
+  scmHead *head = (void*)&block->data[block->offset];
+  head->size = size;
+  head->forwarding = 0;
+  block->offset += size;
+  return head;
+}
+
+struct Area {
+  struct Block *blocks;
+  int len;
+  int cap;
+};
+
+static void
+areaInit(struct Area *area) {
+  area->len = 0;
+  area->cap = 8;
+  area->blocks = malloc(sizeof(struct Block) * area->cap);
+}
+
+static bool
+areaContains(struct Area *area, void *p) {
+  for (int i=0; i<area->len; i++) {
+    struct Block *b = &area->blocks[i];
+    if (blockContains(b, p)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static scmHead*
+areaAlloc(struct Area *area, int size) {
+  assert(size > sizeof(scmHead));
+  // Lazy initialize the first block.
+  if (area->len == 0) {
+    area->len = 1;
+    blockInit(&area->blocks[0]);
+  }
+
+  struct Block *curr = &area->blocks[area->len - 1];
+  scmHead *res = blockAlloc(curr, size);
+  if (res != NULL) {
+    return res;
+  }
+
+  if (area->len == area->cap) {
+    struct Block *tmp = malloc(sizeof(struct Block) * area->cap * 2);
+    memcpy(tmp, area->blocks, sizeof(struct Block) * area->len);
+    free(area->blocks);
+    area->blocks = tmp;
+  }
+  curr = &area->blocks[area->len];
+  blockInit(curr);
+  area->len++;
+
+  return areaAlloc(area, size);
+}
+
+static void
+areaReset(struct Area *area) {
+  for (int i=0; i<area->len; i++) {
+    struct Block *b = &area->blocks[i];
+    blockReset(b);
+  }
+  area->len = 0;
+}
+
+static int
+areaSize(struct Area *area) {
+  int size = 0;
+  for (int i=0; i<area->len - 1; i++) {
+    size += MEM_BLOCK_SIZE;
+  }
+  if (area->len > 0) {
+    struct Block *b = &area->blocks[area->len - 1];
+    size += b->offset;
+  }
+  return size;
+}
 
 struct GC {
   struct Area area1;
   struct Area area2;
   struct Area *curr;
+  int nextSize;
 };
 
 struct GC gc;
-
-static void
-areaInit(struct Area *area) {
-  area->data = malloc(MEM_BLOCK_SIZE);
-  area->offset = 0;
-}
 
 void* baseStackAddr = NULL;
 
@@ -35,6 +141,7 @@ gcInit(struct GC *gc) {
   areaInit(&gc->area1);
   areaInit(&gc->area2);
   gc->curr = &gc->area1;
+  gc->nextSize = MEM_BLOCK_SIZE;
 }
 
 static gcFunc registry[256] = {};
@@ -46,47 +153,6 @@ gcRegistForType(uint8_t idx, gcFunc fn) {
   }
   registry[idx] = fn;
   return true;
-}
-
-static bool
-areaContains(struct Area *area, void *p) {
-  if (p < (void*)area->data || p >= (void*)&area->data[area->offset]) {
-    return false;
-  }
-  return true;
-}
-
-/* static bool */
-/* gcAlloced(struct GC* gc, uintptr_t i) { */
-/*   if (tag(i) != TAG_PTR && tag(i) != TAG_CONS) { */
-/*     return false; */
-/*   } */
-/*   void *p = ptr(i); */
-/*   if (areaContains(&gc->area1, p)) { */
-/*     return true; */
-/*   } */
-/*   if (areaContains(&gc->area2, p)) { */
-/*     return true; */
-/*   } */
-/*   return false; */
-/* } */
-
-#define alignto(p, bits)      (((p) >> bits) << bits)
-#define aligntonext(p, bits)  alignto(((p) + (1 << bits) - 1), bits)
-
-static scmHead*
-areaAlloc(struct Area *area, int size) {
-  assert(size > sizeof(scmHead));
-  if (area->offset + size > MEM_BLOCK_SIZE) {
-    // TODO:
-    return NULL;
-  }
-  size = aligntonext(size, TAG_SHIFT);
-  scmHead *head = (void*)&area->data[area->offset];
-  head->size = size;
-  head->forwarding = 0;
-  area->offset += size;
-  return head;
 }
 
 static struct Area*
@@ -153,14 +219,22 @@ gcRun(struct GC *gc) {
   gcStack(gc, stackAddr, baseStackAddr);
   gcGlobal(gc);
 
-  gc->curr->offset = 0;
+  areaReset(gc->curr);
   gc->curr = gcGetNextArea(gc);
 }
 
 void*
 gcAlloc(struct GC* gc, int size) {
-  if (gc->curr->offset >= 4 * 1024 * 1024) {
+  int sz1 = areaSize(gc->curr);
+  if (sz1 >= gc->nextSize) {
     gcRun(gc);
+    int sz2 = areaSize(gc->curr);
+    /* printf("run gc, current size = %d, after gc = %d\n", sz1, sz2); */
+    gc->nextSize = 2 * sz2;
+    if (gc->nextSize < MEM_BLOCK_SIZE) {
+      // Because a block is at least that size, GC smaller then this is meanless.
+      gc->nextSize = MEM_BLOCK_SIZE;
+    }
   }
   return areaAlloc(gc->curr, size);
 }

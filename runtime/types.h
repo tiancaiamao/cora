@@ -7,6 +7,25 @@
 
 typedef uintptr_t Obj;
 
+// 000 fixnum
+// 001 non-fixnum
+// 001 symbol
+// 011 cons
+// 101 immediate const (boolean, null, undef...)
+// 111 general pointer (string, vector, number, error...)
+#define TAG_FIXNUM 0x0
+#define TAG_SYMBOL 0x1
+#define TAG_CONS 0x3
+#define TAG_IMMEDIATE_CONST 0x5
+// 1-101 boolean
+// 0-101 other constant
+#define TAG_BOOLEAN 0xd
+
+#define iscons(x) (tag(x) == TAG_CONS)
+#define issymbol(x) (tag(x) == TAG_SYMBOL)
+#define isfixnum(x) (((x) & 1) == 0)
+#define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
+
 extern const Obj True;
 extern const Obj False;
 extern const Obj Nil;
