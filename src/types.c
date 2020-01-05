@@ -142,6 +142,16 @@ stringStr(Obj o) {
   return s->data;
 }
 
+bool
+isstring(Obj o) {
+  if (tag(o) == TAG_PTR) {
+    if (((scmHead*)ptr(o))->type == scmHeadString) {
+      return true;
+    }
+  }
+  return false;
+}
+
 static void
 stringGCFunc(struct GC *gc, void* f, void* t) {
   // TODO:

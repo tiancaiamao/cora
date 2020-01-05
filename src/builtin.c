@@ -142,10 +142,8 @@ builtinIsSymbol(struct controlFlow *ctx) {
 void
 builtinIsString(struct controlFlow *ctx) {
   Obj o = ctxGet(ctx, 1);
-  if (tag(o) == TAG_PTR) {
-    if (((scmHead*)ptr(o))->type == scmHeadString) {
-      return ctxReturn(ctx, True);
-    }
+  if (isstring(o)) {
+    return ctxReturn(ctx, True);
   }
   return ctxReturn(ctx, False);
 }

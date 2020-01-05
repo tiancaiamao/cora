@@ -97,6 +97,7 @@ Obj closureEnv(Obj);
 Obj makeString(char *s, int len);
 char* stringStr(Obj o);
 Obj makeNumber(int v);
+bool isstring(Obj o);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 void gcSymbols(struct GC *gc);

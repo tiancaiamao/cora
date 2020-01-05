@@ -1,5 +1,4 @@
 cora
 *.o
 a.out
-runtime/libcora.a
-runtime/*.o
+libcora.a

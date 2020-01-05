@@ -3,7 +3,14 @@
 CC = gcc
 CFLAGS = -g -Wall
 
-all: libcora.a
+all: cora
+
+cora: libcora.a main.c
+	$(CC) $(CFLAGS) main.c libcora.a -o $@
+
+codegen: generator.c libcora.a
+	$(CC) $(CFLAGS) generator.c -lcora -o $@
+
 libcora.a: gc.o types.o reader.o builtin.o runtime.o
 	ar -rc $@ $^
 
@@ -14,7 +21,7 @@ reader.o: reader.c reader.h types.h
 runtime.o: runtime.c types.h builtin.h
 
 clean:
-	rm -rf *.o libcora.a
+	rm -rf *.o libcora.a cora
 
 .SUFFIXES: .c .o
 .c.o:
