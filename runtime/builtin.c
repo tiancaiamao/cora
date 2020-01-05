@@ -161,9 +161,24 @@ builtinLoad(struct controlFlow *ctx) {
     /* sexpWrite(stdout, ast); */
     /* printf("\n"); */
     Obj exp = MacroExpand(ast);
-    Obj res = Eval(exp, Nil);
+    Eval(exp, Nil);
     ast = sexpRead(in);
   }
   fclose(in);
   return ctxReturn(ctx, path);
+}
+
+void
+builtinIsNumber(struct controlFlow* ctx) {
+  Obj x = ctxGet(ctx, 1);
+  if (isfixnum(x)) {
+    return ctxReturn(ctx, True);
+  }
+  if (tag(x) == TAG_PTR) {
+    scmHead* h = ptr(x);
+    if (h->type == scmHeadNumber) {
+      return ctxReturn(ctx, True);
+    }
+  }
+  return ctxReturn(ctx, False);
 }

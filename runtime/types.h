@@ -40,7 +40,7 @@ struct scmCons {
   Obj cdr;
 };
 
-#define fixnum(x) ((x)>>1)
+#define fixnum(x) ((intptr_t)(x)>>1)
 bool eq(Obj x, Obj y);
 
 #define intern(x) makeSymbol(x)
@@ -79,7 +79,7 @@ Obj makeString(char *s, int len);
 char* stringStr(Obj o);
 Obj makeNumber(int v);
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 void gcSymbols(struct GC *gc);
 
 #endif

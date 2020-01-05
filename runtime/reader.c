@@ -125,7 +125,6 @@ sexpRead(FILE *in) {
   int c;
   int i;
   char buffer[512];
-  Obj tmp;
 
   eatWhitespace(in);
   c = getc(in);
@@ -197,6 +196,18 @@ sexpRead(FILE *in) {
       }
       if (strcmp(buffer, "false") == 0) {
         return False;
+      }
+      if (buffer[0] == '-' && i > 1) {
+        bool allDigit = true;
+        for (int p = 1; p < i; p++) {
+          if (!isdigit(buffer[p])) {
+            allDigit = false;
+          }
+        }
+        if (allDigit) {
+          Obj num = makeNumber(atoi(buffer));
+          return num;
+        }
       }
       return makeSymbol(buffer);
     }
@@ -279,11 +290,8 @@ printObj(Obj o) {
       printf("native");
       break;
     case scmHeadCurry:
-      {
-        struct scmCurry *res = (void*)h;
         printf("curry");
         break;
-      }
     default:
       printf("ptr unknown type = %d\n", h->type);
     };

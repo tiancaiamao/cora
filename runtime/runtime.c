@@ -191,11 +191,13 @@ eval(struct controlFlow* ctx) {
   Obj exp = ctxGet(ctx, 0);
   Obj env = ctxGet(ctx, 1);
 
-  /* printf("eval:"); */
-  /* sexpWrite(NULL, exp); */
-  /* printf("\tenv:"); */
-  /* sexpWrite(NULL, env); */
-  /* printf("\n"); */
+  if (symbolGet(symDebugEval) == True)  {
+    printf("eval:");
+    sexpWrite(NULL, exp);
+    printf("\tenv:");
+    sexpWrite(NULL, env);
+    printf("\n");
+  }
 
   if (tag(exp) != TAG_SYMBOL && tag(exp) != TAG_CONS) {
     return ctxReturn(ctx, exp);
@@ -375,6 +377,7 @@ coraInit() {
   symLambda = intern("lambda");
   symDo = intern("do");
   symMacroExpand = intern("macroexpand");
+  symDebugEval = intern("*debug-eval*");
 
   symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
   symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
@@ -393,4 +396,5 @@ coraInit() {
   symbolSet(intern("symbol?"), makeBuiltin(builtinIsSymbol, 1));
   symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
   symbolSet(intern("load"), makeBuiltin(builtinLoad, 1));
+  symbolSet(intern("number?"), makeBuiltin(builtinIsNumber, 1));
 }

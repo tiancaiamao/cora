@@ -26,6 +26,7 @@ struct scmClosure {
 
 static void*
 newObj(scmHeadType tp, int sz) {
+  /* scmHead* p = malloc(sz); */
   scmHead* p = gcAlloc(&gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
@@ -113,7 +114,11 @@ closureEnv(Obj clo) {
 Obj
 makeNumber(int v) {
   if (v < 99999999) {
-    return (Obj)((v<<1));
+    // The type of a fixnum is actually intptr_t, although stored as uintptr.
+    // Be careful with the sign digit.
+    Obj res = (Obj)(((intptr_t)(v)<<1));
+    assert((res & 1) == 0);
+    return res;
   }
   // TODO
   return (Obj)(99999999);

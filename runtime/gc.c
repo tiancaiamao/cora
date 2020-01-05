@@ -56,20 +56,20 @@ areaContains(struct Area *area, void *p) {
   return true;
 }
 
-static bool
-gcAlloced(struct GC* gc, uintptr_t i) {
-  if (tag(i) != TAG_PTR && tag(i) != TAG_CONS) {
-    return false;
-  }
-  void *p = ptr(i);
-  if (areaContains(&gc->area1, p)) {
-    return true;
-  }
-  if (areaContains(&gc->area2, p)) {
-    return true;
-  }
-  return false;
-}
+/* static bool */
+/* gcAlloced(struct GC* gc, uintptr_t i) { */
+/*   if (tag(i) != TAG_PTR && tag(i) != TAG_CONS) { */
+/*     return false; */
+/*   } */
+/*   void *p = ptr(i); */
+/*   if (areaContains(&gc->area1, p)) { */
+/*     return true; */
+/*   } */
+/*   if (areaContains(&gc->area2, p)) { */
+/*     return true; */
+/*   } */
+/*   return false; */
+/* } */
 
 #define alignto(p, bits)      (((p) >> bits) << bits)
 #define aligntonext(p, bits)  alignto(((p) + (1 << bits) - 1), bits)
@@ -146,7 +146,6 @@ extern void gcGlobal(struct GC *gc);
 static void
 gcRun(struct GC *gc) {
   void* stackAddr = &stackAddr;
-
   // Dump registers onto stack and scan the stack.
   jmp_buf ctx;
   memset(&ctx, 0, sizeof(jmp_buf));
@@ -160,7 +159,7 @@ gcRun(struct GC *gc) {
 
 void*
 gcAlloc(struct GC* gc, int size) {
-  if (gc->curr->offset >= 1 * 1024 * 1024) {
+  if (gc->curr->offset >= 4 * 1024 * 1024) {
     gcRun(gc);
   }
   return areaAlloc(gc->curr, size);

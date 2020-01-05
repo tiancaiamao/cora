@@ -20,6 +20,7 @@ void builtinLT(struct controlFlow* ctx);
 void builtinNot(struct controlFlow* ctx);
 void builtinIsSymbol(struct controlFlow* ctx);
 void builtinIsString(struct controlFlow* ctx);
+void builtinIsNumber(struct controlFlow* ctx);
 void builtinLoad(struct controlFlow *ctx);
 
 #endif
