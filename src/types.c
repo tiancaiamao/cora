@@ -185,12 +185,13 @@ makeSymbol(char *s) {
   char *old = s;
   struct trieNode* p = &root;
   for(; *s; s++) {
-    if (p->child[*s] == NULL) {
+    int offset = *s;
+    if (p->child[offset] == NULL) {
       struct trieNode *n = malloc(sizeof(struct trieNode));
       memset(n, 0, sizeof(struct trieNode));
-      p->child[*s] = n;
+      p->child[offset] = n;
     }
-    p = p->child[*s];
+    p = p->child[offset];
   }
   if (p->sym == NULL) {
     char* tmp = malloc(strlen(old) + 1);

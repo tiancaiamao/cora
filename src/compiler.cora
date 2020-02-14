@@ -5,14 +5,14 @@
 
 (func beta-replace
       env s => (let find (assq s env)
-                 (if (= () find) s (cdr find))) where (symbol? s)
-      env [['lambda [v] body] x] => (beta-replace (cons (cons v x) env) body) where (symbol? x)
-      env ['lambda args body] => (let nenv (filter (lambda (x) (elem? (car x) args)) env)
-                                  ['lambda args (beta-replace env body)])
-      env ['if x y z] => (cons 'if (map (beta-replace env) [x y z]))
-      env ['quote x] => ['quote x]
-      env [x . y] => (map (beta-replace env) [x . y])
-      env x => x)
+                    (if (= () find) s (cdr find))) where (symbol? s)
+                    env [['lambda [v] body] x] => (beta-replace (cons (cons v x) env) body) where (symbol? x)
+                    env ['lambda args body] => (let nenv (filter (lambda (x) (elem? (car x) args)) env)
+                                                    ['lambda args (beta-replace env body)])
+                    env ['if x y z] => (cons 'if (map (beta-replace env) [x y z]))
+                    env ['quote x] => ['quote x]
+                    env [x . y] => (map (beta-replace env) [x . y])
+                    env x => x)
 
 (defun simplify (exp)
   (beta-replace () (propagate-boolean exp)))
@@ -101,41 +101,41 @@
       self fvs var => (let pos (pos-in-list var fvs)
                            (if (= -1 pos)
                                var
-                               ['%closure-ref self pos])) where (symbol? var)
-      self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
-      self fvs ['lambda args body] =>
-      (let fvs1 (free-vars ['lambda args body])
-           self1 (gensym 'clo)
-           ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
-          (map (convert self fvs) fvs1)])
-      self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
-      self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
-      self fvs [f . args] => (let f0 (convert self fvs f)
-                                  args0 (map (convert self fvs) args)
-                                  [f0 . args0]))
+                             ['%closure-ref self pos])) where (symbol? var)
+                             self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
+                             self fvs ['lambda args body] =>
+                             (let fvs1 (free-vars ['lambda args body])
+                                  self1 (gensym 'clo)
+                                  ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
+                                  (map (convert self fvs) fvs1)])
+                             ;; self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
+                             self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
+                             self fvs [f . args] => (let f0 (convert self fvs f)
+                                                         args0 (map (convert self fvs) args)
+                                                         [f0 . args0]))
 
 (func collect-lambda
-      res ['if a b c] return => (collect-lambda-list [] res [a b c]
-                                                     (lambda (res1 ls)
-                                                       (return res1 (cons 'if ls))))
+      ;; res ['if a b c] return => (collect-lambda-list [] res [a b c]
+      ;;                                                (lambda (res1 ls)
+      ;;                                                  (return res1 (cons 'if ls))))
       res ['lambda params body] return =>
       (let name (gensym 'clofun)
            (collect-lambda res body
                            (lambda (res1 body1)
                              (return (cons [name ['lambda params body1]] res1)
                                      name))))
-      res [['lambda params body] . args] return =>
-      (collect-lambda res body (lambda (res1 body1)
-                                 (collect-lambda-list [] res1 args
-                                                      (lambda (res2 args1)
-                                                        (return res2 [['lambda params body1] . args1])))))
+      ;; res [['lambda params body] . args] return =>
+      ;; (collect-lambda res body (lambda (res1 body1)
+      ;;                            (collect-lambda-list [] res1 args
+      ;;                                                 (lambda (res2 args1)
+      ;;                                                   (return res2 [['lambda params body1] . args1])))))
       res ['%closure lam . fvs] return => (collect-lambda res lam
                                                           (lambda (res1 name)
                                                             (return res1 ['%closure name (length (cadr lam)) . fvs])))
-      res [f . args] return => (collect-lambda-list [] res args
-                                                    (lambda (res1 args1)
-                                                      (return res1 (cons f args1))))
-      res x return => (return res x))
+      res f-args return => (collect-lambda-list [] res f-args
+                                                (lambda (res1 args1)
+                                                  (return res1 args1))) where (cons? f-args)
+                                                  res x return => (return res x))
 
 (func collect-lambda-list
       res init [] return => (return init (reverse res))
@@ -152,89 +152,70 @@
                        (lambda (res1 ast1)
                          (cons [(gensym 'clofun) ['lambda () ast1]] res1)))))
 
-(func return
-      false bc reg cc => (cc bc reg)
-      true bc reg cc => (cc (cons ['%return reg] bc) '_))
+(defun id (x) x)
+
+(defun wrap-var (x k)
+  (let tmp (gensym 'reg)
+       ['let tmp x
+       (k tmp)]))
 
 (func code-gen
-      bc tail ['%const x] cc => (let reg (gensym 'reg)
-                                     (return tail (cons ['%const x reg] bc) reg cc))
-      bc tail ['%closure fn . captured] cc => (let reg (gensym 'reg)
-                                                   (return tail (cons ['%closure reg fn . captured] bc) reg cc))
-      bc tail ['%closure-ref clo idx] cc => (let reg (gensym 'reg)
-                                              (return tail (cons ['%closure-ref reg clo idx] bc) reg cc))
-      bc tail x cc => (return tail bc x cc) where (symbol? x)
-      bc tail ['if x y z] cc =>
-      (code-gen bc false x (lambda (bc1 r1)
-                             (code-gen [] tail y (lambda (bcy r2)
-                                                   (code-gen [] tail z (lambda (bcz r3)
-                                                                         (if tail
-                                                                             (cc (cons ['if r1 (reverse bcy) (reverse bcz)] bc1) '_)
-                                                                           (let reg (gensym 'reg)
-                                                                                (let bc2 (cons [$declare Reg] bc1)
-                                                                                     (let bcy1 (reverse (cons ['mov r2 reg] bcy))
-                                                                                          (let bcz1 (reverse (cons ['mov r3 reg] bcz))
-                                                                                               (let bc3 (cons ['if r1 bcy1 bcz1] bc2)
-                                                                                                    (cc bc3 reg)))))))))))))
-      bc tail ['do x y] cc => (code-gen bc false x (lambda (bc1 x1)
-                                                     (code-gen (cons ['mov x1 _] bc1) tail y cc)))
-      bc tail [f . args] cc => (code-gen-list [] bc args (lambda (bc1 reglist)
-                                                           (let reg (gensym 'reg)
-                                                                (let bc2 (code-gen-call bc1 tail f reglist reg)
-                                                                     (cc bc2 (if tail '_ reg)))))))
+      x k => (if (= id k) ['%return x] (k x)) where (symbol? x)
+      [x . y] k => (wrap-var [x . y] k) where (elem? x ['%const '%closure-ref '%builtin '%global])
+      ['%closure name required . captured] k =>
+      (code-gen-list captured
+                     (lambda (captured1)
+                       (wrap-var ['%closure name required captured1] k)))
+      ['if x y z] k =>
+      (code-gen x
+                (lambda (x1)
+                  ['if x1 (code-gen y k)
+                  (code-gen z k)]))
+      ['do x y] k => (code-gen-list x y k)
+      [f . args] k =>
+      (code-gen f
+                (lambda (f1)
+                  (code-gen-list args
+                                 (lambda (args1)
+                                   (if (= id k)
+                                       ['%tailcall f1 . args1]
+                                       (wrap-var ['%call f1 . args1] k)))))))
 
 (func code-gen-list
-      regs bc [] cc => (cc bc (reverse regs))
-      regs bc [x . y] cc => (code-gen bc false x (lambda (bc1 r1)
-                                                   (code-gen-list [r1 . regs] bc1 y cc))))
+      [] k => (k [])
+      [x . y] k => (code-gen x (lambda (x1)
+                                 (code-gen-list y (lambda (y1)
+                                                    (k [x1 . y1]))))))
 
-;; (code-gen-list [] [] '(x (%const 0)))
-
-(func code-gen-call
-  bc tail ['%builtin f] args reg => (let x (cons ['%builtin f args reg] bc)
-                                         (if tail (cons ['%return reg] x) x))
-  bc false ['%global f] args reg => (cons ['%call-def f args reg] bc)
-  bc true ['%global f] args reg => (cons ['%tailcall-def f args] bc)
-  bc false f args reg => (cons ['%call f args reg] bc)
-  bc true f args reg => (cons ['%tailcall f args] bc))
+(defun code-gen-body (x)
+  (code-gen x id))
 
 (func code-gen-lambda
-      ['lambda args body] => (code-gen [] true body
-                                       (lambda (bc reg)
-                                         (reverse (if (= '_ reg) bc (cons ['%return reg] bc))))))
+      ['lambda args body] => (code-gen-body body))
 
 (defun code-generate (inputs)
   (map (lambda (x)
          (let lmd (cadr x)
               (let args (cadr lmd)
                    (let bc (code-gen-lambda lmd)
-                        ['label (car x) args . bc]))))
+                        ['label (car x) args bc]))))
        inputs))
-
-;; (code-gen [] [] 42 (lambda (bc mp reg) 444))
-;; (code-gen [] [] 'a (lambda (bc mp reg) bc))
-;; (code-gen [] [] '(if a 4 c) (lambda (bc mp reg) bc))
-;; (code-gen [] [] '(+ a 3) (lambda (bc mp reg) bc))
-;; (code-gen [] [] '((lambda (a b) (+ a b)) 3 5) (lambda (bc mp reg) bc))
-;; (code-gen [] [] '(lambda (a b) (+ a b)) (lambda (bc mp reg) bc))
-;; (code-gen [] [] '(f a b) (lambda (bc mp reg) bc))
 
 ;; (closure-convert '(set 'fact (lambda (n)
 ;;                                (if (= n 0)
 ;;                                    1
 ;;                                  (* n (fact (- n 1)))))))
 
-;; (code-generate '((#clofun35259 (lambda () ((lambda (#arg4118) ((lambda (_) ((lambda (#f4065) ((%closure-func #f4065) #f4065 (%closure #clofun35155) 5)) square)) (set (quote square) #arg4118))) (%closure #clofun35255)))) (#clofun35255 (lambda (#clo34911 #k4138 x) ((%closure-func #k4138) #k4138 (* x x)))) (#clofun35155 (lambda (#clo34666 #arg4038) (halt (+ #arg4038 1))))))
-
-;; (code-generate '((#clofun340 (lambda () ((%builtin set) (%const fact) (%closure #clofun339)))) (#clofun339 (lambda (#clo338 n) (if ((%builtin =) n (%const 0)) (%const 1) ((%builtin *) n ((%global fact) ((%builtin -) n (%const 1)))))))))
+;; (code-generate '((#clofun156 (lambda () ((%builtin set) (%const fact) (%closure #clofun155 2)))) (#clofun155 (lambda (#clo154 n) (if ((%builtin =) n (%const 0)) (%const 1) ((%builtin *) n ((%global fact) ((%builtin -) n (%const 1)))))))))
 
 (defun compile (x)
   (let lam (closure-convert x)
        (let bc (code-generate lam)
             bc)))
 
-(defun compile-file (file)
-  (let sexp (read-file-as-sexp file)
-       (let bc (compile sexp)
-            (generate-c "gen.c" bc))))
+(defun compile-file (from to)
+  (let sexp (read-file-as-sexp from)
+       (let parsed (macroexpand sexp)
+            (let bc (compile parsed)
+                 (generate-c to bc)))))
 

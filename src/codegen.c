@@ -4,47 +4,7 @@
 #include <assert.h>
 #include "runtime.h"
 
-
-
-static int generateCIfExpr(FILE *w, Obj a, Obj b, Obj c);
-static void generateCBuiltinCall(FILE* w, Obj op, Obj args, Obj dst);
-
-/* func GenerateC(args ...Obj) Obj { */
-/*  filePath := mustString(args[0]) */
-/*     bc := ListToSlice(args[1]) */
-
-/*     out, err := os.Create(filePath) */
-/*     if err != nil { */
-/*         return MakeError(fmt.Sprintf("open file fail %s", err)) */
-/*       } */
-/* 	defer out.Close() */
-
-/*     // Generate "#include ..." */
-/*     fmt.Fprintf(out, "#include \"runtime.h\"\n") */
-/*     fmt.Fprintf(out, "#include <stdlib.h>\n\n") */
-
-/*     labelSym := MakeSymbol("label") */
-/*     // Generate declare... */
-/*     for _, fn := range bc { */
-/*         if car(fn) == labelSym { */
-/*             fmt.Fprintf(out, "static void %s (struct controlFlow *ctx);\n", symbolString(cadr(fn))) */
-/*           } else { */
-/*           fmt.Println("???  = ", ObjString(car(fn))) */
-/*         } */
-/*       } */
-/* 	fmt.Fprintf(out, "nativeFuncPtr export = %s;\n", symbolString(cadr(bc[0]))) */
-
-/*     fmt.Fprintf(out, "\n\n") */
-
-/*     // Generate each function... */
-/*     for _, fn := range bc { */
-/*         if err := generateFunc(out, fn); err != nil { */
-/*           fmt.Println("err =", err) */
-/*             return MakeError(err.Error()) */
-/*             } */
-/*       } */
-/* 	return True */
-/*     } */
+static int genIfExpr(FILE *w, Obj a, Obj b, Obj c);
 
 static int
 listLen(Obj l) {
@@ -57,9 +17,8 @@ listLen(Obj l) {
 }
 
 static void
-listToSlice(Obj* res, Obj l) {
-  int count = 0;
-  for (int i=0; i<count; i++) {
+listToSlice(Obj* res, int size, Obj l) {
+  for (int i=0; i<size; i++) {
     res[i] = car(l);
     l = cdr(l);
   }
@@ -67,168 +26,170 @@ listToSlice(Obj* res, Obj l) {
   return;
 }
 
-const static char*
+static const char*
 symbolString(Obj sym) {
- char *str = symbolStr(sym);
+ const char *str = symbolStr(sym);
  if (str[0] == '#') {
    return str+1;
  }
  return str;
 }
 
-static Obj symMov, symConst, symClosure, symCloseRef, symReturn, symBuiltin, symCallDef,symClosureRef ;
+static Obj symLet, symConst, symClosure, symReturn, symBuiltin, symCall, symClosureRef, symTailCall, symGlobal;
 
-static void init() {
-  symMov = intern("mov");
+static void
+init() {
+  symLet = intern("let");
   symConst = intern("%const");
   symClosureRef = intern("%closure-ref");
   symClosure = intern("%closure");
   symBuiltin = intern("%builtin");
+  symGlobal = intern("%global");
   symReturn = intern("%return");
-  symCallDef = intern("%call-def");
+  symCall = intern("%call");
+  symTailCall = intern("%tailcall");
 }
 
 static int
-generateInst(FILE *w, Obj inst) {
+genConst(FILE *w, Obj inst) {
+  // (const Number)
+  // (const ())
+  // (cons "xxx")
+  Obj c = cadr(inst);
+  if  (isfixnum(c)) {
+    fprintf(w, "makeNumber(%ld)", fixnum(cadr(inst)));
+  } else if (isstring(c)) {
+    char *str = stringStr(c);
+    fprintf(w, "makeString(\"%s\", %ld)", str, strlen(str));
+  } else if (issymbol(c)) {
+    fprintf(w, "intern(\"%s\")", symbolString(c));
+  } else if (c == Nil) {
+    fprintf(w, "Nil");
+  } else if (c == True) {
+    fprintf(w, "True");
+  } else if (c == False) {
+    fprintf(w, "False");
+  } else {
+    fprintf(w, "unknown const");
+    return -1;
+  }
+  return 0;
+}
+
+static int
+genCall(FILE *w, Obj inst, bool tail) {
+  // (%tailcall x y z ...)
+  if (tail) {
+    fprintf(w, "return ctxTailCall(");
+  } else {
+    fprintf(w, "call(");
+  }
+
+  bool first = true;
+  for (Obj o = cdr(inst); o != Nil; o = cdr(o)) {
+    if (first) { first = false; } else { fprintf(w, ", "); }
+    fprintf(w, "%s", symbolString(car(o)));
+  }
+  fprintf(w, ")");
+
+  if (tail) {
+    fprintf(w, ";\n");
+  }
+  return 0;
+}
+
+static int
+genInst(FILE *w, Obj inst) {
   Obj kind = car(inst);
-  if (kind ==  symMov) {
-    // (mov SRC DST)
-    Obj src = cadr(inst);
-    Obj dst = car(cdr(cdr(inst)));
-    printf(w, "%s = %s;\n", symbolString(dst), symbolString(src));
-  } else if (kind == symConst) {
-    // (const Number DST)
-    // (const () DST)
-    // (cons "xxx" DST)
-    Obj dst = car(cdr(cdr(inst)));
-    Obj c = cadr(inst);
-    if  (isfixnum(c)) {
-      printf(w, "Obj %s = makeNumber(%d);\n", symbolString(dst), fixnum(cadr(inst)));
-    } else if (isstring(c)) {
-      char *str = stringStr(c);
-      fprintf(w, "Obj %s = makeString(\"%s\", %d);\n", symbolString(dst), str, strlen(str));
-    } else if  (issymbol(c)) {
-      printf(w, "Obj %s = intern(\"%s\");\n", symbolString(dst), symbolString(c));
-    } else if  (c == Nil) {
-      printf(w, "Obj %s = Nil;\n", symbolString(dst));
-    } else if (c == True) {
-      printf(w, "Obj %s = True;\n", symbolString(dst));
-    } else if (c == False) {
-      printf(w, "Obj %s = False;\n", symbolString(dst));
-    }
+  if (kind == symConst) {
+    return genConst(w, inst);
   } else if (kind == symClosureRef) {
-    Obj dst = cadr(inst);
-    Obj clo = cadr(cdr(inst));
-    Obj idx = cadr(cdr(cdr(inst)));
-    printf(w, "Obj %s = closureRef(%s, %d);\n", symbolString(dst), symbolString(clo), fixnum(idx));
+    // (%closure-ref #clo282 0)
+    Obj clo = cadr(inst);
+    Obj idx = cadr(cdr(inst));
+    fprintf(w, "closureRef(%s, %ld)", symbolString(clo), fixnum(idx));
   } else if (kind == symClosure) {
-    // (closure DST FuncName Required FV0 FV1 ...)
+    // (%closure FuncName Required FV0 FV1 ...)
     int len = listLen(cdr(inst));
     Obj tmp[len];
-    listToSlice(tmp, cdr(inst));
-    Obj dst = tmp[0];
-    Obj funcName = tmp[1];
-    Obj required = tmp[2];
-    Obj captured = tmp+3;
-    char *args = sprintf("%s , %d, %d", symbolString(funcName),
+    listToSlice(tmp, len, cdr(inst));
+    Obj funcName = tmp[0];
+    Obj required = tmp[1];
+    /* Obj* captured = tmp+2; */
+    char buf[256];
+    sprintf(buf, "%s , %ld, %d", symbolString(funcName),
                        fixnum(required),
-                       len-3);
-    for (int i = 0; i < len-3; i++) {
-      /* args += ", "; */
-      /* args = args + symbolString(captured[i]); */
-    }
-    printf(w, "Obj %s = makeNative(%s);\n", symbolString(dst), args);
+                       len-2);
+    /* for (int i = 0; i < len-3; i++) { */
+    /* args += ", "; */
+    /* args = args + symbolString(captured[i]); */
+    /* } */
+    fprintf(w, "makeNative(%s)", buf);
   } else if (kind == symBuiltin) {
-    // (builtin OP (ARG1 ARG2 ...) DST)
-    Obj op = cadr(inst);
-    Obj args = cadr(cdr(inst));
-    Obj dst = car(cdr(cdr(cdr(inst))));
-    generateCBuiltinCall(w, op, args, dst);
-  } else if (kind == symReturn) {
-    printf(w, "return ctxReturn(ctx, %s);\n", symbolString(cadr(inst)));
-  } else if (kind == symCallDef) {
-    Obj fn = cadr(inst);
-    int len = listLen(cadr(cdr(inst)));
-    Obj args[len];
-    listToSlice(args, cadr(cdr(inst)));
-    Obj dst = car(cdr(cdr(cdr(inst))));
-    printf(w, "Obj %s = Call(intern(\"%s\"), %d",
-           symbolString(dst),
-           symbolString(fn),
-           len);
-    for (int i=0; i<len; i++) {
-      Obj arg = args[i];
-      printf(w, ", ");
-      printf(w, symbolString(arg));
-    }
-    printf(w, ");\n");
+    // (%builtin OP)
+    fprintf(w, "symbolGet(intern(%s))", symbolString(cadr(inst)));
+  } else if (kind == symGlobal) {
+    // (%global OP)
+    fprintf(w, "symbolGet(intern(%s))", symbolString(cadr(inst)));
+  } else if (kind == symCall) {
+    // (%call x y z ...)
+    return genCall(w, inst, false);
+  } else if (kind == symTailCall) {
+    // (%tailcall x y z ...)
+    return genCall(w, inst, true);
   } else if (kind == symIf) {
     // (if a b c)
     Obj a = cadr(inst);
-    Obj b = car(cdr(cdr(inst)));
+    Obj b = caddr(inst);
     Obj c = car(cdr(cdr(cdr(inst))));
-    int err = generateCIfExpr(w, a, b, c);
-    if (err != 0) {
-      return err;
-    }
+    return genIfExpr(w, a, b, c);
+  } else if (kind == symReturn) {
+    // (%return xx)
+    fprintf(w, "return ctxReturn(ctx, %s);\n", symbolString(cadr(inst)));
   } else {
-    printf("unknown instruct: %s\n", kind);
+    printf("unknown instruct: %s\n", symbolStr(kind));
     return -1;
   }
   return 0;
 }
 
+static Obj
+genLet(FILE *w, Obj inst) {
+  Obj var = cadr(inst);
+  Obj val = caddr(inst);
+  Obj remain = caddr(cdr(inst));
+  fprintf(w, "%s = ", symbolString(var));
+  int res = genInst(w, val);
+  if (res != 0) {
+    return Undef;
+  }
+  fprintf(w, ";\n");
+  return remain;
+}
+
 static int
-generateInsts(FILE* w, Obj sexp) {
-  int len = listLen(sexp);
-	Obj insts[len];
-  listToSlice(insts, sexp);
-	for (int i=0; i<len; i++) {
-    Obj inst = insts[i];
-		int err = generateInst(w, inst);
-    if (err != 0) {
-      return err;
+genInsts(FILE* w, Obj sexp) {
+  while(sexp != Undef) {
+    if (car(sexp) != symLet) {
+      return genInst(w, sexp);
     }
-	}
-	return 0;
+    sexp = genLet(w, sexp);
+  }
+  printf("something wrong");
+  sexpWrite(NULL, sexp);
+  printf("\n");
+  return -1;
 }
 
 static int
-generateFunc(FILE *w, Obj sexp) {
-  if (car(sexp) != intern("label")) {
-    printf("invalid input:\n");
-    sexpWrite(w, sexp);
-    return -1;
-  }
-  // (label FuncName (Args ...) Body)
-  char *funcName = symbolString(cadr(sexp));
-  fprintf(w, "static void %s(struct controlFlow *ctx) {\n", funcName);
-
-  int len = listLen(cadr(cdr(sexp)));
-  Obj args[len];
-  listToSlice(args, cadr(cdr(sexp)));
-  for (int i=0; i<len; i++) {
-    Obj arg = args[i];
-    printf(w, "Obj %s = ctxGet(ctx, %d);\n", symbolString(arg), i);
-  }
-
-  int err = generateInsts(w, cdr(cdr(cdr(sexp))));
-  if (err != 0) {
-    return err;
-  }
-  fprintf(w, "}\n\n");
-  return 0;
-}
-
-static int
-generateCIfExpr(FILE *w, Obj a, Obj b, Obj c) {
+genIfExpr(FILE *w, Obj a, Obj b, Obj c) {
 	fprintf(w, "if (%s == True) {\n", symbolString(a));
-	int err = generateInsts(w, b);
+	int err = genInsts(w, b);
   if (err != 0) {
     return err;
   }
 	fprintf(w, "} else {\n");
-	err = generateInsts(w, c);
+	err = genInsts(w, c);
   if (err != 0) {
 		return err;
 	}
@@ -236,20 +197,98 @@ generateCIfExpr(FILE *w, Obj a, Obj b, Obj c) {
 	return 0;
 }
 
-static void
-generateCBuiltinCall(FILE* w, Obj op, Obj args, Obj dst) {
-  int len = listLen(args);
-  Obj input[len];
-  listToSlice(input, args);
-  printf(w, "Obj %s = Call(intern(\"%v\"), %d", symbolString(dst),
-         symbolString(op), len);
-  for (int i=0; i<len; i++) {
-    Obj arg = input[i];
-    fprintf(w, ", %s", symbolString(arg));
+static int
+genFunc(FILE *w, Obj sexp) {
+  if (car(sexp) != intern("label")) {
+    printf("invalid input:\n");
+    sexpWrite(w, sexp);
+    return -1;
   }
-  fprintf(w, ");\n");
+  // (label FuncName (Args ...) Body)
+  const char *funcName = symbolString(cadr(sexp));
+  fprintf(w, "static void %s(struct controlFlow *ctx) {\n", funcName);
+
+  int len = listLen(cadr(cdr(sexp)));
+  Obj args[len];
+  listToSlice(args, len, cadr(cdr(sexp)));
+  for (int i=0; i<len; i++) {
+    Obj arg = args[i];
+    fprintf(w, "Obj %s = ctxGet(ctx, %d);\n", symbolString(arg), i);
+  }
+
+  int err = genInsts(w, car(cdr(cdr(cdr(sexp)))));
+  if (err != 0) {
+    return err;
+  }
+  fprintf(w, "}\n\n");
+  return 0;
 }
 
-int main(int argc, char *argv) {
-  
+void
+builtinGenerateC(struct controlFlow* ctx) {
+  Obj dst = ctxGet(ctx, 1);
+  Obj bc = ctxGet(ctx, 2);
+  assert(isstring(dst));
+  char* outFileName = stringStr(dst);
+  FILE* outFile = fopen(outFileName, "w");
+  if (outFile == NULL) {
+    printf("open output file %s failed", outFileName);
+    goto exit0;
+  }
+
+  if (symLet == 0) {
+    init();
+  }
+
+  int len = listLen(bc);
+  Obj* tmp = malloc(len * sizeof(Obj));
+  if (tmp == NULL) {
+    goto exit1;
+  }
+
+  listToSlice(tmp, len, bc);
+
+  for (int i=0; i<len; i++) {
+    Obj label = tmp[i];
+    int err = genFunc(outFile, label);
+    if (err != 0) {
+      break;
+    }
+  }
+
+  free(tmp);
+exit1:
+  fclose(outFile);
+exit0:
+  return ctxReturn(ctx, dst);
+}
+
+void
+builtinReadFileAsSexp(struct controlFlow* ctx) {
+  Obj arg = ctxGet(ctx, 1);
+  assert(isstring(arg));
+  char* fileName = stringStr(arg);
+  FILE* f = fopen(fileName, "r");
+  if (f == NULL) {
+    printf("open file fail %s\n", fileName);
+    goto exit0;
+  }
+  Obj ast = sexpRead(f);
+  fclose(f);
+  ctxReturn(ctx, ast);
+
+exit0:
+  return;
+}
+
+int
+main() {
+  char *input = "fact.bc";
+  char *output = "gen.c";
+
+  coraInit();
+
+  Obj bc = Call(intern("read-file-as-sexp"), 1, makeString(input, strlen(input)));
+  Obj res = Call(intern("generate-c"), 2, makeString(output, strlen(output)), bc);
+  return 0;
 }

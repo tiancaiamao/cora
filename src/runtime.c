@@ -211,7 +211,7 @@ eval(struct controlFlow* ctx) {
     Obj val = symbolGet(exp);
     if (val == Undef) {
       char buf[100];
-      int n = snprintf(buf, 100, "symbol not bind:%s\n", symbolStr(exp));
+      snprintf(buf, 100, "symbol not bind:%s\n", symbolStr(exp));
       perror(buf);
       assert(false);
     }
@@ -397,4 +397,7 @@ coraInit() {
   symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
   symbolSet(intern("load"), makeBuiltin(builtinLoad, 1));
   symbolSet(intern("number?"), makeBuiltin(builtinIsNumber, 1));
+
+  symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
+  symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
 }
