@@ -108,27 +108,18 @@
                                   self1 (gensym 'clo)
                                   ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
                                   (map (convert self fvs) fvs1)])
-                             ;; self fvs [['lambda params body] . args] => [['lambda params (convert self fvs body)] . (map (convert self fvs) args)]
                              self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
                              self fvs [f . args] => (let f0 (convert self fvs f)
                                                          args0 (map (convert self fvs) args)
                                                          [f0 . args0]))
 
 (func collect-lambda
-      ;; res ['if a b c] return => (collect-lambda-list [] res [a b c]
-      ;;                                                (lambda (res1 ls)
-      ;;                                                  (return res1 (cons 'if ls))))
       res ['lambda params body] return =>
       (let name (gensym 'clofun)
            (collect-lambda res body
                            (lambda (res1 body1)
                              (return (cons [name ['lambda params body1]] res1)
                                      name))))
-      ;; res [['lambda params body] . args] return =>
-      ;; (collect-lambda res body (lambda (res1 body1)
-      ;;                            (collect-lambda-list [] res1 args
-      ;;                                                 (lambda (res2 args1)
-      ;;                                                   (return res2 [['lambda params body1] . args1])))))
       res ['%closure lam . fvs] return => (collect-lambda res lam
                                                           (lambda (res1 name)
                                                             (return res1 ['%closure name (length (cadr lam)) . fvs])))
@@ -161,7 +152,12 @@
 
 (func code-gen
       x k => (if (= id k) ['%return x] (k x)) where (symbol? x)
-      [x . y] k => (wrap-var [x . y] k) where (elem? x ['%const '%closure-ref '%builtin '%global])
+      [x . y] k => (wrap-var [x . y]
+                             (lambda (x)
+                               (if (= id k)
+                                   ['%return x]
+                                   (k x))))
+      where (elem? x ['%const '%closure-ref '%builtin '%global])
       ['%closure name required . captured] k =>
       (code-gen-list captured
                      (lambda (captured1)
@@ -169,7 +165,8 @@
       ['if x y z] k =>
       (code-gen x
                 (lambda (x1)
-                  ['if x1 (code-gen y k)
+                  ['if x1
+                  (code-gen y k)
                   (code-gen z k)]))
       ['do x y] k => (code-gen-list x y k)
       [f . args] k =>

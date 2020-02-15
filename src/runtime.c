@@ -10,42 +10,11 @@
 #include "gc.h"
 #include "runtime.h"
 
-typedef enum {
-  controlFlowReturn = 1,
-  controlFlowEval,
-  controlFlowApply,
-} controlFlowKind;
-
-#define CONTROL_CACHE_SIZE 8
-
-struct controlFlow {
-  // controlFlowReturn: result = data[0]
-  // controlFlowEval: exp, env = data[0], data[1]
-  // controlFlowApply: fn, args = data[0], data[1], data[2] ...
-  controlFlowKind kind;
-  Obj cache[CONTROL_CACHE_SIZE];
-  // data != &cache[0] means the data is malloced.
-  Obj *data;
-  int size;
-  int cap;
-};
-
 void
 ctxInit(struct controlFlow *ctx) {
   ctx->data = &ctx->cache[0];
   ctx->size = 0;
   ctx->cap = CONTROL_CACHE_SIZE;
-}
-
-Obj
-ctxGet(struct controlFlow *ctx, int n) {
-  return ctx->data[n];
-}
-
-void
-ctxSet(struct controlFlow *ctx, int idx, Obj val) {
-  assert(ctx->size > idx);
-  ctx->data[idx] = val;
 }
 
 static void
@@ -74,18 +43,6 @@ ctxResize(struct controlFlow *ctx, int size) {
     ctxReCap(ctx, size);
   }
   ctx->size = size;
-}
-
-void
-ctxReturn(struct controlFlow *ctx, Obj val) {
-  ctx->kind = controlFlowReturn;
-  ctx->size = 1;
-  ctxSet(ctx, 0, val);
-}
-
-static void
-ctxTailApply(struct controlFlow *ctx) {
-  ctx->kind = controlFlowApply;
 }
 
 static void
@@ -133,17 +90,15 @@ Eval(Obj exp, Obj env) {
 }
 
 Obj
-Call(Obj sym, int nargs, ...) {
-  Obj fn = symbolGet(sym);
+Call(int nargs, ...) {
   struct controlFlow ctx;
   ctxInit(&ctx);
   ctx.kind = controlFlowApply;
-  ctxResize(&ctx, nargs+1);
-  ctxSet(&ctx, 0, fn);
+  ctxResize(&ctx, nargs);
   va_list ap;
   va_start(ap, nargs);
   for (int i=0; i<nargs; i++) {
-    ctxSet(&ctx, i+1, va_arg(ap, Obj));
+    ctxSet(&ctx, i, va_arg(ap, Obj));
   }
   va_end(ap);
 
@@ -157,7 +112,7 @@ MacroExpand(Obj exp) {
     return exp;
   }
 
-  Obj res = Call(symMacroExpand, 1, exp);
+  Obj res = Call(2, expand, exp);
 
   /* printf("after expand = "); */
   /* sexpWrite(NULL, res); */
@@ -200,13 +155,13 @@ eval(struct controlFlow* ctx) {
   }
 
   if (tag(exp) != TAG_SYMBOL && tag(exp) != TAG_CONS) {
-    return ctxReturn(ctx, exp);
+    ctxReturn(ctx, exp);
   }
 
   if (issymbol(exp)) {
     Obj bind = envGet(env, exp);
     if (bind != Nil) {
-      return ctxReturn(ctx, cdr(bind));
+      ctxReturn(ctx, cdr(bind));
     }
     Obj val = symbolGet(exp);
     if (val == Undef) {
@@ -215,18 +170,18 @@ eval(struct controlFlow* ctx) {
       perror(buf);
       assert(false);
     }
-    return ctxReturn(ctx, val);
+    ctxReturn(ctx, val);
   }
 
   Obj hd = car(exp);
   exp = cdr(exp);
   if (issymbol(hd)) {
     if (hd == symQuote) { // (quote x)
-      return ctxReturn(ctx, car(exp));
+      ctxReturn(ctx, car(exp));
     } else if (hd == symIf) { // (if a b c)
       return evalIf(ctx, car(exp), cadr(exp), caddr(exp), env);
     } else if (hd == symLambda) { // (lambda (args) body)
-      return ctxReturn(ctx, makeClosure(car(exp), cadr(exp), env));
+      ctxReturn(ctx, makeClosure(car(exp), cadr(exp), env));
     } else if (hd == symDo) { // (do x y)
       Eval(car(exp), env);
       return ctxTailEval(ctx, cadr(exp), env);
@@ -237,7 +192,7 @@ eval(struct controlFlow* ctx) {
   ctxResize(ctx, 0);
   ctxAppend(ctx, fn);
   evalArgList(exp, env, ctx);
-  return ctxTailApply(ctx);
+  ctxTailApply(ctx);
 }
 
 static void
@@ -256,7 +211,7 @@ partialApply(struct controlFlow *ctx, int required) {
     dst++;
   }
   ctxResize(ctx, dst);
-  return ctxTailApply(ctx);
+  ctxTailApply(ctx);
 }
 
 static void
@@ -284,7 +239,7 @@ apply(struct controlFlow *ctx) {
       if (params != Nil) {
         // auto curry
         Obj clo = makeClosure(params, body, env);
-        return ctxReturn(ctx, clo);
+        ctxReturn(ctx, clo);
       }
       if (pos < ctx->size) {
         Obj fn = Eval(body, env);
@@ -295,7 +250,7 @@ apply(struct controlFlow *ctx) {
           j++;
         }
         ctx->size = j;
-        return ctxTailApply(ctx);
+        ctxTailApply(ctx);
       }
       return ctxTailEval(ctx, body, env);
     }
@@ -312,12 +267,12 @@ apply(struct controlFlow *ctx) {
         if (ctx->size == 1) {
           // size = 1 means no arguments, ctx->data[0] is actually the fn itself
           // Not need to make a curry object for this special case: (f) = f
-          return ctxReturn(ctx, f);
+          ctxReturn(ctx, f);
         }
         required = required - ctx->size + 1; // +1 to include itself as the first argument.
         Obj curry = makeCurry(required, ctx->size);
         memcpy(curryData(curry), ctx->data, sizeof(Obj) * ctx->size);
-        return ctxReturn(ctx, curry);
+        ctxReturn(ctx, curry);
       }
 
       return partialApply(ctx, required);
@@ -336,7 +291,7 @@ apply(struct controlFlow *ctx) {
         memmove(&ctx->data[ccapture], &ctx->data[1], sizeof(Obj) * (ctx->size-1));
         // Move curry captured arguments to the right place.
         memcpy(ctx->data, curryData(f), sizeof(Obj) * ccapture);
-        return ctxTailApply(ctx);
+        ctxTailApply(ctx);
       }
 
       if (ctx->size < crequire) {
@@ -345,7 +300,7 @@ apply(struct controlFlow *ctx) {
         Obj newCurry = makeCurry(required, captured);
         memcpy(curryData(newCurry), curryData(f), sizeof(Obj) * ccapture);
         memcpy(&curryData(newCurry)[ccapture], &ctx->data[1], sizeof(Obj) * (ctx->size -1));
-        return ctxReturn(ctx, newCurry);
+        ctxReturn(ctx, newCurry);
       }
 
       return partialApply(ctx, crequire);
