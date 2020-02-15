@@ -1,15 +1,21 @@
 .POSIX:
 .SUFFIXES:
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -fPIC
 
 all: cora
 
-cora: libcora.a main.c
-	$(CC) $(CFLAGS) main.c libcora.a -o $@
+main.o: main.c
 
-libcora.a: gc.o types.o reader.o builtin.o runtime.o codegen.o
+cora: libcora.so main.o
+	$(CC) main.o -L. -lcora -ldl -o $@
+
+OFILES = gc.o types.o reader.o builtin.o runtime.o codegen.o
+libcora.a: $(OFILES)
 	ar -rc $@ $^
+
+libcora.so: $(OFILES)
+	gcc -shared -o $@ $^ -ldl
 
 gc.o: gc.c gc.h
 types.o: types.c types.h gc.h
@@ -19,7 +25,7 @@ runtime.o: runtime.c types.h builtin.h
 codegen.o: codegen.c
 
 clean:
-	rm -rf *.o libcora.a cora
+	rm -rf *.o libcora.a libcora.so cora
 
 .SUFFIXES: .c .o
 .c.o:

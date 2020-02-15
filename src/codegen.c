@@ -199,7 +199,7 @@ genIfExpr(FILE *w, Obj a, Obj b, Obj c) {
 
 
 static int
-genFuncDeclare(FILE *w, Obj sexp) {
+genFuncDeclare(FILE *w, Obj sexp, bool export) {
   if (car(sexp) != intern("label")) {
     printf("invalid input:\n");
     sexpWrite(w, sexp);
@@ -207,12 +207,16 @@ genFuncDeclare(FILE *w, Obj sexp) {
   }
   // (label FuncName (Args ...) Body)
   const char *funcName = symbolString(cadr(sexp));
-  fprintf(w, "static void %s(struct controlFlow *ctx);\n", funcName);
+  if (export) {
+    fprintf(w, "void %s(struct controlFlow *ctx);\n", funcName);
+  } else {
+    fprintf(w, "static void %s(struct controlFlow *ctx);\n", funcName);
+  }
   return 0;
 }
 
 static int
-genFunc(FILE *w, Obj sexp) {
+genFunc(FILE *w, Obj sexp, bool export) {
   if (car(sexp) != intern("label")) {
     printf("invalid input:\n");
     sexpWrite(w, sexp);
@@ -220,7 +224,11 @@ genFunc(FILE *w, Obj sexp) {
   }
   // (label FuncName (Args ...) Body)
   const char *funcName = symbolString(cadr(sexp));
-  fprintf(w, "static void %s(struct controlFlow *ctx) {\n", funcName);
+  if (export) {
+    fprintf(w, "void %s(struct controlFlow *ctx) {\n", funcName);
+  } else {
+    fprintf(w, "static void %s(struct controlFlow *ctx) {\n", funcName);
+  }
 
   int len = listLen(cadr(cdr(sexp)));
   Obj args[len];
@@ -266,7 +274,7 @@ builtinGenerateC(struct controlFlow* ctx) {
 
   for (int i=0; i<len; i++) {
     Obj label = tmp[i];
-    int err = genFuncDeclare(outFile, label);
+    int err = genFuncDeclare(outFile, label, i==0);
     if (err != 0) {
       break;
     }
@@ -276,7 +284,7 @@ builtinGenerateC(struct controlFlow* ctx) {
 
   for (int i=0; i<len; i++) {
     Obj label = tmp[i];
-    int err = genFunc(outFile, label);
+    int err = genFunc(outFile, label, i==0);
     if (err != 0) {
       break;
     }

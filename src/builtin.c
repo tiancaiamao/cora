@@ -1,6 +1,8 @@
 #include "runtime.h"
+#include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <dlfcn.h>
 
 void
 builtinAdd(struct controlFlow *ctx) {
@@ -163,6 +165,27 @@ builtinLoad(struct controlFlow *ctx) {
     ast = sexpRead(in);
   }
   fclose(in);
+  ctxReturn(ctx, path);
+}
+
+void
+builtinLoadSo(struct controlFlow *ctx) {
+  Obj path = ctxGet(ctx, 1);
+  char *str = stringStr(path);
+  void *handle = dlopen(str, RTLD_LAZY);
+  if (!handle) {
+    fprintf(stderr, "%s\n", dlerror());
+    ctxReturn(ctx, makeNumber(-1));
+  }
+
+  nativeFuncPtr entry = dlsym(handle, "entry");
+  char *error = dlerror();
+  if (error != NULL) {
+    // TODO
+    ctxReturn(ctx, makeString(error, strlen(error)));
+  }
+
+  Call(1, makeNative(entry, 1, 0));
   ctxReturn(ctx, path);
 }
 

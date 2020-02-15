@@ -355,4 +355,5 @@ coraInit() {
 
   symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
   symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
+  symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1));
 }

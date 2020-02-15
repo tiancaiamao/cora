@@ -141,7 +141,7 @@
   (let res (convert '_ [] (parse [] ast))
        (collect-lambda [] res
                        (lambda (res1 ast1)
-                         (cons [(gensym 'clofun) ['lambda () ast1]] res1)))))
+                         (cons ['entry ['lambda () ast1]] res1)))))
 
 (defun id (x) x)
 
