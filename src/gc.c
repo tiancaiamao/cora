@@ -90,9 +90,13 @@ areaAlloc(struct Area *area, int size) {
 
   if (area->len == area->cap) {
     struct Block *tmp = malloc(sizeof(struct Block) * area->cap * 2);
+    if (tmp == NULL) {
+      abort();
+    }
     memcpy(tmp, area->blocks, sizeof(struct Block) * area->len);
     free(area->blocks);
     area->blocks = tmp;
+    area->cap = area->cap * 2;
   }
   curr = &area->blocks[area->len];
   blockInit(curr);
@@ -168,6 +172,12 @@ gcGetNextArea(struct GC *gc) {
 
 uintptr_t
 gcCopy(struct GC *gc, uintptr_t p) {
+  // p is not gc alloced, skip it.
+  // This magic number kinda dirty, see types.h
+  if ((p&0x3) != 0x3) {
+    return p;
+  }
+
   if (!areaContains(gc->curr, ptr(p))) {
     return p;
   }
@@ -176,12 +186,15 @@ gcCopy(struct GC *gc, uintptr_t p) {
   if (from->forwarding != 0) {
     return from->forwarding;
   }
+  assert(from->size > 0);
 
   // Copy the data of itself to the new place.
   struct Area *area = gcGetNextArea(gc);
   void* to = areaAlloc(area, from->size);
   memcpy(to, from, from->size);
   from->forwarding = (uintptr_t)to | tag(p);
+
+  /* printf("gccopy from %p to %p ==%ld\n", from, to, p); */
 
   // Copy the children to the new place.
   // And update the reference of the new object.

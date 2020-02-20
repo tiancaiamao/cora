@@ -200,7 +200,7 @@ sexpRead(FILE *in) {
       if (buffer[0] == '-' && i > 1) {
         bool allDigit = true;
         for (int p = 1; p < i; p++) {
-          if (!isdigit(buffer[p])) {
+          if (!isdigit((int)buffer[p])) {
             allDigit = false;
           }
         }

@@ -8,7 +8,7 @@ all: cora
 main.o: main.c
 
 cora: libcora.so main.o
-	$(CC) main.o -L. -lcora -ldl -o $@
+	$(CC) main.o -L. libcora.so -ldl -o $@
 
 OFILES = gc.o types.o reader.o builtin.o runtime.o codegen.o
 libcora.a: $(OFILES)
