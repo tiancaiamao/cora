@@ -1,35 +1,49 @@
-cora 语言设计
+# The cora programming language
 
-Inspired by scheme, shen, femtolisp 
+Inspired by scheme, shen, femtolisp and many more...
 
-lisp1
+## ~~closure can be printed readably~~
 
-## ~~闭包是可视化的~~
+`(lambda (a) 3 (b . 5) (c . 7))` as femtolisp
 
-(lambda (a) 3 (b . 5) (c . 7))
+## kernel lambda
+
+Minimal special forms:
+
+- quote
+- lambda
+- if
+- do
+
+`set` is a function rather than special form.
+
+`let` is a macro.
 
 (let a 3 b 5 ...)
 
-if
-begin
-lambda
+## proper tail call
 
-## 极简内核
-
-特殊表只有 quote lambda if do
-甚至连 set 都是函数而不是特殊表
-
-## 严格尾递归
+proper tail call, as scheme does.
 
 ## partial apply
 
-## 内置 pattern match
+## pattern match
 
+```lisp
 (match (cons 1 2)
     (cons a b) a)
+```
 
-## func 宏
+## The `func` macro
 
+```lisp
 (func map
   f [] => []
   f [x . y] => [x . (map f y)])
+```
+
+Nowadays any cats and dogs write their own programming languages, mostly sucks. Many of them are too small to be even a **finished** toy, many lack features, worsely, many choose the wrong features.
+
+However, it's still an important practice for a true lisp hacker to keep inventing his own one, adapting the language to his own taste.
+
+Among the most important features, lisp1, of course. Then comes proper tail call and partial apply, for functional programming goodness. Keep the kernel language miminal is also important, I think.
