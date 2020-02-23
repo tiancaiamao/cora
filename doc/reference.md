@@ -4,9 +4,7 @@ quote if do lambda
 
 ## builtin functions
 
-+ - * / = > < set car cdr cons gensym not string? load
-
-TODO: number? 
++ - * / = > < set car cdr cons gensym not string? load number?
 
 ## macros
 
@@ -21,7 +19,11 @@ TODO: cond
 ## others
 
 map
+
 reverse
+
 macroexpand
+
 filter
+
 length

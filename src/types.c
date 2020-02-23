@@ -17,13 +17,6 @@ struct scmString {
   char data[];
 };
 
-struct scmClosure {
-  scmHead head;
-  Obj params;
-  Obj body;
-  Obj env;
-};
-
 static void*
 newObj(scmHeadType tp, int sz) {
   /* scmHead* p = malloc(sz); */
@@ -74,41 +67,7 @@ cdddr(Obj x) {
 
 Obj
 makeClosure(Obj params, Obj body, Obj env) {
-  struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
-  clo->params = params;
-  clo->body = body;
-  clo->env = env;
-  return ((Obj)(&clo->head) | TAG_PTR);
-}
-
-static void
-closureGCFunc(struct GC *gc, void* f, void* t) {
-  struct scmClosure *from = f;
-  struct scmClosure *to = t;
-  to->params = gcCopy(gc, from->params);
-  to->body = gcCopy(gc, from->body);
-  to->env = gcCopy(gc, from->env);
-}
-
-Obj
-closureParams(Obj clo) {
-  struct scmClosure* c = ptr(clo);
-  assert(c->head.type == scmHeadClosure);
-  return c->params;
-}
-
-Obj
-closureBody(Obj clo) {
-  struct scmClosure* c = ptr(clo);
-  assert(c->head.type == scmHeadClosure);
-  return c->body;
-}
-
-Obj
-closureEnv(Obj clo) {
-  struct scmClosure* c = ptr(clo);
-  assert(c->head.type == scmHeadClosure);
-  return c->env;
+  return cons(symLambda, cons(params, cons(body, env)));
 }
 
 Obj
@@ -367,7 +326,6 @@ eq(Obj x, Obj y) {
 void
 typesInit() {
   gcRegistForType(scmHeadCons, consGCFunc);
-  gcRegistForType(scmHeadClosure, closureGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);
   gcRegistForType(scmHeadCurry, curryGCFunc);
   gcRegistForType(scmHeadString, stringGCFunc);

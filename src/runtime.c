@@ -228,32 +228,33 @@ apply(struct controlFlow *ctx) {
   /* } */
   /* printf("\n"); */
 
-  switch (((scmHead*)(ptr(f)))->type) {
-  case scmHeadClosure:
-    {
-      Obj params = closureParams(f);
-      Obj body = closureBody(f);
-      Obj env = closureEnv(f);
-      int pos;
-      env = envExtend(env, &params, ctx, &pos);
-      if (params != Nil) {
-        // auto curry
-        Obj clo = makeClosure(params, body, env);
-        ctxReturn(ctx, clo);
-      }
-      if (pos < ctx->size) {
-        Obj fn = Eval(body, env);
-        ctx->data[0] = fn;
-        int j = 1;
-        for (int i = pos; i < ctx->size; i++) {
-          ctx->data[j] = ctx->data[i];
-          j++;
-        }
-        ctx->size = j;
-        ctxTailApply(ctx);
-      }
-      return ctxTailEval(ctx, body, env);
+  if ((iscons(f)) && (car(f) == symLambda)) {
+    // (lambda (params) body . env)
+    Obj params = cadr(f);
+    Obj body = caddr(f);
+    Obj env = cdddr(f);
+    int pos;
+    env = envExtend(env, &params, ctx, &pos);
+    if (params != Nil) {
+      // auto curry
+      Obj clo = makeClosure(params, body, env);
+      ctxReturn(ctx, clo);
     }
+    if (pos < ctx->size) {
+      Obj fn = Eval(body, env);
+      ctx->data[0] = fn;
+      int j = 1;
+      for (int i = pos; i < ctx->size; i++) {
+        ctx->data[j] = ctx->data[i];
+        j++;
+      }
+      ctx->size = j;
+      ctxTailApply(ctx);
+    }
+    return ctxTailEval(ctx, body, env);
+  }
+
+  switch (((scmHead*)(ptr(f)))->type) {
   case scmHeadNative:
     {
       int required = nativeRequired(f);
@@ -305,10 +306,11 @@ apply(struct controlFlow *ctx) {
 
       return partialApply(ctx, crequire);
     }
-  default:
-    printf("fuck unknown TODO\n");
-    sexpWrite(NULL, f);
   }
+
+  printf("fuck unknown TODO\n");
+  sexpWrite(NULL, f);
+  ctxReturn(ctx, Nil);
 }
 
 static Obj

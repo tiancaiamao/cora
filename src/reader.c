@@ -283,9 +283,6 @@ printObj(Obj o) {
     case scmHeadBoolean:
       printf("boolean");
       break;
-    case scmHeadClosure:
-      printf("closure");
-      break;
     case scmHeadNative:
       printf("native");
       break;

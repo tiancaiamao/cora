@@ -1,9 +1,8 @@
-- [X] 解释器
-- [X] 宏
-- [X] 模式匹配
+- [X] interpreter
+- [X] macro
+- [X] pattern match
 - [X] GC
-- [ ] 编译
-
-类型系统
-~~模块~~
-并发模型
+- [] compile (almost done)
+- [] ~~module~~
+- [] type system
+- [] concurrency model

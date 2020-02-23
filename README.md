@@ -2,7 +2,7 @@
 
 Inspired by scheme, shen, femtolisp and many more...
 
-## ~~closure can be printed readably~~
+## closure can be printed readably
 
 `(lambda (a) 3 (b . 5) (c . 7))` as femtolisp
 
