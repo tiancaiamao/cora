@@ -301,10 +301,53 @@ makeBuiltin(nativeFuncPtr fn, int required) {
   return makeNative(fn, required+1, 0);
 }
 
+struct scmVector {
+  scmHead head;
+  int size;
+  Obj data[];
+};
+
+Obj
+makeVector(int size) {
+  struct scmVector* vec = newObj(scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
+  vec->size = size;
+  return ((Obj)(&vec->head) | TAG_PTR);
+}
+
+Obj
+vectorRef(Obj v, int idx) {
+  struct scmVector* vec = ptr(v);
+  assert(vec->head.type == scmHeadVector);
+  assert(idx >= 0 && idx < vec->size);
+  return vec->data[idx];
+}
+
+Obj
+vectorSet(Obj vec, int idx, Obj val) {
+  struct scmVector* v = ptr(vec);
+  assert(v->head.type == scmHeadVector);
+  assert(idx >= 0 && idx < v->size);
+  v->data[idx] = val;
+  return vec;
+}
+
+bool
+isvector(Obj o) {
+  if (tag(o) == TAG_PTR) {
+    if (((scmHead*)ptr(o))->type == scmHeadVector) {
+      return true;
+    }
+  }
+  return false;
+}
 
 static void
 vectorGCFunc(struct GC *gc, void* f, void* t) {
-  // TODO:
+  struct scmVector *from = f;
+  struct scmVector *to = t;
+  for (int i=0; i<from->size; i++) {
+    to->data[i] = gcCopy(gc, from->data[i]);
+  }
 }
 
 bool

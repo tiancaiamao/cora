@@ -22,7 +22,10 @@ void builtinIsSymbol(struct controlFlow* ctx);
 void builtinIsString(struct controlFlow* ctx);
 void builtinIsNumber(struct controlFlow* ctx);
 void builtinLoad(struct controlFlow *ctx);
-
+void builtinMakeVector(struct controlFlow *ctx);
+void builtinVectorSet(struct controlFlow *ctx);
+void builtinVectorRef(struct controlFlow *ctx);
+void builtinIsVector(struct controlFlow *ctx);
 
 void builtinLoadSo(struct controlFlow *ctx);
 

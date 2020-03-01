@@ -354,6 +354,10 @@ coraInit() {
   symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
   symbolSet(intern("load"), makeBuiltin(builtinLoad, 1));
   symbolSet(intern("number?"), makeBuiltin(builtinIsNumber, 1));
+  symbolSet(intern("vector"), makeBuiltin(builtinMakeVector, 1));
+  symbolSet(intern("vector-set!"), makeBuiltin(builtinVectorSet, 3));
+  symbolSet(intern("vector-ref"), makeBuiltin(builtinVectorRef, 2));
+  symbolSet(intern("vector?"), makeBuiltin(builtinIsVector, 1));
 
   symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
   symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));

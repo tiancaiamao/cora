@@ -203,3 +203,38 @@ builtinIsNumber(struct controlFlow* ctx) {
   }
   ctxReturn(ctx, False);
 }
+
+
+void
+builtinMakeVector(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  assert(isfixnum(x));
+  ctxReturn(ctx, makeVector(fixnum(x)));
+}
+
+void
+builtinVectorSet(struct controlFlow *ctx) {
+  Obj vec = ctxGet(ctx, 1);
+  Obj idx = ctxGet(ctx, 2);
+  Obj val = ctxGet(ctx, 3);
+  assert(isfixnum(idx));
+  Obj ret = vectorSet(vec, fixnum(idx), val);
+  ctxReturn(ctx, ret);
+}
+
+void
+builtinVectorRef(struct controlFlow *ctx) {
+  Obj vec = ctxGet(ctx, 1);
+  Obj idx = ctxGet(ctx, 2);
+  assert(isfixnum(idx));
+  ctxReturn(ctx, vectorRef(vec, fixnum(idx)));
+}
+
+void
+builtinIsVector(struct controlFlow *ctx) {
+  Obj o = ctxGet(ctx, 1);
+  if (isvector(o)) {
+    ctxReturn(ctx, True);
+  }
+  ctxReturn(ctx, False);
+}

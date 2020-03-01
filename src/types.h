@@ -101,4 +101,9 @@ bool isstring(Obj o);
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 void gcSymbols(struct GC *gc);
 
+Obj makeVector(int c);
+Obj vectorRef(Obj vec, int idx);
+Obj vectorSet(Obj vec, int idx, Obj val);
+bool isvector(Obj o);
+
 #endif
