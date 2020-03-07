@@ -10,6 +10,9 @@
 #include "gc.h"
 #include "runtime.h"
 
+
+jmp_buf coraREPL;
+
 void
 ctxInit(struct controlFlow *ctx) {
   ctx->data = &ctx->cache[0];
@@ -165,10 +168,8 @@ eval(struct controlFlow* ctx) {
     }
     Obj val = symbolGet(exp);
     if (val == Undef) {
-      char buf[100];
-      snprintf(buf, 100, "symbol not bind:%s\n", symbolStr(exp));
-      perror(buf);
-      assert(false);
+      printf("symbol not bind: %s\n", symbolStr(exp));
+      longjmp(coraREPL, 1);
     }
     ctxReturn(ctx, val);
   }

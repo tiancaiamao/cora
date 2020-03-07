@@ -1,9 +1,11 @@
 #include <ctype.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <getopt.h>
+#include <setjmp.h>
 #include "runtime.h"
 
 static struct option opts[] = {
@@ -43,7 +45,11 @@ int main(int argc, char *argv[]) {
     Eval(loadFile, Nil);
   }
 
-  for (int i=0; ; i++) {
+  int i = 0;
+  memset(&coraREPL, 0, sizeof(jmp_buf));
+  setjmp(coraREPL);
+
+  for (; ; i++) {
     printf("%d #> ", i);
     Obj exp = sexpRead(stdin);
     Obj exp1 = MacroExpand(exp);

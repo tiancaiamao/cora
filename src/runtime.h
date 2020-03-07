@@ -2,6 +2,7 @@
 #define _RUNTIME_H_
 
 #include <assert.h>
+#include <setjmp.h>
 #include "types.h"
 #include "reader.h"
 
@@ -44,5 +45,7 @@ Obj Eval(Obj exp, Obj env);
 Obj MacroExpand(Obj exp);
 
 void coraInit();
+
+extern jmp_buf coraREPL;
 
 #endif
