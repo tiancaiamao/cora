@@ -8,15 +8,15 @@ struct eventLoop;
 struct eventHandle {
   int32_t fd;
   int32_t watch;
-  void (*onEvents)(void* this, int32_t events);
+  void (*onEvents)(void* ud, int32_t events);
 };
 
 struct eventLoop* eventLoopCreate();
 void eventLoopRelease();
 void eventLoopRun(struct eventLoop *el);
-void eventLoopPoll(struct eventLoop *el, uint32_t ms);
+int eventLoopPoll(struct eventLoop *el, uint32_t ms);
 
-int eventLoopAddHandle(struct eventLoop *el, struct handle *h);
-int eventLoopRemoveHandle(struct eventLoop *el, struct handle *h);
+int eventLoopAddHandle(struct eventLoop *el, struct eventHandle *h);
+int eventLoopRemoveHandle(struct eventLoop *el, struct eventHandle *h);
 
 #endif

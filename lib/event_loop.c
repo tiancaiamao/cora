@@ -1,13 +1,15 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
-
-const maxEvents = 1024;
+#include "event_loop.h"
 
 struct eventLoop {
   int fd;
-  struct epoll_event events[maxEvents];
+  struct epoll_event *events;
+  int maxEvents;
 };
 
 struct eventLoop*
@@ -18,13 +20,16 @@ eventLoopCreate() {
     return NULL;
   }
   ret = (struct eventLoop*)malloc(sizeof(struct eventLoop));
-  ret.fd = fd;
+  ret->fd = epollfd;
+  ret->maxEvents = 1024;
+  ret->events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * ret->maxEvents);
   return ret;
 }
 
 void
 eventLoopRelease(struct eventLoop* el) {
   close(el->fd);
+  free(el->events);
   free(el);
   return;
 }
@@ -37,13 +42,11 @@ eventLoopAddHandle(struct eventLoop* el, struct eventHandle *h) {
   return epoll_ctl(el->fd, EPOLL_CTL_ADD, h->fd, &ev);
 }
 
-void
+int
 eventLoopPoll(struct eventLoop* el, uint32_t ms) {
-  int n = epoll_wait(el->fd, el->events, maxEvents, ms);
-  if (n == -1) {
-    // TODO
-    perror("epoll_wait");
-    os.Exit(-1);
+  int n = epoll_wait(el->fd, el->events, el->maxEvents, ms);
+  if (n < 0) {
+    return n;
   }
 
   for (int i=0; i<n; i++) {
