@@ -15,7 +15,7 @@ struct eventLoop {
 struct eventLoop*
 eventLoopCreate() {
   struct eventLoop *ret;
-  int epollfd = epoll_create(0);
+  int epollfd = epoll_create(1);
   if (epollfd < 0) {
     return NULL;
   }
@@ -43,6 +43,12 @@ eventLoopAddHandle(struct eventLoop* el, struct eventHandle *h) {
 }
 
 int
+eventLoopRemoveHandle(struct eventLoop* el, struct eventHandle *h) {
+  struct epoll_event ev;
+  return epoll_ctl(el->fd, EPOLL_CTL_DEL, h->fd, &ev);
+}
+
+int
 eventLoopPoll(struct eventLoop* el, uint32_t ms) {
   int n = epoll_wait(el->fd, el->events, el->maxEvents, ms);
   if (n < 0) {
@@ -52,11 +58,13 @@ eventLoopPoll(struct eventLoop* el, uint32_t ms) {
   for (int i=0; i<n; i++) {
     struct epoll_event* e = &el->events[i];
     struct eventHandle* h = (struct eventHandle*)(e->data.ptr);
-    h->onEvents(h, e->events);
+    h->onEvents(h, el, e->events);
   }
+  return 0;
 }
 
 void
 eventLoopRun(struct eventLoop* el) {
   eventLoopPoll(el, -1);
+  return;
 }

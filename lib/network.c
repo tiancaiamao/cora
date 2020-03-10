@@ -1,11 +1,23 @@
 #include "network.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
+
+static int
+setNonBlock(int fd) {
+  int flags = fcntl(fd, F_GETFL, 0);
+  if (flags < 0) {
+    return flags;
+  }
+  flags |= O_NONBLOCK;
+  return fcntl(fd, F_SETFL, flags);
+}
 
 // connector is an eventHandle.
 struct connector {
@@ -15,8 +27,12 @@ struct connector {
 };
 
 static void
-processConnect(void* handle, int events) {
-  struct connector* c = (void*)handle;
+processConnect(struct eventHandle* h, struct eventLoop *el, int events) {
+  printf("connect done, handle = %p\n", h);
+  struct connector* c = (void*)h;
+  if (eventLoopRemoveHandle(el, h) < 0) {
+    // TODO: what the fuck?
+  }
   c->cb(c->ud, c->handle.fd);
 }
 
@@ -26,31 +42,29 @@ connectorNew(int fd, void(*cb)(void* ud, int fd),void *ud) {
   memset(c, 0, sizeof(sizeof(struct connector)));
   c->handle.fd = fd;
   c->handle.onEvents = processConnect;
-  c->handle.watch = EPOLLIN | EPOLLOUT;
+  c->handle.watch = EPOLLIN;
+  c->cb = cb;
   c->ud = ud;
   return c;
 }
 
-void
+int
 netDial(int fd, struct eventLoop *el,
-             void(*cb)(void *ud, int fd),
-             void *ud) {
-
-  struct sockaddr_in addr;
-  int ret = connect(fd, (struct sockaddr*)&addr, sizeof(addr));
-  if (ret == 0) {
-    /* printf("=== connect return 0! exec callbacck()"); */
-    return;
+        struct sockaddr *addr, socklen_t addrLen,
+        void(*cb)(void *ud, int fd),
+        void *ud) {
+  int res = setNonBlock(fd);
+  if (res < 0) {
+    return res;
   }
-
-  if (errno != EINPROGRESS) {
-    /* printf("some error happen"); */
-    return;
+  res = connect(fd, addr, addrLen);
+  if (res < 0 && errno != EINPROGRESS) {
+      return res;
   }
 
   struct connector* c = connectorNew(fd, cb, ud);
   eventLoopAddHandle(el, &c->handle);
-  return;
+  return 0;
 }
 
 // acceptor is a kind of eventHandle.
@@ -61,8 +75,8 @@ struct acceptor {
 };
 
 static void
-processAccept(void *ud, int events) {
-  struct acceptor *a = ud;
+processAccept(struct eventHandle *h, struct eventLoop* el, int events) {
+  struct acceptor *a = (void*)h;
   while (1) {
     struct sockaddr addr;
     socklen_t addrlen;
@@ -86,6 +100,7 @@ acceptorNew(int fd, void *ud) {
   ret->handle.fd = fd;
   ret->handle.onEvents = processAccept;
   ret->ud = ud;
+  return ret;
 }
 
 struct acceptor*
@@ -93,7 +108,6 @@ netListen(struct eventLoop *el,
                            struct sockaddr *addr,
                            void (*cb)(void *ud),
                            void *ud) {
-
   int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (fd < 0) {
     return NULL;
@@ -185,8 +199,8 @@ processWrite(struct streamConn *conn) {
 }
 
 static void
-streamConnOnEvents(void* ud, int events) {
-  struct streamConn* conn = (struct streamConn*)ud;
+streamConnOnEvents(struct eventHandle* h, struct eventLoop *el, int events) {
+  struct streamConn* conn = (void*)h;
   if (events & EPOLLIN) {
     processRead(conn);
   }
@@ -196,11 +210,16 @@ streamConnOnEvents(void* ud, int events) {
 }
 
 struct streamConn*
-streamConnNew(int fd) {
+streamConnNew(int fd, struct eventLoop *el) {
+  if (setNonBlock(fd) < 0) {
+    return NULL;
+  }
+
   struct streamConn* conn = (struct streamConn*)malloc(sizeof(struct streamConn));
   memset(conn, 0, sizeof(struct streamConn));
   conn->handle.fd = fd;
   conn->handle.onEvents = streamConnOnEvents;
+  conn->loop = el;
   return conn;
 }
 
@@ -209,14 +228,17 @@ netRead(struct streamConn *conn, char *data, int size,
         void (*cb)(void *ud), void *ud) {
   resetByteBuf(&conn->recv, data, size);
   conn->handle.watch |= EPOLLIN;
+  conn->recvCB = cb;
+  conn->ud1 = ud;
   eventLoopAddHandle(conn->loop, &conn->handle);
 }
-
 
 void
 netWrite(struct streamConn *conn, char *data, int size,
          void (*cb)(void *ud), void *ud) {
   resetByteBuf(&conn->send, data, size);
   conn->handle.watch |= EPOLLOUT;
+  conn->sendCB = cb;
+  conn->ud2 = ud;
   eventLoopAddHandle(conn->loop, &conn->handle);
 }

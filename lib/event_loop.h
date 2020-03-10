@@ -8,7 +8,7 @@ struct eventLoop;
 struct eventHandle {
   int32_t fd;
   int32_t watch;
-  void (*onEvents)(void* ud, int32_t events);
+  void (*onEvents)(struct eventHandle*, struct eventLoop*, int32_t events);
 };
 
 struct eventLoop* eventLoopCreate();
