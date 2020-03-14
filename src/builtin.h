@@ -26,6 +26,8 @@ void builtinMakeVector(struct controlFlow *ctx);
 void builtinVectorSet(struct controlFlow *ctx);
 void builtinVectorRef(struct controlFlow *ctx);
 void builtinIsVector(struct controlFlow *ctx);
+void builtinSetJump(struct controlFlow *ctx);
+void builtinLongJump(struct controlFlow *ctx);
 
 void builtinLoadSo(struct controlFlow *ctx);
 
