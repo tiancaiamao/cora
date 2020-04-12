@@ -1,0 +1,22 @@
+
+
+(defun connect (url el)
+  (let p (make-promise)
+       (do (net-dial url el
+                     (lambda (c)
+                       (promise-resolve p c)))
+           p)))
+
+(defun sleep (second el)
+  (let p (make-promise)
+       (do (timer-sleep second el
+                        (lambda (c)
+                          (promise-resolve p c))))))
+
+(defun send (conn data)
+  (let p (make-promise)
+       (do (net-send conn data
+                     (lambda (res)
+                       (promise-resolve p res)))
+           p)))
+

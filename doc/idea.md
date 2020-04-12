@@ -1,4 +1,4 @@
-类型系统
+## 类型系统
 
 latte
 file:///home/genius/Downloads/latte-els-2017.pdf
@@ -12,3 +12,15 @@ oberon 的模块设计
 - builtin AST interpreter
 - compile to C and static build
 - compile performance sensitive code and run with the interpreter
+
+
+编译成 C
+
+
+## 作为一门脚本语言
+
+## 网络库
+
+## minikaren
+
+

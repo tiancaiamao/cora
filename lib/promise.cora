@@ -1,0 +1,38 @@
+(defun make-promise ()
+  (let p (vector 3)
+       (begin (vector-set! p 0 false)
+              (vector-set! p 2 ())
+              p)))
+
+(defun promise-filed? (p)
+  (vector-ref p 0))
+
+(defun promise-value (p)
+  (vector-ref p 1))
+
+(defun promise-push (p cb)
+  (let callbacks (vector-ref p 2)
+       (vector-set! p 2 (cons cb callbacks))))
+
+(defun promise-then (p cb)
+  (if (promise-filed? p)
+      (cb (promise-value p))
+    (promise-push p cb)))
+
+(defun promise-resolve (p val)
+  (if (promise-filed? p)
+      ;; what the fuck?
+      (error "the promise has been resolved")
+    (begin (vector-set! p 0 true)
+           (for-each (lambda (fn) (fn val)) (vector-ref p 2)))))
+
+
+;; (let-promise conn (net-dial "127.0.0.1:6666" el)
+;;              data (recv conn 20)
+;;              (send conn data))
+
+;; (promise-then (net-dial "127.0.0.1:6666" el)
+;;      (lambda (conn)
+;;          (promise-then (net-recv conn 20)
+;;              (lambda (data)
+;;                  (net-send conn data)))))

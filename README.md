@@ -44,6 +44,6 @@ proper tail call, as scheme does.
 
 Nowadays any cats and dogs write their own programming languages, mostly sucks. Many of them are too small to be even a **finished** toy, many lack features, worsely, many choose the wrong features.
 
-However, it's still an important practice for a true lisp hacker to keep inventing his own one, adapting the language to his own taste.
+However, it's still an important practice for a genuine lisp hacker to keep inventing his own one, adapting the language to his own taste.
 
 Among the most important features, lisp1, of course. Then comes proper tail call and partial apply, for functional programming goodness. Keep the kernel language miminal is also important, I think.
