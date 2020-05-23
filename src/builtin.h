@@ -30,6 +30,9 @@ void builtinSetJump(struct controlFlow *ctx);
 void builtinLongJump(struct controlFlow *ctx);
 
 void builtinLoadSo(struct controlFlow *ctx);
+void builtinStringAppend(struct controlFlow *ctx);
+void builtinNumberToString(struct controlFlow *ctx);
+void builtinIntern(struct controlFlow *ctx);
 
 // In file codegen.c
 void builtinGenerateC(struct controlFlow* ctx);

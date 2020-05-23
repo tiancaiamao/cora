@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <setjmp.h>
+#include <alloca.h>
 
 void
 builtinAdd(struct controlFlow *ctx) {
@@ -281,4 +282,36 @@ builtinLongJump(struct controlFlow *ctx) {
   struct jumpBuf *cc = ptr(buf);
   cc->val = val;
   longjmp(cc->env, 1);
+}
+
+void
+builtinNumberToString(struct controlFlow *ctx) {
+	Obj n = ctxGet(ctx, 1);
+	assert(isfixnum(n));
+
+	char tmp[32];
+	int l = snprintf(tmp, 32, "%ld", fixnum(n));
+ 	ctxReturn(ctx, makeString(tmp, l));
+}
+
+void
+builtinStringAppend(struct controlFlow *ctx) {
+	Obj x = ctxGet(ctx, 1);
+	Obj y = ctxGet(ctx, 2);
+	assert(isstring(x));
+	assert(isstring(y));
+	char *x1 = stringStr(x);
+	char *y1 = stringStr(y);
+	int len = strlen(x1) + strlen(y1);
+	char *dest = alloca(len + 1);
+	strcpy(dest, x1);
+	strcat(dest, y1);
+	ctxReturn(ctx, makeString(dest, len));
+}
+
+void
+builtinIntern(struct controlFlow *ctx) {
+	Obj x = ctxGet(ctx, 1);
+	assert(isstring(x));
+	ctxReturn(ctx, intern(stringStr(x)));
 }
