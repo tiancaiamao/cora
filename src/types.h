@@ -42,7 +42,7 @@ enum {
 	scmHeadNumber,
   // The followings are all pointer types.
 	scmHeadCons,
-  scmHeadNative,
+  	scmHeadNative,
 	scmHeadCurry,
 	scmHeadString,
 	scmHeadVector,

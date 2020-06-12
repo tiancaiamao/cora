@@ -365,7 +365,9 @@ coraInit() {
   symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
   symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
   symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1));
-	symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
-	symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
-	symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
+  symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
+  symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
+  symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
+
+  symbolSet(intern("print"), makeBuiltin(builtinPrint, 1));
 }
