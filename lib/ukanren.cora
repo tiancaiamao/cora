@@ -87,10 +87,11 @@
 	[h . t] y => (mplus (y h) (bind t y)))
 
 (defmacro Zzz (input)
-	(let g (cdr input)
+	(let g (cadr input)
 	     state (gensym 's)
 	     ['lambda [state]
-			[g state]]))
+	             ['lambda []
+			[g state]]]))
 
 (func conj+-macro
     [g] => ['Zzz g]
@@ -107,7 +108,7 @@
     (disj+-macro (cdr input)))
 
 (func fresh-macro
-    [] body => body
+    [] body => (cons 'conj+ body)
     [x . l] body => ['call/fresh
 			['lambda [x]
 				(fresh-macro l body)]])
@@ -118,7 +119,7 @@
 ;;           (call/fresh (lambda (z) g))))))
 
 (defmacro fresh (input)
-    (fresh-macro (cadr input) (caddr input)))
+    (fresh-macro (cadr input) (cddr input)))
 
 ((fresh (x y z)
     (disj+ (== x 0) (== y 1) (== z x))) (cons () 0))

@@ -368,6 +368,4 @@ coraInit() {
   symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
   symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
   symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
-
-  symbolSet(intern("print"), makeBuiltin(builtinPrint, 1));
 }
