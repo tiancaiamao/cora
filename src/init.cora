@@ -312,8 +312,8 @@
               (cons 'match (cons (cons 'list args)
                                  body)))))))
 
-(func walk
-      f [x . y] => (f (map (walk f) [x . y]))
+(func cora:walk
+      f [x . y] => (f (map (cora:walk f) [x . y]))
       f x => (f x))
 
 (func propagate-boolean-rule
@@ -332,7 +332,7 @@
 (func propagate-boolean
       ['lambda arg body] => ['lambda arg (propagate-boolean body)]
       ['quote x] => ['quote x]
-      x => (walk propagate-boolean-rule x))
+      x => (cora:walk propagate-boolean-rule x))
 
 (defun macroexpand (exp)
   (propagate-boolean (macroexpand-boot exp)))

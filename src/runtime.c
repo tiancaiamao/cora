@@ -359,8 +359,13 @@ coraInit() {
   symbolSet(intern("vector-set!"), makeBuiltin(builtinVectorSet, 3));
   symbolSet(intern("vector-ref"), makeBuiltin(builtinVectorRef, 2));
   symbolSet(intern("vector?"), makeBuiltin(builtinIsVector, 1));
+  symbolSet(intern("set-jump"), makeBuiltin(builtinSetJump, 2));
+  symbolSet(intern("long-jump"), makeBuiltin(builtinLongJump, 2));
 
   symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
   symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
   symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1));
+  symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
+  symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
+  symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
 }

@@ -27,10 +27,10 @@
         
 经过处理之后
 
-(defun xxx.fact (n)
-    (if (builtin.= a 0)
+(defun xxx:fact (n)
+    (if (builtin:= a 0)
          1
-         (builtin.* n (xxx.fact (builtin.- n 1)))))
+         (builtin:* n (xxx.fact (builtin.- n 1)))))
 
 
 (import "xxx.xxx" a)
