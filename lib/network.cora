@@ -1,5 +1,3 @@
-
-
 (defun connect (url el)
   (let p (make-promise)
        (do (net-dial url el
