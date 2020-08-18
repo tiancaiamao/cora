@@ -7,10 +7,10 @@ all: cora
 
 main.o: main.c
 
-cora: libcora.so main.o
-	$(CC) main.o -L. libcora.so -ldl -o $@
+cora: libcora.a main.o
+	$(CC) main.o -L. libcora.a -o $@
 
-OFILES = gc.o types.o reader.o builtin.o runtime.o codegen.o
+OFILES = gc.o types.o reader.o builtin.o runtime.o codegen.o generator.o
 libcora.a: $(OFILES)
 	ar -rc $@ $^
 
@@ -23,6 +23,7 @@ builtin.o: builtin.c builtin.h
 reader.o: reader.c reader.h types.h
 runtime.o: runtime.c types.h builtin.h
 codegen.o: codegen.c
+generator.o: generator.c runtime.h
 
 clean:
 	rm -rf *.o libcora.a libcora.so cora

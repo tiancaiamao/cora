@@ -48,4 +48,7 @@ void coraInit();
 
 extern jmp_buf coraREPL;
 
+
+void initGenerator();
+
 #endif

@@ -337,6 +337,8 @@ coraInit() {
   symMacroExpand = intern("macroexpand");
   symDebugEval = intern("*debug-eval*");
 
+  initGenerator();
+
   symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
   symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
   symbolSet(intern("*"), makeBuiltin(builtinMul, 2));
@@ -364,8 +366,13 @@ coraInit() {
 
   symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
   symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
-  symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1));
+  /* symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1)); */
   symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
   symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
   symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
+
+  symbolSet(intern("generator-new"), makeBuiltin(builtinGeneratorNew, 1));
+  symbolSet(intern("resume"), makeBuiltin(builtinResume, 1));
+  symbolSet(intern("yield"), makeBuiltin(builtinYield, 1));
+  symbolSet(intern("generator-status"), makeBuiltin(builtinGeneratorStatus, 1));
 }
