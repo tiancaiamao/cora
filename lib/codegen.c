@@ -246,7 +246,7 @@ genFunc(FILE *w, Obj sexp, bool export) {
   return 0;
 }
 
-void
+static void
 builtinGenerateC(struct controlFlow* ctx) {
   Obj dst = ctxGet(ctx, 1);
   Obj bc = ctxGet(ctx, 2);
@@ -297,7 +297,7 @@ exit0:
   ctxReturn(ctx, dst);
 }
 
-void
+static void
 builtinReadFileAsSexp(struct controlFlow* ctx) {
   Obj arg = ctxGet(ctx, 1);
   assert(isstring(arg));
@@ -314,3 +314,9 @@ builtinReadFileAsSexp(struct controlFlow* ctx) {
 exit0:
   return;
 }
+
+struct registEntry codeGenAPI[] = {
+				   {"generate-c", builtinGenerateC, 2},
+				   {"read-file-as-sexp", builtinReadFileAsSexp, 2},
+				   {NULL, NULL, 0}
+};

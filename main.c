@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <setjmp.h>
 #include "runtime.h"
+#include "lib/lib.h"
 
 static struct option opts[] = {
   {"help", no_argument, NULL, 'h'},
@@ -22,7 +23,7 @@ help() {
 }
 
 int main(int argc, char *argv[]) {
-  char *bootFile = "init.cora";
+  char *bootFile = "src/init.cora";
   int opt = getopt_long(argc, argv, optstr, opts, NULL);
   while (opt != -1) {
     switch (opt) {
@@ -38,6 +39,8 @@ int main(int argc, char *argv[]) {
   }
 
   coraInit();
+  registAPI(&generatorModule);
+  registAPI(&exceptionModule);
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));

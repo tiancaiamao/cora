@@ -38,16 +38,6 @@
 ;; (defmacro and (exp)
 ;;   (and-macro exp))
 
-;; begin x y z ...
-;; (do x (do y z))
-(func rewrite-begin
-      [x] => x
-      [x y] => ['do x y]
-      [x . y] => ['do x (rewrite-begin y)])
-
-(defmacro begin (exp)
-  (rewrite-begin (cdr exp)))
-
 (defun builtin? (x)
   (elem? x '(+ - * / = set halt car cdr cons cons?)))
 

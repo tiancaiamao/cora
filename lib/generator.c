@@ -11,13 +11,6 @@ Obj retval;
 
 static Obj stateSpawn, statePending, stateDead;
 
-void
-initGenerator() {
-  stateSpawn = makeSymbol("spawn");
-  statePending = makeSymbol("pending");
-  stateDead = makeSymbol("dead");
-}
-
 struct Generator {
   scmHead head;
   ucontext_t ctx;
@@ -53,7 +46,7 @@ generatorFunc() {
   // Should never come here.
 }
 
-void
+static void
 builtinGeneratorNew(struct controlFlow *ctx) {
   Obj fn = ctxGet(ctx, 1);
   // newObj???
@@ -77,7 +70,7 @@ builtinGeneratorNew(struct controlFlow *ctx) {
   ctxReturn(ctx, ((Obj)(&ret->head) | TAG_PTR));
 }
 
-void
+static void
 builtinResume(struct controlFlow *ctx) {
   Obj tmp = ctxGet(ctx, 1);
   // TODO: check the argument to be a generator.
@@ -97,7 +90,7 @@ builtinResume(struct controlFlow *ctx) {
   }
 }
 
-void
+static void
 builtinYield(struct controlFlow *ctx) {
   retval = ctxGet(ctx, 1);
   struct Generator *gen = g;
@@ -106,9 +99,27 @@ builtinYield(struct controlFlow *ctx) {
   ctxReturn(ctx, Nil);
 }
 
-void
+static void
 builtinGeneratorStatus(struct controlFlow *ctx) {
   Obj tmp = ctxGet(ctx, 1);
   struct Generator *gen = ptr(tmp);
   ctxReturn(ctx, gen->state);
 }
+
+static void
+initGenerator() {
+  stateSpawn = makeSymbol("spawn");
+  statePending = makeSymbol("pending");
+  stateDead = makeSymbol("dead");
+}
+
+struct registModule generatorModule = {
+				       initGenerator,
+				       {
+					{"generator-new", builtinGeneratorNew, 1},
+					{"resume", builtinResume, 1},
+					{"yield", builtinYield, 1},
+					{"generator-status", builtinGeneratorStatus, 1},
+					{NULL, NULL, 0}
+				       }
+};

@@ -48,7 +48,17 @@ void coraInit();
 
 extern jmp_buf coraREPL;
 
+struct registEntry {
+  char *name;
+  void (*func)(struct controlFlow *);
+  int args;
+};
 
-void initGenerator();
+struct registModule {
+  void (*init)();
+  struct registEntry entries[];
+};
+
+void registAPI(struct registModule *m);
 
 #endif

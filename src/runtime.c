@@ -327,6 +327,62 @@ trampoline(struct controlFlow *ctx) {
 }
 
 void
+registAPI(struct registModule* m) {
+  if (m->init != NULL) {
+    m->init();
+  }
+
+  for (int i=0; ; i++) {
+    struct registEntry entry = m->entries[i];
+    if (entry.func == NULL) {
+      break;
+    }
+
+    symbolSet(intern(entry.name), makeBuiltin(entry.func, entry.args));
+  }
+}
+
+
+static struct registModule builtinModule = {
+					 NULL,
+					 {
+					  {"+",builtinAdd, 2},
+					  {"-",builtinSub, 2},
+					  {"*",builtinMul, 2},
+					  {"/",builtinDiv, 2},
+					  {"=",builtinEqual, 2},
+					  {"set",builtinSet, 2},
+					  {"cons",builtinCons, 2},
+					  {"car",builtinCar, 1},
+					  {"cdr",builtinCdr, 1},
+					  {"cons?",builtinIsCons, 1},
+					  {"gensym",builtinGensym, 1},
+					  {">",builtinGT, 2},
+					  {"<",builtinLT, 2},
+					  {"not",builtinNot, 1},
+					  {"symbol?",builtinIsSymbol, 1},
+					  {"string?",builtinIsString, 1},
+					  {"number?",builtinIsNumber, 1},
+					  {"vector",builtinMakeVector, 1},
+					  {"vector-set!",builtinVectorSet, 3},
+					  {"vector-ref",builtinVectorRef, 2},
+					  {"vector?",builtinIsVector, 1},
+					  {"intern",builtinIntern, 1},
+					  {"load",builtinLoad, 1},
+					  {NULL, NULL, 0}
+					 }
+};
+
+static struct registModule stringModule = {
+					  NULL,
+					  {
+					   {"number->string", builtinNumberToString, 1},
+					   {"string-append", builtinStringAppend, 2},
+					   {NULL, NULL, 0}
+					  }
+};
+
+void
 coraInit() {
   gcInit(&gc);
   typesInit();
@@ -337,42 +393,7 @@ coraInit() {
   symMacroExpand = intern("macroexpand");
   symDebugEval = intern("*debug-eval*");
 
-  initGenerator();
 
-  symbolSet(intern("+"), makeBuiltin(builtinAdd, 2));
-  symbolSet(intern("-"), makeBuiltin(builtinSub, 2));
-  symbolSet(intern("*"), makeBuiltin(builtinMul, 2));
-  symbolSet(intern("/"), makeBuiltin(builtinDiv, 2));
-  symbolSet(intern("="), makeBuiltin(builtinEqual, 2));
-  symbolSet(intern("set"), makeBuiltin(builtinSet, 2));
-  symbolSet(intern("cons"), makeBuiltin(builtinCons, 2));
-  symbolSet(intern("car"), makeBuiltin(builtinCar, 1));
-  symbolSet(intern("cdr"), makeBuiltin(builtinCdr, 1));
-  symbolSet(intern("cons?"), makeBuiltin(builtinIsCons, 1));
-  symbolSet(intern("gensym"), makeBuiltin(builtinGensym, 1));
-  symbolSet(intern(">"), makeBuiltin(builtinGT, 2));
-  symbolSet(intern("<"), makeBuiltin(builtinLT, 2));
-  symbolSet(intern("not"), makeBuiltin(builtinNot, 1));
-  symbolSet(intern("symbol?"), makeBuiltin(builtinIsSymbol, 1));
-  symbolSet(intern("string?"), makeBuiltin(builtinIsString, 1));
-  symbolSet(intern("load"), makeBuiltin(builtinLoad, 1));
-  symbolSet(intern("number?"), makeBuiltin(builtinIsNumber, 1));
-  symbolSet(intern("vector"), makeBuiltin(builtinMakeVector, 1));
-  symbolSet(intern("vector-set!"), makeBuiltin(builtinVectorSet, 3));
-  symbolSet(intern("vector-ref"), makeBuiltin(builtinVectorRef, 2));
-  symbolSet(intern("vector?"), makeBuiltin(builtinIsVector, 1));
-  symbolSet(intern("set-jump"), makeBuiltin(builtinSetJump, 2));
-  symbolSet(intern("long-jump"), makeBuiltin(builtinLongJump, 2));
-
-  symbolSet(intern("generate-c"), makeBuiltin(builtinGenerateC, 2));
-  symbolSet(intern("read-file-as-sexp"), makeBuiltin(builtinReadFileAsSexp, 1));
-  /* symbolSet(intern("load-so"), makeBuiltin(builtinLoadSo, 1)); */
-  symbolSet(intern("number->string"), makeBuiltin(builtinNumberToString, 1));
-  symbolSet(intern("string-append"), makeBuiltin(builtinStringAppend, 2));
-  symbolSet(intern("intern"), makeBuiltin(builtinIntern, 1));
-
-  symbolSet(intern("generator-new"), makeBuiltin(builtinGeneratorNew, 1));
-  symbolSet(intern("resume"), makeBuiltin(builtinResume, 1));
-  symbolSet(intern("yield"), makeBuiltin(builtinYield, 1));
-  symbolSet(intern("generator-status"), makeBuiltin(builtinGeneratorStatus, 1));
+  registAPI(&builtinModule);
+  registAPI(&stringModule);
 }
