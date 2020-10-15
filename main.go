@@ -2,19 +2,23 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 
-	"github.com/tiancaiamao/shen-go/runtime"
+	"github.com/tiancaiamao/shen-go/kl"
 )
 
 var pprof bool
-var boot string
 
 func init() {
 	flag.BoolVar(&pprof, "pprof", false, "enable pprof")
-	flag.StringVar(&boot, "boot", "", "use bootstrap file for testing")
 }
+
+
+var symMacroExpand  = kl.MakeSymbol("macroexpand")
 
 func main() {
 	flag.Parse()
@@ -22,10 +26,27 @@ func main() {
 	if pprof {
 		go http.ListenAndServe(":8080", nil)
 	}
-	runtime.Boot = boot
-	runtime.BootstrapCora()
 
-	m := runtime.NewVM()
-	m.Eval(runtime.Cons(runtime.MakeSymbol("shen.shen"), runtime.Nil))
-	return
+	e := kl.NewCora()
+	kl.PrimSet(symMacroExpand, kl.Nil)
+
+	r := kl.NewSexpReader(os.Stdin, true)
+	for i := 0; ; i++ {
+		fmt.Printf("%d #> ", i)
+		sexp, err := r.Read()
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println("read error:", err)
+			}
+			break
+		}
+
+		expand := kl.PrimValue(symMacroExpand)
+		if expand != kl.Nil {
+			sexp = e.Call(expand, sexp)
+		}
+
+		res := e.Eval(sexp)
+		fmt.Println(kl.ObjString(res))
+	}
 }
