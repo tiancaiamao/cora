@@ -17,8 +17,7 @@ func init() {
 	flag.BoolVar(&pprof, "pprof", false, "enable pprof")
 }
 
-
-var symMacroExpand  = kl.MakeSymbol("macroexpand")
+var symMacroExpand = kl.MakeSymbol("macroexpand")
 
 func main() {
 	flag.Parse()
