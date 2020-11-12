@@ -334,8 +334,8 @@
       ['quote x] => ['quote x]
       x => (cora:walk propagate-boolean-rule x))
 
-(defun macroexpand (exp)
-  (propagate-boolean (macroexpand-boot exp)))
+;; (defun macroexpand (exp)
+;;   (propagate-boolean (macroexpand-boot exp)))
 
 ;; ===============
 
