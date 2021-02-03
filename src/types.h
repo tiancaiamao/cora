@@ -34,18 +34,18 @@ extern const Obj Undef;
 struct controlFlow;
 
 enum {
-  // Instant values.
-	scmHeadBoolean,
-	scmHeadNull,
-  // Symbol is a special pointer, but it's basically instant value.
-  // Number may be or may not be pointer.
-	scmHeadNumber,
-  // The followings are all pointer types.
-	scmHeadCons,
-  	scmHeadNative,
-	scmHeadCurry,
-	scmHeadString,
-	scmHeadVector,
+      // Instant values.
+      scmHeadBoolean,
+      scmHeadNull,
+      // Symbol is a special pointer, but it's basically instant value.
+      // Number may be or may not be pointer.
+      scmHeadNumber,
+      // The followings are all pointer types.
+      scmHeadCons,
+      scmHeadNative,
+      scmHeadCurry,
+      scmHeadString,
+      scmHeadVector,
 };
 
 void typesInit();
