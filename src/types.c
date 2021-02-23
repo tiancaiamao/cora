@@ -84,7 +84,7 @@ makeNumber(int v) {
 }
 
 Obj
-makeString(char *s, int len) {
+makeString(const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
   int alloc = len + sizeof(struct scmString) + 1;
   struct scmString* str = newObj(scmHeadString, alloc);

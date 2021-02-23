@@ -1,26 +1,36 @@
 .POSIX:
 .SUFFIXES:
+
+SRCS= gc.c types.c reader.c builtin.c runtime.c
+OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
 
 all: libcora.a
 
-OFILES = gc.o types.o reader.o builtin.o runtime.o
-libcora.a: $(OFILES)
+libcora.a: $(OBJS)
 	ar -rc $@ $^
 
-libcora.so: $(OFILES)
+libcora.so: $(OBJS)
 	gcc -shared -o $@ $^ -ldl
-
-gc.o: gc.c gc.h
-types.o: types.c types.h gc.h
-builtin.o: builtin.c builtin.h
-reader.o: reader.c reader.h types.h
-runtime.o: runtime.c types.h builtin.h
 
 clean:
 	rm -rf *.o libcora.a libcora.so cora
 
-.SUFFIXES: .c .o
-.c.o:
-	$(CC) $(CFLAGS) -c $<
+DEPDIR := .deps
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+
+%.o : %.c
+%.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
+$(DEPDIR): ; @mkdir -p $@
+
+DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
+$(DEPFILES):
+
+include $(wildcard $(DEPFILES))
+
+

@@ -1,11 +1,13 @@
+.PHONY: libcora lib
+
 CC = gcc
 
 all: cora
 
-src/libcora.a:
+libcora:
 	make -C src
 
-lib/lib.a:
+lib:
 	make -C lib
 
 .c.o:
@@ -13,7 +15,7 @@ lib/lib.a:
 
 main.o: main.c
 
-cora: src/libcora.a lib/lib.a main.o
+cora: libcora lib main.o
 	$(CC) main.o src/libcora.a lib/lib.a -o $@
 
 clean:

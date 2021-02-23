@@ -93,7 +93,7 @@ Obj closureParams(Obj);
 Obj closureBody(Obj);
 Obj closureEnv(Obj);
 
-Obj makeString(char *s, int len);
+Obj makeString(const char *s, int len);
 char* stringStr(Obj o);
 Obj makeNumber(int v);
 bool isstring(Obj o);

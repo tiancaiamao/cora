@@ -29,7 +29,7 @@ struct controlFlow {
   int cap;
 };
 
-#define ctxGet(ctx, n) (ctx->data[n])
+#define ctxGet(ctx, n) ((ctx)->data[n])
 #define ctxSet(ctx, idx, val) \
   do {assert((ctx)->size > idx); (ctx)->data[idx] = (val);} while (0)
 #define ctxTailApply(ctx) \
@@ -37,6 +37,7 @@ struct controlFlow {
 #define ctxReturn(ctx, val) \
   do {(ctx)->kind=controlFlowReturn; (ctx)->size=1; (ctx)->data[0]=(val); return;} while (0)
 
+void ctxInit(struct controlFlow *ctx);
 void ctxResize(struct controlFlow *ctx, int n);
 void ctxAppend(struct controlFlow *ctx, Obj o);
 

@@ -143,6 +143,13 @@ builtinIsSymbol(struct controlFlow *ctx) {
 }
 
 void
+builtinSymbolToString(struct controlFlow* ctx) {
+  Obj sym = ctxGet(ctx, 1);
+  const char* str = symbolStr(sym);
+  ctxReturn(ctx, makeString(str, strlen(str)+1));
+}
+
+void
 builtinIsString(struct controlFlow *ctx) {
   Obj o = ctxGet(ctx, 1);
   if (isstring(o)) {
@@ -156,6 +163,10 @@ builtinLoad(struct controlFlow *ctx) {
   Obj path = ctxGet(ctx, 1);
   char *str = stringStr(path);
   FILE *in = fopen(str, "r");
+  if (in == NULL) {
+    // TODO: exception?
+    ctxReturn(ctx, intern("error"));
+  }
   Obj ast = sexpRead(in);
   while(ast != Nil) {
     /* printf("read == \n"); */

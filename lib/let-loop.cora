@@ -3,12 +3,12 @@
 ;;               42
 ;;             (recur (+ i 1) y)))
 ;;  ==>
-;; (let recur (gensym 'recur)
-;;      ((set recur (lambda (i y)
-;;                    (if (= i 100)
-;;                        42
-;;                      (recur (+ i 1) y))))
-;;       0 1))
+;; (let f (lambda (meta n sum)
+;; 	  (let recur (meta meta)
+;; 	       (if (= n 100)
+;; 		   sum
+;; 		 (recur (+ n 1) (+ sum n)))))
+;;      (f f))
 
 (func extract-params-h
       res [] => (reverse res)
@@ -21,9 +21,12 @@
 (func rewrite-let-loop-macro
       [recur param-init body] => (let params (extract-params-h [] param-init)
                                     inits (extract-init-h [] param-init)
-                                    ['let recur ['quote (gensym 'gen-loop)]
-                                          [['set recur ['lambda params body]]
-                                           . inits]]))
+				    meta (gensym 'meta)
+				    f (gensym 'f)
+				    [['let f ['lambda [meta . params]
+				    	      	  ['let recur [meta meta]
+				    	     	    body]]
+					[f f]] . inits]))
 
 (defmacro let-loop (exp)
   (rewrite-let-loop-macro (cdr exp)))

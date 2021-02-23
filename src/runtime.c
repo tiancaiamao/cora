@@ -338,6 +338,8 @@ registAPI(struct registModule* m) {
       break;
     }
 
+    // printf("registAPI: %s\n", entry.name);
+
     symbolSet(intern(entry.name), makeBuiltin(entry.func, entry.args));
   }
 }
@@ -378,6 +380,7 @@ static struct registModule stringModule = {
 					  {
 					   {"number->string", builtinNumberToString, 1},
 					   {"string-append", builtinStringAppend, 2},
+             {"symbol->string", builtinSymbolToString, 1},
 					   {NULL, NULL, 0}
 					  }
 };

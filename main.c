@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   }
 
   coraInit();
-  registAPI(&generatorModule);
+  registAPI(&coroutineModule);
   registAPI(&exceptionModule);
 
   if (bootFile != NULL && bootFile[0] != '\0') {

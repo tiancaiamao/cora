@@ -3,5 +3,6 @@
 
 extern struct registModule generatorModule;
 extern struct registModule exceptionModule;
+extern struct registModule coroutineModule;
 
 #endif

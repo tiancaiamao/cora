@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include "runtime.h"
 
-
 ucontext_t uctx;
 Obj retval;
 

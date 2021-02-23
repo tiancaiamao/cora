@@ -2,3 +2,4 @@ cora
 *.o
 a.out
 libcora.a
+.deps
