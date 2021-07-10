@@ -39,8 +39,9 @@ int main(int argc, char *argv[]) {
   }
 
   coraInit();
-  registAPI(&coroutineModule);
+  // registAPI(&coroutineModule);
   registAPI(&exceptionModule);
+  registAPI(&ioModule);
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));

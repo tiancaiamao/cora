@@ -46,10 +46,10 @@ builtinLongJump(struct controlFlow *ctx) {
 }
 
 struct registModule exceptionModule = {
-				      NULL,
-				      {
-				       {"set-jump", builtinSetJump, 2},
-				       {"long-jump", builtinLongJump, 2},
-				       {NULL, NULL, 0}
-				      }
+  NULL,
+  {
+    {"set-jump", builtinSetJump, 2},
+    {"long-jump", builtinLongJump, 2},
+    {NULL, NULL, 0}
+  }
 };

@@ -316,7 +316,7 @@ exit0:
 }
 
 struct registEntry codeGenAPI[] = {
-				   {"generate-c", builtinGenerateC, 2},
-				   {"read-file-as-sexp", builtinReadFileAsSexp, 2},
-				   {NULL, NULL, 0}
+  {"generate-c", builtinGenerateC, 2},
+  {"read-file-as-sexp", builtinReadFileAsSexp, 2},
+  {NULL, NULL, 0}
 };

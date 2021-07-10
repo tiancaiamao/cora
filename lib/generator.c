@@ -113,12 +113,12 @@ initGenerator() {
 }
 
 struct registModule generatorModule = {
-				       initGenerator,
-				       {
-					{"generator-new", builtinGeneratorNew, 1},
-					{"resume", builtinResume, 1},
-					{"yield", builtinYield, 1},
-					{"generator-status", builtinGeneratorStatus, 1},
-					{NULL, NULL, 0}
-				       }
+  initGenerator,
+  {
+    {"generator-new", builtinGeneratorNew, 1},
+    {"resume", builtinResume, 1},
+    {"yield", builtinYield, 1},
+    {"generator-status", builtinGeneratorStatus, 1},
+    {NULL, NULL, 0}
+  }
 };
