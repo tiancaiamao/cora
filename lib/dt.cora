@@ -95,7 +95,7 @@
 						(let z (gensym 'bbc)
 						     (alpha-eq-h (subst (extend () x1 z) B1)
 								 (subst (extend () x2 z) B2))))
-      ['lambda [x1 A1] B1] ['pi [x2 A2] B2] => (and (alpha-eq-h A1 A2)
+      ['lambda [x1 A1] B1] ['lambda [x2 A2] B2] => (and (alpha-eq-h A1 A2)
 						    (lambda z (gensym 'cca)
 						      (alpha-eq-h (subst (extend () x1 z) B1)
 								  (subst (extend () x2 z) B2))))
@@ -108,13 +108,8 @@
 ;;      ['id . ['#def
 ;;      '(pi (A 0) (pi (_ A) A))
 ;;      '(lambda (a 0) (lambda (x a) x))]]]
-
-
-;;      (normalize ctx '(id N)))
-;;      (infer-type ctx '(id N)))
-
-
-
+     ;; (infer-type ctx '(id (pi (x N) (pi  (y x) x) ))))
+     ;; (normalize ctx '((id (pi (x 0) (pi  (y x) x) )) id)))
 
 ;; (let ctx [['N . ['#bind 0]]
 ;;      ['z . ['#bind 'N]]

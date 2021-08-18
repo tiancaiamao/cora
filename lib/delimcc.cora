@@ -1,0 +1,34 @@
+(defun return (v)
+  (lambda (k)
+    (k v)))
+
+(defun id (x) x)
+
+(defun run-cc (c k)
+  (c k))
+
+(defun bind (c f)
+  (lambda (k)
+    (run-cc c (lambda (v)
+		(run-cc (f v) k)))))
+
+(defun reset (cc)
+  (run-cc cc id))
+
+
+(defmacro shift (exp)
+  (let k (cadr exp)
+       body (cddr exp)
+       ['lambda [k] . body]))
+
+(func rewrite-monad-do-h
+      [val m . body] => ['bind m ['lambda [val] (rewrite-monad-do-h body)]]
+      [body] => body)
+
+(defmacro do (exp)
+  (rewrite-monad-do-h (cdr exp)))
+  
+(reset
+ (do
+  v (shift k (k 666))
+  (return (+ v 42))))
