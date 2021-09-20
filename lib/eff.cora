@@ -42,9 +42,12 @@
       e [_ _ . more] => (find-effect-handler e more))
 
 
-
-
-
+;; input: (with-handler [eff handler] thunk)
+;; output: (handler (lambda (x) x) [eff handler] (lambda (_) thunk))
+(defmacro with-handler (exp)
+  (let effhs (cadr exp)
+       thunk (cddr exp)
+       ['handler '(lambda (x) x) effhs ['lambda ['_] . thunk]]))
 
 ;; (defun effh1 (v k)
 ;;   (k v))
@@ -68,3 +71,10 @@
 ;; 					(yield b (eff 'C3 13)
 ;; 					       (yield c (eff 'C3 17)
 ;; 						      (+ (+ a b) c))))))))))
+
+;; (with-handler ['C3 effh3]
+;; (with-handler ['C2 effh2 'C1 effh1]
+;; 	(yield a (eff 'C3 10)
+;; 		(yield b (eff 'C3 13)
+;; 			(yield c (eff 'C3 17)
+;; 				(+ (+ a b) c))))))
