@@ -87,6 +87,17 @@ builtinSet(struct controlFlow *ctx) {
 }
 
 void
+builtinValue(struct controlFlow *ctx) {
+  Obj sym = ctxGet(ctx, 1);
+  assert(issymbol(sym));
+  Obj val = symbolGet(sym);
+  if (val == Undef) {
+    longjmp(coraREPL, 1);
+  }
+  ctxReturn(ctx, val);
+}
+
+void
 builtinCons(struct controlFlow *ctx) {
   Obj x = ctxGet(ctx, 1);
   Obj y = ctxGet(ctx, 2);

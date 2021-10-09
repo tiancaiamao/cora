@@ -21,7 +21,8 @@
 
 (func handle
       vh handlers ['Eff e v] remain => (let effh (find-effect-handler e handlers)
-					    k (lambda (arg) (handle-yield-result vh handlers (remain arg)))
+					    k (lambda (arg)
+						(handle-yield-result vh handlers (remain arg)))
 					    (if (null? effh)
 						(yield res ['Resend ['Eff e v] k]
 						       res)

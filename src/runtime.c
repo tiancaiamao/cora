@@ -354,6 +354,7 @@ static struct registModule builtinModule = {
 					  {"/",builtinDiv, 2},
 					  {"=",builtinEqual, 2},
 					  {"set",builtinSet, 2},
+					  {"value",builtinValue, 1},
 					  {"cons",builtinCons, 2},
 					  {"car",builtinCar, 1},
 					  {"cdr",builtinCdr, 1},
