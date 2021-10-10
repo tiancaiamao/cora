@@ -73,7 +73,7 @@ readCons(FILE *in) {
   return cons(car, cdr);
 }
 
-static Obj
+Obj
 reverse(Obj o) {
   Obj ret = Nil;
   while (o != Nil) {

@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   }
 
   coraInit();
-  // registAPI(&coroutineModule);
+  registAPI(&codeGenModule);
   registAPI(&exceptionModule);
   registAPI(&ioModule);
 

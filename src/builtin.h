@@ -28,7 +28,7 @@ void builtinVectorSet(struct controlFlow *ctx);
 void builtinVectorRef(struct controlFlow *ctx);
 void builtinIsVector(struct controlFlow *ctx);
 
-/* void builtinLoadSo(struct controlFlow *ctx); */
+void builtinLoadSo(struct controlFlow *ctx);
 void builtinStringAppend(struct controlFlow *ctx);
 void builtinNumberToString(struct controlFlow *ctx);
 void builtinIntern(struct controlFlow *ctx);

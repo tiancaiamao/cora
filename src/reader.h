@@ -4,5 +4,6 @@
 
 Obj sexpRead(FILE *in);
 void sexpWrite(FILE *out, Obj obj);
+Obj reverse(Obj o);
 
 #endif

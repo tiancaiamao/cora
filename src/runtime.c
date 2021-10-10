@@ -372,18 +372,19 @@ static struct registModule builtinModule = {
 					  {"vector?",builtinIsVector, 1},
 					  {"intern",builtinIntern, 1},
 					  {"load",builtinLoad, 1},
+					  {"load-so",builtinLoadSo, 1},
 					  {NULL, NULL, 0}
 					 }
 };
 
 static struct registModule stringModule = {
-					  NULL,
-					  {
-					   {"number->string", builtinNumberToString, 1},
-					   {"string-append", builtinStringAppend, 2},
-             {"symbol->string", builtinSymbolToString, 1},
-					   {NULL, NULL, 0}
-					  }
+					   NULL,
+					   {
+					    {"number->string", builtinNumberToString, 1},
+					    {"string-append", builtinStringAppend, 2},
+					    {"symbol->string", builtinSymbolToString, 1},
+					    {NULL, NULL, 0}
+					   }
 };
 
 void

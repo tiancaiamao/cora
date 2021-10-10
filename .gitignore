@@ -1,5 +1,8 @@
 cora
 *.o
+*.so
+*.a
+*~
 a.out
 libcora.a
 .deps

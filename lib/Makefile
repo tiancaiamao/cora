@@ -1,7 +1,7 @@
 all: lib.a
 
 CC = gcc
-CFLAGS := -I../src
+CFLAGS := -I../src -g
 DEPDIR = .deps
 SRCS := codegen.c setjump.c io.c generator.c
 OBJS = $(SRCS:%.c=%.o)

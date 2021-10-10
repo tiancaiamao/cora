@@ -6,7 +6,7 @@ OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
 
-all: libcora.a
+all: libcora.a libcora.so
 
 libcora.a: $(OBJS)
 	ar -rc $@ $^

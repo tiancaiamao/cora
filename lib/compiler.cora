@@ -47,6 +47,7 @@
       env x => (if (elem? x env) x ['%global x]) where (symbol? x)
       env ['lambda args body] => ['lambda args (parse (append args env) body)]
       env ['if . args] => ['if . (map (parse env) args)]
+      env ['do x y] => ['do (parse env x) (parse env y)]
       env [op . args] => [['%builtin op] . (map (parse env) args)] where (builtin? op)
       env ls => (map (parse env) ls))
 
@@ -89,49 +90,50 @@
 (func convert
       _ _ x => x where (convert-protect? x)
       self fvs var => (let pos (pos-in-list var fvs)
-                           (if (= -1 pos)
-                               var
-                             ['%closure-ref self pos])) where (symbol? var)
-                             self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
-                             self fvs ['lambda args body] =>
-                             (let fvs1 (free-vars ['lambda args body])
-                                  self1 (gensym 'clo)
-                                  ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
-                                  (map (convert self fvs) fvs1)])
-                             self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
-                             self fvs [f . args] => (let f0 (convert self fvs f)
-                                                         args0 (map (convert self fvs) args)
-                                                         [f0 . args0]))
+			   (if (= -1 pos)
+			       var
+			     ['%closure-ref self pos])) where (symbol? var)
+      self fvs ['do x y] => (cons 'do (map (convert self fvs) [x y]))
+      self fvs ['if a b c] => (cons 'if (map (convert self fvs) [a b c]))
+      self fvs ['lambda args body] =>
+      (let fvs1 (free-vars ['lambda args body])
+	   self1 (gensym 'clo)
+	   ['%closure ['lambda (cons self1 args) (convert self1 fvs1 body)] .
+	   (map (convert self fvs) fvs1)])
+      self fvs [['%builtin f] . args] => [['%builtin f] . (map (convert self fvs) args)]
+      self fvs [f . args] => (let f0 (convert self fvs f)
+				  args0 (map (convert self fvs) args)
+				  [f0 . args0]))
 
 (func collect-lambda
       res ['lambda params body] return =>
       (let name (gensym 'clofun)
-           (collect-lambda res body
-                           (lambda (res1 body1)
-                             (return (cons [name ['lambda params body1]] res1)
-                                     name))))
+	   (collect-lambda res body
+			   (lambda (res1 body1)
+			     (return (cons [name ['lambda params body1]] res1)
+				     name))))
       res ['%closure lam . fvs] return => (collect-lambda res lam
-                                                          (lambda (res1 name)
-                                                            (return res1 ['%closure name (length (cadr lam)) . fvs])))
+							  (lambda (res1 name)
+							    (return res1 ['%closure name (length (cadr lam)) . fvs])))
       res f-args return => (collect-lambda-list [] res f-args
-                                                (lambda (res1 args1)
-                                                  (return res1 args1))) where (cons? f-args)
-                                                  res x return => (return res x))
+						(lambda (res1 args1)
+						  (return res1 args1))) where (cons? f-args)
+      res x return => (return res x))
 
 (func collect-lambda-list
       res init [] return => (return init (reverse res))
       res init [x . y] return => (collect-lambda init x
-                                                 (lambda (init1 x1)
-                                                   (collect-lambda-list (cons x1 res) init1 y return))))
+						 (lambda (init1 x1)
+						   (collect-lambda-list (cons x1 res) init1 y return))))
 
-(defun closure-convert-debug (ast)
-  (convert '_ [] (parse [] ast)))
+(defun closure-convert-debug (x)
+  (convert '_ [] (parse [] x)))
 
 (defun closure-convert (ast)
-  (let res (convert '_ [] (parse [] ast))
+  (let res (convert '_ [] ast)
        (collect-lambda [] res
-                       (lambda (res1 ast1)
-                         (cons ['entry ['lambda () ast1]] res1)))))
+		       (lambda (res1 ast1)
+			 (cons ['entry ['lambda () ast1]] res1)))))
 
 (defun id (x) x)
 
@@ -143,30 +145,31 @@
 (func code-gen
       x k => (if (= id k) ['%return x] (k x)) where (symbol? x)
       [x . y] k => (wrap-var [x . y]
-                             (lambda (x)
-                               (if (= id k)
-                                   ['%return x]
-                                   (k x))))
+			     (lambda (x)
+			       (if (= id k)
+				   ['%return x]
+				   (k x))))
       where (elem? x ['%const '%closure-ref '%builtin '%global])
       ['%closure name required . captured] k =>
       (code-gen-list captured
-                     (lambda (captured1)
-                       (wrap-var ['%closure name required captured1] k)))
+		     (lambda (captured1)
+		       (wrap-var ['%closure name required captured1] k)))
       ['if x y z] k =>
       (code-gen x
-                (lambda (x1)
-                  ['if x1
-                  (code-gen y k)
-                  (code-gen z k)]))
-      ['do x y] k => (code-gen-list x y k)
+		(lambda (x1)
+		  ['if x1
+		  (code-gen y k)
+		  (code-gen z k)]))
+      ['do . l] k => (code-gen-list l (lambda (ls)
+					(code-gen (cadr ls) k))) ;; cadr ignore the first one
       [f . args] k =>
       (code-gen f
-                (lambda (f1)
-                  (code-gen-list args
-                                 (lambda (args1)
-                                   (if (= id k)
-                                       ['%tailcall f1 . args1]
-                                       (wrap-var ['%call f1 . args1] k)))))))
+		(lambda (f1)
+		  (code-gen-list args
+				 (lambda (args1)
+				   (if (= id k)
+				       ['%tailcall f1 . args1]
+				       (wrap-var ['%call f1 . args1] k)))))))
 
 (func code-gen-list
       [] k => (k [])
@@ -182,27 +185,39 @@
 
 (defun code-generate (inputs)
   (map (lambda (x)
-         (let lmd (cadr x)
-              (let args (cadr lmd)
-                   (let bc (code-gen-lambda lmd)
-                        ['label (car x) args bc]))))
+	 (let lmd (cadr x)
+	      (let args (cadr lmd)
+		   (let bc (code-gen-lambda lmd)
+			['label (car x) args bc]))))
        inputs))
 
 ;; (closure-convert '(set 'fact (lambda (n)
-;;                                (if (= n 0)
-;;                                    1
-;;                                  (* n (fact (- n 1)))))))
+;; 			       (if (= n 0)
+;; 				   1
+;; 				 (* n (fact (- n 1)))))))
 
 ;; (code-generate '((#clofun156 (lambda () ((%builtin set) (%const fact) (%closure #clofun155 2)))) (#clofun155 (lambda (#clo154 n) (if ((%builtin =) n (%const 0)) (%const 1) ((%builtin *) n ((%global fact) ((%builtin -) n (%const 1)))))))))
 
-(defun compile (x)
-  (let lam (closure-convert x)
+(defun compile (ast)
+  (let lam (closure-convert ast)
        (let bc (code-generate lam)
-            bc)))
+	    bc)))
 
-(defun compile-file (from to)
+(defun compile-to-c (from to)
   (let sexp (read-file-as-sexp from)
-       (let parsed (macroexpand sexp)
-            (let bc (compile parsed)
-                 (generate-c to bc)))))
+       (let input (macroexpand sexp)
+	    (let ast (parse [] input)
+		 (let bc (compile ast)
+		      (generate-c to bc))))))
 
+(defun compile-to-so (from to)
+  (let tmp-file "/tmp/cora.tmp.c"
+       (if (= tmp-file (compile-to-c from tmp-file))
+	   (gcc-compile-to-so tmp-file to)
+	 ())))
+
+(defun compile-and-load (file)
+  (let tmp-file "/tmp/cora.tmp.so"
+       (if (= (compile-to-so file tmp-file) 0)
+	   (load-so tmp-file)
+	 ())))

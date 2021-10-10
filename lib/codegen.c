@@ -26,13 +26,88 @@ listToSlice(Obj* res, int size, Obj l) {
   return;
 }
 
+static char
+escapeChar(char c) {
+  switch (c) {
+  case '_':
+    return '_';
+  case '-':
+    return '0';
+  case '?':
+    return '1';
+  case '$':
+    return '2';
+  case '.':
+    return '3';
+  case '<':
+    return '4';
+  case '>':
+    return '5';
+  case '+':
+    return '6';
+  case '@':
+    return '7';
+  case '=':
+    return '8';
+  case '!':
+    return '9';
+  case '/':
+    return 'a';
+  case '*':
+    return 'b';
+  case '&':
+    return 'c';
+  case '%':
+    return 'd';
+  case '^':
+    return 'e';
+  case ':':
+    return 'f';
+  case '{':
+    return 'g';
+  case '}':
+    return 'h';
+  case ';':
+    return 'i';
+  case ',':
+    return 'j';
+  case '#':
+    return 'k';
+  }
+  return 0;
+}
+
 static const char*
 symbolString(Obj sym) {
- const char *str = symbolStr(sym);
- if (str[0] == '#') {
-   return str+1;
- }
- return str;
+  const char *str = symbolStr(sym);
+  int len = strlen(str);
+  int count = 0;
+  for (int i=0; i<len; i++) {
+    if (escapeChar(str[i]) != 0) {
+      count++;
+    }
+  }
+  if (count == 0) {
+    return str;
+  }
+ 
+  Obj tmp = makeString("", len+count);
+  char *dst = stringStr(tmp);
+  int i = 0;
+  int j = 0;
+  while(i<len) {
+    char c = escapeChar(str[i]);
+    if (c != 0) {
+      dst[j] = '_';
+      j++;
+      dst[j] = c;
+    } else {
+      dst[j] = str[i];
+    }
+    j++;
+    i++;
+  }
+  return dst;
 }
 
 static Obj symLet, symConst, symClosure, symReturn, symBuiltin, symCall, symClosureRef, symTailCall, symGlobal;
@@ -62,7 +137,7 @@ genConst(FILE *w, Obj inst) {
     char *str = stringStr(c);
     fprintf(w, "makeString(\"%s\", %ld)", str, strlen(str));
   } else if (issymbol(c)) {
-    fprintf(w, "intern(\"%s\")", symbolString(c));
+    fprintf(w, "intern(\"%s\")", symbolStr(c));
   } else if (c == Nil) {
     fprintf(w, "Nil");
   } else if (c == True) {
@@ -127,10 +202,10 @@ genInst(FILE *w, Obj inst) {
     fprintf(w, ")");
   } else if (kind == symBuiltin) {
     // (%builtin OP)
-    fprintf(w, "symbolGet(intern(\"%s\"))", symbolString(cadr(inst)));
+    fprintf(w, "symbolGet(intern(\"%s\"))", symbolStr(cadr(inst)));
   } else if (kind == symGlobal) {
     // (%global OP)
-    fprintf(w, "symbolGet(intern(\"%s\"))", symbolString(cadr(inst)));
+    fprintf(w, "symbolGet(intern(\"%s\"))", symbolStr(cadr(inst)));
   } else if (kind == symCall) {
     // (%call x y z ...)
     return genCall(w, inst);
@@ -301,6 +376,7 @@ static void
 builtinReadFileAsSexp(struct controlFlow* ctx) {
   Obj arg = ctxGet(ctx, 1);
   assert(isstring(arg));
+  Obj result = Nil;
   char* fileName = stringStr(arg);
   FILE* f = fopen(fileName, "r");
   if (f == NULL) {
@@ -308,15 +384,55 @@ builtinReadFileAsSexp(struct controlFlow* ctx) {
     goto exit0;
   }
   Obj ast = sexpRead(f);
+  while (ast != Nil) {
+    result = cons(ast, result);
+    ast = sexpRead(f);
+  }
+  if (iscons(result) && cdr(result) != Nil) {
+    result = reverse(result);
+    result = cons(makeSymbol("begin"), result);
+  }
   fclose(f);
-  ctxReturn(ctx, ast);
 
 exit0:
-  return;
+  ctxReturn(ctx, result);
 }
 
-struct registEntry codeGenAPI[] = {
-  {"generate-c", builtinGenerateC, 2},
-  {"read-file-as-sexp", builtinReadFileAsSexp, 2},
-  {NULL, NULL, 0}
+
+static void
+builtinGCCCompileToSo(struct controlFlow* ctx) {
+  Obj from = ctxGet(ctx, 1);
+  Obj to = ctxGet(ctx, 2);
+  assert(isstring(from));
+  assert(isstring(to));
+
+  char cmd[512];
+  int ret = snprintf(cmd, 512, "gcc -shared -o %s -Isrc -fPIC -g %s", stringStr(to), stringStr(from));
+  if (ret == 0) {
+    ctxReturn(ctx, Nil);
+  }
+
+  ret = system(cmd);
+  ctxReturn(ctx, makeNumber(ret));
+}
+
+struct registModule codeGenModule = {
+  NULL,
+  {
+   {"read-file-as-sexp", builtinReadFileAsSexp, 1},
+   {"generate-c", builtinGenerateC, 2},
+   {"gcc-compile-to-so", builtinGCCCompileToSo, 2},
+   {NULL, NULL, 0}
+  }
 };
+
+#ifdef _CODE_GEN_TEST_
+
+int main(int argc, char *argv) {
+  coraInit();
+  const char *x = symbolString(makeSymbol("literal?"));
+  printf("%s\n", x);
+  return 0;
+}
+
+#endif
