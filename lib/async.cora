@@ -1,0 +1,85 @@
+(let s1 (gensym 's1)
+     s2 (gensym 's2)
+     (begin
+      (set s1 ())
+      (set s2 ())
+      (set 'enqueue (make-enqueue s1 s2))
+      (set 'dequeue (make-dequeue s1 s2))
+      (set 'empty? (empty-queue? s1 s2))))
+
+(let s (gensym 'block)
+     (begin
+      (set s ())
+      (defun add-blocked-queue (fd val)
+	(set s (cons (cons fd val) (value s))))
+      (defun blocked-queue-empty? ()
+	(null? (value s)))
+      (defun collect-blocked-fds ()
+	(map car (value s))))
+     (defun find-blocked-by-fd (fd)
+       ))
+     
+	
+
+
+
+(func recv-handler
+      [fd buf pos ...] k => (if (read-to-read fd)
+				(k (os-recv fd buf pos len mode))
+			      (begin
+			       (add-blocked-queue fd ['Blocked ['Recv fd buf] k])
+			       (schedule))))
+
+(func send-handler
+      [fd buf] k => (if (ready-to-write fd)
+			(k (net-send fd buf))
+		      (begin
+		       (add-blocked-queue fd ['Blocked ['Send fd buf] k])
+		       (schedule))))
+
+(defun yield-handler (_ cc)
+  (begin
+   (enqueue cc)
+   (let task (dequeue)
+	(task ()))))
+
+(defun spawn-handler (fn k)
+  (begin
+   (enqueue k)
+   (run fn)))
+
+
+(defun run (main)
+  (handler (lambda (_) (schedule))
+	   ['Send send-handler
+	   'Recv recv-handler
+	   'Spawn spawn-handler
+	   'Yield yield-handler]
+	   main))
+
+(defun schedule ()
+  (if (empty?) ;; running-queue
+      (let task (dequeue)
+	   (task ()))
+    (if (blocked-queue-empty?)
+	() ;; no more task
+      (begin
+       (let fds (collect-blocked-fds)
+	    (let ready-fds (net-poll fds)
+		 (for-each (lambda (fd)
+			     (match (find-blocked-by-fd fd)
+				    [Blocked [Recv fd buf ...] k] => (k (net-recv fd ...))
+				    [Blocked [Send fd buf ...] k] => (k (net-send fd ...))
+				    ...)
+			     (remove ready-fds (blocked-queue)))
+			   ready-fds))
+	    (schedule))))))
+
+(defun main (_)
+  (let fd (net-dial "127.0.0.1:8080")
+       (let buf "hello world"
+	    (yield v (eff 'Send [fd buf])
+		   (yield v (eff 'Recv [fd buf pos ...])
+			  ...)))))
+
+(run main)
