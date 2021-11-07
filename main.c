@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   registAPI(&codeGenModule);
   registAPI(&exceptionModule);
   registAPI(&ioModule);
+  registAPI(&netModule);
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));
