@@ -87,6 +87,25 @@
 	   (schedule))))))
 
 (defun main (_)
+  (yield _ (eff 'Spawn server-coroutine)
+	 (run client-coroutine)))
+
+(defun server-coroutine (_)
+  (let ln (net-listen "127.0.0.1:8080")
+       (accept-loop ln)))
+	      
+(defun accept-loop (ln)
+  (yield fd (eff 'Accept ())
+	 (yield _ (eff 'Spawn handle-conn)
+		(accept-loop ln))))
+
+(defun handle-conn (fd)
+  (yield v (eff 'Send [fd "hello world" 0])
+	 (let buf (make-buffer 11)
+	      (yield (eff 'Recv [fd buf 0])
+		     (net-close fd)))))
+
+(defun client-coroutine (_)
   (let fd (net-dial "127.0.0.1:8080")
        buf (make-buffer 11)
        (yield v (eff 'Recv [fd buf 0])
