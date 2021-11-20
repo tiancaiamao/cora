@@ -1,3 +1,4 @@
+(load "lib/sys.cora")
 (load "lib/queue.cora")
 (load "lib/eff.cora")
 
@@ -14,35 +15,47 @@
      (begin
       (set s ())
       (defun add-blocked-queue (fd val)
-	(set s (cons (cons fd val) (value s))))
+        (set s (cons (cons fd val) (value s))))
+      (defun remove-blocked-queue (fd)
+        (set s (filter (lambda (x) (not (= fd (car x)))) (value s))))
       (defun blocked-queue-empty? ()
-	(null? (value s)))
+        (null? (value s)))
       (defun collect-blocked-fds ()
-	(map car (value s)))
+        (map car (value s)))
       (defun find-blocked-by-fd (fd)
-	(assq (value s)))))
+        (assq fd (value s)))))
 
 (func recv-handler
       [fd buf pos] k => (begin
-			 (display "run in recv-handler")
+			 ;; (display "run in recv-handler")
 			 (match (net-recv fd buf pos)
 				[block pos] (begin
 					     (add-blocked-queue fd ['Blocked ['Recv fd buf pos] k])
-					     (display "recv-handler block and go to scheduler\n")
+					     ;; (display "recv-handler block and go to scheduler\n")
 					     (schedule)
-					     (display "finish schedule in recv-handler"))
+					     ;; (display "finish schedule in recv-handler")
+                         )
 				res (k res))))
 
 (func send-handler
-      [fd buf pos] k => (begin (display "run in send-handler")
-			       (match (net-send fd buf pos)
-				      [block pos] (begin
-						   (add-blocked-queue fd ['Blocked ['Send fd buf pos] k])
-						   (display "send-handler block and go to schedule\n")
-						   (schedule)
-						   (display "finish send-handler"))
-				      res (k res)))
+      [fd buf pos] k => (match (net-send fd buf pos)
+                               [block pos] (begin
+                                            (add-blocked-queue fd ['Blocked ['Send fd buf pos] k])
+                                            ;; (display "send-handler block and go to schedule\n")
+                                            (schedule)
+                                            ;; (display "finish send-handler")
+                                            )
+                               res (k res))
       _ k => (display "wrong argument for send-handler"))
+
+(defun accept-handler (ln k)
+  (begin
+   (add-blocked-queue ln ['Blocked ['Accept ln] k])
+   (net-accept-1 ln)
+   ;; (display "before accept handle go to schedule")
+   ;; (display ln)
+   (schedule)
+   (display "finish schedule")))
 
 (defun yield-handler (_ cc)
   (begin
@@ -60,62 +73,58 @@
   (handler (lambda (_) (schedule))
 	   ['Send send-handler
 	   'Recv recv-handler
+	   'Accept accept-handler
 	   'Spawn spawn-handler
 	   'Yield yield-handler]
 	   main))
 
 (defun schedule ()
-  (do (display "in schedule")
-      (if (not (empty?)) ;; running-queue
-	  (begin
-	   (display "empty running queue...")
-	   (let task (dequeue)
-		(task ())))
-	(if (blocked-queue-empty?)
-	    (display "no more task, exit!") ;; no more task
-	  (begin
-	   (let fds (collect-blocked-fds)
-		(let ready-fds (net-poll)
-		     (for-each (lambda (fd)
-				 (begin
-				  (remove ready-fds (blocked-queue))
-				  (match (find-blocked-by-fd fd)
-					 [fd . [Blocked [Recv fd buf ...] k]] (k (net-recv fd ...))
-					 [fd . [Blocked [Send fd buf pos] k]] (send-handler fd buf pos k)
-					 _ (error "fd is not found in the blocked list?"))))
-			       ready-fds)))
-	   (schedule))))))
+  (if (not (empty?)) ;; running-queue
+      (begin
+       ;; (display "handle running queue...")
+       (let task (dequeue)
+            (task ())))
+      (if (blocked-queue-empty?)
+          (display "no more task, exit!") ;; no more task
+          (begin
+           (let ready-fds (net-poll)
+                (for-each (lambda (fd)
+                            (begin
+                             (match (find-blocked-by-fd fd)
+                                    [fd . ['Blocked ['Accept ln] k]] (k (net-accept-2 fd))
+                                    [fd . ['Blocked ['Recv . data] k]] (recv-handler data k)
+                                    [fd . ['Blocked ['Send . data] k]] (send-handler data k)
+                                    _ (error "fd is not found in the blocked list?"))
+                             (remove-blocked-queue fd)))
+                          ready-fds))
+           (schedule)))))
 
-(defun main (_)
-  (yield _ (eff 'Spawn server-coroutine)
-	 (run client-coroutine)))
+;; (defun accept-loop (ln)
+;;   (yield fd (eff 'Accept ln)
+;;          (yield _ (eff 'Spawn (lambda (_)
+;;                                 (handle-conn fd)))
+;;                 (accept-loop ln))))
 
-(defun server-coroutine (_)
-  (let ln (net-listen "127.0.0.1:8080")
-       (accept-loop ln)))
-	      
-(defun accept-loop (ln)
-  (yield fd (eff 'Accept ())
-	 (yield _ (eff 'Spawn handle-conn)
-		(accept-loop ln))))
+;; (defun handle-conn (fd)
+;;   (yield v (eff 'Send [fd "hello world" 0])
+;;          (let buf (make-buffer 11)
+;;               (yield _ (eff 'Recv [fd buf 0])
+;;                      (begin
+;;                       (display buf)
+;;                       (net-close fd))))))
 
-(defun handle-conn (fd)
-  (yield v (eff 'Send [fd "hello world" 0])
-	 (let buf (make-buffer 11)
-	      (yield (eff 'Recv [fd buf 0])
-		     (net-close fd)))))
+;; (defun client-main (_)
+;;   (let fd (net-dial "127.0.0.1:8080")
+;;        buf (make-buffer 11)
+;;        (yield v (eff 'Recv [fd buf 0])
+;;               (begin
+;;                (display buf)
+;;                (yield v (eff 'Send [fd "hello arthur" 0])
+;;                       (net-close fd))))))
 
-(defun client-coroutine (_)
-  (let fd (net-dial "127.0.0.1:8080")
-       buf (make-buffer 11)
-       (yield v (eff 'Recv [fd buf 0])
-	      (begin
-	       (display "received ===\n")
-	       (display v)
-	       (yield v (eff 'Send [fd "hello arthur" 0])
-		      (begin
-		       (display "lalala = \n")
-		       (display v)
-		       v))))))
+;; (defun server-main (_)
+;;   (let ln (net-listen "127.0.0.1:8080")
+;;        (accept-loop ln)))
 
-;; (run main)
+;; (run server-main)
+;; (run client-main)

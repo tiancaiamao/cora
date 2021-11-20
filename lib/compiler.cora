@@ -1,7 +1,4 @@
-(func assq
-      var [] => ()
-      var [(cons x y) . _] => (cons x y) where (= var x)
-      var [_ . y] => (assq var y))
+(load "lib/sys.cora")
 
 (func beta-replace
       env s => (let find (assq s env)
@@ -60,10 +57,6 @@
       [] _ => []
       [x . y] s2 => (diff y s2) where (elem? x s2)
       [x . y] s2 => (cons x (diff y s2)))
-
-(func foldl
-      f acc [] => acc
-      f acc [x . y] => (foldl f (f acc x) y))
 
 (func convert-protect?
       ['%const x] => true
