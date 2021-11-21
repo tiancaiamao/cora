@@ -90,7 +90,9 @@ makeString(const char *s, int len) {
   struct scmString* str = newObj(scmHeadString, alloc);
   str->sz = len;
   str->data[len] = '\0';
-  memcpy(&str->data[0], s, len);
+  if (s != NULL) {
+    memcpy(&str->data[0], s, len);
+  }
   return ((Obj)(&str->head) | TAG_PTR);
 }
 
@@ -99,6 +101,13 @@ stringStr(Obj o) {
   struct scmString* s = ptr(o);
   assert(s->head.type == scmHeadString);
   return s->data;
+}
+
+int
+stringLen(Obj o) {
+  struct scmString* s = ptr(o);
+  assert(s->head.type == scmHeadString);
+  return s->sz;
 }
 
 bool

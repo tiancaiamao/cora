@@ -3,7 +3,7 @@ all: lib.a
 CC = gcc
 CFLAGS := -I../src -g
 DEPDIR = .deps
-SRCS := codegen.c setjump.c io.c generator.c
+SRCS := codegen.c setjump.c io.c generator.c net.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d

@@ -95,6 +95,7 @@ Obj closureEnv(Obj);
 
 Obj makeString(const char *s, int len);
 char* stringStr(Obj o);
+int stringLen(Obj o);
 Obj makeNumber(int v);
 bool isstring(Obj o);
 
