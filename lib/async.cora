@@ -122,9 +122,9 @@
 ;;                (yield v (eff 'Send [fd "hello arthur" 0])
 ;;                       (net-close fd))))))
 
-;; (defun server-main (_)
-;;   (let ln (net-listen "127.0.0.1:8080")
-;;        (accept-loop ln)))
+(defun server-main (_)
+  (let ln (net-listen "127.0.0.1:8080")
+       (accept-loop ln)))
 
 ;; (run server-main)
 ;; (run client-main)

@@ -83,6 +83,19 @@ makeNumber(int v) {
   return (Obj)(99999999);
 }
 
+bool
+isNumber(Obj o) {
+  if (tag(o) == TAG_FIXNUM) {
+    return true;
+  }
+  if (tag(o) == TAG_PTR) {
+    if (((scmHead*)ptr(o))->type == scmHeadNumber) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Obj
 makeString(const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
@@ -370,6 +383,20 @@ eq(Obj x, Obj y) {
       return false;
     }
     return eq(cdr(x), cdr(y));
+  }
+
+  if (isstring(x) && isstring(y)) {
+    struct scmString* x1 = ptr(x);
+    struct scmString* y1 = ptr(y);
+    if (x1->sz != y1->sz) {
+      return false;
+    }
+    for (int i=0; i<x1->sz; i++) {
+      if (x1->data[i] != y1->data[i]) {
+	return false;
+      }
+    }
+    return true;
   }
 
   return false;

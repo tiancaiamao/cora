@@ -16,6 +16,16 @@ builtinAdd(struct controlFlow *ctx) {
 }
 
 void
+builtinMod(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  Obj ret = makeNumber(fixnum(x) % fixnum(y));
+  ctxReturn(ctx, ret);
+}
+
+void
 builtinEqual(struct controlFlow *ctx) {
   Obj a = ctxGet(ctx, 1);
   Obj b = ctxGet(ctx, 2);
@@ -23,6 +33,7 @@ builtinEqual(struct controlFlow *ctx) {
   if (eq(a, b)) {
     ctxReturn(ctx, True);
   }
+  
   ctxReturn(ctx, False);
 }
 

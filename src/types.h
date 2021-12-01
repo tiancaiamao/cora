@@ -98,6 +98,7 @@ char* stringStr(Obj o);
 int stringLen(Obj o);
 Obj makeNumber(int v);
 bool isstring(Obj o);
+bool isNumber(Obj o);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 void gcSymbols(struct GC *gc);

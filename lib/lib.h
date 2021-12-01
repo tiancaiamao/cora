@@ -5,5 +5,6 @@ extern struct registModule exceptionModule;
 extern struct registModule ioModule;
 extern struct registModule codeGenModule;
 extern struct registModule netModule;
+extern struct registModule hashModule;
 
 #endif

@@ -344,47 +344,47 @@ registAPI(struct registModule* m) {
   }
 }
 
-
 static struct registModule builtinModule = {
-					 NULL,
-					 {
-					  {"+",builtinAdd, 2},
-					  {"-",builtinSub, 2},
-					  {"*",builtinMul, 2},
-					  {"/",builtinDiv, 2},
-					  {"=",builtinEqual, 2},
-					  {"set",builtinSet, 2},
-					  {"value",builtinValue, 1},
-					  {"cons",builtinCons, 2},
-					  {"car",builtinCar, 1},
-					  {"cdr",builtinCdr, 1},
-					  {"cons?",builtinIsCons, 1},
-					  {"gensym",builtinGensym, 1},
-					  {">",builtinGT, 2},
-					  {"<",builtinLT, 2},
-					  {"not",builtinNot, 1},
-					  {"symbol?",builtinIsSymbol, 1},
-					  {"string?",builtinIsString, 1},
-					  {"number?",builtinIsNumber, 1},
-					  {"vector",builtinMakeVector, 1},
-					  {"vector-set!",builtinVectorSet, 3},
-					  {"vector-ref",builtinVectorRef, 2},
-					  {"vector?",builtinIsVector, 1},
-					  {"intern",builtinIntern, 1},
-					  {"load",builtinLoad, 1},
-					  {"load-so",builtinLoadSo, 1},
-					  {NULL, NULL, 0}
-					 }
+  NULL,
+  {
+    {"+",builtinAdd, 2},
+    {"-",builtinSub, 2},
+    {"*",builtinMul, 2},
+    {"/",builtinDiv, 2},
+    {"%",builtinMod, 2},
+    {"=",builtinEqual, 2},
+    {"set",builtinSet, 2},
+    {"value",builtinValue, 1},
+    {"cons",builtinCons, 2},
+    {"car",builtinCar, 1},
+    {"cdr",builtinCdr, 1},
+    {"cons?",builtinIsCons, 1},
+    {"gensym",builtinGensym, 1},
+    {">",builtinGT, 2},
+    {"<",builtinLT, 2},
+    {"not",builtinNot, 1},
+    {"symbol?",builtinIsSymbol, 1},
+    {"string?",builtinIsString, 1},
+    {"number?",builtinIsNumber, 1},
+    {"vector",builtinMakeVector, 1},
+    {"vector-set!",builtinVectorSet, 3},
+    {"vector-ref",builtinVectorRef, 2},
+    {"vector?",builtinIsVector, 1},
+    {"intern",builtinIntern, 1},
+    {"load",builtinLoad, 1},
+    {"load-so",builtinLoadSo, 1},
+    {NULL, NULL, 0}
+  }
 };
 
 static struct registModule stringModule = {
-					   NULL,
-					   {
-					    {"number->string", builtinNumberToString, 1},
-					    {"string-append", builtinStringAppend, 2},
-					    {"symbol->string", builtinSymbolToString, 1},
-					    {NULL, NULL, 0}
-					   }
+  NULL,
+  {
+    {"number->string", builtinNumberToString, 1},
+    {"string-append", builtinStringAppend, 2},
+    {"symbol->string", builtinSymbolToString, 1},
+    {NULL, NULL, 0}
+  }
 };
 
 void
