@@ -1,3 +1,5 @@
+;; blog link: https://www.zenlife.tk/let-loop-macro.md
+
 ;; (let-loop recur (i 0 y 1)
 ;;           (if (= i 100)
 ;;               42

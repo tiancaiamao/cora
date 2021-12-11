@@ -1,3 +1,5 @@
+;; blog link: https://www.zenlife.tk/micro-kanren.md
+
 (defun procedure? (x)
     (and (cons? x)
          (= (car x) 'lambda)))

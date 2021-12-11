@@ -1,3 +1,5 @@
+;; blog link https://www.zenlife.tk/use-algebraic-effect.md
+
 (defun make-yield-next (v k)
   ['Next v k])
 

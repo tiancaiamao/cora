@@ -1,3 +1,5 @@
+;; blog link https://www.zenlife.tk/continuation-monad.md
+
 (defun return (x) (lambda (k) (k x)))
 
 (defun bind (m f)

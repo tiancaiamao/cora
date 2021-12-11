@@ -1,3 +1,5 @@
+;; blog link https://www.zenlife.tk/use-algebraic-effect.md
+
 (load "lib/sys.cora")
 (load "lib/queue.cora")
 (load "lib/eff.cora")
