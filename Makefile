@@ -23,3 +23,6 @@ clean:
 	rm -rf cora *.o
 	make clean -C src
 	make clean -C lib
+
+go:
+	go install github.com/tiancaiamao/cora/cmd/cora	
