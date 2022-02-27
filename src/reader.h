@@ -2,7 +2,7 @@
 #include "types.h"
 #include <stdio.h>
 
-Obj sexpRead(FILE *in);
+Obj sexpRead(FILE *in, int *errCode);
 void sexpWrite(FILE *out, Obj obj);
 Obj reverse(Obj o);
 

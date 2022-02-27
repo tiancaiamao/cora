@@ -1,0 +1,5 @@
+#!/usr/bin/env cora
+
+(display *command-line-args*)
+
+(+ 4 7)

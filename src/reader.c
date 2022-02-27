@@ -50,7 +50,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(FILE *in) {
+readCons(FILE *in, int *errCode) {
   int c = getc(in);
   if (c == ')') {
     // read the empty list
@@ -58,13 +58,13 @@ readCons(FILE *in) {
   }
 
   ungetc(c, in);
-  Obj car = sexpRead(in);
+  Obj car = sexpRead(in, errCode);
 
   c = peekFirstChar(in);
   ungetc(c, in);
 
   /* read list */
-  Obj cdr = readCons(in);
+  Obj cdr = readCons(in, errCode);
 
   /* printf("read cdr"); */
   /* printObj(cdr); */
@@ -84,7 +84,7 @@ reverse(Obj o) {
 }
 
 static Obj
-readListMacro(FILE *in) {
+readListMacro(FILE *in, int *errCode) {
   Obj hd = intern("list");
   Obj ret = Nil;
   char b = peekFirstChar(in);
@@ -93,7 +93,7 @@ readListMacro(FILE *in) {
       hd = intern("list-rest");
     } else {
       ungetc(b, in);
-      Obj o = sexpRead(in);
+      Obj o = sexpRead(in, errCode);
       ret = cons(o, ret);
     }
     b = peekFirstChar(in);
@@ -121,7 +121,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(FILE *in) {
+sexpRead(FILE *in, int *errCode) {
   int c;
   int i;
   char buffer[512];
@@ -137,18 +137,18 @@ sexpRead(FILE *in) {
 
   // read quote
   if (c == '\'') {
-    Obj o = sexpRead(in);
+    Obj o = sexpRead(in, errCode);
     return cons(symQuote, cons(o, Nil));
   }
 
   // read the empty list or pair
   if (c == '(')	{
-    return readCons(in);
+    return readCons(in, errCode);
   }
 
   // read list macro
   if (c == '[') {
-    return readListMacro(in);
+    return readListMacro(in, errCode);
   }
 
   // read a string
@@ -217,6 +217,7 @@ sexpRead(FILE *in) {
   }
 
   if (c == EOF) {
+    *errCode = 1;
     return Nil;
   }
 
@@ -317,7 +318,8 @@ TestReadSexp() {
   char buffer[] = "(a)";
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  Obj o = sexpRead(stream);
+  int errCode;
+  Obj o = sexpRead(stream, &errCode);
 
   Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
   Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));

@@ -189,14 +189,15 @@ builtinLoad(struct controlFlow *ctx) {
     // TODO: exception?
     ctxReturn(ctx, intern("error"));
   }
-  Obj ast = sexpRead(in);
-  while(ast != Nil) {
+  int err = 0;
+  Obj ast = sexpRead(in, &err);
+  while(err == 0) {
     /* printf("read == \n"); */
     /* sexpWrite(stdout, ast); */
     /* printf("\n"); */
     Obj exp = MacroExpand(ast);
     Eval(exp, Nil);
-    ast = sexpRead(in);
+    ast = sexpRead(in, &err);
   }
   fclose(in);
   ctxReturn(ctx, path);

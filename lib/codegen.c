@@ -383,10 +383,11 @@ builtinReadFileAsSexp(struct controlFlow* ctx) {
     printf("open file fail %s\n", fileName);
     goto exit0;
   }
-  Obj ast = sexpRead(f);
-  while (ast != Nil) {
+  int err = 0;
+  Obj ast = sexpRead(f, &err);
+  while (err == 0) {
     result = cons(ast, result);
-    ast = sexpRead(f);
+    ast = sexpRead(f, &err);
   }
   if (iscons(result) && cdr(result) != Nil) {
     result = reverse(result);

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 #include <getopt.h>
 #include <setjmp.h>
@@ -12,18 +13,39 @@
 static struct option opts[] = {
   {"help", no_argument, NULL, 'h'},
   {"boot", required_argument, NULL, 'b'},
+  {"eval", required_argument, NULL, 'e'},
+  {"file", required_argument, NULL, 'f'},
   {NULL, no_argument, NULL, 0},
 };
 
-const char *optstr = "hb:";
+const char *optstr = "hb:i:e:f:";
 
 static void
 help() {
-  printf("cora [--boot init.cora]");
+  printf("cora [--boot init.cora]\
+or:	cora [-e <expr>]\
+or:	cora [-f <path>]\
+\
+Evaluation:\
+-e, --eval <expr>\
+-f, --file <path>");
+}
+
+
+static void shebang(int argc, char *argv[]);
+static void repl(FILE* stream);
+
+static Obj
+set(Obj k, Obj v) {
+  Obj fn = Eval(makeSymbol("set"), Nil);
+  return Call(3, fn, k, v);
 }
 
 int main(int argc, char *argv[]) {
   char *bootFile = "src/init.cora";
+  char *expr = NULL;
+  char *oneLiner = NULL;
+  char *path = NULL;
   int opt = getopt_long(argc, argv, optstr, opts, NULL);
   while (opt != -1) {
     switch (opt) {
@@ -32,6 +54,15 @@ int main(int argc, char *argv[]) {
       return 0;
     case 'b':
       bootFile = optarg;
+    case 'e':
+      expr = optarg;
+      break;
+    case 'f':
+      path = optarg;
+      break;
+    case 'i':
+      oneLiner = optarg;
+      break;
     default:
       break;
     }
@@ -51,15 +82,104 @@ int main(int argc, char *argv[]) {
     Eval(loadFile, Nil);
   }
 
-  int i = 0;
   memset(&coraREPL, 0, sizeof(jmp_buf));
   setjmp(coraREPL);
 
-  for (; ; i++) {
-    printf("%d #> ", i);
-    Obj exp = sexpRead(stdin);
+  if (oneLiner != NULL) {
+    // Without the nonblock flag, fgets would block forever when the stdin data is unavailable.
+    int flags = fcntl(0, F_GETFL, 0);
+    fcntl(0, F_SETFL, flags | O_NONBLOCK);
+
+    Obj res = Nil;
+    char buf[256];
+    char *line = fgets(buf, 256, stdin);
+    while(line != NULL) {
+      // strip the last '\n'
+      Obj str = makeString(line, strlen(line)-1);
+      res = cons(str, res);
+      line = fgets(buf, 256, stdin);
+    }
+    res = reverse(res);
+    set(makeSymbol("*input*"), res);
+    expr = oneLiner;
+  }
+
+  FILE *stream;
+  if (expr != NULL) {
+    stream = fmemopen(expr, strlen(expr), "r");
+  } else if (path != NULL) {
+    stream = fopen(path, "r");
+  } else {
+    stream = stdin;
+  }
+
+  if (argc == 1 || path != NULL || expr != NULL) {
+    repl(stream);
+  } else {
+    shebang(argc, argv);
+  }
+}
+
+static void
+shebang(int argc, char *argv[]) {
+  FILE *f = fopen(argv[1], "r");
+  if (f == NULL) {
+    // TODO: what the fuck?
+    exit(-1);
+  }
+
+  // Ignore the shebang line:
+  // #!/usr/bin/env cora
+  //
+  // (followed by cora script ...)
+  //
+  char buf[256];
+  while(true) {
+    char *line = fgets(buf, 256, f);
+    if (line == NULL) {
+      exit(-1);
+    }
+    // The length of the first line is more than 255 bytes.
+    if (buf[254] != '\n') {
+      break;
+    }
+  }
+
+  Obj args = Nil;
+  for (int i=1; i<argc; i++) {
+    Obj arg = makeString(argv[i], strlen(argv[i]));
+    args = cons(arg, args);
+  }
+  args = reverse(args);
+  set(makeSymbol("*command-line-args*"), args);
+
+  repl(f);
+}
+
+static void
+repl(FILE* stream) {
+  Obj res;
+  for (int i=0; ; i++) {
+    if (stream == stdin) {
+      printf("%d #> ", i);
+    }
+
+    int err = 0;
+    Obj exp = sexpRead(stream, &err);
+    if (err != 0) {
+      break;
+    }
+
     Obj exp1 = MacroExpand(exp);
-    Obj res = Eval(exp1, Nil);
+    res = Eval(exp1, Nil);
+
+    if (stream == stdin) {
+      sexpWrite(stdout, res);
+      printf("\n");
+    }
+  }
+
+  if (stream != stdin) {
     sexpWrite(stdout, res);
     printf("\n");
   }
