@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
   registAPI(&ioModule);
   registAPI(&netModule);
   registAPI(&hashModule);
+  registAPI(&stringModule);
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));
