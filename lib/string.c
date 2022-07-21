@@ -46,12 +46,23 @@ stringLength(struct controlFlow *ctx) {
   ctxReturn(ctx, makeNumber(l));
 }
 
+static void
+stringIndex(struct controlFlow *ctx) {
+  Obj x = ctxGet(ctx, 1);
+  Obj y = ctxGet(ctx, 2);
+
+  char *str = stringStr(x);
+  int idx = fixnum(y);
+  ctxReturn(ctx, makeString(str+idx, 1));
+}
+
 struct registModule stringModule = {
   NULL,
   {
     {"string/slice", stringSlice, 2},
     {"string/has-prefix?", stringHasPrefix, 2},
     {"string/length", stringLength, 1},
+    {"string/index", stringIndex, 2},
     {NULL, NULL, 0}
   }
 };

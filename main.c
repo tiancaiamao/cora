@@ -22,13 +22,13 @@ const char *optstr = "hb:i:e:f:";
 
 static void
 help() {
-  printf("cora [--boot init.cora]\
-or:	cora [-e <expr>]\
-or:	cora [-f <path>]\
-\
-Evaluation:\
--e, --eval <expr>\
--f, --file <path>");
+  printf("cora [--boot init.cora]\n\
+or:	cora [-e <expr>]\n\
+or:	cora [-f <path>]\n\
+\n\
+Evaluation:\n\
+-e, --eval <expr>\n\
+-f, --file <path>\n");
 }
 
 
