@@ -1,0 +1,35 @@
+#ifndef _builtin_h_
+#define _builtin_h_
+
+void builtinAdd(struct VM* ctx);
+void builtinSub(struct VM* ctx);
+void builtinMul(struct VM* ctx);
+void builtinDiv(struct VM* ctx);
+void builtinMod(struct VM *ctx);
+void builtinEqual(struct VM* ctx);
+void builtinSet(struct VM* ctx);
+void builtinCons(struct VM* ctx);
+void builtinCar(struct VM* ctx);
+void builtinCdr(struct VM* ctx);
+void builtinIsCons(struct VM* ctx);
+void builtinGensym(struct VM* ctx);
+void builtinGT(struct VM* ctx);
+void builtinLT(struct VM* ctx);
+void builtinNot(struct VM* ctx);
+void builtinIsSymbol(struct VM* ctx);
+void builtinSymbolToString(struct VM* ctx);
+void builtinIsString(struct VM* ctx);
+void builtinIsNumber(struct VM* ctx);
+void builtinLoad(struct VM *ctx);
+void builtinMakeVector(struct VM *ctx);
+void builtinVectorSet(struct VM *ctx);
+void builtinVectorRef(struct VM *ctx);
+void builtinIsVector(struct VM *ctx);
+
+void builtinLoadSo(struct VM *ctx);
+void builtinStringAppend(struct VM *ctx);
+void builtinNumberToString(struct VM *ctx);
+void builtinIntern(struct VM *ctx);
+void builtinValue(struct VM* ctx);
+
+#endif

@@ -22,12 +22,12 @@
 		      0))
 
 
-(set 'digits ['+ "0" ['+ "1" ['+ "2" ['+ "3"
+(set '<digits> ['+ "0" ['+ "1" ['+ "2" ['+ "3"
    ['+ "4" ['+ "5" ['+ "6" ['+ "7" ['+ "8" "9"]]]]]]]]])
-(set 'year ['* digits ['* digits ['* digits digits]]])
-(set 'month ['* digits digits])
-(set 'day month)
-(set 'iso-date ['* year ['* "-" ['* month ['* "-" day]]]])
+(set '<year> ['* <digits> ['* <digits> ['* <digits> <digits>]]])
+(set '<month> ['* <digits> <digits>])
+(set '<day> <month>)
+(set '<iso-date> ['* <year> ['* "-" ['* <month> ['* "-" <day>]]]])
 
-(match-peg iso-date "2019-06-10")
-(match-peg iso-date "201-06-10")
+(match-peg <iso-date> "2019-06-10")
+(match-peg <iso-date> "201-06-10")
