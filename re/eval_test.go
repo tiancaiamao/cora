@@ -247,12 +247,12 @@ func TestLoadData(t *testing.T) {
 }
 
 func TestXXX(t *testing.T) {
-	// r := NewSexpReader(strings.NewReader("((lambda (f) (f 42)) (+ 1))"))
+	r := NewSexpReader(strings.NewReader(`(set 'fact (lambda (n) (if (= n 0) 1 (* n (fact (- n 1))))))`))
 	// r := NewSexpReader(strings.NewReader("(load \"../cmd/cora/init.cora\")"))
-	// sexp, err := r.Read()
-	// if err != nil && err != io.EOF {
-	// 	panic(err)
-	// }
+	sexp, err := r.Read()
+	if err != nil && err != io.EOF {
+		panic(err)
+	}
 
 	// vm := New()
 	// res := vm.Eval(sexp)
@@ -260,9 +260,9 @@ func TestXXX(t *testing.T) {
 
 	// loadFile(vm, "../cmd/cora/init.cora")
 
-	// var c Compiler
-	// code := c.compile(sexp, nil, identity)
-	// fmt.Printf("%#v\n", code)
+	var c Compiler
+	code := c.compile(sexp, nil, identity)
+	fmt.Printf("%#v\n", code)
 
 	// var cg CodeGen
 	// cg.GenC(code)

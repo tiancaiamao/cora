@@ -339,6 +339,7 @@ var _ Instr = InstrPrimitive{}
 var _ Instr = InstrCall{}
 
 // var _ Instr = InstrSet{}
+var _ Instr = InstrPrepareCall{}
 var _ Instr = InstrMakeClosure{}
 var _ Instr = InstrExit{}
 
