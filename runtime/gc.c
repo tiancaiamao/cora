@@ -7,8 +7,6 @@ struct GC {
   void* (*allocFn)(void* allocator, int sz);
   void (*recycleFn)(void* allocator, void *ptr);
 
-  void (*markRoot)(struct GC *gc);
-
   uint8_t color;
   scmHead white;
   scmHead ecru;
