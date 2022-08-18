@@ -34,7 +34,8 @@ void fn_label_1(struct VM *vm) {
 
 void entry(struct VM *vm) {
   push(vm, Nil);
-  vm->val = makeClosure(1, fn_label_0, NULL, NULL);
+  struct hashForObj x = {.ptr = NULL, .size = 0};
+  vm->val = makeClosure(1, fn_label_0, NULL, 0, x);
   push(vm, vm->val);
   vm->val = True;
   push(vm, vm->val);

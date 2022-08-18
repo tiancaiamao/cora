@@ -157,6 +157,7 @@ instrGlobalRefExec(struct VM *vm) {
   Obj val = symbolGet(i->sym);
   if (val == 0) {
     // TODO: panic("undefined symbol")
+    *((int*)42) = 42;
   }
 
   vm->val = val;
@@ -320,15 +321,40 @@ struct InstrMakeClosure {
   int required;
   Instr next;
 
-  int closed[];
+  int *closed;
+  int nclosed;
 };
+
+static void
+hashInsert(struct hashForObj *h, int key, Obj value) {
+  // simple open address hashing
+  int pos = key % h->size;
+  while(h->ptr[pos].value != 0) {
+    pos = (pos + 1) % h->size;
+  }
+
+  h->ptr[pos].key = key;
+  h->ptr[pos].value = value;
+}
+
 
 static void
 instrMakeClosureExec(struct VM *vm) {
   struct InstrMakeClosure *i = vm->pcData;
-  // TODO: handle it later
-  vm->val = makeClosure(i->required, i->code.fn, i->code.data, NULL);
 
+  struct hashForObj h;
+  h.size = i->nclosed * 2;
+  h.ptr = calloc(h.size, sizeof(struct hashForObj));
+
+  Obj parent = vmGet(vm, 1);
+  for (int idx=0; idx<i->nclosed; idx++) {
+    int pos = i->closed[idx];
+    Obj val = vmGet(vm, pos+2);
+
+    hashInsert(&h, pos, val);
+  }
+
+  vm->val = makeClosure(i->required, i->code.fn, i->code.data, parent, h);
   vm->pc = i->next.fn;
   vm->pcData = i->next.data;
 }
@@ -339,7 +365,8 @@ makeInstrMakeClosure(Instr code, int required, Instr next, int *closed, int nclo
   data->code = code;
   data->required = required;
   data->next = next;
-  /* data->closed = closed; */
+  data->closed = closed;
+  data->nclosed = nclosed;
   
   Instr ret = {.fn = instrMakeClosureExec, .data = data};
   return ret;

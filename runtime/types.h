@@ -121,7 +121,18 @@ Obj curryCaptured(Obj curry);
 Obj* curryData(Obj curry);
 bool iscurry(Obj o);
 
-Obj makeClosure(int required, InstrFunc code, void *codeData, Obj* closed);
+
+struct hashForObjItem {
+  int key;
+  Obj value;
+};
+
+struct hashForObj {
+  struct hashForObjItem *ptr;
+  int size;
+};
+
+Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h);
 Instr closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureParent(Obj);
@@ -153,6 +164,5 @@ Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);
 
 struct stack contStack(Obj o);
-
 
 #endif

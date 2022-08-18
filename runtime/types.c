@@ -74,15 +74,19 @@ struct scmClosure {
   int required;
   Instr code;
   Obj parent;
-  Obj* slot;
+  struct hashForObj slot;
 };
 
 Obj
-makeClosure(int required, InstrFunc code, void *codeData, Obj* closed) {
+makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->code.fn= code;
   clo->code.data = codeData;
+
+  clo->parent = parent;
+  clo->slot = h;
+
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
@@ -120,10 +124,28 @@ closureRequired(Obj o) {
   return c->required;
 }
 
+static struct hashForObjItem*
+hashGet(struct hashForObj *h, int key) {
+  int pos = key % h->size;
+  int avoidDeadLoop = pos;
+  do {
+    if (h->ptr[pos].key == key) {
+      return h->ptr+pos;
+    }
+    if (h->ptr[pos].value == 0) {
+      break;
+    }
+    pos = (pos + 1) % h->size;
+  } while (pos != avoidDeadLoop);
+
+  return NULL;
+}
+
 Obj
 closureSlot(Obj o, int idx) {
   struct scmClosure* c = mustClosure(o);
-  return c->slot[idx];
+  struct hashForObjItem* x = hashGet(&c->slot, idx);
+  return x->value;
 }
 
 struct scmContinuation {
