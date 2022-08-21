@@ -318,15 +318,16 @@ struct scmCurry {
   int required;
   int captured;
   // The first element is scmNative and the remain is arguments.
-  Obj data[];
+  Obj *data;
 };
 
 Obj
-makeCurry(int required, int captured) {
+makeCurry(int required, int captured, Obj *data) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
   clo->required = required;
   clo->captured = captured;
+  clo->data = data;
   assert(captured > 0);
   return ((Obj)(&clo->head) | TAG_PTR);
 }

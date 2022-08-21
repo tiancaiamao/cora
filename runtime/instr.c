@@ -1,8 +1,10 @@
 #include "types.h"
 #include "vm.h"
 #include "builtin.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct InstrConst {
   Obj val;
@@ -262,6 +264,77 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
   vm->pcData = code.data;
 }
 
+static void instrCallExec(struct VM *vm);
+Instr makeInstrCall(int size, Instr next);
+
+static void
+callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
+  struct stack old;
+  old.data = vm->data;
+  old.base = vm->base;
+  old.pos = vm->pos;
+  int newBase = vm->pos;
+
+  // Prepare a new stack for call.
+  Obj cc = makeContinuation(old, NULL, NULL);
+  int required = closureRequired(clo);
+  push(vm, cc);
+  for(int i=0; i<required+1; i++) {
+    Obj tmp = vmGet(vm, i+2);
+    push(vm, tmp);
+  }
+  vm->base = newBase;
+
+  // Call partial.
+  Instr code = closureCode(clo);
+  vm->pc = code.fn;
+  vm->pcData = code.data;
+  while(vm->pc != NULL) {
+    vm->pc(vm);
+  }
+
+  // Handle the remain call.
+  vmSet(vm, 2, vm->val);
+  for (int i=0; i<c->size-1-required; i++) {
+    Obj tmp = vmGet(vm, i+3+required);
+    vmSet(vm, i+3, tmp);
+  }
+  vmResize(vm, c->size-required+2);
+
+  Instr instr = makeInstrCall(c->size - required, c->next); // mem leak?
+  vm->pc = instr.fn;
+  vm->pcData = instr.data;
+}
+
+static void
+callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
+  int sz = curryCaptured(curry);
+  Obj *data = curryData(curry);
+
+  // TODO check range and realloc?
+  int oldPos = vm->pos;
+  vm->pos = vm->pos + sz - 1;
+
+  Obj *to = vm->data + vm->pos - 1;
+  Obj *from = vm->data + oldPos - 1;
+  for (int i=0; i<c->size-1; i++) {
+    *to = *from;
+    from--;
+    to--;
+  }
+
+  Obj *base = vm->data + oldPos - c->size;
+  for (int i=0; i<sz; i++) {
+    base[i] = data[i];
+  }
+
+  // TODO handle primitive as curry??
+
+  Instr instr = makeInstrCall(c->size + sz - 1, c->next); // mem leak?
+  vm->pc = instr.fn;
+  vm->pcData = instr.data;
+}
+
 static void
 callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
   int argc = c->size - 1;
@@ -269,8 +342,18 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
   if (argc == required) {
     callClosureNormal(c, vm, clo);
   } else if (argc < required) {
-    // TODO: curry
+    Obj *array = calloc(c->size, sizeof(Obj));
+    memcpy(array, vm->data+vm->pos - c->size, c->size * sizeof(Obj));
+
+    Obj curry = makeCurry(required - argc, c->size, array);
+    vm->val = curry;
+    vm->pos = vm->pos - c->size;
+
+    vm->pc = c->next.fn;
+    vm->pcData = c->next.data;
   } else {
+    // partial apply
+    callClosurePartial(c, vm, clo);
   }
 }
 
@@ -281,9 +364,10 @@ instrCallExec(struct VM *vm) {
   if (isclosure(fn)) {
     callClosure(c, vm, fn);
   } else if (iscurry(fn)) {
-    // TODO:
+    callCurry(c, vm, fn);
   } else {
     // TODO: panic
+    *((int*)42) = 42;
   }
 }
 
