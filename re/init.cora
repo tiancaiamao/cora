@@ -1,6 +1,0 @@
-(set 'reverse-h
-     (lambda (res l)
-       (if (cons? l)
-           (reverse-h (cons (car l) res) (cdr l))
-           res)))
-(set 'reverse (reverse-h ()))

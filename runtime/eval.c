@@ -220,3 +220,225 @@ eval(struct VM *vm, Obj exp) {
   run(vm, code.fn);
   return vm->val;
 }
+
+#ifdef _EVAL_TEST_
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "reader.h"
+#include <assert.h>
+
+struct testCase {
+  char *name;
+  char *input;
+  char *output;
+};
+
+
+struct testCase cases[] = {
+  {
+    "curry as arg",
+    "((lambda (f) (f 42)) (+ 1))",
+    "43",
+  },
+
+  /* { */
+  /*   "let-variable-shadow", */
+  /*   "(do (set (quote f) (lambda (a b) \ */
+  /* 			      (let a 3 a)) (f 4 5)))", */
+  /*   "3", */
+  /* }, */
+
+  /* { */
+  /*   "let variable shadow", */
+  /*   "(let Result 123 \ */
+  /* 	(let Result 456 \ */
+  /* 		  (if (= Result 456) \ */
+  /* 		      true \ */
+  /* 		      Result)))", */
+  /*   "true", */
+  /* }, */
+
+  {
+    "curry",
+    "(do (set (quote f) (lambda (x y z) y)) ((f 1 2) 3))",
+    "2",
+  },
+
+  {
+    "curry-partial",
+    "((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1 2 3)",
+    "4",
+  },
+
+  /* { */
+  /*   "trap-let", */
+  /*   "(trap-error (let X 666 42) (lambda E (cons --> (cons A ()))))", */
+  /*   "42", */
+  /* }, */
+
+  {
+    "curry1",
+    "(do (set (quote f) (lambda (x) \
+			      (do (set (quote ignore) (lambda (z w) \
+						       (lambda (y) \
+							z))) (ignore)))) \
+		(((f 1) 2 3) 4))",
+    "2",
+  },
+
+  {
+    "fib10",
+    "(do (set (quote fib) (lambda (i) \
+	(if (= i 0) \
+	    1 \
+	    (if (= i 1) \
+		1 \
+		(+ (fib (- i 1)) (fib (- i 2))))))) \
+	(fib 10))",
+    "89",
+  },
+
+  {
+    "proper tail call",
+    "(do (set (quote sum) (lambda (r i) \
+	  (if (= i 0) \
+	      r \
+	      (sum (+ r 1) (- i 1))))) \
+	(sum 0 5000000))",
+    "5000000",
+  },
+
+  {
+    "do in args",
+    "(+ (do 1 (do 2 3)) 4)",
+    "7",
+  },
+
+  {
+    "partial primitive",
+    "(+ (+ (+ 1 2) 3) 4)",
+    "10",
+  },
+
+  {
+    "do in tail call",
+    "(do (set (quote f) (lambda (x y z) (do 1 (do 2 z)))) (f 1 2 3))",
+    "3",
+  },
+
+  {
+    "closure value",
+    "((((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1) 2) 3)",
+    "4",
+  },
+
+  {
+    "basic func call",
+    "(do (set (quote id) (lambda (x) x)) (id (do 1 (do 2 42))))",
+    "42",
+  },
+
+  {
+    "identify function",
+    "(do (set (quote id) (lambda (x) x)) (id 42))",
+    "42",
+  },
+
+  {
+    "basic set",
+    "(do (set (quote x) 42) x)",
+    "42",
+  },
+
+  {
+    "basic if",
+    "(if true 1 2)",
+    "1",
+  },
+
+  {
+    "curry lambda",
+    "((lambda (x) (lambda (y) (lambda (z) z))) 1 2 3)",
+    "3",
+  },
+
+  {
+    "basic lambda",
+    "(((lambda (x y) (lambda (z) y)) 1 2) 3)",
+    "2",
+  },
+
+  {
+    "basic do",
+    "(do 1 2)",
+    "2",
+  },
+
+  {
+    "basic primitive",
+    "(+ 3 7)",
+    "10",
+  },
+
+  {
+    "constant",
+    "42",
+    "42",
+  },
+
+  {
+    "partial primitive1",
+    "((+ 1) 2)",
+    "3",
+  },
+
+  {
+    "partial primitive2",
+    "(((+) 1) 2)",
+    "3",
+  },
+
+};
+
+
+extern void printObj(FILE *to, Obj o);
+
+static void
+TestBasic() {
+  struct VM *vm= newVM();
+  for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
+    struct testCase *c = &cases[i];
+
+    printf("testing case %s ", c->name);
+
+    FILE* f = fmemopen(c->input, strlen(c->input), "r");
+    int errCode;
+    Obj s = sexpRead(f, &errCode);
+    Obj res = eval(vm, s);
+
+    char output[512];
+    memset(output, 0, 512);
+    FILE *to = fmemopen(output, 512, "w");
+    printObj(to, res);
+    fclose(to);
+
+    int v = strcmp(output, c->output);
+    if (v != 0) {
+      printf("run test case: %s fail\n", c->name);
+      printf("expected: %s\n", c->output);
+      printf("actual: %s\n", output);
+    }
+    assert(v == 0);
+
+    printf("... ok\n");
+  }
+}
+
+int main() {
+  coraInit();
+  TestBasic();
+}
+
+#endif

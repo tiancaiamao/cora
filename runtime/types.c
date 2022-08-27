@@ -315,6 +315,9 @@ symbolStr(Obj sym) {
 
 struct scmCurry {
   scmHead head;
+  // Is this is a curry on primitive, Nil if not.
+  Obj prim;
+
   int required;
   int captured;
   // The first element is scmNative and the remain is arguments.
@@ -322,13 +325,14 @@ struct scmCurry {
 };
 
 Obj
-makeCurry(int required, int captured, Obj *data) {
+makeCurry(int required, int captured, Obj *data, Obj prim) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
   clo->required = required;
   clo->captured = captured;
   clo->data = data;
-  assert(captured > 0);
+  clo->prim = prim;
+  /* assert(captured > 0); */
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
@@ -339,6 +343,12 @@ curryGCFunc(struct GC *gc, void* f, void* t) {
   for (int i=0; i<from->captured; i++) {
     to->data[i] = gcCopy(gc, from->data[i]);
   }
+}
+
+Obj
+curryPrim(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->prim;
 }
 
 int

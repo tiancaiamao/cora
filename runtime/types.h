@@ -115,8 +115,9 @@ int nativeRequired(Obj o);
 int nativeCaptured(Obj o);
 nativeFuncPtr nativeFn(Obj o);
 
-Obj makeCurry(int required, int captured, Obj *data);
+Obj makeCurry(int required, int captured, Obj *data, Obj primitive);
 int curryRequired(Obj curry);
+Obj curryPrim(Obj curry);
 Obj curryCaptured(Obj curry);
 Obj* curryData(Obj curry);
 bool iscurry(Obj o);

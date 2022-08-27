@@ -44,6 +44,7 @@ instrIfExec(struct VM *vm) {
     vm->pcData = i->br2.data;
   } else {
     // TODO?
+    assert(false);
   }
 }
 
@@ -159,7 +160,7 @@ instrGlobalRefExec(struct VM *vm) {
   Obj val = symbolGet(i->sym);
   if (val == 0) {
     // TODO: panic("undefined symbol")
-    *((int*)42) = 42;
+    assert(false);
   }
 
   vm->val = val;
@@ -193,10 +194,13 @@ instrPrimitiveExec(struct VM *vm) {
     InstrFunc fn = primitiveFn(c->prim);
     fn(vm);
   } else if (c->size < required) {
-    // TODO:
-    /* vm.val = makeCurry() */
+    Obj *array = (Obj*)malloc(c->size * sizeof(Obj));
+    memcpy(array, vm->data+vm->pos-c->size, c->size*sizeof(Obj));
+    vm->val = makeCurry(required - c->size, c->size, array, c->prim);
+    vm->pos = vm->pos - c->size;
   } else {
     // TODO: panic
+    assert(false);
   }
 
   if (c->next.fn == NULL) {
@@ -237,6 +241,7 @@ static void
 callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
   if (c->next.fn == NULL) {
     // TODO panic("should never here?")
+    assert(false);
   }
 
   if (c->next.fn == instrExitExec) { // Jump
@@ -328,9 +333,13 @@ callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
     base[i] = data[i];
   }
 
-  // TODO handle primitive as curry??
-
-  Instr instr = makeInstrCall(c->size + sz - 1, c->next); // mem leak?
+  Instr instr;
+  Obj prim = curryPrim(curry);
+  if (prim != Nil) {
+    instr = makeInstrPrimitive(c->size+sz-1, prim, c->next); // mem leak?
+  } else {
+    instr = makeInstrCall(c->size+sz-1, c->next); // mem leak?
+  }
   vm->pc = instr.fn;
   vm->pcData = instr.data;
 }
@@ -345,7 +354,7 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
     Obj *array = calloc(c->size, sizeof(Obj));
     memcpy(array, vm->data+vm->pos - c->size, c->size * sizeof(Obj));
 
-    Obj curry = makeCurry(required - argc, c->size, array);
+    Obj curry = makeCurry(required - argc, c->size, array, Nil);
     vm->val = curry;
     vm->pos = vm->pos - c->size;
 
@@ -367,7 +376,7 @@ instrCallExec(struct VM *vm) {
     callCurry(c, vm, fn);
   } else {
     // TODO: panic
-    *((int*)42) = 42;
+    assert(false);
   }
 }
 
