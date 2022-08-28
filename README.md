@@ -2,9 +2,9 @@
 
 Inspired by scheme, shen, femtolisp and many more...
 
-## closure can be printed readably
+<!-- ## closure can be printed readably -->
 
-`(lambda (a) 3 (b . 5) (c . 7))` as femtolisp
+<!-- `(lambda (a) 3 (b . 5) (c . 7))` as femtolisp -->
 
 ## kernel lambda
 
@@ -15,7 +15,7 @@ Minimal special forms:
 - if
 - do
 
-`set` is a function rather than special form.
+`set` can be a function rather than special form.
 
 `let` is a macro.
 
@@ -26,6 +26,10 @@ Minimal special forms:
 proper tail call, as scheme does.
 
 ## partial apply
+
+```lisp
+((+ 3) 4)
+```
 
 ## pattern match
 
@@ -39,7 +43,7 @@ proper tail call, as scheme does.
 ```lisp
 (func map
   f [] => []
-  f [x . y] => [x . (map f y)])
+  f [x . y] => [(f x) . (map f y)])
 ```
 
 Nowadays any cats and dogs write their own programming languages, mostly sucks. Many of them are too small to be even a **finished** toy, many lack features, worsely, many choose the wrong features.
