@@ -1,193 +1,213 @@
-#include "runtime.h"
+#include "types.h"
+#include "builtin.h"
+#include "vm.h"
+#include "reader.h"
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
 #include <dlfcn.h>
 #include <alloca.h>
+#include <assert.h>
 
 void
-builtinAdd(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinAdd(struct VM *vm) {
+  Obj x = pop(vm);
+  Obj y = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  Obj ret = makeNumber(fixnum(x) + fixnum(y));
-  ctxReturn(ctx, ret);
+  vm->val = makeNumber(fixnum(x) + fixnum(y));
 }
 
 void
-builtinMod(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinMod(struct VM *vm) {
+  Obj y = pop(vm);
+  Obj x = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  Obj ret = makeNumber(fixnum(x) % fixnum(y));
-  ctxReturn(ctx, ret);
+  vm->val = makeNumber(fixnum(x) % fixnum(y));
 }
 
 void
-builtinEqual(struct controlFlow *ctx) {
-  Obj a = ctxGet(ctx, 1);
-  Obj b = ctxGet(ctx, 2);
+builtinEqual(struct VM *vm) {
+  Obj a = pop(vm);
+  Obj b = pop(vm);
 
   if (eq(a, b)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  
-  ctxReturn(ctx, False);
 }
 
 void
-builtinMul(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
-  Obj ret =  (x * y) >> 1;
-  ctxReturn(ctx, ret);
-}
-
-void
-builtinSub(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinMul(struct VM *vm) {
+  Obj x = pop(vm);
+  Obj y = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
-  Obj ret = makeNumber(fixnum(x) - (fixnum(y)));
-  ctxReturn(ctx, ret);
+  vm->val = makeNumber(fixnum(x) * fixnum(y));
 }
 
 void
-builtinDiv(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinSub(struct VM *vm) {
+  Obj x = pop(vm);
+  Obj y = pop(vm);
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  Obj ret = makeNumber(fixnum(y) - (fixnum(x)));
+  vm->val = ret;
+}
+
+void
+builtinDiv(struct VM *vm) {
+  Obj x = pop(vm);
+  Obj y = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
   Obj ret = makeNumber(fixnum(x) / (fixnum(y)));
-  ctxReturn(ctx, ret);
+  vm->val = ret;
 }
 
 void
-builtinGT(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinGT(struct VM *vm) {
+  Obj y = pop(vm);
+  Obj x = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
   if (fixnum(x) > fixnum(y)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
 void
-builtinLT(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+builtinLT(struct VM *vm) {
+  Obj y = pop(vm);
+  Obj x = pop(vm);
   assert(isfixnum(x));
   assert(isfixnum(y));
   if (fixnum(x) < fixnum(y)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
 void
-builtinSet(struct controlFlow *ctx) {
-  Obj sym = ctxGet(ctx, 1);
-  Obj val = ctxGet(ctx, 2);
+builtinSet(struct VM *vm) {
+  Obj val = pop(vm);
+  Obj sym = pop(vm);
   assert(issymbol(sym));
-  ctxReturn(ctx, symbolSet(sym, val));
+  symbolSet(sym, val);
+  vm->val = val;
 }
 
 void
-builtinValue(struct controlFlow *ctx) {
-  Obj sym = ctxGet(ctx, 1);
-  assert(issymbol(sym));
+builtinValue(struct VM *vm) {
+  Obj sym = pop(vm);
   Obj val = symbolGet(sym);
   if (val == Undef) {
-    longjmp(coraREPL, 1);
+    /* longjmp(coraREPL, 1); */
+    // TODO: panic?
+    assert(false);
   }
-  ctxReturn(ctx, val);
+  vm->val = val;
 }
 
 void
-builtinCons(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
-  ctxReturn(ctx, cons(x, y));
+builtinCons(struct VM *vm) {
+  Obj y = pop(vm);
+  Obj x = pop(vm);
+  vm->val = cons(x, y);
 }
 
 void
-builtinCar(struct controlFlow *ctx) {
-  assert(iscons(ctxGet(ctx, 1)));
-  ctxReturn(ctx, car(ctxGet(ctx, 1)));
+builtinCar(struct VM *vm) {
+  Obj tmp = pop(vm);
+  assert(iscons(tmp));
+  vm->val = car(tmp);
 }
 
 void
-builtinCdr(struct controlFlow *ctx) {
-  assert(iscons(ctxGet(ctx, 1)));
-  ctxReturn(ctx, cdr(ctxGet(ctx, 1)));
+builtinCdr(struct VM *vm) {
+  Obj tmp = pop(vm);
+  assert(iscons(tmp));
+  vm->val = cdr(tmp);
 }
 
 void
-builtinIsCons(struct controlFlow *ctx) {
-  if (iscons(ctxGet(ctx, 1))) {
-    ctxReturn(ctx, True);
+builtinIsCons(struct VM *vm) {
+  Obj tmp = pop(vm);
+  if (iscons(tmp)) {
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
 static uint64_t genIdx = 0;
 
 void
-builtinGensym(struct controlFlow *ctx) {
-  Obj arg = ctxGet(ctx, 1);
+builtinGensym(struct VM *vm) {
+  Obj arg = pop(vm);
   assert(issymbol(arg));
   char tmp[200];
   snprintf(tmp, 100, "#%s%ld", symbolStr(arg), genIdx);
   genIdx++;
-  ctxReturn(ctx, intern(tmp));
+  vm->val = intern(tmp);
 }
 
 void
-builtinNot(struct controlFlow *ctx) {
-  assert(isboolean(ctxGet(ctx, 1)));
-  if (ctxGet(ctx, 1) == True) {
-    ctxReturn(ctx, False);
+builtinNot(struct VM *vm) {
+  Obj tmp = pop(vm);
+  assert(isboolean(tmp));
+  if (tmp == True) {
+    vm->val = False;
+  } else {
+    vm->val =  True;
   }
-  ctxReturn(ctx, True);
 }
 
 void
-builtinIsSymbol(struct controlFlow *ctx) {
-  if (issymbol(ctxGet(ctx, 1))) {
-    ctxReturn(ctx, True);
+builtinIsSymbol(struct VM *vm) {
+  Obj tmp = pop(vm);
+  if (issymbol(tmp)) {
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
 void
-builtinSymbolToString(struct controlFlow* ctx) {
-  Obj sym = ctxGet(ctx, 1);
+builtinSymbolToString(struct VM* vm) {
+  Obj sym = pop(vm);
   const char* str = symbolStr(sym);
-  ctxReturn(ctx, makeString(str, strlen(str)+1));
+  vm->val = makeString(str, strlen(str)+1);
 }
 
 void
-builtinIsString(struct controlFlow *ctx) {
-  Obj o = ctxGet(ctx, 1);
+builtinIsString(struct VM *vm) {
+  Obj o = pop(vm);
   if (isstring(o)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
+
+Obj macroExpand(struct VM *vm, Obj exp);
+Obj eval(struct VM *vm, Obj exp);
+
 void
-builtinLoad(struct controlFlow *ctx) {
-  Obj path = ctxGet(ctx, 1);
+builtinLoad(struct VM *vm) {
+  Obj path = pop(vm);
   char *str = stringStr(path);
   FILE *in = fopen(str, "r");
   if (in == NULL) {
     // TODO: exception?
-    ctxReturn(ctx, intern("error"));
+    assert("wrong path");
   }
   int err = 0;
   Obj ast = sexpRead(in, &err);
@@ -195,113 +215,116 @@ builtinLoad(struct controlFlow *ctx) {
     /* printf("read == \n"); */
     /* sexpWrite(stdout, ast); */
     /* printf("\n"); */
-    Obj exp = MacroExpand(ast);
-    Eval(exp, Nil);
+    Obj exp = macroExpand(vm, ast);
+    eval(vm, exp);
     ast = sexpRead(in, &err);
   }
   fclose(in);
-  ctxReturn(ctx, path);
+  vm->val = path;
 }
 
+/* void */
+/* builtinLoadSo(struct VM *ctx) { */
+/*   Obj path = ctxGet(ctx, 1); */
+/*   char *str = stringStr(path); */
+/*   void *handle = dlopen(str, RTLD_LAZY); */
+/*   if (!handle) { */
+/*     fprintf(stderr, "%s\n", dlerror()); */
+/*     ctxReturn(ctx, makeNumber(-1)); */
+/*   } */
+
+/*   nativeFuncPtr entry = dlsym(handle, "entry"); */
+/*   char *error = dlerror(); */
+/*   if (error != NULL) { */
+/*     // TODO */
+/*     ctxReturn(ctx, makeString(error, strlen(error))); */
+/*   } */
+
+/*   Call(1, makeNative(entry, 1, 0)); */
+/*   ctxReturn(ctx, path); */
+/* } */
+
 void
-builtinLoadSo(struct controlFlow *ctx) {
-  Obj path = ctxGet(ctx, 1);
-  char *str = stringStr(path);
-  void *handle = dlopen(str, RTLD_LAZY);
-  if (!handle) {
-    fprintf(stderr, "%s\n", dlerror());
-    ctxReturn(ctx, makeNumber(-1));
-  }
-
-  nativeFuncPtr entry = dlsym(handle, "entry");
-  char *error = dlerror();
-  if (error != NULL) {
-    // TODO
-    ctxReturn(ctx, makeString(error, strlen(error)));
-  }
-
-  Call(1, makeNative(entry, 1, 0));
-  ctxReturn(ctx, path);
-}
-
-void
-builtinIsNumber(struct controlFlow* ctx) {
-  Obj x = ctxGet(ctx, 1);
+builtinIsNumber(struct VM* vm) {
+  Obj x = pop(vm);
   if (isfixnum(x)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+    return;
   }
   if (tag(x) == TAG_PTR) {
     scmHead* h = ptr(x);
     if (h->type == scmHeadNumber) {
-      ctxReturn(ctx, True);
+      vm->val = True;
+      return;
     }
   }
-  ctxReturn(ctx, False);
+  vm->val = False;
 }
 
 
 void
-builtinMakeVector(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
+builtinMakeVector(struct VM *vm) {
+  Obj x = pop(vm);
   assert(isfixnum(x));
-  ctxReturn(ctx, makeVector(fixnum(x)));
+  vm->val = makeVector(fixnum(x));
 }
 
 void
-builtinVectorSet(struct controlFlow *ctx) {
-  Obj vec = ctxGet(ctx, 1);
-  Obj idx = ctxGet(ctx, 2);
-  Obj val = ctxGet(ctx, 3);
+builtinVectorSet(struct VM *vm) {
+  Obj val = pop(vm);
+  Obj idx = pop(vm);
+  Obj vec = pop(vm);
   assert(isfixnum(idx));
   Obj ret = vectorSet(vec, fixnum(idx), val);
-  ctxReturn(ctx, ret);
+  vm->val = ret;
 }
 
 void
-builtinVectorRef(struct controlFlow *ctx) {
-  Obj vec = ctxGet(ctx, 1);
-  Obj idx = ctxGet(ctx, 2);
+builtinVectorRef(struct VM *vm) {
+  Obj idx = pop(vm);
+  Obj vec = pop(vm);
   assert(isfixnum(idx));
-  ctxReturn(ctx, vectorRef(vec, fixnum(idx)));
+  vm->val = vectorRef(vec, fixnum(idx));
 }
 
 void
-builtinIsVector(struct controlFlow *ctx) {
-  Obj o = ctxGet(ctx, 1);
+builtinIsVector(struct VM *vm) {
+  Obj o = pop(vm);
   if (isvector(o)) {
-    ctxReturn(ctx, True);
+    vm->val = True;
+  } else {
+    vm->val = False;
   }
-  ctxReturn(ctx, False);
 }
 
-void
-builtinNumberToString(struct controlFlow *ctx) {
-	Obj n = ctxGet(ctx, 1);
-	assert(isfixnum(n));
+/* void */
+/* builtinNumberToString(struct VM *ctx) { */
+/* 	Obj n = ctxGet(ctx, 1); */
+/* 	assert(isfixnum(n)); */
 
-	char tmp[32];
-	int l = snprintf(tmp, 32, "%ld", fixnum(n));
- 	ctxReturn(ctx, makeString(tmp, l));
-}
+/* 	char tmp[32]; */
+/* 	int l = snprintf(tmp, 32, "%ld", fixnum(n)); */
+/*  	ctxReturn(ctx, makeString(tmp, l)); */
+/* } */
+
+/* void */
+/* builtinStringAppend(struct VM *ctx) { */
+/* 	Obj x = ctxGet(ctx, 1); */
+/* 	Obj y = ctxGet(ctx, 2); */
+/* 	assert(isstring(x)); */
+/* 	assert(isstring(y)); */
+/* 	char *x1 = stringStr(x); */
+/* 	char *y1 = stringStr(y); */
+/* 	int len = strlen(x1) + strlen(y1); */
+/* 	char *dest = alloca(len + 1); */
+/* 	strcpy(dest, x1); */
+/* 	strcat(dest, y1); */
+/* 	ctxReturn(ctx, makeString(dest, len)); */
+/* } */
 
 void
-builtinStringAppend(struct controlFlow *ctx) {
-	Obj x = ctxGet(ctx, 1);
-	Obj y = ctxGet(ctx, 2);
-	assert(isstring(x));
-	assert(isstring(y));
-	char *x1 = stringStr(x);
-	char *y1 = stringStr(y);
-	int len = strlen(x1) + strlen(y1);
-	char *dest = alloca(len + 1);
-	strcpy(dest, x1);
-	strcat(dest, y1);
-	ctxReturn(ctx, makeString(dest, len));
-}
-
-void
-builtinIntern(struct controlFlow *ctx) {
-	Obj x = ctxGet(ctx, 1);
-	assert(isstring(x));
-	ctxReturn(ctx, intern(stringStr(x)));
+builtinIntern(struct VM *vm) {
+  Obj x = pop(vm);
+  assert(isstring(x));
+  vm->val = intern(stringStr(x));
 }

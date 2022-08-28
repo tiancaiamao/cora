@@ -1,35 +1,35 @@
 #ifndef _builtin_h_
 #define _builtin_h_
 
-void builtinAdd(struct controlFlow* ctx);
-void builtinSub(struct controlFlow* ctx);
-void builtinMul(struct controlFlow* ctx);
-void builtinDiv(struct controlFlow* ctx);
-void builtinMod(struct controlFlow *ctx);
-void builtinEqual(struct controlFlow* ctx);
-void builtinSet(struct controlFlow* ctx);
-void builtinCons(struct controlFlow* ctx);
-void builtinCar(struct controlFlow* ctx);
-void builtinCdr(struct controlFlow* ctx);
-void builtinIsCons(struct controlFlow* ctx);
-void builtinGensym(struct controlFlow* ctx);
-void builtinGT(struct controlFlow* ctx);
-void builtinLT(struct controlFlow* ctx);
-void builtinNot(struct controlFlow* ctx);
-void builtinIsSymbol(struct controlFlow* ctx);
-void builtinSymbolToString(struct controlFlow* ctx);
-void builtinIsString(struct controlFlow* ctx);
-void builtinIsNumber(struct controlFlow* ctx);
-void builtinLoad(struct controlFlow *ctx);
-void builtinMakeVector(struct controlFlow *ctx);
-void builtinVectorSet(struct controlFlow *ctx);
-void builtinVectorRef(struct controlFlow *ctx);
-void builtinIsVector(struct controlFlow *ctx);
+void builtinAdd(struct VM* ctx);
+void builtinSub(struct VM* ctx);
+void builtinMul(struct VM* ctx);
+void builtinDiv(struct VM* ctx);
+void builtinMod(struct VM *ctx);
+void builtinEqual(struct VM* ctx);
+void builtinSet(struct VM* ctx);
+void builtinCons(struct VM* ctx);
+void builtinCar(struct VM* ctx);
+void builtinCdr(struct VM* ctx);
+void builtinIsCons(struct VM* ctx);
+void builtinGensym(struct VM* ctx);
+void builtinGT(struct VM* ctx);
+void builtinLT(struct VM* ctx);
+void builtinNot(struct VM* ctx);
+void builtinIsSymbol(struct VM* ctx);
+void builtinSymbolToString(struct VM* ctx);
+void builtinIsString(struct VM* ctx);
+void builtinIsNumber(struct VM* ctx);
+void builtinLoad(struct VM *ctx);
+void builtinMakeVector(struct VM *ctx);
+void builtinVectorSet(struct VM *ctx);
+void builtinVectorRef(struct VM *ctx);
+void builtinIsVector(struct VM *ctx);
 
-void builtinLoadSo(struct controlFlow *ctx);
-void builtinStringAppend(struct controlFlow *ctx);
-void builtinNumberToString(struct controlFlow *ctx);
-void builtinIntern(struct controlFlow *ctx);
-void builtinValue(struct controlFlow* ctx);
+void builtinLoadSo(struct VM *ctx);
+void builtinStringAppend(struct VM *ctx);
+void builtinNumberToString(struct VM *ctx);
+void builtinIntern(struct VM *ctx);
+void builtinValue(struct VM* ctx);
 
 #endif

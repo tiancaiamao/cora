@@ -3,7 +3,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "gc.h"
+/* #include "gc.h" */
+
+
+typedef uint8_t scmHeadType;
+
+typedef struct {
+  scmHeadType type;
+  uint16_t size;
+  uintptr_t forwarding;
+} scmHead;
+
+#define TAG_SHIFT 3
+#define TAG_MASK 0x7
+#define TAG_PTR 0x7
+
+#define ptr(x) ((void*)((x)&~TAG_PTR))
+#define tag(x) ((x) & TAG_MASK)
 
 typedef uintptr_t Obj;
 
@@ -31,7 +47,7 @@ extern const Obj False;
 extern const Obj Nil;
 extern const Obj Undef;
 
-struct controlFlow;
+/* struct controlFlow; */
 
 enum {
       // Instant values.
@@ -41,16 +57,22 @@ enum {
       // Number may be or may not be pointer.
       scmHeadNumber,
       // The followings are all pointer types.
+      // Except cons, all the others are general pointer.
       scmHeadCons,
       scmHeadNative,
       scmHeadCurry,
       scmHeadString,
       scmHeadVector,
+      scmHeadClosure,
+      scmHeadContinuation,
+      scmHeadPrimitive,
 };
 
 void typesInit();
 
-typedef void (*nativeFuncPtr) (struct controlFlow *ctx);
+struct VM;
+typedef void (*InstrFunc)(struct VM *vm);
+/* typedef void (*nativeFuncPtr) (struct controlFlow *ctx); */
 
 struct scmCons {
   scmHead head;
@@ -76,22 +98,48 @@ Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
-Obj makeBuiltin(nativeFuncPtr fn, int required);
-Obj makeNative(nativeFuncPtr fn, int required, int captured, ...);
+typedef struct _Instr {
+  InstrFunc fn;
+  void *data;
+} Instr;
+
+Obj makePrimitive(InstrFunc fn, int required);
+bool isprimitive(Obj o);
+int primitiveRequired(Obj o);
+InstrFunc primitiveFn(Obj o);
+
+/* Obj makeBuiltin(nativeFuncPtr fn, int required); */
+/* Obj makeNative(nativeFuncPtr fn, int required, int captured, ...); */
+
 Obj nativeRef(Obj o, int idx);
 int nativeRequired(Obj o);
 int nativeCaptured(Obj o);
-nativeFuncPtr nativeFn(Obj o);
+/* nativeFuncPtr nativeFn(Obj o); */
 
-Obj makeCurry(int required, int captured);
+Obj makeCurry(int required, int captured, Obj *data, Obj primitive);
 int curryRequired(Obj curry);
+Obj curryPrim(Obj curry);
 Obj curryCaptured(Obj curry);
 Obj* curryData(Obj curry);
+bool iscurry(Obj o);
 
-Obj makeClosure(Obj params, Obj body, Obj env);
-Obj closureParams(Obj);
-Obj closureBody(Obj);
-Obj closureEnv(Obj);
+
+struct hashForObjItem {
+  int key;
+  Obj value;
+};
+
+struct hashForObj {
+  struct hashForObjItem *ptr;
+  int size;
+};
+
+Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h);
+Instr closureCode(Obj);
+bool isclosure(Obj o);
+Obj closureParent(Obj);
+Obj closureSlot(Obj, int);
+int closureRequired(Obj);
 
 Obj makeString(const char *s, int len);
 char* stringStr(Obj o);
@@ -100,12 +148,23 @@ Obj makeNumber(int v);
 bool isstring(Obj o);
 bool isNumber(Obj o);
 
+struct stack {
+  Obj *data;
+  int base;
+  int pos;
+};
+
+Obj makeContinuation(struct stack s, InstrFunc code, void *codeData);
+Instr contCode(Obj o);
+
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
-void gcSymbols(struct GC *gc);
+/* void gcSymbols(struct GC *gc); */
 
 Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);
+
+struct stack contStack(Obj o);
 
 #endif

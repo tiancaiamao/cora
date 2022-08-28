@@ -12,12 +12,11 @@ newVM() {
   vm->data = (Obj*)malloc(sizeof(Obj)*2048);
   vm->base = 0;
   vm->pos = 0;
-  printf("addr of vm is %p\n", vm);
   return vm;
 }
 
 void
-run(struct VM* vm, InstrFunc code) {
+saveCC(struct VM *vm) {
   struct stack save;
   save.data = vm->data;
   save.base = vm->base;
@@ -25,7 +24,11 @@ run(struct VM* vm, InstrFunc code) {
   Obj cont = makeContinuation(save, NULL, NULL);
   vm->base = vm->pos;
   push(vm, cont);
+}
 
+void
+run(struct VM* vm, InstrFunc code) {
+  saveCC(vm);
   vm->pc = code;
   while(vm->pc != NULL) {
     vm->pc(vm);
@@ -125,27 +128,27 @@ static struct registModule builtinModule = {
     {"-", builtinSub, 2},
     {"*", builtinMul, 2},
     {"/", builtinDiv, 2},
-    /* {"%", builtinMod, 2}, */
+    {"%", builtinMod, 2},
     {"=", builtinEqual, 2},
     {"set", builtinSet, 2},
-    /* {"value", builtinValue, 1}, */
-    /* {"cons", builtinCons, 2}, */
-    /* {"car", builtinCar, 1}, */
-    /* {"cdr", builtinCdr, 1}, */
-    /* {"cons?", builtinIsCons, 1}, */
-    /* {"gensym", builtinGensym, 1}, */
-    /* {">",builtinGT, 2}, */
-    /* {"<",builtinLT, 2}, */
-    /* {"not",builtinNot, 1}, */
-    /* {"symbol?",builtinIsSymbol, 1}, */
-    /* {"string?",builtinIsString, 1}, */
-    /* {"number?",builtinIsNumber, 1}, */
-    /* {"vector",builtinMakeVector, 1}, */
-    /* {"vector-set!",builtinVectorSet, 3}, */
-    /* {"vector-ref",builtinVectorRef, 2}, */
-    /* {"vector?",builtinIsVector, 1}, */
-    /* {"intern",builtinIntern, 1}, */
-    /* {"load",builtinLoad, 1}, */
+    {"value", builtinValue, 1},
+    {"cons", builtinCons, 2},
+    {"car", builtinCar, 1},
+    {"cdr", builtinCdr, 1},
+    {"cons?", builtinIsCons, 1},
+    {"gensym", builtinGensym, 1},
+    {">",builtinGT, 2},
+    {"<",builtinLT, 2},
+    {"not",builtinNot, 1},
+    {"symbol?",builtinIsSymbol, 1},
+    {"string?",builtinIsString, 1},
+    {"number?",builtinIsNumber, 1},
+    {"vector",builtinMakeVector, 1},
+    {"vector-set!",builtinVectorSet, 3},
+    {"vector-ref",builtinVectorRef, 2},
+    {"vector?",builtinIsVector, 1},
+    {"intern",builtinIntern, 1},
+    {"load",builtinLoad, 1},
     /* {"load-so",builtinLoadSo, 1}, */
     {NULL, NULL, 0}
   }

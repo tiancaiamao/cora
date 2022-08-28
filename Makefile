@@ -8,17 +8,18 @@ all: cora
 libcora:
 	make -C src
 
-lib:
-	make -C lib
+# lib:
+# 	make -C lib
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -I src
 
 main.o: main.c
 
-cora: libcora lib main.o
+cora: libcora main.o
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora lib/lib.a -ldl -o $@
-	$(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
+	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
+	$(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 
 clean:
 	rm -rf cora *.o

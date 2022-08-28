@@ -315,31 +315,24 @@ static void
 callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
   int sz = curryCaptured(curry);
   Obj *data = curryData(curry);
+  Obj prim = curryPrim(curry);
 
   // TODO check range and realloc?
-  int oldPos = vm->pos;
-  vm->pos = vm->pos + sz - 1;
-
-  Obj *to = vm->data + vm->pos - 1;
-  Obj *from = vm->data + oldPos - 1;
-  for (int i=0; i<c->size-1; i++) {
-    *to = *from;
-    from--;
-    to--;
-  }
-
-  Obj *base = vm->data + oldPos - c->size;
-  for (int i=0; i<sz; i++) {
-    base[i] = data[i];
-  }
 
   Instr instr;
-  Obj prim = curryPrim(curry);
+  Obj *base = vm->data + vm->pos - c->size;
   if (prim != Nil) {
+    memcpy(base+sz-1, base+1, (c->size-1)*sizeof(Obj));
+    memcpy(base-1, data, sz*sizeof(Obj));
+    vm->pos = vm->pos + sz - 2;
     instr = makeInstrPrimitive(c->size+sz-1, prim, c->next); // mem leak?
   } else {
+    memcpy(base+sz, base+1, (c->size-1)*sizeof(Obj));
+    memcpy(base, data, sz*sizeof(Obj));
+    vm->pos = vm->pos + sz - 1;
     instr = makeInstrCall(c->size+sz-1, c->next); // mem leak?
   }
+
   vm->pc = instr.fn;
   vm->pcData = instr.data;
 }
@@ -356,7 +349,7 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
 
     Obj curry = makeCurry(required - argc, c->size, array, Nil);
     vm->val = curry;
-    vm->pos = vm->pos - c->size;
+    vm->pos = vm->pos - c->size - 1;
 
     vm->pc = c->next.fn;
     vm->pcData = c->next.data;

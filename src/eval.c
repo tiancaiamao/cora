@@ -1,6 +1,7 @@
 #include "types.h"
 #include "vm.h"
 #include <stdlib.h>
+#include <stdarg.h>
 
 extern Instr makeInstrConst(Obj exp, Instr cont);
 extern Instr makeInstrNOP(Instr cont);
@@ -220,6 +221,44 @@ eval(struct VM *vm, Obj exp) {
   run(vm, code.fn);
   return vm->val;
 }
+
+
+extern void saveCC(struct VM *vm);
+
+static Obj
+call(struct VM *vm, int nargs, ...) {
+  saveCC(vm);
+
+  va_list ap;
+  va_start(ap, nargs);
+  for (int i=0; i<nargs; i++) {
+    push(vm, va_arg(ap, Obj));
+  }
+  va_end(ap);
+
+  /* struct InstrCall data = {nargs, identity}; */
+  /* vm->pc = instrCallExec; */
+  /* vm->pcData = &data; */
+  Instr instr = makeInstrCall(nargs, identity); // mem leak?
+  vm->pc = instr.fn;
+  vm->pcData = instr.data;
+
+  while(vm->pc != NULL) {
+    vm->pc(vm);
+  }
+  return vm->val;
+}
+
+Obj
+macroExpand(struct VM *vm, Obj exp) {
+  Obj expand = symbolGet(symMacroExpand);
+  if (expand == Undef || expand == Nil) {
+    return exp;
+  }
+  Obj res = call(vm, 2, expand, exp);
+  return res;
+}
+
 
 #ifdef _EVAL_TEST_
 

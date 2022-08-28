@@ -11,6 +11,10 @@ const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
+struct GC;
+
+uintptr_t gcCopy(struct GC *gc, uintptr_t head) { return 42; };
+
 struct scmString {
   scmHead head;
   int sz;
@@ -19,8 +23,8 @@ struct scmString {
 
 static void*
 newObj(scmHeadType tp, int sz) {
-  /* scmHead* p = malloc(sz); */
-  scmHead* p = gcAlloc(&gc, sz);
+  scmHead* p = malloc(sz);
+  /* scmHead* p = gcAlloc(&gc, sz); */
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   return (void*)p;
@@ -34,13 +38,13 @@ makeCons(Obj car, Obj cdr) {
   return ((Obj)(&p->head) | TAG_CONS);
 }
 
-static void
-consGCFunc(struct GC *gc, void* f, void* t) {
-  struct scmCons *from = f;
-  struct scmCons *to = t;
-  to->car = gcCopy(gc, from->car);
-  to->cdr = gcCopy(gc, from->cdr);
-}
+/* static void */
+/* consGCFunc(struct GC *gc, void* f, void* t) { */
+/*   struct scmCons *from = f; */
+/*   struct scmCons *to = t; */
+/*   to->car = gcCopy(gc, from->car); */
+/*   to->cdr = gcCopy(gc, from->cdr); */
+/* } */
 
 Obj
 consp(Obj x) {
@@ -65,9 +69,112 @@ cdddr(Obj x) {
   return cdr(cdr(cdr(x)));
 }
 
+struct scmClosure {
+  scmHead head;
+  int required;
+  Instr code;
+  Obj parent;
+  struct hashForObj slot;
+};
+
 Obj
-makeClosure(Obj params, Obj body, Obj env) {
-  return cons(symLambda, cons(params, cons(body, env)));
+makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) {
+  struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
+  clo->required = required;
+  clo->code.fn= code;
+  clo->code.data = codeData;
+
+  clo->parent = parent;
+  clo->slot = h;
+
+  return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+bool
+isclosure(Obj c) {
+  if ((c & TAG_MASK) != TAG_PTR) {
+    return false;
+  }
+  scmHead *h = ptr(c);
+  return h->type == scmHeadClosure;
+}
+
+static struct scmClosure*
+mustClosure(Obj o) {
+  struct scmClosure* c = ptr(o);
+  assert(c->head.type == scmHeadClosure);
+  return c;
+}
+
+Instr
+closureCode(Obj o) {
+  struct scmClosure* c = mustClosure(o);
+  return c->code;
+}
+
+Obj
+closureParent(Obj o) {
+  struct scmClosure* c = mustClosure(o);
+  return c->parent;
+}
+
+int
+closureRequired(Obj o) {
+  struct scmClosure* c = mustClosure(o);
+  return c->required;
+}
+
+static struct hashForObjItem*
+hashGet(struct hashForObj *h, int key) {
+  int pos = key % h->size;
+  int avoidDeadLoop = pos;
+  do {
+    if (h->ptr[pos].key == key) {
+      return h->ptr+pos;
+    }
+    if (h->ptr[pos].value == 0) {
+      break;
+    }
+    pos = (pos + 1) % h->size;
+  } while (pos != avoidDeadLoop);
+
+  return NULL;
+}
+
+Obj
+closureSlot(Obj o, int idx) {
+  struct scmClosure* c = mustClosure(o);
+  struct hashForObjItem* x = hashGet(&c->slot, idx);
+  return x->value;
+}
+
+struct scmContinuation {
+  scmHead head;
+  struct stack s;
+  Instr code;
+};
+
+Obj
+makeContinuation(struct stack s, InstrFunc code, void *codeData) {
+  struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
+  cont->s = s;
+  cont->code.fn = code;
+  cont->code.data = codeData;
+  return ((Obj)(&cont->head) | TAG_PTR);
+}
+
+struct stack
+contStack(Obj o) {
+  struct scmContinuation* cont = ptr(o);
+  assert(cont->head.type == scmHeadContinuation);
+  return cont->s;
+}
+
+Instr
+contCode(Obj o) {
+  struct scmContinuation* cont = ptr(o);
+  assert(cont->head.type == scmHeadContinuation);
+  return cont->code;
 }
 
 Obj
@@ -133,10 +240,10 @@ isstring(Obj o) {
   return false;
 }
 
-static void
-stringGCFunc(struct GC *gc, void* f, void* t) {
-  // TODO:
-}
+/* static void */
+/* stringGCFunc(struct GC *gc, void* f, void* t) { */
+/*   // TODO: */
+/* } */
 
 struct trieNode {
   Obj value;
@@ -146,20 +253,20 @@ struct trieNode {
 
 struct trieNode root = {};
 
-static void
-trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  node->value = gcCopy(gc, node->value);
-  for (int i=0; i<256; i++) {
-    if (node->child[i] != NULL) {
-      trieNodeGCFunc(gc, node->child[i]);
-    }
-  }
-}
+/* static void */
+/* trieNodeGCFunc(struct GC* gc, struct trieNode *node) { */
+/*   node->value = gcCopy(gc, node->value); */
+/*   for (int i=0; i<256; i++) { */
+/*     if (node->child[i] != NULL) { */
+/*       trieNodeGCFunc(gc, node->child[i]); */
+/*     } */
+/*   } */
+/* } */
 
-void
-gcGlobal(struct GC *gc) {
-  trieNodeGCFunc(gc, &root);
-}
+/* void */
+/* gcGlobal(struct GC *gc) { */
+/*   trieNodeGCFunc(gc, &root); */
+/* } */
 
 Obj
 makeSymbol(char *s) {
@@ -208,29 +315,40 @@ symbolStr(Obj sym) {
 
 struct scmCurry {
   scmHead head;
+  // Is this is a curry on primitive, Nil if not.
+  Obj prim;
+
   int required;
   int captured;
   // The first element is scmNative and the remain is arguments.
-  Obj data[];
+  Obj *data;
 };
 
 Obj
-makeCurry(int required, int captured) {
+makeCurry(int required, int captured, Obj *data, Obj prim) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
   clo->required = required;
   clo->captured = captured;
-  assert(captured > 0);
+  clo->data = data;
+  clo->prim = prim;
+  /* assert(captured > 0); */
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-static void
-curryGCFunc(struct GC *gc, void* f, void* t) {
-  struct scmCurry *from = f;
-  struct scmCurry *to = t;
-  for (int i=0; i<from->captured; i++) {
-    to->data[i] = gcCopy(gc, from->data[i]);
-  }
+/* static void */
+/* curryGCFunc(struct GC *gc, void* f, void* t) { */
+/*   struct scmCurry *from = f; */
+/*   struct scmCurry *to = t; */
+/*   for (int i=0; i<from->captured; i++) { */
+/*     to->data[i] = gcCopy(gc, from->data[i]); */
+/*   } */
+/* } */
+
+Obj
+curryPrim(Obj o) {
+  struct scmCurry *curry = ptr(o);
+  return curry->prim;
 }
 
 int
@@ -251,77 +369,86 @@ curryData(Obj o) {
   return curry->data;
 }
 
-struct scmNative {
-  scmHead head;
-  nativeFuncPtr fn;
-  // required is the argument number of the nativeFunc.
-  int required;
-  // captured is the size of the data, it's immutable after makeNative.
-  int captured;
-  Obj data[];
-};
-
-Obj
-makeNative(nativeFuncPtr fn, int required, int captured, ...) {
-  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
-  struct scmNative* clo = newObj(scmHeadNative, sz);
-  clo->fn = fn;
-  clo->required = required;
-  clo->captured = captured;
-
-  if (captured > 0) {
-    va_list ap;
-    va_start(ap, captured);
-    for (int i=0; i<captured; i++) {
-      clo->data[i] = va_arg(ap, Obj);
-    }
-    va_end(ap);
+bool
+iscurry(Obj c) {
+  if ((c & TAG_MASK) != TAG_PTR) {
+    return false;
   }
-
-  return ((Obj)(&clo->head) | TAG_PTR);
+  scmHead *h = ptr(c);
+  return h->type == scmHeadCurry;
 }
 
-static void
-nativeGCFunc(struct GC *gc, void* f, void* t) {
-  struct scmNative *from = f;
-  struct scmNative *to = t;
-  for (int i=0; i<from->captured; i++) {
-    to->data[i] = gcCopy(gc, from->data[i]);
-  }
-}
+/* struct scmNative { */
+/*   scmHead head; */
+/*   nativeFuncPtr fn; */
+/*   // required is the argument number of the nativeFunc. */
+/*   int required; */
+/*   // captured is the size of the data, it's immutable after makeNative. */
+/*   int captured; */
+/*   Obj data[]; */
+/* }; */
 
-nativeFuncPtr
-nativeFn(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->fn;
-}
+/* Obj */
+/* makeNative(nativeFuncPtr fn, int required, int captured, ...) { */
+/*   int sz = sizeof(struct scmNative) + captured*sizeof(Obj); */
+/*   struct scmNative* clo = newObj(scmHeadNative, sz); */
+/*   clo->fn = fn; */
+/*   clo->required = required; */
+/*   clo->captured = captured; */
 
-int
-nativeRequired(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->required;
-}
+/*   if (captured > 0) { */
+/*     va_list ap; */
+/*     va_start(ap, captured); */
+/*     for (int i=0; i<captured; i++) { */
+/*       clo->data[i] = va_arg(ap, Obj); */
+/*     } */
+/*     va_end(ap); */
+/*   } */
 
-int
-nativeCaptured(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->captured;
-}
+/*   return ((Obj)(&clo->head) | TAG_PTR); */
+/* } */
 
-Obj
-nativeRef(Obj o, int idx) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->data[idx];
-}
+/* static void */
+/* nativeGCFunc(struct GC *gc, void* f, void* t) { */
+/*   struct scmNative *from = f; */
+/*   struct scmNative *to = t; */
+/*   for (int i=0; i<from->captured; i++) { */
+/*     to->data[i] = gcCopy(gc, from->data[i]); */
+/*   } */
+/* } */
 
-Obj
-makeBuiltin(nativeFuncPtr fn, int required) {
-  return makeNative(fn, required+1, 0);
-}
+/* nativeFuncPtr */
+/* nativeFn(Obj o) { */
+/*   struct scmNative* native = ptr(o); */
+/*   assert(native->head.type == scmHeadNative); */
+/*   return native->fn; */
+/* } */
+
+/* int */
+/* nativeRequired(Obj o) { */
+/*   struct scmNative* native = ptr(o); */
+/*   assert(native->head.type == scmHeadNative); */
+/*   return native->required; */
+/* } */
+
+/* int */
+/* nativeCaptured(Obj o) { */
+/*   struct scmNative* native = ptr(o); */
+/*   assert(native->head.type == scmHeadNative); */
+/*   return native->captured; */
+/* } */
+
+/* Obj */
+/* nativeRef(Obj o, int idx) { */
+/*   struct scmNative* native = ptr(o); */
+/*   assert(native->head.type == scmHeadNative); */
+/*   return native->data[idx]; */
+/* } */
+
+/* Obj */
+/* makeBuiltin(nativeFuncPtr fn, int required) { */
+/*   return makeNative(fn, required+1, 0); */
+/* } */
 
 struct scmVector {
   scmHead head;
@@ -363,14 +490,14 @@ isvector(Obj o) {
   return false;
 }
 
-static void
-vectorGCFunc(struct GC *gc, void* f, void* t) {
-  struct scmVector *from = f;
-  struct scmVector *to = t;
-  for (int i=0; i<from->size; i++) {
-    to->data[i] = gcCopy(gc, from->data[i]);
-  }
-}
+/* static void */
+/* vectorGCFunc(struct GC *gc, void* f, void* t) { */
+/*   struct scmVector *from = f; */
+/*   struct scmVector *to = t; */
+/*   for (int i=0; i<from->size; i++) { */
+/*     to->data[i] = gcCopy(gc, from->data[i]); */
+/*   } */
+/* } */
 
 bool
 eq(Obj x, Obj y) {
@@ -402,11 +529,47 @@ eq(Obj x, Obj y) {
   return false;
 }
 
+struct scmPrimitive {
+  scmHead head;
+  int required;
+  InstrFunc fn;
+};
+
+Obj
+makePrimitive(InstrFunc fn, int required) {
+  struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive));
+  clo->fn = fn;
+  clo->required = required;
+  return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+bool
+isprimitive(Obj c) {
+  if ((c & TAG_MASK) != TAG_PTR) {
+    return false;
+  }
+  scmHead *h = ptr(c);
+  return h->type == scmHeadPrimitive;
+}
+
+int primitiveRequired(Obj o) {
+  struct scmPrimitive* c = ptr(o);
+  assert(c->head.type == scmHeadPrimitive);
+  return c->required;
+}
+
+InstrFunc
+primitiveFn(Obj o) {
+  struct scmPrimitive* c = ptr(o);
+  assert(c->head.type == scmHeadPrimitive);
+  return c->fn;
+}
+
 void
 typesInit() {
-  gcRegistForType(scmHeadCons, consGCFunc);
-  gcRegistForType(scmHeadNative, nativeGCFunc);
-  gcRegistForType(scmHeadCurry, curryGCFunc);
-  gcRegistForType(scmHeadString, stringGCFunc);
-  gcRegistForType(scmHeadVector, vectorGCFunc);
+  /* gcRegistForType(scmHeadCons, consGCFunc); */
+  /* gcRegistForType(scmHeadNative, nativeGCFunc); */
+  /* gcRegistForType(scmHeadCurry, curryGCFunc); */
+  /* gcRegistForType(scmHeadString, stringGCFunc); */
+  /* gcRegistForType(scmHeadVector, vectorGCFunc); */
 }

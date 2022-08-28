@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-static void printObj(Obj o);
+void printObj(FILE* f, Obj o);
 
 static bool
 isIdentifierChar(int c) {
@@ -226,81 +226,90 @@ sexpRead(FILE *in, int *errCode) {
 }
 
 static void
-printCons(Obj o, bool start) {
+printCons(FILE *to, Obj o, bool start) {
   if (start) {
     printf("(");
-    printObj(car(o));
+    printObj(to, car(o));
   } else {
     printf(" ");
-    printObj(car(o));
+    printObj(to, car(o));
   }
 
   Obj tl = cdr(o);
   if (tl == Nil) {
     printf(")");
   } else if (iscons(tl)) {
-    printCons(tl, false);
+    printCons(to, tl, false);
   } else {
     printf(" . ");
-    printObj(tl);
+    printObj(to, tl);
     printf(")");
   }
 }
 
-static void
-printObj(Obj o) {
+void
+printObj(FILE *to, Obj o) {
   if (isfixnum(o)) {
-    printf("%ld", fixnum(o));
+    fprintf(to, "%ld", fixnum(o));
   } else if (iscons(o)) {
-    printCons(o, true);
+    printCons(to, o, true);
   } else if (issymbol(o)) {
-    printf("%s", symbolStr(o));
+    fprintf(to, "%s", symbolStr(o));
   } else if (isboolean(o)) {
     if (o == True) {
-      printf("true");
+      fprintf(to, "true");
     } else if (o == False) {
-      printf("false");
+      fprintf(to, "false");
     }
   } else if (o == Nil) {
-    printf("()");
+    fprintf(to, "()");
   } else if (tag(o) == TAG_PTR) {
     scmHead* h = ptr(o);
     switch (h->type) {
     case scmHeadNumber:
-      printf("ptr number");
+      fprintf(to, "ptr number");
       break;
     case scmHeadCons:
-      printf("cons");
+      fprintf(to, "cons");
       break;
     case scmHeadVector:
-      printf("vector");
+      fprintf(to, "vector");
       break;
     case scmHeadNull:
-      printf("null");
+      fprintf(to, "null");
       break;
     case scmHeadString:
-      printf("\"%s\"", stringStr(o));
+      fprintf(to, "\"%s\"", stringStr(o));
       break;
     case scmHeadBoolean:
-      printf("boolean");
+      fprintf(to, "boolean");
       break;
     case scmHeadNative:
-      printf("native");
+      fprintf(to, "native");
       break;
     case scmHeadCurry:
-        printf("curry");
-        break;
+      fprintf(to, "curry");
+      break;
+    case scmHeadClosure:
+      fprintf(to, "closure");
+      break;
+    case scmHeadContinuation:
+      fprintf(to, "continuation");
+      break;
+    case scmHeadPrimitive:
+      fprintf(to, "primitive");
+      break;
     default:
-      printf("ptr unknown type = %d\n", h->type);
+      fprintf(to, "ptr unknown type = %d\n", h->type);
     };
   } else {
-    printf("unknown %ld", o);
+    fprintf(to, "unknown %ld", o);
   }
 }
 
 void
 sexpWrite(FILE *out, Obj o) {
-  printObj(o);
+  printObj(stdout, o);
 }
 
 
@@ -327,10 +336,10 @@ TestReadSexp() {
   assert(iscons(o));
   printf("here res =  %ld \n", o);
   printf("cdr res = ");
-  printObj(cdr(o));
+  printObj(stdout, cdr(o));
   printf("\n");
   printf("=== %ld \n", cdr(o));
-  printObj(cdr(o));
+  printObj(stdout, cdr(o));
   printf("%ld \n", Nil);
   assert(eq(o, cons(intern("a"), Nil)));
   /* assert(eq(z, r)); */
