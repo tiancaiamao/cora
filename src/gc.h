@@ -25,6 +25,8 @@ void gcField(struct GC *gc, scmHead *field);
 typedef void (*gcFunc)(struct GC* gc, void *obj);
 bool gcRegistForType(struct GC *gc, uint8_t type, gcFunc fn);
 
+bool gcIng(struct GC *gc);
+
 scmHead* gcAlloc(struct GC *gc, int sz);
 void gcMarkRoot(struct GC *gc, scmHead *obj);
 bool gcStep(struct GC *gc, int n);

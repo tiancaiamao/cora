@@ -1,6 +1,7 @@
 #include "gc.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 struct GC {
   void *allocator;
@@ -8,6 +9,7 @@ struct GC {
   void (*recycleFn)(void* allocator, void *ptr);
 
   uint8_t color;
+
   scmHead white;
   scmHead ecru;
   scmHead gray;
@@ -58,17 +60,34 @@ advance(struct GC *gc) {
   // unlink obj from gray and link to black.
   unlink(obj);
   link(obj, &gc->black);
+
+  /* printf("advance: gray -> black: %p\n", obj); */
 }
 
 static void
 postGC(struct GC *gc) {
-      // After GC, the ecru list become the new white list.
-      // And black become the ecru.
-      gc->white = gc->ecru;
-      gc->ecru = gc->black;
-      // And also turn the ecru color
-      gc->color = ~gc->color;
+  assert(gc->white.next == NULL);
+
+  // After GC, the ecru list become the new white list.
+  gc->white.next = gc->ecru.next;
+  if (gc->white.next != NULL) {
+    gc->white.next->prev = &gc->white;
+  }
+
+  // And black become the ecru.
+  gc->ecru.next = gc->black.next;
+  if (gc->ecru.next != NULL) {
+    gc->ecru.next->prev = &gc->ecru;
+  }
+
+  gc->black.prev = NULL;
+  gc->black.next = NULL;
+
+  // And also turn the ecru color
+  gc->color = ~gc->color;
 }
+
+static void printGC(struct GC *gc);
 
 // ----- exposed API ---------- //
 scmHead*
@@ -78,24 +97,39 @@ gcAlloc(struct GC *gc, int sz) {
     if (gc->gray.next == NULL && gc->black.next != NULL) {
       // After a round of GC, there are only ecru and black, switch them.
       postGC(gc);
-    } else {
-      // Not enough white obj? refill one.
-      scmHead* tmp = gc->allocFn(gc->allocator, sz);
-      tmp->size = sz;
-      link(tmp, &gc->white);
+
+      scmHead *p = gc->white.next;
+      while(p != NULL) {
+	unlink(p);
+	gc->recycleFn(gc->allocator, p);
+	/* printf("full gc recycle object:%p\n", p); */
+	p = gc->white.next;
+      }
     }
+
+    /* printf("after post gc ===\n"); */
+    /* printGC(gc); */
+    /* } */
+    /* } else { */
+
+    // Not enough white obj? refill one.
+    scmHead* tmp = gc->allocFn(gc->allocator, sz);
+    tmp->size = sz;
+    link(tmp, &gc->white);
+    /* } */
   }
 
   // Assume gc->white not null now.
   scmHead *tmp = gc->white.next;
-  unlink(gc->white.next);
+  unlink(tmp);
 
   if (tmp->size != sz) {
     // GC only manage the lifecycle, the memory alloc/free is the work of the allocator.
     // The allocator can reuse the memory by, for example, object pools.
     gc->recycleFn(gc->allocator, tmp);
-    gc->allocFn(gc->allocator, sz);
+    /* printf("gc recycle object:%p\n", tmp); */
 
+    tmp = gc->allocFn(gc->allocator, sz);
     tmp->size = sz;
   }
   
@@ -140,7 +174,10 @@ gcField(struct GC *gc, scmHead *field) {
 
   if (ecru(gc, field)) {
     unlink(field);
+    field->color = ~field->color;
+
     link(field, &gc->gray);
+    /* printf("gcField, ecru obj -> gray: %p\n", field); */
   }
 }
 
@@ -168,8 +205,72 @@ gcInit(void *allocator, void* (*allocFn)(void*, int), void (*recycleFn)(void*, v
 }
 
 void
-markRoot(struct GC *gc, scmHead *rootObj) {
-  link(rootObj, &gc->gray);
+gcMarkRoot(struct GC *gc, scmHead *rootObj) {
+  // rootObj should be in the ecru list, before GC.
+  /* assert(ecru(gc, rootObj)); */
+
+  if (ecru(gc, rootObj)) {
+    /* printf("markroot %p %d\n", rootObj, rootObj->color); */
+    unlink(rootObj);
+    rootObj->color = ~rootObj->color;
+    link(rootObj, &gc->gray);
+  }
+}
+
+
+bool
+gcIng(struct GC *gc) {
+  return gc->gray.next != NULL;
+}
+
+static void
+printGC(struct GC *gc) {
+  return;
+  
+  printf("printGC ... begin\n");
+  if (gc->gray.next == NULL) {
+    printf("no gray objects\n");
+  } else {
+    for (scmHead *p = gc->gray.next; p != NULL; p=p->next) {
+      printf("gray object: %p\n", p);
+    }
+  }
+
+  if (gc->ecru.next == NULL) {
+    printf("no ecru objects\n");
+  } else {
+    for (scmHead *p = gc->ecru.next; p != NULL; p=p->next) {
+      printf("ecru object: %p\n", p);
+    }
+  }
+
+  if (gc->white.next == NULL) {
+    printf("no white objects\n");
+  } else {
+    for (scmHead *p = gc->white.next; p != NULL; p=p->next) {
+      printf("white object: %p\n", p);
+    }
+  }
+
+  if (gc->black.next == NULL) {
+    printf("no black objects\n");
+  } else {
+    for (scmHead *p = gc->black.next; p != NULL; p=p->next) {
+      printf("black object: %p\n", p);
+    }
+  }
+  printf("printGC ... end\n");
+}
+
+void
+gcFull(struct GC *gc) {
+  /* printf("before full gc =========\n"); */
+  /* printGC(gc); */
+
+  while(!gcStep(gc, 10)) {}
+
+  /* printf("after full gc =========\n"); */
+  /* printGC(gc); */
 }
 
 
@@ -246,7 +347,8 @@ void recycleFn(void *allocator, void *ptr) {
 }
 
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
   struct GC *gc = gcInit(NULL, allocFn, recycleFn);
   gcRegistForType(gc, 0, consGCFunc);
   g = gc;
@@ -259,7 +361,7 @@ int main(int argc, char *argv[]) {
   scmHead* x6 = cons(x1, cons(x2, cons(x3, cons(x4, cons(x5, x6)))));
 
   // Try to GC something.
-  markRoot(g, x3);
+  gcMarkRoot(g, x3);
   gcStep(g, 1);
   gcStep(g, 3);
   gcStep(g, 5);
@@ -283,7 +385,7 @@ int main(int argc, char *argv[]) {
   }
 
   // And GC another round.
-  markRoot(g, x4);
+  gcMarkRoot(g, x4);
   while(!gcStep(g, 7)) {}
 }
 

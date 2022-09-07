@@ -11,9 +11,7 @@ const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
-struct GC;
-
-uintptr_t gcCopy(struct GC *gc, uintptr_t head) { return 42; };
+/* uintptr_t gcCopy(struct GC *gc, uintptr_t head) { return 42; }; */
 
 struct scmString {
   scmHead head;
@@ -21,13 +19,24 @@ struct scmString {
   char data[];
 };
 
-static void*
+
+struct GC *gc;
+
+void*
 newObj(scmHeadType tp, int sz) {
-  scmHead* p = malloc(sz);
-  /* scmHead* p = gcAlloc(&gc, sz); */
+  /* scmHead* p = malloc(sz); */
+  scmHead* p = gcAlloc(gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   return (void*)p;
+}
+
+scmHead*
+getScmHead(Obj o) {
+  if (tag(o) == TAG_PTR || tag(o) == TAG_CONS) {
+    return ptr(o);
+  }
+  return NULL;
 }
 
 Obj
@@ -38,13 +47,12 @@ makeCons(Obj car, Obj cdr) {
   return ((Obj)(&p->head) | TAG_CONS);
 }
 
-/* static void */
-/* consGCFunc(struct GC *gc, void* f, void* t) { */
-/*   struct scmCons *from = f; */
-/*   struct scmCons *to = t; */
-/*   to->car = gcCopy(gc, from->car); */
-/*   to->cdr = gcCopy(gc, from->cdr); */
-/* } */
+static void
+consGCFunc(struct GC *gc, void *obj) {
+  struct scmCons *p = obj;
+  gcField(gc, getScmHead(p->car));
+  gcField(gc, getScmHead(p->cdr));
+}
 
 Obj
 consp(Obj x) {
@@ -78,16 +86,30 @@ struct scmClosure {
 };
 
 Obj
-makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) {
+makeClosure(int required, Instr code, Obj parent, struct hashForObj h) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
-  clo->code.fn= code;
-  clo->code.data = codeData;
+  clo->code = code;
 
   clo->parent = parent;
   clo->slot = h;
 
   return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+extern void instrGCFunc(struct GC *gc, void *obj);
+
+static void
+closureGCFunc(struct GC *gc, void *obj) {
+  struct scmClosure* clo = obj;
+  gcField(gc, getScmHead(clo->parent));
+  for (int i=0; i<clo->slot.size; i++) {
+    struct hashForObjItem *item = clo->slot.ptr+i;
+    if (item->value != 0) {
+      gcField(gc, getScmHead(item->value));
+    }
+  }
+  gcField(gc, &clo->code->head);
 }
 
 bool
@@ -151,16 +173,26 @@ closureSlot(Obj o, int idx) {
 struct scmContinuation {
   scmHead head;
   struct stack s;
-  Instr code;
+  InstrFunc code;
+  void *codeData;
 };
 
 Obj
 makeContinuation(struct stack s, InstrFunc code, void *codeData) {
   struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
   cont->s = s;
-  cont->code.fn = code;
-  cont->code.data = codeData;
+  cont->code = code;
+  cont->codeData = codeData;
   return ((Obj)(&cont->head) | TAG_PTR);
+}
+
+static void
+continuationGCFunc(struct GC *gc, void *obj) {
+  struct scmContinuation *cont = obj;
+  struct stack *s = &cont->s;
+  for (int i=s->base; i<s->pos; i++) {
+    gcField(gc, getScmHead(s->data[i]));
+  }
 }
 
 struct stack
@@ -170,11 +202,18 @@ contStack(Obj o) {
   return cont->s;
 }
 
-Instr
+InstrFunc
 contCode(Obj o) {
   struct scmContinuation* cont = ptr(o);
   assert(cont->head.type == scmHeadContinuation);
   return cont->code;
+}
+
+void*
+contCodeData(Obj o) {
+  struct scmContinuation* cont = ptr(o);
+  assert(cont->head.type == scmHeadContinuation);
+  return cont->codeData;
 }
 
 Obj
@@ -240,10 +279,10 @@ isstring(Obj o) {
   return false;
 }
 
-/* static void */
-/* stringGCFunc(struct GC *gc, void* f, void* t) { */
-/*   // TODO: */
-/* } */
+static void
+stringGCFunc(struct GC *gc, void *obj) {
+  // TODO:
+}
 
 struct trieNode {
   Obj value;
@@ -253,20 +292,20 @@ struct trieNode {
 
 struct trieNode root = {};
 
-/* static void */
-/* trieNodeGCFunc(struct GC* gc, struct trieNode *node) { */
-/*   node->value = gcCopy(gc, node->value); */
-/*   for (int i=0; i<256; i++) { */
-/*     if (node->child[i] != NULL) { */
-/*       trieNodeGCFunc(gc, node->child[i]); */
-/*     } */
-/*   } */
-/* } */
+static void
+trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
+  gcField(gc, getScmHead(node->value));
+  for (int i=0; i<256; i++) {
+    if (node->child[i] != NULL) {
+      trieNodeGCFunc(gc, node->child[i]);
+    }
+  }
+}
 
-/* void */
-/* gcGlobal(struct GC *gc) { */
-/*   trieNodeGCFunc(gc, &root); */
-/* } */
+void
+gcGlobal(struct GC *gc) {
+  trieNodeGCFunc(gc, &root);
+}
 
 Obj
 makeSymbol(char *s) {
@@ -336,14 +375,14 @@ makeCurry(int required, int captured, Obj *data, Obj prim) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-/* static void */
-/* curryGCFunc(struct GC *gc, void* f, void* t) { */
-/*   struct scmCurry *from = f; */
-/*   struct scmCurry *to = t; */
-/*   for (int i=0; i<from->captured; i++) { */
-/*     to->data[i] = gcCopy(gc, from->data[i]); */
-/*   } */
-/* } */
+static void
+curryGCFunc(struct GC *gc, void* obj) {
+  struct scmCurry *curry = obj;
+  gcField(gc, getScmHead(curry->prim));
+  for (int i=0; i<curry->captured; i++) {
+    gcField(gc, getScmHead(curry->data[i]));
+  }
+}
 
 Obj
 curryPrim(Obj o) {
@@ -490,14 +529,13 @@ isvector(Obj o) {
   return false;
 }
 
-/* static void */
-/* vectorGCFunc(struct GC *gc, void* f, void* t) { */
-/*   struct scmVector *from = f; */
-/*   struct scmVector *to = t; */
-/*   for (int i=0; i<from->size; i++) { */
-/*     to->data[i] = gcCopy(gc, from->data[i]); */
-/*   } */
-/* } */
+static void
+vectorGCFunc(struct GC *gc, void* obj) {
+  struct scmVector *from = obj;
+  for (int i=0; i<from->size; i++) {
+    gcField(gc, getScmHead(from->data[i]));
+  }
+}
 
 bool
 eq(Obj x, Obj y) {
@@ -543,6 +581,11 @@ makePrimitive(InstrFunc fn, int required) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
+static void
+primitiveGCFunc(struct GC *gc, void *obj) {
+  // TODO?
+}
+
 bool
 isprimitive(Obj c) {
   if ((c & TAG_MASK) != TAG_PTR) {
@@ -566,10 +609,13 @@ primitiveFn(Obj o) {
 }
 
 void
-typesInit() {
-  /* gcRegistForType(scmHeadCons, consGCFunc); */
-  /* gcRegistForType(scmHeadNative, nativeGCFunc); */
-  /* gcRegistForType(scmHeadCurry, curryGCFunc); */
-  /* gcRegistForType(scmHeadString, stringGCFunc); */
-  /* gcRegistForType(scmHeadVector, vectorGCFunc); */
+typesInit(struct GC *gc) {
+  gcRegistForType(gc, scmHeadCons, consGCFunc);
+  gcRegistForType(gc, scmHeadClosure, closureGCFunc);
+  gcRegistForType(gc, scmHeadCurry, curryGCFunc);
+  gcRegistForType(gc, scmHeadString, stringGCFunc);
+  gcRegistForType(gc, scmHeadPrimitive, primitiveGCFunc);
+  gcRegistForType(gc, scmHeadVector, vectorGCFunc);
+  gcRegistForType(gc, scmHeadContinuation, continuationGCFunc);
+  gcRegistForType(gc, scmHeadInstr, instrGCFunc);
 }

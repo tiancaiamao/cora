@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS= types.c reader.c vm.c eval.c instr.c builtin.c
+SRCS= types.c gc.c reader.c vm.c eval.c instr.c builtin.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
@@ -13,7 +13,7 @@ test: eval_test
 eval_test: eval.test
 	./eval.test
 
-eval.test: eval.c types.c builtin.c vm.c instr.c reader.c
+eval.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
 	gcc -g -D_EVAL_TEST_ $^ -o eval.test
 
 libcora.a: $(OBJS)

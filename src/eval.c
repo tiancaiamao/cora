@@ -92,7 +92,7 @@ compileIf(Obj exp, Obj env, Instr cont, struct posArray *pa) {
   return compile(cadr(exp), env, makeInstrIf(thenCont, elseCont), pa);
 }
 
-extern Instr identity;
+extern Instr identity();
 
 static int
 listLength(Obj l) {
@@ -145,7 +145,7 @@ handleClosureVars(struct posArray *pa, struct posArray *to, int *nclosed) {
 static Instr
 compileLambda(Obj args, Obj body, Obj env, Instr cont, struct posArray *pa) {
   struct posArray pa1 = {.ptr=NULL, .size=0, .cap=0};
-  Instr code = compile(body, env, identity, &pa1);
+  Instr code = compile(body, env, identity(), &pa1);
 
   int nclosed = 0;
   // handleClosureVars separate the variables as closed by current lambda and by parent lambda.
@@ -216,9 +216,9 @@ compileList(Obj exp, Obj env, Instr cont, struct posArray *pa) {
 Obj
 eval(struct VM *vm, Obj exp) {
   struct posArray pa = {.ptr = NULL, .size = 0, .cap = 0};
-  Instr code = compile(exp, Nil, identity, &pa);
-  vm->pcData = code.data;
-  run(vm, code.fn);
+  Instr code = compile(exp, Nil, identity(), &pa);
+  vm->pcData = code;
+  run(vm, code->fn);
   return vm->val;
 }
 
@@ -236,12 +236,12 @@ call(struct VM *vm, int nargs, ...) {
   }
   va_end(ap);
 
-  /* struct InstrCall data = {nargs, identity}; */
+  /* struct InstrCall data = {nargs, identity()}; */
   /* vm->pc = instrCallExec; */
   /* vm->pcData = &data; */
-  Instr instr = makeInstrCall(nargs, identity); // mem leak?
-  vm->pc = instr.fn;
-  vm->pcData = instr.data;
+  Instr instr = makeInstrCall(nargs, identity()); // mem leak?
+  vm->pc = instr->fn;
+  vm->pcData = instr;
 
   while(vm->pc != NULL) {
     vm->pc(vm);

@@ -11,9 +11,12 @@ struct VM {
   void *pcData; 
 
   Obj val;
+
   Obj *data;
   int base;
   int pos;
+
+  int gcTicker;
 };
 
 struct VM* newVM();

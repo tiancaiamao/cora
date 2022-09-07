@@ -41,7 +41,8 @@ static void repl(struct VM *vm, FILE* stream);
 /*   return Call(3, fn, k, v); */
 /* } */
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
   char *bootFile = "src/init.cora";
   char *expr = NULL;
   char *oneLiner = NULL;
@@ -72,13 +73,6 @@ int main(int argc, char *argv[]) {
   coraInit();
 
   struct VM *vm = newVM();
-
-  /* registAPI(&codeGenModule); */
-  /* registAPI(&exceptionModule); */
-  /* registAPI(&ioModule); */
-  /* registAPI(&netModule); */
-  /* registAPI(&hashModule); */
-  /* registAPI(&stringModule); */
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));
@@ -224,15 +218,3 @@ repl(struct VM *vm, FILE* stream) {
   /*   printf("\n"); */
   /* } */
 }
-
-/* int main(int argc, char *argv[]) { */
-/*   coraInit(); */
-/*   struct VM *vm = newVM(); */
-/*   /\* run(vm, entry); *\/ */
-/*   /\* Obj ret = pop(vm); *\/ */
-/*   /\* printf("result == %ld\n", ret); *\/ */
-
-/*   repl(vm, stdin); */
-
-/*   return 0; */
-/* } */

@@ -3,16 +3,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-/* #include "gc.h" */
-
+#include "gc.h"
 
 typedef uint8_t scmHeadType;
-
-typedef struct {
-  scmHeadType type;
-  uint16_t size;
-  uintptr_t forwarding;
-} scmHead;
 
 #define TAG_SHIFT 3
 #define TAG_MASK 0x7
@@ -47,8 +40,6 @@ extern const Obj False;
 extern const Obj Nil;
 extern const Obj Undef;
 
-/* struct controlFlow; */
-
 enum {
       // Instant values.
       scmHeadBoolean,
@@ -59,16 +50,22 @@ enum {
       // The followings are all pointer types.
       // Except cons, all the others are general pointer.
       scmHeadCons,
-      scmHeadNative,
+      /* scmHeadNative, */
       scmHeadCurry,
       scmHeadString,
       scmHeadVector,
       scmHeadClosure,
       scmHeadContinuation,
       scmHeadPrimitive,
+
+      // Seems weird, but the instructions object memory management need it.
+      // Instr do not use tagged pointer, because it's not Obj.
+      scmHeadInstr,
 };
 
 void typesInit();
+
+void* newObj(scmHeadType tp, int sz);
 
 struct VM;
 typedef void (*InstrFunc)(struct VM *vm);
@@ -82,6 +79,8 @@ struct scmCons {
 
 #define fixnum(x) ((intptr_t)(x)>>1)
 bool eq(Obj x, Obj y);
+
+scmHead *getScmHead(Obj);
 
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
@@ -98,10 +97,12 @@ Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
-typedef struct _Instr {
+typedef struct _instrHead {
+  scmHead head;
   InstrFunc fn;
-  void *data;
-} Instr;
+} instrHead;
+
+typedef instrHead* Instr;
 
 Obj makePrimitive(InstrFunc fn, int required);
 bool isprimitive(Obj o);
@@ -134,7 +135,7 @@ struct hashForObj {
   int size;
 };
 
-Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h);
+Obj makeClosure(int required, Instr code, Obj parent, struct hashForObj h);
 Instr closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureParent(Obj);
@@ -154,8 +155,9 @@ struct stack {
   int pos;
 };
 
-Obj makeContinuation(struct stack s, InstrFunc code, void *codeData);
-Instr contCode(Obj o);
+Obj makeContinuation(struct stack s, InstrFunc code, void *data);
+InstrFunc contCode(Obj o);
+void* contCodeData(Obj o);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 /* void gcSymbols(struct GC *gc); */

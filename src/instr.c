@@ -1,3 +1,4 @@
+#include "gc.h"
 #include "types.h"
 #include "vm.h"
 #include "builtin.h"
@@ -6,7 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+void instrGCFunc(struct GC *gc, void *obj);
+
 struct InstrConst {
+  instrHead head;
   Obj val;
   Instr next;
 };
@@ -15,20 +20,28 @@ static void
 instrConstExec(struct VM *vm) {
   struct InstrConst *c = vm->pcData;
   vm->val = c->val;
-  vm->pc = c->next.fn;
-  vm->pcData = c->next.data;
+  vm->pc = c->next->fn;
+  vm->pcData = c->next;
+}
+
+static void
+instrConstGCFunc(struct GC *gc, void *obj) {
+  struct InstrConst *p = obj;
+  gcField(gc, getScmHead(p->val));
+  gcField(gc, &p->next->head);
 }
 
 Instr
 makeInstrConst(Obj val, Instr next) {
-  struct InstrConst *data = (struct InstrConst*)malloc(sizeof(struct InstrConst));
+  struct InstrConst *data = newObj(scmHeadInstr, sizeof(struct InstrConst));
+  data->head.fn = instrConstExec;
   data->val = val;
   data->next = next;
-  Instr ret = {.fn = instrConstExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrIf {
+  instrHead head;
   Instr br1;
   Instr br2;
 };
@@ -37,46 +50,61 @@ static void
 instrIfExec(struct VM *vm) {
   struct InstrIf *i = vm->pcData;
   if (vm->val == True) {
-    vm->pc = i->br1.fn;
-    vm->pcData = i->br1.data;
+    vm->pc = i->br1->fn;
+    vm->pcData = i->br1;
   } else if (vm->val == False) {
-    vm->pc = i->br2.fn;
-    vm->pcData = i->br2.data;
+    vm->pc = i->br2->fn;
+    vm->pcData = i->br2;
   } else {
     // TODO?
     assert(false);
   }
 }
 
+static void
+instrIFGCFunc(struct GC *gc, void *obj) {
+  struct InstrIf *x = obj;
+  gcField(gc, &x->br1->head);
+  gcField(gc, &x->br2->head);
+}
+
 Instr
 makeInstrIf(Instr br1, Instr br2) {
-  struct InstrIf *data = (struct InstrIf*)malloc(sizeof(struct InstrIf));
+  struct InstrIf *data = newObj(scmHeadInstr, sizeof(struct InstrIf));
+  data->head.fn = instrIfExec;
   data->br1 = br1;
   data->br2 = br2;
-  Instr ret = {.fn = instrIfExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrNOP {
+  instrHead head;
   Instr next;
 };
 
 static void
 instrNOPExec(struct VM *vm) {
   struct InstrNOP *i = vm->pcData;
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrNOPGCFunc(struct GC *gc, void *obj) {
+  struct InstrNOP *x = obj;
+  gcField(gc, &x->next->head);
 }
 
 Instr
 makeInstrNOP(Instr next) {
-  struct InstrNOP *data = (struct InstrNOP*)malloc(sizeof(struct InstrNOP));
+  struct InstrNOP *data = newObj(scmHeadInstr, sizeof(struct InstrNOP));
+  data->head.fn = instrNOPExec;
   data->next = next;
-  Instr ret = {.fn = instrNOPExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrPush {
+  instrHead head;
   Instr next;
 };
 
@@ -84,19 +112,26 @@ static void
 instrPushExec(struct VM *vm) {
   struct InstrPush *i = vm->pcData;
   push(vm, vm->val);
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrPushGCFunc(struct GC *gc, void *obj) {
+  struct InstrPush *p = obj;
+  gcField(gc, &p->next->head);
 }
 
 Instr
 makeInstrPush(Instr next) {
-  struct InstrPush *data = (struct InstrPush*)malloc(sizeof(struct InstrPush));
+  struct InstrPush *data = newObj(scmHeadInstr, sizeof(struct InstrPush));
+  data->head.fn = instrPushExec;
   data->next = next;
-  Instr ret = {.fn = instrPushExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrLocalRef {
+  instrHead head;
   int idx;
   Instr next;
 };
@@ -106,21 +141,27 @@ instrLocalRefExec(struct VM *vm) {
   struct InstrLocalRef *i = vm->pcData;
   Obj v = vmGet(vm, i->idx + 2);
   vm->val = v;
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrLocalRefGCFunc(struct GC *gc, void *obj) {
+  struct InstrLocalRef *i = obj;
+  gcField(gc, &i->next->head);
 }
 
 Instr
 makeInstrLocalRef(int idx, Instr next) {
-  struct InstrLocalRef *data = (struct InstrLocalRef*)malloc(sizeof(struct InstrLocalRef));
+  struct InstrLocalRef *data = newObj(scmHeadInstr, sizeof(struct InstrLocalRef));
+  data->head.fn = instrLocalRefExec;
   data->idx = idx;
   data->next = next;
-  
-  Instr ret = {.fn = instrLocalRefExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrClosureRef {
+  instrHead head;
   int up;
   int idx;
   Instr next;
@@ -134,22 +175,28 @@ instrClosureRefExec(struct VM *vm) {
     tmp = closureParent(tmp);
   }
   vm->val = closureSlot(tmp, instr->idx);
-  vm->pc = instr->next.fn;
-  vm->pcData = instr->next.data;
+  vm->pc = instr->next->fn;
+  vm->pcData = instr->next;
+}
+
+static void
+instrClosureRefGCFunc(struct GC *gc, void *obj) {
+  struct InstrClosureRef *p = obj;
+  gcField(gc, &p->next->head);
 }
 
 Instr
 makeInstrClosureRef(int up, int idx, Instr next) {
-  struct InstrClosureRef *data = (struct InstrClosureRef*)malloc(sizeof(struct InstrClosureRef));
+  struct InstrClosureRef *data = newObj(scmHeadInstr, sizeof(struct InstrClosureRef));
+  data->head.fn = instrClosureRefExec;
   data->up = up;
   data->idx = idx;
   data->next = next;
-  
-  Instr ret = {.fn = instrClosureRefExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrGlobalRef {
+  instrHead head;
   Obj sym;
   Instr next;
 };
@@ -164,27 +211,71 @@ instrGlobalRefExec(struct VM *vm) {
   }
 
   vm->val = val;
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrGlobalRefGCFunc(struct GC *gc, void *obj) {
+  struct InstrGlobalRef *p = obj;
+  // TODO: handle the symbol?
+  gcField(gc, &p->next->head);
 }
 
 Instr
 makeInstrGlobalRef(Obj sym, Instr next) {
-  struct InstrGlobalRef *data = (struct InstrGlobalRef*)malloc(sizeof(struct InstrGlobalRef));
+  struct InstrGlobalRef *data = newObj(scmHeadInstr, sizeof(struct InstrGlobalRef));
+  data->head.fn = instrGlobalRefExec;
   data->sym = sym;
   data->next = next;
-  
-  Instr ret = {.fn = instrGlobalRefExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrPrimitive {
+  instrHead head;
   int size;
   Obj prim;
   Instr next;
 };
 
 extern InstrFunc primitiveFn(Obj o);
+
+
+extern void gcGlobal(struct GC *gc);
+
+static bool
+maybeTriggerGC(struct VM *vm, struct GC *gc) {
+  vm->gcTicker++;
+  if (vm->gcTicker != 31) {
+    return false;
+  }
+  vm->gcTicker = 0;
+
+  if (gcIng(gc)) {
+    return false;
+  }
+
+  // Maybe trigger a new round of GC, if not currently GC-ing.
+  for (int i=vm->base; i<vm->pos; i++) {
+    scmHead *p = getScmHead(vm->data[i]);
+    if (p != NULL) {
+      gcMarkRoot(gc, p);
+    }
+  }
+
+  scmHead *p = getScmHead(vm->val);
+  if (p != NULL) {
+    gcMarkRoot(gc, p);
+  }
+
+  gcMarkRoot(gc, vm->pcData);
+
+  gcGlobal(gc);
+  return true;
+}
+
+extern struct GC *gc;
+extern void gcFull(struct GC *gc);
 
 static void
 instrPrimitiveExec(struct VM *vm) {
@@ -203,48 +294,70 @@ instrPrimitiveExec(struct VM *vm) {
     assert(false);
   }
 
-  if (c->next.fn == NULL) {
+  if (c->next->fn == NULL) {
     vmReturn(vm, vm->val);
   } else {
-    vm->pc = c->next.fn;
-    vm->pcData = c->next.data;
+    vm->pc = c->next->fn;
+    vm->pcData = c->next;
   }
+
+  bool succ = maybeTriggerGC(vm, gc);
+  if (succ) {
+    gcFull(gc);
+  }
+}
+
+static void
+instrPrimitiveGCFunc(struct GC *gc, void *obj) {
+  struct InstrPrimitive *p = obj;
+  gcField(gc, getScmHead(p->prim));
+  gcField(gc, &p->next->head);
 }
 
 struct scmPrimitive;
 
 Instr
 makeInstrPrimitive(int size, Obj prim, Instr next) {
-  struct InstrPrimitive *data = (struct InstrPrimitive*)malloc(sizeof(struct InstrPrimitive));
+  struct InstrPrimitive *data = newObj(scmHeadInstr, sizeof(struct InstrPrimitive));
+  data->head.fn = instrPrimitiveExec;
   data->size = size;
   data->prim = prim;
   data->next = next;
-  Instr ret = {.fn = instrPrimitiveExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
-struct InstrExit {};
+struct InstrExit {
+  instrHead head;
+};
 
 static void
 instrExitExec(struct VM *vm) {
   vmReturn(vm, vm->val);
 }
 
-Instr identity = {.fn = instrExitExec, .data = NULL};
+struct InstrExit identityData = {
+  .head.fn = instrExitExec,
+};
+
+Instr
+identity() {
+  return &identityData.head;
+}
 
 struct InstrCall {
+  instrHead head;
   int size;
   Instr next;
 };
 
 static void
 callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
-  if (c->next.fn == NULL) {
+  if (c->next->fn == NULL) {
     // TODO panic("should never here?")
     assert(false);
   }
 
-  if (c->next.fn == instrExitExec) { // Jump
+  if (c->next->fn == instrExitExec) { // Jump
     // Reuse the old stack
     for (int i=0; i<c->size; i++) {
       Obj arg = vmGet(vm, -c->size + i);
@@ -259,14 +372,14 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
     old.base = vm->base;
     old.pos = newStackBase;
 
-    Obj cc = makeContinuation(old, c->next.fn, c->next.data);
+    Obj cc = makeContinuation(old, c->next->fn, c->next);
     vm->base = newStackBase;
     vmSet(vm, 0, cc);
   }
 
   Instr code = closureCode(clo);
-  vm->pc = code.fn;
-  vm->pcData = code.data;
+  vm->pc = code->fn;
+  vm->pcData = code;
 }
 
 static void instrCallExec(struct VM *vm);
@@ -292,8 +405,8 @@ callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
 
   // Call partial.
   Instr code = closureCode(clo);
-  vm->pc = code.fn;
-  vm->pcData = code.data;
+  vm->pc = code->fn;
+  vm->pcData = code;
   while(vm->pc != NULL) {
     vm->pc(vm);
   }
@@ -307,8 +420,8 @@ callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
   vmResize(vm, c->size-required+2);
 
   Instr instr = makeInstrCall(c->size - required, c->next); // mem leak?
-  vm->pc = instr.fn;
-  vm->pcData = instr.data;
+  vm->pc = instr->fn;
+  vm->pcData = instr;
 }
 
 static void
@@ -333,8 +446,8 @@ callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
     instr = makeInstrCall(c->size+sz-1, c->next); // mem leak?
   }
 
-  vm->pc = instr.fn;
-  vm->pcData = instr.data;
+  vm->pc = instr->fn;
+  vm->pcData = instr;
 }
 
 static void
@@ -351,8 +464,8 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
     vm->val = curry;
     vm->pos = vm->pos - c->size - 1;
 
-    vm->pc = c->next.fn;
-    vm->pcData = c->next.data;
+    vm->pc = c->next->fn;
+    vm->pcData = c->next;
   } else {
     // partial apply
     callClosurePartial(c, vm, clo);
@@ -369,20 +482,28 @@ instrCallExec(struct VM *vm) {
     callCurry(c, vm, fn);
   } else {
     // TODO: panic
+    printf("call non-callable obj:%ld\n", fn);
     assert(false);
   }
 }
 
+static void
+instrCallGCFunc(struct GC *gc, void *obj) {
+  struct InstrCall *c = obj;
+  gcField(gc, &c->next->head);
+}
+
 Instr
 makeInstrCall(int size, Instr next) {
-  struct InstrCall *data = (struct InstrCall*)malloc(sizeof(struct InstrCall));
+  struct InstrCall *data = newObj(scmHeadInstr, sizeof(struct InstrCall));
+  data->head.fn = instrCallExec;
   data->size = size;
   data->next = next;
-  Instr ret = {.fn = instrCallExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrPrepareCall {
+  instrHead head;
   Instr next;
 };
 
@@ -390,19 +511,26 @@ static void
 instrPrepareCallExec(struct VM *vm) {
   struct InstrPrepareCall *i = vm->pcData;
   push(vm, Nil);
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrPrepareCallGCFunc(struct GC *gc, void *obj) {
+  struct InstrPrepareCall *i = obj;
+  gcField(gc, &i->next->head);
 }
 
 Instr
 makeInstrPrepareCall(Instr next) {
-  struct InstrPrepareCall *data = (struct InstrPrepareCall*)malloc(sizeof(struct InstrPrepareCall));
+  struct InstrPrepareCall *data = newObj(scmHeadInstr, sizeof(struct InstrPrepareCall));
+  data->head.fn = instrPrepareCallExec;
   data->next = next;
-  Instr ret = {.fn = instrPrepareCallExec, .data = data};
-  return ret;
+  return &data->head;
 }
 
 struct InstrMakeClosure {
+  instrHead head;
   Instr code;
   int required;
   Instr next;
@@ -440,20 +568,61 @@ instrMakeClosureExec(struct VM *vm) {
     hashInsert(&h, pos, val);
   }
 
-  vm->val = makeClosure(i->required, i->code.fn, i->code.data, parent, h);
-  vm->pc = i->next.fn;
-  vm->pcData = i->next.data;
+  vm->val = makeClosure(i->required, i->code, parent, h);
+  vm->pc = i->next->fn;
+  vm->pcData = i->next;
+}
+
+static void
+instrMakeClosureGCFunc(struct GC *gc, void *obj) {
+  struct InstrMakeClosure *x = obj;
+
+  gcField(gc, &x->code->head);
+  gcField(gc, &x->next->head);
 }
 
 Instr
 makeInstrMakeClosure(Instr code, int required, Instr next, int *closed, int nclosed) {
-  struct InstrMakeClosure *data = (struct InstrMakeClosure*)malloc(sizeof(struct InstrMakeClosure));
+  struct InstrMakeClosure *data = newObj(scmHeadInstr, sizeof(struct InstrMakeClosure));
+  data->head.fn = instrMakeClosureExec;
   data->code = code;
   data->required = required;
   data->next = next;
   data->closed = closed;
   data->nclosed = nclosed;
-  
-  Instr ret = {.fn = instrMakeClosureExec, .data = data};
-  return ret;
+  return &data->head;
+}
+
+void
+instrGCFunc(struct GC *gc, void *obj) {
+  Instr instr = obj;
+  // Can be more efficient by making a dispatch table.
+  if (instr->fn == instrConstExec) {
+    return instrConstGCFunc(gc, obj);
+  } else if (instr->fn == instrIfExec) {
+    return instrIFGCFunc(gc, obj);
+  } else if (instr->fn == instrNOPExec) {
+    return instrNOPGCFunc(gc, instr);
+  } else if (instr->fn == instrPushExec) {
+    return instrPushGCFunc(gc, obj);
+  } else if (instr->fn == instrLocalRefExec) {
+    return instrLocalRefGCFunc(gc, obj);
+  } else if (instr->fn == instrClosureRefExec) {
+    return instrClosureRefGCFunc(gc, obj);
+  } else if (instr->fn == instrGlobalRefExec) {
+    return instrGlobalRefGCFunc(gc, obj);
+  } else if (instr->fn == instrPrimitiveExec) {
+    return instrPrimitiveGCFunc(gc, obj);
+  } else if (instr->fn == instrExitExec) {
+    // Nothing
+  } else if (instr->fn == instrCallExec) {
+    return instrCallGCFunc(gc, obj);
+  } else if (instr->fn == instrPrepareCallExec) {
+    return instrPrepareCallGCFunc(gc, obj);
+  } else if (instr->fn == instrMakeClosureExec) {
+    return instrMakeClosureGCFunc(gc, obj);
+  } else {
+    printf("something is wrong!!\n");
+    assert(false);
+  }
 }

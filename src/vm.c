@@ -12,6 +12,8 @@ newVM() {
   vm->data = (Obj*)malloc(sizeof(Obj)*2048);
   vm->base = 0;
   vm->pos = 0;
+
+  vm->gcTicker = 0;
   return vm;
 }
 
@@ -50,8 +52,9 @@ vmReturn(struct VM *vm, Obj x) {
   vm->pos = s.pos;
 
   vm->val = x;
-  Instr i = contCode(cc);
-  nextInstr(vm, i.fn, i.data);
+  InstrFunc fn = contCode(cc);
+  InstrFunc data = contCodeData(cc);
+  nextInstr(vm, fn, data);
 }
 
 void
@@ -107,7 +110,7 @@ instrCall(struct VM *vm, int argc, InstrFunc next) {
   vmSet(vm, 0, cont);
 
   // Change the PC register.
-  nextInstr(vm, code.fn, code.data);
+  nextInstr(vm, code->fn, code);
 }
 
 struct registEntry {
@@ -172,10 +175,26 @@ registAPI(struct registModule* m) {
   }
 }
 
+struct GC *gc;
+
+static void*
+allocFn(void *allocator, int sz) {
+  void *p = malloc(sz);
+  assert(p != NULL);
+  /* printf("alloc ---%p\n", p); */
+  return p;
+}
+
+static void
+recycleFn(void *allocator, void *ptr) {
+  /* printf("recycle ---%p\n", ptr); */
+  return free(ptr);
+}
+
 void
 coraInit() {
-  /* gcInit(&gc); */
-  /* typesInit(); */
+  gc = gcInit(NULL, allocFn, recycleFn);
+  typesInit(gc);
   symQuote = intern("quote");
   symIf = intern("if");
   symLambda = intern("lambda");
