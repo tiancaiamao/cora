@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+
+#define GC_REGISTRY_MAX 256
 
 struct GC {
   void *allocator;
@@ -15,7 +18,7 @@ struct GC {
   scmHead gray;
   scmHead black;
 
-  gcFunc registry[256];
+  gcFunc registry[GC_REGISTRY_MAX];
 };
 
 
@@ -98,20 +101,25 @@ gcAlloc(struct GC *gc, int sz) {
       // After a round of GC, there are only ecru and black, switch them.
       postGC(gc);
 
+      assert(gc->white.next != NULL);
+
+      /* printf("full gc recycle object:%p\n", p); */
+
+      printf("start full gc ===\n");
+
       scmHead *p = gc->white.next;
       while(p != NULL) {
 	unlink(p);
 	gc->recycleFn(gc->allocator, p);
-	/* printf("full gc recycle object:%p\n", p); */
 	p = gc->white.next;
       }
+
+      printf("after post gc ===\n");
+      /* printGC(gc); */
+
     }
 
-    /* printf("after post gc ===\n"); */
-    /* printGC(gc); */
-    /* } */
     /* } else { */
-
     // Not enough white obj? refill one.
     scmHead* tmp = gc->allocFn(gc->allocator, sz);
     tmp->size = sz;
@@ -201,6 +209,8 @@ gcInit(void *allocator, void* (*allocFn)(void*, int), void (*recycleFn)(void*, v
   gc->black.next = NULL;
   gc->black.prev = NULL;
 
+  memset(gc->registry, 0, GC_REGISTRY_MAX*sizeof(gcFunc));
+
   return gc;
 }
 
@@ -225,8 +235,6 @@ gcIng(struct GC *gc) {
 
 static void
 printGC(struct GC *gc) {
-  return;
-  
   printf("printGC ... begin\n");
   if (gc->gray.next == NULL) {
     printf("no gray objects\n");
@@ -264,12 +272,12 @@ printGC(struct GC *gc) {
 
 void
 gcFull(struct GC *gc) {
-  /* printf("before full gc =========\n"); */
+  printf("before full gc =========\n");
   /* printGC(gc); */
 
   while(!gcStep(gc, 10)) {}
 
-  /* printf("after full gc =========\n"); */
+  printf("after full gc =========\n");
   /* printGC(gc); */
 }
 
@@ -313,13 +321,6 @@ struct Atom {
   scmHead head;
   int v;
 };
-
-void*
-newObj(scmHeadType tp, int sz) {
-  scmHead* h = gcAlloc(g, sz);
-  h->type = tp;
-  return h;
-}
 
 static scmHead*
 cons(scmHead* car, scmHead* cdr) {

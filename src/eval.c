@@ -2,6 +2,7 @@
 #include "vm.h"
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
 
 extern Instr makeInstrConst(Obj exp, Instr cont);
 extern Instr makeInstrNOP(Instr cont);
@@ -218,6 +219,7 @@ eval(struct VM *vm, Obj exp) {
   struct posArray pa = {.ptr = NULL, .size = 0, .cap = 0};
   Instr code = compile(exp, Nil, identity(), &pa);
   vm->pcData = code;
+  /* assert(vm->pos == 0); */
   run(vm, code->fn);
   return vm->val;
 }
@@ -228,6 +230,8 @@ extern void saveCC(struct VM *vm);
 static Obj
 call(struct VM *vm, int nargs, ...) {
   saveCC(vm);
+
+  printf("before call...%d %d\n", vm->base, vm->pos);
 
   va_list ap;
   va_start(ap, nargs);
@@ -246,6 +250,9 @@ call(struct VM *vm, int nargs, ...) {
   while(vm->pc != NULL) {
     vm->pc(vm);
   }
+
+  printf("after call...%d %d\n", vm->base, vm->pos);
+
   return vm->val;
 }
 

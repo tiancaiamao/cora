@@ -104,10 +104,11 @@ typedef struct _instrHead {
 
 typedef instrHead* Instr;
 
-Obj makePrimitive(InstrFunc fn, int required);
+Obj makePrimitive(InstrFunc fn, int required, char* name);
 bool isprimitive(Obj o);
 int primitiveRequired(Obj o);
 InstrFunc primitiveFn(Obj o);
+char *primitiveName(Obj o);
 
 /* Obj makeBuiltin(nativeFuncPtr fn, int required); */
 /* Obj makeNative(nativeFuncPtr fn, int required, int captured, ...); */
@@ -155,7 +156,7 @@ struct stack {
   int pos;
 };
 
-Obj makeContinuation(struct stack s, InstrFunc code, void *data);
+Obj makeContinuation(struct stack s, InstrFunc code, Instr data);
 InstrFunc contCode(Obj o);
 void* contCodeData(Obj o);
 
