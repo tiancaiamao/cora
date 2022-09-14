@@ -18,6 +18,8 @@ struct InstrConst {
 
 static void
 instrConstExec(struct VM *vm) {
+  printf("instr const exec\n");
+
   struct InstrConst *c = vm->pcData;
   vm->val = c->val;
   vm->pc = c->next->fn;
@@ -48,6 +50,8 @@ struct InstrIf {
 
 static void
 instrIfExec(struct VM *vm) {
+  printf("instr if exec\n");
+
   struct InstrIf *i = vm->pcData;
   if (vm->val == True) {
     vm->pc = i->br1->fn;
@@ -84,6 +88,8 @@ struct InstrNOP {
 
 static void
 instrNOPExec(struct VM *vm) {
+  printf("instr nop exec\n");
+
   struct InstrNOP *i = vm->pcData;
   vm->pc = i->next->fn;
   vm->pcData = i->next;
@@ -108,8 +114,53 @@ struct InstrPush {
   Instr next;
 };
 
+extern void gcGlobal(struct GC *gc);
+extern struct GC *gc;
+extern void gcFull(struct GC *gc);
+
+static bool
+maybeTriggerGC(struct VM *vm, struct GC *gc) {
+  vm->gcTicker++;
+  if (vm->gcTicker != 256) {
+    return false;
+  }
+  vm->gcTicker = 0;
+
+  if (gcIng(gc)) {
+    return false;
+  }
+
+  // Maybe trigger a new round of GC, if not currently GC-ing.
+  for (int i=vm->base; i<vm->pos; i++) {
+    scmHead *p = getScmHead(vm->data[i]);
+    if (p != NULL) {
+      gcMarkRoot(gc, p);
+    }
+  }
+
+  scmHead *p = getScmHead(vm->val);
+  if (p != NULL) {
+    gcMarkRoot(gc, p);
+  }
+
+  gcMarkRoot(gc, vm->pcData);
+
+  if (vm->gcSave != NULL) {
+    gcMarkRoot(gc, vm->gcSave);
+  }
+
+  gcGlobal(gc);
+  return true;
+}
+
 static void
 instrPushExec(struct VM *vm) {
+  printf("instr push exec\n");
+  bool succ = maybeTriggerGC(vm, gc);
+  if (succ) {
+    gcFull(gc);
+  }
+
   struct InstrPush *i = vm->pcData;
   push(vm, vm->val);
   vm->pc = i->next->fn;
@@ -138,6 +189,8 @@ struct InstrLocalRef {
 
 static void
 instrLocalRefExec(struct VM *vm) {
+  printf("instr local ref exec\n");
+
   struct InstrLocalRef *i = vm->pcData;
   Obj v = vmGet(vm, i->idx + 2);
   vm->val = v;
@@ -169,6 +222,8 @@ struct InstrClosureRef {
 
 static void
 instrClosureRefExec(struct VM *vm) {
+  printf("instr closure ref exec\n");
+
   struct InstrClosureRef *instr = vm->pcData;
   Obj tmp = vmGet(vm, 1);
   for (int i=instr->up; i>0; i--) {
@@ -203,6 +258,8 @@ struct InstrGlobalRef {
 
 static void
 instrGlobalRefExec(struct VM *vm) {
+  printf("instr global ref exec\n");
+
   struct InstrGlobalRef *i = vm->pcData;
   Obj val = symbolGet(i->sym);
   if (val == 0) {
@@ -240,50 +297,15 @@ struct InstrPrimitive {
 
 extern InstrFunc primitiveFn(Obj o);
 
-
-extern void gcGlobal(struct GC *gc);
-
-static bool
-maybeTriggerGC(struct VM *vm, struct GC *gc) {
-  vm->gcTicker++;
-  if (vm->gcTicker != 31) {
-    return false;
-  }
-  vm->gcTicker = 0;
-
-  if (gcIng(gc)) {
-    return false;
-  }
-
-  // Maybe trigger a new round of GC, if not currently GC-ing.
-  for (int i=vm->base; i<vm->pos; i++) {
-    scmHead *p = getScmHead(vm->data[i]);
-    if (p != NULL) {
-      gcMarkRoot(gc, p);
-    }
-  }
-
-  scmHead *p = getScmHead(vm->val);
-  if (p != NULL) {
-    gcMarkRoot(gc, p);
-  }
-
-  gcMarkRoot(gc, vm->pcData);
-
-  gcGlobal(gc);
-  return true;
-}
-
-extern struct GC *gc;
-extern void gcFull(struct GC *gc);
-
 static void
 instrPrimitiveExec(struct VM *vm) {
   struct InstrPrimitive *c = vm->pcData;
   int required = primitiveRequired(c->prim);
   if (c->size == required) {
     InstrFunc fn = primitiveFn(c->prim);
+    printf("before instr primitive(%s) exec %p \n", primitiveName(c->prim), fn);
     fn(vm);
+    printf("after instr primitive(%s) exec %p \n", primitiveName(c->prim), fn);
   } else if (c->size < required) {
     Obj *array = (Obj*)malloc(c->size * sizeof(Obj));
     memcpy(array, vm->data+vm->pos-c->size, c->size*sizeof(Obj));
@@ -299,11 +321,6 @@ instrPrimitiveExec(struct VM *vm) {
   } else {
     vm->pc = c->next->fn;
     vm->pcData = c->next;
-  }
-
-  bool succ = maybeTriggerGC(vm, gc);
-  if (succ) {
-    gcFull(gc);
   }
 }
 
@@ -332,6 +349,11 @@ struct InstrExit {
 
 static void
 instrExitExec(struct VM *vm) {
+  printf("instr exit exec (%d %d)\n", vm->base, vm->pos);
+  if (vm->base == 43 && vm->pos == 46) {
+    // ??
+    printf("lalal--");
+  }
   vmReturn(vm, vm->val);
 }
 
@@ -371,6 +393,11 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
     old.data = vm->data;
     old.base = vm->base;
     old.pos = newStackBase;
+
+    printf("call closure old stack == %d %d vm->base:%d\n", old.base, old.pos, vm->base);
+    if (old.base == 33 && old.pos == 38) {
+      printf("111");
+    }
 
     Obj cc = makeContinuation(old, c->next->fn, c->next);
     vm->base = newStackBase;
@@ -438,12 +465,12 @@ callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
     memcpy(base+sz-1, base+1, (c->size-1)*sizeof(Obj));
     memcpy(base-1, data, sz*sizeof(Obj));
     vm->pos = vm->pos + sz - 2;
-    instr = makeInstrPrimitive(c->size+sz-1, prim, c->next); // mem leak?
+    instr = makeInstrPrimitive(c->size+sz-1, prim, c->next);
   } else {
     memcpy(base+sz, base+1, (c->size-1)*sizeof(Obj));
     memcpy(base, data, sz*sizeof(Obj));
     vm->pos = vm->pos + sz - 1;
-    instr = makeInstrCall(c->size+sz-1, c->next); // mem leak?
+    instr = makeInstrCall(c->size+sz-1, c->next);
   }
 
   vm->pc = instr->fn;
@@ -474,6 +501,8 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
 
 static void
 instrCallExec(struct VM *vm) {
+  printf("instr call exec\n");
+
   struct InstrCall *c = vm->pcData;
   Obj fn = vmGet(vm, -c->size);
   if (isclosure(fn)) {
@@ -509,6 +538,8 @@ struct InstrPrepareCall {
 
 static void
 instrPrepareCallExec(struct VM *vm) {
+  printf("instr prepare call exec\n");
+
   struct InstrPrepareCall *i = vm->pcData;
   push(vm, Nil);
   vm->pc = i->next->fn;
@@ -554,6 +585,8 @@ hashInsert(struct hashForObj *h, int key, Obj value) {
 
 static void
 instrMakeClosureExec(struct VM *vm) {
+  printf("instr make closure exec\n");
+
   struct InstrMakeClosure *i = vm->pcData;
 
   struct hashForObj h;

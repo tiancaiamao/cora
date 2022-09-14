@@ -22,12 +22,27 @@ struct scmString {
 
 struct GC *gc;
 
+static char *typeNameX[] = {
+  "bool",
+  "null",
+  "number",
+  "cons",
+  "curry",
+  "string",
+  "vector",
+  "closure",
+  "continuation",
+  "primitive",
+  "instr",
+};
+
 void*
 newObj(scmHeadType tp, int sz) {
   /* scmHead* p = malloc(sz); */
   scmHead* p = gcAlloc(gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
+  printf("alloc object -- %p %s\n", p, typeNameX[tp]);
   return (void*)p;
 }
 
@@ -174,11 +189,11 @@ struct scmContinuation {
   scmHead head;
   struct stack s;
   InstrFunc code;
-  void *codeData;
+  Instr codeData;
 };
 
 Obj
-makeContinuation(struct stack s, InstrFunc code, void *codeData) {
+makeContinuation(struct stack s, InstrFunc code, Instr codeData) {
   struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
   cont->s = s;
   cont->code = code;
@@ -193,6 +208,7 @@ continuationGCFunc(struct GC *gc, void *obj) {
   for (int i=s->base; i<s->pos; i++) {
     gcField(gc, getScmHead(s->data[i]));
   }
+  gcField(gc, &cont->codeData->head);
 }
 
 struct stack
@@ -571,13 +587,15 @@ struct scmPrimitive {
   scmHead head;
   int required;
   InstrFunc fn;
+  char *name;
 };
 
 Obj
-makePrimitive(InstrFunc fn, int required) {
+makePrimitive(InstrFunc fn, int required, char *name) {
   struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive));
   clo->fn = fn;
   clo->required = required;
+  clo->name = name;
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
@@ -606,6 +624,13 @@ primitiveFn(Obj o) {
   struct scmPrimitive* c = ptr(o);
   assert(c->head.type == scmHeadPrimitive);
   return c->fn;
+}
+
+char *
+primitiveName(Obj o) {
+  struct scmPrimitive* c = ptr(o);
+  assert(c->head.type == scmHeadPrimitive);
+  return c->name;
 }
 
 void
