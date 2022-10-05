@@ -222,7 +222,7 @@ static char *typeName[] = {
 static void
 recycleFn(void *allocator, void *ptr) {
   scmHead* xx = ptr;
-  printf("recycle ---%p %s\n", ptr, typeName[xx->type]);
+  /* printf("recycle ---%p %s\n", ptr, typeName[xx->type]); */
   /* if (xx->type == 7) { */
   /*   return; */
   /* } */

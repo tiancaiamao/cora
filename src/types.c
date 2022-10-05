@@ -42,7 +42,7 @@ newObj(scmHeadType tp, int sz) {
   scmHead* p = gcAlloc(gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
-  printf("alloc object -- %p %s\n", p, typeNameX[tp]);
+  /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
   return (void*)p;
 }
 

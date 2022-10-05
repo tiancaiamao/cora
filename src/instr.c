@@ -18,7 +18,7 @@ struct InstrConst {
 
 static void
 instrConstExec(struct VM *vm) {
-  printf("instr const exec\n");
+  /* printf("instr const exec\n"); */
 
   struct InstrConst *c = vm->pcData;
   vm->val = c->val;
@@ -50,7 +50,7 @@ struct InstrIf {
 
 static void
 instrIfExec(struct VM *vm) {
-  printf("instr if exec\n");
+  /* printf("instr if exec\n"); */
 
   struct InstrIf *i = vm->pcData;
   if (vm->val == True) {
@@ -88,7 +88,7 @@ struct InstrNOP {
 
 static void
 instrNOPExec(struct VM *vm) {
-  printf("instr nop exec\n");
+  /* printf("instr nop exec\n"); */
 
   struct InstrNOP *i = vm->pcData;
   vm->pc = i->next->fn;
@@ -121,7 +121,7 @@ extern void gcFull(struct GC *gc);
 static bool
 maybeTriggerGC(struct VM *vm, struct GC *gc) {
   vm->gcTicker++;
-  if (vm->gcTicker != 256) {
+  if (vm->gcTicker != 128) {
     return false;
   }
   vm->gcTicker = 0;
@@ -155,7 +155,7 @@ maybeTriggerGC(struct VM *vm, struct GC *gc) {
 
 static void
 instrPushExec(struct VM *vm) {
-  printf("instr push exec\n");
+  /* printf("instr push exec\n"); */
   bool succ = maybeTriggerGC(vm, gc);
   if (succ) {
     gcFull(gc);
@@ -189,7 +189,7 @@ struct InstrLocalRef {
 
 static void
 instrLocalRefExec(struct VM *vm) {
-  printf("instr local ref exec\n");
+  /* printf("instr local ref exec\n"); */
 
   struct InstrLocalRef *i = vm->pcData;
   Obj v = vmGet(vm, i->idx + 2);
@@ -222,7 +222,7 @@ struct InstrClosureRef {
 
 static void
 instrClosureRefExec(struct VM *vm) {
-  printf("instr closure ref exec\n");
+  /* printf("instr closure ref exec\n"); */
 
   struct InstrClosureRef *instr = vm->pcData;
   Obj tmp = vmGet(vm, 1);
@@ -258,7 +258,7 @@ struct InstrGlobalRef {
 
 static void
 instrGlobalRefExec(struct VM *vm) {
-  printf("instr global ref exec\n");
+  /* printf("instr global ref exec\n"); */
 
   struct InstrGlobalRef *i = vm->pcData;
   Obj val = symbolGet(i->sym);
@@ -303,9 +303,9 @@ instrPrimitiveExec(struct VM *vm) {
   int required = primitiveRequired(c->prim);
   if (c->size == required) {
     InstrFunc fn = primitiveFn(c->prim);
-    printf("before instr primitive(%s) exec %p \n", primitiveName(c->prim), fn);
+    /* printf("before instr primitive(%s) exec %p \n", primitiveName(c->prim), fn); */
     fn(vm);
-    printf("after instr primitive(%s) exec %p \n", primitiveName(c->prim), fn);
+    /* printf("after instr primitive(%s) exec %p \n", primitiveName(c->prim), fn); */
   } else if (c->size < required) {
     Obj *array = (Obj*)malloc(c->size * sizeof(Obj));
     memcpy(array, vm->data+vm->pos-c->size, c->size*sizeof(Obj));
@@ -349,11 +349,11 @@ struct InstrExit {
 
 static void
 instrExitExec(struct VM *vm) {
-  printf("instr exit exec (%d %d)\n", vm->base, vm->pos);
-  if (vm->base == 43 && vm->pos == 46) {
-    // ??
-    printf("lalal--");
-  }
+  /* printf("instr exit exec (%d %d)\n", vm->base, vm->pos); */
+  /* if (vm->base == 43 && vm->pos == 46) { */
+  /*   // ?? */
+  /*   printf("lalal--"); */
+  /* } */
   vmReturn(vm, vm->val);
 }
 
@@ -394,10 +394,10 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
     old.base = vm->base;
     old.pos = newStackBase;
 
-    printf("call closure old stack == %d %d vm->base:%d\n", old.base, old.pos, vm->base);
-    if (old.base == 33 && old.pos == 38) {
-      printf("111");
-    }
+    /* printf("call closure old stack == %d %d vm->base:%d\n", old.base, old.pos, vm->base); */
+    /* if (old.base == 33 && old.pos == 38) { */
+    /*   printf("111"); */
+    /* } */
 
     Obj cc = makeContinuation(old, c->next->fn, c->next);
     vm->base = newStackBase;
@@ -501,7 +501,7 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
 
 static void
 instrCallExec(struct VM *vm) {
-  printf("instr call exec\n");
+  /* printf("instr call exec\n"); */
 
   struct InstrCall *c = vm->pcData;
   Obj fn = vmGet(vm, -c->size);
@@ -538,7 +538,7 @@ struct InstrPrepareCall {
 
 static void
 instrPrepareCallExec(struct VM *vm) {
-  printf("instr prepare call exec\n");
+  /* printf("instr prepare call exec\n"); */
 
   struct InstrPrepareCall *i = vm->pcData;
   push(vm, Nil);
@@ -585,13 +585,13 @@ hashInsert(struct hashForObj *h, int key, Obj value) {
 
 static void
 instrMakeClosureExec(struct VM *vm) {
-  printf("instr make closure exec\n");
+  /* printf("instr make closure exec\n"); */
 
   struct InstrMakeClosure *i = vm->pcData;
 
   struct hashForObj h;
   h.size = i->nclosed * 2;
-  h.ptr = calloc(h.size, sizeof(struct hashForObj));
+  h.ptr = calloc(h.size, sizeof(struct hashForObj)); // memory leak!
 
   Obj parent = vmGet(vm, 1);
   for (int idx=0; idx<i->nclosed; idx++) {

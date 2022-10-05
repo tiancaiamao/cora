@@ -11,8 +11,16 @@ struct GC {
   void* (*allocFn)(void* allocator, int sz);
   void (*recycleFn)(void* allocator, void *ptr);
 
+  // color is the color of ecru list.
   uint8_t color;
 
+  // state change:
+  /* |                   | gray     | black    | white    | ecru     | */
+  /* |-------------------|----------|----------|----------|----------| */
+  /* | GCing             | Not NULL |          |          |          | */
+  /* | GC finish         | NULL     | Not NULL |          |          | */
+  /* | Before next round | NULL     | Not NULL | NULL     |          | */
+  /* | Post GC           | NULL     | NULL     | Not NULL | Not NULL | */
   scmHead white;
   scmHead ecru;
   scmHead gray;
@@ -102,29 +110,13 @@ gcAlloc(struct GC *gc, int sz) {
       postGC(gc);
 
       assert(gc->white.next != NULL);
-
-      /* printf("full gc recycle object:%p\n", p); */
-
-      printf("start full gc ===\n");
-
-      scmHead *p = gc->white.next;
-      while(p != NULL) {
-	unlink(p);
-	gc->recycleFn(gc->allocator, p);
-	p = gc->white.next;
-      }
-
-      printf("after post gc ===\n");
       /* printGC(gc); */
-
+    } else {
+      // Not enough white obj? refill one.
+      scmHead* tmp = gc->allocFn(gc->allocator, sz);
+      tmp->size = sz;
+      link(tmp, &gc->white);
     }
-
-    /* } else { */
-    // Not enough white obj? refill one.
-    scmHead* tmp = gc->allocFn(gc->allocator, sz);
-    tmp->size = sz;
-    link(tmp, &gc->white);
-    /* } */
   }
 
   // Assume gc->white not null now.
@@ -141,16 +133,16 @@ gcAlloc(struct GC *gc, int sz) {
     tmp->size = sz;
   }
   
-  if (gc->gray.next != NULL) {
-    // GC-ing, and the black list will become the next ecru list.
+  if (gc->gray.next == NULL && gc->black.next == NULL) {
+    // No GC related things, just put the obj to ecru list.
+    tmp->color = gc->color;
+    link(tmp, &gc->ecru);
+  } else {
+    // Maybe GC-ing, the black list will become the next ecru list eventually.
     // If the color of an object is ecru, it's move to gray and then black.
     // So the new allocated is black directly.
     tmp->color = ~gc->color;
     link(tmp, &gc->black);
-  } else {
-    // Not GC-ing, just put the obj to ecru list.
-    tmp->color = gc->color;
-    link(tmp, &gc->ecru);
   }
 
   return tmp;
@@ -272,12 +264,12 @@ printGC(struct GC *gc) {
 
 void
 gcFull(struct GC *gc) {
-  printf("before full gc =========\n");
+  /* printf("before full gc =========\n"); */
   /* printGC(gc); */
 
   while(!gcStep(gc, 10)) {}
 
-  printf("after full gc =========\n");
+  /* printf("after full gc =========\n"); */
   /* printGC(gc); */
 }
 
