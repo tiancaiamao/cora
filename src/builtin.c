@@ -210,22 +210,27 @@ builtinLoad(struct VM *vm) {
     assert("wrong path");
   }
 
-  vm->gcSave = vm->pcData;
+  vm->gcSave[0] = vm->pcData;
 
   int err = 0;
   Obj ast = sexpRead(in, &err);
   while(err == 0) {
-    printf("========================================= read == \n");
-    sexpWrite(stdout, ast);
-    printf("\n");
+    /* printf("========================================= read == \n"); */
+    /* sexpWrite(stdout, ast); */
+    /* printf("\n"); */
     Obj exp = macroExpand(vm, ast);
+
+    vm->gcSave[1] = getScmHead(exp);
+    /* vm->gcSave = vm->pcData; */
+
     eval(vm, exp);
     ast = sexpRead(in, &err);
   }
   fclose(in);
   vm->val = path;
 
-  vm->gcSave = NULL;
+  vm->gcSave[0] = NULL;
+  vm->gcSave[1] = NULL;
 }
 
 /* void */

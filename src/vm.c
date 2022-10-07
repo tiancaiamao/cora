@@ -1,5 +1,6 @@
 #include "types.h"
 #include "vm.h"
+#include "gc.h"
 #include "builtin.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,12 +65,40 @@ vmReturn(struct VM *vm, Obj x) {
   nextInstr(vm, fn, data);
 }
 
+extern struct GC *gc;
+
+/* static char *typeName[] = { */
+/*   "bool", */
+/*   "null", */
+/*   "number", */
+/*   "cons", */
+/*   "curry", */
+/*   "string", */
+/*   "vector", */
+/*   "closure", */
+/*   "continuation", */
+/*   "primitive", */
+/*   "instr", */
+/* }; */
+
 void
 push(struct VM *vm, Obj v) {
   assert(vm->pos >= 0);
   assert(vm->pos >= vm->base);
 
   vm->data[vm->pos++] = v;
+
+  /*   // read barrier */
+  /* if (gcIng(gc)) { */
+  /*   scmHead *tmp = getScmHead(v); */
+  /*   if (tmp != NULL) { */
+  /*     if (ecru(gc, tmp)) { */
+  /* 	/\* unlink(v); *\/ */
+  /* 	/\* link(v, &gc->gray); *\/ */
+  /* 	printf("!!!!!!!!!!!!!!! %p %s\n", v, typeName[tmp->type]); */
+  /*     } */
+  /*   } */
+  /* } */
 }
 
 Obj
@@ -100,6 +129,18 @@ ctxGet(struct VM*vm, int idx) {
 void
 vmSet(struct VM* vm, int idx, Obj v) {
   vm->data[vm->base + idx] = v;
+
+  /*   // read barrier */
+  /* if (gcIng(gc)) { */
+  /*   scmHead *tmp = getScmHead(v); */
+  /*   if (tmp != NULL) { */
+  /*     if (ecru(gc, tmp)) { */
+  /* 	/\* unlink(v); *\/ */
+  /* 	/\* link(v, &gc->gray); *\/ */
+  /* 	printf("3333 !!!!!! %p %s\n", v, typeName[tmp->type]); */
+  /*     } */
+  /*   } */
+  /* } */
 }
 
 void
@@ -205,27 +246,10 @@ allocFn(void *allocator, int sz) {
   return p;
 }
 
-static char *typeName[] = {
-  "bool",
-  "null",
-  "number",
-  "cons",
-  "curry",
-  "string",
-  "vector",
-  "closure",
-  "continuation",
-  "primitive",
-  "instr",
-};
-
 static void
 recycleFn(void *allocator, void *ptr) {
-  scmHead* xx = ptr;
+  /* scmHead* xx = ptr; */
   /* printf("recycle ---%p %s\n", ptr, typeName[xx->type]); */
-  /* if (xx->type == 7) { */
-  /*   return; */
-  /* } */
   return free(ptr);
 }
 

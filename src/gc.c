@@ -4,31 +4,18 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GC_REGISTRY_MAX 256
+// The GC algorithm is inspired by the paper <The Treadmill: Real-Time Garbage Collection Without Motion Sickness>
+// The basic idea is the same -- like the "tricolor marking" and the "in-place garbage collection".
+// The "treadmill optimization" is not adopted, white/gray/black/ecru four lists are used, instead of making them cyclic.
+// See also http://www.cofault.com/2022/07/treadmill.html
 
-struct GC {
-  void *allocator;
-  void* (*allocFn)(void* allocator, int sz);
-  void (*recycleFn)(void* allocator, void *ptr);
+void gcDisable(struct GC *gc) {
+  gc->disable = true;
+}
 
-  // color is the color of ecru list.
-  uint8_t color;
-
-  // state change:
-  /* |                   | gray     | black    | white    | ecru     | */
-  /* |-------------------|----------|----------|----------|----------| */
-  /* | GCing             | Not NULL |          |          |          | */
-  /* | GC finish         | NULL     | Not NULL |          |          | */
-  /* | Before next round | NULL     | Not NULL | NULL     |          | */
-  /* | Post GC           | NULL     | NULL     | Not NULL | Not NULL | */
-  scmHead white;
-  scmHead ecru;
-  scmHead gray;
-  scmHead black;
-
-  gcFunc registry[GC_REGISTRY_MAX];
-};
-
+void gcEnable(struct GC *gc) {
+  gc->disable = false;
+}
 
 static void
 unlink(scmHead *h) {
@@ -52,7 +39,7 @@ link(scmHead *from, scmHead *to) {
   from->prev = to;
 }
 
-static bool
+bool
 ecru(struct GC *gc, scmHead *obj) {
   return gc->color == obj->color;
 }
@@ -100,14 +87,32 @@ postGC(struct GC *gc) {
 
 static void printGC(struct GC *gc);
 
+static char *typeName[] = {
+  "bool",
+  "null",
+  "number",
+  "cons",
+  "curry",
+  "string",
+  "vector",
+  "closure",
+  "continuation",
+  "primitive",
+  "instr",
+};
+
 // ----- exposed API ---------- //
 scmHead*
 gcAlloc(struct GC *gc, int sz) {
   if (gc->white.next == NULL) {
     // After consuming all the white obj
-    if (gc->gray.next == NULL && gc->black.next != NULL) {
-      // After a round of GC, there are only ecru and black, switch them.
+    if (gc->gray.next == NULL && gc->black.next != NULL && !gc->disable) {
+      // After a round of GC, there are only ecru and black, flip then.
       postGC(gc);
+      /* printf("\tpost gc ~~~\n"); */
+      /* for (scmHead *x = gc->white.next; x != NULL; x = x->next) { */
+      /* 	printf("\t%p %s\n", x, typeName[x->type]); */
+      /* } */
 
       assert(gc->white.next != NULL);
       /* printGC(gc); */
@@ -202,6 +207,8 @@ gcInit(void *allocator, void* (*allocFn)(void*, int), void (*recycleFn)(void*, v
   gc->black.prev = NULL;
 
   memset(gc->registry, 0, GC_REGISTRY_MAX*sizeof(gcFunc));
+
+  gc->disable = false;
 
   return gc;
 }
