@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <stdio.h>
 
 extern Instr makeInstrConst(Obj exp, Instr cont);
 extern Instr makeInstrNOP(Instr cont);
@@ -214,10 +215,17 @@ compileList(Obj exp, Obj env, Instr cont, struct posArray *pa) {
   return compile(car(exp), env, push, pa);
 }
 
+extern struct GC *gc;
+
 Obj
 eval(struct VM *vm, Obj exp) {
   struct posArray pa = {.ptr = NULL, .size = 0, .cap = 0};
+
+  // Don't GC during compile.
+  gcDisable(gc);
   Instr code = compile(exp, Nil, identity(), &pa);
+  gcEnable(gc);
+
   vm->pcData = code;
   /* assert(vm->pos == 0); */
   run(vm, code->fn);
@@ -231,7 +239,7 @@ static Obj
 call(struct VM *vm, int nargs, ...) {
   saveCC(vm);
 
-  printf("before call...%d %d\n", vm->base, vm->pos);
+  /* printf("before call...%d %d\n", vm->base, vm->pos); */
 
   va_list ap;
   va_start(ap, nargs);
@@ -251,7 +259,7 @@ call(struct VM *vm, int nargs, ...) {
     vm->pc(vm);
   }
 
-  printf("after call...%d %d\n", vm->base, vm->pos);
+  /* printf("after call...%d %d\n", vm->base, vm->pos); */
 
   return vm->val;
 }

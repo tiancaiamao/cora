@@ -120,18 +120,21 @@ extern void gcFull(struct GC *gc);
 
 static bool
 maybeTriggerGC(struct VM *vm, struct GC *gc) {
+  assert(!gcIng(gc));
+
+  if (gc->black.next != NULL) {
+    return false;
+  }
+
   vm->gcTicker++;
-  if (vm->gcTicker != 128) {
+  if (vm->gcTicker <= 64) {
     return false;
   }
   vm->gcTicker = 0;
 
-  if (gcIng(gc)) {
-    return false;
-  }
-
   // Maybe trigger a new round of GC, if not currently GC-ing.
-  for (int i=vm->base; i<vm->pos; i++) {
+  /* for (int i=vm->base; i<vm->pos; i++) { */
+  for (int i=0; i<vm->pos; i++) {
     scmHead *p = getScmHead(vm->data[i]);
     if (p != NULL) {
       gcMarkRoot(gc, p);
@@ -145,8 +148,10 @@ maybeTriggerGC(struct VM *vm, struct GC *gc) {
 
   gcMarkRoot(gc, vm->pcData);
 
-  if (vm->gcSave != NULL) {
-    gcMarkRoot(gc, vm->gcSave);
+  for (int i=0; i<2; i++) {
+    if (vm->gcSave[i] != NULL) {
+      gcMarkRoot(gc, vm->gcSave[i]);
+    }
   }
 
   gcGlobal(gc);
@@ -156,9 +161,13 @@ maybeTriggerGC(struct VM *vm, struct GC *gc) {
 static void
 instrPushExec(struct VM *vm) {
   /* printf("instr push exec\n"); */
-  bool succ = maybeTriggerGC(vm, gc);
-  if (succ) {
-    gcFull(gc);
+  if (gcIng(gc)) {
+    gcStep(gc, 5);
+  } else {
+    bool succ = maybeTriggerGC(vm, gc);
+    if (succ) {
+      /* printf("\ttrigger gc ~~~~\n"); */
+    }
   }
 
   struct InstrPush *i = vm->pcData;
@@ -395,9 +404,6 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
     old.pos = newStackBase;
 
     /* printf("call closure old stack == %d %d vm->base:%d\n", old.base, old.pos, vm->base); */
-    /* if (old.base == 33 && old.pos == 38) { */
-    /*   printf("111"); */
-    /* } */
 
     Obj cc = makeContinuation(old, c->next->fn, c->next);
     vm->base = newStackBase;

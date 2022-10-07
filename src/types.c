@@ -205,6 +205,7 @@ static void
 continuationGCFunc(struct GC *gc, void *obj) {
   struct scmContinuation *cont = obj;
   struct stack *s = &cont->s;
+  /* printf("cont gc func, stack = %d %d\n", s->base, s->pos); */
   for (int i=s->base; i<s->pos; i++) {
     gcField(gc, getScmHead(s->data[i]));
   }

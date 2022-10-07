@@ -17,7 +17,7 @@ struct VM {
   int pos;
 
   int gcTicker;
-  scmHead* gcSave;
+  scmHead* gcSave[2];
 };
 
 struct VM* newVM();
