@@ -24,7 +24,7 @@ struct VM* newVM();
 
 void push(struct VM *vm, Obj v);
 Obj pop(struct VM* vm);
-void instrCall(struct VM *vm, int argc, InstrFunc next);
+/* void instrCall(struct VM *vm, int argc, InstrFunc next); */
 Obj vmGet(struct VM* vm, int idx);
 Obj ctxGet(struct VM* vm, int idx);
 void vmSet(struct VM* vm, int idx, Obj v);

@@ -97,9 +97,25 @@ Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
+typedef enum {
+  instrHeadConst,
+  instrHeadIf,
+  instrHeadNOP,
+  instrHeadPush,
+  instrHeadLocalRef,
+  instrHeadClosureRef,
+  instrHeadGlobalRef,
+  instrHeadPrimitive,
+  instrHeadExit,
+  instrHeadCall,
+  instrHeadPrepareCall,
+  instrHeadMakeClosure,
+  instrHeadMax,
+} instrHeadType;
+
 typedef struct _instrHead {
   scmHead head;
-  InstrFunc fn;
+  instrHeadType type;
 } instrHead;
 
 typedef instrHead* Instr;

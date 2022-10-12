@@ -22,19 +22,19 @@ struct scmString {
 
 struct GC *gc;
 
-static char *typeNameX[] = {
-  "bool",
-  "null",
-  "number",
-  "cons",
-  "curry",
-  "string",
-  "vector",
-  "closure",
-  "continuation",
-  "primitive",
-  "instr",
-};
+/* static char *typeNameX[] = { */
+/*   "bool", */
+/*   "null", */
+/*   "number", */
+/*   "cons", */
+/*   "curry", */
+/*   "string", */
+/*   "vector", */
+/*   "closure", */
+/*   "continuation", */
+/*   "primitive", */
+/*   "instr", */
+/* }; */
 
 void*
 newObj(scmHeadType tp, int sz) {

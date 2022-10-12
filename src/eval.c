@@ -216,6 +216,7 @@ compileList(Obj exp, Obj env, Instr cont, struct posArray *pa) {
 }
 
 extern struct GC *gc;
+extern InstrFunc getInstrFunc(Instr i);
 
 Obj
 eval(struct VM *vm, Obj exp) {
@@ -228,7 +229,7 @@ eval(struct VM *vm, Obj exp) {
 
   vm->pcData = code;
   /* assert(vm->pos == 0); */
-  run(vm, code->fn);
+  run(vm, getInstrFunc(code));
   return vm->val;
 }
 
@@ -252,7 +253,7 @@ call(struct VM *vm, int nargs, ...) {
   /* vm->pc = instrCallExec; */
   /* vm->pcData = &data; */
   Instr instr = makeInstrCall(nargs, identity()); // mem leak?
-  vm->pc = instr->fn;
+  vm->pc = getInstrFunc(instr);
   vm->pcData = instr;
 
   while(vm->pc != NULL) {

@@ -151,27 +151,27 @@ vmResize(struct VM* vm, int sz) {
   vm->pos = vm->base + sz;
 }
 
-void
-instrCall(struct VM *vm, int argc, InstrFunc next) {
-  Obj fn = vmGet(vm, -argc);
-  Instr code = closureCode(fn);
+/* void */
+/* instrCall(struct VM *vm, int argc, InstrFunc next) { */
+/*   Obj fn = vmGet(vm, -argc); */
+/*   Instr code = closureCode(fn); */
 
-  int newBase = vm->pos - argc - 1;
-  struct stack save;
-  save.data = vm->data;
-  save.base = vm->base;
-  save.pos = newBase;
+/*   int newBase = vm->pos - argc - 1; */
+/*   struct stack save; */
+/*   save.data = vm->data; */
+/*   save.base = vm->base; */
+/*   save.pos = newBase; */
 
-  printf("instr call save stack == %d %d\n", save.base, save.pos);
+/*   printf("instr call save stack == %d %d\n", save.base, save.pos); */
   
-  // Save the old continuation.
-  Obj cont = makeContinuation(save, next, NULL);
-  vm->base = newBase;
-  vmSet(vm, 0, cont);
+/*   // Save the old continuation. */
+/*   Obj cont = makeContinuation(save, next, NULL); */
+/*   vm->base = newBase; */
+/*   vmSet(vm, 0, cont); */
 
-  // Change the PC register.
-  nextInstr(vm, code->fn, code);
-}
+/*   // Change the PC register. */
+/*   nextInstr(vm, code->fn, code); */
+/* } */
 
 struct registEntry {
   char *name;
