@@ -95,16 +95,18 @@ cdddr(Obj x) {
 struct scmClosure {
   scmHead head;
   int required;
-  Instr code;
+  InstrFunc code;
+  void *codeData;
   Obj parent;
   struct hashForObj slot;
 };
 
 Obj
-makeClosure(int required, Instr code, Obj parent, struct hashForObj h) {
+makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->code = code;
+  clo->codeData = codeData;
 
   clo->parent = parent;
   clo->slot = h;
@@ -124,7 +126,8 @@ closureGCFunc(struct GC *gc, void *obj) {
       gcField(gc, getScmHead(item->value));
     }
   }
-  gcField(gc, &clo->code->head);
+  
+  gcField(gc, &(((Instr)clo->codeData)->head));
 }
 
 bool
@@ -143,10 +146,16 @@ mustClosure(Obj o) {
   return c;
 }
 
-Instr
+InstrFunc
 closureCode(Obj o) {
   struct scmClosure* c = mustClosure(o);
   return c->code;
+}
+
+void*
+closureCodeData(Obj o) {
+  struct scmClosure* c = mustClosure(o);
+  return c->codeData;
 }
 
 Obj
@@ -589,14 +598,16 @@ struct scmPrimitive {
   int required;
   InstrFunc fn;
   char *name;
+  char *fname;
 };
 
 Obj
-makePrimitive(InstrFunc fn, int required, char *name) {
+makePrimitive(InstrFunc fn, int required, char *name, char *fname) {
   struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive));
   clo->fn = fn;
   clo->required = required;
   clo->name = name;
+  clo->fname = fname;
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
@@ -632,6 +643,13 @@ primitiveName(Obj o) {
   struct scmPrimitive* c = ptr(o);
   assert(c->head.type == scmHeadPrimitive);
   return c->name;
+}
+
+char *
+primitiveFnName(Obj o) {
+  struct scmPrimitive* c = ptr(o);
+  assert(c->head.type == scmHeadPrimitive);
+  return c->fname;
 }
 
 void

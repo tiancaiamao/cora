@@ -218,6 +218,17 @@ compileList(Obj exp, Obj env, Instr cont, struct posArray *pa) {
 extern struct GC *gc;
 extern InstrFunc getInstrFunc(Instr i);
 
+Instr
+compileAPI(Obj exp) {
+  struct posArray pa = {.ptr = NULL, .size = 0, .cap = 0};
+
+  // Don't GC during compile.
+  gcDisable(gc);
+  Instr code = compile(exp, Nil, identity(), &pa);
+  gcEnable(gc);
+  return code;
+}
+
 Obj
 eval(struct VM *vm, Obj exp) {
   struct posArray pa = {.ptr = NULL, .size = 0, .cap = 0};
@@ -461,7 +472,7 @@ struct testCase cases[] = {
 extern void printObj(FILE *to, Obj o);
 
 static void
-TestBasic() {
+TestEvalBasic() {
   struct VM *vm= newVM();
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
@@ -493,7 +504,7 @@ TestBasic() {
 
 int main() {
   coraInit();
-  TestBasic();
+  TestEvalBasic();
 }
 
 #endif

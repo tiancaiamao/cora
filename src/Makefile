@@ -8,13 +8,21 @@ CFLAGS = -g -Wall -fPIC
 
 all: libcora.a libcora.so
 
-test: eval_test
+test: eval_test instr_test
 
 eval_test: eval.test
 	./eval.test
 
 eval.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
 	gcc -g -D_EVAL_TEST_ $^ -o eval.test
+
+instr_test: instr.test
+	./instr.test > gen.c;
+	gcc -g *.c -o a.out;
+	./a.out
+
+instr.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
+	gcc -g -D_INSTR_TEST_ $^ -o instr.test
 
 libcora.a: $(OBJS)
 	ar -rc $@ $^

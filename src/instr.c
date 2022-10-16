@@ -7,16 +7,45 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* struct CodeGen { */
-/*   FILE* output; */
+struct CodeGen {
+  int label;
+  FILE** globals;
+  int pos;
+  int cap;
+};
 
-/*   int label; */
-/*   FILE* globals; */
-/* }; */
+static int
+cgGetLabel(struct CodeGen *cg) {
+  int ret = cg->label;
+  cg->label++;
+  return ret;
+}
 
-/* static void */
-/* codeGen(struct CodeGen *cg, Instr *instr) { */
-/* } */
+static void
+cgAddGlobal(struct CodeGen *cg, FILE* global) {
+  if (cg->cap == 0) {
+    cg->cap = 8;
+    cg->pos = 0;
+    cg->globals = calloc(cg->cap, sizeof(FILE*));
+  } else if (cg->pos == cg->cap) {
+    cg->cap = cg->cap * 2;
+    cg->globals = realloc(cg->globals, cg->cap * sizeof(FILE*));
+  }
+
+  cg->globals[cg->pos] = global;
+  cg->pos = cg->pos + 1;
+}
+
+typedef void (*InstrGCFunc)(struct GC *gc, void *obj);
+typedef void (*InstrCodeGenFunc)(struct CodeGen *cg, Instr instr, FILE *to);
+
+static InstrCodeGenFunc getInstrCodeGenFunc(Instr i);
+
+static void
+codeGen(struct CodeGen *cg, Instr instr, FILE *to) {
+  InstrCodeGenFunc f = getInstrCodeGenFunc(instr);
+  f(cg, instr, to);
+}
 
 InstrFunc getInstrFunc(Instr i);
 
@@ -26,7 +55,7 @@ struct InstrConst {
   Instr next;
 };
 
-static void
+void
 opConst(struct VM *vm, Obj val) {
   vm->val = val;
 }
@@ -41,10 +70,29 @@ instrConstExec(struct VM *vm) {
   vm->pcData = c->next;
 }
 
-/* static void */
-/* instrConstCodeGen() { */
+static void
+instrConstCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrConst *c = (void*)i;
+  if (c->val == Nil) {
+    fprintf(to, "opConst(vm, Nil);\n");
+  } else if (isboolean(c->val)) {
+    if (c->val == True) {
+      fprintf(to, "opConst(vm, True);\n");
+    } else {
+      fprintf(to, "opConst(vm, False);\n");
+    }
+  } else if (isfixnum(c->val)) {
+    fprintf(to, "opConst(vm, makeNumber(%ld));\n", fixnum(c->val));
+  } else if (isstring(c->val)) {
+    fprintf(to, "opConst(vm, makeString(\"%s\"));\n", stringStr(c->val));
+  } else if (issymbol(c->val)) {
+    fprintf(to, "opConst(vm, makeSymbol(\"%s\"));\n", symbolStr(c->val));
+  } else {
+    fprintf(to, "unknown instr const type;\n");
+  }
 
-/* } */
+  codeGen(cg, c->next, to);
+}
 
 static void
 instrConstGCFunc(struct GC *gc, void *obj) {
@@ -92,6 +140,18 @@ instrIfGCFunc(struct GC *gc, void *obj) {
   gcField(gc, &x->br2->head);
 }
 
+static void
+instrIfCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrIf *x = (void*)i;
+  fprintf(to, "if (vm->val == True) {\n");
+  codeGen(cg, x->br1, to);
+  fprintf(to, "} else if (vm->val == False) {\n");
+  codeGen(cg, x->br2, to);
+  fprintf(to, "} else {\n");
+  fprintf(to, "\tperror(\"if only accept true or false\");\n");
+  fprintf(to, "}\n");
+}
+
 Instr
 makeInstrIf(Instr br1, Instr br2) {
   struct InstrIf *data = newObj(scmHeadInstr, sizeof(struct InstrIf));
@@ -119,6 +179,12 @@ static void
 instrNOPGCFunc(struct GC *gc, void *obj) {
   struct InstrNOP *x = obj;
   gcField(gc, &x->next->head);
+}
+
+static void
+instrNOPCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrNOP *x = (void*)i;
+  codeGen(cg, x->next, to);
 }
 
 Instr
@@ -178,7 +244,7 @@ maybeTriggerGC(struct VM *vm, struct GC *gc) {
   return true;
 }
 
-static void
+void
 opPush(struct VM *vm) {
   /* printf("instr push exec\n"); */
   if (gcIng(gc)) {
@@ -207,6 +273,13 @@ instrPushGCFunc(struct GC *gc, void *obj) {
   gcField(gc, &p->next->head);
 }
 
+static void
+instrPushCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrPush *p = (void*)i;
+  fprintf(to, "opPush(vm);\n");
+  codeGen(cg, p->next, to);
+}
+
 Instr
 makeInstrPush(Instr next) {
   struct InstrPush *data = newObj(scmHeadInstr, sizeof(struct InstrPush));
@@ -221,7 +294,7 @@ struct InstrLocalRef {
   Instr next;
 };
 
-static void
+void
 opLocalRef(struct VM *vm, int idx) {
   vm->val = vmGet(vm, idx + 2);
 }
@@ -239,6 +312,13 @@ static void
 instrLocalRefGCFunc(struct GC *gc, void *obj) {
   struct InstrLocalRef *i = obj;
   gcField(gc, &i->next->head);
+}
+
+static void
+instrLocalRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrLocalRef *x = (void*)i;
+  fprintf(to, "opLocalRef(vm, %d);\n", x->idx);
+  codeGen(cg, x->next, to);
 }
 
 Instr
@@ -281,6 +361,13 @@ instrClosureRefGCFunc(struct GC *gc, void *obj) {
   gcField(gc, &p->next->head);
 }
 
+static void
+instrClosureRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrClosureRef *p = (void*)i;
+  fprintf(to, "opClosureRef(vm, %d, %d);\n", p->up, p->idx);
+  codeGen(cg, p->next, to);
+}
+
 Instr
 makeInstrClosureRef(int up, int idx, Instr next) {
   struct InstrClosureRef *data = newObj(scmHeadInstr, sizeof(struct InstrClosureRef));
@@ -297,7 +384,7 @@ struct InstrGlobalRef {
   Instr next;
 };
 
-static void
+void
 opGlobalRef(struct VM *vm, Obj sym) {
   Obj val = symbolGet(sym);
   if (val == 0) {
@@ -324,6 +411,13 @@ instrGlobalRefGCFunc(struct GC *gc, void *obj) {
   gcField(gc, &p->next->head);
 }
 
+static void
+instrGlobalRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrGlobalRef *p = (void*)i;
+  fprintf(to, "opGlobalRef(vm, makeSymbol(\"%s\"));\n", symbolStr(p->sym));
+  codeGen(cg, p->next, to);
+}
+
 Instr
 makeInstrGlobalRef(Obj sym, Instr next) {
   struct InstrGlobalRef *data = newObj(scmHeadInstr, sizeof(struct InstrGlobalRef));
@@ -342,7 +436,7 @@ struct InstrPrimitive {
 
 extern InstrFunc primitiveFn(Obj o);
 
-static void
+void
 opPrimitive(struct VM *vm, int size, Obj prim) {
   int required = primitiveRequired(prim);
   if (size == required) {
@@ -381,6 +475,17 @@ instrPrimitiveGCFunc(struct GC *gc, void *obj) {
   gcField(gc, &p->next->head);
 }
 
+static void
+instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrPrimitive *p = (void*)i;
+  fprintf(to, "opPrimitive(vm, %d, symbolGet(makeSymbol(\"%s\")));\n", p->size, primitiveName(p->prim));
+  if (getInstrFunc(p->next) == NULL) {
+    fprintf(to, "vmReturn(vm, vm->val);\n");
+  } else {
+    codeGen(cg, p->next, to);
+  }
+}
+
 struct scmPrimitive;
 
 Instr
@@ -397,7 +502,7 @@ struct InstrExit {
   instrHead head;
 };
 
-static void
+void
 opExit(struct VM *vm) {
   vmReturn(vm, vm->val);
 }
@@ -410,6 +515,11 @@ instrExitExec(struct VM *vm) {
   /*   printf("lalal--"); */
   /* } */
   opExit(vm);
+}
+
+static void
+instrExitCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  fprintf(to, "opExit(vm);\nreturn;\n");
 }
 
 struct InstrExit identityData = {
@@ -426,6 +536,23 @@ struct InstrCall {
   int size;
   Instr next;
 };
+
+void
+opCall(struct VM *vm, int argc, InstrFunc next) {
+  int newStackBase = vm->pos - argc - 1;
+  struct stack old;
+  old.data = vm->data;
+  old.base = vm->base;
+  old.pos = newStackBase;
+
+  Obj cc = makeContinuation(old, next, NULL);
+  vm->base = newStackBase;
+  vmSet(vm, 0, cc);
+
+  Obj clo = vmGet(vm, -argc);
+  vm->pc = closureCode(clo);
+  vm->pcData = closureCodeData(clo);
+}
 
 static void
 callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
@@ -456,9 +583,8 @@ callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
     vmSet(vm, 0, cc);
   }
 
-  Instr code = closureCode(clo);
-  vm->pc = getInstrFunc(code);
-  vm->pcData = code;
+  vm->pc = closureCode(clo);
+  vm->pcData = closureCodeData(clo);
 }
 
 static void instrCallExec(struct VM *vm);
@@ -483,9 +609,8 @@ callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
   vm->base = newBase;
 
   // Call partial.
-  Instr code = closureCode(clo);
-  vm->pc = getInstrFunc(code);
-  vm->pcData = code;
+  vm->pc = closureCode(clo);
+  vm->pcData = closureCodeData(clo);
   while(vm->pc != NULL) {
     vm->pc(vm);
   }
@@ -552,6 +677,26 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
 }
 
 static void
+instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrCall *c = (void*)i;
+  if (c->next != NULL) {
+    int label = cgGetLabel(cg);
+    char *ptr;
+    size_t sizeloc;
+    FILE *global = open_memstream(&ptr, &sizeloc);
+
+    fprintf(global, "static void fn_label_%d(struct VM* vm) {\n", label);
+    codeGen(cg, c->next, global);
+    fprintf(global, "}\n");
+    cgAddGlobal(cg, global);
+
+    fprintf(to, "opCall(vm, %d, fn_label_%d);\nreturn;\n", c->size, label);
+  } else {
+    fprintf(to, "opJump(vm, %d);\n", c->size);
+  }
+}
+
+static void
 instrCallExec(struct VM *vm) {
   struct InstrCall *c = vm->pcData;
   /* printf("instr call exec\n"); */
@@ -597,10 +742,22 @@ instrPrepareCallExec(struct VM *vm) {
   vm->pcData = i->next;
 }
 
+void
+opPreCall(struct VM *vm) {
+  push(vm, Nil);
+}
+
 static void
 instrPrepareCallGCFunc(struct GC *gc, void *obj) {
   struct InstrPrepareCall *i = obj;
   gcField(gc, &i->next->head);
+}
+
+static void
+instrPrepareCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrPrepareCall *x = (void*)i;
+  fprintf(to, "opPreCall(vm);\n");
+  codeGen(cg, x->next, to);
 }
 
 Instr
@@ -633,26 +790,28 @@ hashInsert(struct hashForObj *h, int key, Obj value) {
   h->ptr[pos].value = value;
 }
 
+void
+opMakeClosure(struct VM *vm, int required, InstrFunc fn, void* codeData, int *closed, int nclosed) {
+  struct hashForObj h;
+  h.size = nclosed * 2;
+  h.ptr = calloc(h.size, sizeof(struct hashForObj)); // memory leak!
+
+  Obj parent = vmGet(vm, 1);
+  for (int idx=0; idx<nclosed; idx++) {
+    int pos = closed[idx];
+    Obj val = vmGet(vm, pos+2);
+
+    hashInsert(&h, pos, val);
+  }
+  vm->val = makeClosure(required, fn, codeData, parent, h);
+}
 
 static void
 instrMakeClosureExec(struct VM *vm) {
   /* printf("instr make closure exec\n"); */
 
   struct InstrMakeClosure *i = vm->pcData;
-
-  struct hashForObj h;
-  h.size = i->nclosed * 2;
-  h.ptr = calloc(h.size, sizeof(struct hashForObj)); // memory leak!
-
-  Obj parent = vmGet(vm, 1);
-  for (int idx=0; idx<i->nclosed; idx++) {
-    int pos = i->closed[idx];
-    Obj val = vmGet(vm, pos+2);
-
-    hashInsert(&h, pos, val);
-  }
-
-  vm->val = makeClosure(i->required, i->code, parent, h);
+  opMakeClosure(vm, i->required, getInstrFunc(i->code), i->code, i->closed, i->nclosed);
   vm->pc = getInstrFunc(i->next);
   vm->pcData = i->next;
 }
@@ -663,6 +822,27 @@ instrMakeClosureGCFunc(struct GC *gc, void *obj) {
 
   gcField(gc, &x->code->head);
   gcField(gc, &x->next->head);
+}
+
+static void
+instrMakeClosureCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
+  struct InstrMakeClosure *x = (void*)i;
+  int label = cgGetLabel(cg);
+  char *ptr;
+  size_t sizeloc;
+  FILE *global = open_memstream(&ptr, &sizeloc);
+
+  fprintf(global, "static void fn_label_%d(struct VM *vm) {\n", label);
+  codeGen(cg, x->code, global);
+  fprintf(global, "}\n");
+  cgAddGlobal(cg, global);
+
+  if (x->nclosed == 0) {
+    fprintf(to, "opMakeClosure(vm, %d, fn_label_%d, NULL, NULL, 0);\n", x->required, label);
+  } else {
+    fprintf(to, "opMakeClosure(TODO);\n");
+  }
+  codeGen(cg, x->next, to);
 }
 
 Instr
@@ -677,44 +857,116 @@ makeInstrMakeClosure(Instr code, int required, Instr next, int *closed, int nclo
   return &data->head;
 }
 
-typedef void (*InstrGCFunc)(struct GC *gc, void *obj);
-
 struct _instrMethod {
   InstrFunc exec;
   InstrGCFunc gcFunc;
-  /* void (*codeGen)(struct CodeGen *cg, Instr *instr); */
+  InstrCodeGenFunc codeGen;
 } instrMethodTable[instrHeadMax] = {
-  [instrHeadConst]{.exec = instrConstExec, .gcFunc = instrConstGCFunc},
-  [instrHeadIf]{.exec = instrIfExec, .gcFunc = instrIfGCFunc},
-  [instrHeadNOP]{.exec = instrNOPExec, .gcFunc = instrNOPGCFunc},
-  [instrHeadPush]{.exec = instrPushExec, .gcFunc = instrPushGCFunc},
-  [instrHeadLocalRef]{.exec = instrLocalRefExec, .gcFunc = instrLocalRefGCFunc},
-  [instrHeadClosureRef]{.exec = instrClosureRefExec, .gcFunc = instrClosureRefGCFunc},
-  [instrHeadGlobalRef]{.exec = instrGlobalRefExec, .gcFunc = instrGlobalRefGCFunc},
-  [instrHeadPrimitive]{.exec = instrPrimitiveExec, .gcFunc = instrPrimitiveGCFunc},
-  [instrHeadExit]{.exec = instrExitExec, .gcFunc = NULL},
-  [instrHeadCall]{.exec = instrCallExec, .gcFunc = instrCallGCFunc},
-  [instrHeadPrepareCall]{.exec = instrPrepareCallExec, .gcFunc = instrPrepareCallGCFunc},
-  [instrHeadMakeClosure]{.exec = instrMakeClosureExec, .gcFunc = instrMakeClosureGCFunc},
+  [instrHeadConst]{.exec = instrConstExec, .gcFunc = instrConstGCFunc, codeGen: instrConstCodeGen},
+  [instrHeadIf]{.exec = instrIfExec, .gcFunc = instrIfGCFunc, codeGen: instrIfCodeGen},
+  [instrHeadNOP]{.exec = instrNOPExec, .gcFunc = instrNOPGCFunc, codeGen: instrNOPCodeGen},
+  [instrHeadPush]{.exec = instrPushExec, .gcFunc = instrPushGCFunc, codeGen: instrPushCodeGen},
+  [instrHeadLocalRef]{.exec = instrLocalRefExec, .gcFunc = instrLocalRefGCFunc, codeGen: instrLocalRefCodeGen},
+  [instrHeadClosureRef]{.exec = instrClosureRefExec, .gcFunc = instrClosureRefGCFunc, codeGen: instrClosureRefCodeGen},
+  [instrHeadGlobalRef]{.exec = instrGlobalRefExec, .gcFunc = instrGlobalRefGCFunc, codeGen: instrGlobalRefCodeGen},
+  [instrHeadPrimitive]{.exec = instrPrimitiveExec, .gcFunc = instrPrimitiveGCFunc, codeGen: instrPrimitiveCodeGen},
+  [instrHeadExit]{.exec = instrExitExec, .gcFunc = NULL, codeGen: instrExitCodeGen},
+  [instrHeadCall]{.exec = instrCallExec, .gcFunc = instrCallGCFunc, codeGen: instrCallCodeGen},
+  [instrHeadPrepareCall]{.exec = instrPrepareCallExec, .gcFunc = instrPrepareCallGCFunc, codeGen: instrPrepareCallCodeGen},
+  [instrHeadMakeClosure]{.exec = instrMakeClosureExec, .gcFunc = instrMakeClosureGCFunc, codeGen: instrMakeClosureCodeGen},
 };
 
-InstrFunc getInstrFunc(Instr i) {
+InstrFunc
+getInstrFunc(Instr i) {
   return instrMethodTable[i->type].exec;
 }
 
-InstrGCFunc getInstrGCFunc(Instr i) {
+InstrGCFunc
+getInstrGCFunc(Instr i) {
   return instrMethodTable[i->type].gcFunc;
 }
 
-/* InstrCodeGenFunc getInstrGCFunc(Instr i) { */
-/*   return instrMethodTable[i->type].codeGen; */
-/* } */
+static InstrCodeGenFunc
+getInstrCodeGenFunc(Instr i) {
+  return instrMethodTable[i->type].codeGen;
+}
 
 void
 instrGCFunc(struct GC *gc, void *obj) {
   Instr instr = obj;
   if (instr->type == instrHeadExit) {
-    // Nothing
+
   }
   return getInstrGCFunc(instr)(gc, obj);
 }
+
+#ifdef _INSTR_TEST_
+
+#include "reader.h"
+#include <stdio.h>
+
+
+Instr compileAPI(Obj exp);
+
+static void
+copyStream(FILE *to, FILE *from) {
+  char            buffer[BUFSIZ];
+  size_t          n;
+  n = fread(buffer, sizeof(char), sizeof(buffer), from);
+  while (n > 0) {
+    if (fwrite(buffer, sizeof(char), n, to) != n) {
+      perror("write failed\n");
+    }
+    n = fread(buffer, sizeof(char), sizeof(buffer), from);
+  }
+}
+
+int main(int argc, char* argv[]) {
+  coraInit();
+  
+
+  static char *input = "(do (set (quote fact) \
+     (lambda (n) \
+       (if (= n 0) \
+	   1 \
+	 (* n (fact (- n 1)))))) \
+     (fact 5))";
+
+  FILE* f = fmemopen(input, strlen(input), "r");
+  int errCode;
+  Obj s = sexpRead(f, &errCode);
+  Instr code = compileAPI(s);
+
+  char *ptr;
+  size_t sizeloc;
+  FILE *to = open_memstream(&ptr, &sizeloc);
+  struct CodeGen cg = {};
+
+  codeGen(&cg, code, to);
+
+  fprintf(stdout, "#include \"types.h\" \n\
+#include \"vm.h\" \n\
+#include \"instr.h\" \n\
+#include <stdio.h>\n");
+
+  for (int i=0; i<cg.pos; i++) {
+    if (fseek(cg.globals[i], 0, SEEK_SET) < 0) {
+      perror("fseek fail");
+    };
+    copyStream(stdout, cg.globals[i]);
+    fprintf(stdout, "\n");
+  }
+
+  fprintf(stdout, "static void\n__entry(struct VM *vm) {\n");
+  copyStream(stdout, to);
+  fprintf(stdout, "}\n");
+
+  fprintf(stdout, "int main(int argc, char *argv[]) {\n\
+  struct VM *vm = newVM();\n\
+  coraInit();\n\
+  run(vm, __entry);\n\
+  printf(\"%%ld\", fixnum(vm->val));\n\
+}");
+}
+
+#endif

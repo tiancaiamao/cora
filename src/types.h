@@ -120,11 +120,12 @@ typedef struct _instrHead {
 
 typedef instrHead* Instr;
 
-Obj makePrimitive(InstrFunc fn, int required, char* name);
+Obj makePrimitive(InstrFunc fn, int required, char* name, char *fname);
 bool isprimitive(Obj o);
 int primitiveRequired(Obj o);
 InstrFunc primitiveFn(Obj o);
 char *primitiveName(Obj o);
+char *primitiveFnName(Obj o);
 
 /* Obj makeBuiltin(nativeFuncPtr fn, int required); */
 /* Obj makeNative(nativeFuncPtr fn, int required, int captured, ...); */
@@ -152,8 +153,9 @@ struct hashForObj {
   int size;
 };
 
-Obj makeClosure(int required, Instr code, Obj parent, struct hashForObj h);
-Instr closureCode(Obj);
+Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h);
+InstrFunc closureCode(Obj);
+void* closureCodeData(Obj);
 bool isclosure(Obj o);
 Obj closureParent(Obj);
 Obj closureSlot(Obj, int);

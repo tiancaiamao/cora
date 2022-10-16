@@ -151,32 +151,11 @@ vmResize(struct VM* vm, int sz) {
   vm->pos = vm->base + sz;
 }
 
-/* void */
-/* instrCall(struct VM *vm, int argc, InstrFunc next) { */
-/*   Obj fn = vmGet(vm, -argc); */
-/*   Instr code = closureCode(fn); */
-
-/*   int newBase = vm->pos - argc - 1; */
-/*   struct stack save; */
-/*   save.data = vm->data; */
-/*   save.base = vm->base; */
-/*   save.pos = newBase; */
-
-/*   printf("instr call save stack == %d %d\n", save.base, save.pos); */
-  
-/*   // Save the old continuation. */
-/*   Obj cont = makeContinuation(save, next, NULL); */
-/*   vm->base = newBase; */
-/*   vmSet(vm, 0, cont); */
-
-/*   // Change the PC register. */
-/*   nextInstr(vm, code->fn, code); */
-/* } */
-
 struct registEntry {
   char *name;
   InstrFunc func;
   int args;
+  char *fname;
 };
 
 struct registModule {
@@ -187,31 +166,31 @@ struct registModule {
 static struct registModule builtinModule = {
   NULL,
   {
-    {"+", builtinAdd, 2},
-    {"-", builtinSub, 2},
-    {"*", builtinMul, 2},
-    {"/", builtinDiv, 2},
-    {"%", builtinMod, 2},
-    {"=", builtinEqual, 2},
-    {"set", builtinSet, 2},
-    {"value", builtinValue, 1},
-    {"cons", builtinCons, 2},
-    {"car", builtinCar, 1},
-    {"cdr", builtinCdr, 1},
-    {"cons?", builtinIsCons, 1},
-    {"gensym", builtinGensym, 1},
-    {">",builtinGT, 2},
-    {"<",builtinLT, 2},
-    {"not",builtinNot, 1},
-    {"symbol?",builtinIsSymbol, 1},
-    {"string?",builtinIsString, 1},
-    {"number?",builtinIsNumber, 1},
-    {"vector",builtinMakeVector, 1},
-    {"vector-set!",builtinVectorSet, 3},
-    {"vector-ref",builtinVectorRef, 2},
-    {"vector?",builtinIsVector, 1},
-    {"intern",builtinIntern, 1},
-    {"load",builtinLoad, 1},
+    {"+", builtinAdd, 2, "Add"},
+    {"-", builtinSub, 2, "Sub"},
+    {"*", builtinMul, 2, "Mul"},
+    {"/", builtinDiv, 2, "Div"},
+    {"%", builtinMod, 2, "Mod"},
+    {"=", builtinEqual, 2, "Equal"},
+    {"set", builtinSet, 2, "Set"},
+    /* {"value", builtinValue, 1, "Value"}, */
+    {"cons", builtinCons, 2, "Cons"},
+    {"car", builtinCar, 1, "Car"},
+    {"cdr", builtinCdr, 1, "Cdr"},
+    {"cons?", builtinIsCons, 1, "IsCons"},
+    {"gensym", builtinGensym, 1, "Gensym"},
+    {">",builtinGT, 2, "GT"},
+    {"<",builtinLT, 2, "LT"},
+    {"not",builtinNot, 1, "Not"},
+    {"symbol?",builtinIsSymbol, 1, "IsSymbol"},
+    {"string?",builtinIsString, 1, "IsString"},
+    {"number?",builtinIsNumber, 1, "IsNumber"},
+    {"vector",builtinMakeVector, 1, "MakeVector"},
+    {"vector-set!",builtinVectorSet, 3, "VectorSet"},
+    {"vector-ref",builtinVectorRef, 2, "VectorRef"},
+    {"vector?",builtinIsVector, 1, "IsVector"},
+    {"intern",builtinIntern, 1, "Intern"},
+    {"load",builtinLoad, 1, "Load"},
     /* {"load-so",builtinLoadSo, 1}, */
     {NULL, NULL, 0}
   }
@@ -230,7 +209,7 @@ registAPI(struct registModule* m) {
     }
 
     // printf("registAPI: %s\n", entry.name);
-    Obj prim = makePrimitive(entry.func, entry.args, entry.name);
+    Obj prim = makePrimitive(entry.func, entry.args, entry.name, entry.fname);
 
     symbolSet(intern(entry.name), prim);
   }
