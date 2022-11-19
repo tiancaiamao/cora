@@ -94,7 +94,8 @@ cdddr(Obj x) {
 
 struct scmClosure {
   scmHead head;
-  int required;
+  // required is the required stack size, argc = required - 1;
+  int required; 
   InstrFunc code;
   void *codeData;
   Obj parent;

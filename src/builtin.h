@@ -32,4 +32,11 @@ void builtinNumberToString(struct VM *ctx);
 void builtinIntern(struct VM *ctx);
 void builtinValue(struct VM* ctx);
 
+
+
+Obj primSet(Obj x, Obj y);
+Obj primMul(Obj x, Obj y);
+Obj primSub(Obj x, Obj y);
+Obj primEqual(Obj a, Obj b);
+
 #endif

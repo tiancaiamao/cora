@@ -48,5 +48,3 @@ DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
 $(DEPFILES):
 
 include $(wildcard $(DEPFILES))
-
-

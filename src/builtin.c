@@ -31,11 +31,15 @@ void
 builtinEqual(struct VM *vm) {
   Obj a = pop(vm);
   Obj b = pop(vm);
+  vm->val = primEqual(a, b);
+}
 
+Obj
+primEqual(Obj a, Obj b) {
   if (eq(a, b)) {
-    vm->val = True;
+    return True;
   } else {
-    vm->val = False;
+    return False;
   }
 }
 
@@ -43,19 +47,28 @@ void
 builtinMul(struct VM *vm) {
   Obj x = pop(vm);
   Obj y = pop(vm);
+  vm->val = primMul(x, y);
+}
+
+Obj
+primMul(Obj x, Obj y) {
   assert(isfixnum(x));
   assert(isfixnum(y));
-  vm->val = makeNumber(fixnum(x) * fixnum(y));
+  return makeNumber(fixnum(x) * fixnum(y));
 }
 
 void
 builtinSub(struct VM *vm) {
   Obj x = pop(vm);
   Obj y = pop(vm);
+  vm->val = primSub(y, x);
+}
+
+Obj
+primSub(Obj x, Obj y) {
   assert(isfixnum(x));
   assert(isfixnum(y));
-  Obj ret = makeNumber(fixnum(y) - (fixnum(x)));
-  vm->val = ret;
+  return makeNumber(fixnum(x) - (fixnum(y)));
 }
 
 void
@@ -337,4 +350,11 @@ builtinIntern(struct VM *vm) {
   Obj x = pop(vm);
   assert(isstring(x));
   vm->val = intern(stringStr(x));
+}
+
+
+Obj
+primSet(Obj x, Obj y) {
+  symbolSet(x, y);
+  return y;
 }

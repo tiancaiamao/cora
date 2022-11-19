@@ -7,7 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+const int NREG = 4;
+
 struct CodeGen {
+  // top-of-stack-caching
+  int state;
+  int cur;
+
   int label;
   FILE** globals;
   int pos;
@@ -74,19 +80,19 @@ static void
 instrConstCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrConst *c = (void*)i;
   if (c->val == Nil) {
-    fprintf(to, "opConst(vm, Nil);\n");
+    fprintf(to, "val = Nil;\n");
   } else if (isboolean(c->val)) {
     if (c->val == True) {
-      fprintf(to, "opConst(vm, True);\n");
+      fprintf(to, "val = True;\n");
     } else {
-      fprintf(to, "opConst(vm, False);\n");
+      fprintf(to, "val = False;\n");
     }
   } else if (isfixnum(c->val)) {
-    fprintf(to, "opConst(vm, makeNumber(%ld));\n", fixnum(c->val));
+    fprintf(to, "val = makeNumber(%ld);\n", fixnum(c->val));
   } else if (isstring(c->val)) {
-    fprintf(to, "opConst(vm, makeString(\"%s\"));\n", stringStr(c->val));
+    fprintf(to, "val = makeString(\"%s\");\n", stringStr(c->val));
   } else if (issymbol(c->val)) {
-    fprintf(to, "opConst(vm, makeSymbol(\"%s\"));\n", symbolStr(c->val));
+    fprintf(to, "val = makeSymbol(\"%s\");\n", symbolStr(c->val));
   } else {
     fprintf(to, "unknown instr const type;\n");
   }
@@ -143,9 +149,9 @@ instrIfGCFunc(struct GC *gc, void *obj) {
 static void
 instrIfCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrIf *x = (void*)i;
-  fprintf(to, "if (vm->val == True) {\n");
+  fprintf(to, "if (val == True) {\n");
   codeGen(cg, x->br1, to);
-  fprintf(to, "} else if (vm->val == False) {\n");
+  fprintf(to, "} else if (val == False) {\n");
   codeGen(cg, x->br2, to);
   fprintf(to, "} else {\n");
   fprintf(to, "\tperror(\"if only accept true or false\");\n");
@@ -276,7 +282,14 @@ instrPushGCFunc(struct GC *gc, void *obj) {
 static void
 instrPushCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrPush *p = (void*)i;
-  fprintf(to, "opPush(vm);\n");
+  if (cg->state == NREG) {
+    fprintf(to, "*sp++ = r%d;\n", cg->cur);
+  }
+  fprintf(to, "r%d = val;\n", cg->cur);
+  if (cg->state < NREG) {
+    cg->state = cg->state + 1;
+  }
+  cg->cur = (cg->cur + 1) % NREG;
   codeGen(cg, p->next, to);
 }
 
@@ -317,7 +330,7 @@ instrLocalRefGCFunc(struct GC *gc, void *obj) {
 static void
 instrLocalRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrLocalRef *x = (void*)i;
-  fprintf(to, "opLocalRef(vm, %d);\n", x->idx);
+  fprintf(to, "val = bp[%d];\n", x->idx + 2);
   codeGen(cg, x->next, to);
 }
 
@@ -364,7 +377,7 @@ instrClosureRefGCFunc(struct GC *gc, void *obj) {
 static void
 instrClosureRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrClosureRef *p = (void*)i;
-  fprintf(to, "opClosureRef(vm, %d, %d);\n", p->up, p->idx);
+  fprintf(to, "val = opClosureRef(vm, %d, %d);\n", p->up, p->idx);
   codeGen(cg, p->next, to);
 }
 
@@ -414,7 +427,7 @@ instrGlobalRefGCFunc(struct GC *gc, void *obj) {
 static void
 instrGlobalRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrGlobalRef *p = (void*)i;
-  fprintf(to, "opGlobalRef(vm, makeSymbol(\"%s\"));\n", symbolStr(p->sym));
+  fprintf(to, "val = symbolGet(makeSymbol(\"%s\"));\n", symbolStr(p->sym));
   codeGen(cg, p->next, to);
 }
 
@@ -478,7 +491,55 @@ instrPrimitiveGCFunc(struct GC *gc, void *obj) {
 static void
 instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrPrimitive *p = (void*)i;
-  fprintf(to, "opPrimitive(vm, %d, symbolGet(makeSymbol(\"%s\")));\n", p->size, primitiveName(p->prim));
+
+  fprintf(to, "// before handle prim, state=%d, cur=%d;\n", cg->state, cg->cur);
+
+  fprintf(to, "val = prim%s(", primitiveFnName(p->prim));
+  for (int i=0; i<p->size; i++) {
+    if (i != 0) {
+      fprintf(to, ", ");
+    }
+    // Get the virtual SP[i], when i + cg->state >= argc, SP[i] is in the register,
+    // For example, cg->state = 3, argc = 5
+    // rN
+    // rN-1  <- i
+    // rN-2   
+    // sp
+    // sp-1
+    // Otherwise it's in the stack.
+    if (i + cg->state < p->size) {
+      fprintf(to, "sp[%d]", i-cg->state);
+    } else {
+      int distanceToTop = p->size - i;
+      fprintf(to, "r%d", (cg->cur + NREG - distanceToTop) % NREG);
+    }
+  }
+  fprintf(to, ");\n");
+
+  // Need to pop stack argc times!
+  if (p->size <= cg->state) {
+    // All args in the register
+    for (int i=p->size-1; i>=0; i--) {
+      cg->cur = (cg->cur - 1 + NREG) % NREG;
+      cg->state--;
+    }
+  } else {
+    // Some args are in the register and some are in the stack.
+    for (int i=0; i<cg->state; i++) {
+      cg->cur = (cg->cur - 1 + NREG) % NREG;
+      cg->state--;
+    }
+    for (int i=0; i< (p->size - cg->state); i++) {
+      // handle arg[i], from top to bottom
+      // i < cg->state means the argument is in the stack, otherwise it's in the register.
+      if (i < cg->state) {
+	fprintf(to, "sp--;\n");
+      }
+    }
+  }
+  fprintf(to, "// after handle prim, state=%d, cur=%d;\n", cg->state, cg->cur);
+
+  /* fprintf(to, "opPrimitive(vm, %d, symbolGet(makeSymbol(\"%s\")));\n", p->size, primitiveName(p->prim)); */
   if (getInstrFunc(p->next) == NULL) {
     fprintf(to, "vmReturn(vm, vm->val);\n");
   } else {
@@ -519,7 +580,7 @@ instrExitExec(struct VM *vm) {
 
 static void
 instrExitCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
-  fprintf(to, "opExit(vm);\nreturn;\n");
+  fprintf(to, "vm->val=val;\nopExit(vm);\nreturn;\n");
 }
 
 struct InstrExit identityData = {
@@ -533,6 +594,9 @@ identity() {
 
 struct InstrCall {
   instrHead head;
+  // Size is the count of the stack for calling, including the function itself.
+  // The actual argc is size - 1
+  // fn arg0 arg1 ... argc
   int size;
   Instr next;
 };
@@ -686,10 +750,37 @@ instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     FILE *global = open_memstream(&ptr, &sizeloc);
 
     fprintf(global, "static void fn_label_%d(struct VM* vm) {\n", label);
+    fprintf(global, "Obj *bp, *sp, val, r0, r1, r2, r3;\n");
+    fprintf(global, "bp = vm->data + vm->base;\n");
+    fprintf(global, "sp = vm->data + vm->pos;\n");
+    fprintf(global, "val = vm->val;\n");
+
+    int saveState = cg->state;
+    int saveCur = cg->cur;
+
+    fprintf(to, "// before call, state=%d, cur=%d;\n", cg->state, cg->cur);
+
+    cg->state = 0;
+    cg->cur = 0;
+
     codeGen(cg, c->next, global);
+
+    cg->state = saveState;
+    cg->cur = saveCur;
+
     fprintf(global, "}\n");
     cgAddGlobal(cg, global);
 
+
+    fprintf(to, "// after call, state=%d, cur=%d;\n", cg->state, cg->cur);
+
+    // Save the registers to stack for the calling protocol.
+    for (int i=0; i<cg->state; i++) {
+      int offToTop = cg->state-i;
+      int pos = (cg->cur - offToTop + NREG) % NREG;
+      fprintf(to, "*sp++ = r%d;\n", pos);
+    }
+    fprintf(to, "vm->pos = sp - vm->data;\n");
     fprintf(to, "opCall(vm, %d, fn_label_%d);\nreturn;\n", c->size, label);
   } else {
     fprintf(to, "opJump(vm, %d);\n", c->size);
@@ -756,7 +847,14 @@ instrPrepareCallGCFunc(struct GC *gc, void *obj) {
 static void
 instrPrepareCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrPrepareCall *x = (void*)i;
-  fprintf(to, "opPreCall(vm);\n");
+  if (cg->state == NREG) {
+    fprintf(to, "*sp++ = r%d;\n", cg->cur);
+  }
+  fprintf(to, "r%d = Nil;\n", cg->cur);
+  if (cg->state <= NREG) {
+    cg->state = cg->state + 1;
+  }
+  cg->cur = (cg->cur + 1) % NREG;
   codeGen(cg, x->next, to);
 }
 
@@ -788,6 +886,22 @@ hashInsert(struct hashForObj *h, int key, Obj value) {
 
   h->ptr[pos].key = key;
   h->ptr[pos].value = value;
+}
+
+Obj
+cgMakeClosure(struct VM *vm, int required, InstrFunc fn, void* codeData, int *closed, int nclosed) {
+  struct hashForObj h;
+  h.size = nclosed * 2;
+  h.ptr = calloc(h.size, sizeof(struct hashForObj)); // memory leak!
+
+  Obj parent = vmGet(vm, 1);
+  for (int idx=0; idx<nclosed; idx++) {
+    int pos = closed[idx];
+    Obj val = vmGet(vm, pos+2);
+
+    hashInsert(&h, pos, val);
+  }
+  return makeClosure(required, fn, codeData, parent, h);
 }
 
 void
@@ -832,16 +946,29 @@ instrMakeClosureCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   size_t sizeloc;
   FILE *global = open_memstream(&ptr, &sizeloc);
 
+
+  int saveState = cg->state;
+  int saveCur = cg->cur;
+
+  cg->state = 0;
+  cg->cur = 0;
+
   fprintf(global, "static void fn_label_%d(struct VM *vm) {\n", label);
+  fprintf(global, "Obj *bp, *sp, val, r0, r1, r2, r3;\n");
+  fprintf(global, "bp = vm->data + vm->base;\n");
+  fprintf(global, "sp = vm->data + vm->pos;\n");
   codeGen(cg, x->code, global);
   fprintf(global, "}\n");
   cgAddGlobal(cg, global);
 
   if (x->nclosed == 0) {
-    fprintf(to, "opMakeClosure(vm, %d, fn_label_%d, NULL, NULL, 0);\n", x->required, label);
+    fprintf(to, "val = cgMakeClosure(vm, %d, fn_label_%d, NULL, NULL, 0);\n", x->required, label);
   } else {
     fprintf(to, "opMakeClosure(TODO);\n");
   }
+
+  cg->state = saveState;
+  cg->cur = saveCur;
   codeGen(cg, x->next, to);
 }
 
@@ -946,6 +1073,7 @@ int main(int argc, char* argv[]) {
 
   fprintf(stdout, "#include \"types.h\" \n\
 #include \"vm.h\" \n\
+#include \"builtin.h\" \n\
 #include \"instr.h\" \n\
 #include <stdio.h>\n");
 
@@ -958,8 +1086,11 @@ int main(int argc, char* argv[]) {
   }
 
   fprintf(stdout, "static void\n__entry(struct VM *vm) {\n");
+  fprintf(stdout, "Obj *bp, *sp, val, r0, r1, r2, r3;\n");
+  fprintf(stdout, "bp = vm->data + vm->base;\n");
+  fprintf(stdout, "sp = vm->data + vm->pos;\n");
   copyStream(stdout, to);
-  fprintf(stdout, "}\n");
+  fprintf(stdout, "}\n\n");
 
   fprintf(stdout, "int main(int argc, char *argv[]) {\n\
   struct VM *vm = newVM();\n\
