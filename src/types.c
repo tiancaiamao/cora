@@ -94,7 +94,6 @@ cdddr(Obj x) {
 
 struct scmClosure {
   scmHead head;
-  // required is the required stack size, argc = required - 1;
   int required; 
   InstrFunc code;
   void *codeData;
@@ -195,52 +194,15 @@ closureSlot(Obj o, int idx) {
   return x->value;
 }
 
-struct scmContinuation {
-  scmHead head;
-  struct stack s;
-  InstrFunc code;
-  Instr codeData;
-};
-
-Obj
-makeContinuation(struct stack s, InstrFunc code, Instr codeData) {
-  struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
-  cont->s = s;
-  cont->code = code;
-  cont->codeData = codeData;
-  return ((Obj)(&cont->head) | TAG_PTR);
-}
-
 static void
 continuationGCFunc(struct GC *gc, void *obj) {
-  struct scmContinuation *cont = obj;
+  struct continuation *cont = obj;
   struct stack *s = &cont->s;
   /* printf("cont gc func, stack = %d %d\n", s->base, s->pos); */
   for (int i=s->base; i<s->pos; i++) {
     gcField(gc, getScmHead(s->data[i]));
   }
   gcField(gc, &cont->codeData->head);
-}
-
-struct stack
-contStack(Obj o) {
-  struct scmContinuation* cont = ptr(o);
-  assert(cont->head.type == scmHeadContinuation);
-  return cont->s;
-}
-
-InstrFunc
-contCode(Obj o) {
-  struct scmContinuation* cont = ptr(o);
-  assert(cont->head.type == scmHeadContinuation);
-  return cont->code;
-}
-
-void*
-contCodeData(Obj o) {
-  struct scmContinuation* cont = ptr(o);
-  assert(cont->head.type == scmHeadContinuation);
-  return cont->codeData;
 }
 
 Obj

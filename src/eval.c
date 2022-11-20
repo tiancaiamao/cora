@@ -12,7 +12,6 @@ extern Instr makeInstrClosureRef(int m, int n, Instr cont);
 extern Instr makeInstrGlobalRef(Obj exp, Instr cont);
 extern Instr makeInstrIf(Instr then, Instr cont);
 extern Instr makeInstrMakeClosure(Instr code, int narg, Instr cont, int *closed, int nclosed);
-extern Instr makeInstrPrepareCall(Instr code);
 extern Instr makeInstrCall(int sz, Instr code);
 extern Instr makeInstrPush(Instr remain);
 extern Instr makeInstrPrimitive(int size, Obj prim, Instr next);
@@ -171,8 +170,7 @@ compileCall(Obj exp, Obj env, Instr cont, struct posArray *pa) {
 
   int sz = listLength(exp);
   Instr call = makeInstrCall(sz, cont);
-  Instr next = compileList(exp, env, call, pa);
-  return makeInstrPrepareCall(next);
+  return compileList(exp, env, call, pa);
 }
 
 static Instr
@@ -245,14 +243,9 @@ eval(struct VM *vm, Obj exp) {
 }
 
 
-extern void saveCC(struct VM *vm);
-
 static Obj
 call(struct VM *vm, int nargs, ...) {
-  saveCC(vm);
-
-  /* printf("before call...%d %d\n", vm->base, vm->pos); */
-
+  vmSaveCont(vm, vm->pos, NULL, NULL);
   va_list ap;
   va_start(ap, nargs);
   for (int i=0; i<nargs; i++) {
@@ -260,9 +253,6 @@ call(struct VM *vm, int nargs, ...) {
   }
   va_end(ap);
 
-  /* struct InstrCall data = {nargs, identity()}; */
-  /* vm->pc = instrCallExec; */
-  /* vm->pcData = &data; */
   Instr instr = makeInstrCall(nargs, identity()); // mem leak?
   vm->pc = getInstrFunc(instr);
   vm->pcData = instr;
@@ -270,8 +260,6 @@ call(struct VM *vm, int nargs, ...) {
   while(vm->pc != NULL) {
     vm->pc(vm);
   }
-
-  /* printf("after call...%d %d\n", vm->base, vm->pos); */
 
   return vm->val;
 }

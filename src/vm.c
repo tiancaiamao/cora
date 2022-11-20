@@ -4,6 +4,7 @@
 #include "builtin.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 
 struct VM*
@@ -14,24 +15,19 @@ newVM() {
   vm->base = 0;
   vm->pos = 0;
 
+  vm->contStack.size = 0;
+  vm->contStack.cap = 16;
+  int sz = sizeof(struct continuation) * vm->contStack.cap;
+  vm->contStack.data = malloc(sz);
+  memset(vm->contStack.data, 0, sz);
+
   vm->gcTicker = 0;
   return vm;
 }
 
 void
-saveCC(struct VM *vm) {
-  struct stack save;
-  save.data = vm->data;
-  save.base = vm->base;
-  save.pos = vm->pos;
-  Obj cont = makeContinuation(save, NULL, NULL);
-  vm->base = vm->pos;
-  push(vm, cont);
-}
-
-void
 run(struct VM* vm, InstrFunc code) {
-  saveCC(vm);
+  vmSaveCont(vm, vm->pos, NULL, NULL);
   vm->pc = code;
   while(vm->pc != NULL) {
     vm->pc(vm);
@@ -49,8 +45,9 @@ vmReturn(struct VM *vm, Obj x) {
   assert(vm->pos >= 0);
   assert(vm->pos >= vm->base);
 
-  Obj cc = vmGet(vm, 0);
-  struct stack s = contStack(cc);
+  struct continuation* cc = &vm->contStack.data[vm->contStack.size-1];
+  vm->contStack.size--;
+  struct stack s = cc->s;
 
   assert(s.base <= vm->base);
   assert(s.pos <= vm->pos);
@@ -58,11 +55,9 @@ vmReturn(struct VM *vm, Obj x) {
   vm->data = s.data;
   vm->base = s.base;
   vm->pos = s.pos;
-
   vm->val = x;
-  InstrFunc fn = contCode(cc);
-  InstrFunc data = contCodeData(cc);
-  nextInstr(vm, fn, data);
+
+  nextInstr(vm, cc->code, cc->codeData);
 }
 
 extern struct GC *gc;
@@ -118,6 +113,23 @@ vmGet(struct VM* vm, int idx) {
   } else {
     return vm->data[vm->pos + idx];
   }
+}
+
+
+void
+vmSaveCont(struct VM *vm, int end, InstrFunc code, Instr codeData) {
+  if (vm->contStack.size >= vm->contStack.cap) {
+    vm->contStack.cap = vm->contStack.cap * 2;
+    vm->contStack.data = realloc(vm->contStack.data, sizeof(struct continuation) * vm->contStack.cap);
+  }
+
+  struct continuation *data = vm->contStack.data + vm->contStack.size;
+  data->s.data = vm->data;
+  data->s.base = vm->base;
+  data->s.pos = end;
+  data->code = code;
+  data->codeData = codeData;
+  vm->contStack.size++;
 }
 
 Obj
