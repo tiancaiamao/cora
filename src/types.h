@@ -108,7 +108,6 @@ typedef enum {
   instrHeadPrimitive,
   instrHeadExit,
   instrHeadCall,
-  instrHeadPrepareCall,
   instrHeadMakeClosure,
   instrHeadMax,
 } instrHeadType;

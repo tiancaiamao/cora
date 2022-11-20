@@ -411,8 +411,6 @@ opGlobalRef(struct VM *vm, Obj sym) {
 
 static void
 instrGlobalRefExec(struct VM *vm) {
-  /* printf("instr global ref exec\n"); */
-
   struct InstrGlobalRef *i = vm->pcData;
   opGlobalRef(vm, i->sym);
   vm->pc = getInstrFunc(i->next);
@@ -456,9 +454,7 @@ opPrimitive(struct VM *vm, int size, Obj prim) {
   int required = primitiveRequired(prim);
   if (size == required) {
     InstrFunc fn = primitiveFn(prim);
-    /* printf("before instr primitive(%s) exec %p \n", primitiveName(c->prim), fn); */
     fn(vm);
-    /* printf("after instr primitive(%s) exec %p \n", primitiveName(c->prim), fn); */
   } else if (size < required) {
     Obj *array = (Obj*)malloc(size * sizeof(Obj));
     memcpy(array, vm->data+vm->pos-size, size*sizeof(Obj));
@@ -540,7 +536,6 @@ instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     }
   }
 
-  /* fprintf(to, "opPrimitive(vm, %d, symbolGet(makeSymbol(\"%s\")));\n", p->size, primitiveName(p->prim)); */
   if (getInstrFunc(p->next) == NULL) {
     fprintf(to, "vmReturn(vm, vm->val);\n");
   } else {
@@ -787,54 +782,6 @@ makeInstrCall(int size, Instr next) {
   return &data->head;
 }
 
-struct InstrPrepareCall {
-  instrHead head;
-  Instr next;
-};
-
-static void
-instrPrepareCallExec(struct VM *vm) {
-  /* printf("instr prepare call exec\n"); */
-
-  struct InstrPrepareCall *i = vm->pcData;
-  /* push(vm, Nil); */  // NOP???
-  vm->pc = getInstrFunc(i->next);
-  vm->pcData = i->next;
-}
-
-void
-opPreCall(struct VM *vm) {
-  push(vm, Nil);
-}
-
-static void
-instrPrepareCallGCFunc(struct GC *gc, void *obj) {
-  struct InstrPrepareCall *i = obj;
-  gcField(gc, &i->next->head);
-}
-
-static void
-instrPrepareCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
-  struct InstrPrepareCall *x = (void*)i;
-  /* if (cg->state == NREG) { */
-  /*   fprintf(to, "*sp++ = r%d;\n", cg->cur); */
-  /* } */
-  /* fprintf(to, "r%d = Nil;\n", cg->cur); */
-  /* if (cg->state <= NREG) { */
-  /*   cg->state = cg->state + 1; */
-  /* } */
-  /* cg->cur = (cg->cur + 1) % NREG; */
-  codeGen(cg, x->next, to);
-}
-
-Instr
-makeInstrPrepareCall(Instr next) {
-  struct InstrPrepareCall *data = newObj(scmHeadInstr, sizeof(struct InstrPrepareCall));
-  data->head.type = instrHeadPrepareCall;
-  data->next = next;
-  return &data->head;
-}
-
 struct InstrMakeClosure {
   instrHead head;
   Instr code;
@@ -968,7 +915,6 @@ struct _instrMethod {
   [instrHeadPrimitive]{.exec = instrPrimitiveExec, .gcFunc = instrPrimitiveGCFunc, codeGen: instrPrimitiveCodeGen},
   [instrHeadExit]{.exec = instrExitExec, .gcFunc = NULL, codeGen: instrExitCodeGen},
   [instrHeadCall]{.exec = instrCallExec, .gcFunc = instrCallGCFunc, codeGen: instrCallCodeGen},
-  [instrHeadPrepareCall]{.exec = instrPrepareCallExec, .gcFunc = instrPrepareCallGCFunc, codeGen: instrPrepareCallCodeGen},
   [instrHeadMakeClosure]{.exec = instrMakeClosureExec, .gcFunc = instrMakeClosureGCFunc, codeGen: instrMakeClosureCodeGen},
 };
 
