@@ -212,6 +212,8 @@ extern void gcFull(struct GC *gc);
 
 static bool
 maybeTriggerGC(struct VM *vm, struct GC *gc) {
+  return false;
+
   assert(!gcIng(gc));
 
   if (gc->black.next != NULL) {
@@ -309,7 +311,7 @@ struct InstrLocalRef {
 
 void
 opLocalRef(struct VM *vm, int idx) {
-  vm->val = vmGet(vm, idx + 2);
+  vm->val = vmGet(vm, idx + 1);
 }
 
 static void
@@ -330,7 +332,7 @@ instrLocalRefGCFunc(struct GC *gc, void *obj) {
 static void
 instrLocalRefCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrLocalRef *x = (void*)i;
-  fprintf(to, "val = bp[%d];\n", x->idx + 2);
+  fprintf(to, "val = bp[%d];\n", x->idx + 1);
   codeGen(cg, x->next, to);
 }
 
@@ -352,7 +354,7 @@ struct InstrClosureRef {
 
 static void
 opClosureRef(struct VM *vm, int up, int idx) {
-  Obj tmp = vmGet(vm, 1);
+  Obj tmp = vmGet(vm, 0);
   for (int i=up; i>0; i--) {
     tmp = closureParent(tmp);
   }
@@ -537,7 +539,6 @@ instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
       }
     }
   }
-  fprintf(to, "// after handle prim, state=%d, cur=%d;\n", cg->state, cg->cur);
 
   /* fprintf(to, "opPrimitive(vm, %d, symbolGet(makeSymbol(\"%s\")));\n", p->size, primitiveName(p->prim)); */
   if (getInstrFunc(p->next) == NULL) {
@@ -570,11 +571,6 @@ opExit(struct VM *vm) {
 
 static void
 instrExitExec(struct VM *vm) {
-  /* printf("instr exit exec (%d %d)\n", vm->base, vm->pos); */
-  /* if (vm->base == 43 && vm->pos == 46) { */
-  /*   // ?? */
-  /*   printf("lalal--"); */
-  /* } */
   opExit(vm);
 }
 
@@ -603,15 +599,9 @@ struct InstrCall {
 
 void
 opCall(struct VM *vm, int argc, InstrFunc next) {
-  int newStackBase = vm->pos - argc - 1;
-  struct stack old;
-  old.data = vm->data;
-  old.base = vm->base;
-  old.pos = newStackBase;
-
-  Obj cc = makeContinuation(old, next, NULL);
-  vm->base = newStackBase;
-  vmSet(vm, 0, cc);
+  int newBase = vm->pos - argc;
+  vmSaveCont(vm, newBase, next, NULL);
+  vm->base = newBase;
 
   Obj clo = vmGet(vm, -argc);
   vm->pc = closureCode(clo);
@@ -620,31 +610,19 @@ opCall(struct VM *vm, int argc, InstrFunc next) {
 
 static void
 callClosureNormal(struct InstrCall *c, struct VM *vm, Obj clo) {
-  if (getInstrFunc(c->next) == NULL) {
-    // TODO panic("should never here?")
-    assert(false);
-  }
+    assert(getInstrFunc(c->next) != NULL);
 
   if (getInstrFunc(c->next) == instrExitExec) { // Jump
     // Reuse the old stack
     for (int i=0; i<c->size; i++) {
       Obj arg = vmGet(vm, -c->size + i);
-      vmSet(vm, i+1, arg);
+      vmSet(vm, i, arg);
     }
-    vmResize(vm, c->size + 1);
+    vmResize(vm, c->size);
   } else { // Call
-    int newStackBase = vm->pos - c->size - 1;
-
-    struct stack old;
-    old.data = vm->data;
-    old.base = vm->base;
-    old.pos = newStackBase;
-
-    /* printf("call closure old stack == %d %d vm->base:%d\n", old.base, old.pos, vm->base); */
-
-    Obj cc = makeContinuation(old, getInstrFunc(c->next), c->next);
-    vm->base = newStackBase;
-    vmSet(vm, 0, cc);
+    int newBase = vm->pos - c->size;
+    vmSaveCont(vm, newBase, getInstrFunc(c->next), c->next);
+    vm->base = newBase;
   }
 
   vm->pc = closureCode(clo);
@@ -656,18 +634,13 @@ Instr makeInstrCall(int size, Instr next);
 
 static void
 callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
-  struct stack old;
-  old.data = vm->data;
-  old.base = vm->base;
-  old.pos = vm->pos;
-  int newBase = vm->pos;
-
+  // TODO: rewrite to run() to avoid duplicated code.
   // Prepare a new stack for call.
-  Obj cc = makeContinuation(old, NULL, NULL);
+  int newBase = vm->pos;
+  vmSaveCont(vm, newBase, NULL, NULL);
   int required = closureRequired(clo);
-  push(vm, cc);
   for(int i=0; i<required+1; i++) {
-    Obj tmp = vmGet(vm, i+2);
+    Obj tmp = vmGet(vm, i);
     push(vm, tmp);
   }
   vm->base = newBase;
@@ -680,12 +653,12 @@ callClosurePartial(struct InstrCall *c, struct VM *vm, Obj clo) {
   }
 
   // Handle the remain call.
-  vmSet(vm, 2, vm->val);
+  vmSet(vm, 0, vm->val);
   for (int i=0; i<c->size-1-required; i++) {
-    Obj tmp = vmGet(vm, i+3+required);
-    vmSet(vm, i+3, tmp);
+    Obj tmp = vmGet(vm, i+1+required);
+    vmSet(vm, i+1, tmp);
   }
-  vmResize(vm, c->size-required+2);
+  vmResize(vm, c->size-required);
 
   Instr instr = makeInstrCall(c->size - required, c->next); // mem leak?
   vm->pc = getInstrFunc(instr);
@@ -703,9 +676,9 @@ callCurry(struct InstrCall *c, struct VM *vm, Obj curry) {
   Instr instr;
   Obj *base = vm->data + vm->pos - c->size;
   if (prim != Nil) {
-    memcpy(base+sz-1, base+1, (c->size-1)*sizeof(Obj));
-    memcpy(base-1, data, sz*sizeof(Obj));
-    vm->pos = vm->pos + sz - 2;
+    memcpy(base+sz, base+1, (c->size-1)*sizeof(Obj));
+    memcpy(base, data, sz*sizeof(Obj));
+    vm->pos = vm->pos + sz - 1;
     instr = makeInstrPrimitive(c->size+sz-1, prim, c->next);
   } else {
     memcpy(base+sz, base+1, (c->size-1)*sizeof(Obj));
@@ -730,7 +703,7 @@ callClosure(struct InstrCall *c, struct VM *vm, Obj clo) {
 
     Obj curry = makeCurry(required - argc, c->size, array, Nil);
     vm->val = curry;
-    vm->pos = vm->pos - c->size - 1;
+    vm->pos = vm->pos - c->size;
 
     vm->pc = getInstrFunc(c->next);
     vm->pcData = c->next;
@@ -758,8 +731,6 @@ instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     int saveState = cg->state;
     int saveCur = cg->cur;
 
-    fprintf(to, "// before call, state=%d, cur=%d;\n", cg->state, cg->cur);
-
     cg->state = 0;
     cg->cur = 0;
 
@@ -771,8 +742,6 @@ instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     fprintf(global, "}\n");
     cgAddGlobal(cg, global);
 
-
-    fprintf(to, "// after call, state=%d, cur=%d;\n", cg->state, cg->cur);
 
     // Save the registers to stack for the calling protocol.
     for (int i=0; i<cg->state; i++) {
@@ -828,7 +797,7 @@ instrPrepareCallExec(struct VM *vm) {
   /* printf("instr prepare call exec\n"); */
 
   struct InstrPrepareCall *i = vm->pcData;
-  push(vm, Nil);
+  /* push(vm, Nil); */  // NOP???
   vm->pc = getInstrFunc(i->next);
   vm->pcData = i->next;
 }
@@ -847,14 +816,14 @@ instrPrepareCallGCFunc(struct GC *gc, void *obj) {
 static void
 instrPrepareCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrPrepareCall *x = (void*)i;
-  if (cg->state == NREG) {
-    fprintf(to, "*sp++ = r%d;\n", cg->cur);
-  }
-  fprintf(to, "r%d = Nil;\n", cg->cur);
-  if (cg->state <= NREG) {
-    cg->state = cg->state + 1;
-  }
-  cg->cur = (cg->cur + 1) % NREG;
+  /* if (cg->state == NREG) { */
+  /*   fprintf(to, "*sp++ = r%d;\n", cg->cur); */
+  /* } */
+  /* fprintf(to, "r%d = Nil;\n", cg->cur); */
+  /* if (cg->state <= NREG) { */
+  /*   cg->state = cg->state + 1; */
+  /* } */
+  /* cg->cur = (cg->cur + 1) % NREG; */
   codeGen(cg, x->next, to);
 }
 
@@ -910,10 +879,10 @@ opMakeClosure(struct VM *vm, int required, InstrFunc fn, void* codeData, int *cl
   h.size = nclosed * 2;
   h.ptr = calloc(h.size, sizeof(struct hashForObj)); // memory leak!
 
-  Obj parent = vmGet(vm, 1);
+  Obj parent = vmGet(vm, 0);
   for (int idx=0; idx<nclosed; idx++) {
     int pos = closed[idx];
-    Obj val = vmGet(vm, pos+2);
+    Obj val = vmGet(vm, pos+1);
 
     hashInsert(&h, pos, val);
   }

@@ -174,9 +174,11 @@ struct stack {
   int pos;
 };
 
-Obj makeContinuation(struct stack s, InstrFunc code, Instr data);
-InstrFunc contCode(Obj o);
-void* contCodeData(Obj o);
+struct continuation {
+  struct stack s;
+  InstrFunc code;
+  Instr codeData;
+};
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 /* void gcSymbols(struct GC *gc); */
@@ -185,7 +187,5 @@ Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);
-
-struct stack contStack(Obj o);
 
 #endif

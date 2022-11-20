@@ -245,11 +245,9 @@ eval(struct VM *vm, Obj exp) {
 }
 
 
-extern void saveCC(struct VM *vm);
-
 static Obj
 call(struct VM *vm, int nargs, ...) {
-  saveCC(vm);
+  vmSaveCont(vm, vm->pos, NULL, NULL);
 
   /* printf("before call...%d %d\n", vm->base, vm->pos); */
 
