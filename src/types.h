@@ -50,7 +50,6 @@ enum {
       // The followings are all pointer types.
       // Except cons, all the others are general pointer.
       scmHeadCons,
-      /* scmHeadNative, */
       scmHeadCurry,
       scmHeadString,
       scmHeadVector,
@@ -69,7 +68,6 @@ void* newObj(scmHeadType tp, int sz);
 
 struct VM;
 typedef void (*InstrFunc)(struct VM *vm);
-/* typedef void (*nativeFuncPtr) (struct controlFlow *ctx); */
 
 struct scmCons {
   scmHead head;
@@ -126,14 +124,6 @@ InstrFunc primitiveFn(Obj o);
 char *primitiveName(Obj o);
 char *primitiveFnName(Obj o);
 
-/* Obj makeBuiltin(nativeFuncPtr fn, int required); */
-/* Obj makeNative(nativeFuncPtr fn, int required, int captured, ...); */
-
-Obj nativeRef(Obj o, int idx);
-int nativeRequired(Obj o);
-int nativeCaptured(Obj o);
-/* nativeFuncPtr nativeFn(Obj o); */
-
 Obj makeCurry(int required, int captured, Obj *data, Obj primitive);
 int curryRequired(Obj curry);
 Obj curryPrim(Obj curry);
@@ -180,7 +170,6 @@ struct continuation {
 };
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
-/* void gcSymbols(struct GC *gc); */
 
 Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);

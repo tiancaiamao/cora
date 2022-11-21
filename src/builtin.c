@@ -246,26 +246,29 @@ builtinLoad(struct VM *vm) {
   vm->gcSave[1] = NULL;
 }
 
-/* void */
-/* builtinLoadSo(struct VM *ctx) { */
-/*   Obj path = ctxGet(ctx, 1); */
-/*   char *str = stringStr(path); */
-/*   void *handle = dlopen(str, RTLD_LAZY); */
-/*   if (!handle) { */
-/*     fprintf(stderr, "%s\n", dlerror()); */
-/*     ctxReturn(ctx, makeNumber(-1)); */
-/*   } */
+void
+builtinLoadSo(struct VM *vm) {
+  Obj path = pop(vm);
+  char *str = stringStr(path);
+  void *handle = dlopen(str, RTLD_LAZY);
+  if (!handle) {
+    fprintf(stderr, "%s\n", dlerror());
+    vmReturn(vm, makeNumber(-1));
+    return;
+  }
 
-/*   nativeFuncPtr entry = dlsym(handle, "entry"); */
-/*   char *error = dlerror(); */
-/*   if (error != NULL) { */
-/*     // TODO */
-/*     ctxReturn(ctx, makeString(error, strlen(error))); */
-/*   } */
+  InstrFunc entry = dlsym(handle, "__entry");
+  char *error = dlerror();
+  if (error != NULL) {
+    // TODO
+    vmReturn(vm, makeString(error, strlen(error)));
+    return;
+  }
 
-/*   Call(1, makeNative(entry, 1, 0)); */
-/*   ctxReturn(ctx, path); */
-/* } */
+  /* Call(1, makeNative(entry, 1, 0)); */
+  /* ctxReturn(ctx, path); */
+  run(vm, entry);
+}
 
 void
 builtinIsNumber(struct VM* vm) {
@@ -319,31 +322,6 @@ builtinIsVector(struct VM *vm) {
     vm->val = False;
   }
 }
-
-/* void */
-/* builtinNumberToString(struct VM *ctx) { */
-/* 	Obj n = ctxGet(ctx, 1); */
-/* 	assert(isfixnum(n)); */
-
-/* 	char tmp[32]; */
-/* 	int l = snprintf(tmp, 32, "%ld", fixnum(n)); */
-/*  	ctxReturn(ctx, makeString(tmp, l)); */
-/* } */
-
-/* void */
-/* builtinStringAppend(struct VM *ctx) { */
-/* 	Obj x = ctxGet(ctx, 1); */
-/* 	Obj y = ctxGet(ctx, 2); */
-/* 	assert(isstring(x)); */
-/* 	assert(isstring(y)); */
-/* 	char *x1 = stringStr(x); */
-/* 	char *y1 = stringStr(y); */
-/* 	int len = strlen(x1) + strlen(y1); */
-/* 	char *dest = alloca(len + 1); */
-/* 	strcpy(dest, x1); */
-/* 	strcat(dest, y1); */
-/* 	ctxReturn(ctx, makeString(dest, len)); */
-/* } */
 
 void
 builtinIntern(struct VM *vm) {

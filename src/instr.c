@@ -2,23 +2,13 @@
 #include "types.h"
 #include "vm.h"
 #include "builtin.h"
+#include "instr.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 const int NREG = 4;
-
-struct CodeGen {
-  // top-of-stack-caching
-  int state;
-  int cur;
-
-  int label;
-  FILE** globals;
-  int pos;
-  int cap;
-};
 
 static int
 cgGetLabel(struct CodeGen *cg) {
@@ -47,7 +37,7 @@ typedef void (*InstrCodeGenFunc)(struct CodeGen *cg, Instr instr, FILE *to);
 
 static InstrCodeGenFunc getInstrCodeGenFunc(Instr i);
 
-static void
+void
 codeGen(struct CodeGen *cg, Instr instr, FILE *to) {
   InstrCodeGenFunc f = getInstrCodeGenFunc(instr);
   f(cg, instr, to);
@@ -947,8 +937,6 @@ instrGCFunc(struct GC *gc, void *obj) {
 #include "reader.h"
 #include <stdio.h>
 
-
-Instr compileAPI(Obj exp);
 
 static void
 copyStream(FILE *to, FILE *from) {

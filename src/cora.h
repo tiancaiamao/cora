@@ -4,10 +4,11 @@
 
 #include "types.h"
 #include "reader.h"
+#include "vm.h"
+#include "instr.h"
 
-void coraInit();
-struct VM* newVM();
 Obj eval(struct VM *vm, Obj exp);
 Obj macroExpand(struct VM *vm, Obj exp);
+
 
 #endif

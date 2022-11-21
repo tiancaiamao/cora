@@ -35,9 +35,7 @@ struct VM* newVM();
 
 void push(struct VM *vm, Obj v);
 Obj pop(struct VM* vm);
-/* void instrCall(struct VM *vm, int argc, InstrFunc next); */
 Obj vmGet(struct VM* vm, int idx);
-Obj ctxGet(struct VM* vm, int idx);
 void vmSet(struct VM* vm, int idx, Obj v);
 void vmResize(struct VM* vm, int sz);
 void vmSaveCont(struct VM *vm, int end, InstrFunc code, Instr codeData);
@@ -45,6 +43,18 @@ void nextInstr(struct VM *vm, InstrFunc code, void *data);
 void vmReturn(struct VM *vm, Obj x);
 void run(struct VM* vm, InstrFunc code);
 void coraInit();
+
+struct registEntry {
+  char *name;
+  InstrFunc func;
+  int args;
+  char *fname;
+};
+struct registModule {
+  void (*init)();
+  struct registEntry entries[];
+};
+void registAPI(struct registModule* m);
 
 
 #endif

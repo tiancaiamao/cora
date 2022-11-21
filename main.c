@@ -6,9 +6,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <getopt.h>
-/* #include <setjmp.h> */
 #include "cora.h"
-/* #include "lib/lib.h" */
+#include "lib/lib.h"
 
 static struct option opts[] = {
   {"help", no_argument, NULL, 'h'},
@@ -71,6 +70,7 @@ main(int argc, char *argv[]) {
   }
 
   coraInit();
+  registAPI(&codeGenModule);
 
   struct VM *vm = newVM();
 

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-#include "runtime.h"
+#include "cora.h"
 
 static void
-stringSlice(struct controlFlow *ctx) {
-  Obj str = ctxGet(ctx, 1);
-  Obj pos = fixnum(ctxGet(ctx, 2));
+stringSlice(struct VM *ctx) {
+  Obj str = vmGet(ctx, 1);
+  Obj pos = fixnum(vmGet(ctx, 2));
   Obj ret;
   int len = stringLen(str);
   if (pos >= len) {
@@ -14,47 +14,72 @@ stringSlice(struct controlFlow *ctx) {
     char *s = stringStr(str);
     ret = makeString(s+pos, len-pos);
   }
-  ctxReturn(ctx, ret);
+  vmReturn(ctx, ret);
 }
 
 static void
-stringHasPrefix(struct controlFlow *ctx) {
-  Obj str = ctxGet(ctx, 1);
-  Obj prefix = ctxGet(ctx, 2);
+stringHasPrefix(struct VM *ctx) {
+  Obj str = vmGet(ctx, 1);
+  Obj prefix = vmGet(ctx, 2);
 
   char *str1 = stringStr(str);
   char *prefix1 = stringStr(prefix);
 
   int lPrefix = stringLen(prefix);
   if (lPrefix > stringLen(str)) {
-    ctxReturn(ctx, False);
+    vmReturn(ctx, False);
   }
 
   for(int i=0; i<lPrefix; i++) {
     if (prefix1[i] != str1[i]) {
-      ctxReturn(ctx, False);
+      vmReturn(ctx, False);
     }
   }
 
-  ctxReturn(ctx, True);
+  vmReturn(ctx, True);
 }
 
 static void
-stringLength(struct controlFlow *ctx) {
-  Obj o = ctxGet(ctx, 1);
+stringLength(struct VM *ctx) {
+  Obj o = vmGet(ctx, 1);
   int l = stringLen(o);
-  ctxReturn(ctx, makeNumber(l));
+  vmReturn(ctx, makeNumber(l));
 }
 
 static void
-stringIndex(struct controlFlow *ctx) {
-  Obj x = ctxGet(ctx, 1);
-  Obj y = ctxGet(ctx, 2);
+stringIndex(struct VM *ctx) {
+  Obj x = vmGet(ctx, 1);
+  Obj y = vmGet(ctx, 2);
 
   char *str = stringStr(x);
   int idx = fixnum(y);
-  ctxReturn(ctx, makeString(str+idx, 1));
+  vmReturn(ctx, makeString(str+idx, 1));
 }
+
+/* void */
+/* builtinNumberToString(struct VM *ctx) { */
+/* 	Obj n = ctxGet(ctx, 1); */
+/* 	assert(isfixnum(n)); */
+
+/* 	char tmp[32]; */
+/* 	int l = snprintf(tmp, 32, "%ld", fixnum(n)); */
+/*  	ctxReturn(ctx, makeString(tmp, l)); */
+/* } */
+
+/* void */
+/* builtinStringAppend(struct VM *ctx) { */
+/* 	Obj x = ctxGet(ctx, 1); */
+/* 	Obj y = ctxGet(ctx, 2); */
+/* 	assert(isstring(x)); */
+/* 	assert(isstring(y)); */
+/* 	char *x1 = stringStr(x); */
+/* 	char *y1 = stringStr(y); */
+/* 	int len = strlen(x1) + strlen(y1); */
+/* 	char *dest = alloca(len + 1); */
+/* 	strcpy(dest, x1); */
+/* 	strcat(dest, y1); */
+/* 	ctxReturn(ctx, makeString(dest, len)); */
+/* } */
 
 struct registModule stringModule = {
   NULL,

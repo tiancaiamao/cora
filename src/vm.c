@@ -132,12 +132,6 @@ vmSaveCont(struct VM *vm, int end, InstrFunc code, Instr codeData) {
   vm->contStack.size++;
 }
 
-Obj
-ctxGet(struct VM*vm, int idx) {
-  assert(idx >=0);
-  return vmGet(vm, idx+1);
-}
-
 void
 vmSet(struct VM* vm, int idx, Obj v) {
   vm->data[vm->base + idx] = v;
@@ -162,18 +156,6 @@ vmResize(struct VM* vm, int sz) {
 
   vm->pos = vm->base + sz;
 }
-
-struct registEntry {
-  char *name;
-  InstrFunc func;
-  int args;
-  char *fname;
-};
-
-struct registModule {
-  void (*init)();
-  struct registEntry entries[];
-};
 
 static struct registModule builtinModule = {
   NULL,
@@ -203,13 +185,13 @@ static struct registModule builtinModule = {
     {"vector?",builtinIsVector, 1, "IsVector"},
     {"intern",builtinIntern, 1, "Intern"},
     {"load",builtinLoad, 1, "Load"},
-    /* {"load-so",builtinLoadSo, 1}, */
+    {"load-so",builtinLoadSo, 1},
     {NULL, NULL, 0}
   }
 };
 
-void
-registAPI(struct registModule* m) {
+static void
+registAPIHelp(struct registModule* m, bool isPrimitive) {
   if (m->init != NULL) {
     m->init();
   }
@@ -221,10 +203,21 @@ registAPI(struct registModule* m) {
     }
 
     // printf("registAPI: %s\n", entry.name);
-    Obj prim = makePrimitive(entry.func, entry.args, entry.name, entry.fname);
+    Obj prim;
+    if (isPrimitive) {
+      prim = makePrimitive(entry.func, entry.args, entry.name, entry.fname);
+    } else {
+      struct hashForObj h;
+      prim = makeClosure(entry.args, entry.func, NULL, Nil, h);
+    }
 
     symbolSet(intern(entry.name), prim);
   }
+}
+
+void
+registAPI(struct registModule* m) {
+  return registAPIHelp(m, false);
 }
 
 struct GC *gc;
@@ -255,7 +248,5 @@ coraInit() {
   symMacroExpand = intern("macroexpand");
   symDebugEval = intern("*debug-eval*");
 
-
-  registAPI(&builtinModule);
-  /* registAPI(&stringModule); */
+  registAPIHelp(&builtinModule, true);
 }
