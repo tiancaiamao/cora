@@ -1,7 +1,8 @@
 .PHONY: libcora lib
 
 CC = gcc
-CFLAGS = -g -Wall -fPIC
+# CFLAGS = -g -Wall -fPIC
+CFLAGS = -g -fPIC
 
 all: cora
 

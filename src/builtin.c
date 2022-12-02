@@ -18,6 +18,12 @@ builtinAdd(struct VM *vm) {
   vm->val = makeNumber(fixnum(x) + fixnum(y));
 }
 
+Obj primAdd(Obj x, Obj y) {
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  return makeNumber(fixnum(x) + fixnum(y));
+}
+
 void
 builtinMod(struct VM *vm) {
   Obj y = pop(vm);
@@ -135,11 +141,22 @@ builtinCons(struct VM *vm) {
   vm->val = cons(x, y);
 }
 
+Obj
+primCons(Obj x, Obj y) {
+  return cons(x, y);
+}
+
 void
 builtinCar(struct VM *vm) {
   Obj tmp = pop(vm);
   assert(iscons(tmp));
   vm->val = car(tmp);
+}
+
+Obj
+primCar(Obj o) {
+  assert(iscons(o));
+  return car(o);
 }
 
 void
@@ -149,6 +166,12 @@ builtinCdr(struct VM *vm) {
   vm->val = cdr(tmp);
 }
 
+Obj
+primCdr(Obj o) {
+  assert(iscons(o));
+  return cdr(o);
+}
+
 void
 builtinIsCons(struct VM *vm) {
   Obj tmp = pop(vm);
@@ -156,6 +179,14 @@ builtinIsCons(struct VM *vm) {
     vm->val = True;
   } else {
     vm->val = False;
+  }
+}
+
+Obj primIsCons(Obj x) {
+  if (iscons(x)) {
+    return True;
+  } else {
+    return False;
   }
 }
 
@@ -171,6 +202,15 @@ builtinGensym(struct VM *vm) {
   vm->val = intern(tmp);
 }
 
+Obj
+primGensym(Obj sym) {
+  assert(issymbol(sym));
+  char tmp[200];
+  snprintf(tmp, 100, "#%s%ld", symbolStr(sym), genIdx);
+  genIdx++;
+  return intern(tmp);
+}
+
 void
 builtinNot(struct VM *vm) {
   Obj tmp = pop(vm);
@@ -182,6 +222,15 @@ builtinNot(struct VM *vm) {
   }
 }
 
+Obj
+primNot(Obj x) {
+  if (x == True) {
+    return False;
+  } else {
+    return True;
+  }
+}
+
 void
 builtinIsSymbol(struct VM *vm) {
   Obj tmp = pop(vm);
@@ -189,6 +238,15 @@ builtinIsSymbol(struct VM *vm) {
     vm->val = True;
   } else {
     vm->val = False;
+  }
+}
+
+Obj
+primIsSymbol(Obj tmp) {
+  if (issymbol(tmp)) {
+    return True;
+  } else {
+    return False;
   }
 }
 

@@ -39,3 +39,5 @@ load 环境是记录哪些模块 load 了，以及它所在的 toplevel 环境
 从模块的词法环境，获取 location
 然后由 location 在 store 找到值
 
+
+https://www.zenlife.tk/cora-module.md
