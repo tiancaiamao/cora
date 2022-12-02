@@ -14,15 +14,15 @@ eval_test: eval.test
 	./eval.test
 
 eval.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
-	gcc -g -D_EVAL_TEST_ $^ -o eval.test
+	gcc -g -D_EVAL_TEST_ $^ -ldl -o eval.test
 
 instr_test: instr.test
 	./instr.test > gen.c;
-	gcc -g *.c -o a.out;
+	gcc -g *.c -ldl -o a.out;
 	./a.out
 
 instr.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
-	gcc -g -D_INSTR_TEST_ $^ -o instr.test
+	gcc -g -D_INSTR_TEST_ $^ -ldl -o instr.test
 
 libcora.a: $(OBJS)
 	ar -rc $@ $^
