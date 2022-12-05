@@ -10,6 +10,12 @@ all: libcora.a libcora.so
 
 test: eval_test instr_test
 
+reader.test: reader.c
+	gcc -g -D_READER_TEST_ -o reader.test reader.c types.c gc.c
+
+reader_test: reader.test
+	./reader.test
+
 eval_test: eval.test
 	./eval.test
 

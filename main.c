@@ -201,9 +201,9 @@ repl(struct VM *vm, FILE* stream) {
 
     exp = macroExpand(vm, exp);
 
-    printf("after macro expand ==");
-    sexpWrite(stdout, exp);
-    printf("\n");
+    /* printf("after macro expand =="); */
+    /* sexpWrite(stdout, exp); */
+    /* printf("\n"); */
 
     Obj res = eval(vm, exp);
 

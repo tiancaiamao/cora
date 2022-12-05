@@ -445,11 +445,6 @@ opPrimitive(struct VM *vm, int size, Obj prim) {
   if (size == required) {
     InstrFunc fn = primitiveFn(prim);
     fn(vm);
-  } else if (size < required) {
-    Obj *array = (Obj*)malloc(size * sizeof(Obj));
-    memcpy(array, vm->data+vm->pos-size, size*sizeof(Obj));
-    vm->val = makeCurry(required - size, size, array, prim);
-    vm->pos = vm->pos - size;
   } else {
     // TODO: panic
     assert(false);
@@ -480,6 +475,7 @@ static void
 instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrPrimitive *p = (void*)i;
 
+
   /* fprintf(to, "// before handle prim, state=%d, cur=%d;\n", cg->state, cg->cur); */
 
   fprintf(to, "val = prim%s(", primitiveFnName(p->prim));
@@ -492,11 +488,11 @@ instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     // rN
     // rN-1  <- i
     // rN-2   
-    // sp
     // sp-1
+    // sp-2
     // Otherwise it's in the stack.
     if (i + cg->state < p->size) {
-      fprintf(to, "sp[%d]", i-cg->state);
+      fprintf(to, "sp[%d]", i - cg->state );
     } else {
       int distanceToTop = p->size - i;
       fprintf(to, "r%d", (cg->cur + NREG - distanceToTop) % NREG);
@@ -513,18 +509,21 @@ instrPrimitiveCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
     }
   } else {
     // Some args are in the register and some are in the stack.
+    int state = cg->state;
     for (int i=0; i<cg->state; i++) {
       cg->cur = (cg->cur - 1 + NREG) % NREG;
       cg->state--;
     }
-    for (int i=0; i< (p->size - cg->state); i++) {
+    for (int i=0; i< (p->size - state); i++) {
       // handle arg[i], from top to bottom
       // i < cg->state means the argument is in the stack, otherwise it's in the register.
-      if (i < cg->state) {
+      if (i < state) {
 	fprintf(to, "sp--;\n");
       }
     }
   }
+
+  /* fprintf(to, "// after handle prim, state=%d, cur=%d;\n", cg->state, cg->cur); */
 
   if (getInstrFunc(p->next) == NULL) {
     fprintf(to, "vmReturn(vm, vm->val);\n");
@@ -554,7 +553,7 @@ opExit(struct VM *vm) {
   vmReturn(vm, vm->val);
 }
 
-static void
+void
 instrExitExec(struct VM *vm) {
   opExit(vm);
 }
@@ -634,34 +633,20 @@ callClosurePartial(struct VM *vm, Obj clo, int size, InstrFunc next, void *codeD
   }
   vmResize(vm, size-required);
 
-  Instr instr = makeInstrCall(size - required, codeData); // mem leak?
-  vm->pc = getInstrFunc(instr);
-  vm->pcData = instr;
+  opCall(vm, size-required, next, codeData);
 }
 
 static void
 callCurry(struct VM *vm, Obj curry, int size, InstrFunc next, void *codeData) {
   int sz = curryCaptured(curry);
   Obj *data = curryData(curry);
-  Obj prim = curryPrim(curry);
 
   // TODO check range and realloc?
-
-  Instr instr;
   Obj *base = vm->data + vm->pos - size;
-  if (prim != Nil) {
-    memcpy(base+sz, base+1, (size-1)*sizeof(Obj));
-    memcpy(base, data, sz*sizeof(Obj));
-    vm->pos = vm->pos + sz - 1;
-    instr = makeInstrPrimitive(size+sz-1, prim, codeData);
-    vm->pc = getInstrFunc(instr);
-    vm->pcData = instr;
-  } else {
-    memcpy(base+sz, base+1, (size-1)*sizeof(Obj));
-    memcpy(base, data, sz*sizeof(Obj));
-    vm->pos = vm->pos + sz - 1;
-    opCall(vm, size+sz-1, next, codeData);
-  }
+  memcpy(base+sz, base+1, (size-1)*sizeof(Obj));
+  memcpy(base, data, sz*sizeof(Obj));
+  vm->pos = vm->pos + sz - 1;
+  opCall(vm, size+sz-1, next, codeData);
 }
 
 static void
@@ -674,7 +659,7 @@ callClosure(struct VM *vm, Obj clo, int size, InstrFunc next, void *codeData) {
     Obj *array = calloc(size, sizeof(Obj));
     memcpy(array, vm->data+vm->pos - size, size * sizeof(Obj));
 
-    Obj curry = makeCurry(required - argc, size, array, Nil);
+    Obj curry = makeCurry(required - argc, size, array);
     vm->val = curry;
     vm->pos = vm->pos - size;
 
@@ -689,8 +674,11 @@ callClosure(struct VM *vm, Obj clo, int size, InstrFunc next, void *codeData) {
 static void
 instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   struct InstrCall *c = (void*)i;
-  if (c->next != NULL) {
-    int label = cgGetLabel(cg);
+  Instr next = c->next;
+  assert(next != NULL);
+
+  int label = cgGetLabel(cg);
+  if (getInstrFunc(next) != instrExitExec) {
     char *ptr;
     size_t sizeloc;
     FILE *global = open_memstream(&ptr, &sizeloc);
@@ -714,18 +702,20 @@ instrCallCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
 
     fprintf(global, "}\n");
     cgAddGlobal(cg, global);
+  }
 
+  // Save the registers to stack for the calling protocol.
+  for (int i=0; i<cg->state; i++) {
+    int offToTop = cg->state-i;
+    int pos = (cg->cur - offToTop + NREG) % NREG;
+    fprintf(to, "*sp++ = r%d;\n", pos);
+  }
+  fprintf(to, "vm->pos = sp - vm->data;\n");
 
-    // Save the registers to stack for the calling protocol.
-    for (int i=0; i<cg->state; i++) {
-      int offToTop = cg->state-i;
-      int pos = (cg->cur - offToTop + NREG) % NREG;
-      fprintf(to, "*sp++ = r%d;\n", pos);
-    }
-    fprintf(to, "vm->pos = sp - vm->data;\n");
+  if (getInstrFunc(next) != instrExitExec) {
     fprintf(to, "opCall(vm, %d, fn_label_%d, NULL);\nreturn;\n", c->size, label);
   } else {
-    fprintf(to, "opJump(vm, %d);\n", c->size);
+    fprintf(to, "opCall(vm, %d, instrExitExec, NULL);\nreturn;\n", c->size);
   }
 }
 

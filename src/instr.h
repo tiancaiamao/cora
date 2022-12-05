@@ -13,6 +13,7 @@ void opCall(struct VM *vm, int size, InstrFunc next, void *codeData);
 void opPrimitive(struct VM *vm, int size, Obj prim);
 Obj opMakeClosure(struct VM *vm, int required, InstrFunc fn, void* codeData, int *closed, int nclosed);
 Obj opClosureRef(struct VM *vm, int up, int idx);
+void instrExitExec(struct VM *vm);
 
 Instr compileAPI(Obj exp);
 

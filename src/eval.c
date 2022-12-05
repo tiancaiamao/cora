@@ -1,5 +1,7 @@
 #include "types.h"
 #include "vm.h"
+#include "builtin.h"
+#include "reader.h"
 #include <stdlib.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -70,6 +72,31 @@ findVariable(Obj exp, Obj env, int *m, int *n) {
   }
   *m = -1;
   return;
+}
+
+static Instr compileLambda(Obj args, Obj body, Obj env, Instr cont, struct posArray *pa);
+
+static Obj
+tempList(int n) {
+  Obj ret = Nil;
+  for (int i=0; i<n; i++) {
+    ret = cons(primGensym(symDo), ret);
+  }
+  return ret;
+}
+
+static Obj
+append(Obj l1, Obj l2) {
+  Obj ret = Nil;
+  while (l1 != Nil) {
+    ret = cons(car(l1), ret);
+    l1 = cdr(l1);
+  }
+  while (l2 != Nil) {
+    ret = cons(car(l2), ret);
+    l2 = cdr(l2);
+  }
+  return reverse(ret);
 }
 
 static Instr
@@ -162,9 +189,20 @@ compileCall(Obj exp, Obj env, Instr cont, struct posArray *pa) {
   if (issymbol(first)) {
     Obj v = symbolGet(first);
     if (v != Undef && isprimitive(v)) {
-      Obj args = cdr(exp);
-      int nargs = listLength(args);
-      return compileList(args, env, makeInstrPrimitive(nargs, v, cont), pa);
+	Obj args = cdr(exp);
+	int nargs = listLength(args);
+	int required = primitiveRequired(v);
+	if (required == nargs) {
+	  return compileList(args, env, makeInstrPrimitive(nargs, v, cont), pa);
+	}
+
+	// rewrite partial apply of primitives
+	// (+ x) => (lambda (tmp) (+ x tmp))
+	assert(required > nargs);
+	Obj l = tempList(required - nargs);
+	Obj body = append(exp, l);
+	Obj nenv = cons(l, env);
+	return compileLambda(l, body, nenv, cont, pa);
     }
   }
 

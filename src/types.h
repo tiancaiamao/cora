@@ -124,7 +124,7 @@ InstrFunc primitiveFn(Obj o);
 char *primitiveName(Obj o);
 char *primitiveFnName(Obj o);
 
-Obj makeCurry(int required, int captured, Obj *data, Obj primitive);
+Obj makeCurry(int required, int captured, Obj *data);
 int curryRequired(Obj curry);
 Obj curryPrim(Obj curry);
 Obj curryCaptured(Obj curry);

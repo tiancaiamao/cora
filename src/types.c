@@ -329,8 +329,6 @@ symbolStr(Obj sym) {
 
 struct scmCurry {
   scmHead head;
-  // Is this is a curry on primitive, Nil if not.
-  Obj prim;
 
   int required;
   int captured;
@@ -339,13 +337,12 @@ struct scmCurry {
 };
 
 Obj
-makeCurry(int required, int captured, Obj *data, Obj prim) {
+makeCurry(int required, int captured, Obj *data) {
   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
   struct scmCurry* clo = newObj(scmHeadCurry, sz);
   clo->required = required;
   clo->captured = captured;
   clo->data = data;
-  clo->prim = prim;
   /* assert(captured > 0); */
   return ((Obj)(&clo->head) | TAG_PTR);
 }
@@ -353,16 +350,10 @@ makeCurry(int required, int captured, Obj *data, Obj prim) {
 static void
 curryGCFunc(struct GC *gc, void* obj) {
   struct scmCurry *curry = obj;
-  gcField(gc, getScmHead(curry->prim));
+  /* gcField(gc, getScmHead(curry->prim)); */
   for (int i=0; i<curry->captured; i++) {
     gcField(gc, getScmHead(curry->data[i]));
   }
-}
-
-Obj
-curryPrim(Obj o) {
-  struct scmCurry *curry = ptr(o);
-  return curry->prim;
 }
 
 int
@@ -610,5 +601,5 @@ typesInit(struct GC *gc) {
   gcRegistForType(gc, scmHeadPrimitive, primitiveGCFunc);
   gcRegistForType(gc, scmHeadVector, vectorGCFunc);
   gcRegistForType(gc, scmHeadContinuation, continuationGCFunc);
-  gcRegistForType(gc, scmHeadInstr, instrGCFunc);
+  /* gcRegistForType(gc, scmHeadInstr, instrGCFunc); */
 }
