@@ -71,6 +71,30 @@ exit0:
   vmReturn(vm, Nil);
 }
 
+static char*
+stripFileExtension(char *str) {
+  int len = strlen(str);
+  int pos = len;
+  while (pos>0) {
+    if (str[pos] == '.') {
+      break;
+    }
+    pos--;
+  }
+  if (pos == 0) {
+    return "";
+  }
+
+  char *ret = malloc(pos);
+  pos--;
+  ret[pos] = '\0';
+  while(pos >= 0) {
+    ret[pos] = str[pos];
+    pos--;
+  }
+  return ret;
+}
+
 static void
 builtinReadFileAsSexp(struct VM *vm) {
   Obj arg = vmGet(vm, 1);
@@ -81,11 +105,14 @@ builtinReadFileAsSexp(struct VM *vm) {
     printf("open file fail %s\n", fileName);
     goto exit0;
   }
+
+  char* selfPath = stripFileExtension(fileName);
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
   int err = 0;
   Obj result = Nil;
   int count = 0;
   while(true) {
-    Obj ast = sexpRead(f, &err);
+    Obj ast = sexpRead(&r, f, &err);
     if (err != 0) {
       break;
     }

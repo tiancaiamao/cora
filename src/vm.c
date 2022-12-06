@@ -22,6 +22,7 @@ newVM() {
   memset(vm->contStack.data, 0, sz);
 
   vm->gcTicker = 0;
+  vm->r = (struct SexpReader){.pkgMapping = Nil};
   return vm;
 }
 

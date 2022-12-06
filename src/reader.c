@@ -5,6 +5,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <assert.h>
+
+static void
+addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
+  r->pkgMapping = cons(cons(sym, path), r->pkgMapping);
+}
 
 void printObj(FILE* f, Obj o);
 
@@ -50,7 +56,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(FILE *in, int *errCode) {
+readCons(struct SexpReader *r, FILE *in, int *errCode) {
   int c = getc(in);
   if (c == ')') {
     // read the empty list
@@ -58,19 +64,37 @@ readCons(FILE *in, int *errCode) {
   }
 
   ungetc(c, in);
-  Obj car = sexpRead(in, errCode);
+  Obj hd = sexpRead(r, in, errCode);
 
   c = peekFirstChar(in);
   ungetc(c, in);
 
   /* read list */
-  Obj cdr = readCons(in, errCode);
+  Obj tl = readCons(r, in, errCode);
 
   /* printf("read cdr"); */
   /* printObj(cdr); */
   /* printf("\n"); */
 
-  return cons(car, cdr);
+  if (issymbol(hd) && strcmp(symbolStr(hd), "@import") == 0) {
+    // Handle the @import reader macro
+    // (@import "path/to/file" sym)
+    hd = intern("import");
+    if (iscons(tl)) {
+      Obj path = car(tl);
+      if (isstring(path)) {
+	if (iscons(cdr(tl))) {
+	  Obj sym = cadr(tl);
+	  if (issymbol(sym)) {
+	    addPkgMapping(r, sym, path);
+	    return cons(hd, cons(path, Nil));
+	  }
+	}
+      }
+    }
+  }
+
+  return cons(hd, tl);
 }
 
 Obj
@@ -84,7 +108,7 @@ reverse(Obj o) {
 }
 
 static Obj
-readListMacro(FILE *in, int *errCode) {
+readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
   Obj hd = intern("list");
   Obj ret = Nil;
   char b = peekFirstChar(in);
@@ -93,7 +117,7 @@ readListMacro(FILE *in, int *errCode) {
       hd = intern("list-rest");
     } else {
       ungetc(b, in);
-      Obj o = sexpRead(in, errCode);
+      Obj o = sexpRead(r, in, errCode);
       ret = cons(o, ret);
     }
     b = peekFirstChar(in);
@@ -121,7 +145,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(FILE *in, int *errCode) {
+sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
   int c;
   int i;
   char buffer[512];
@@ -137,18 +161,18 @@ sexpRead(FILE *in, int *errCode) {
 
   // read quote
   if (c == '\'') {
-    Obj o = sexpRead(in, errCode);
+    Obj o = sexpRead(r, in, errCode);
     return cons(symQuote, cons(o, Nil));
   }
 
   // read the empty list or pair
   if (c == '(')	{
-    return readCons(in, errCode);
+    return readCons(r, in, errCode);
   }
 
   // read list macro
   if (c == '[') {
-    return readListMacro(in, errCode);
+    return readListMacro(r, in, errCode);
   }
 
   // read a string
@@ -182,9 +206,13 @@ sexpRead(FILE *in, int *errCode) {
 
   // read a symbol
   if (isIdentifierChar(c)) {
+    int firstDot = -1;
     i = 0;
     while (isIdentifierChar(c)) {
       buffer[i] = c;
+      if (c == '.') {
+	firstDot = i;
+      }
       i++;
       c = getc(in);
     }
@@ -208,6 +236,39 @@ sexpRead(FILE *in, int *errCode) {
           Obj num = makeNumber(atoi(buffer));
           return num;
         }
+      }
+      if (firstDot >= 0) {
+	char *pkgPath = NULL;
+	if (firstDot == 0) {
+	  pkgPath = r->selfPath;
+	} else if (firstDot > 0) {
+	  char saveByte = buffer[firstDot];
+	  buffer[firstDot] = 0;
+	  Obj pkg = makeSymbol(buffer);
+
+	  Obj p = r->pkgMapping;
+	  for (; p != Nil; p = cdr(p)) {
+	    Obj item = car(p);
+	    if (car(item) == pkg) {
+	      pkgPath = stringStr(cdr(item));
+	      break;
+	    }
+	  }
+	  if (p == Nil) {
+	    buffer[firstDot] = saveByte ;
+	  }
+	}
+
+	if (pkgPath != NULL) {
+	  char tmp[512];
+	  int len1 = strlen(pkgPath);
+	  memcpy(tmp, pkgPath, len1);
+	  tmp[len1] = '.';
+	  int len2 = strlen(buffer+firstDot+1);
+	  memcpy(tmp+len1+1, buffer+firstDot+1, len2);
+	  tmp[len1 + 1 + len2] = '\0';
+	  return makeSymbol(tmp);
+	}
       }
       return makeSymbol(buffer);
     }
@@ -315,41 +376,67 @@ sexpWrite(FILE *out, Obj o) {
 
 #ifdef _READER_TEST_
 
-#include "reader.h"
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "vm.h"
 
 
 static void
 TestReadSexp() {
-  /* char buffer[] = "(a b c)"; */
-  char buffer[] = "(a)";
+  char buffer[] = "(a b c)";
+  /* char buffer[] = "(a)"; */
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
+  struct SexpReader reader = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(stream, &errCode);
+  Obj o = sexpRead(&reader, stream, &errCode);
 
-  Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
+  /* Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil))); */
   Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
 
   assert(iscons(o));
-  printf("here res =  %ld \n", o);
-  printf("cdr res = ");
-  printObj(stdout, cdr(o));
-  printf("\n");
-  printf("=== %ld \n", cdr(o));
-  printObj(stdout, cdr(o));
-  printf("%ld \n", Nil);
-  assert(eq(o, cons(intern("a"), Nil)));
+  /* printf("here res =  %ld \n", o); */
+  /* printf("cdr res = "); */
+  /* printObj(stdout, cdr(o)); */
+  /* printf("\n"); */
+  /* printf("=== %ld \n", cdr(o)); */
+  /* printObj(stdout, cdr(o)); */
+  /* printf("%ld \n", Nil); */
+  /* assert(eq(o, cons(intern("a"), Nil))); */
   /* assert(eq(z, r)); */
-  /* assert(eq(o, z)); */
+  assert(eq(o, z));
+
+  fclose(stream);
+}
+
+static void
+TestImport() {
+  char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
+  FILE *stream = fmemopen(buffer, strlen(buffer), "r");
+
+  struct SexpReader r = {.pkgMapping = Nil};
+  int errCode;
+  Obj o = sexpRead(&r, stream, &errCode);
+  Obj pathStr = makeString("std/cora/basic", 14);
+  Obj s = cons(intern("import"), cons(pathStr, Nil));
+  assert(eq(o, s));
+  /* printObj(stdout, r.pkgMapping); */
+  /* printf("\n"); */
+  assert(eq(r.pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
+
+  Obj x = sexpRead(&r, stream, &errCode);
+  /* printObj(stdout, x); */
+  /* printf("\n"); */
+  assert(eq(car(x), intern("std/cora/basic.yyy")));
 
   fclose(stream);
 }
 
 int main(int argc, char *argv) {
+  coraInit();
   TestReadSexp();
+  TestImport();
 }
 
 #endif

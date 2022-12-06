@@ -1,6 +1,8 @@
 #ifndef _VM_H
 #define _VM_H
 
+#include "reader.h"
+
 struct VM;
 typedef void (*InstrFunc)(struct VM *vm);
 
@@ -29,6 +31,8 @@ struct VM {
 
   int gcTicker;
   scmHead* gcSave[2];
+
+  struct SexpReader r;
 };
 
 struct VM* newVM();

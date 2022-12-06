@@ -942,9 +942,10 @@ int main(int argc, char* argv[]) {
 	 (* n (fact (- n 1)))))) \
      (fact 5))";
 
+  struct SexpReader r = {.pkgMapping = Nil};
   FILE* f = fmemopen(input, strlen(input), "r");
   int errCode;
-  Obj s = sexpRead(f, &errCode);
+  Obj s = sexpRead(&r, f, &errCode);
   Instr code = compileAPI(s);
 
   char *ptr;

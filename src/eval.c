@@ -505,9 +505,10 @@ TestEvalBasic() {
 
     printf("testing case %s ", c->name);
 
+    struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(f, &errCode);
+    Obj s = sexpRead(&r, f, &errCode);
     Obj res = eval(vm, s);
 
     char output[512];

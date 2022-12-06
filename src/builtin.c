@@ -8,6 +8,7 @@
 #include <dlfcn.h>
 #include <alloca.h>
 #include <assert.h>
+#include <stdlib.h>
 
 void
 builtinAdd(struct VM *vm) {
@@ -271,6 +272,30 @@ builtinIsString(struct VM *vm) {
 Obj macroExpand(struct VM *vm, Obj exp);
 Obj eval(struct VM *vm, Obj exp);
 
+static char*
+stripFileExtension(char *str) {
+  int len = strlen(str);
+  int pos = len;
+  while (pos>0) {
+    if (str[pos] == '.') {
+      break;
+    }
+    pos--;
+  }
+  if (pos == 0) {
+    return "";
+  }
+
+  char *ret = malloc(pos);
+  pos--;
+  ret[pos] = '\0';
+  while(pos >= 0) {
+    ret[pos] = str[pos];
+    pos--;
+  }
+  return ret;
+}
+
 void
 builtinLoad(struct VM *vm) {
   Obj path = pop(vm);
@@ -283,8 +308,10 @@ builtinLoad(struct VM *vm) {
 
   vm->gcSave[0] = vm->pcData;
 
+  char* selfPath = stripFileExtension(str);
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
   int err = 0;
-  Obj ast = sexpRead(in, &err);
+  Obj ast = sexpRead(&r, in, &err);
   while(err == 0) {
     /* printf("========================================= read == \n"); */
     /* sexpWrite(stdout, ast); */
@@ -295,7 +322,7 @@ builtinLoad(struct VM *vm) {
     /* vm->gcSave = vm->pcData; */
 
     eval(vm, exp);
-    ast = sexpRead(in, &err);
+    ast = sexpRead(&r, in, &err);
   }
   fclose(in);
   vm->val = path;

@@ -191,7 +191,7 @@ repl(struct VM *vm, FILE* stream) {
     }
 
     int err = 0;
-    Obj exp = sexpRead(stream, &err);
+    Obj exp = sexpRead(&vm->r, stream, &err);
     if (err != 0) {
       break;
     }

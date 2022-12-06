@@ -8,10 +8,10 @@ CFLAGS = -g -Wall -fPIC
 
 all: libcora.a libcora.so
 
-test: eval_test instr_test
+test: reader_test eval_test instr_test
 
 reader.test: reader.c
-	gcc -g -D_READER_TEST_ -o reader.test reader.c types.c gc.c
+	gcc -g -D_READER_TEST_ -o reader.test reader.c types.c gc.c vm.c builtin.c eval.c instr.c -ldl
 
 reader_test: reader.test
 	./reader.test
