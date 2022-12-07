@@ -185,7 +185,7 @@ static struct registModule builtinModule = {
     {"vector-ref",builtinVectorRef, 2, "VectorRef"},
     {"vector?",builtinIsVector, 1, "IsVector"},
     {"intern",builtinIntern, 1, "Intern"},
-    {"load",builtinLoad, 1, "Load"},
+    {"load", builtinLoad, 2, "Load"},
     {"load-so",builtinLoadSo, 1},
     {NULL, NULL, 0}
   }
@@ -248,6 +248,8 @@ coraInit() {
   symDo = intern("do");
   symMacroExpand = intern("macroexpand");
   symDebugEval = intern("*debug-eval*");
+
+  symbolSet(intern("*imported*"), Nil);
 
   registAPIHelp(&builtinModule, true);
 }

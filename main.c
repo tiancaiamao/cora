@@ -76,7 +76,7 @@ main(int argc, char *argv[]) {
 
   if (bootFile != NULL && bootFile[0] != '\0') {
     Obj str = makeString(bootFile, strlen(bootFile));
-    Obj loadFile = cons(intern("load"), cons(str, Nil));
+    Obj loadFile = cons(intern("load"), cons(str, cons(makeString("", 0), Nil)));
     eval(vm, loadFile);
   }
 

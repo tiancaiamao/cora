@@ -272,44 +272,40 @@ builtinIsString(struct VM *vm) {
 Obj macroExpand(struct VM *vm, Obj exp);
 Obj eval(struct VM *vm, Obj exp);
 
-static char*
-stripFileExtension(char *str) {
-  int len = strlen(str);
-  int pos = len;
-  while (pos>0) {
-    if (str[pos] == '.') {
-      break;
-    }
-    pos--;
-  }
-  if (pos == 0) {
-    return "";
-  }
+/* static char* */
+/* stripFileExtension(char *str) { */
+/*   int len = strlen(str); */
+/*   int pos = len; */
+/*   while (pos>0) { */
+/*     if (str[pos] == '.') { */
+/*       break; */
+/*     } */
+/*     pos--; */
+/*   } */
+/*   if (pos == 0) { */
+/*     return ""; */
+/*   } */
 
-  char *ret = malloc(pos);
-  pos--;
-  ret[pos] = '\0';
-  while(pos >= 0) {
-    ret[pos] = str[pos];
-    pos--;
-  }
-  return ret;
-}
+/*   char *ret = malloc(pos); */
+/*   pos--; */
+/*   ret[pos] = '\0'; */
+/*   while(pos >= 0) { */
+/*     ret[pos] = str[pos]; */
+/*     pos--; */
+/*   } */
+/*   return ret; */
+/* } */
 
 void
-builtinLoad(struct VM *vm) {
-  Obj path = pop(vm);
-  char *str = stringStr(path);
-  FILE *in = fopen(str, "r");
+primLoad(struct VM *vm, char *path, char *pkg) {
+  FILE *in = fopen(path, "r");
   if (in == NULL) {
     // TODO: exception?
     assert("wrong path");
   }
 
-  vm->gcSave[0] = vm->pcData;
-
-  char* selfPath = stripFileExtension(str);
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
+  /* char* selfPath = stripFileExtension(str); */
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg};
   int err = 0;
   Obj ast = sexpRead(&r, in, &err);
   while(err == 0) {
@@ -325,8 +321,18 @@ builtinLoad(struct VM *vm) {
     ast = sexpRead(&r, in, &err);
   }
   fclose(in);
-  vm->val = path;
+}
 
+void
+builtinLoad(struct VM *vm) {
+  Obj pkg = pop(vm);
+  Obj path = pop(vm);
+  char *str = stringStr(path);
+  vm->gcSave[0] = vm->pcData;
+
+  primLoad(vm, str, stringStr(pkg));
+
+  vm->val = path;
   vm->gcSave[0] = NULL;
   vm->gcSave[1] = NULL;
 }
