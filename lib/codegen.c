@@ -190,6 +190,7 @@ builtinImport(struct VM *ctx) {
 
   // Set the *imported* variable to avlid repeated load.
   symbolSet(sym, cons(cons(pkg, Nil), imported));
+  vmReturn(ctx, pkg);
 }
 
 struct registModule codeGenModule = {

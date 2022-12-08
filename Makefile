@@ -1,8 +1,8 @@
 .PHONY: libcora lib
 
 CC = gcc
-# CFLAGS = -g -Wall -fPIC
-CFLAGS = -g -fPIC
+CFLAGS = -g -Wall -fPIC
+# CFLAGS = -g -fPIC
 
 all: cora
 
@@ -18,9 +18,9 @@ lib:
 main.o: main.c
 
 cora: libcora lib main.o
-	$(CC) main.o -Wl,-rpath src -Lsrc -lcora lib/lib.a -ldl -o $@
+	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora lib/lib.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
-	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
+	$(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
 
 clean:
 	rm -rf cora *.o

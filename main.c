@@ -11,7 +11,6 @@
 
 static struct option opts[] = {
   {"help", no_argument, NULL, 'h'},
-  {"boot", required_argument, NULL, 'b'},
   {"eval", required_argument, NULL, 'e'},
   {"file", required_argument, NULL, 'f'},
   {NULL, no_argument, NULL, 0},
@@ -21,7 +20,7 @@ const char *optstr = "hb:i:e:f:";
 
 static void
 help() {
-  printf("cora [--boot init.cora]\n\
+  printf("cora \n\
 or:	cora [-e <expr>]\n\
 or:	cora [-f <path>]\n\
 \n\
@@ -42,7 +41,6 @@ static void repl(struct VM *vm, FILE* stream);
 
 int
 main(int argc, char *argv[]) {
-  char *bootFile = "src/init.cora";
   char *expr = NULL;
   char *oneLiner = NULL;
   char *path = NULL;
@@ -52,8 +50,6 @@ main(int argc, char *argv[]) {
     case 'h':
       help();
       return 0;
-    case 'b':
-      bootFile = optarg;
     case 'e':
       expr = optarg;
       break;
@@ -74,11 +70,9 @@ main(int argc, char *argv[]) {
 
   struct VM *vm = newVM();
 
-  if (bootFile != NULL && bootFile[0] != '\0') {
-    Obj str = makeString(bootFile, strlen(bootFile));
-    Obj loadFile = cons(intern("load"), cons(str, cons(makeString("", 0), Nil)));
-    eval(vm, loadFile);
-  }
+  // load boot file
+  char *pkgName = "cora/init";
+  eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil)));
 
   /* memset(&coraREPL, 0, sizeof(jmp_buf)); */
   /* setjmp(coraREPL); */

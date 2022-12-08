@@ -392,9 +392,10 @@ struct InstrGlobalRef {
 void
 opGlobalRef(struct VM *vm, Obj sym) {
   Obj val = symbolGet(sym);
-  if (val == 0) {
+  if (val == 0 || val == Undef) {
+    printf("undefined symbol %s\n", symbolStr(sym));
     // TODO: panic("undefined symbol")
-    assert(false);
+    /* assert(false); */
   }
   vm->val = val;
 }
