@@ -48,6 +48,8 @@ void vmReturn(struct VM *vm, Obj x);
 void run(struct VM* vm, InstrFunc code);
 void coraInit();
 
+void contStackPush(struct contStack *s, struct continuation cont);
+
 struct registEntry {
   char *name;
   InstrFunc func;

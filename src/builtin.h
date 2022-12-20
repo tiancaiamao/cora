@@ -30,7 +30,10 @@ void builtinLoadSo(struct VM *ctx);
 void builtinStringAppend(struct VM *ctx);
 void builtinNumberToString(struct VM *ctx);
 void builtinIntern(struct VM *ctx);
-void builtinValue(struct VM* ctx);
+void builtinImport(struct VM *ctx);
+
+void builtinThrow(struct VM *vm);
+void builtinTryCatch(struct VM *vm);
 
 
 

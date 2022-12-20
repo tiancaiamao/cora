@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
 #include <sys/types.h>
-#include <pwd.h>
 #include "cora.h"
 #include "builtin.h"
 
@@ -153,53 +151,12 @@ builtinGCCCompileToSo(struct VM* ctx) {
   vmReturn(ctx, makeNumber(ret));
 }
 
-static void
-builtinImport(struct VM *ctx) {
-  Obj pkg = vmGet(ctx, 1);
-  char *pkgStr = stringStr(pkg);
-  Obj sym = intern("*imported*");
-  Obj imported = symbolGet(sym);
-  // Avoid repeated load.
-  for (Obj p = imported; p != Nil; p = cdr(p)) {
-    Obj elem = car(p);
-    if (eq(car(elem), pkg)) {
-      vmReturn(ctx, sym);
-      return;
-    }
-  }
-
-  // CORA PATH
-  char tmp[512];
-  char* coraPath = getenv("CORAPATH");
-  if (coraPath == NULL) {
-    struct passwd* pw = getpwuid(getuid());
-    const char* homeDir = pw->pw_dir;
-    strcpy(tmp, homeDir);
-    strcat(tmp, "/.corapath/");
-  } else {
-    strcpy(tmp, coraPath);
-    if (tmp[strlen(tmp)-1] != '/') {
-      strcat(tmp, "/");
-    }
-  }
-
-  // TODO: also consider the .so file
-  strcat(tmp, pkgStr);
-  strcat(tmp, ".cora");
-  primLoad(ctx, tmp, pkgStr);
-
-  // Set the *imported* variable to avlid repeated load.
-  symbolSet(sym, cons(cons(pkg, Nil), imported));
-  vmReturn(ctx, pkg);
-}
-
 struct registModule codeGenModule = {
   NULL,
   {
    {"read-file-as-sexp", builtinReadFileAsSexp, 1},
    {"generate-c", builtinGenerateC, 2},
    {"gcc-compile-to-so", builtinGCCCompileToSo, 2},
-   {"import", builtinImport, 1},
    {NULL, NULL, 0}
   }
 };

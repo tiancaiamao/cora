@@ -48,10 +48,13 @@ vmReturn(struct VM *vm, Obj x) {
 
   struct continuation* cc = &vm->contStack.data[vm->contStack.size-1];
   vm->contStack.size--;
+  assert(vm->contStack.size >= 0);
   struct stack s = cc->s;
 
-  assert(s.base <= vm->base);
-  assert(s.pos <= vm->pos);
+  if (vm->data == s.data) {
+    assert(s.base <= vm->base);
+    assert(s.pos <= vm->pos);
+  }
 
   vm->data = s.data;
   vm->base = s.base;
@@ -116,21 +119,30 @@ vmGet(struct VM* vm, int idx) {
   }
 }
 
+void
+contStackPush(struct contStack *s, struct continuation cont) {
+  if (s->size >= s->cap) {
+    if (s->cap == 0) {
+      s->cap = 16;
+    }
+    s->cap = s->cap * 2;
+    s->data = realloc(s->data, sizeof(struct continuation) * s->cap);
+  }
+
+  s->data[s->size] = cont;
+  s->size++;
+}
 
 void
 vmSaveCont(struct VM *vm, int end, InstrFunc code, Instr codeData) {
-  if (vm->contStack.size >= vm->contStack.cap) {
-    vm->contStack.cap = vm->contStack.cap * 2;
-    vm->contStack.data = realloc(vm->contStack.data, sizeof(struct continuation) * vm->contStack.cap);
-  }
-
-  struct continuation *data = vm->contStack.data + vm->contStack.size;
-  data->s.data = vm->data;
-  data->s.base = vm->base;
-  data->s.pos = end;
-  data->code = code;
-  data->codeData = codeData;
-  vm->contStack.size++;
+  contStackPush(&vm->contStack, (struct continuation){
+      .s = (struct stack){
+	.data = vm->data,
+	.base = vm->base,
+	.pos = end,
+      },
+      .code = code,
+      .codeData = codeData});
 }
 
 void
@@ -158,7 +170,7 @@ vmResize(struct VM* vm, int sz) {
   vm->pos = vm->base + sz;
 }
 
-static struct registModule builtinModule = {
+static struct registModule builtinPrimitives = {
   NULL,
   {
     {"+", builtinAdd, 2, "Add"},
@@ -168,25 +180,34 @@ static struct registModule builtinModule = {
     {"%", builtinMod, 2, "Mod"},
     {"=", builtinEqual, 2, "Equal"},
     {"set", builtinSet, 2, "Set"},
-    /* {"value", builtinValue, 1, "Value"}, */
     {"cons", builtinCons, 2, "Cons"},
     {"car", builtinCar, 1, "Car"},
     {"cdr", builtinCdr, 1, "Cdr"},
     {"cons?", builtinIsCons, 1, "IsCons"},
     {"gensym", builtinGensym, 1, "Gensym"},
-    {">",builtinGT, 2, "GT"},
-    {"<",builtinLT, 2, "LT"},
-    {"not",builtinNot, 1, "Not"},
-    {"symbol?",builtinIsSymbol, 1, "IsSymbol"},
-    {"string?",builtinIsString, 1, "IsString"},
-    {"number?",builtinIsNumber, 1, "IsNumber"},
-    {"vector",builtinMakeVector, 1, "MakeVector"},
-    {"vector-set!",builtinVectorSet, 3, "VectorSet"},
-    {"vector-ref",builtinVectorRef, 2, "VectorRef"},
-    {"vector?",builtinIsVector, 1, "IsVector"},
-    {"intern",builtinIntern, 1, "Intern"},
+    {">", builtinGT, 2, "GT"},
+    {"<", builtinLT, 2, "LT"},
+    {"not", builtinNot, 1, "Not"},
+    {"symbol?", builtinIsSymbol, 1, "IsSymbol"},
+    {"string?", builtinIsString, 1, "IsString"},
+    {"number?", builtinIsNumber, 1, "IsNumber"},
+    {"vector", builtinMakeVector, 1, "MakeVector"},
+    {"vector-set!", builtinVectorSet, 3, "VectorSet"},
+    {"vector-ref", builtinVectorRef, 2, "VectorRef"},
+    {"vector?", builtinIsVector, 1, "IsVector"},
+    {"intern", builtinIntern, 1, "Intern"},
     {"load", builtinLoad, 2, "Load"},
-    {"load-so",builtinLoadSo, 1},
+    {"load-so", builtinLoadSo, 1, "LoadSo"},
+    {NULL, NULL, 0}
+  }
+};
+
+static struct registModule builtinClosures = {
+  NULL,
+  {
+    {"try", builtinTryCatch, 2, ""},
+    {"throw", builtinThrow, 1, ""},
+    {"import", builtinImport, 1, ""},
     {NULL, NULL, 0}
   }
 };
@@ -251,5 +272,6 @@ coraInit() {
 
   symbolSet(intern("*imported*"), Nil);
 
-  registAPIHelp(&builtinModule, true);
+  registAPIHelp(&builtinPrimitives, true);
+  registAPIHelp(&builtinClosures, false);
 }
