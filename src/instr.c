@@ -585,8 +585,11 @@ struct InstrCall {
 static void
 callClosureNormal(struct VM *vm, Obj clo, int size, InstrFunc next, void *codeData) {
   assert(next != NULL);
+  
+  InstrFunc code = closureCode(clo);
 
-  if (next == instrExitExec) { // Jump
+  // try and throw don't use TCO
+  if (next == instrExitExec && code != builtinThrow) { // Jump
     // Reuse the old stack
     for (int i=0; i<size; i++) {
       Obj arg = vmGet(vm, -size + i);
@@ -599,7 +602,7 @@ callClosureNormal(struct VM *vm, Obj clo, int size, InstrFunc next, void *codeDa
     vm->base = newBase;
   }
 
-  vm->pc = closureCode(clo);
+  vm->pc = code;
   vm->pcData = closureCodeData(clo);
 }
 

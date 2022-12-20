@@ -9,6 +9,8 @@
 #include <alloca.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <pwd.h>
+#include <unistd.h>
 
 void
 builtinAdd(struct VM *vm) {
@@ -120,18 +122,6 @@ builtinSet(struct VM *vm) {
   Obj sym = pop(vm);
   assert(issymbol(sym));
   symbolSet(sym, val);
-  vm->val = val;
-}
-
-void
-builtinValue(struct VM *vm) {
-  Obj sym = pop(vm);
-  Obj val = symbolGet(sym);
-  if (val == Undef) {
-    /* longjmp(coraREPL, 1); */
-    // TODO: panic?
-    assert(false);
-  }
   vm->val = val;
 }
 
@@ -421,9 +411,131 @@ builtinIntern(struct VM *vm) {
   vm->val = intern(stringStr(x));
 }
 
+extern void instrExitExec(struct VM *vm);
+extern void opCall(struct VM *vm, int size, InstrFunc next, void* codeData);
+
+void
+builtinTryCatch(struct VM *vm) {
+  Obj chunk = vmGet(vm, -2);
+
+  // Save the old cont.
+  // This save can make the chunk and handler available to the recovering process.
+  vmSaveCont(vm, vm->pos, instrExitExec, NULL);
+
+  // Prepare a new stack for the chunk to run.
+  vm->data = (Obj*)malloc(sizeof(Obj)*2048);
+  vm->base = 0;
+  vm->pos = 0;
+
+  // Call the chunk.
+  push(vm, chunk);
+  opCall(vm, 1, instrExitExec, NULL);
+}
+
+static void
+continuationAsClosure(struct VM *vm) {
+  // Replace the current stack with the delimited continuation.
+  struct contStack* delimitedCC = vm->pcData;
+  Obj val = vmGet(vm, 1);
+  for (int i=0; i< delimitedCC->size; i++) {
+    struct continuation cont = delimitedCC->data[i];
+    contStackPush(&vm->contStack, cont);
+  }
+  vmReturn(vm, val);
+}
+
+void opExit(struct VM *vm);
+
+void
+builtinThrow(struct VM *vm) {
+  Obj v = vmGet(vm, -1);
+
+  // Delimited to the previous try-catch
+  int p = vm->contStack.size - 1;
+  while(p >=0) {
+    struct continuation* cont = &vm->contStack.data[p];
+    if (cont->s.data != vm->data) {
+      break;
+    }
+    p--;
+  }
+  if (p < 0) {
+    // TODO: panic, not in any try-catch block!
+    assert(false);
+  }
+
+  struct contStack *delimitedCC = malloc(sizeof(struct contStack));
+  delimitedCC->data = NULL;
+  delimitedCC->size = 0;
+  delimitedCC->cap = 0;
+  
+  // Now p point to the try-saved stack.
+  // p+1 is the new stack.
+  for (int i=p; i<vm->contStack.size; i++) {
+    contStackPush(delimitedCC, vm->contStack.data[i]);
+  }
+
+  // Now that we get the current continuation, disguise as a closure.
+  struct hashForObj h;
+  Obj clo = makeClosure(1, continuationAsClosure, delimitedCC, Nil, h);
+
+  // Reset the stack
+  vm->contStack.size = p;
+  struct continuation c = vm->contStack.data[p];
+  vm->data = c.s.data;
+  vm->base = c.s.base;
+  vm->pos = c.s.pos;
+
+  // Find the handler, invoke it, passing the continuation.
+  Obj handler = vmGet(vm, -1);
+  push(vm, handler);
+  push(vm, v);
+  push(vm, clo);
+  opCall(vm, 3, opExit, NULL);
+}
 
 Obj
 primSet(Obj x, Obj y) {
   symbolSet(x, y);
   return y;
+}
+
+void
+builtinImport(struct VM *ctx) {
+  Obj pkg = vmGet(ctx, 1);
+  char *pkgStr = stringStr(pkg);
+  Obj sym = intern("*imported*");
+  Obj imported = symbolGet(sym);
+  // Avoid repeated load.
+  for (Obj p = imported; p != Nil; p = cdr(p)) {
+    Obj elem = car(p);
+    if (eq(car(elem), pkg)) {
+      vmReturn(ctx, sym);
+      return;
+    }
+  }
+
+  // CORA PATH
+  char tmp[512];
+  char* coraPath = getenv("CORAPATH");
+  if (coraPath == NULL) {
+    struct passwd* pw = getpwuid(getuid());
+    const char* homeDir = pw->pw_dir;
+    strcpy(tmp, homeDir);
+    strcat(tmp, "/.corapath/");
+  } else {
+    strcpy(tmp, coraPath);
+    if (tmp[strlen(tmp)-1] != '/') {
+      strcat(tmp, "/");
+    }
+  }
+
+  // TODO: also consider the .so file
+  strcat(tmp, pkgStr);
+  strcat(tmp, ".cora");
+  primLoad(ctx, tmp, pkgStr);
+
+  // Set the *imported* variable to avlid repeated load.
+  symbolSet(sym, cons(cons(pkg, Nil), imported));
+  vmReturn(ctx, pkg);
 }
