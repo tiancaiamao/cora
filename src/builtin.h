@@ -52,5 +52,6 @@ Obj primNot(Obj x);
 
 
 void primLoad(struct VM *vm, char *path, char *pkg);
+void primLoadSo(struct VM *vm, char *path);
 
 #endif

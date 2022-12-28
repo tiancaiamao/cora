@@ -1,7 +1,7 @@
-all: lib.a
+all: lib.a string.so
 
 CC = gcc
-CFLAGS := -I../src -g
+CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
 # SRCS := codegen.c setjump.c io.c generator.c net.c string.c
 SRCS := codegen.c string.c
@@ -12,9 +12,11 @@ COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 lib.a: $(OBJS)
 	ar -rc $@ $^
-
 clean:
 	rm -rf *.o lib.a
+
+string.so: string.o
+	gcc -shared -o $@ $^
 
 %.o : %.c
 %.o : %.c $(DEPDIR)/%.d | $(DEPDIR)

@@ -8,7 +8,7 @@ closure as code generation
 
 treadmill gc
 
-- [] compile (almost done)
+- [X] compile (almost done)
 
 closure as code generation
 top of stack caching
@@ -19,6 +19,6 @@ shorthand
 
 - [] type system
 
-- [] concurrency model
+- [X] concurrency model
 
 algebraic effect

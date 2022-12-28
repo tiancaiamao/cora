@@ -13,10 +13,10 @@ const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
 /* uintptr_t gcCopy(struct GC *gc, uintptr_t head) { return 42; }; */
 
+
 struct scmString {
   scmHead head;
-  int sz;
-  char data[];
+  strBuf str;
 };
 
 
@@ -222,26 +222,22 @@ makeString(const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
   int alloc = len + sizeof(struct scmString) + 1;
   struct scmString* str = newObj(scmHeadString, alloc);
-  str->sz = len;
-  str->data[len] = '\0';
-  if (s != NULL) {
-    memcpy(&str->data[0], s, len);
-  }
+  str->str = fromBlk(s, len);
   return ((Obj)(&str->head) | TAG_PTR);
 }
 
-char*
+strBuf
 stringStr(Obj o) {
   struct scmString* s = ptr(o);
   assert(s->head.type == scmHeadString);
-  return s->data;
+  return s->str;
 }
 
 int
 stringLen(Obj o) {
   struct scmString* s = ptr(o);
   assert(s->head.type == scmHeadString);
-  return s->sz;
+  return strLen(toStr(s->str));
 }
 
 bool
@@ -519,15 +515,7 @@ eq(Obj x, Obj y) {
   if (isstring(x) && isstring(y)) {
     struct scmString* x1 = ptr(x);
     struct scmString* y1 = ptr(y);
-    if (x1->sz != y1->sz) {
-      return false;
-    }
-    for (int i=0; i<x1->sz; i++) {
-      if (x1->data[i] != y1->data[i]) {
-	return false;
-      }
-    }
-    return true;
+    return strCmp(toStr(x1->str), toStr(y1->str)) == 0;
   }
 
   return false;

@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS= types.c gc.c reader.c vm.c eval.c instr.c builtin.c
+SRCS= types.c gc.c reader.c vm.c eval.c instr.c builtin.c str.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC

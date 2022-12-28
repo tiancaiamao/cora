@@ -250,7 +250,7 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 	  for (; p != Nil; p = cdr(p)) {
 	    Obj item = car(p);
 	    if (car(item) == pkg) {
-	      pkgPath = stringStr(cdr(item));
+	      pkgPath = toCStr(stringStr(cdr(item)));
 	      break;
 	    }
 	  }
@@ -340,7 +340,7 @@ printObj(FILE *to, Obj o) {
       fprintf(to, "null");
       break;
     case scmHeadString:
-      fprintf(to, "\"%s\"", stringStr(o));
+      fprintf(to, "\"%s\"", toCStr(stringStr(o)));
       break;
     case scmHeadBoolean:
       fprintf(to, "boolean");

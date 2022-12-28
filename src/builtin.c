@@ -317,10 +317,10 @@ void
 builtinLoad(struct VM *vm) {
   Obj pkg = pop(vm);
   Obj path = pop(vm);
-  char *str = stringStr(path);
+  strBuf str = stringStr(path);
   vm->gcSave[0] = vm->pcData;
 
-  primLoad(vm, str, stringStr(pkg));
+  primLoad(vm, toCStr(str), toCStr(stringStr(pkg)));
 
   vm->val = path;
   vm->gcSave[0] = NULL;
@@ -330,8 +330,13 @@ builtinLoad(struct VM *vm) {
 void
 builtinLoadSo(struct VM *vm) {
   Obj path = pop(vm);
-  char *str = stringStr(path);
-  void *handle = dlopen(str, RTLD_LAZY);
+  strBuf str = stringStr(path);
+  primLoadSo(vm, toCStr(str));
+}
+
+void
+primLoadSo(struct VM *vm, char* path) {
+  void *handle = dlopen(path, RTLD_LAZY);
   if (!handle) {
     fprintf(stderr, "%s\n", dlerror());
     vmReturn(vm, makeNumber(-1));
@@ -408,7 +413,7 @@ void
 builtinIntern(struct VM *vm) {
   Obj x = pop(vm);
   assert(isstring(x));
-  vm->val = intern(stringStr(x));
+  vm->val = intern(toCStr(stringStr(x)));
 }
 
 extern void instrExitExec(struct VM *vm);
@@ -503,7 +508,7 @@ primSet(Obj x, Obj y) {
 void
 builtinImport(struct VM *ctx) {
   Obj pkg = vmGet(ctx, 1);
-  char *pkgStr = stringStr(pkg);
+  char *pkgStr = toCStr(stringStr(pkg));
   Obj sym = intern("*imported*");
   Obj imported = symbolGet(sym);
   // Avoid repeated load.
@@ -516,24 +521,31 @@ builtinImport(struct VM *ctx) {
   }
 
   // CORA PATH
-  char tmp[512];
+  strBuf tmp = strNew(512);
   char* coraPath = getenv("CORAPATH");
   if (coraPath == NULL) {
     struct passwd* pw = getpwuid(getuid());
     const char* homeDir = pw->pw_dir;
-    strcpy(tmp, homeDir);
-    strcat(tmp, "/.corapath/");
+    tmp = strCpy(tmp, cstr(homeDir));
+    tmp = strCat(tmp, cstr("/.corapath/"));
   } else {
-    strcpy(tmp, coraPath);
-    if (tmp[strlen(tmp)-1] != '/') {
-      strcat(tmp, "/");
+    tmp = strCpy(tmp, cstr(coraPath));
+    if (toCStr(tmp)[strLen(toStr(tmp))-1] != '/') {
+      tmp = strCat(tmp, cstr("/"));
     }
   }
 
   // TODO: also consider the .so file
-  strcat(tmp, pkgStr);
-  strcat(tmp, ".cora");
-  primLoad(ctx, tmp, pkgStr);
+  tmp = strCat(tmp, cstr(pkgStr));
+  tmp = strCat(tmp, cstr(".so"));
+  if (0 == access(toCStr(tmp), R_OK)) {
+    primLoadSo(ctx, toCStr(tmp));
+  } else {
+    tmp = strShrink(tmp, 3);
+    tmp = strCat(tmp, cstr(".cora"));
+    primLoad(ctx, toCStr(tmp), pkgStr);
+  }
+  strFree(tmp);
 
   // Set the *imported* variable to avlid repeated load.
   symbolSet(sym, cons(cons(pkg, Nil), imported));

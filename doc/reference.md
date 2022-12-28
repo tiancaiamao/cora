@@ -2,19 +2,23 @@
 
 quote if do lambda
 
+## primitives
+
++ - * / % = > < not set car cdr cons cons? gensym not intern symbol? string? load number? vector vector-set! vector-ref
+
 ## builtin functions
 
-+ - * / = > < set car cdr cons gensym not string? load number?
+import try throw load-so
 
 ## macros
 
-defun func match list list-rest or and
+defun func match list list-rest or and begin
 
 TODO: cond
 
 ## reader macro
 
-' [] .
+' [] . @import
 
 ## others
 

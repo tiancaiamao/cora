@@ -366,7 +366,7 @@
 (func .rewrite-begin
       [x] => x
       [x y] => ['do x y]
-      [x . y] => ['do x (rewrite-begin y)])
+      [x . y] => ['do x (.rewrite-begin y)])
 
 (defmacro begin (exp)
   (.rewrite-begin (cdr exp)))

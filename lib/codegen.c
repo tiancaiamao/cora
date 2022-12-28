@@ -23,7 +23,7 @@ static void
 builtinGenerateC(struct VM* vm) {
   Obj dst = vmGet(vm, 1);
   assert(isstring(dst));
-  char* outFileName = stringStr(dst);
+  char* outFileName = toCStr(stringStr(dst));
   FILE* outFile = fopen(outFileName, "w");
   if (outFile == NULL) {
     printf("open output file %s failed", outFileName);
@@ -101,7 +101,7 @@ static void
 builtinReadFileAsSexp(struct VM *vm) {
   Obj arg = vmGet(vm, 1);
   assert(isstring(arg));
-  char* fileName = stringStr(arg);
+  char* fileName = toCStr(stringStr(arg));
   FILE* f = fopen(fileName, "r");
   if (f == NULL) {
     printf("open file fail %s\n", fileName);
@@ -142,7 +142,7 @@ builtinGCCCompileToSo(struct VM* ctx) {
   assert(isstring(to));
 
   char cmd[512];
-  int ret = snprintf(cmd, 512, "gcc -shared -o %s -Isrc -fPIC -g %s", stringStr(to), stringStr(from));
+  int ret = snprintf(cmd, 512, "gcc -shared -o %s -Isrc -fPIC -g %s", toCStr(stringStr(to)), toCStr(stringStr(from)));
   if (ret == 0) {
     vmReturn(ctx, Nil);
   }

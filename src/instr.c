@@ -80,8 +80,8 @@ instrConstCodeGen(struct CodeGen *cg, Instr i, FILE *to) {
   } else if (isfixnum(c->val)) {
     fprintf(to, "val = makeNumber(%ld);\n", fixnum(c->val));
   } else if (isstring(c->val)) {
-    char *str = stringStr(c->val);
-    fprintf(to, "val = makeString(\"%s\", %ld);\n", str, strlen(str));
+    strBuf str = stringStr(c->val);
+    fprintf(to, "val = makeString(\"%s\", %d);\n", toCStr(str), strLen(toStr(str)));
   } else if (issymbol(c->val)) {
     fprintf(to, "val = makeSymbol(\"%s\");\n", symbolStr(c->val));
   } else {

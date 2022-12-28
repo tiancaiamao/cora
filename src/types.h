@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "gc.h"
+#include "str.h"
 
 typedef uint8_t scmHeadType;
 
@@ -150,8 +151,11 @@ Obj closureParent(Obj);
 Obj closureSlot(Obj, int);
 int closureRequired(Obj);
 
+struct tagbstring;
+typedef struct tagbstring * bstring;
+
 Obj makeString(const char *s, int len);
-char* stringStr(Obj o);
+strBuf stringStr(Obj o);
 int stringLen(Obj o);
 Obj makeNumber(int v);
 bool isstring(Obj o);
