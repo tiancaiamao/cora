@@ -154,9 +154,15 @@ builtinGCCCompileToSo(struct VM* ctx) {
 struct registModule codeGenModule = {
   NULL,
   {
-   {"read-file-as-sexp", builtinReadFileAsSexp, 1},
-   {"generate-c", builtinGenerateC, 2},
-   {"gcc-compile-to-so", builtinGCCCompileToSo, 2},
+   {"cora/lib/codegen/internal.read-file-as-sexp", builtinReadFileAsSexp, 1},
+   {"cora/lib/codegen/internal.generate-c", builtinGenerateC, 2},
+   {"cora/lib/codegen/internal.gcc-compile-to-so", builtinGCCCompileToSo, 2},
    {NULL, NULL, 0}
   }
 };
+
+void
+__entry(struct VM *vm) {
+  registAPI(&codeGenModule);
+  return vmReturn(vm, intern("internal"));
+}

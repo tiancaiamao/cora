@@ -39,3 +39,44 @@
 
 a 变成 xxx.xxx.a
 建一个替换表，所有不带引用的 symbol => 添加前缀之后的 symbol
+
+
+## 模块和版本管理
+
+如何加载同一个模块的不同版本？
+
+同一个模块的不同版本，当作不同模块处理
+
+使用不同的路径
+
+类似 gopkg.in 的做法:
+
+原始的 github.com/xxx 模块 1.0 映射到
+gopkg.in/github.com/xxx/v1.0
+2.0 映射到
+gopkg.in/github.com/xxx/v2.0
+
+如何保证可重复编译?
+
+尽管依赖打过版本的模块，比如这是一个不稳定版本，无法保证可重复编译
+
+github.com/xxx
+
+依赖这个版本则是可重复编译的版本
+
+gopkg.in/github.com/xxx/v1.0
+
+如果作者需要依赖特定的版本或者 hotfix
+应该使用 fork 一份然后依赖自己的 fork
+注意 fork 也是工程角度不可重复编译的，而且 fork 无版本管理
+
+github.com/yyy => github.com/xxx
+
+依赖用 gopkg.in 保证可重复编译
+
+gopkg.in/github.com/yyy/commit_hash
+
+或者本地用符号链接的方式
+这个方式保证使用特定的版本
+
+github.com/xxx => vendor/github.com/xxx

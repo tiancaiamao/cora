@@ -66,16 +66,11 @@ main(int argc, char *argv[]) {
   }
 
   coraInit();
-  registAPI(&codeGenModule);
-
   struct VM *vm = newVM();
 
   // load boot file
   char *pkgName = "cora/init";
   eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil)));
-
-  /* memset(&coraREPL, 0, sizeof(jmp_buf)); */
-  /* setjmp(coraREPL); */
 
   if (oneLiner != NULL) {
   /*   // Without the nonblock flag, fgets would block forever when the stdin data is unavailable. */
