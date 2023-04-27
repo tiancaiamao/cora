@@ -14,12 +14,12 @@
                        (cons (rcons (cdr exp)) ())))
            ())))
 (set 'pair? cons?)
-(set 'reverse-h
+(set '.reverse-h
      (lambda (res l)
        (if (cons? l)
-           (reverse-h (cons (car l) res) (cdr l))
+           (.reverse-h (cons (car l) res) (cdr l))
            res)))
-(set 'reverse (reverse-h ()))
+(set 'reverse (.reverse-h ()))
 (set 'map-h
      (lambda (res f l)
        (if (cons? l)
@@ -30,9 +30,9 @@
 ;; =============== The macro utilities ============
 (set '*macros* ())
 (set '*protect-symbol* (gensym 'protect))
-(set 'protect (lambda (x)
+(set '.protect (lambda (x)
                 (cons *protect-symbol* x)))
-(set 'add-to-*macros*
+(set '.add-to-*macros*
      (lambda (n v)
        (set '*macros* (cons (cons n v) *macros*))))
 
@@ -41,7 +41,7 @@
 ;;       input [_ . macros] => (macroexpand1-h input macros)
 ;;       input [] => input)
 
-(set 'macroexpand1-h
+(set '.macroexpand1-h
      (lambda (exp macros)
        (if (= () macros)
            exp
@@ -52,52 +52,52 @@
                         false)
                     false)
                   ((cdr item) exp)
-                  (macroexpand1-h exp (cdr macros))))
+                  (.macroexpand1-h exp (cdr macros))))
             (car macros)))))
 
-(set 'macroexpand1
+(set '.macroexpand1
      (lambda (exp)
-       (macroexpand1-h exp *macros*)))
+       (.macroexpand1-h exp *macros*)))
 
 ;; (func macroexpand
 ;;       ['lambda args body] => ['lambda args (macroexpand body)]
 ;;       ['quote xx] => xx
 ;;       (cons x y) => y where (= x *protect-symbol*)
-;;       (cons x y) => (let exp1 (macroexpand1 (cons x y))
+;;       (cons x y) => (let exp1 (.macroexpand1 (cons x y))
 ;;                       (if (= exp1 (cons x y))
 ;;                           (map macroexpand exp1)
 ;;                           (macroexpand exp1)))
 ;;       x => x)
 
-(set 'macroexpand-boot
+(set '.macroexpand-boot
      (lambda (exp)
        (if (cons? exp)
            (if (= (car exp) *protect-symbol*)
                (cdr exp)
              (if (= (car exp) (quote lambda))
-                 (cons (quote lambda) (cons (cadr exp) (cons (macroexpand-boot (caddr exp)) ())))
+                 (cons (quote lambda) (cons (cadr exp) (cons (.macroexpand-boot (caddr exp)) ())))
                (if (= (car exp) (quote quote))
                    exp
                  ((lambda (exp1)
                     (if (= exp1 exp)
-                        (map macroexpand-boot exp1)
-                      (macroexpand-boot exp1)))
-                  (macroexpand1 exp)))))
+                        (map .macroexpand-boot exp1)
+                      (.macroexpand-boot exp1)))
+                  (.macroexpand1 exp)))))
          exp)))
 
-(set 'macroexpand macroexpand-boot)
+(set 'macroexpand .macroexpand-boot)
 
 ;; (func defmacro-macro
-;;       ['defmacro name arg body] => ['add-to-*macros* ['quote name] ['lambda arg body]])
+;;       ['defmacro name arg body] => ['.add-to-*macros* ['quote name] ['lambda arg body]])
 
 (set 'defmacro-macro
      (lambda (exp)
-       (cons 'add-to-*macros*
+       (cons '.add-to-*macros*
              (cons (cons 'quote (cons (cadr exp) ()))
                    (cons (cons 'lambda (cons (caddr exp) (cdddr exp))) ())))))
 
-(add-to-*macros* 'defmacro defmacro-macro)
-(add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
+(.add-to-*macros* 'defmacro defmacro-macro)
+(.add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
 
 (defmacro defun (exp)
   (list 'set (list 'quote (cadr exp))
@@ -113,16 +113,16 @@
 
 (defun atom? (x) (not (cons? x)))
 
-(defun rewrite-let (params args exp)
+(defun .rewrite-let (params args exp)
   (if (null? (cdr exp))
       (cons (list 'lambda params (car exp)) args)
-      (rewrite-let
+      (.rewrite-let
        (cons (car exp) params)
        (cons (cadr exp) args)
        (cddr exp))))
 
 (defmacro let (exp)
-  (rewrite-let () () (cdr exp)))
+  (.rewrite-let () () (cdr exp)))
 
 
 (defmacro cond (exp)
@@ -133,54 +133,54 @@
                (cadr curr)
                (cons 'cond (cddr exp))))))
 
-(defun rewrite-or (l)
+(defun .rewrite-or (l)
   (if (= l ())
       false
     (if (= (car l) true)
         true
-      (let more (rewrite-or (cdr l))
+      (let more (.rewrite-or (cdr l))
            (if (= more true)
                true
              (list 'if (car l) true more))))))
 
 (defmacro or (exp)
-  (rewrite-or (cdr exp)))
+  (.rewrite-or (cdr exp)))
 
-(defun rewrite-and (l)
+(defun .rewrite-and (l)
   (if (= () l)
       true
     (if (= (car l) false)
         false
-      (let more (rewrite-and (cdr l))
+      (let more (.rewrite-and (cdr l))
            (if (= more false)
                false
              (list 'if (car l) more false))))))
 
 (defmacro and (exp)
-  (rewrite-and (cdr exp)))
+  (.rewrite-and (cdr exp)))
 
 (defun boolean? (x) (or (= x true) (= x false)))
 
-(defun rcons1 (pat)
+(defun .rcons1 (pat)
   (if (null? (cdr pat))
       (car pat)
-      (list 'cons (car pat) (rcons1 (cdr pat)))))
+      (list 'cons (car pat) (.rcons1 (cdr pat)))))
 
 (defmacro list-rest (exp)
-  (rcons1 (cdr exp)))
+  (.rcons1 (cdr exp)))
 
 ;; =============== pattern match utilities =================
-(defun list-ref (l i)
+(defun .list-ref (l i)
   (if (= i 0)
       (car l)
-      (list-ref (cdr l) (- i 1))))
+      (.list-ref (cdr l) (- i 1))))
 
-(defun match-cons-expander (pat expr body cc)
-  (let x (list-ref pat 1)
-    y (list-ref pat 2)
+(defun .match-cons-expander (pat expr body cc)
+  (let x (.list-ref pat 1)
+    y (.list-ref pat 2)
     name (gensym 'n)
-    (let body1 (match1 x (list 'car name)
-                       (match1 y (list 'cdr name)
+    (let body1 (.match1 x (list 'car name)
+                       (.match1 y (list 'cdr name)
                                body
                                cc)
                        cc)
@@ -189,40 +189,40 @@
                   body1
                   (cons cc ()))))))
 
-(defun match-list-expander* (pat expr body cc)
+(defun .match-list-expander* (pat expr body cc)
   (if (null? pat)
       (list 'if (list 'null? expr) body (list cc))
       (let body1
-          (match1 (car pat) (list 'car expr)
-                  (match1 (cons 'list (cdr pat)) (list 'cdr expr)
+          (.match1 (car pat) (list 'car expr)
+                  (.match1 (cons 'list (cdr pat)) (list 'cdr expr)
                           body cc) cc)
         (list 'if (list 'and (list 'cons? expr) (list 'not (list 'null? expr)))
               body1
               (list cc)))))
 
-(defun match-list-expander (pat expr body cc)
-  (match-list-expander* (cdr pat) expr body cc))
+(defun .match-list-expander (pat expr body cc)
+  (.match-list-expander* (cdr pat) expr body cc))
 
-(defun rewrite-list-rest-pattern (pat)
+(defun .rewrite-list-rest-pattern (pat)
   (if (null? (cdr pat))
       (car pat)
-      (list 'cons (car pat) (rewrite-list-rest-pattern (cdr pat)))))
+      (list 'cons (car pat) (.rewrite-list-rest-pattern (cdr pat)))))
 
-(defun match1 (pat expr body cc)
+(defun .match1 (pat expr body cc)
   (let literal? (lambda (x) (and (atom? x) (not (symbol? x))))
     (cond
      ((literal? pat) (list 'if (list '= pat expr) body (list cc)))
      ((symbol? pat) (list 'let pat expr body))
      ((pair? pat) (cond
                    ((= (car pat) 'quote) (list 'if (list '= pat expr) body (list cc)))
-                   ((= (car pat) 'list) (match-list-expander pat expr body cc))
-                   ((= (car pat) 'cons) (match-cons-expander pat expr body cc))
+                   ((= (car pat) 'list) (.match-list-expander pat expr body cc))
+                   ((= (car pat) 'cons) (.match-cons-expander pat expr body cc))
                    ((= (car pat) 'list-rest)
-                    (let pat1 (rewrite-list-rest-pattern (cdr pat))
-                      (match1 pat1 expr body cc)))))
+                    (let pat1 (.rewrite-list-rest-pattern (cdr pat))
+                      (.match1 pat1 expr body cc)))))
      (true (error (str "match fail " pat))))))
 
-(defun extract-rule-action (rules cc)
+(defun .extract-rule-action (rules cc)
   (let action (car (cdr rules))
     (if (and (pair? action)
              (= (car action) 'where))
@@ -231,66 +231,70 @@
               (list cc))
         action)))
 
-(defun match-helper (value rules)
+(defun .match-helper (value rules)
   (cond
    ((null? rules) (list 'error "no match-help found!"))
    ((and (pair? rules) (pair? (cdr rules)))
     (let pat (car rules)
       cc (gensym 'cc)
-      (let action (extract-rule-action rules cc)
-        (let curr (match1 pat value action cc)
-          rest (match-helper value (cdr (cdr rules)))
+      (let action (.extract-rule-action rules cc)
+        (let curr (.match1 pat value action cc)
+          rest (.match-helper value (cdr (cdr rules)))
           (list 'let cc (list 'lambda () rest)
                 curr)))))))
 
 (defmacro match (exp)
-  (match-helper (cadr exp) (cddr exp)))
+  (let value (cadr exp)
+       (if (cons? value)
+           (let val (gensym 'val)
+                (list 'let val value (.match-helper val (cddr exp))))
+         (.match-helper value (cddr exp)))))
 
 ;; ================ the func macro ======================
-(defun extract-rules1 (input current result)
+(defun .extract-rules1 (input current result)
   (match input
     ()	(reverse result)
     (list-rest '=> act 'where pred remain)
     (let pat (cons 'list (reverse current))
-      (extract-rules1 remain () (cons (list 'where pred act) (cons pat result))))
+      (.extract-rules1 remain () (cons (list 'where pred act) (cons pat result))))
     (list-rest '=> act remain)
     (let pat (cons 'list (reverse current))
-      (extract-rules1 remain () (cons act (cons pat result))))
-    (cons x y)	(extract-rules1 y (cons x current) result)))
+      (.extract-rules1 remain () (cons act (cons pat result))))
+    (cons x y)	(.extract-rules1 y (cons x current) result)))
 
-(defun extract-rules (input)
-  (extract-rules1 input () ()))
+(defun .extract-rules (input)
+  (.extract-rules1 input () ()))
 
-(defun rules-patterns (res rules)
+(defun .rules-patterns (res rules)
   (if (null? rules)
       (reverse res)
-      (rules-patterns (cons (car rules) res) (cddr rules))))
+      (.rules-patterns (cons (car rules) res) (cddr rules))))
 
-(defun length-h (i l)
+(defun .length-h (i l)
   (if (= l ())
       i
-      (length-h (+ i 1) (cdr l))))
+      (.length-h (+ i 1) (cdr l))))
 
 (defun length (l)
-  (length-h 0 l))
+  (.length-h 0 l))
 
-(defun filter-h (res fn l)
+(defun .filter-h (res fn l)
   (if (cons? l)
       (if (fn (car l))
-          (filter-h (cons (car l) res) fn (cdr l))
-          (filter-h res fn (cdr l)))
+          (.filter-h (cons (car l) res) fn (cdr l))
+          (.filter-h res fn (cdr l)))
       (reverse res)))
 
 (defun filter (fn l)
-  (filter-h () fn l))
+  (.filter-h () fn l))
 
 (defun append (l1 l2)
        (if (= l1 ())
            l2
            (cons (car l1) (append (cdr l1) l2))))
 
-(defun rules-arg-count (rules)
-  (let pats (rules-patterns () rules)
+(defun .rules-arg-count (rules)
+  (let pats (.rules-patterns () rules)
     len (lambda (x) (length (cdr x)))
     (let counts (map len pats)
       (let n (car counts)
@@ -299,52 +303,70 @@
               (error "inconsistent func rule args count")
               n))))))
 
-(defun gen-parameters (n)
+(defun .gen-parameters (n)
   (if (= n 0)
       ()
-      (cons (gensym 'p) (gen-parameters (- n 1)))))
+      (cons (gensym 'p) (.gen-parameters (- n 1)))))
 
 (defmacro func (exp)
-  (let body (extract-rules (cddr exp))
-    (let nargs (rules-arg-count body)
-      (let args (gen-parameters nargs)
+  (let body (.extract-rules (cddr exp))
+    (let nargs (.rules-arg-count body)
+      (let args (.gen-parameters nargs)
         (list 'defun (cadr exp) args
               (cons 'match (cons (cons 'list args)
                                  body)))))))
 
-(func cora:walk
-      f [x . y] => (f (map (cora:walk f) [x . y]))
-      f x => (f x))
+;; (func cora:walk
+;;       f [x . y] => (f (map (cora:walk f) [x . y]))
+;;       f x => (f x))
 
-(func propagate-boolean-rule
-      ['cons? ['cons . _]] => true
+(func .propagate-boolean0
       ['car ['cons x _]] => x
       ['cdr ['cons _ x]] => x
+      ['cons? ['cons _ _]] => true
       ['and true true] => true
-      ['null? ['cons . _]] => false
       ['null? ()] => true
+      ['null? ['cons _ _]] => false
       ['not true] => false
       ['not false] => true
-      ['if true x _] => x
-      ['if false _ x] => x
+      ['if true y z] => y
+      ['if false y z] => z
       x => x)
 
-(func propagate-boolean
-      ['lambda arg body] => ['lambda arg (propagate-boolean body)]
+(func .propagate-boolean
       ['quote x] => ['quote x]
-      x => (cora:walk propagate-boolean-rule x))
+      ['cons? x] => (let x1 (.propagate-boolean x)
+		       (.propagate-boolean0 ['cons? x1]))
+      ['car x] => (let x1 (.propagate-boolean x)
+		       (.propagate-boolean0 ['car x1]))
+      ['cdr x] => (let x1 (.propagate-boolean x)
+		       (.propagate-boolean0 ['cdr x1]))
+      ['and x y] => (let x1 (.propagate-boolean x)
+			 y1 (.propagate-boolean y)
+			 (.propagate-boolean0 ['and x1 y1]))
+      ['null? x] => (let x1 (.propagate-boolean x)
+			 (.propagate-boolean0 ['null? x1]))
+      ['not x] => (let x1 (.propagate-boolean x)
+		       (.propagate-boolean0 ['not x1]))
+      ['if x y z] => (let x1 (.propagate-boolean x)
+			  y1 (.propagate-boolean y)
+			  z1 (.propagate-boolean z)
+			  (.propagate-boolean0 ['if x1 y1 z1]))
+      ['lambda args body] => ['lambda args (.propagate-boolean body)]
+      [f . args] => (map .propagate-boolean [f . args])
+      x => x)
 
-;; (defun macroexpand (exp)
-;;   (propagate-boolean (macroexpand-boot exp)))
+(defun macroexpand (exp)
+  (.propagate-boolean (.macroexpand-boot exp)))
 
 ;; ===============
 
 ;; begin x y z ...
 ;; (do x (do y z))
-(func rewrite-begin
+(func .rewrite-begin
       [x] => x
       [x y] => ['do x y]
-      [x . y] => ['do x (rewrite-begin y)])
+      [x . y] => ['do x (.rewrite-begin y)])
 
 (defmacro begin (exp)
-  (rewrite-begin (cdr exp)))
+  (.rewrite-begin (cdr exp)))
