@@ -1,0 +1,41 @@
+;; blog link https://www.zenlife.tk/use-algebraic-effect.md
+
+(load "lib/queue.cora")
+(load "lib/eff.cora")
+
+(let s1 (gensym 's1)
+     s2 (gensym 's2)
+     (begin
+      (set s1 ())
+      (set s2 ())
+      (set 'enqueue (make-enqueue s1 s2))
+      (set 'dequeue (make-dequeue s1 s2))
+      (set 'empty? (empty-queue? s1 s2))))
+
+(defun run (main)
+  (handler (lambda (_)
+	     (if (empty?) "done"
+	       (let task (dequeue) (task ()))))
+	   ['Spawn (lambda (fn k)
+		     (begin
+		      (enqueue k)
+		      (run fn)))
+	   'Yield (lambda (_ cc)
+		    (begin
+		     (enqueue cc)
+		     (let task (dequeue)
+			  (task ()))))]
+	   main))
+
+
+;; (defun task (_)
+;;   (begin
+;;    (display "starting ...")
+;;    (yield _ (eff 'Yield 23)
+;; 	  (display "return from yield"))))
+
+;; (defun main (_)
+;;   (yield _ (eff 'Spawn task)
+;; 	 (task ())))
+
+;; (run main)

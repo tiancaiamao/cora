@@ -1,0 +1,158 @@
+(@import "cora/lib/sys")
+(@import "cora/lib/io")
+
+(set '*tvar* 1000)
+(defun tvar ()
+  (let ret *tvar*
+    (do (set '*tvar* (+ ret 1))
+	ret)))
+
+(defun extend (env v x)
+  (cons (cons v x) env))
+
+(func infer
+      tctx actx x s => ['int s] where (number? x)
+      tctx actx x s => ['bool s] where (boolean? x)
+      tctx actx x s => (let find (assq x tctx)
+			 (if (null? find)
+			     (error "variable not bound")
+			     (app-subtype actx (cdr find) s))) where (symbol? x)
+      tctx [C . actx] ['/. [x ': A] e] s => (match (infer (extend tctx x A) actx e (subtype C A s))
+					      [B s1]
+					      [[C '-> B] s1])
+      tctx [A . actx] ['/. x e] s => (match (infer (extend tctx x A) actx e s)
+				       [B s1]
+				       [[A '-> B] s1])
+      tctx actx ['/. [x ': A] e] s => (match (infer (extend tctx x A) actx e s)
+					[B s1]
+					[[A '-> B] s1])
+      tctx actx ['/. x e] s => (let tx (tvar)
+				 (match (infer (extend tctx x tx) actx e s)
+				   [B s1]
+				   [[tx '-> B] s1]))
+      tctx actx [e1 e2] s => (match (infer tctx [] e2 s)
+			       [A s1]
+			       (let B (generalize A s1)
+				 (match (infer tctx [B . actx] e1 s1)
+				   [[b '-> C] s2]
+				   [C s2]))))
+
+(set 'infer-raw infer)
+(defun infer (tctx actx x s)
+  (begin
+    (display "trace infer execute ========>")
+    (display tctx)
+    (display actx)
+    (display x)
+    (display s)
+    (display "\n")
+    (infer-raw tctx actx x s)))
+
+(func app-subtype
+      [] a s => [a s]
+      actx ['forall a B] s => (app-subtype actx (alpha B (foldl (lambda (env x)
+								  (extend env x (tvar)))
+								[]
+								a)) s)
+      [c . actx] tv s => (let a (tvar)
+			   (let b (tvar)
+			     (let s1 (subtype a c (unify tv [a '-> b] s))
+			       (match (app-subtype actx b s1)
+				 [d s2]
+				 [[c '-> d] s2])))))
+
+(defun subtype (t1 t2 s)
+  (subtype1 (apply-subst t1 s) (apply-subst t2 s) s))
+
+(func subtype1
+      t1 t2 s => s where (= t1 t2)
+      t1 t2 s => [[t1 . t2] . s] where (number? t1)
+      A ['forall a B] s => (subtype A B s)
+      ['forall a A] B s => (let t (tvar)
+			     (subtype (alpha A (foldl (lambda (env x) (extend env x (tvar)))
+						      []
+						      a)) B))
+      [A '-> B] [C '-> D] s => (let s1 (subtype C A s)
+				 (subtype B D s1)))
+
+(func alpha
+      'int s => 'int
+      'bool s => 'bool
+      [A '-> B] s => [(alpha A s) '-> (alpha B s)]
+      ['forall a A] s => (alpha A (extend a (tvar) s))
+      t s => (let find (assq t s)
+	       (if (null? find)
+		   t
+		   (cdr find))))
+
+(func generalize
+      A s => A where (number? A)
+      A s => (let fv (free-vars A [] [])
+	       (let fv1 (filter (lambda (x) (null? (assq x s))) fv)
+		 (if (null? fv1) A
+		     ['forall fv1 A]))))
+
+;; (generalize [1 '-> 1] []) => ['forall [2] 2 '-> 2]
+
+(func free-vars
+      'int bind res => res
+      'bool bind res => res
+      tv bind res => (if (or (elem? tv bind) (elem? tv res))
+			 res
+			 (cons tv res)) where (number? tv)
+      [a '-> b] bind res => (let res1 (free-vars a bind res)
+			      (free-vars b bind res1))
+      ['forall a b] bind res => (free-vars b (cons a bind) res))
+      
+
+(func apply-subst
+      'int s => 'int
+      'bool s => 'bool
+      [a '-> b] s => [(apply-subst a s) '-> (apply-subst b s)]
+      ['list a] s => ['list (apply-subst a s)]
+      v s => (let find (assq v s)
+		  (if (null? find)
+		      v
+		      (cdr find))))
+
+;; (apply-subst '(4 -> int) '[[1 . int] [2 . bool] [3 . [int -> int]]])
+;; (apply-subst '6 '())
+;; (apply-subst '1 '())
+
+(func occur?
+      'int _ => false
+      'bool _ => false
+      [a '-> b] t => (or (occur? a t) (occur? b t))
+      v t => (= v t))
+
+(defun unify (x y s)
+  (unify1 (apply-subst x s) (apply-subst y s) s))
+
+(func unify1
+      x y s => s where (= x y)
+      x y s => [[x . y] . s] where (and (number? x) (not (occur? x y)))
+      x y s => [[y . x] . s] where (and (number? y) (not (occur? y x)))
+      [a '-> b] [c '-> d] s => (let s1 (unify a c s)
+				 (unify b d s1)))
+
+
+
+
+;; (infer [] [] '42 [])
+;; (infer [] [] '(/. x x) [])
+;; (infer [] [] '((/. x x) 1) [])
+;; (infer [] [] '((/. f f) (/. x x)) [])
+;; (infer [] [] '((/. f (f 42)) (/. x x)) [])
+
+;; (infer [] [] '((/. x (/. y x)) 1) [])
+;; (infer [] [] '((/. x (/. y y)) 1) [])
+
+;; (infer [] [] '(/. f (/. g (f (g 1)))) [])
+
+;; Need annotation in other algorithm but not in this one
+;; (infer [] [] '((/. f ((f true) (f 1))) (/. x (/. y y))) [])
+
+;; This case is invalid for HM to infer 
+;; (infer [] [] '(/. f (/. (g : (forall (2000) (2000 -> 2001))) ((f (g 1)) (g true)))) [])
+;; (infer [] [] '(/. f (/. g ((f (g (/. z z))) (g (/. u (/. v u)))))) [])
+

@@ -1,0 +1,194 @@
+;; blog link: https://www.zenlife.tk/micro-kanren.md
+
+(defun procedure? (x)
+    (and (cons? x)
+         (= (car x) 'lambda)))
+
+(defun var (c)
+    (let v (vector 1)
+         (vector-set! v 0 c)))
+
+(set 'var? vector?)
+
+(defun var=? (x y)
+    (= (vector-ref x 0) (vector-ref y 0)))
+
+(func assp
+    pred [] => []
+    pred [x . y] => (if (pred x)
+			x
+			(assp pred y)))
+
+(defun walk (u s)
+    (if (var? u)
+        (let pr (assp (lambda (v) (var=? u (car v))) s)
+	     (if (null? pr)
+		 u
+		 (walk (cdr pr) s)))
+	u))
+	
+;; (set 'tmp [[(var 'z) . (var 'a)] [(var 'x) . (var 'w)] [(var 'y) . (var 'z)]])
+;; (walk (var 'y) tmp)
+;; (set 'tmp [[(var 'x) . (var 'y)]  [(var 'y) . (var 'z)]  [(var 'z) . (var 'x)]])
+;; (walk (var 'x))  ;; deadlock
+
+(defun ext-s (x v s)
+    (cons (cons x v) s))
+
+(defun unify (u v s)
+    (unify1 (walk u s) (walk v s) s))
+
+(func unify1
+	u v s => s where (and (var? u) (var? v) (var=? u v))
+	u v s => (ext-s u v s) where (var? u)
+	u v s => (ext-s v u s) where (var? v)
+	[u1 . u2] [v1 . v2] s =>
+	(let s1 (unify u1 v1 s)
+	     (if (null? s1)
+		 ()
+		 (unify u2 v2 s1)))
+	u v s => (if (= u v) s ()))
+
+(defun == (u v)
+   (lambda (state)
+       (let subst (car state)
+            free-var-idx   (cdr state)
+            (let s1 (unify u v subst)
+                 (if (null? s1)
+                     ()
+                     (cons [s1 . free-var-idx] ()))))))
+
+(defun call/fresh (f)
+   (lambda (state)
+       (let subst (car state)
+            c (cdr state)
+            (let new-goal (f (var c))
+                 new-state [subst . (+ c 1)]
+                 (new-goal new-state)))))
+
+(defun disj (g1 g2)
+    (lambda (state)
+	(mplus (g1 state) (g2 state))))
+
+(defun conj (g1 g2)
+    (lambda (state)
+	(bind (g1 state) g2)))
+
+;; (conde (g0 g) ...)
+(defmacro conde (input)
+   ['disj+ . (map (lambda (x) (cons 'conj+ x)) (cdr input))])
+
+(func mplus
+	[] x => x
+	x y => (lambda () (mplus y (x))) where (procedure? x)
+	[h . t] z =>  (cons h (mplus t z)))
+	
+(func bind
+	[] _ => ()
+	x y => (lambda () (bind (x) y)) where (procedure? x)
+	[h . t] y => (mplus (y h) (bind t y)))
+
+(defmacro Zzz (input)
+	(let g (cadr input)
+	     state (gensym 's)
+	     ['lambda [state]
+	             ['lambda []
+			[g state]]]))
+
+(func conj+-macro
+    [g] => ['Zzz g]
+    [g . g1] => ['conj ['Zzz g] (conj+-macro g1)])
+
+(defmacro conj+ (input)
+    (conj+-macro (cdr input)))
+
+(func disj+-macro
+    [g] => ['Zzz g]
+    [g . g1] => ['disj ['Zzz g] (disj+-macro g1)])
+
+(defmacro disj+ (input)
+    (disj+-macro (cdr input)))
+
+(func fresh-macro
+    [] body => (cons 'conj+ body)
+    [x . l] body => ['call/fresh
+			['lambda [x]
+				(fresh-macro l body)]])
+
+;; (fresh (x y z) g)
+;; (call/freesh (lambda (x)
+;;      (call/fresh (lambda (y)
+;;           (call/fresh (lambda (z) g))))))
+
+(defmacro fresh (input)
+    (fresh-macro (cadr input) (cddr input)))
+
+((fresh (x y z)
+    (disj+ (== x 0) (== y 1) (== z x))) (cons () 0))
+
+;; reify related 
+
+(defun pull (stream)
+    (if (procedure? stream)
+	(pull (stream))
+	stream))
+
+(defun take-all (stream)
+      (take-all-h (pull stream)))
+
+(func take-all-h
+      [] => []
+      [h . t] => [h . (take-all t)])
+
+(func take
+    0 s => []
+    n s => (take-h n (pull s)))
+
+(func take-h
+    0 s => []
+    n [] => []
+    n [h . t] => [h . (take (- n 1) t)])
+
+(func walk*-h
+    v s => v where (var? v) 
+    [h . t] s => [(walk* h s) . (walk* t s)]
+    v s => v)
+
+(defun walk* (v s)
+   (walk*-h (walk v s) s)) 
+
+(defun reify (s)
+       (map reify-state s))
+
+(defun reify-state (state)
+       (let v (walk* (var 0) (car state))
+            (walk* v (reify-s v ()))))
+
+(func reify-s-h
+    v s => (cons [v . (reify-name (length s))] s) where (var? v)
+    [h . t] s => (reify-s t (reify-s h s))
+    _ s => s)
+
+(defun reify-s (v subst)
+    (reify-s-h (walk v subst) subst))
+
+(defun reify-name (n)
+    (intern
+        (string-append "_." (number->string n))))
+
+(set 'empty-state (cons () 0))
+(defun call/empty-state (g)
+	(g empty-state))
+
+
+;; (run * (x ...) g0 g ...)
+;; (run n (x ...) g0 g ...)
+(defmacro run (input)
+    (let n (cadr input)
+	 xs (caddr input)
+	 g (cdddr input)
+	 (if (= n '*)
+	     ['reify ['take-all ['call/empty-state
+				['fresh xs . g]]]]
+	     ['reify ['take n ['call/empty-state
+				['fresh xs . g]]]])))

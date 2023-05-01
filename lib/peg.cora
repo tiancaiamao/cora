@@ -1,0 +1,33 @@
+;; PEG from janet https://bakpakin.com/writing/how-janets-peg-works.html
+
+(func match-peg
+      ['! x] text => (let pos (match-peg x text)
+			  (if (> pos 0)
+			      0
+			      1))
+      ['+ x y] text => (let pos (match-peg x text)
+			    (if (= pos 0)
+				(match-peg y text)
+				pos))
+      ['* x y] text => (let pos1 (match-peg x text)
+			    (if (> pos1 0)
+				(let pos2 (match-peg y (string/slice text pos1))
+				     (if (> pos2 0)
+					 (+ pos1 pos2)
+					 0))
+				0))
+      
+      peg text => (if (string/has-prefix? text peg)
+		      (string/length peg)
+		      0))
+
+
+(set '<digits> ['+ "0" ['+ "1" ['+ "2" ['+ "3"
+   ['+ "4" ['+ "5" ['+ "6" ['+ "7" ['+ "8" "9"]]]]]]]]])
+(set '<year> ['* <digits> ['* <digits> ['* <digits> <digits>]]])
+(set '<month> ['* <digits> <digits>])
+(set '<day> <month>)
+(set '<iso-date> ['* <year> ['* "-" ['* <month> ['* "-" <day>]]]])
+
+(match-peg <iso-date> "2019-06-10")
+(match-peg <iso-date> "201-06-10")

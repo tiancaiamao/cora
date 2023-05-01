@@ -1,0 +1,14 @@
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(func foldl
+      f acc [] => acc
+      f acc [x . y] => (foldl f (f acc x) y))
+
+(func for-each
+      fn [] => []
+      fn [x . y] => (begin
+                     (fn x)
+                     (for-each fn y)))

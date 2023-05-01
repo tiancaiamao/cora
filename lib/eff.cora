@@ -1,0 +1,83 @@
+;; blog link https://www.zenlife.tk/use-algebraic-effect.md
+
+(defun make-yield-next (v k)
+  ['Next v k])
+
+;; input: (yield v e1 e2)
+;; output: ['Next e1 (lambda (v) e2)]
+(defmacro yield (exp)
+  (let v (cadr exp)
+       e1 (caddr exp)
+       e2 (cdddr exp)
+       ['make-yield-next e1 ['lambda [v] . e2]]))
+
+(defun eff (label val)
+  ['Eff label val])
+
+(defun handler (vh effhs th)
+  (handle-yield-result vh effhs (th ())))
+
+(func handle-yield-result
+      vh handlers ['Next resend remain] => (handle vh handlers resend remain)
+      vh handlers res => (vh res))
+
+(func handle
+      vh handlers ['Eff e v] remain => (let effh (find-effect-handler e handlers)
+					    k (lambda (arg)
+						(handle-yield-result vh handlers (remain arg)))
+					    (if (null? effh)
+						(yield res ['Resend ['Eff e v] k]
+						       res)
+					      (effh v k)))
+      vh handlers ['Resend ['Eff e v] k1] k => (let effh (find-effect-handler e handlers)
+						    (if (null? effh)
+							(yield res ['Resend ['Eff e v] (rehandle k handlers k1)]
+							       res)
+						      (effh v (rehandle k handlers k1)))))
+
+(defun rehandle (vh handlers k arg)
+  (handler vh handlers (lambda (_)
+			 (k arg))))
+
+(func find-effect-handler
+      e [] => ()
+      e [e1 handle . more] => handle where (= e e1)
+      e [_ _ . more] => (find-effect-handler e more))
+
+
+;; input: (with-handler [eff handler] thunk)
+;; output: (handler (lambda (x) x) [eff handler] (lambda (_) thunk))
+(defmacro with-handler (exp)
+  (let effhs (cadr exp)
+       thunk (cddr exp)
+       ['handler '(lambda (x) x) effhs ['lambda ['_] . thunk]]))
+
+;; (defun effh1 (v k)
+;;   (k v))
+
+;; (defun effh2 (v k)
+;;   (k v))
+
+;; (defun effh3 (v k)
+;;   (k v))
+
+;; (handler (lambda (x) x)
+;; 	 ['C3 effh3]
+;; 	 (lambda (_)
+;; 	   (handler (lambda (x) x)
+;; 		    ['C2 effh2]
+;; 		    (lambda (_)
+;; 		      (handler (lambda (x) x)
+;; 			       ['C1 effh1]
+;; 			       (lambda (_)
+;; 				 (yield a (eff 'C3 10)
+;; 					(yield b (eff 'C3 13)
+;; 					       (yield c (eff 'C3 17)
+;; 						      (+ (+ a b) c))))))))))
+
+;; (with-handler ['C3 effh3]
+;; (with-handler ['C2 effh2 'C1 effh1]
+;; 	(yield a (eff 'C3 10)
+;; 		(yield b (eff 'C3 13)
+;; 			(yield c (eff 'C3 17)
+;; 				(+ (+ a b) c))))))
