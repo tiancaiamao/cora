@@ -9,8 +9,12 @@ import (
 )
 
 func main() {
-	vm := re.New()
-	r := re.NewSexpReader(os.Stdin, "")
+	vm := cora.New()
+
+	// load boot file
+	vm.Eval(cora.MakeCons(cora.MakeSymbol("import"), cora.MakeCons(cora.String("cora/init"), cora.Nil)))
+
+	r := cora.NewSexpReader(os.Stdin, "")
 	for i := 0; ; i++ {
 		fmt.Printf("%d #> ", i)
 

@@ -1,4 +1,4 @@
-package re
+package cora
 
 import (
 	"bytes"
@@ -159,6 +159,10 @@ func (c *Cons) String() string {
 	var buf bytes.Buffer
 	printCons(&buf, c, true)
 	return buf.String()
+}
+
+func MakeCons(x, y Obj) Obj {
+	return &Cons{car: x, cdr: y}
 }
 
 func printCons(to io.Writer, o Obj, start bool) {
