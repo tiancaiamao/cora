@@ -10,7 +10,7 @@ import (
 
 func main() {
 	vm := re.New()
-	r := re.NewSexpReader(os.Stdin)
+	r := re.NewSexpReader(os.Stdin, "")
 	for i := 0; ; i++ {
 		fmt.Printf("%d #> ", i)
 

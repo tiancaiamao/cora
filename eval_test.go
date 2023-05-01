@@ -211,7 +211,7 @@ func TestIssue25(t *testing.T) {
 }
 
 func evalString(ctx *VM, exp string) Obj {
-	r := NewSexpReader(strings.NewReader(exp))
+	r := NewSexpReader(strings.NewReader(exp), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
@@ -248,7 +248,7 @@ func evalString(ctx *VM, exp string) Obj {
 func TestClosureConvert(t *testing.T) {
 	// r := NewSexpReader(strings.NewReader(`(lambda (x) x)`))
 	// r := NewSexpReader(strings.NewReader(`(lambda (z) (+ x z))`))
-	r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x y)))) 1) 2) 3)`))
+	r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x y)))) 1) 2) 3)`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
@@ -258,7 +258,7 @@ func TestClosureConvert(t *testing.T) {
 }
 
 func TestXXX(t *testing.T) {
-	r := NewSexpReader(strings.NewReader(`((+ 1) 2)`))
+	r := NewSexpReader(strings.NewReader(`((+ 1) 2)`), "")
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x y) x) 4) 5)`))
 	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1) 2) 3)`))
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x) (lambda () (+ x 1))) 5))`))
@@ -288,7 +288,25 @@ func TestXXX(t *testing.T) {
 	var vm VM
 	res := vm.Eval(sexp)
 	fmt.Printf("%#v\n", res)
+}
 
-	// var cg CodeGen
-	// cg.GenC(code)
+func TestImport(t *testing.T) {
+	r := NewSexpReader(strings.NewReader("(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)"), "")
+	o, err := r.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	pathStr := String("std/cora/basic")
+	s := cons(MakeSymbol("import"), cons(pathStr, Nil))
+	if !eq(o, s) {
+		t.Errorf("expect %s, but get %s", s, o)
+	}
+	if r.pkgMapping["xxx"] != string(pathStr) {
+		t.Error("xxx")
+	}
+
+	x, err := r.Read()
+	if !eq(car(x), MakeSymbol("std/cora/basic.yyy")) {
+		t.Error("result not expect 11")
+	}
 }

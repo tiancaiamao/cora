@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"os"
 	"reflect"
 	"strconv"
 )
@@ -91,7 +90,6 @@ var Nil Obj = nilObj{}
 type Symbol struct {
 	str string
 	val Obj
-	// fn  Obj
 }
 
 func (s *Symbol) String() string {
@@ -110,7 +108,6 @@ func init() {
 	symLambda = MakeSymbol("lambda")
 	symQuote = MakeSymbol("quote")
 	symMacroExpand = MakeSymbol("macroexpand")
-	// symDefun = MakeSymbol("defun")
 	symLet = MakeSymbol("let")
 	symCond = MakeSymbol("cond")
 	symAnd = MakeSymbol("and")
@@ -128,10 +125,12 @@ func init() {
 	MakeSymbol("/").val = primDiv
 	MakeSymbol("=").val = primEQ
 	MakeSymbol("set").val = primSet
-	MakeSymbol("load").val = primLoad
 	MakeSymbol("gensym").val = primGenSym
 	MakeSymbol("symbol?").val = primIsSymbol
 	MakeSymbol("not").val = primNot
+	MakeSymbol("load").val = primLoad
+	MakeSymbol("import").val = primImport
+	MakeSymbol("*imported*").val = Nil
 }
 
 func MakeSymbol(str string) *Symbol {
@@ -240,57 +239,6 @@ func (vm *VM) ret(x Obj) {
 	vm.next = ret.pc
 }
 
-// ==================================
-// 	Library and primitive functions
-// ==================================
-
-func cons(a, b Obj) Obj {
-	return &Cons{a, b}
-}
-
-func car(o Obj) Obj {
-	return o.(*Cons).car
-}
-
-func cdr(o Obj) Obj {
-	return o.(*Cons).cdr
-}
-
-func cadr(o Obj) Obj {
-	return car(cdr(o))
-}
-
-func caddr(o Obj) Obj {
-	return car(cdr(cdr(o)))
-}
-
-func reverse(o Obj) Obj {
-	ret := Nil
-	for o != Nil {
-		ret = cons(car(o), ret)
-		o = cdr(o)
-	}
-	return ret
-}
-
-func listLength(l Obj) int {
-	count := 0
-	for l != Nil {
-		count++
-		l = cdr(l)
-	}
-	return count
-}
-
-func sliceToList(s []Obj) Obj {
-	ret := Nil
-	for i := len(s) - 1; i >= 0; i-- {
-		x := s[i]
-		ret = cons(x, ret)
-	}
-	return ret
-}
-
 func (vm *VM) Eval(exp Obj) Obj {
 	return eval(vm, exp)
 }
@@ -310,7 +258,7 @@ func exit(vm *VM) {
 
 func eval(vm *VM, exp Obj) Obj {
 	exp1, _ := closureConvert(exp, Nil, Nil, nil)
-	code := newCompile(exp1, Nil, Nil, exit)
+	code := compile(exp1, Nil, Nil, exit)
 	vm.callStack = append(vm.callStack, returnAddr{
 		pc:   nil,
 		base: vm.base,
@@ -318,197 +266,6 @@ func eval(vm *VM, exp Obj) Obj {
 	})
 	trampoline(vm, code)
 	return vm.val
-}
-
-var primSet = &Closure{
-	code: func(vm *VM) {
-		val := vm.pop()
-		key := vm.pop()
-		key.(*Symbol).val = val
-		vm.ret(val)
-	},
-	Required: 2,
-	Name:     "Set",
-}
-
-var primLoad = &Closure{
-	code: func(e *VM) {
-		file := e.pop()
-		tmp, ok := file.(String)
-		if !ok {
-			panic("arg1 must be string")
-			return
-		}
-		path := string(tmp)
-		if _, err := os.Stat(path); err != nil {
-			panic(err.Error())
-			return
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			panic(err.Error())
-			return
-		}
-		defer f.Close()
-
-		r := NewSexpReader(f)
-		for {
-			exp, err := r.Read()
-			if err != nil {
-				if err != io.EOF {
-					panic(err)
-					return
-				}
-				break
-			}
-
-			exp = e.MacroExpand(exp)
-
-			e.Eval(exp)
-		}
-		e.ret(MakeSymbol("loaded"))
-	},
-	Required: 1,
-	Name:     "load",
-}
-
-var primCar = &Closure{
-	code: func(vm *VM) {
-		y := vm.pop()
-		vm.ret(car(y))
-	},
-	Required: 1,
-	Name:     "car",
-}
-
-var primCdr = &Closure{
-	code: func(vm *VM) {
-		y := vm.pop()
-		vm.ret(cdr(y))
-	},
-	Required: 1,
-	Name:     "cdr",
-}
-
-var primCons = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop()
-		y := vm.pop()
-		vm.ret(cons(y, x))
-	},
-	Required: 2,
-	Name:     "cons",
-}
-
-var primIsCons = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop()
-		if _, ok := x.(*Cons); ok {
-			vm.ret(True)
-		} else {
-			vm.ret(False)
-		}
-	},
-	Required: 1,
-	Name:     "cons?",
-}
-
-var primIsSymbol = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop()
-		if _, ok := x.(*Symbol); ok {
-			vm.ret(True)
-		} else {
-			vm.ret(False)
-		}
-	},
-	Required: 1,
-	Name:     "symbol?",
-}
-
-var genIdx int
-
-var primGenSym = &Closure{
-	code: func(vm *VM) {
-		obj := vm.pop()
-		sym := obj.(*Symbol)
-		res := MakeSymbol(fmt.Sprintf("#%s%d", sym.str, genIdx))
-		genIdx++
-		vm.ret(res)
-	},
-	Required: 1,
-	Name:     "gensym",
-}
-
-var primNot = &Closure{
-	code: func(vm *VM) {
-		obj := vm.pop()
-		switch obj {
-		case True:
-			vm.ret(False)
-		case False:
-			vm.ret(True)
-		default:
-			panic("wrong argument for not")
-		}
-	},
-	Required: 1,
-	Name:     "not",
-}
-
-var primAdd = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop().(Integer)
-		y := vm.pop().(Integer)
-		vm.ret(Integer(x + y))
-	},
-	Required: 2,
-	Name:     "Add",
-}
-
-var primSub = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop().(Integer)
-		y := vm.pop().(Integer)
-		vm.ret(Integer(y - x))
-	},
-	Required: 2,
-	Name:     "Sub",
-}
-
-var primMul = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop().(Integer)
-		y := vm.pop().(Integer)
-		vm.ret(Integer(x * y))
-	},
-	Required: 2,
-	Name:     "Mul",
-}
-
-var primDiv = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop().(Integer)
-		y := vm.pop().(Integer)
-		vm.ret(Integer(y / x))
-	},
-	Required: 2,
-	Name:     "Div",
-}
-
-var primEQ = &Closure{
-	code: func(vm *VM) {
-		x := vm.pop()
-		y := vm.pop()
-		if x == y {
-			vm.ret(True)
-		} else {
-			vm.ret(False)
-		}
-	},
-	Required: 2,
-	Name:     "EQ",
 }
 
 func (vm *VM) MacroExpand(exp Obj) Obj {
@@ -586,19 +343,7 @@ func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj) (Obj, []Obj) {
 	return reverse(ret), frees
 }
 
-func assq(v, list Obj) int {
-	idx := 0
-	for list != Nil {
-		if car(list) == v {
-			return idx
-		}
-		idx++
-		list = cdr(list)
-	}
-	return -1
-}
-
-func newCompile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
+func compile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 	switch raw := exp.(type) {
 	case nilObj, booleanObj, Integer, String, Float64:
 		return func(vm *VM) {
@@ -638,9 +383,9 @@ func newCompile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 			vm.next = next
 		}
 	case symIf:
-		thenCont := newCompile(cadr(raw.cdr), locals, frees, next)
-		elseCont := newCompile(caddr(raw.cdr), locals, frees, next)
-		return newCompile(car(raw.cdr), locals, frees, func(vm *VM) {
+		thenCont := compile(cadr(raw.cdr), locals, frees, next)
+		elseCont := compile(caddr(raw.cdr), locals, frees, next)
+		return compile(car(raw.cdr), locals, frees, func(vm *VM) {
 			switch vm.val {
 			case True:
 				thenCont(vm)
@@ -651,15 +396,15 @@ func newCompile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 			}
 		})
 	case symDo:
-		y := newCompile(caddr(raw), locals, frees, next)
-		return newCompile(cadr(raw), locals, frees, func(vm *VM) {
+		y := compile(caddr(raw), locals, frees, next)
+		return compile(cadr(raw), locals, frees, func(vm *VM) {
 			y(vm)
 		})
 	case symLambda:
 		args := cadr(exp)
 		frees1 := caddr(exp)
 		body := caddr(cdr(exp))
-		code := newCompile(body, args, frees1, exit)
+		code := compile(body, args, frees1, exit)
 		return compileList(frees1, locals, frees, func(vm *VM) {
 			vm.val = &Closure{
 				closed:   append([]Obj{}, vm.stack[len(vm.stack)-listLength(frees1):]...),
@@ -743,7 +488,7 @@ func compileList(exp Obj, locals Obj, frees Obj, next func(*VM)) func(*VM) {
 		return next
 	}
 	remain := compileList(cdr(exp), locals, frees, next)
-	return newCompile(car(exp), locals, frees, func(vm *VM) {
+	return compile(car(exp), locals, frees, func(vm *VM) {
 		vm.stack = append(vm.stack, vm.val)
 		vm.next = remain
 	})

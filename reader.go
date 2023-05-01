@@ -4,20 +4,22 @@ import (
 	"bufio"
 	"io"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
 type SexpReader struct {
-	reader *bufio.Reader
-	buf    []rune
-	// 'extended' reader is used by cora, which handles reader macro ' and [,
-	// and expect ; as comment
-	extended bool
+	reader     *bufio.Reader
+	buf        []rune
+	selfPath   string
+	pkgMapping map[string]string
 }
 
-func NewSexpReader(r io.Reader) *SexpReader {
+func NewSexpReader(r io.Reader, selfPath string) *SexpReader {
 	return &SexpReader{
-		reader: bufio.NewReader(r),
+		reader:     bufio.NewReader(r),
+		selfPath:   selfPath,
+		pkgMapping: make(map[string]string),
 	}
 }
 
@@ -62,7 +64,7 @@ func (r *SexpReader) Read() (Obj, error) {
 		b, _, err = r.reader.ReadRune()
 	}
 
-	return tokenToObj(string(r.buf)), err
+	return r.tokenToObj(string(r.buf)), err
 }
 
 func (r *SexpReader) readString() (Obj, error) {
@@ -87,7 +89,24 @@ func (r *SexpReader) readSexp() (Obj, error) {
 			b, err = peekFirstRune(r.reader)
 		}
 	}
-	return reverse(ret), err
+	if err == nil {
+		ret = reverse(ret)
+		// Handle the @import reader macro
+		if _, ok := ret.(*Cons); ok {
+			// (@import "path/to/file" sym)
+			if car(ret) == MakeSymbol("@import") {
+				path := cadr(ret)
+				if tmp, ok := cdr(cdr(ret)).(*Cons); ok {
+					if sym, ok := tmp.car.(*Symbol); ok {
+						r.pkgMapping[sym.str] = string(path.(String))
+					}
+				}
+				hd := MakeSymbol("import")
+				return cons(hd, cons(path, Nil)), nil
+			}
+		}
+	}
+	return ret, err
 }
 
 func (r *SexpReader) readQuoteMacro() (Obj, error) {
@@ -147,7 +166,7 @@ func (r *SexpReader) notSymbolChar(c rune) bool {
 	return false
 }
 
-func tokenToObj(str string) Obj {
+func (r *SexpReader) tokenToObj(str string) Obj {
 	switch str {
 	case "true":
 		return True
@@ -156,6 +175,16 @@ func tokenToObj(str string) Obj {
 	}
 	if v, err := strconv.ParseFloat(str, 64); err == nil {
 		return MakeNumber(v)
+	}
+	firstDot := strings.IndexByte(str, '.')
+	switch {
+	case firstDot == 0:
+		return MakeSymbol(r.selfPath + str)
+	case firstDot > 0:
+		pkg := str[:firstDot]
+		if path, ok := r.pkgMapping[pkg]; ok {
+			return MakeSymbol(path + str[firstDot:])
+		}
 	}
 	return MakeSymbol(str)
 }
