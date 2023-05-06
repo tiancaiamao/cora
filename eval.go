@@ -68,9 +68,9 @@ type booleanObj bool
 func (b booleanObj) String() string {
 	switch b {
 	case True:
-		return "True"
+		return "true"
 	case False:
-		return "False"
+		return "false"
 	default:
 		panic("bool type error")
 	}
@@ -261,8 +261,10 @@ func exit(vm *VM) {
 }
 
 func eval(vm *VM, exp Obj) Obj {
-	exp1, _ := closureConvert(exp, Nil, Nil, nil)
-	code := compile(exp1, Nil, Nil, exit)
+	// fmt.Println("eval ==", exp)
+	exp1, _, nlets := closureConvert(exp, Nil, Nil, nil, 0)
+	code := compile(exp1, nil, Nil, exit)
+	code = reserveForLetBinding(nlets, code)
 	vm.callStack = append(vm.callStack, returnAddr{
 		pc:   nil,
 		base: vm.base,
@@ -292,10 +294,10 @@ func macroExpand(vm *VM, exp Obj) Obj {
 // 	Compiler utilities
 // =====================================
 
-func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj) (Obj, []Obj) {
+func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj, nlets int) (Obj, []Obj, int) {
 	switch exp.(type) {
 	case nilObj, booleanObj, Integer, String, Float64:
-		return exp, frees
+		return exp, frees, nlets
 	case *Symbol:
 		if assq(exp, locals) < 0 {
 			for env != Nil {
@@ -303,51 +305,90 @@ func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj) (Obj, []Obj) {
 				for x != Nil {
 					if car(x) == exp {
 						frees = append(frees, exp)
-						return exp, frees
+						return exp, frees, nlets
 					}
 					x = cdr(x)
 				}
 				env = cdr(env)
 			}
 		}
-		return exp, frees
+		return exp, frees, nlets
 	}
 	raw := exp.(*Cons)
 	switch raw.car {
 	case symQuote:
-		return exp, frees
+		return exp, frees, nlets
 	case symIf:
 		var test, succ, fail Obj
-		test, frees = closureConvert(cadr(exp), locals, env, frees)
-		succ, frees = closureConvert(caddr(exp), locals, env, frees)
-		fail, frees = closureConvert(caddr(cdr(exp)), locals, env, frees)
-		return cons(symIf, cons(test, cons(succ, cons(fail, Nil)))), frees
+		var let1, let2, let3 int
+		max := nlets
+		test, frees, let1 = closureConvert(cadr(exp), locals, env, frees, nlets)
+		if let1 > max {
+			max = let1
+		}
+		succ, frees, let2 = closureConvert(caddr(exp), locals, env, frees, nlets)
+		if let2 > max {
+			max = let2
+		}
+		fail, frees, let3 = closureConvert(caddr(cdr(exp)), locals, env, frees, nlets)
+		if let3 > max {
+			max = let3
+		}
+		return cons(symIf, cons(test, cons(succ, cons(fail, Nil)))), frees, max
 	case symDo:
 		var x, y Obj
-		x, frees = closureConvert(cadr(exp), locals, env, frees)
-		y, frees = closureConvert(caddr(exp), locals, env, frees)
-		return cons(symDo, cons(x, cons(y, Nil))), frees
+		var let1, let2 int
+		max := nlets
+		x, frees, let1 = closureConvert(cadr(exp), locals, env, frees, nlets)
+		if let1 > max {
+			max = let1
+		}
+		y, frees, let2 = closureConvert(caddr(exp), locals, env, frees, nlets)
+		if let2 > max {
+			max = let2
+		}
+		return cons(symDo, cons(x, cons(y, Nil))), frees, max
 	case symLambda:
 		args := cadr(exp)
 		body := caddr(exp)
-		body1, frees1 := closureConvert(body, args, cons(locals, env), nil)
+		body1, frees1, nlets1 := closureConvert(body, args, cons(locals, env), nil, 0)
 		for _, free := range frees1 {
 			if assq(free, locals) < 0 {
 				frees = append(frees, free)
 			}
 		}
-		return cons(symLambda, cons(args, cons(sliceToList(frees1), cons(body1, Nil)))), frees
+		return cons(symLambda, cons(args, cons(sliceToList(frees1), cons(Integer(nlets1), cons(body1, Nil))))), frees, nlets
+	case symLet:
+		name := cadr(exp)
+		max := nlets
+		var val Obj
+		var let1 int
+		val, frees, let1 = closureConvert(caddr(exp), locals, env, frees, nlets)
+		if let1 > max {
+			max = let1
+		}
+		body := caddr(cdr(exp))
+		body, frees, nlets = closureConvert(body, cons(name, locals), env, frees, nlets+1)
+		if nlets > max {
+			max = nlets
+		}
+		return cons(symLet, cons(name, cons(val, cons(body, Nil)))), frees, max
 	}
+	max := nlets
 	ret := Nil
 	for ; exp != Nil; exp = cdr(exp) {
 		var tmp Obj
-		tmp, frees = closureConvert(car(exp), locals, env, frees)
+		var lets1 int
+		tmp, frees, lets1 = closureConvert(car(exp), locals, env, frees, nlets)
 		ret = cons(tmp, ret)
+		if lets1 > max {
+			max = lets1
+		}
 	}
-	return reverse(ret), frees
+	return reverse(ret), frees, max
 }
 
-func compile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
+func compile(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(vm *VM) {
 	switch raw := exp.(type) {
 	case nilObj, booleanObj, Integer, String, Float64:
 		return func(vm *VM) {
@@ -355,14 +396,15 @@ func compile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 			vm.next = next
 		}
 	case *Symbol:
-		idx := assq(exp, locals)
-		if idx >= 0 {
-			return func(vm *VM) {
-				vm.val = vm.stack[vm.base+idx+1]
-				vm.next = next
+		for i := len(locals) - 1; i >= 0; i-- {
+			if locals[i] == exp {
+				return func(vm *VM) {
+					vm.val = vm.stack[vm.base+i+1]
+					vm.next = next
+				}
 			}
 		}
-		idx = assq(exp, frees)
+		idx := assq(exp, frees)
 		if idx >= 0 {
 			return func(vm *VM) {
 				closure := vm.stack[vm.base].(*Closure)
@@ -407,16 +449,29 @@ func compile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 	case symLambda:
 		args := cadr(exp)
 		frees1 := caddr(exp)
-		body := caddr(cdr(exp))
-		code := compile(body, args, frees1, exit)
+		remainExp := cddr(cdr(exp))
+		nlets := car(remainExp).(Integer)
+		body := cadr(remainExp)
+		code := compile(body, listToSlice(args), frees1, exit)
 		return compileList(frees1, locals, frees, func(vm *VM) {
 			vm.val = &Closure{
 				closed:   append([]Obj{}, vm.stack[len(vm.stack)-listLength(frees1):]...),
-				code:     code,
+				code:     reserveForLetBinding(int(nlets), code),
 				Required: listLength(args),
 			}
 			vm.stack = vm.stack[:len(vm.stack)-listLength(frees1)]
 			vm.next = next
+		})
+	case symLet:
+		name := cadr(exp)
+		val := caddr(exp)
+		body := caddr(cdr(exp))
+		pos := len(locals)
+		body1 := compile(body, append(locals, name), frees, next)
+		return compile(val, locals, frees, func(vm *VM) {
+			// fmt.Println("pos = ", pos, vm.stack)
+			vm.stack[vm.base+pos+1] = vm.val
+			vm.next = body1
 		})
 	}
 
@@ -448,6 +503,26 @@ func compile(exp Obj, locals Obj, frees Obj, next func(*VM)) func(vm *VM) {
 		}
 	}
 	return compileList(exp, locals, frees, cont)
+}
+
+func reserveForLetBinding(nlets int, code func(vm *VM)) func(vm *VM) {
+	if nlets == 0 {
+		return code
+	}
+	return func(vm *VM) {
+		// The top level let differs from the let inside a lambda.
+		// There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
+		if vm.base == len(vm.stack) {
+			vm.stack = append(vm.stack, nil)
+		}
+		// reserve space for let bindings
+		// The layout looks like this:
+		// [fn arg1 arg2 .. let1 let2 ...]
+		for i := 0; i < int(nlets); i++ {
+			vm.stack = append(vm.stack, nil)
+		}
+		vm.next = code
+	}
 }
 
 // makeTheCall handles the curry / partial calling protocol.
@@ -487,7 +562,7 @@ func makeTheCall(vm *VM) {
 	}
 }
 
-func compileList(exp Obj, locals Obj, frees Obj, next func(*VM)) func(*VM) {
+func compileList(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(*VM) {
 	if exp == Nil {
 		return next
 	}

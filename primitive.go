@@ -27,6 +27,10 @@ func cadr(o Obj) Obj {
 	return car(cdr(o))
 }
 
+func cddr(o Obj) Obj {
+	return cdr(cdr(o))
+}
+
 func caddr(o Obj) Obj {
 	return car(cdr(cdr(o)))
 }
@@ -54,6 +58,15 @@ func sliceToList(s []Obj) Obj {
 	for i := len(s) - 1; i >= 0; i-- {
 		x := s[i]
 		ret = cons(x, ret)
+	}
+	return ret
+}
+
+func listToSlice(l Obj) []Obj {
+	ret := make([]Obj, 0, 5)
+	for l != Nil {
+		ret = append(ret, car(l))
+		l = cdr(l)
 	}
 	return ret
 }
@@ -310,7 +323,7 @@ var primEQ = &Closure{
 	code: func(vm *VM) {
 		x := vm.pop()
 		y := vm.pop()
-		if x == y {
+		if eq(x, y) {
 			vm.ret(True)
 		} else {
 			vm.ret(False)

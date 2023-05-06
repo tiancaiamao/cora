@@ -15,27 +15,33 @@ type testCase struct {
 
 var basicCases = []testCase{
 	testCase{
+		name:   "let and let",
+		input:  "(let a (let b 1 (let c 2 (+ b c))) a)",
+		output: "3",
+	},
+
+	testCase{
 		name:   "curry as arg",
 		input:  `((lambda (f) (f 42)) (+ 1))`,
 		output: "43",
 	},
 
-	// testCase{
-	// 	name: "let-variable-shadow",
-	// 	input: `(do (set (quote f) (lambda (a b)
-	// 				   (let a 3 a)) (f 4 5)))`,
-	// 	output: "3",
-	// },
+	testCase{
+		name: "let-variable-shadow",
+		input: `(do (set (quote f) (lambda (a b)
+					   (let a 3 a))) (f 4 5))`,
+		output: "3",
+	},
 
-	// 	testCase{
-	// 		name: "let variable shadow",
-	// 		input: `(let Result 123
-	// (let Result 456
-	// 	  (if (= Result 456)
-	// 	      true
-	// 	      Result)))`,
-	// 		output: "true",
-	// 	},
+	testCase{
+		name: "let variable shadow",
+		input: `(let Result 123
+	(let Result 456
+		  (if (= Result 456)
+		      true
+		      Result)))`,
+		output: "true",
+	},
 
 	testCase{
 		name:   "curry",
@@ -246,19 +252,32 @@ func evalString(ctx *VM, exp string) Obj {
 // }
 
 func TestClosureConvert(t *testing.T) {
-	// r := NewSexpReader(strings.NewReader(`(lambda (x) x)`))
+	r := NewSexpReader(strings.NewReader(`(let #cc50 (lambda () (error "no match-help found!")) 42)`), "")
+	// r := NewSexpReader(strings.NewReader(`(lambda (x) x)`), "")
 	// r := NewSexpReader(strings.NewReader(`(lambda (z) (+ x z))`))
-	r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x y)))) 1) 2) 3)`), "")
+	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x y)))) 1) 2) 3)`), "")
+	// 	r := NewSexpReader(strings.NewReader(`(lambda (x y z)
+	// (let a 3
+	// (lambda (b)
+	//   (let base 5
+	//      a))))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
 	}
-	exp1, frees := closureConvert(sexp, Nil, Nil, nil)
+	exp1, frees, _ := closureConvert(sexp, Nil, Nil, nil, 0)
 	fmt.Println("result:", exp1, frees)
 }
 
 func TestXXX(t *testing.T) {
-	r := NewSexpReader(strings.NewReader(`((+ 1) 2)`), "")
+	// r := NewSexpReader(strings.NewReader(`(let Result 123
+	// (let Result 456
+	// 	  (if (= Result 456)
+	// 	      true
+	// 	      Result)))`), "")
+	// r := NewSexpReader(strings.NewReader(`((lambda (x y) (let a 3 a)) 5 7)`), "")
+	r := NewSexpReader(strings.NewReader(`((let a 3 (lambda (b) (let base 5 b))) 42)`), "")
+	// r := NewSexpReader(strings.NewReader(`((+ 1) 2)`), "")
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x y) x) 4) 5)`))
 	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1) 2) 3)`))
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x) (lambda () (+ x 1))) 5))`))
