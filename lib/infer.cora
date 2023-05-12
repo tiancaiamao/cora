@@ -1,5 +1,5 @@
 (@import "cora/lib/sys")
-(@import "cora/lib/io")
+;; (@import "cora/lib/io")
 
 (set '*tvar* 1000)
 (defun tvar ()
@@ -10,13 +10,67 @@
 (defun extend (env v x)
   (cons (cons v x) env))
 
+(defun lookupsig (x)
+  (let find (assq x *sigf*)
+       (if (null? find)
+	   (error "unbound variable ")
+	   (cdr find))))
+
+(set '*sigf* ())
+(defun declare (sym type)
+  (set '*sigf* (cons (cons sym type) *sigf*)))
+
+(declare '+ '(int -> (int -> int)))
+(declare '- '(int -> (int -> int)))
+(declare '* '(int -> (int -> int)))
+(declare '/ '(int -> (int -> int)))
+(declare '= '(int -> (int -> bool)))
+
+(declare 'nil ['list (tvar)])
+(declare 'cons (let t (tvar) [t '-> [['list t] '-> ['list t]]]))
+(declare 'hd (let t (tvar) [['list t] '-> t]))
+(declare 'tl (let t (tvar) [['list t] '-> ['list t]]))
+(declare 'null? (let t (tvar) [['list t] '-> 'bool]))
+(declare 'map (let t1 (tvar)
+		   t2 (tvar)
+		   [[t1 '-> t2] '-> [['list t1] '-> ['list t2]]]))
+
+(func annotate
+      [] _ => []
+      [arg1 . arg2] [x '-> y] => [[arg1 ': x] . (annotate arg2 y)])
+
 (func infer
-      tctx actx x s => ['int s] where (number? x)
-      tctx actx x s => ['bool s] where (boolean? x)
+      tctx [] x s => ['int s] where (integer? x)
+      tctx [] x s => ['bool s] where (boolean? x)
       tctx actx x s => (let find (assq x tctx)
 			 (if (null? find)
-			     (error "variable not bound")
+			     (app-subtype actx (lookupsig x) s)
 			     (app-subtype actx (cdr find) s))) where (symbol? x)
+      tctx actx ['quote x] s => ['symbol s]
+      tctx actx ['if x y z] s => (match (infer tctx actx x s)
+					[t s1]
+					(let s2 (unify t 'bool s1)
+					     (match (infer tctx actx y s2)
+						    [tx s3]
+						    (match (infer tctx actx z s3)
+							   [tz s4]
+							   (let s5 (unify tx tz s4)
+								[tx s5])))))
+      tctx actx ['do x y] s => (do (infer tctx actx x s)
+				   (infer tctx actx y s))
+      tctx actx ['set ['quote x] v] s => (let find (assq x *sigf*)
+					      (if (not (null? find))
+						  ;; rewrite the lambda with annotation
+						  (match v
+							 ['lambda arg body]
+							 (infer tctx actx ['lambda (annotate arg (cdr find)) body] s)
+							 _ (infer tctx actx v s))
+						  (infer tctx actx v s)))
+      tctx actx ['let x v body] s => (match (infer tctx [] v s)
+					    [A s1]
+					    (infer (extend tctx x A) actx body s1))
+      tctx actx ['lambda [arg] body] s => (infer tctx actx ['/. arg body] s)
+      tctx actx ['lambda [arg . more] body] s => (infer tctx actx ['/. arg ['lambda more body]] s)
       tctx [C . actx] ['/. [x ': A] e] s => (match (infer (extend tctx x A) actx e (subtype C A s))
 					      [B s1]
 					      [[C '-> B] s1])
@@ -35,18 +89,19 @@
 			       (let B (generalize A s1)
 				 (match (infer tctx [B . actx] e1 s1)
 				   [[b '-> C] s2]
-				   [C s2]))))
+				   [C s2])))
+      tctx actx [e1 e2 . more] s => (infer tctx actx [[e1 e2] . more] s))
 
-(set 'infer-raw infer)
-(defun infer (tctx actx x s)
-  (begin
-    (display "trace infer execute ========>")
-    (display tctx)
-    (display actx)
-    (display x)
-    (display s)
-    (display "\n")
-    (infer-raw tctx actx x s)))
+;; (set 'infer-raw infer)
+;; (defun infer (tctx actx x s)
+;;   (begin
+;;     (display "trace infer execute ========>")
+;;     (display tctx)
+;;     (display actx)
+;;     (display x)
+;;     (display s)
+;;     (display "\n")
+;;     (infer-raw tctx actx x s)))
 
 (func app-subtype
       [] a s => [a s]
@@ -54,10 +109,10 @@
 								  (extend env x (tvar)))
 								[]
 								a)) s)
-      [c . actx] tv s => (let a (tvar)
+      [c . actx1] tv s => (let a (tvar)
 			   (let b (tvar)
 			     (let s1 (subtype a c (unify tv [a '-> b] s))
-			       (match (app-subtype actx b s1)
+			       (match (app-subtype actx1 b s1)
 				 [d s2]
 				 [[c '-> d] s2])))))
 
@@ -66,18 +121,20 @@
 
 (func subtype1
       t1 t2 s => s where (= t1 t2)
-      t1 t2 s => [[t1 . t2] . s] where (number? t1)
+      t1 t2 s => [[t1 . t2] . s] where (integer? t1)
       A ['forall a B] s => (subtype A B s)
       ['forall a A] B s => (let t (tvar)
 			     (subtype (alpha A (foldl (lambda (env x) (extend env x (tvar)))
 						      []
 						      a)) B))
+      ['list A] ['list B] s => (subtype B A s)
       [A '-> B] [C '-> D] s => (let s1 (subtype C A s)
 				 (subtype B D s1)))
 
 (func alpha
       'int s => 'int
       'bool s => 'bool
+      ['list A] s => ['list (alpha A s)]
       [A '-> B] s => [(alpha A s) '-> (alpha B s)]
       ['forall a A] s => (alpha A (extend a (tvar) s))
       t s => (let find (assq t s)
@@ -86,7 +143,7 @@
 		   (cdr find))))
 
 (func generalize
-      A s => A where (number? A)
+      A s => A where (integer? A)
       A s => (let fv (free-vars A [] [])
 	       (let fv1 (filter (lambda (x) (null? (assq x s))) fv)
 		 (if (null? fv1) A
@@ -99,10 +156,11 @@
       'bool bind res => res
       tv bind res => (if (or (elem? tv bind) (elem? tv res))
 			 res
-			 (cons tv res)) where (number? tv)
+			 (cons tv res)) where (integer? tv)
       [a '-> b] bind res => (let res1 (free-vars a bind res)
 			      (free-vars b bind res1))
-      ['forall a b] bind res => (free-vars b (cons a bind) res))
+      ['forall a b] bind res => (free-vars b (cons a bind) res)
+      ['list x] bind res => (free-vars x bind res))
       
 
 (func apply-subst
@@ -130,8 +188,9 @@
 
 (func unify1
       x y s => s where (= x y)
-      x y s => [[x . y] . s] where (and (number? x) (not (occur? x y)))
-      x y s => [[y . x] . s] where (and (number? y) (not (occur? y x)))
+      x y s => [[x . y] . s] where (and (integer? x) (not (occur? x y)))
+      x y s => [[y . x] . s] where (and (integer? y) (not (occur? y x)))
+      ['list a] ['list b] s => [[a . b] . s]
       [a '-> b] [c '-> d] s => (let s1 (unify a c s)
 				 (unify b d s1)))
 
@@ -156,3 +215,7 @@
 ;; (infer [] [] '(/. f (/. (g : (forall (2000) (2000 -> 2001))) ((f (g 1)) (g true)))) [])
 ;; (infer [] [] '(/. f (/. g ((f (g (/. z z))) (g (/. u (/. v u)))))) [])
 
+
+;; (declare map (let t1 (tvar) t2 (tvar)
+;; 		  [[t1 '-> t2] '-> [['list t1] '-> ['list t2]]]))
+;; '(set 'map (lambda (f l) (if (null? l) nil (cons (f (hd l)) (map f (tl l))))))

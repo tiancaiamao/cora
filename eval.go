@@ -131,6 +131,7 @@ func init() {
 	MakeSymbol("load").val = primLoad
 	MakeSymbol("import").val = primImport
 	MakeSymbol("*imported*").val = Nil
+	MakeSymbol("integer?").val = primIsInteger
 }
 
 func MakeSymbol(str string) *Symbol {
