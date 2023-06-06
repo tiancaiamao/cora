@@ -103,13 +103,19 @@ func eq(x, y Obj) bool {
 	return false
 }
 
+type instrPrim func(vm *VM)
+
+func (i instrPrim) Exec(vm *VM) {
+	i(vm)
+}
+
 var primSet = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		val := vm.pop()
 		key := vm.pop()
 		key.(*Symbol).val = val
 		vm.ret(val)
-	},
+	}),
 	Required: 2,
 	Name:     "Set",
 }
@@ -143,7 +149,7 @@ func loadFile(e *VM, filePath string, pkg string) error {
 }
 
 var primLoad = &Closure{
-	code: func(e *VM) {
+	code: instrPrim(func(e *VM) {
 		pkg := e.pop()
 		file := e.pop()
 		tmp, ok := file.(String)
@@ -156,13 +162,13 @@ var primLoad = &Closure{
 			panic(err)
 		}
 		e.ret(MakeSymbol("loaded"))
-	},
+	}),
 	Required: 2,
 	Name:     "load",
 }
 
 var primImport = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		pkg := vm.stack[vm.base+1]
 		pkgStr := pkg.(String)
 		sym := MakeSymbol("*imported*")
@@ -190,107 +196,107 @@ var primImport = &Closure{
 			panic(err)
 		}
 		vm.ret(pkg)
-	},
+	}),
 	Required: 1,
 	Name:     "import",
 }
 
 var primCar = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		y := vm.pop()
 		vm.ret(car(y))
-	},
+	}),
 	Required: 1,
 	Name:     "car",
 }
 
 var primCdr = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		y := vm.pop()
 		vm.ret(cdr(y))
-	},
+	}),
 	Required: 1,
 	Name:     "cdr",
 }
 
 var primCons = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		y := vm.pop()
 		vm.ret(cons(y, x))
-	},
+	}),
 	Required: 2,
 	Name:     "cons",
 }
 
 var primIsCons = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		if _, ok := x.(*Cons); ok {
 			vm.ret(True)
 		} else {
 			vm.ret(False)
 		}
-	},
+	}),
 	Required: 1,
 	Name:     "cons?",
 }
 
 var primIsSymbol = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		if _, ok := x.(*Symbol); ok {
 			vm.ret(True)
 		} else {
 			vm.ret(False)
 		}
-	},
+	}),
 	Required: 1,
 	Name:     "symbol?",
 }
 
 var primIsString = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		if _, ok := x.(String); ok {
 			vm.ret(True)
 		} else {
 			vm.ret(False)
 		}
-	},
+	}),
 	Required: 1,
-	Name: "string?",
+	Name:     "string?",
 }
 
 var primIsInteger = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		if _, ok := x.(Integer); ok {
 			vm.ret(True)
 		} else {
 			vm.ret(False)
 		}
-	},
+	}),
 	Required: 1,
-	Name: "integer?",
+	Name:     "integer?",
 }
 
 var genIdx int
 
 var primGenSym = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		obj := vm.pop()
 		sym := obj.(*Symbol)
 		res := MakeSymbol(fmt.Sprintf("#%s%d", sym.str, genIdx))
 		genIdx++
 		vm.ret(res)
-	},
+	}),
 	Required: 1,
 	Name:     "gensym",
 }
 
 var primNot = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		obj := vm.pop()
 		switch obj {
 		case True:
@@ -300,53 +306,53 @@ var primNot = &Closure{
 		default:
 			panic("wrong argument for not")
 		}
-	},
+	}),
 	Required: 1,
 	Name:     "not",
 }
 
 var primAdd = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop().(Integer)
 		y := vm.pop().(Integer)
 		vm.ret(Integer(x + y))
-	},
+	}),
 	Required: 2,
 	Name:     "Add",
 }
 
 var primSub = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop().(Integer)
 		y := vm.pop().(Integer)
 		vm.ret(Integer(y - x))
-	},
+	}),
 	Required: 2,
 	Name:     "Sub",
 }
 
 var primMul = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop().(Integer)
 		y := vm.pop().(Integer)
 		vm.ret(Integer(x * y))
-	},
+	}),
 	Required: 2,
 	Name:     "Mul",
 }
 
 var primDiv = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop().(Integer)
 		y := vm.pop().(Integer)
 		vm.ret(Integer(y / x))
-	},
+	}),
 	Required: 2,
 	Name:     "Div",
 }
 
 var primEQ = &Closure{
-	code: func(vm *VM) {
+	code: instrPrim(func(vm *VM) {
 		x := vm.pop()
 		y := vm.pop()
 		if eq(x, y) {
@@ -354,7 +360,7 @@ var primEQ = &Closure{
 		} else {
 			vm.ret(False)
 		}
-	},
+	}),
 	Required: 2,
 	Name:     "EQ",
 }

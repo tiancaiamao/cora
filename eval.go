@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"reflect"
 	"strconv"
 )
 
@@ -189,7 +188,7 @@ func printCons(to io.Writer, o Obj, start bool) {
 
 type Closure struct {
 	closed   []Obj
-	code     func(vm *VM)
+	code     Instr
 	Required int
 	Name     string
 }
@@ -213,13 +212,13 @@ func (v Vector) String() string {
 // =======================================
 
 type returnAddr struct {
-	pc   func(*VM)
+	pc   Instr
 	base int
 	pos  int
 }
 
 type VM struct {
-	next      func(*VM)
+	next      Instr
 	stack     []Obj
 	base      int
 	val       Obj
@@ -249,17 +248,13 @@ func (vm *VM) Eval(exp Obj) Obj {
 	return eval(vm, exp)
 }
 
-func trampoline(vm *VM, code func(*VM)) {
+func trampoline(vm *VM, code Instr) {
 	vm.next = code
 	for vm.next != nil {
 		code = vm.next
 		vm.next = nil
-		code(vm)
+		code.Exec(vm)
 	}
-}
-
-func exit(vm *VM) {
-	vm.ret(vm.val)
 }
 
 func eval(vm *VM, exp Obj) Obj {
@@ -273,6 +268,186 @@ func eval(vm *VM, exp Obj) Obj {
 	})
 	trampoline(vm, code)
 	return vm.val
+}
+
+type Instr interface {
+	Exec(vm *VM)
+}
+
+var (
+	_ Instr = &instrConst{}
+	_ Instr = &instrLocalRef{}
+	_ Instr = &instrClosureRef{}
+	_ Instr = &instrGlobalRef{}
+	_ Instr = &instrIf{}
+	_ Instr = &instrMakeClosure{}
+	_ Instr = &instrLocalSet{}
+	_ Instr = &instrTailCall{}
+	_ Instr = &instrCall{}
+	_ Instr = &instrPush{}
+	_ Instr = instrExit{}
+	_ Instr = instrArityCheck{}
+)
+
+type instrExit struct{}
+
+var exit instrExit
+
+func (i instrExit) Exec(vm *VM) {
+	vm.ret(vm.val)
+}
+
+type instrConst struct {
+	val  Obj
+	next Instr
+}
+
+func (i *instrConst) Exec(vm *VM) {
+	vm.val = i.val
+	vm.next = i.next
+}
+
+type instrLocalRef struct {
+	idx  int
+	next Instr
+}
+
+func (i *instrLocalRef) Exec(vm *VM) {
+	vm.val = vm.stack[vm.base+i.idx+1]
+	vm.next = i.next
+}
+
+type instrClosureRef struct {
+	idx  int
+	next Instr
+}
+
+func (i *instrClosureRef) Exec(vm *VM) {
+	closure := vm.stack[vm.base].(*Closure)
+	vm.val = closure.closed[i.idx]
+	vm.next = i.next
+}
+
+type instrGlobalRef struct {
+	sym  *Symbol
+	next Instr
+}
+
+func (i *instrGlobalRef) Exec(vm *VM) {
+	if i.sym == nil {
+		panic("undefined symbol:" + i.sym.str)
+	}
+	vm.val = i.sym.val
+	vm.next = i.next
+}
+
+type instrIf struct {
+	succ Instr
+	fail Instr
+}
+
+func (i *instrIf) Exec(vm *VM) {
+	switch vm.val {
+	case True:
+		i.succ.Exec(vm)
+	case False:
+		i.fail.Exec(vm)
+	default:
+		panic("if need to be true / false")
+	}
+}
+
+type instrMakeClosure struct {
+	required int
+	nfrees   int
+	code     Instr
+	next     Instr
+}
+
+func (i *instrMakeClosure) Exec(vm *VM) {
+	vm.val = &Closure{
+		closed:   append([]Obj{}, vm.stack[len(vm.stack)-i.nfrees:]...),
+		code:     i.code,
+		Required: i.required,
+	}
+	vm.stack = vm.stack[:len(vm.stack)-i.nfrees]
+	vm.next = i.next
+}
+
+type instrLocalSet struct {
+	idx  int
+	next Instr
+}
+
+func (i *instrLocalSet) Exec(vm *VM) {
+	vm.stack[vm.base+i.idx+1] = vm.val
+	vm.next = i.next
+}
+
+type instrTailCall struct {
+	nargs int
+}
+
+func (i *instrTailCall) Exec(vm *VM) {
+	// prepare arguments
+	copy(vm.stack[vm.base:], vm.stack[len(vm.stack)-i.nargs:])
+	vm.stack = vm.stack[:vm.base+i.nargs]
+	// make the call
+	makeTheCall(vm)
+}
+
+type instrCall struct {
+	nargs int
+	next  Instr
+}
+
+func (i *instrCall) Exec(vm *VM) {
+	// normal call
+	// save the stack
+	newBase := len(vm.stack) - i.nargs
+	vm.callStack = append(vm.callStack, returnAddr{
+		pc:   i.next,
+		base: vm.base,
+		pos:  newBase,
+	})
+	vm.base = newBase
+	// make the call
+	makeTheCall(vm)
+}
+
+type instrPush struct {
+	next Instr
+}
+
+func (i *instrPush) Exec(vm *VM) {
+	vm.stack = append(vm.stack, vm.val)
+	vm.next = i.next
+}
+
+type instrReserveLocals struct {
+	nlets int
+	next  Instr
+}
+
+func (i *instrReserveLocals) Exec(vm *VM) {
+	// The top level let differs from the let inside a lambda.
+	// There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
+	if vm.base == len(vm.stack) {
+		vm.stack = append(vm.stack, nil)
+	}
+	// reserve space for let bindings
+	// The layout looks like this:
+	// [fn arg1 arg2 .. let1 let2 ...]
+	for x := 0; x < int(i.nlets); x++ {
+		vm.stack = append(vm.stack, nil)
+	}
+	vm.next = i.next
+}
+
+type instrArityCheck struct{}
+
+func (i instrArityCheck) Exec(vm *VM) {
+	makeTheCall(vm)
 }
 
 func (vm *VM) MacroExpand(exp Obj) Obj {
@@ -292,7 +467,9 @@ func macroExpand(vm *VM, exp Obj) Obj {
 }
 
 // =====================================
-// 	Compiler utilities
+//
+//	Compiler utilities
+//
 // =====================================
 func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj, nlets int) (Obj, []Obj, int) {
 	switch exp.(type) {
@@ -388,64 +565,34 @@ func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj, nlets int) (Obj, 
 	return reverse(ret), frees, max
 }
 
-func compile(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(vm *VM) {
+func compile(exp Obj, locals []Obj, frees Obj, next Instr) Instr {
 	switch raw := exp.(type) {
 	case nilObj, booleanObj, Integer, String, Float64:
-		return func(vm *VM) {
-			vm.val = exp
-			vm.next = next
-		}
+		return &instrConst{val: exp, next: next}
 	case *Symbol:
 		for i := len(locals) - 1; i >= 0; i-- {
 			if locals[i] == exp {
-				return func(vm *VM) {
-					vm.val = vm.stack[vm.base+i+1]
-					vm.next = next
-				}
+				return &instrLocalRef{idx: i, next: next}
 			}
 		}
 		idx := assq(exp, frees)
 		if idx >= 0 {
-			return func(vm *VM) {
-				closure := vm.stack[vm.base].(*Closure)
-				vm.val = closure.closed[idx]
-				vm.next = next
-			}
+			return &instrClosureRef{idx: idx, next: next}
 		}
-		return func(vm *VM) {
-			if raw.val == nil {
-				panic("undefined symbol:" + raw.str)
-			}
-			vm.val = raw.val
-			vm.next = next
-		}
+		return &instrGlobalRef{sym: raw, next: next}
 	}
 
 	raw := exp.(*Cons)
 	switch raw.car {
 	case symQuote:
-		return func(vm *VM) {
-			vm.val = car(raw.cdr)
-			vm.next = next
-		}
+		return &instrConst{val: car(raw.cdr), next: next}
 	case symIf:
 		thenCont := compile(cadr(raw.cdr), locals, frees, next)
 		elseCont := compile(caddr(raw.cdr), locals, frees, next)
-		return compile(car(raw.cdr), locals, frees, func(vm *VM) {
-			switch vm.val {
-			case True:
-				thenCont(vm)
-			case False:
-				elseCont(vm)
-			default:
-				panic("if need to be true / false")
-			}
-		})
+		return compile(car(raw.cdr), locals, frees, &instrIf{succ: thenCont, fail: elseCont})
 	case symDo:
 		y := compile(caddr(raw), locals, frees, next)
-		return compile(cadr(raw), locals, frees, func(vm *VM) {
-			y(vm)
-		})
+		return compile(cadr(raw), locals, frees, y)
 	case symLambda:
 		args := cadr(exp)
 		frees1 := caddr(exp)
@@ -453,14 +600,11 @@ func compile(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(vm *VM) {
 		nlets := car(remainExp).(Integer)
 		body := cadr(remainExp)
 		code := compile(body, listToSlice(args), frees1, exit)
-		return compileList(frees1, locals, frees, func(vm *VM) {
-			vm.val = &Closure{
-				closed:   append([]Obj{}, vm.stack[len(vm.stack)-listLength(frees1):]...),
-				code:     reserveForLetBinding(int(nlets), code),
-				Required: listLength(args),
-			}
-			vm.stack = vm.stack[:len(vm.stack)-listLength(frees1)]
-			vm.next = next
+		return compileList(frees1, locals, frees, &instrMakeClosure{
+			required: listLength(args),
+			nfrees:   listLength(frees1),
+			code:     reserveForLetBinding(int(nlets), code),
+			next:     next,
 		})
 	case symLet:
 		name := cadr(exp)
@@ -468,61 +612,26 @@ func compile(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(vm *VM) {
 		body := caddr(cdr(exp))
 		pos := len(locals)
 		body1 := compile(body, append(locals, name), frees, next)
-		return compile(val, locals, frees, func(vm *VM) {
-			// fmt.Println("pos = ", pos, vm.stack)
-			vm.stack[vm.base+pos+1] = vm.val
-			vm.next = body1
-		})
+		return compile(val, locals, frees, &instrLocalSet{idx: pos, next: body1})
 	}
 
 	// compile call
 	nargs := listLength(exp)
-	tail := reflect.ValueOf(next).Pointer() == reflect.ValueOf(exit).Pointer()
-	var cont func(vm *VM)
+	tail := next == exit
+	var cont Instr
 	if tail {
-		cont = func(vm *VM) {
-			// prepare arguments
-			copy(vm.stack[vm.base:], vm.stack[len(vm.stack)-nargs:])
-			vm.stack = vm.stack[:vm.base+nargs]
-			// make the call
-			makeTheCall(vm)
-		}
+		cont = &instrTailCall{nargs: nargs}
 	} else {
-		cont = func(vm *VM) {
-			// normal call
-			// save the stack
-			newBase := len(vm.stack) - nargs
-			vm.callStack = append(vm.callStack, returnAddr{
-				pc:   next,
-				base: vm.base,
-				pos:  newBase,
-			})
-			vm.base = newBase
-			// make the call
-			makeTheCall(vm)
-		}
+		cont = &instrCall{nargs: nargs, next: next}
 	}
 	return compileList(exp, locals, frees, cont)
 }
 
-func reserveForLetBinding(nlets int, code func(vm *VM)) func(vm *VM) {
+func reserveForLetBinding(nlets int, code Instr) Instr {
 	if nlets == 0 {
 		return code
 	}
-	return func(vm *VM) {
-		// The top level let differs from the let inside a lambda.
-		// There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
-		if vm.base == len(vm.stack) {
-			vm.stack = append(vm.stack, nil)
-		}
-		// reserve space for let bindings
-		// The layout looks like this:
-		// [fn arg1 arg2 .. let1 let2 ...]
-		for i := 0; i < int(nlets); i++ {
-			vm.stack = append(vm.stack, nil)
-		}
-		vm.next = code
-	}
+	return &instrReserveLocals{nlets: nlets, next: code}
 }
 
 // makeTheCall handles the curry / partial calling protocol.
@@ -536,12 +645,12 @@ func makeTheCall(vm *VM) {
 	case provided < required:
 		closed := append([]Obj{}, vm.stack[len(vm.stack)-provided:]...)
 		vm.val = &Closure{
-			code: func(vm *VM) {
+			code: instrPrim(func(vm *VM) {
 				tmp := append([]Obj{}, vm.stack[vm.base+1:]...)
 				vm.stack = append(vm.stack[:vm.base], closed...)
 				vm.stack = append(vm.stack, tmp...)
-				vm.next = makeTheCall
-			},
+				vm.next = instrArityCheck{}
+			}),
 			Required: required - provided,
 		}
 		vm.next = exit
@@ -549,11 +658,11 @@ func makeTheCall(vm *VM) {
 		newBase := len(vm.stack)
 		vm.stack = append(vm.stack, vm.stack[vm.base:vm.base+required]...)
 		vm.callStack = append(vm.callStack, returnAddr{
-			pc: func(vm *VM) {
+			pc: instrPrim(func(vm *VM) {
 				vm.stack[vm.base] = vm.val
 				vm.stack = append(vm.stack[:vm.base+1], vm.stack[vm.base+required:]...)
-				vm.next = makeTheCall
-			},
+				vm.next = instrArityCheck{}
+			}),
 			base: vm.base,
 			pos:  newBase,
 		})
@@ -562,13 +671,10 @@ func makeTheCall(vm *VM) {
 	}
 }
 
-func compileList(exp Obj, locals []Obj, frees Obj, next func(*VM)) func(*VM) {
+func compileList(exp Obj, locals []Obj, frees Obj, next Instr) Instr {
 	if exp == Nil {
 		return next
 	}
 	remain := compileList(cdr(exp), locals, frees, next)
-	return compile(car(exp), locals, frees, func(vm *VM) {
-		vm.stack = append(vm.stack, vm.val)
-		vm.next = remain
-	})
+	return compile(car(exp), locals, frees, &instrPush{next: remain})
 }
