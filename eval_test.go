@@ -1,6 +1,7 @@
 package cora
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -276,12 +277,12 @@ func TestXXX(t *testing.T) {
 	// 	      true
 	// 	      Result)))`), "")
 	// r := NewSexpReader(strings.NewReader(`((lambda (x y) (let a 3 a)) 5 7)`), "")
-	r := NewSexpReader(strings.NewReader(`((let a 3 (lambda (b) (let base 5 b))) 42)`), "")
+	// r := NewSexpReader(strings.NewReader(`((let a 3 (lambda (b) (let base 5 b))) 42)`), "")
 	// r := NewSexpReader(strings.NewReader(`((+ 1) 2)`), "")
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x y) x) 4) 5)`))
 	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1) 2) 3)`))
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x) (lambda () (+ x 1))) 5))`))
-	// r := NewSexpReader(strings.NewReader(`(do (set 'f (lambda (x) x)) (f 44))`))
+	r := NewSexpReader(strings.NewReader(`(+ 1 2)`), "")
 	// 	r := NewSexpReader(strings.NewReader(`(do
 	// (set 'f (lambda (a b c) a))
 	// (do
@@ -304,9 +305,20 @@ func TestXXX(t *testing.T) {
 
 	// loadFile(vm, "../cmd/cora/init.cora")
 
-	var vm VM
-	res := vm.Eval(sexp)
-	fmt.Printf("%#v\n", res)
+	// var vm VM
+	// res := vm.Eval(sexp)
+	// fmt.Printf("%#v\n", res)
+
+	exp1, _, nlets := closureConvert(sexp, Nil, Nil, nil, 0)
+	code := compile(exp1, nil, Nil, exit)
+	code = reserveForLetBinding(nlets, code)
+	var buf bytes.Buffer
+	err = code.Marshal(&buf)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	fmt.Println(buf.Bytes())
 }
 
 func TestImport(t *testing.T) {

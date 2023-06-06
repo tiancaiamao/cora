@@ -1,6 +1,7 @@
 package cora
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -107,6 +108,10 @@ type instrPrim func(vm *VM)
 
 func (i instrPrim) Exec(vm *VM) {
 	i(vm)
+}
+
+func (i instrPrim) Marshal(to io.Writer) error {
+	return errors.New("instrPrim not implemented")
 }
 
 var primSet = &Closure{

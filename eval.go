@@ -25,6 +25,7 @@ var _ Obj = Vector{}
 
 type Obj interface {
 	String() string
+	Marshal(io.Writer) error
 }
 
 type Integer int64
@@ -272,6 +273,7 @@ func eval(vm *VM, exp Obj) Obj {
 
 type Instr interface {
 	Exec(vm *VM)
+	Marshal(to io.Writer) error
 }
 
 var (
@@ -287,6 +289,7 @@ var (
 	_ Instr = &instrPush{}
 	_ Instr = instrExit{}
 	_ Instr = instrArityCheck{}
+	_ Instr = &instrReserveLocals{}
 )
 
 type instrExit struct{}
