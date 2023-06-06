@@ -26,8 +26,10 @@
 (declare '/ '(int -> (int -> int)))
 (declare '= '(int -> (int -> bool)))
 
-(declare 'nil ['list (tvar)])
-(declare 'cons (let t (tvar) [t '-> [['list t] '-> ['list t]]]))
+(let t (tvar)
+    (begin (declare 'nil ['list t])
+	   (declare 'cons [t '-> [['list t] '-> ['list t]]])))
+
 (declare 'hd (let t (tvar) [['list t] '-> t]))
 (declare 'tl (let t (tvar) [['list t] '-> ['list t]]))
 (declare 'null? (let t (tvar) [['list t] '-> 'bool]))
@@ -35,13 +37,17 @@
 		   t2 (tvar)
 		   [[t1 '-> t2] '-> [['list t1] '-> ['list t2]]]))
 
+(declare 'not '(bool -> bool))
+
 (func annotate
       [] _ => []
       [arg1 . arg2] [x '-> y] => [[arg1 ': x] . (annotate arg2 y)])
 
 (func infer
+      tctx [] [] s => ['unit s]
       tctx [] x s => ['int s] where (integer? x)
       tctx [] x s => ['bool s] where (boolean? x)
+      tctx [] x s => ['string s] where (string? x)
       tctx actx x s => (let find (assq x tctx)
 			 (if (null? find)
 			     (app-subtype actx (lookupsig x) s)
@@ -111,7 +117,7 @@
 								a)) s)
       [c . actx1] tv s => (let a (tvar)
 			   (let b (tvar)
-			     (let s1 (subtype a c (unify tv [a '-> b] s))
+			     (let s1 (subtype c a (unify tv [a '-> b] s))
 			       (match (app-subtype actx1 b s1)
 				 [d s2]
 				 [[c '-> d] s2])))))
@@ -121,19 +127,20 @@
 
 (func subtype1
       t1 t2 s => s where (= t1 t2)
-      t1 t2 s => [[t1 . t2] . s] where (integer? t1)
+      t1 t2 s => [[t2 . t1] . s] where (integer? t2)
       A ['forall a B] s => (subtype A B s)
       ['forall a A] B s => (let t (tvar)
 			     (subtype (alpha A (foldl (lambda (env x) (extend env x (tvar)))
 						      []
-						      a)) B))
-      ['list A] ['list B] s => (subtype B A s)
+						      a)) B s))
+      ['list A] ['list B] s => (subtype A B s)
       [A '-> B] [C '-> D] s => (let s1 (subtype C A s)
 				 (subtype B D s1)))
 
 (func alpha
       'int s => 'int
       'bool s => 'bool
+      'string s => 'string
       ['list A] s => ['list (alpha A s)]
       [A '-> B] s => [(alpha A s) '-> (alpha B s)]
       ['forall a A] s => (alpha A (extend a (tvar) s))
@@ -154,6 +161,7 @@
 (func free-vars
       'int bind res => res
       'bool bind res => res
+      'string bind res => res
       tv bind res => (if (or (elem? tv bind) (elem? tv res))
 			 res
 			 (cons tv res)) where (integer? tv)
@@ -166,6 +174,7 @@
 (func apply-subst
       'int s => 'int
       'bool s => 'bool
+      'string s => 'string
       [a '-> b] s => [(apply-subst a s) '-> (apply-subst b s)]
       ['list a] s => ['list (apply-subst a s)]
       v s => (let find (assq v s)
@@ -180,6 +189,7 @@
 (func occur?
       'int _ => false
       'bool _ => false
+      'string _ => false
       [a '-> b] t => (or (occur? a t) (occur? b t))
       v t => (= v t))
 

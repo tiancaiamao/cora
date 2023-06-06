@@ -132,6 +132,7 @@ func init() {
 	MakeSymbol("import").val = primImport
 	MakeSymbol("*imported*").val = Nil
 	MakeSymbol("integer?").val = primIsInteger
+	MakeSymbol("string?").val = primIsString
 }
 
 func MakeSymbol(str string) *Symbol {
@@ -262,7 +263,6 @@ func exit(vm *VM) {
 }
 
 func eval(vm *VM, exp Obj) Obj {
-	// fmt.Println("eval ==", exp)
 	exp1, _, nlets := closureConvert(exp, Nil, Nil, nil, 0)
 	code := compile(exp1, nil, Nil, exit)
 	code = reserveForLetBinding(nlets, code)
@@ -294,7 +294,6 @@ func macroExpand(vm *VM, exp Obj) Obj {
 // =====================================
 // 	Compiler utilities
 // =====================================
-
 func closureConvert(exp Obj, locals Obj, env Obj, frees []Obj, nlets int) (Obj, []Obj, int) {
 	switch exp.(type) {
 	case nilObj, booleanObj, Integer, String, Float64:

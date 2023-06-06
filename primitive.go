@@ -249,6 +249,19 @@ var primIsSymbol = &Closure{
 	Name:     "symbol?",
 }
 
+var primIsString = &Closure{
+	code: func(vm *VM) {
+		x := vm.pop()
+		if _, ok := x.(String); ok {
+			vm.ret(True)
+		} else {
+			vm.ret(False)
+		}
+	},
+	Required: 1,
+	Name: "string?",
+}
+
 var primIsInteger = &Closure{
 	code: func(vm *VM) {
 		x := vm.pop()
