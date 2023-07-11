@@ -282,7 +282,7 @@ func TestXXX(t *testing.T) {
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x y) x) 4) 5)`))
 	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x z)))) 1) 2) 3)`))
 	// r := NewSexpReader(strings.NewReader(`(((lambda (x) (lambda () (+ x 1))) 5))`))
-	r := NewSexpReader(strings.NewReader(`(+ 3)`), "")
+	// r := NewSexpReader(strings.NewReader(`(+ 3)`), "")
 	// r := NewSexpReader(strings.NewReader(`((lambda (a) (+ 1 a)) 2)`), "")
 	// 	r := NewSexpReader(strings.NewReader(`(do
 	// (set 'f (lambda (a b c) a))
@@ -290,23 +290,24 @@ func TestXXX(t *testing.T) {
 	//  (set 'g (lambda (n) (+ n 1)))
 	//  (f 1 (g 5) 4)))`))
 	// r := NewSexpReader(strings.NewReader("(load \"../cmd/cora/init.cora\")"))
-	// r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
-	//   (if (= i 0)
-	//       r
-	//       (sum (+ r 1) (- i 1)))))
-	// (sum 0 5000000))`))
+	r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
+	  (if (= i 0)
+	      r
+	      (sum (+ r 1) (- i 1)))))
+	(sum 0 5000000))`), "")
+	// r := NewSexpReader(strings.NewReader(`(if (= 3 5) 42 (* 4 6))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
 	}
 
-	vm := New()
+	// vm := New()
 	// res := vm.Eval(sexp)
 	// fmt.Println(res.String())
 
-	loadFile(vm, "../cmd/cora/init.cora", "")
+	// loadFile(vm, "../cmd/cora/init.cora", "")
 
-	// var vm VM
+	var vm VM
 	res := vm.Eval(sexp)
 	fmt.Printf("%#v\n", res)
 

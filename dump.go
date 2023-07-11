@@ -83,7 +83,7 @@ func (i *instrIf) Marshal(to io.Writer) error {
 	if err != nil {
 		return withTrace(err)
 	}
-	err = binary.Write(to, binary.LittleEndian, buf.Len())
+	err = binary.Write(to, binary.LittleEndian, uint32(buf.Len()))
 	if err != nil {
 		return withTrace(err)
 	}

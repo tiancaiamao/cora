@@ -11,7 +11,6 @@ struct VM {
 
 typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
 
-#define NEXT pc++; ((opcode)(pc))(pc, val, vm, pos)
 
 static void
 opConst(void* pc, Obj val, struct VM *vm, int pos) {
@@ -69,7 +68,7 @@ opClosureRef(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (char*)pc + sizeof(uint64_t);
   Obj closure = vm->stack[vm->base];
   /* val = closureRef(closure, idx);    TODO!!!!  */
-  NEXT;
+  /* NEXT; */
 }
 
 static void
@@ -86,15 +85,18 @@ opPush(void* pc, Obj val, struct VM *vm, int pos) {
 }
 
 static void
-opIF(void* pc, Obj val, struct VM *vm, int pos) {
+opIf(void* pc, Obj val, struct VM *vm, int pos) {
+  pc = (void*)((char*)pc + sizeof(opcode*));
   if (val == True) {
-    NEXT;
+    pc = (void*)((char*)pc + sizeof(uint32_t));
+    (*((opcode*)(pc)))(pc, val, vm, pos);
     return;
   }
   if (val == False) {
-    uint64_t sz = *((uint64_t*)pc);
-    pc = (char*)pc + sz;
-    NEXT;
+    uint32_t sz = *((uint32_t*)pc);
+    pc = (void*)((char*)pc + sizeof(uint32_t) + sz);
+    (*((opcode*)(pc)))(pc, val, vm, pos);
+    return;
   }
 }
 
@@ -121,6 +123,24 @@ opMakeClosure(void *pc, Obj val, struct VM *vm, int pos) {
 }
 
 static void
+opPrimSet(void *pc, Obj val, struct VM *vm, int pos) {
+  val = vm->stack[pos-1];
+  Obj key = vm->stack[pos-2];
+  symbolSet(key, val);
+  pos -= 2;
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
+  val = makeNumber(fixnum(vm->stack[pos-2]) - fixnum(vm->stack[pos-1]));
+  pos -= 2;
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
 opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
   val = makeNumber(fixnum(vm->stack[pos-1]) + fixnum(vm->stack[pos-2]));
   pos -= 2;
@@ -128,6 +148,25 @@ opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
+static void
+opPrimMul(void *pc, Obj val, struct VM *vm, int pos) {
+  val = makeNumber(fixnum(vm->stack[pos-1]) * fixnum(vm->stack[pos-2]));
+  pos -= 2;
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
+  if (eq(vm->stack[pos-1], vm->stack[pos-2])) {
+    val = True;
+  } else {
+    val = False;
+  }
+  pos -= 2;
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
 
 enum {
   idConst = 1,
@@ -157,13 +196,13 @@ struct program {
 
 static void
 ensureSize(char **data, int *len, int *cap, int sz) {
-  if (*len + sz >= *cap) {
+  while(*len + sz >= *cap) {
     *cap = *cap * 2;
-    void *newData = malloc(*cap);
-    memcpy(newData, *data, *len);
-    free(*data);
-    *data = newData;
   }
+  void *newData = malloc(*cap);
+  memcpy(newData, *data, *len);
+  free(*data);
+  *data = newData;
 }
 
 static void
@@ -242,16 +281,20 @@ static char*
 unmarshalPrimitive(char *bytecode, struct program *p) {
   switch (*bytecode++) {
   case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-  case 7:
+    progAppendOP(p, opPrimSet);
+    break;
   case 8:
     progAppendOP(p, opPrimAdd);
     break;
   case 9:
+    progAppendOP(p, opPrimSub);
+    break;
+  case 10:
+    progAppendOP(p, opPrimMul);
+    break;
+  case 12:
+    progAppendOP(p, opPrimEQ);
+    break;
   default:
     printf("unknown primitive %d\n", *(bytecode-1));
   }
@@ -292,7 +335,19 @@ unmarshalOneOP(char* bytecode, struct program *p) {
       return bytecode;
     }
   case idIf:
-    return bytecode;
+    {
+      progAppendOP(p, opIf);
+      uint32_t sz = *((uint32_t*)bytecode);
+      bytecode += sizeof(uint32_t);
+      // unmarshal the succ branch
+      struct program p1;
+      unmarshal(bytecode, sz, &p1);
+      bytecode += sz;
+      progAppendInt32(p, p1.len1);
+      progAppendBytes(p, p1.code, p1.len1);
+      // leave the fail branch for next unmarshalOneOP call
+      return bytecode;
+    }
   case idMakeClosure:
     {
       progAppendOP(p, opMakeClosure);
@@ -321,6 +376,7 @@ unmarshalOneOP(char* bytecode, struct program *p) {
     progAppendInt32(p, *bytecode);
     return bytecode + 4;
   case idCall:
+    printf("id call not implement\n");
     return bytecode;
   case idPush:
     progAppendOP(p, opPush);
@@ -372,7 +428,9 @@ run(char *bytecode, int size) {
 
 int main(int argc, char *argv[]) {
   /* char bytecode[] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 10, 13, 8, 11}; */
-  char bytecode[] = {6, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 2, 0, 0, 0, 0, 10, 13, 8, 11, 10, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 10, 8, 2, 0, 0, 0};
+  /* char bytecode[] = {6, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 2, 0, 0, 0, 0, 10, 13, 8, 11, 10, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 10, 8, 2, 0, 0, 0}; */
+  /* char bytecode[] = {1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 5, 0, 0, 0, 0, 0, 0, 0, 10, 13, 12, 5, 11, 0, 0, 0, 1, 1, 42, 0, 0, 0, 0, 0, 0, 0, 11, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 6, 0, 0, 0, 0, 0, 0, 0, 10, 13, 10, 11}; */
+  char bytecode[] = {1, 5, 3, 0, 0, 0, 115, 117, 109, 10, 6, 2, 0, 0, 0, 0, 0, 0, 0, 85, 0, 0, 0, 2, 1, 0, 0, 0, 10, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 10, 13, 12, 5, 6, 0, 0, 0, 2, 0, 0, 0, 0, 11, 4, 5, 3, 0, 0, 0, 115, 117, 109, 10, 2, 0, 0, 0, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 13, 8, 10, 2, 1, 0, 0, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 13, 9, 10, 8, 3, 0, 0, 0, 10, 13, 1, 4, 5, 3, 0, 0, 0, 115, 117, 109, 10, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 64, 75, 76, 0, 0, 0, 0, 0, 10, 8, 3, 0, 0, 0};
   run(bytecode, sizeof(bytecode));
 }
 
