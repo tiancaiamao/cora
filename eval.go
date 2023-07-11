@@ -119,6 +119,7 @@ func init() {
 	for _, desc := range primDescs {
 		primitives[desc.name] = desc
 	}
+	MakeSymbol("*imported*").val = Nil
 }
 
 func MakeSymbol(str string) *Symbol {

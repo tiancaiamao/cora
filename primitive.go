@@ -144,25 +144,8 @@ var primDescs = []primitiveDesc{
 	{id: 13, name: "gensym", required: 1, fn: primGenSym},
 	{id: 14, name: "symbol?", required: 1, fn: primIsSymbol},
 	{id: 15, name: "not", required: 1, fn: primNot},
-
-	// MakeSymbol("car").val = primCar
-	// MakeSymbol("cdr").val = primCdr
-	// MakeSymbol("cons").val = primCons
-	// MakeSymbol("cons?").val = primIsCons
-	// MakeSymbol("+").val = primAdd
-	    // MakeSymbol("-").val = primSub
-	    // MakeSymbol("*").val = primMul
-	    // MakeSymbol("/").val = primDiv
-	    // MakeSymbol("=").val = primEQ
-	// MakeSymbol("set").val = primSet
-	    // MakeSymbol("gensym").val = primGenSym
-	    // MakeSymbol("symbol?").val = primIsSymbol
-	    // MakeSymbol("not").val = primNot
-	// MakeSymbol("load").val = primLoad
-	// MakeSymbol("import").val = primImport
-	// MakeSymbol("*imported*").val = Nil
-	// MakeSymbol("integer?").val = primIsInteger
-	// MakeSymbol("string?").val = primIsString
+	{id: 16, name: "integer?", required: 1, fn: primIsInteger},
+	{id: 17, name: "string?", required: 1, fn: primIsString},
 }
 
 var primitives map[string]primitiveDesc
@@ -228,7 +211,7 @@ func primLoad(e *VM) {
 }
 
 func primImport(vm *VM) {
-	pkg := vm.stack[vm.base+1]
+	pkg := vm.pop()
 	pkgStr := pkg.(String)
 	sym := MakeSymbol("*imported*")
 	imported := sym.val
@@ -291,30 +274,22 @@ func primIsSymbol(vm *VM) {
 	}
 }
 
-var primIsString = &Closure{
-	code: instrPrim(func(vm *VM) {
-		x := vm.pop()
-		if _, ok := x.(String); ok {
-			vm.ret(True)
-		} else {
-			vm.ret(False)
-		}
-	}),
-	Required: 1,
-	Name:     "string?",
+func primIsString (vm *VM) {
+	x := vm.pop()
+	if _, ok := x.(String); ok {
+		vm.val = True
+	} else {
+		vm.val = False
+	}
 }
 
-var primIsInteger = &Closure{
-	code: instrPrim(func(vm *VM) {
-		x := vm.pop()
-		if _, ok := x.(Integer); ok {
-			vm.ret(True)
-		} else {
-			vm.ret(False)
-		}
-	}),
-	Required: 1,
-	Name:     "integer?",
+func primIsInteger (vm *VM) {
+	x := vm.pop()
+	if _, ok := x.(Integer); ok {
+		vm.val = True
+	} else {
+		vm.val = False
+	}
 }
 
 var genIdx int

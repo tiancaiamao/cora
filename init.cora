@@ -13,7 +13,7 @@
                  (cons (car exp)
                        (cons (rcons (cdr exp)) ())))
            ())))
-(set 'pair? cons?)
+(set 'pair? (lambda (x) (cons? x)))
 (set '.reverse-h
      (lambda (res l)
        (if (cons? l)
