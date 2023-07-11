@@ -143,11 +143,12 @@ struct hashForObj {
   int size;
 };
 
-Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h);
-InstrFunc closureCode(Obj);
+/* Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h); */
+Obj makeClosure(int requred, int nfrees, void *code, int sz);
+void* closureCode(Obj);
 void* closureCodeData(Obj);
 bool isclosure(Obj o);
-Obj closureParent(Obj);
+/* Obj closureParent(Obj); */
 Obj closureSlot(Obj, int);
 int closureRequired(Obj);
 
