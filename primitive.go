@@ -153,11 +153,15 @@ var primitives map[string]primitiveDesc
 type instrPrim func(vm *VM)
 
 func (i instrPrim) Exec(vm *VM) {
-	i(vm)
+       i(vm)
+}
+
+func (i instrPrim) MarshalText(to io.Writer) error {
+	panic("instr prim marshal text not implement")
 }
 
 func (i instrPrim) Marshal(to io.Writer) error {
-	return errors.New("instrPrim not implemented")
+       return errors.New("instrPrim not implemented")
 }
 
 func primSet(vm *VM) {

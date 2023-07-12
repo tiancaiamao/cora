@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "reader.h"
 #include "types.h"
 
 struct VM {
@@ -64,9 +65,10 @@ opTailCall(void *pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opClosureRef(void* pc, Obj val, struct VM *vm, int pos) {
-  uint64_t idx = *((uint64_t*)pc);
-  pc = (char*)pc + sizeof(uint64_t);
-  Obj closure = vm->stack[vm->base];
+  printf("opClosureRef is not implemented");
+  /* uint64_t idx = *((uint64_t*)pc); */
+  /* pc = (char*)pc + sizeof(uint64_t); */
+  /* Obj closure = vm->stack[vm->base]; */
   /* val = closureRef(closure, idx);    TODO!!!!  */
   /* NEXT; */
 }
@@ -102,7 +104,7 @@ opIf(void* pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opCall(void* pc, Obj val, struct VM *vm, int pos) {
-
+  printf("opcall not implemented");
 }
 
 static void
@@ -168,34 +170,18 @@ opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-enum {
-  idConst = 1,
-  idLocalRef,
-  idClosureRef,
-  idGlobalRef,
-  idIf,
-  idMakeClosure,
-  idLocalSet,
-  idTailCall,
-  idCall,
-  idPush,
-  idExit,
-  idArityCheck,
-  idPrimitive,
-};
-
 struct program {
   char *code;
   int len1;
   int cap1;
-
-  /* Obj *data; */
-  /* int len2; */
-  /* int cap2; */
 };
 
 static void
 ensureSize(char **data, int *len, int *cap, int sz) {
+  if (*len + sz < *cap) {
+    return;
+  }
+
   while(*len + sz >= *cap) {
     *cap = *cap * 2;
   }
@@ -226,212 +212,116 @@ progAppendInt32(struct program *p, int32_t v) {
   p->len1 += sizeof(int32_t);
 }
 
+Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symPush,symExit,symPrimitive;
+
+static void toExecMany(Obj exp, struct program *p);
+
 static void
-progAppendBytes(struct program *p, char *s, int len) {
-  ensureSize(&p->code, &p->len1, &p->cap1, len);
-  memcpy(p->code+p->len1, s, len);
-  p->len1 += len;
-}
-
-enum {
-  tpInteger = 1,
-  tpFloat64,
-  tpBoolean,
-  tpString,
-  tpSymbol,
-  tpCons,
-};
-
-
-static char *
-unmarshalObj(char *ptr, Obj *ret) {
-  switch (*ptr++) {
-  case tpInteger:
-    {
-      int64_t v =  *((int64_t*)(ptr));
-      /* printf("unmarshal int == %ld\n", v); */
-      *ret = makeNumber(v);
-      ptr += 8;
-    }
-    break;
-  case tpFloat64:
-    break;
-  case tpBoolean:
-    break;
-  case tpString:
-    break;
-  case tpSymbol:
-    {
-      uint32_t v = *((uint32_t*)(ptr));
-      ptr += 4;
-      strBuf s = fromBlk(ptr, v);
-      Obj sym = makeSymbol(toCStr(s));
-      strFree(s);
-      *ret = sym;
-      ptr += v;
-    }
-    break;
-  case tpCons:
-    break;
-  }
-  return ptr;
-}
-
-static char*
-unmarshalPrimitive(char *bytecode, struct program *p) {
-  switch (*bytecode++) {
-  case 1:
-    progAppendOP(p, opPrimSet);
-    break;
-  case 8:
-    progAppendOP(p, opPrimAdd);
-    break;
-  case 9:
-    progAppendOP(p, opPrimSub);
-    break;
-  case 10:
-    progAppendOP(p, opPrimMul);
-    break;
-  case 12:
-    progAppendOP(p, opPrimEQ);
-    break;
-  default:
-    printf("unknown primitive %d\n", *(bytecode-1));
-  }
-  return bytecode;
-}
-
-
-static void unmarshal(char* bytecode, int size, struct program *p);
-
-static char*
-unmarshalOneOP(char* bytecode, struct program *p) {
-  switch (*bytecode++) {
-  case idConst:
-    {
-      progAppendOP(p, opConst);
-      Obj tmp;
-      bytecode = unmarshalObj(bytecode, &tmp);
-      /* printf("unmarshal const obj==%ld\n", tmp); */
-      progAppendObj(p, tmp);
-      return bytecode;
-    }
-  case idLocalRef:
+toExec(Obj exp, struct program *p) {
+  Obj sym = car(exp);
+  if (sym == symConst) {
+    progAppendOP(p, opConst);
+    progAppendObj(p, cadr(exp));
+  } else if (sym == symLocalRef) {
     progAppendOP(p, opLocalRef);
-    progAppendInt32(p, *((uint32_t*)bytecode));
-    bytecode += 4;
-    return bytecode;
-  case idClosureRef:
+    progAppendInt32(p, fixnum(cadr(exp)));
+  } else if (sym == symClosureRef) {
     progAppendOP(p, opClosureRef);
-    progAppendInt32(p, *((uint32_t*)bytecode));
-    bytecode += 4;
-    return bytecode;
-  case idGlobalRef:
-    {
-      progAppendOP(p, opGlobalRef);
-      Obj tmp;
-      bytecode = unmarshalObj(bytecode, &tmp);
-      progAppendObj(p, tmp);
-      return bytecode;
-    }
-  case idIf:
-    {
-      progAppendOP(p, opIf);
-      uint32_t sz = *((uint32_t*)bytecode);
-      bytecode += sizeof(uint32_t);
-      // unmarshal the succ branch
-      struct program p1;
-      unmarshal(bytecode, sz, &p1);
-      bytecode += sz;
-      progAppendInt32(p, p1.len1);
-      progAppendBytes(p, p1.code, p1.len1);
-      // leave the fail branch for next unmarshalOneOP call
-      return bytecode;
-    }
-  case idMakeClosure:
-    {
-      progAppendOP(p, opMakeClosure);
-      // required
-      progAppendInt32(p, *((uint32_t*)bytecode));
-      bytecode += sizeof(uint32_t);
-      // nfrees
-      progAppendInt32(p, *((uint32_t*)bytecode));
-      bytecode += sizeof(uint32_t);
-      // size of body
-      uint32_t sz = *((uint32_t*)bytecode);
-      bytecode += sizeof(uint32_t);
-      // unmarshal body
-      struct program p1;
-      unmarshal(bytecode, sz, &p1);
-      bytecode += sz;
-      
-      progAppendInt32(p, p1.len1);
-      progAppendBytes(p, p1.code, p1.len1);
-      break;
-    }
-  case idLocalSet:
-    return bytecode;
-  case idTailCall:
+    progAppendInt32(p, fixnum(cadr(exp)));
+  } else if (sym == symGlobalRef) {
+    progAppendOP(p, opGlobalRef);
+    progAppendObj(p, cadr(exp));
+  } else if (sym == symIf) {
+    progAppendOP(p, opIf);
+    int pos = p->len1;
+    ensureSize(&p->code, &p->len1, &p->cap1, sizeof(uint32_t));
+    p->len1 += sizeof(uint32_t);
+    toExecMany(cadr(exp), p);
+    int sz = p->len1 - pos - sizeof(uint32_t);
+    *((uint32_t*)(p->code+pos)) = sz;
+    toExecMany(cadr(cdr(exp)), p);
+  } else if (sym == symMakeClosure) {
+    progAppendOP(p, opMakeClosure);
+    progAppendInt32(p, fixnum(cadr(exp))); // required
+    progAppendInt32(p, fixnum(cadr(cdr(exp)))); // nfrees
+    int pos = p->len1;
+    ensureSize(&p->code, &p->len1, &p->cap1, sizeof(uint32_t));
+    p->len1 += sizeof(uint32_t);
+    toExecMany(cadr(cdr(cdr(exp))), p);
+    int sz = p->len1 - pos - sizeof(uint32_t);
+    *(uint32_t*)(p->code+pos) = sz;
+  } else if (sym == symTailCall) {
     progAppendOP(p, opTailCall);
-    progAppendInt32(p, *bytecode);
-    return bytecode + 4;
-  case idCall:
-    printf("id call not implement\n");
-    return bytecode;
-  case idPush:
+    progAppendInt32(p, fixnum(cadr(exp)));
+  } else if (sym == symPush) {
     progAppendOP(p, opPush);
-    return bytecode;
-  case idExit:
+  } else if (sym == symExit) {
     progAppendOP(p, opExit);
-    return bytecode;
-  /* case idArityCheck: */
-  /*   break; */
-  case idPrimitive:
-    bytecode = unmarshalPrimitive(bytecode, p);
-    break;
-  default:
-    printf("unknown byte code %d\n", *(bytecode-1));
+  } else if (sym == symPrimitive) {
+    Obj prim = cadr(exp);
+    if (prim == makeSymbol("=")) {
+      progAppendOP(p, opPrimEQ);
+    } else if (prim == makeSymbol("set")) {
+      progAppendOP(p, opPrimSet);
+    } else if (prim == makeSymbol("+")) {
+      progAppendOP(p, opPrimAdd);
+    } else if (prim == makeSymbol("-")) {
+      progAppendOP(p, opPrimSub);
+    } else if (prim == makeSymbol("*")) {
+      progAppendOP(p, opPrimMul);
+    } else {
+      printf("primitive not implement: %s\n", symbolStr(prim));
+    }
+  } else {
+    printf("instr not implement: %s\n", symbolStr(car(exp)));
   }
-  return bytecode;
 }
 
 static void
-unmarshal(char* bytecode, int size, struct program *p) {
-  p->cap1 = 64;
-  p->len1 = 0;
-  p->code = malloc(p->cap1);
-
-  /* p->cap2 = 64; */
-  /* p->len2 = 0; */
-  /* p->data = malloc(p->cap2); */
-  
-  char *end = bytecode + size;
-  while (bytecode < end) {
-    bytecode = unmarshalOneOP(bytecode, p);
+toExecMany(Obj exp, struct program *p) {
+  for (; exp != Nil; exp = cdr(exp)) {
+    toExec(car(exp), p);
   }
+}
+
+static char*
+bytecodeToExec(Obj bc)  {
+  struct program p;
+  p.cap1 = 64;
+  p.len1 = 0;
+  p.code = malloc(p.cap1);
+  toExecMany(bc, &p);
+  return p.code;
 }
 
 void
-run(char *bytecode, int size) {
-  struct program p;
-  unmarshal(bytecode, size, &p);
-
-  void *pc = p.code;
+run(char *pc) {
   struct VM vm;
   vm.base = 0;
   vm.stack = malloc(4096);
 
-  Obj val;
+  Obj val = Nil;
   int pos = 0;
   (*(opcode*)(pc))(pc, val, &vm, pos); 
 }
 
 int main(int argc, char *argv[]) {
-  /* char bytecode[] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 10, 13, 8, 11}; */
-  /* char bytecode[] = {6, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 2, 0, 0, 0, 0, 10, 13, 8, 11, 10, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 10, 8, 2, 0, 0, 0}; */
-  /* char bytecode[] = {1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 5, 0, 0, 0, 0, 0, 0, 0, 10, 13, 12, 5, 11, 0, 0, 0, 1, 1, 42, 0, 0, 0, 0, 0, 0, 0, 11, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 6, 0, 0, 0, 0, 0, 0, 0, 10, 13, 10, 11}; */
-  char bytecode[] = {1, 5, 3, 0, 0, 0, 115, 117, 109, 10, 6, 2, 0, 0, 0, 0, 0, 0, 0, 85, 0, 0, 0, 2, 1, 0, 0, 0, 10, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 10, 13, 12, 5, 6, 0, 0, 0, 2, 0, 0, 0, 0, 11, 4, 5, 3, 0, 0, 0, 115, 117, 109, 10, 2, 0, 0, 0, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 13, 8, 10, 2, 1, 0, 0, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 10, 13, 9, 10, 8, 3, 0, 0, 0, 10, 13, 1, 4, 5, 3, 0, 0, 0, 115, 117, 109, 10, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1, 64, 75, 76, 0, 0, 0, 0, 0, 10, 8, 3, 0, 0, 0};
-  run(bytecode, sizeof(bytecode));
+  symConst=makeSymbol("const");
+  symLocalRef = makeSymbol("local-ref");
+  symClosureRef = makeSymbol("closure-ref");
+  symGlobalRef = makeSymbol("global-ref");
+  symIf = makeSymbol("if");
+  symMakeClosure = makeSymbol("make-closure");
+  symTailCall = makeSymbol("tailcall");
+  symPush = makeSymbol("push");
+  symExit = makeSymbol("exit");
+  symPrimitive = makeSymbol("primitive");
+
+  char *bc = "((const sum) (push) (make-closure 2 0 ((local-ref 1) (push) (const 0) (push) (primitive =) (if ((local-ref 0) (exit)) ((global-ref sum) (push) (local-ref 0) (push) (const 1) (push) (primitive +) (push) (local-ref 1) (push) (const 1) (push) (primitive -) (push) (tailcall 3)))))(push) (primitive set) (global-ref sum) (push) (const 0) (push) (const 5000000) (push) (tailcall 3))";
+  FILE *stream = fmemopen(bc, strlen(bc), "r");
+  struct SexpReader r = {.pkgMapping = Nil};
+  int errCode;
+  Obj code = sexpRead(&r, stream, &errCode);
+  char *exec = bytecodeToExec(code);
+  run(exec);
 }
-
-

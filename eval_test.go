@@ -1,7 +1,7 @@
 package cora
 
 import (
-	// "bytes"
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -307,20 +307,20 @@ func TestXXX(t *testing.T) {
 
 	// loadFile(vm, "../cmd/cora/init.cora", "")
 
-	var vm VM
-	res := vm.Eval(sexp)
-	fmt.Printf("%#v\n", res)
+	// var vm VM
+	// res := vm.Eval(sexp)
+	// fmt.Printf("%#v\n", res)
 
-	// exp1, _, nlets := closureConvert(sexp, Nil, Nil, nil, 0)
-	// code := compile(exp1, nil, Nil, exit)
-	// code = reserveForLetBinding(nlets, code)
-	// var buf bytes.Buffer
-	// err = code.Marshal(&buf)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	panic(err)
-	// }
-	// fmt.Println(buf.Bytes())
+	exp1, _, nlets := closureConvert(sexp, Nil, Nil, nil, 0)
+	code := compile(exp1, nil, Nil, exit)
+	code = reserveForLetBinding(nlets, code)
+	var buf bytes.Buffer
+	err = code.MarshalText(&buf)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	fmt.Println(buf.String())
 }
 
 func TestImport(t *testing.T) {

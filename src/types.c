@@ -175,22 +175,22 @@ closureRequired(Obj o) {
   return c->required;
 }
 
-static struct hashForObjItem*
-hashGet(struct hashForObj *h, int key) {
-  int pos = key % h->size;
-  int avoidDeadLoop = pos;
-  do {
-    if (h->ptr[pos].key == key) {
-      return h->ptr+pos;
-    }
-    if (h->ptr[pos].value == 0) {
-      break;
-    }
-    pos = (pos + 1) % h->size;
-  } while (pos != avoidDeadLoop);
+/* static struct hashForObjItem* */
+/* hashGet(struct hashForObj *h, int key) { */
+/*   int pos = key % h->size; */
+/*   int avoidDeadLoop = pos; */
+/*   do { */
+/*     if (h->ptr[pos].key == key) { */
+/*       return h->ptr+pos; */
+/*     } */
+/*     if (h->ptr[pos].value == 0) { */
+/*       break; */
+/*     } */
+/*     pos = (pos + 1) % h->size; */
+/*   } while (pos != avoidDeadLoop); */
 
-  return NULL;
-}
+/*   return NULL; */
+/* } */
 
 /* Obj */
 /* closureSlot(Obj o, int idx) { */
@@ -269,10 +269,10 @@ isstring(Obj o) {
   return false;
 }
 
-static void
-stringGCFunc(struct GC *gc, void *obj) {
-  // TODO:
-}
+/* static void */
+/* stringGCFunc(struct GC *gc, void *obj) { */
+/*   // TODO: */
+/* } */
 
 struct trieNode {
   Obj value;
@@ -558,10 +558,10 @@ makePrimitive(InstrFunc fn, int required, char *name, char *fname) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-static void
-primitiveGCFunc(struct GC *gc, void *obj) {
-  // TODO?
-}
+/* static void */
+/* primitiveGCFunc(struct GC *gc, void *obj) { */
+/*   // TODO? */
+/* } */
 
 bool
 isprimitive(Obj c) {
