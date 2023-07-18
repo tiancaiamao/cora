@@ -274,11 +274,6 @@ isstring(Obj o) {
 /*   // TODO: */
 /* } */
 
-struct trieNode {
-  Obj value;
-  char *sym;
-  struct trieNode* child[256];
-};
 
 struct trieNode root = {};
 
@@ -548,15 +543,15 @@ struct scmPrimitive {
   char *fname;
 };
 
-Obj
-makePrimitive(InstrFunc fn, int required, char *name, char *fname) {
-  struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive));
-  clo->fn = fn;
-  clo->required = required;
-  clo->name = name;
-  clo->fname = fname;
-  return ((Obj)(&clo->head) | TAG_PTR);
-}
+/* Obj */
+/* makePrimitive(InstrFunc fn, int required, char *name, char *fname) { */
+/*   struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive)); */
+/*   clo->fn = fn; */
+/*   clo->required = required; */
+/*   clo->name = name; */
+/*   clo->fname = fname; */
+/*   return ((Obj)(&clo->head) | TAG_PTR); */
+/* } */
 
 /* static void */
 /* primitiveGCFunc(struct GC *gc, void *obj) { */

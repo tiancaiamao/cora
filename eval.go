@@ -675,7 +675,10 @@ func reserveForLetBinding(nlets int, code Instr) Instr {
 
 // makeTheCall handles the curry / partial calling protocol.
 func makeTheCall(vm *VM) {
-	fn := vm.stack[vm.base].(*Closure)
+	fn, ok := vm.stack[vm.base].(*Closure)
+	if !ok {
+		panic("the value to be called is not *Closure")
+	}
 	required := fn.Required + 1
 	provided := len(vm.stack) - vm.base
 	switch {

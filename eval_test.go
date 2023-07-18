@@ -294,7 +294,7 @@ func TestXXX(t *testing.T) {
 	  (if (= i 0)
 	      r
 	      (sum (+ r 1) (- i 1)))))
-	(sum 0 5000000))`), "")
+	(sum 0 50000000))`), "")
 	// r := NewSexpReader(strings.NewReader(`(if (= 3 5) 42 (* 4 6))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
@@ -341,5 +341,14 @@ func TestImport(t *testing.T) {
 	x, err := r.Read()
 	if !eq(car(x), MakeSymbol("std/cora/basic.yyy")) {
 		t.Error("result not expect 11")
+	}
+}
+
+func TestReadComment(t *testing.T) {
+	r := NewSexpReader(strings.NewReader(`(42    ;; free variable
+)`), "")
+	_, err := r.Read()
+	if err != nil {
+		t.Error(err)
 	}
 }

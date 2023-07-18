@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,9 @@ static void
 opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   Obj sym = *((Obj*)pc);
-  val = symbolGet(sym);
+  assert(issymbol(sym));
+  struct trieNode* s = ptr(sym);
+  val = s->value;
   pc = (void*)((char*)pc + sizeof(uint64_t));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
@@ -128,7 +131,9 @@ static void
 opPrimSet(void *pc, Obj val, struct VM *vm, int pos) {
   val = vm->stack[pos-1];
   Obj key = vm->stack[pos-2];
-  symbolSet(key, val);
+  assert(issymbol(key));
+  struct trieNode* s = ptr(key);
+  s->value = val;
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
@@ -136,7 +141,13 @@ opPrimSet(void *pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
-  val = makeNumber(fixnum(vm->stack[pos-2]) - fixnum(vm->stack[pos-1]));
+  Obj x = vm->stack[pos-2];
+  Obj y = vm->stack[pos-1];
+  if (isfixnum(x) && isfixnum(y)) {
+    val = x - y;
+  } else {
+    // TODO
+  }
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
@@ -144,7 +155,13 @@ opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
-  val = makeNumber(fixnum(vm->stack[pos-1]) + fixnum(vm->stack[pos-2]));
+  Obj x = vm->stack[pos-1];
+  Obj y = vm->stack[pos-2];
+  if (isfixnum(x) && isfixnum(y)) {
+    val = x + y;
+  } else {
+    // TODO
+  }
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
@@ -152,19 +169,36 @@ opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opPrimMul(void *pc, Obj val, struct VM *vm, int pos) {
-  val = makeNumber(fixnum(vm->stack[pos-1]) * fixnum(vm->stack[pos-2]));
+  Obj x = vm->stack[pos-1];
+  Obj y = vm->stack[pos-2];
+  val = makeNumber(fixnum(x) * fixnum(y));
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
+static Obj
+__inline_eq(Obj x, Obj y) {
+  if (x == y) {
+    return True;
+  }
+  uintptr_t tagX = tag(x);
+  uintptr_t tagY = tag(y);
+  if (tagX != tagY) {
+    return False;
+  }
+  if (tagX != TAG_CONS || tagX != TAG_PTR) {
+    return False;
+  }
+
+  return eq(x, y) ? True : False;
+}
+
 static void
 opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
-  if (eq(vm->stack[pos-1], vm->stack[pos-2])) {
-    val = True;
-  } else {
-    val = False;
-  }
+  Obj x = vm->stack[pos-1];
+  Obj y = vm->stack[pos-2];
+  val = __inline_eq(x, y);
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
@@ -305,6 +339,22 @@ run(char *pc) {
   (*(opcode*)(pc))(pc, val, &vm, pos); 
 }
 
+static Obj
+makePrimitive(opcode fn, int nargs) {
+  opcode* tmp = malloc(sizeof(opcode));
+  *tmp = fn;
+  return makeClosure(nargs, 0, tmp, 0);
+}
+
+/* static void */
+/* xxx(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj x = vm->stack[vm->base+1]; */
+/*   Obj y = vm->stack[vm->base+2]; */
+/*   val = makeNumber(fixnum(x) + fixnum(y)); */
+
+/*   opExit(pc, val, vm, pos); */
+/* } */
+
 int main(int argc, char *argv[]) {
   symConst=makeSymbol("const");
   symLocalRef = makeSymbol("local-ref");
@@ -317,7 +367,11 @@ int main(int argc, char *argv[]) {
   symExit = makeSymbol("exit");
   symPrimitive = makeSymbol("primitive");
 
-  char *bc = "((const sum) (push) (make-closure 2 0 ((local-ref 1) (push) (const 0) (push) (primitive =) (if ((local-ref 0) (exit)) ((global-ref sum) (push) (local-ref 0) (push) (const 1) (push) (primitive +) (push) (local-ref 1) (push) (const 1) (push) (primitive -) (push) (tailcall 3)))))(push) (primitive set) (global-ref sum) (push) (const 0) (push) (const 5000000) (push) (tailcall 3))";
+  /* Obj clo = makePrimitive(xxx, 2); */
+  /* symbolSet(makeSymbol("test"), clo); */
+
+  /* char *bc = "((global-ref test) (push) (const 1) (push) (const 2) (push) (tailcall 3))"; */
+  char *bc = "((const sum) (push) (make-closure 2 0 ((local-ref 1) (push) (const 0) (push) (primitive =) (if ((local-ref 0) (exit)) ((global-ref sum) (push) (local-ref 0) (push) (const 1) (push) (primitive +) (push) (local-ref 1) (push) (const 1) (push) (primitive -) (push) (tailcall 3)))))(push) (primitive set) (global-ref sum) (push) (const 0) (push) (const 50000000) (push) (tailcall 3))";
   FILE *stream = fmemopen(bc, strlen(bc), "r");
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;

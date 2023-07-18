@@ -1,0 +1,88 @@
+(defun .const? (x)
+  (or (null? x)
+      (boolean? x)
+      (integer? x)
+      (string? x)))
+
+(func .index-h
+      x [] pos => -1
+      x [hd . _] pos => pos where (= x hd)
+      x [_ . tl] pos => (.index-h x tl (+ pos 1)))
+
+(defun .index (x l)
+  (.index-h x l 0))
+
+(func .exist-in-env
+      x [] => false
+      x [hd . tl] => (if (< (.index x hd) 0)
+			 (.exist-in-env x tl)
+			 true))
+(func .member
+      x [] => false
+      x [y . z] => (or (= x y)
+		       (.member x z)))
+
+(defun .set-diff (s exclude)
+  (filter (lambda (v) (not (.member v exclude))) s))
+
+(func .closure-convert-list
+      [] locals env frees res => [(reverse res) frees]
+      [x . more] locals env frees res => (match (.closure-convert x locals env frees)
+						[x1 frees1]
+						(.closure-convert-list more locals env frees1 (cons x1 res))))
+
+(func .closure-convert
+      exp locals env frees => [exp frees] where (.const? exp)
+      exp locals env frees => (let idx (.index exp locals)
+				   (if (< idx 0)
+				       (if (.exist-in-env exp env)
+					   [exp (cons exp frees)]    ;; free variable
+					   [exp frees])               ;; global variable
+				       [exp frees]    ;; local variable
+				       )) where (symbol? exp)
+      ['quote x] locals env frees => [['quote x] frees]
+      ['lambda args body] locals env frees => (match (.closure-convert body args (cons locals env) ())
+						     [body1 frees1]
+						     [['lambda args frees1 body1] (.set-diff frees1 locals)])
+      ;; ['do x y] and ['if x y z] take the same pattern as [f . args]
+      [f . args] locals env frees => (.closure-convert-list [f . args] locals env frees ()))
+
+(func .compile
+      exp locals frees next => (cons ['const exp] next) where (.const? exp)
+      exp locals frees next => (let idx (.index exp locals)
+				    (if (< idx 0)
+					(let idx1 (.index exp frees)
+					     (if (< idx1 0)
+						 (cons ['global-ref exp] next)
+						 (cons ['closure-ref idx1] next)))
+					(cons ['local-ref idx] next)))
+      where (symbol? exp)
+      ['quote x] locals frees next => (cons ['const x] next)
+      ['if x y z] locals frees next => (let succ (.compile y locals frees next)
+					    fail (.compile z locals frees next)
+					    (.compile x locals frees ['if succ fail]))
+      ['do x y] locals frees next => (.compile x locals frees
+					       (.compile y locals frees next))
+      ['lambda args frees1 body] locals frees next => (let code (.compile body args frees1 '((exit)))
+							   (.compile-list frees1 locals frees
+									  (cons ['make-closure (length args) (length frees1) code] next)))
+      [f . args] locals frees next => (.compile-call [f . args] locals frees next))
+
+(defun .builtin-prim? (x)
+  (and (symbol? x)
+       (.member x '(set load import car cdr cons cons? + - * / = > < gensym symbol? not integer? string?))))
+
+(func .compile-call
+      [f . args] locals frees next => (.compile-list args locals frees (cons ['primitive f] next)) where (.builtin-prim? f)
+      exp locals frees ['exit] => (.compile-list exp locals frees [['tailcall (length exp)]])
+      exp locals frees next => (.compile-list exp locals frees [['call (length exp) next]]))
+
+(func .compile-list
+      [] locals frees next => next
+      [hd . tl] locals frees next => (.compile hd locals frees
+					       (cons ['push] (.compile-list tl locals frees next))))
+    
+(defun .cc (exp)
+  (match (.closure-convert exp () () ())
+	 [e1 _]
+	 (.compile e1 () () '((exit)))))

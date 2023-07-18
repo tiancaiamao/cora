@@ -30,18 +30,6 @@ func (r *SexpReader) Read() (Obj, error) {
 	}
 
 	switch b {
-	case rune(';'):
-		b, _, err = r.reader.ReadRune()
-		if err != nil {
-			return Nil, err
-		}
-		for b != '\n' {
-			b, _, err = r.reader.ReadRune()
-			if err != nil {
-				return Nil, err
-			}
-		}
-		return r.Read()
 	case rune('\''):
 		return r.readQuoteMacro()
 	case rune('['):
@@ -145,10 +133,26 @@ func (r *SexpReader) appendBuf(b rune) {
 	r.buf = append(r.buf, b)
 }
 
-func peekFirstRune(r *bufio.Reader) (rune, error) {
-	b, _, err := r.ReadRune()
-	for err == nil && unicode.IsSpace(b) {
+
+func peekUntilNewline(r *bufio.Reader) (b rune, err error) {
+	for err == nil && b != '\n' {
 		b, _, err = r.ReadRune()
+	}
+	return
+}
+
+func peekFirstRune(r *bufio.Reader) (rune, error) {
+	done := false
+	b, _, err := r.ReadRune()
+	for err == nil && !done {
+		switch {
+		case unicode.IsSpace(b):
+			b, _, err = r.ReadRune()
+		case b == rune(';'):
+			b, err = peekUntilNewline(r)
+		default:
+			done = true
+		}
 	}
 	return b, err
 }

@@ -118,12 +118,12 @@ typedef struct _instrHead {
 
 typedef instrHead* Instr;
 
-Obj makePrimitive(InstrFunc fn, int required, char* name, char *fname);
-bool isprimitive(Obj o);
-int primitiveRequired(Obj o);
-InstrFunc primitiveFn(Obj o);
-char *primitiveName(Obj o);
-char *primitiveFnName(Obj o);
+/* Obj makePrimitive(InstrFunc fn, int required, char* name, char *fname); */
+/* bool isprimitive(Obj o); */
+/* int primitiveRequired(Obj o); */
+/* InstrFunc primitiveFn(Obj o); */
+/* char *primitiveName(Obj o); */
+/* char *primitiveFnName(Obj o); */
 
 Obj makeCurry(int required, int captured, Obj *data);
 int curryRequired(Obj curry);
@@ -180,5 +180,11 @@ Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);
+
+struct trieNode {
+  Obj value;
+  char *sym;
+  struct trieNode* child[256];
+};
 
 #endif

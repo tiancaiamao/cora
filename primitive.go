@@ -122,30 +122,31 @@ func eq(x, y Obj) bool {
 }
 
 type primitiveDesc struct {
-	id uint8
 	name string
 	required int
 	fn func(vm *VM)
 }
 
 var primDescs = []primitiveDesc{
-	{id: 1, name: "set", required: 2, fn: primSet},
-	{id: 2, name: "load", required: 2, fn: primLoad},
-	{id: 3, name: "import", required: 1, fn: primImport},
-	{id: 4, name: "car", required: 1, fn: primCar},
-	{id: 5, name: "cdr", required: 1, fn: primCdr},
-	{id: 6, name: "cons", required: 2, fn: primCons},
-	{id: 7, name: "cons?", required: 1, fn: primIsCons},
-	{id: 8, name: "+", required: 2, fn: primAdd},
-	{id: 9, name: "-", required: 2, fn: primSub},
-	{id: 10, name: "*", required: 2, fn: primMul},
-	{id: 11, name: "/", required: 2, fn: primDiv},
-	{id: 12, name: "=", required: 2, fn: primEQ},
-	{id: 13, name: "gensym", required: 1, fn: primGenSym},
-	{id: 14, name: "symbol?", required: 1, fn: primIsSymbol},
-	{id: 15, name: "not", required: 1, fn: primNot},
-	{id: 16, name: "integer?", required: 1, fn: primIsInteger},
-	{id: 17, name: "string?", required: 1, fn: primIsString},
+	{name: "set", required: 2, fn: primSet},
+	{name: "load", required: 2, fn: primLoad},
+	{name: "import", required: 1, fn: primImport},
+	{name: "car", required: 1, fn: primCar},
+	{name: "cdr", required: 1, fn: primCdr},
+	{name: "cons", required: 2, fn: primCons},
+	{name: "cons?", required: 1, fn: primIsCons},
+	{name: "+", required: 2, fn: primAdd},
+	{name: "-", required: 2, fn: primSub},
+	{name: "*", required: 2, fn: primMul},
+	{name: "/", required: 2, fn: primDiv},
+	{name: "=", required: 2, fn: primEQ},
+	{name: ">", required: 2, fn: primGT},
+	{name: "<", required: 2, fn: primLT},
+	{name: "gensym", required: 1, fn: primGenSym},
+	{name: "symbol?", required: 1, fn: primIsSymbol},
+	{name: "not", required: 1, fn: primNot},
+	{name: "integer?", required: 1, fn: primIsInteger},
+	{name: "string?", required: 1, fn: primIsString},
 }
 
 var primitives map[string]primitiveDesc
@@ -211,7 +212,7 @@ func primLoad(e *VM) {
 	if err != nil {
 		panic(err)
 	}
-	e.ret(MakeSymbol("loaded"))
+	e.val = MakeSymbol("loaded")
 }
 
 func primImport(vm *VM) {
@@ -346,6 +347,26 @@ func primEQ(vm *VM) {
 	x := vm.pop()
 	y := vm.pop()
 	if eq(x, y) {
+		vm.val = True
+	} else {
+		vm.val = False
+	}
+}
+
+func primGT(vm *VM) {
+	y := vm.pop().(Integer)
+	x := vm.pop().(Integer)
+	if x > y {
+		vm.val = True
+	} else {
+		vm.val = False
+	}
+}
+
+func primLT(vm *VM) {
+	y := vm.pop().(Integer)
+	x := vm.pop().(Integer)
+	if x < y {
 		vm.val = True
 	} else {
 		vm.val = False
