@@ -103,16 +103,18 @@ cdddr(Obj x) {
 struct scmClosure {
   scmHead head;
   int required;
+  Obj *closed;
   int nfrees;
   void *code;
   int sz;
 };
 
 Obj
-makeClosure(int required, int nfrees, void *code, int sz) {
+makeClosure(int required, int nfrees, Obj *closed, void *code, int sz) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
+  clo->closed = closed;
   clo->code = code;
   clo->sz = sz;
 
@@ -157,17 +159,11 @@ closureCode(Obj o) {
   return c->code;
 }
 
-/* void* */
-/* closureCodeData(Obj o) { */
-/*   struct scmClosure* c = mustClosure(o); */
-/*   return c->codeData; */
-/* } */
-
-/* Obj */
-/* closureParent(Obj o) { */
-/*   struct scmClosure* c = mustClosure(o); */
-/*   return c->parent; */
-/* } */
+Obj
+closureSlot(Obj o, int idx) {
+  struct scmClosure* c = mustClosure(o);
+  return c->closed[idx];
+}
 
 int
 closureRequired(Obj o) {
@@ -190,13 +186,6 @@ closureRequired(Obj o) {
 /*   } while (pos != avoidDeadLoop); */
 
 /*   return NULL; */
-/* } */
-
-/* Obj */
-/* closureSlot(Obj o, int idx) { */
-/*   struct scmClosure* c = mustClosure(o); */
-/*   struct hashForObjItem* x = hashGet(&c->slot, idx); */
-/*   return x->value; */
 /* } */
 
 /* static void */

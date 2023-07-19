@@ -60,7 +60,7 @@
       ['quote x] locals frees next => (cons ['const x] next)
       ['if x y z] locals frees next => (let succ (.compile y locals frees next)
 					    fail (.compile z locals frees next)
-					    (.compile x locals frees ['if succ fail]))
+					    (.compile x locals frees [['if succ fail]]))
       ['do x y] locals frees next => (.compile x locals frees
 					       (.compile y locals frees next))
       ['lambda args frees1 body] locals frees next => (let code (.compile body args frees1 '((exit)))
@@ -74,8 +74,8 @@
 
 (func .compile-call
       [f . args] locals frees next => (.compile-list args locals frees (cons ['primitive f] next)) where (.builtin-prim? f)
-      exp locals frees ['exit] => (.compile-list exp locals frees [['tailcall (length exp)]])
-      exp locals frees next => (.compile-list exp locals frees [['call (length exp) next]]))
+      exp locals frees [['exit]] => (.compile-list exp locals frees [['tailcall (length exp)]])
+      exp locals frees next => (.compile-list exp locals frees (cons ['call (length exp)] next)))
 
 (func .compile-list
       [] locals frees next => next

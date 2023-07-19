@@ -12,3 +12,8 @@
       fn [x . y] => (begin
                      (fn x)
                      (for-each fn y)))
+
+(func member
+      x [] => false
+      x [y . z] => (or (= x y)
+		       (member x z)))

@@ -290,12 +290,13 @@ func TestXXX(t *testing.T) {
 	//  (set 'g (lambda (n) (+ n 1)))
 	//  (f 1 (g 5) 4)))`))
 	// r := NewSexpReader(strings.NewReader("(load \"../cmd/cora/init.cora\")"))
-	r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
-	  (if (= i 0)
-	      r
-	      (sum (+ r 1) (- i 1)))))
-	(sum 0 50000000))`), "")
+	// r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
+	//   (if (= i 0)
+	//       r
+	//       (sum (+ r 1) (- i 1)))))
+	// (sum 0 50000000))`), "")
 	// r := NewSexpReader(strings.NewReader(`(if (= 3 5) 42 (* 4 6))`), "")
+	r := NewSexpReader(strings.NewReader(`(do (set (quote id) (lambda (x) x)) (id 42))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)

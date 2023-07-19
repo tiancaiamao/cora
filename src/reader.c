@@ -12,8 +12,6 @@ addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
   r->pkgMapping = cons(cons(sym, path), r->pkgMapping);
 }
 
-void printObj(FILE* f, Obj o);
-
 static bool
 isIdentifierChar(int c) {
   switch (c) {
