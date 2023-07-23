@@ -1,3 +1,5 @@
+(@import "cora/lib/sys")
+
 (defun .const? (x)
   (or (null? x)
       (boolean? x)
@@ -31,6 +33,14 @@
 						[x1 frees1]
 						(.closure-convert-list more locals env frees1 (cons x1 res))))
 
+(set '*builtin-prims*
+     [['set . 2] ['load . 2] ['import . 1] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
+     ['= . 2] ['> . 2] ['< . 2] ['gensym . 1] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
+
+(func temp-list
+      0 res => res
+      n res => (temp-list (- n 1) (cons (gensym 'tmp) res)))
+
 (func .closure-convert
       exp locals env frees => [exp frees] where (.const? exp)
       exp locals env frees => (let idx (.index exp locals)
@@ -45,6 +55,14 @@
 						     [body1 frees1]
 						     [['lambda args frees1 body1] (.set-diff frees1 locals)])
       ;; ['do x y] and ['if x y z] take the same pattern as [f . args]
+      [f . args] locals env frees => (let find (assq f *builtin-prims*)
+					  (if (and (not (null? find))
+						   (< (length args) (cdr find)))
+					      ;; rewrite partial apply of primitives
+					      ;; (+ x) => (lambda (tmp) (+ x tmp))
+					      (let tmp (temp-list (- (cdr find) (length args)) ())
+						   (.closure-convert ['lambda tmp (append [f . args] tmp)] locals env frees))
+					      (.closure-convert-list [f . args] locals env frees ()))) where (symbol? f)
       [f . args] locals env frees => (.closure-convert-list [f . args] locals env frees ()))
 
 (func .compile
@@ -68,12 +86,9 @@
 									  (cons ['make-closure (length args) (length frees1) code] next)))
       [f . args] locals frees next => (.compile-call [f . args] locals frees next))
 
-(defun .builtin-prim? (x)
-  (and (symbol? x)
-       (.member x '(set load import car cdr cons cons? + - * / = > < gensym symbol? not integer? string?))))
-
 (func .compile-call
-      [f . args] locals frees next => (.compile-list args locals frees (cons ['primitive f] next)) where (.builtin-prim? f)
+      [f . args] locals frees next => (.compile-list args locals frees (cons ['primitive f] next))
+      where (and (symbol? f) (not (null? (assq f *builtin-prims*))))
       exp locals frees [['exit]] => (.compile-list exp locals frees [['tailcall (length exp)]])
       exp locals frees next => (.compile-list exp locals frees (cons ['call (length exp)] next)))
 

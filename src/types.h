@@ -125,26 +125,38 @@ typedef instrHead* Instr;
 /* char *primitiveName(Obj o); */
 /* char *primitiveFnName(Obj o); */
 
-Obj makeCurry(int required, int captured, Obj *data);
-int curryRequired(Obj curry);
-Obj curryPrim(Obj curry);
-Obj curryCaptured(Obj curry);
-Obj* curryData(Obj curry);
-bool iscurry(Obj o);
+/* Obj makeCurry(int required, int captured, Obj *data); */
+/* int curryRequired(Obj curry); */
+/* Obj curryPrim(Obj curry); */
+/* Obj curryCaptured(Obj curry); */
+/* Obj* curryData(Obj curry); */
+/* bool iscurry(Obj o); */
 
 
-struct hashForObjItem {
-  int key;
-  Obj value;
+/* struct hashForObjItem { */
+/*   int key; */
+/*   Obj value; */
+/* }; */
+
+/* struct hashForObj { */
+/*   struct hashForObjItem *ptr; */
+/*   int size; */
+/* }; */
+
+typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
+
+struct scmClosure {
+  scmHead head;
+  int required;
+  void *code;
+  int sz;
+  Obj *closed;
+  int nfrees;
+  opcode fn;
 };
 
-struct hashForObj {
-  struct hashForObjItem *ptr;
-  int size;
-};
-
-/* Obj makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h); */
 Obj makeClosure(int requred, int nfrees, Obj *closed, void *code, int sz);
+struct scmClosure* mustClosure(Obj o);
 void* closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureSlot(Obj, int);

@@ -68,9 +68,6 @@ struct VM {
   Obj result;
 };
 
-typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
-
-
 static void
 opConst(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
@@ -99,6 +96,39 @@ opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
+static Obj
+makePrimitive(void* fn, int nargs) {
+  Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = fn;
+  clo->required = nargs;
+  clo->code = &clo->fn;
+  return tmp;
+}
+
+
+static void makeTheCall(void *pc, Obj val, struct VM *vm, int pos);
+static void opExit(void* pc, Obj val, struct VM *vm, int pos);
+
+static void
+resumeCurry(void *pc, Obj val, struct VM *vm, int pos) {
+  struct scmClosure* clo = mustClosure(vm->stack[vm->base]);
+  // TODO: make sure the capacity of the stack is enough
+  memmove(vm->stack+clo->nfrees, &vm->stack[vm->base + 1], sizeof(Obj) * (pos - vm->base-1));
+  memmove(vm->stack, clo->closed, sizeof(Obj)*clo->nfrees);
+  pos += (clo->nfrees - 1);
+  makeTheCall(pc, val, vm, pos);
+}
+
+static Obj
+makeCurry(int required, Obj *closed, int nfrees) {
+  Obj tmp = makeClosure(required, nfrees, closed, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = resumeCurry;
+  clo->code = &clo->fn;
+  return tmp;
+}
+
 static void
 makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
   Obj fn = vm->stack[vm->base];
@@ -108,7 +138,23 @@ makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
     pc = closureCode(fn);
     (*((opcode*)pc))(pc, val, vm, pos);
   } else if (provided < required) {
+    int sz = sizeof(Obj) * provided;
+    Obj *closed = malloc(sz);
+    memcpy(closed, &vm->stack[pos-provided], sz); 
+    val = makeCurry(required - provided, closed, provided);
+    opExit(pc, val, vm, pos);
   } else {
+    int newBase = pos;
+    // TODO: make sure the capacity of the stack is enough
+    memcpy(vm->stack+pos, vm->stack, required * sizeof(Obj));
+    saveStack(&vm->callstack, NULL, vm->base, newBase);
+    vm->base = newBase;
+    pos += required;
+    makeTheCall(pc, val, vm, pos);
+    vm->stack[vm->base] = vm->result;
+    memcpy(vm->stack+1, vm->stack+required, (provided-required)*sizeof(Obj));
+    pos = newBase-(required-1);
+    makeTheCall(pc, val, vm, pos);
   }
 }
 
@@ -406,13 +452,6 @@ run(char *pc) {
   return vm.result;
 }
 
-static Obj
-makePrimitive(opcode fn, int nargs) {
-  opcode* tmp = malloc(sizeof(opcode));
-  *tmp = fn;
-  return makeClosure(nargs, 0, NULL, tmp, 0);
-}
-
 /* static void */
 /* xxx(void *pc, Obj val, struct VM *vm, int pos) { */
 /*   Obj x = vm->stack[vm->base+1]; */
@@ -439,7 +478,10 @@ int main(int argc, char *argv[]) {
   /* symbolSet(makeSymbol("test"), clo); */
 
   /* char *bc = "((global-ref test) (push) (const 1) (push) (const 2) (push) (tailcall 3))"; */
-  char *bc = "((const fib) (push) (make-closure 1 0 ((local-ref 0) (push) (const 0) (push) (primitive =) (if ((const 1) (exit)) ((local-ref 0) (push) (const 1) (push) (primitive =) (if ((const 1) (exit)) ((global-ref fib) (push) (local-ref 0) (push) (const 1) (push) (primitive -) (push) (call 2) (push) (global-ref fib) (push) (local-ref 0) (push) (const 2) (push) (primitive -) (push) (call 2) (push) (primitive +) (exit))))))) (push) (primitive set) (global-ref fib) (push) (const 6) (push) (tailcall 2))";
+  /* char *bc = "((const fib) (push) (make-closure 1 0 ((local-ref 0) (push) (const 0) (push) (primitive =) (if ((const 1) (exit)) ((local-ref 0) (push) (const 1) (push) (primitive =) (if ((const 1) (exit)) ((global-ref fib) (push) (local-ref 0) (push) (const 1) (push) (primitive -) (push) (call 2) (push) (global-ref fib) (push) (local-ref 0) (push) (const 2) (push) (primitive -) (push) (call 2) (push) (primitive +) (exit))))))) (push) (primitive set) (global-ref fib) (push) (const 6) (push) (tailcall 2))"; */
+  /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2))) (push) (const 1) (push) (primitive +) (push) (tailcall 2))"; */
+  /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2)))(push) (make-closure 1 0 ((const 1) (push) (local-ref 0) (push) (primitive +) (exit)))(push) (tailcall 2))"; */
+  char *bc = "((make-closure 2 0 ((local-ref 0) (push) (local-ref 1) (push) (primitive +) (exit))) (push) (const 1) (push) (call 2) (push) (const 2) (push) (tailcall 2))";
   FILE *stream = fmemopen(bc, strlen(bc), "r");
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;

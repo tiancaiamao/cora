@@ -78,37 +78,6 @@ cdddr(Obj x) {
   return cdr(cdr(cdr(x)));
 }
 
-/* struct scmClosure { */
-/*   scmHead head; */
-/*   int required;  */
-/*   InstrFunc code; */
-/*   void *codeData; */
-/*   Obj parent; */
-/*   struct hashForObj slot; */
-/* }; */
-
-/* Obj */
-/* makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) { */
-/*   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure)); */
-/*   clo->required = required; */
-/*   clo->code = code; */
-/*   clo->codeData = codeData; */
-
-/*   clo->parent = parent; */
-/*   clo->slot = h; */
-
-/*   return ((Obj)(&clo->head) | TAG_PTR); */
-/* } */
-
-struct scmClosure {
-  scmHead head;
-  int required;
-  Obj *closed;
-  int nfrees;
-  void *code;
-  int sz;
-};
-
 Obj
 makeClosure(int required, int nfrees, Obj *closed, void *code, int sz) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
@@ -146,7 +115,7 @@ isclosure(Obj c) {
   return h->type == scmHeadClosure;
 }
 
-static struct scmClosure*
+struct scmClosure*
 mustClosure(Obj o) {
   struct scmClosure* c = ptr(o);
   assert(c->head.type == scmHeadClosure);
