@@ -296,7 +296,8 @@ func TestXXX(t *testing.T) {
 	//       (sum (+ r 1) (- i 1)))))
 	// (sum 0 50000000))`), "")
 	// r := NewSexpReader(strings.NewReader(`(if (= 3 5) 42 (* 4 6))`), "")
-	r := NewSexpReader(strings.NewReader(`((lambda (x) (lambda (y) (lambda (z) z))) 1 2 3)`), "")
+	r := NewSexpReader(strings.NewReader(`(do (set (quote f) (lambda (a b)
+					   (let a 3 a))) (f 4 5))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)

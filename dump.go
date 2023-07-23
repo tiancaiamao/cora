@@ -80,8 +80,9 @@ func (instrArityCheck) MarshalText(to io.Writer) error {
 	panic( errors.New("instraritycheck not implemented"))
 }
 
-func (*instrReserveLocals) MarshalText(to io.Writer) error {
-	panic( errors.New("instrPrim not implemented"))
+func (i *instrReserveLocals) MarshalText(to io.Writer) error {
+	fmt.Fprintf(to, "(reserve-locals %d) ", i.nlets)
+	return i.next.MarshalText(to)
 }
 
 func (i *instrPrimitive) MarshalText(to io.Writer) error {

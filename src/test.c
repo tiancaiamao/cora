@@ -86,6 +86,15 @@ opLocalRef(void* pc, Obj val, struct VM *vm, int pos) {
 }
 
 static void
+opLocalSet(void* pc, Obj val, struct VM *vm, int pos) {
+  pc = (char*)pc + sizeof(opcode*);
+  uint32_t idx = *((uint32_t*)pc);
+  pc = (char*)pc + sizeof(uint32_t);
+  vm->stack[vm->base+idx+1] = val;
+  (*((opcode*)pc))(pc, val, vm, pos);
+}
+
+static void
 opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   Obj sym = *((Obj*)pc);
@@ -324,6 +333,20 @@ opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
+static void
+opReserveLocals(void* pc, Obj val, struct VM *vm, int pos) {
+  pc = (char*)pc + sizeof(opcode*);
+  uint32_t nlocals = *((uint32_t*)pc);
+  pc = (char*)pc + sizeof(uint32_t);
+  // The top level let differs from the let inside a lambda.
+  // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
+  if (vm->base == pos) {
+    pos++;
+  }
+  pos += nlocals;
+  (*((opcode*)pc))(pc, val, vm, pos);
+}
+
 struct program {
   char *code;
   int len1;
@@ -351,7 +374,7 @@ progAppendInt32(struct program *p, int32_t v) {
   p->len1 += sizeof(int32_t);
 }
 
-Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive;
+Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet;
 
 static void toExecMany(Obj exp, struct program *p);
 
@@ -399,6 +422,12 @@ toExec(Obj exp, struct program *p) {
     progAppendOP(p, opPush);
   } else if (sym == symExit) {
     progAppendOP(p, opExit);
+  } else if (sym == symReserveLocals) {
+    progAppendOP(p, opReserveLocals);
+    progAppendInt32(p, fixnum(cadr(exp)));
+  } else if (sym == symLocalSet) {
+    progAppendOP(p, opLocalSet);
+    progAppendInt32(p, fixnum(cadr(exp)));
   } else if (sym == symPrimitive) {
     Obj prim = cadr(exp);
     if (prim == makeSymbol("=")) {
@@ -473,6 +502,8 @@ int main(int argc, char *argv[]) {
   symPush = makeSymbol("push");
   symExit = makeSymbol("exit");
   symPrimitive = makeSymbol("primitive");
+  symReserveLocals = makeSymbol("reserve-locals");
+  symLocalSet = makeSymbol("local-set");
 
   /* Obj clo = makePrimitive(xxx, 2); */
   /* symbolSet(makeSymbol("test"), clo); */
@@ -481,7 +512,7 @@ int main(int argc, char *argv[]) {
   /* char *bc = "((const fib) (push) (make-closure 1 0 ((local-ref 0) (push) (const 0) (push) (primitive =) (if ((const 1) (exit)) ((local-ref 0) (push) (const 1) (push) (primitive =) (if ((const 1) (exit)) ((global-ref fib) (push) (local-ref 0) (push) (const 1) (push) (primitive -) (push) (call 2) (push) (global-ref fib) (push) (local-ref 0) (push) (const 2) (push) (primitive -) (push) (call 2) (push) (primitive +) (exit))))))) (push) (primitive set) (global-ref fib) (push) (const 6) (push) (tailcall 2))"; */
   /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2))) (push) (const 1) (push) (primitive +) (push) (tailcall 2))"; */
   /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2)))(push) (make-closure 1 0 ((const 1) (push) (local-ref 0) (push) (primitive +) (exit)))(push) (tailcall 2))"; */
-  char *bc = "((make-closure 2 0 ((local-ref 0) (push) (local-ref 1) (push) (primitive +) (exit))) (push) (const 1) (push) (call 2) (push) (const 2) (push) (tailcall 2))";
+  char *bc = "((make-closure 1 0 ((local-ref 0) (push) (make-closure 1 1 ((closure-ref 0) (push) (make-closure 1 1 ((closure-ref 0) (push) (local-ref 0) (push) (primitive +) (exit))) (exit))) (exit))) (push) (const 1) (push) (const 2) (push) (const 3) (push) (tailcall 4))";
   FILE *stream = fmemopen(bc, strlen(bc), "r");
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;
