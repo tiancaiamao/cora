@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	// "net/http"
+	// _ "net/http/pprof"
 
 	"github.com/tiancaiamao/cora"
 )
 
 func main() {
+	// go http.ListenAndServe(":6606", nil)
 	vm := cora.New()
 
 	// load boot file

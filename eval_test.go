@@ -1,6 +1,7 @@
 package cora
 
 import (
+	// "os"
 	"bytes"
 	"fmt"
 	"io"
@@ -290,28 +291,29 @@ func TestXXX(t *testing.T) {
 	//  (set 'g (lambda (n) (+ n 1)))
 	//  (f 1 (g 5) 4)))`))
 	// r := NewSexpReader(strings.NewReader("(load \"../cmd/cora/init.cora\")"))
-	// r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
-	//   (if (= i 0)
-	//       r
-	//       (sum (+ r 1) (- i 1)))))
-	// (sum 0 50000000))`), "")
-	// r := NewSexpReader(strings.NewReader(`(if (= 3 5) 42 (* 4 6))`), "")
-	r := NewSexpReader(strings.NewReader(`(do (set (quote f) (lambda (a b)
-					   (let a 3 a))) (f 4 5))`), "")
+	r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
+	  (if (= i 0)
+	      r
+	      (sum (+ r 1) (- i 1)))))
+	(sum 0 50000000))`), "")
+	// r := NewSexpReader(strings.NewReader(`(do (set (quote f) (lambda (a b)
+	// 				   (let a 3 a))) (f 4 5))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
 	}
 
-	// vm := New()
+	vm := New()
 	// res := vm.Eval(sexp)
 	// fmt.Println(res.String())
 
-	// loadFile(vm, "../cmd/cora/init.cora", "")
+	loadFile(vm, "init.cora", "")
 
-	// var vm VM
-	// res := vm.Eval(sexp)
-	// fmt.Printf("%#v\n", res)
+	tmp := cons(symQuote, cons(sexp, Nil))
+	tmp = cons(MakeSymbol("macroexpand"), cons(tmp, Nil))
+	fmt.Printf("%#v\n", tmp)
+	sexp = vm.Eval(tmp)
+	fmt.Printf("%s\n", sexp)
 
 	exp1, _, nlets := closureConvert(sexp, Nil, Nil, nil, 0)
 	code := compile(exp1, nil, Nil, exit)

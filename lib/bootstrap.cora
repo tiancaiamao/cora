@@ -1,0 +1,10 @@
+(@import "cora/lib/compile")
+
+(defun run (file-path)
+  (let input (read-file-as-sexp file-path "")
+       (map (lambda (exp) (.cc (macroexpand exp))) input)))
+     
+
+(set '*input* (map macroexpand (read-file-as-sexp "lib/compile.cora" "")))
+
+

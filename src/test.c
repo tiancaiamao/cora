@@ -101,6 +101,10 @@ opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   assert(issymbol(sym));
   struct trieNode* s = ptr(sym);
   val = s->value;
+  if (val == Undef) {
+    printf("undefined global symbol: %s\n", s->sym);
+    assert(false);
+  }
   pc = (void*)((char*)pc + sizeof(uint64_t));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
@@ -297,6 +301,54 @@ opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
 }
 
 static void
+opPrimCar(void *pc, Obj val, struct VM *vm, int pos) {
+  val = car(vm->stack[--pos]);
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimCdr(void *pc, Obj val, struct VM *vm, int pos) {
+  val = cdr(vm->stack[--pos]);
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimCons(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj y = vm->stack[--pos];
+  Obj x = vm->stack[--pos];
+  val = cons(x, y);
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimIsCons(void *pc, Obj val, struct VM *vm, int pos) {
+  if (iscons(vm->stack[--pos])) {
+    val = True;
+  } else {
+    val = False;
+  }
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
+opPrimNot(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj x = vm->stack[--pos];
+  if (x == True) {
+    val = False;
+  } else if (x == False) {
+    val = True;
+  } else {
+    assert(false);
+  }
+  pc = (void*)((char*)pc + sizeof(opcode*));
+  (*((opcode*)(pc)))(pc, val, vm, pos);
+}
+
+static void
 opPrimMul(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[pos-1];
   Obj y = vm->stack[pos-2];
@@ -440,6 +492,16 @@ toExec(Obj exp, struct program *p) {
       progAppendOP(p, opPrimSub);
     } else if (prim == makeSymbol("*")) {
       progAppendOP(p, opPrimMul);
+    } else if (prim == makeSymbol("car")) {
+      progAppendOP(p, opPrimCar);
+    } else if (prim == makeSymbol("cdr")) {
+      progAppendOP(p, opPrimCdr);
+    } else if (prim == makeSymbol("cons")) {
+      progAppendOP(p, opPrimCons);
+    } else if (prim == makeSymbol("not")) {
+      progAppendOP(p, opPrimNot);
+    } else if (prim == makeSymbol("cons?")) {
+      progAppendOP(p, opPrimIsCons);
     } else {
       printf("primitive not implement: %s\n", symbolStr(prim));
     }
@@ -505,19 +567,32 @@ int main(int argc, char *argv[]) {
   symReserveLocals = makeSymbol("reserve-locals");
   symLocalSet = makeSymbol("local-set");
 
-  /* Obj clo = makePrimitive(xxx, 2); */
-  /* symbolSet(makeSymbol("test"), clo); */
-
   /* char *bc = "((global-ref test) (push) (const 1) (push) (const 2) (push) (tailcall 3))"; */
-  /* char *bc = "((const fib) (push) (make-closure 1 0 ((local-ref 0) (push) (const 0) (push) (primitive =) (if ((const 1) (exit)) ((local-ref 0) (push) (const 1) (push) (primitive =) (if ((const 1) (exit)) ((global-ref fib) (push) (local-ref 0) (push) (const 1) (push) (primitive -) (push) (call 2) (push) (global-ref fib) (push) (local-ref 0) (push) (const 2) (push) (primitive -) (push) (call 2) (push) (primitive +) (exit))))))) (push) (primitive set) (global-ref fib) (push) (const 6) (push) (tailcall 2))"; */
-  /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2))) (push) (const 1) (push) (primitive +) (push) (tailcall 2))"; */
-  /* char *bc = "((make-closure 1 0 ((local-ref 0) (push) (const 42) (push) (tailcall 2)))(push) (make-closure 1 0 ((const 1) (push) (local-ref 0) (push) (primitive +) (exit)))(push) (tailcall 2))"; */
-  char *bc = "((make-closure 1 0 ((local-ref 0) (push) (make-closure 1 1 ((closure-ref 0) (push) (make-closure 1 1 ((closure-ref 0) (push) (local-ref 0) (push) (primitive +) (exit))) (exit))) (exit))) (push) (const 1) (push) (const 2) (push) (const 3) (push) (tailcall 4))";
-  FILE *stream = fmemopen(bc, strlen(bc), "r");
-  struct SexpReader r = {.pkgMapping = Nil};
-  int errCode;
-  Obj code = sexpRead(&r, stream, &errCode);
-  char *exec = bytecodeToExec(code);
-  Obj res = run(exec);
-  printObj(stdout, res);
+
+  FILE *in = fopen("../init.bc", "r");
+  if (in == NULL) {
+    assert("wrong path");
+  }
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
+  int err = 0;
+  Obj ast = sexpRead(&r, in, &err);
+  while(ast != Nil) {
+    /* printf("========================================= read == \n"); */
+
+    Obj code = car(ast);
+    char *exec = bytecodeToExec(code);
+    Obj res = run(exec);
+    printObj(stdout, res);
+
+    ast = cdr(ast);
+  }
+
+
+  /* FILE *stream = fmemopen(bc, strlen(bc), "r"); */
+  /* struct SexpReader r = {.pkgMapping = Nil}; */
+  /* int errCode; */
+  /* Obj code = sexpRead(&r, stream, &errCode); */
+  /* char *exec = bytecodeToExec(code); */
+  /* Obj res = run(exec); */
+  /* printObj(stdout, res); */
 }

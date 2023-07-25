@@ -1,10 +1,10 @@
 package cora
 
 import (
-	"fmt"
-	"runtime"
 	"errors"
+	"fmt"
 	"io"
+	"runtime"
 )
 
 func (i *instrConst) MarshalText(to io.Writer) error {
@@ -77,7 +77,7 @@ func (instrExit) MarshalText(to io.Writer) error {
 }
 
 func (instrArityCheck) MarshalText(to io.Writer) error {
-	panic( errors.New("instraritycheck not implemented"))
+	panic(errors.New("instraritycheck not implemented"))
 }
 
 func (i *instrReserveLocals) MarshalText(to io.Writer) error {

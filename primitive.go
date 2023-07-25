@@ -1,6 +1,7 @@
 package cora
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -122,9 +123,9 @@ func eq(x, y Obj) bool {
 }
 
 type primitiveDesc struct {
-	name string
+	name     string
 	required int
-	fn func(vm *VM)
+	fn       func(vm *VM)
 }
 
 var primDescs = []primitiveDesc{
@@ -154,7 +155,7 @@ var primitives map[string]primitiveDesc
 type instrPrim func(vm *VM)
 
 func (i instrPrim) Exec(vm *VM) {
-       i(vm)
+	i(vm)
 }
 
 func (i instrPrim) MarshalText(to io.Writer) error {
@@ -162,7 +163,7 @@ func (i instrPrim) MarshalText(to io.Writer) error {
 }
 
 func (i instrPrim) Marshal(to io.Writer) error {
-       return errors.New("instrPrim not implemented")
+	return errors.New("instrPrim not implemented")
 }
 
 func primSet(vm *VM) {
@@ -256,18 +257,18 @@ func primCdr(vm *VM) {
 }
 
 func primCons(vm *VM) {
-		x := vm.pop()
-		y := vm.pop()
-		vm.val = cons(y, x)
+	x := vm.pop()
+	y := vm.pop()
+	vm.val = cons(y, x)
 }
 
 func primIsCons(vm *VM) {
-		x := vm.pop()
-		if _, ok := x.(*Cons); ok {
-			vm.val = True
-		} else {
-			vm.val = False
-		}
+	x := vm.pop()
+	if _, ok := x.(*Cons); ok {
+		vm.val = True
+	} else {
+		vm.val = False
+	}
 }
 
 func primIsSymbol(vm *VM) {
@@ -279,7 +280,7 @@ func primIsSymbol(vm *VM) {
 	}
 }
 
-func primIsString (vm *VM) {
+func primIsString(vm *VM) {
 	x := vm.pop()
 	if _, ok := x.(String); ok {
 		vm.val = True
@@ -288,7 +289,7 @@ func primIsString (vm *VM) {
 	}
 }
 
-func primIsInteger (vm *VM) {
+func primIsInteger(vm *VM) {
 	x := vm.pop()
 	if _, ok := x.(Integer); ok {
 		vm.val = True
@@ -331,7 +332,7 @@ func primSub(vm *VM) {
 	vm.val = Integer(y - x)
 }
 
-func primMul (vm *VM) {
+func primMul(vm *VM) {
 	x := vm.pop().(Integer)
 	y := vm.pop().(Integer)
 	vm.val = Integer(x * y)
@@ -371,4 +372,82 @@ func primLT(vm *VM) {
 	} else {
 		vm.val = False
 	}
+}
+
+func readFileAsSexp(vm *VM) {
+	path := vm.stack[vm.base+1]
+	pkg := vm.stack[vm.base+2]
+	filePath := string(path.(String))
+	if _, err := os.Stat(filePath); err != nil {
+		panic(err)
+	}
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	res := Nil
+	r := NewSexpReader(f, string(pkg.(String)))
+	for {
+		exp, err := r.Read()
+		if err != nil {
+			if err != io.EOF {
+				panic(err)
+			}
+			break
+		}
+		res = cons(exp, res)
+	}
+	res = reverse(res)
+	vm.ret(res)
+}
+
+func printCons1(to io.Writer, o Obj) {
+	var stack []Obj
+	stack = append(stack, o)
+	stack = append(stack, MakeSymbol("("))
+	for len(stack) > 0 {
+		curr := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		if curr == Nil {
+			fmt.Fprintf(to, ")")
+			continue
+		}
+		switch raw := curr.(type) {
+		case *Cons:
+			_, ok := raw.cdr.(*Cons)
+			if !ok && raw.cdr != Nil {
+				stack = append(stack, MakeSymbol(")"))
+			}
+			stack = append(stack, raw.cdr)
+			if !ok && raw.cdr != Nil {
+				stack = append(stack, MakeSymbol("."))
+			}
+
+			_, ok = raw.car.(*Cons)
+			stack = append(stack, raw.car)
+			if ok {
+				stack = append(stack, MakeSymbol("("))
+			}
+		default:
+			fmt.Fprintf(to, " %s", curr.String())
+		}
+	}
+}
+
+func writeSexpToFile(vm *VM) {
+	path := vm.stack[vm.base+1]
+	obj := vm.stack[vm.base+2]
+	filePath := string(path.(String))
+	file, err := os.Create(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	w := bufio.NewWriter(file)
+	printCons(w, obj, true)
+	w.Flush()
+	vm.ret(MakeSymbol("done"))
 }

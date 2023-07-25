@@ -119,6 +119,17 @@ func init() {
 		primitives[desc.name] = desc
 	}
 	MakeSymbol("*imported*").val = Nil
+
+	MakeSymbol("read-file-as-sexp").val = &Closure{
+		Name:     "read-file-as-sexp",
+		Required: 2,
+		code:     instrPrim(readFileAsSexp),
+	}
+	MakeSymbol("write-sexp-to-file").val = &Closure{
+		Name:     "write-sexp-to-file",
+		Required: 2,
+		code:     instrPrim(writeSexpToFile),
+	}
 }
 
 func MakeSymbol(str string) *Symbol {

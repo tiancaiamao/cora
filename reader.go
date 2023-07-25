@@ -133,7 +133,6 @@ func (r *SexpReader) appendBuf(b rune) {
 	r.buf = append(r.buf, b)
 }
 
-
 func peekUntilNewline(r *bufio.Reader) (b rune, err error) {
 	for err == nil && b != '\n' {
 		b, _, err = r.ReadRune()
