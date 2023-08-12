@@ -291,33 +291,82 @@ func TestXXX(t *testing.T) {
 	//  (set 'g (lambda (n) (+ n 1)))
 	//  (f 1 (g 5) 4)))`))
 	// r := NewSexpReader(strings.NewReader("(load \"../cmd/cora/init.cora\")"))
-	r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
-	  (if (= i 0)
-	      r
-	      (sum (+ r 1) (- i 1)))))
-	(sum 0 50000000))`), "")
+	// r := NewSexpReader(strings.NewReader(`(do (set (quote sum) (lambda (r i)
+	//   (if (= i 0)
+	//       r
+	//       (sum (+ r 1) (- i 1)))))
+	// (sum 0 50000000))`), "")
 	// r := NewSexpReader(strings.NewReader(`(do (set (quote f) (lambda (a b)
 	// 				   (let a 3 a))) (f 4 5))`), "")
+	r := NewSexpReader(strings.NewReader(`(set (quote simple) (lambda (#p126)
+			(let #val127 (cons #p126 ())
+			     (let #cc128 (lambda () (error "no match-help found!"))
+				  (if (if (cons? #val127) (if (not (null? #val127)) true false) false)
+				      (let res (car #val127)
+					   (if (null? (cdr #val127))
+					       (reverse res)
+					       (#cc128)))
+				      (#cc128))))))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
 	}
 
+	// f, err := os.Open("lib/compile.cora")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer f.Close()
+
+	// res := Nil
+	// r := NewSexpReader(f, "cora/lib/compile")
+	// for {
+	// 	exp, err := r.Read()
+	// 	if err != nil {
+	// 		if err != io.EOF {
+	// 			panic(err)
+	// 		}
+	// 		break
+	// 	}
+	// 	res = cons(exp, res)
+	// }
+	// res = reverse(res)
+
 	vm := New()
 	// res := vm.Eval(sexp)
 	// fmt.Println(res.String())
 
-	loadFile(vm, "init.cora", "")
+	// loadFile(vm, "init.cora", "")
+	vm.Eval(cons(MakeSymbol("import"), cons(String("cora/init"), Nil)))
+
+	// outfile, err := os.Create("compile.bc")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	panic(err)
+	// }
+	// defer outfile.Close()
+
+	// fmt.Fprintf(outfile, "(")
+	// for ; res != Nil; res = cdr(res) {
+	// sexp := car(res)
+
+	// fmt.Printf("%s\n", sexp)
 
 	tmp := cons(symQuote, cons(sexp, Nil))
 	tmp = cons(MakeSymbol("macroexpand"), cons(tmp, Nil))
-	fmt.Printf("%#v\n", tmp)
 	sexp = vm.Eval(tmp)
 	fmt.Printf("%s\n", sexp)
 
 	exp1, _, nlets := closureConvert(sexp, Nil, Nil, nil, 0)
 	code := compile(exp1, nil, Nil, exit)
 	code = reserveForLetBinding(nlets, code)
+
+	// fmt.Fprintf(outfile, "(")
+	// code.MarshalText(outfile)
+	// 	fmt.Fprintf(outfile, ") ")
+	// }
+	// fmt.Fprintf(outfile, ") ")
+
 	var buf bytes.Buffer
 	err = code.MarshalText(&buf)
 	if err != nil {

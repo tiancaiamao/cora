@@ -243,6 +243,7 @@ func primImport(vm *VM) {
 	if err != nil {
 		panic(err)
 	}
+	sym.val = cons(pkg, sym.val)
 	vm.val = pkg
 }
 

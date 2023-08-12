@@ -131,7 +131,7 @@
 ;; 					       (.compile y locals frees next))
 ;;       ['let var val exp] locals frees next => (let body (.compile exp (append locals [var]) frees next)
 ;; 						   (.compile val locals frees (cons ['local-set (length locals)] body)))
-;;       ['lambda args frees1 nlets body] locals frees next => (let code (.compile body args frees1 '((exit)))
+;;       ['lambda args frees1 nlets body] locals frees next => (let code (.compile body args frees1 [['exit]])
 ;; 								 (let code1 (if (= nlets 0) code (cons ['reserve-locals nlets] code))
 ;; 								      (.compile-list frees1 locals frees
 ;; 										     (cons ['make-closure (length args) (length frees1) code1] next))))
@@ -165,7 +165,7 @@
 				  (.compile val locals frees (cons ['local-set (length locals)] body)))))
     ((= 'lambda (car exp)) (match exp
 				  ['lambda args frees1 nlets body]
-				  (let code (.compile body args frees1 '((exit)))
+				  (let code (.compile body args frees1 [['exit]])
 				       (let code1 (if (= nlets 0) code (cons ['reserve-locals nlets] code))
 					    (.compile-list frees1 locals frees
 							   (cons ['make-closure (length args) (length frees1) code1] next))))))
@@ -185,7 +185,7 @@
 (defun .cc (exp)
   (match (.closure-convert exp () () () 0)
 	 [e1 _ nlets]
-	 (let res (.compile e1 () () '((exit)))
+	 (let res (.compile e1 () () [['exit]])
 	      (if (= nlets 0)
 		  res
 		  (cons ['reserve-locals nlets] res)))))
