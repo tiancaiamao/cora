@@ -6,18 +6,17 @@ import (
 	"os"
 	// "net/http"
 	// _ "net/http/pprof"
-
-	"github.com/tiancaiamao/cora"
+	// "github.com/tiancaiamao/cora"
 )
 
 func main() {
 	// go http.ListenAndServe(":6606", nil)
-	vm := cora.New()
+	vm := New()
 
 	// load boot file
-	vm.Eval(cora.MakeCons(cora.MakeSymbol("import"), cora.MakeCons(cora.String("cora/init"), cora.Nil)))
+	vm.Eval(MakeCons(MakeSymbol("import"), MakeCons(String("cora/init"), Nil)))
 
-	r := cora.NewSexpReader(os.Stdin, "")
+	r := NewSexpReader(os.Stdin, "")
 	for i := 0; ; i++ {
 		fmt.Printf("%d #> ", i)
 

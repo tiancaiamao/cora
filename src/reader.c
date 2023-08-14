@@ -432,7 +432,6 @@ TestImport() {
 }
 
 int main(int argc, char *argv) {
-  coraInit();
   TestReadSexp();
   TestImport();
 }
