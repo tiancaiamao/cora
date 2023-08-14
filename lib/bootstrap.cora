@@ -1,0 +1,14 @@
+;; (@import "cora/lib/compile")
+(load "cora/lib/compile.cora" "")
+
+(defun run (file-path pkg)
+  (let input (read-file-as-sexp file-path pkg)
+       (map (lambda (exp) (cora/lib/compile.cc (macroexpand exp))) input)))
+     
+
+(set '*input* (map macroexpand (read-file-as-sexp "lib/compile.cora" "cora/lib/compile")))
+
+(write-sexp-to-file "compile.bc" (map .cc *input*))
+
+
+ 

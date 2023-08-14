@@ -24,8 +24,8 @@ struct GC *gc;
 
 void*
 newObj(scmHeadType tp, int sz) {
-  /* scmHead* p = malloc(sz); */
-  scmHead* p = gcAlloc(gc, sz);
+  scmHead* p = malloc(sz);
+  /* scmHead* p = gcAlloc(gc, sz); */
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -48,12 +48,12 @@ makeCons(Obj car, Obj cdr) {
   return ((Obj)(&p->head) | TAG_CONS);
 }
 
-static void
-consGCFunc(struct GC *gc, void *obj) {
-  struct scmCons *p = obj;
-  gcField(gc, getScmHead(p->car));
-  gcField(gc, getScmHead(p->cdr));
-}
+/* static void */
+/* consGCFunc(struct GC *gc, void *obj) { */
+/*   struct scmCons *p = obj; */
+/*   gcField(gc, getScmHead(p->car)); */
+/*   gcField(gc, getScmHead(p->cdr)); */
+/* } */
 
 Obj
 consp(Obj x) {
@@ -78,43 +78,33 @@ cdddr(Obj x) {
   return cdr(cdr(cdr(x)));
 }
 
-struct scmClosure {
-  scmHead head;
-  int required; 
-  InstrFunc code;
-  void *codeData;
-  Obj parent;
-  struct hashForObj slot;
-};
-
 Obj
-makeClosure(int required, InstrFunc code, void *codeData, Obj parent, struct hashForObj h) {
+makeClosure(int required, int nfrees, Obj *closed, void *code, int sz) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
+  clo->nfrees = nfrees;
+  clo->closed = closed;
   clo->code = code;
-  clo->codeData = codeData;
-
-  clo->parent = parent;
-  clo->slot = h;
+  clo->sz = sz;
 
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
 extern void instrGCFunc(struct GC *gc, void *obj);
 
-static void
-closureGCFunc(struct GC *gc, void *obj) {
-  struct scmClosure* clo = obj;
-  gcField(gc, getScmHead(clo->parent));
-  for (int i=0; i<clo->slot.size; i++) {
-    struct hashForObjItem *item = clo->slot.ptr+i;
-    if (item->value != 0) {
-      gcField(gc, getScmHead(item->value));
-    }
-  }
+/* static void */
+/* closureGCFunc(struct GC *gc, void *obj) { */
+/*   struct scmClosure* clo = obj; */
+/*   gcField(gc, getScmHead(clo->parent)); */
+/*   for (int i=0; i<clo->slot.size; i++) { */
+/*     struct hashForObjItem *item = clo->slot.ptr+i; */
+/*     if (item->value != 0) { */
+/*       gcField(gc, getScmHead(item->value)); */
+/*     } */
+/*   } */
   
-  gcField(gc, &(((Instr)clo->codeData)->head));
-}
+/*   gcField(gc, &(((Instr)clo->codeData)->head)); */
+/* } */
 
 bool
 isclosure(Obj c) {
@@ -125,29 +115,23 @@ isclosure(Obj c) {
   return h->type == scmHeadClosure;
 }
 
-static struct scmClosure*
+struct scmClosure*
 mustClosure(Obj o) {
   struct scmClosure* c = ptr(o);
   assert(c->head.type == scmHeadClosure);
   return c;
 }
 
-InstrFunc
+void*
 closureCode(Obj o) {
   struct scmClosure* c = mustClosure(o);
   return c->code;
 }
 
-void*
-closureCodeData(Obj o) {
-  struct scmClosure* c = mustClosure(o);
-  return c->codeData;
-}
-
 Obj
-closureParent(Obj o) {
+closureSlot(Obj o, int idx) {
   struct scmClosure* c = mustClosure(o);
-  return c->parent;
+  return c->closed[idx];
 }
 
 int
@@ -156,40 +140,33 @@ closureRequired(Obj o) {
   return c->required;
 }
 
-static struct hashForObjItem*
-hashGet(struct hashForObj *h, int key) {
-  int pos = key % h->size;
-  int avoidDeadLoop = pos;
-  do {
-    if (h->ptr[pos].key == key) {
-      return h->ptr+pos;
-    }
-    if (h->ptr[pos].value == 0) {
-      break;
-    }
-    pos = (pos + 1) % h->size;
-  } while (pos != avoidDeadLoop);
+/* static struct hashForObjItem* */
+/* hashGet(struct hashForObj *h, int key) { */
+/*   int pos = key % h->size; */
+/*   int avoidDeadLoop = pos; */
+/*   do { */
+/*     if (h->ptr[pos].key == key) { */
+/*       return h->ptr+pos; */
+/*     } */
+/*     if (h->ptr[pos].value == 0) { */
+/*       break; */
+/*     } */
+/*     pos = (pos + 1) % h->size; */
+/*   } while (pos != avoidDeadLoop); */
 
-  return NULL;
-}
+/*   return NULL; */
+/* } */
 
-Obj
-closureSlot(Obj o, int idx) {
-  struct scmClosure* c = mustClosure(o);
-  struct hashForObjItem* x = hashGet(&c->slot, idx);
-  return x->value;
-}
-
-static void
-continuationGCFunc(struct GC *gc, void *obj) {
-  struct continuation *cont = obj;
-  struct stack *s = &cont->s;
-  /* printf("cont gc func, stack = %d %d\n", s->base, s->pos); */
-  for (int i=s->base; i<s->pos; i++) {
-    gcField(gc, getScmHead(s->data[i]));
-  }
-  gcField(gc, &cont->codeData->head);
-}
+/* static void */
+/* continuationGCFunc(struct GC *gc, void *obj) { */
+/*   struct continuation *cont = obj; */
+/*   struct stack *s = &cont->s; */
+/*   /\* printf("cont gc func, stack = %d %d\n", s->base, s->pos); *\/ */
+/*   for (int i=s->base; i<s->pos; i++) { */
+/*     gcField(gc, getScmHead(s->data[i])); */
+/*   } */
+/*   gcField(gc, &cont->codeData->head); */
+/* } */
 
 Obj
 makeNumber(int v) {
@@ -250,33 +227,28 @@ isstring(Obj o) {
   return false;
 }
 
-static void
-stringGCFunc(struct GC *gc, void *obj) {
-  // TODO:
-}
+/* static void */
+/* stringGCFunc(struct GC *gc, void *obj) { */
+/*   // TODO: */
+/* } */
 
-struct trieNode {
-  Obj value;
-  char *sym;
-  struct trieNode* child[256];
-};
 
 struct trieNode root = {};
 
-static void
-trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  gcField(gc, getScmHead(node->value));
-  for (int i=0; i<256; i++) {
-    if (node->child[i] != NULL) {
-      trieNodeGCFunc(gc, node->child[i]);
-    }
-  }
-}
+/* static void */
+/* trieNodeGCFunc(struct GC* gc, struct trieNode *node) { */
+/*   gcField(gc, getScmHead(node->value)); */
+/*   for (int i=0; i<256; i++) { */
+/*     if (node->child[i] != NULL) { */
+/*       trieNodeGCFunc(gc, node->child[i]); */
+/*     } */
+/*   } */
+/* } */
 
-void
-gcGlobal(struct GC *gc) {
-  trieNodeGCFunc(gc, &root);
-}
+/* void */
+/* gcGlobal(struct GC *gc) { */
+/*   trieNodeGCFunc(gc, &root); */
+/* } */
 
 Obj
 makeSymbol(char *s) {
@@ -343,14 +315,14 @@ makeCurry(int required, int captured, Obj *data) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-static void
-curryGCFunc(struct GC *gc, void* obj) {
-  struct scmCurry *curry = obj;
-  /* gcField(gc, getScmHead(curry->prim)); */
-  for (int i=0; i<curry->captured; i++) {
-    gcField(gc, getScmHead(curry->data[i]));
-  }
-}
+/* static void */
+/* curryGCFunc(struct GC *gc, void* obj) { */
+/*   struct scmCurry *curry = obj; */
+/*   /\* gcField(gc, getScmHead(curry->prim)); *\/ */
+/*   for (int i=0; i<curry->captured; i++) { */
+/*     gcField(gc, getScmHead(curry->data[i])); */
+/*   } */
+/* } */
 
 int
 curryRequired(Obj o) {
@@ -491,13 +463,13 @@ isvector(Obj o) {
   return false;
 }
 
-static void
-vectorGCFunc(struct GC *gc, void* obj) {
-  struct scmVector *from = obj;
-  for (int i=0; i<from->size; i++) {
-    gcField(gc, getScmHead(from->data[i]));
-  }
-}
+/* static void */
+/* vectorGCFunc(struct GC *gc, void* obj) { */
+/*   struct scmVector *from = obj; */
+/*   for (int i=0; i<from->size; i++) { */
+/*     gcField(gc, getScmHead(from->data[i])); */
+/*   } */
+/* } */
 
 bool
 eq(Obj x, Obj y) {
@@ -529,20 +501,20 @@ struct scmPrimitive {
   char *fname;
 };
 
-Obj
-makePrimitive(InstrFunc fn, int required, char *name, char *fname) {
-  struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive));
-  clo->fn = fn;
-  clo->required = required;
-  clo->name = name;
-  clo->fname = fname;
-  return ((Obj)(&clo->head) | TAG_PTR);
-}
+/* Obj */
+/* makePrimitive(InstrFunc fn, int required, char *name, char *fname) { */
+/*   struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive)); */
+/*   clo->fn = fn; */
+/*   clo->required = required; */
+/*   clo->name = name; */
+/*   clo->fname = fname; */
+/*   return ((Obj)(&clo->head) | TAG_PTR); */
+/* } */
 
-static void
-primitiveGCFunc(struct GC *gc, void *obj) {
-  // TODO?
-}
+/* static void */
+/* primitiveGCFunc(struct GC *gc, void *obj) { */
+/*   // TODO? */
+/* } */
 
 bool
 isprimitive(Obj c) {
@@ -582,12 +554,12 @@ primitiveFnName(Obj o) {
 
 void
 typesInit(struct GC *gc) {
-  gcRegistForType(gc, scmHeadCons, consGCFunc);
-  gcRegistForType(gc, scmHeadClosure, closureGCFunc);
-  gcRegistForType(gc, scmHeadCurry, curryGCFunc);
-  gcRegistForType(gc, scmHeadString, stringGCFunc);
-  gcRegistForType(gc, scmHeadPrimitive, primitiveGCFunc);
-  gcRegistForType(gc, scmHeadVector, vectorGCFunc);
-  gcRegistForType(gc, scmHeadContinuation, continuationGCFunc);
+  /* gcRegistForType(gc, scmHeadCons, consGCFunc); */
+  /* gcRegistForType(gc, scmHeadClosure, closureGCFunc); */
+  /* gcRegistForType(gc, scmHeadCurry, curryGCFunc); */
+  /* gcRegistForType(gc, scmHeadString, stringGCFunc); */
+  /* gcRegistForType(gc, scmHeadPrimitive, primitiveGCFunc); */
+  /* gcRegistForType(gc, scmHeadVector, vectorGCFunc); */
+  /* gcRegistForType(gc, scmHeadContinuation, continuationGCFunc); */
   /* gcRegistForType(gc, scmHeadInstr, instrGCFunc); */
 }

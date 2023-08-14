@@ -15,4 +15,6 @@ void sexpWrite(FILE *out, Obj obj);
 
 Obj reverse(Obj o);
 
+void printObj(FILE* f, Obj o);
+
 #endif
