@@ -224,6 +224,7 @@ opIf(void* pc, Obj val, struct VM *vm, int pos) {
     (*((opcode*)(pc)))(pc, val, vm, pos);
     return;
   }
+  assert(false);
 }
 
 static void
@@ -446,7 +447,7 @@ __inline_eq(Obj x, Obj y) {
   if (tagX != tagY) {
     return False;
   }
-  if (tagX != TAG_CONS || tagX != TAG_PTR) {
+  if (tagX != TAG_CONS && tagX != TAG_PTR) {
     return False;
   }
 
@@ -666,6 +667,20 @@ loadByteCode(struct VM *vm, char *path) {
 }
 
 Obj
+macroExpand(struct VM *vm, Obj exp) {
+  Obj val = symbolGet(symMacroExpand);
+  if (val == Nil || val == Undef || val == NULL) {
+    return exp;
+  }
+  int pos = 0;
+  vm->stack[pos++] = val;
+  vm->stack[pos++] = exp;
+  saveStack(&vm->callstack, NULL, 0, pos);
+  makeTheCall(NULL, Nil, vm, pos);
+  return vm->result;
+}
+
+Obj
 eval(struct VM *vm, Obj exp) {
   // call (cora/lib/compile.cc exp) to generate the bytecode
   Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
@@ -674,6 +689,9 @@ eval(struct VM *vm, Obj exp) {
   vm->stack[pos++] = exp;
   saveStack(&vm->callstack, NULL, 0, pos);
   makeTheCall(NULL, Nil, vm, pos);
+
+  /* printf("the byte code is ===\n"); */
+  /* printObj(stdout, vm->result); */
 
   // run the bytecode
   char *pc = bytecodeToExec(vm->result);
@@ -698,7 +716,7 @@ repl(struct VM *vm, FILE* stream) {
     /* printf("before macro expand =="); */
     /* sexpWrite(stdout, exp); */
 
-    /* exp = macroExpand(vm, exp); */
+    exp = macroExpand(vm, exp);
 
     /* printf("after macro expand =="); */
     /* sexpWrite(stdout, exp); */
@@ -757,7 +775,7 @@ int main(int argc, char *argv[]) {
   loadByteCode(&vm, "../init.bc");
   loadByteCode(&vm, "../compile.bc");
   /* loadByteCode(&vm, "../test.bc"); */
-  printf("HELLO WORLD!\n");
+  /* printf("HELLO WORLD!\n"); */
 
   repl(&vm, stdin);
 
