@@ -2,7 +2,6 @@
 
 CC = gcc
 CFLAGS = -g -Wall -fPIC
-# CFLAGS = -g -fPIC
 
 all: cora.bin
 
@@ -17,13 +16,13 @@ lib:
 
 main.o: main.c
 
-cora.bin: libcora lib main.o
+cora.bin: libcora main.o
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora lib/lib.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
 	$(CC) main.o -Lsrc -lcora -ldl -o $@
 
 clean:
-	rm -rf cora *.o
+	rm -rf *.o
 	make clean -C src
 	make clean -C lib

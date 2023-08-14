@@ -1,17 +1,17 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS= types.c gc.c reader.c vm.c eval.c instr.c builtin.c str.c
+SRCS= str.c types.c reader.c vm.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
-CFLAGS = -g -Wall -fPIC
+CFLAGS = -g -Wall -fPIC -O2
 
 all: libcora.a libcora.so
 
-test: reader_test eval_test instr_test
+test: reader_test eval_test
 
 reader.test: reader.c
-	gcc -g -D_READER_TEST_ -o reader.test reader.c types.c gc.c vm.c builtin.c eval.c instr.c -ldl
+	gcc -g -D_READER_TEST_ -o reader.test reader.c types.c gc.c vm.c str.c -ldl
 
 reader_test: reader.test
 	./reader.test
@@ -19,16 +19,8 @@ reader_test: reader.test
 eval_test: eval.test
 	./eval.test
 
-eval.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
-	gcc -g -D_EVAL_TEST_ $^ -ldl -o eval.test
-
-instr_test: instr.test
-	./instr.test > gen.c;
-	gcc -g *.c -ldl -o a.out;
-	./a.out
-
-instr.test: gc.c eval.c types.c builtin.c vm.c instr.c reader.c
-	gcc -g -D_INSTR_TEST_ $^ -ldl -o instr.test
+eval.test: gc.c vm.c types.c str.c vm.c reader.c
+	gcc -g -O2 -D_EVAL_TEST_ $^ -ldl -o eval.test
 
 libcora.a: $(OBJS)
 	ar -rc $@ $^
