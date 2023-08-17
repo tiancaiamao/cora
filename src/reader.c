@@ -287,22 +287,22 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 static void
 printCons(FILE *to, Obj o, bool start) {
   if (start) {
-    printf("(");
+    fprintf(to, "(");
     printObj(to, car(o));
   } else {
-    printf(" ");
+    fprintf(to, " ");
     printObj(to, car(o));
   }
 
   Obj tl = cdr(o);
   if (tl == Nil) {
-    printf(")");
+    fprintf(to, ")");
   } else if (iscons(tl)) {
     printCons(to, tl, false);
   } else {
-    printf(" . ");
+    fprintf(to, " . ");
     printObj(to, tl);
-    printf(")");
+    fprintf(to, ")");
   }
 }
 

@@ -35,8 +35,8 @@
 						      [x1 frees1 nlets1]
 						      (.closure-convert-list more locals env frees1 nlets1 (cons x1 res))))
 
-(set '*builtin-prims*
-     [['set . 2] ['load . 2] ['import . 1] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
+(set '.*builtin-prims*
+     [['set . 2] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
      ['= . 2] ['> . 2] ['< . 2] ['gensym . 1] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
 
 (func temp-list
@@ -64,7 +64,7 @@
 ;; 								      [exp1 frees2 nlets3]
 ;; 								      [['let var val1 exp1] frees2 nlets3])))
 ;;       ;; ['do x y] and ['if x y z] take the same pattern as [f . args]
-;;       [f . args] locals env frees nlets => (let find (.assq f *builtin-prims*)
+;;       [f . args] locals env frees nlets => (let find (.assq f .*builtin-prims*)
 ;; 					  (if (and (not (null? find))
 ;; 						   (< (length args) (cdr find)))
 ;; 					      ;; rewrite partial apply of primitives
@@ -89,7 +89,7 @@
 				    body (caddr exp)
 				    (match (.closure-convert body args (cons locals env) () 0)
 					   [body1 frees1 nlets1]
-					   [['lambda args frees1 nlets1 body1] (.set-diff frees1 locals) nlets])))
+					   [['lambda args frees1 nlets1 body1] (append (.set-diff frees1 locals) frees) nlets])))
 	((= 'let (car exp)) (let var (cadr exp)
 				 val (caddr exp)
 				 exp (cadddr exp)
@@ -101,7 +101,7 @@
 						    [['let var val1 exp1] frees2 nlets3])))))
 	((symbol? (car exp)) (let f (car exp)
 				  args (cdr exp)
-				  (let find (.assq f *builtin-prims*)
+				  (let find (.assq f .*builtin-prims*)
 				       (if (and (not (null? find))
 						(< (length args) (cdr find)))
 					   ;; rewrite partial apply of primitives
@@ -173,7 +173,7 @@
 
 (func .compile-call
       [f . args] locals frees next => (.compile-list args locals frees (cons ['primitive f] next))
-      where (and (symbol? f) (not (null? (.assq f *builtin-prims*))))
+      where (and (symbol? f) (not (null? (.assq f .*builtin-prims*))))
       exp locals frees [['exit]] => (.compile-list exp locals frees [['tailcall (length exp)]])
       exp locals frees next => (.compile-list exp locals frees (cons ['call (length exp)] next)))
 

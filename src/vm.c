@@ -5,6 +5,7 @@
 #include <string.h>
 #include "reader.h"
 #include "types.h"
+#include "builtin.h"
 
 struct returnAddr {
   void *pc;
@@ -37,8 +38,8 @@ static void
 saveStack(struct callStack *cs, void *pc, int base, int pos) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
-    void *newData = malloc(cs->cap);
-    memcpy(newData, cs->data, cs->len);
+    void *newData = malloc(cs->cap*sizeof(struct returnAddr));
+    memcpy(newData, cs->data, cs->len*sizeof(struct returnAddr));
     free(cs->data);
     cs->data = newData;
   }
@@ -109,23 +110,28 @@ opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-/* static Obj */
-/* makePrimitive(void* fn, int nargs) { */
-/*   Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0); */
-/*   struct scmClosure* clo = mustClosure(tmp); */
-/*   clo->fn = fn; */
-/*   clo->required = nargs; */
-/*   clo->code = &clo->fn; */
-/*   return tmp; */
-/* } */
+static Obj
+makePrimitive(void* fn, int nargs) {
+  Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = fn;
+  clo->required = nargs;
+  clo->code = &clo->fn;
+  return tmp;
+}
 
 static void makeTheCall(void *pc, Obj val, struct VM *vm, int pos);
 static void opExit(void* pc, Obj val, struct VM *vm, int pos);
+
+const int INIT_STACK_SIZE = 4096;
 
 static void
 resumeCurry(void *pc, Obj val, struct VM *vm, int pos) {
   struct scmClosure* clo = mustClosure(vm->stack[vm->base]);
   // TODO: make sure the capacity of the stack is enough
+  if ((pos + (clo->nfrees - 1)) >= INIT_STACK_SIZE) {
+    assert(false);
+  }
   memmove(&vm->stack[vm->base+clo->nfrees], &vm->stack[vm->base + 1], sizeof(Obj) * (pos - vm->base-1));
   memmove(&vm->stack[vm->base], clo->closed, sizeof(Obj)*clo->nfrees);
   pos += (clo->nfrees - 1);
@@ -158,6 +164,9 @@ makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
   } else {
     int newBase = pos;
     // TODO: make sure the capacity of the stack is enough
+    if ((pos + required) >= INIT_STACK_SIZE) {
+      assert(false);
+    }
     memmove(vm->stack+pos, &vm->stack[vm->base], required * sizeof(Obj));
     saveStack(&vm->callstack, NULL, vm->base, newBase);
     vm->base = newBase;
@@ -281,6 +290,7 @@ opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
     val = x - y;
   } else {
     // TODO
+    assert(false);
   }
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
@@ -295,6 +305,7 @@ opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
     val = x + y;
   } else {
     // TODO
+    assert(false);
   }
   pos -= 2;
   pc = (void*)((char*)pc + sizeof(opcode*));
@@ -517,7 +528,7 @@ toExec(Obj exp, struct program *p) {
     if (iscons(val)) {
       printObj(stdout, exp);
       printf("invalid bytecode (const (pair ..))\n");
-      assert(false);
+      /* assert(false); */
     }
     progAppendObj(p, val);
   } else if (sym == symLocalRef) {
@@ -648,6 +659,16 @@ coraInit() {
   symPrimitive = makeSymbol("primitive");
   symReserveLocals = makeSymbol("reserve-locals");
   symLocalSet = makeSymbol("local-set");
+
+  symbolSet(makeSymbol("symbol->string"), makePrimitive(builtinSymbolToString, 1));
+  symbolSet(makeSymbol("load"), makePrimitive(builtinLoad, 2));
+  symbolSet(makeSymbol("vector"), makePrimitive(builtinMakeVector, 1));
+  symbolSet(makeSymbol("vector?"), makePrimitive(builtinIsVector, 1));
+  symbolSet(makeSymbol("vector-set!"), makePrimitive(builtinVectorSet, 3));
+  symbolSet(makeSymbol("vector-ref"), makePrimitive(builtinVectorRef, 2));
+  symbolSet(makeSymbol("import"), makePrimitive(builtinImport, 1));
+  symbolSet(makeSymbol("intern"), makePrimitive(builtinIntern, 1));
+  symbolSet(makeSymbol("number?"), makePrimitive(builtinIsNumber, 1));
 }
 
 static bool inited = false;
@@ -660,7 +681,7 @@ newVM() {
   }
   struct VM *vm = malloc(sizeof(struct VM));
   vm->base = 0;
-  vm->stack = malloc(4096);
+  vm->stack = malloc(INIT_STACK_SIZE * sizeof(Obj));
   vm->callstack.data = malloc(64*sizeof(struct returnAddr));
   vm->callstack.len = 0;
   vm->callstack.cap = 64;
@@ -675,8 +696,8 @@ run(struct VM *vm, char *pc) {
 }
 
 int
-loadByteCode(struct VM *vm, char *path) {
-  FILE *in = fopen(path, "r");
+loadByteCode(struct VM *vm, str path) {
+  FILE *in = fopen(path.str, "r");
   if (in == NULL) {
     assert("wrong path");
   }
@@ -726,14 +747,15 @@ eval(struct VM *vm, Obj exp) {
   return run(vm, pc);
 }
 
-/* static Obj */
-/* readSexp(char *buffer) { */
-/*   FILE *stream = fmemopen(buffer, strlen(buffer), "r"); */
-/*   struct SexpReader reader = {.pkgMapping = Nil}; */
-/*   int errCode; */
-/*   Obj o = sexpRead(&reader, stream, &errCode); */
-/*   return o; */
-/* } */
+Obj
+vmGet(struct VM *vm, int idx) {
+  return vm->stack[vm->base + idx];
+}
+
+void
+vmReturn(struct VM *vm, Obj val) {
+  opExit(NULL, val, vm, 0);
+}
 
 #ifdef _EVAL_TEST_
 
@@ -896,8 +918,8 @@ TestEvalBasic() {
   };
 
   struct VM *vm= newVM();
-  loadByteCode(vm, "../init.bc");
-  loadByteCode(vm, "../compile.bc");
+  loadByteCode(vm, cstr("../init.bc"));
+  loadByteCode(vm, cstr("../compile.bc"));
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
 
@@ -1056,8 +1078,8 @@ TestTryCatch() {
   };
 
   struct VM *vm= newVM();
-  loadByteCode(vm, "../init.bc");
-  loadByteCode(vm, "../compile.bc");
+  loadByteCode(vm, cstr("../init.bc"));
+  loadByteCode(vm, cstr("../compile.bc"));
 
   /* char *pkgName = "cora/init"; */
   /* eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil))); */
@@ -1095,6 +1117,64 @@ TestTryCatch() {
 int main() {
   TestEvalBasic();
   /* TestTryCatch(); */
+}
+
+#endif
+
+
+
+#ifdef _BOOTSTRAP_TEST_
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "reader.h"
+#include <assert.h>
+
+
+void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj path = vmGet(vm, 1);
+  Obj pkg = vmGet(vm, 2);
+
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(stringStr(pkg))};
+  strBuf pathStr = stringStr(path);
+  FILE* f = fopen(toCStr(pathStr), "r");
+  int errCode = 0;
+  Obj ret = Nil;
+  while(errCode == 0) {
+    Obj v = sexpRead(&r, f, &errCode);
+    ret = cons(v, ret);
+  }
+  fclose(f);
+  ret = reverse(ret);
+  vmReturn(vm, ret);
+}
+
+void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj path = vmGet(vm, 1);
+  Obj exp = vmGet(vm, 2);
+  strBuf pathStr = stringStr(path);
+  FILE* f = fopen(toCStr(pathStr), "w");
+  /* printObj(stdout, exp); */
+  printObj(f, exp);
+  fclose(f);
+  vmReturn(vm, Nil);
+}
+
+int main(int argc, char *argv) {
+  struct VM *vm = newVM();
+  loadByteCode(vm, cstr("../init.bc"));
+  loadByteCode(vm, cstr("../compile.bc"));
+
+  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(readFileAsSexp, 2));
+  symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(writeSexpToFile, 2));
+  // (load "lib/bootstrap.cora" "")  to generate the new init.bc and compile.bc
+  char *s = "../lib/bootstrap.cora";
+  eval(vm, cons(intern("load"), cons(makeString(s, strlen(s)), cons(makeString("", 0), Nil))));
+
+  // Check the new generated bytecode can be load successfully
+  loadByteCode(vm, cstr("./init.bc"));
+  loadByteCode(vm, cstr("./compile.bc"));
 }
 
 #endif
