@@ -1,14 +1,12 @@
-;; (@import "cora/lib/compile")
-(load "cora/lib/compile.cora" "")
+(@import "cora/init")
+(@import "cora/lib/compile" compile)
 
 (defun run (file-path pkg)
   (let input (read-file-as-sexp file-path pkg)
-       (map (lambda (exp) (cora/lib/compile.cc (macroexpand exp))) input)))
+       (map (lambda (exp) (compile.cc (macroexpand exp))) input)))
      
-
-(set '*input* (map macroexpand (read-file-as-sexp "lib/compile.cora" "cora/lib/compile")))
-
-(write-sexp-to-file "compile.bc" (map .cc *input*))
+(write-sexp-to-file "init.bc" (run "../init.cora" "cora/init"))
+(write-sexp-to-file "compile.bc" (run "../lib/compile.cora" "cora/lib/compile"))
 
 
  

@@ -254,7 +254,7 @@ func TestLoadData(t *testing.T) {
 }
 
 func TestClosureConvert(t *testing.T) {
-	r := NewSexpReader(strings.NewReader(`(let #cc50 (lambda () (error "no match-help found!")) 42)`), "")
+	// r := NewSexpReader(strings.NewReader(`(let #cc50 (lambda () (error "no match-help found!")) 42)`), "")
 	// r := NewSexpReader(strings.NewReader(`(lambda (x) x)`), "")
 	// r := NewSexpReader(strings.NewReader(`(lambda (z) (+ x z))`))
 	// r := NewSexpReader(strings.NewReader(`((((lambda (x) (lambda (y) (lambda (z) (+ x y)))) 1) 2) 3)`), "")
@@ -263,6 +263,7 @@ func TestClosureConvert(t *testing.T) {
 	// (lambda (b)
 	//   (let base 5
 	//      a))))`), "")
+	r := NewSexpReader(strings.NewReader(`(let #val2 42 (lambda () (cons #val2 (lambda () 111))))`), "")
 	sexp, err := r.Read()
 	if err != nil && err != io.EOF {
 		panic(err)
@@ -312,7 +313,7 @@ func TestXXX(t *testing.T) {
 	// 	panic(err)
 	// }
 
-	f, err := os.Open("lib/compile.cora")
+	f, err := os.Open("../../lib/compile.cora")
 	if err != nil {
 		panic(err)
 	}
@@ -339,7 +340,7 @@ func TestXXX(t *testing.T) {
 	// loadFile(vm, "init.cora", "")
 	vm.Eval(cons(MakeSymbol("import"), cons(String("cora/init"), Nil)))
 
-	outfile, err := os.Create("compile.bc")
+	outfile, err := os.Create("../../compile.bc")
 	if err != nil {
 		fmt.Println(err)
 		panic(err)

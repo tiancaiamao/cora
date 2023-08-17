@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include "vm.h"
 #include "str.h"
+#include "builtin.h"
 
 static void
 repl(struct VM *vm, FILE* stream) {
@@ -43,19 +44,7 @@ int main(int argc, char *argv[]) {
   struct VM* vm = newVM();
 
   // CORA PATH
-  strBuf tmp = strNew(512);
-  char* coraPath = getenv("CORAPATH");
-  if (coraPath == NULL) {
-    struct passwd* pw = getpwuid(getuid());
-    const char* homeDir = pw->pw_dir;
-    tmp = strCpy(tmp, cstr(homeDir));
-    tmp = strCat(tmp, cstr("/.corapath/"));
-  } else {
-    tmp = strCpy(tmp, cstr(coraPath));
-    if (toCStr(tmp)[strLen(toStr(tmp))-1] != '/') {
-      tmp = strCat(tmp, cstr("/"));
-    }
-  }
+  strBuf tmp = getCoraPath();
   strBuf tmp1 = strDup(toStr(tmp));
   loadByteCode(vm, toStr(strCat(tmp, cstr("cora/init.bc"))));
   loadByteCode(vm, toStr(strCat(tmp1, cstr("cora/compile.bc"))));

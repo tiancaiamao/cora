@@ -1,39 +1,28 @@
 #ifndef _builtin_h_
 #define _builtin_h_
 
-void builtinAdd(struct VM* ctx);
-void builtinSub(struct VM* ctx);
-void builtinMul(struct VM* ctx);
+strBuf getCoraPath();
+void builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos);
+void builtinLoad(void *pc, Obj val, struct VM *vm, int pos);
+void builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos);
+void builtinVectorSet(void *pc, Obj val, struct VM *vm, int pos);
+void builtinVectorRef(void *pc, Obj val, struct VM *vm, int pos);
+void builtinIsVector(void *pc, Obj val, struct VM *vm, int pos);
+void builtinImport(void *pc, Obj val, struct VM *vm, int pos);
+void builtinIntern(void *pc, Obj val, struct VM *vm, int pos);
+void builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos);
+
     void builtinDiv(struct VM* ctx);
     void builtinMod(struct VM *ctx);
-void builtinEqual(struct VM* ctx);
-void builtinSet(struct VM* ctx);
-void builtinCons(struct VM* ctx);
-void builtinCar(struct VM* ctx);
-void builtinCdr(struct VM* ctx);
-void builtinIsCons(struct VM* ctx);
-void builtinGensym(struct VM* ctx);
-void builtinGT(struct VM* ctx);
-void builtinLT(struct VM* ctx);
-void builtinNot(struct VM* ctx);
-void builtinIsSymbol(struct VM* ctx);
-    void builtinSymbolToString(struct VM* ctx);
-void builtinIsString(struct VM* ctx);
-    void builtinIsNumber(struct VM* ctx);
-    void builtinLoad(struct VM *ctx);
-    void builtinMakeVector(struct VM *ctx);
-    void builtinVectorSet(struct VM *ctx);
-    void builtinVectorRef(struct VM *ctx);
-    void builtinIsVector(struct VM *ctx);
 
-void builtinLoadSo(struct VM *ctx);
-void builtinStringAppend(struct VM *ctx);
+
+
+/* void builtinLoadSo(struct VM *ctx); */
+/* void builtinStringAppend(struct VM *ctx); */
 void builtinNumberToString(struct VM *ctx);
-void builtinIntern(struct VM *ctx);
-void builtinImport(struct VM *ctx);
 
-void builtinThrow(struct VM *vm);
-void builtinTryCatch(struct VM *vm);
+/* void builtinThrow(struct VM *vm); */
+/* void builtinTryCatch(struct VM *vm); */
 
 
 
@@ -50,8 +39,7 @@ Obj primGensym(Obj sym);
 Obj primIsSymbol(Obj tmp);
 Obj primNot(Obj x);
 
-
-void primLoad(struct VM *vm, char *path, char *pkg);
-void primLoadSo(struct VM *vm, char *path);
+void primLoad(struct VM *vm, str path, str pkg);
+/* void primLoadSo(struct VM *vm, char *path); */
 
 #endif
