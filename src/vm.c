@@ -11,6 +11,7 @@ struct returnAddr {
   void *pc;
   int base;
   int pos;
+  Obj *stack;
 };
 
 struct callStack {
@@ -35,7 +36,7 @@ ensureSize(char **data, int *len, int *cap, int sz) {
 }
 
 static void
-saveStack(struct callStack *cs, void *pc, int base, int pos) {
+saveStack(struct callStack *cs, void *pc, int base, int pos, Obj *stack) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
     void *newData = malloc(cs->cap*sizeof(struct returnAddr));
@@ -48,17 +49,19 @@ saveStack(struct callStack *cs, void *pc, int base, int pos) {
   addr->pc = pc;
   addr->base = base;
   addr->pos = pos;
+  addr->stack = stack;
   cs->len++;
   return;
 }
 
 static void
-popStack(struct callStack *cs, void **pc, int *base, int *pos) {
+popStack(struct callStack *cs, void **pc, int *base, int *pos, Obj **stack) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
   *base = addr->base;
   *pos = addr->pos;
+  *stack = addr->stack;
   return;
 }
 
@@ -168,7 +171,7 @@ makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
       assert(false);
     }
     memmove(vm->stack+pos, &vm->stack[vm->base], required * sizeof(Obj));
-    saveStack(&vm->callstack, NULL, vm->base, newBase);
+    saveStack(&vm->callstack, NULL, vm->base, newBase, vm->stack);
     vm->base = newBase;
     pos += required;
     makeTheCall(pc, val, vm, pos);
@@ -202,7 +205,7 @@ opClosureRef(void* pc, Obj val, struct VM *vm, int pos) {
 
 static void
 opExit(void* pc, Obj val, struct VM *vm, int pos) {
-  popStack(&vm->callstack, &pc, &vm->base, &pos);
+  popStack(&vm->callstack, &pc, &vm->base, &pos, &vm->stack);
   if (pc == NULL) {
     vm->result = val;
   } else {
@@ -241,7 +244,7 @@ opCall(void* pc, Obj val, struct VM *vm, int pos) {
   uint32_t nargs = *((uint32_t*)pc);
   pc = (void*)((char*)pc + sizeof(uint32_t));
   int newBase = pos - nargs;
-  saveStack(&vm->callstack, pc, vm->base, newBase);
+  saveStack(&vm->callstack, pc, vm->base, newBase, vm->stack);
   vm->base = newBase;
   makeTheCall(pc, val, vm, pos);
 }
@@ -638,6 +641,95 @@ bytecodeToExec(Obj bc)  {
 }
 
 void
+builtinTryCatch(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj chunk = vm->stack[vm->base + 1];
+
+  // Save the old cont.
+  // This save can make the chunk and handler available to the recovering process.
+  // When the chunk return to this try block, the next operator would be opExit.
+  opcode* x = malloc(sizeof(opcode));
+  *x = opExit;
+  saveStack(&vm->callstack, x, vm->base, pos, vm->stack);
+
+  // Prepare a new stack for the chunk to run.
+  vm->stack = (Obj*)malloc(sizeof(Obj)*INIT_STACK_SIZE);
+  vm->base = 0;
+  pos = 0;
+
+  // Call the chunk.
+  vm->stack[pos++] = chunk;
+  makeTheCall(NULL, Nil, vm, pos);
+}
+
+static void
+continuationAsClosure(void *pc, Obj val, struct VM *vm, int pos) {
+  // Replace the current stack with the delimited continuation.
+  Obj self = vm->stack[vm->base];
+  struct callStack *delimited = mustClosure(self)->closed;
+  for (int i=0; i< delimited->len; i++) {
+    struct returnAddr *addr = &delimited->data[i];
+    saveStack(&vm->callstack, addr->pc, addr->base, addr->pos, addr->stack);
+  }
+  val = vm->stack[vm->base + 1];
+  opExit(NULL, val, vm, 0);
+}
+
+static opcode continuationAsClosureOP[1] = {continuationAsClosure};
+
+void
+builtinThrow(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj v = vm->stack[vm->base + 1];
+
+  // Delimited to the previous try-catch
+  int p = vm->callstack.len - 1;
+  while(p >=0) {
+    struct returnAddr* addr = &vm->callstack.data[p];
+    if (addr->stack != vm->stack) {
+      break;
+    }
+    p--;
+  }
+  if (p < 0) {
+    // TODO: panic, not in any try-catch block!
+    assert(false);
+  }
+
+  struct callStack *delimited = malloc(sizeof(struct callStack));
+  int offset = vm->callstack.len - p;
+  delimited->cap = offset > 0 ? offset : 1;
+  delimited->data = malloc(sizeof(struct returnAddr) * delimited->cap);
+  delimited->len = 0;
+
+  // Now p point to the try-saved stack.
+  // p+1 is the new stack.
+  for (int i=p; i<vm->callstack.len; i++) {
+    struct returnAddr *cs = &vm->callstack.data[i];
+    saveStack(delimited, cs->pc, cs->base, cs->pos, cs->stack);
+  }
+
+  // Now that we get the current continuation, disguise as a closure.
+  Obj cc = makeClosure(1, 1, delimited, &continuationAsClosureOP, 0);
+
+  // Reset the stack, go back to (try ... catch)
+  vm->callstack.len = p;
+  struct returnAddr* c = &vm->callstack.data[p];
+  pc = c->pc;
+  pos = c->pos;
+  vm->stack = c->stack;
+  vm->base = c->base;
+
+  // Find the handler, invoke it, passing the continuation.
+  Obj handler = vm->stack[vm->base + 2];
+  int newBase = pos;
+  vm->stack[pos++] = handler;
+  vm->stack[pos++] = v;
+  vm->stack[pos++] = cc;
+  saveStack(&vm->callstack, pc, newBase, pos, vm->stack);
+  vm->base = newBase;
+  makeTheCall(pc, val, vm, pos);
+}
+
+void
 coraInit() {
   symQuote = intern("quote");
   symIf = intern("if");
@@ -669,6 +761,8 @@ coraInit() {
   symbolSet(makeSymbol("import"), makePrimitive(builtinImport, 1));
   symbolSet(makeSymbol("intern"), makePrimitive(builtinIntern, 1));
   symbolSet(makeSymbol("number?"), makePrimitive(builtinIsNumber, 1));
+  symbolSet(makeSymbol("try"), makePrimitive(builtinTryCatch, 2));
+  symbolSet(makeSymbol("throw"), makePrimitive(builtinThrow, 1));
 }
 
 static bool inited = false;
@@ -690,7 +784,7 @@ newVM() {
 
 Obj
 run(struct VM *vm, char *pc) {
-  saveStack(&vm->callstack, NULL, 0, 0);
+  saveStack(&vm->callstack, NULL, 0, 0, vm->stack);
   (*(opcode*)(pc))(pc, Nil, vm, 0); 
   return vm->result;
 }
@@ -724,7 +818,7 @@ macroExpand(struct VM *vm, Obj exp) {
   int pos = 0;
   vm->stack[pos++] = val;
   vm->stack[pos++] = exp;
-  saveStack(&vm->callstack, NULL, 0, pos);
+  saveStack(&vm->callstack, NULL, 0, pos, vm->stack);
   makeTheCall(NULL, Nil, vm, pos);
   return vm->result;
 }
@@ -736,7 +830,7 @@ eval(struct VM *vm, Obj exp) {
   int pos = 0;
   vm->stack[pos++] = compile;
   vm->stack[pos++] = exp;
-  saveStack(&vm->callstack, NULL, 0, pos);
+  saveStack(&vm->callstack, NULL, 0, pos, vm->stack);
   makeTheCall(NULL, Nil, vm, pos);
 
   /* printf("the byte code is ===\n"); */
@@ -776,6 +870,20 @@ extern void printObj(FILE *to, Obj o);
 static void
 TestEvalBasic() {
   struct testCase cases[] = {
+    {
+      "let-variable-shadow",
+      "(do (set (quote f) (lambda (a b) (let a 3 a))) (f 4 5))",
+      "3",
+    },
+    {
+      "let variable shadow",
+      "(let Result 123 \
+	(let Result 456 \
+		  (if (= Result 456) \
+		      true \
+		      Result)))",
+      "true",
+    },
     {
       "curry as arg",
       "((lambda (f) (f 42)) (+ 1))",
@@ -953,20 +1061,6 @@ static void
 TestTryCatch() {
   struct testCase cases[] = {
     {
-      "let-variable-shadow",
-      "(do (set (quote f) (lambda (a b) (let a 3 a))) (f 4 5))",
-      "3",
-    },
-    {
-      "let variable shadow",
-      "(let Result 123 \
-	(let Result 456 \
-		  (if (= Result 456) \
-		      true \
-		      Result)))",
-      "true",
-    },
-    {
       "try-let",
       "(try (lambda () (let X 666 42)) (lambda (E) (cons '--> (cons 'A ()))))",
       "42",
@@ -1055,7 +1149,7 @@ TestTryCatch() {
     {
       "iterate list",
       "(try (lambda () (map (lambda (x) (throw x)) [1 2 3 4 5])) (lambda (v cc) (cc v)))",
-      "12345",
+      "(1 2 3 4 5)",
     },
     {
       "throw in deep stack",
@@ -1116,7 +1210,7 @@ TestTryCatch() {
 
 int main() {
   TestEvalBasic();
-  /* TestTryCatch(); */
+  TestTryCatch();
 }
 
 #endif

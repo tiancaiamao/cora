@@ -79,7 +79,7 @@ cdddr(Obj x) {
 }
 
 Obj
-makeClosure(int required, int nfrees, Obj *closed, void *code, int sz) {
+makeClosure(int required, int nfrees, void *closed, void *code, int sz) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
@@ -131,7 +131,7 @@ closureCode(Obj o) {
 Obj
 closureSlot(Obj o, int idx) {
   struct scmClosure* c = mustClosure(o);
-  return c->closed[idx];
+  return ((Obj*)c->closed)[idx];
 }
 
 int
