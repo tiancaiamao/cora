@@ -150,12 +150,12 @@ struct scmClosure {
   int required;
   void *code;
   int sz;
-  Obj *closed;
+  void *closed;
   int nfrees;
   opcode fn;
 };
 
-Obj makeClosure(int requred, int nfrees, Obj *closed, void *code, int sz);
+Obj makeClosure(int requred, int nfrees, void *closed, void *code, int sz);
 struct scmClosure* mustClosure(Obj o);
 void* closureCode(Obj);
 bool isclosure(Obj o);
