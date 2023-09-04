@@ -1,5 +1,6 @@
 #include "reader.h"
 #include "types.h"
+#include "vm.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +55,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(struct SexpReader *r, FILE *in, int *errCode) {
+readCons(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
   int c = getc(in);
   if (c == ')') {
     // read the empty list
@@ -62,13 +63,13 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
   }
 
   ungetc(c, in);
-  Obj hd = sexpRead(r, in, errCode);
+  Obj hd = sexpRead(vm, pos, r, in, errCode);
 
   c = peekFirstChar(in);
   ungetc(c, in);
 
   /* read list */
-  Obj tl = readCons(r, in, errCode);
+  Obj tl = readCons(vm, pos, r, in, errCode);
 
   /* printf("read cdr"); */
   /* printObj(cdr); */
@@ -96,31 +97,38 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
 }
 
 Obj
-reverse(Obj o) {
-  Obj ret = Nil;
-  while (o != Nil) {
-    ret = cons(car(o), ret);
-    o = cdr(o);
+reverse(struct VM *vm, int pos, int O) {
+  const int RET = pos++;
+  const int TMP = pos++;
+  vmSet(vm, RET, Nil);
+  while(vmRef(vm, O) != Nil) {
+    vmSet(vm, TMP, vmCar(vm, O));
+    vmSet(vm, RET, vmCons(vm, TMP, RET));
+    vmSet(vm, O, vmCdr(vm, O));
   }
-  return ret;
+  return vmRef(vm, RET);
 }
 
 static Obj
-readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
-  Obj hd = intern("list");
-  Obj ret = Nil;
+readListMacro(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
+  const int hd = pos;
+  vmPush(vm, &pos, intern("list"));
+  const int ret = pos;
+  vmPush(vm, &pos, Nil);
+  const int o = pos++;
   char b = peekFirstChar(in);
   while (b != EOF && b != ']') {
     if (b == '.') {
-      hd = intern("list-rest");
+      vmSet(vm, hd, intern("list-rest"));
     } else {
       ungetc(b, in);
-      Obj o = sexpRead(r, in, errCode);
-      ret = cons(o, ret);
+      vmSet(vm, o, sexpRead(vm, pos, r, in, errCode));
+      vmSet(vm, ret, vmCons(vm, o, ret));
     }
     b = peekFirstChar(in);
   }
-  return cons(hd, reverse(ret));
+  vmSet(vm, ret, reverse(vm, pos, ret));
+  return vmCons(vm, hd, ret);
 }
 
 static Obj
@@ -143,7 +151,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
+sexpRead(struct VM *vm, int pos, struct SexpReader* r, FILE *in, int *errCode) {
   int c;
   int i;
   char buffer[512];
@@ -159,18 +167,18 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 
   // read quote
   if (c == '\'') {
-    Obj o = sexpRead(r, in, errCode);
+    Obj o = sexpRead(vm, pos, r, in, errCode);
     return cons(symQuote, cons(o, Nil));
   }
 
   // read the empty list or pair
   if (c == '(')	{
-    return readCons(r, in, errCode);
+    return readCons(vm, pos, r, in, errCode);
   }
 
   // read list macro
   if (c == '[') {
-    return readListMacro(r, in, errCode);
+    return readListMacro(vm, pos, r, in, errCode);
   }
 
   // read a string
@@ -382,13 +390,15 @@ sexpWrite(FILE *out, Obj o) {
 
 static void
 TestReadSexp() {
+  struct VM *vm = newVM();
+  int pos = 0;
   char buffer[] = "(a b c)";
   /* char buffer[] = "(a)"; */
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
   struct SexpReader reader = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(&reader, stream, &errCode);
+  Obj o = sexpRead(vm, pos, &reader, stream, &errCode);
 
   /* Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil))); */
   Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
@@ -413,9 +423,11 @@ TestImport() {
   char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
+  struct VM *vm = newVM();
+  int pos = 0;
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(&r, stream, &errCode);
+  Obj o = sexpRead(vm, pos, &r, stream, &errCode);
   Obj pathStr = makeString("std/cora/basic", 14);
   Obj s = cons(intern("import"), cons(pathStr, Nil));
   assert(eq(o, s));
@@ -423,7 +435,7 @@ TestImport() {
   /* printf("\n"); */
   assert(eq(r.pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
 
-  Obj x = sexpRead(&r, stream, &errCode);
+  Obj x = sexpRead(vm, pos, &r, stream, &errCode);
   /* printObj(stdout, x); */
   /* printf("\n"); */
   assert(eq(car(x), intern("std/cora/basic.yyy")));

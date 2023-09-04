@@ -40,7 +40,7 @@ builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos) {
 }
 
 void
-primLoad(struct VM *vm, str path, str pkg) {
+primLoad(struct VM *vm, int pos, str path, str pkg) {
   FILE *in = fopen(path.str, "r");
   if (in == NULL) {
     // TODO: exception?
@@ -49,18 +49,23 @@ primLoad(struct VM *vm, str path, str pkg) {
 
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str};
   int err = 0;
-  Obj ast = sexpRead(&r, in, &err);
+  Obj ast = sexpRead(vm, pos, &r, in, &err);
+  int ref = pos++;
   while(err == 0) {
+
     /* printf("========================================= read == \n"); */
     /* sexpWrite(stdout, ast); */
     /* printf("\n"); */
-    Obj exp = macroExpand(vm, ast);
+    
+    vmSet(vm, ref, ast);
+    Obj exp = macroExpand(vm, pos, ref);
 
     /* printObj(stdout, exp); */
     /* printf("\n"); */
 
-    eval(vm, exp);
-    ast = sexpRead(&r, in, &err);
+    vmSet(vm, ref, exp);
+    eval(vm, pos, ref);
+    ast = sexpRead(vm, pos, &r, in, &err);
   }
   fclose(in);
 }
@@ -69,7 +74,7 @@ void
 builtinLoad(void *pc, Obj val, struct VM *vm, int pos) {
   Obj path = vmGet(vm, 1);
   Obj pkg = vmGet(vm, 2);
-  primLoad(vm, toStr(stringStr(path)), toStr(stringStr(pkg)));
+  primLoad(vm, pos, toStr(stringStr(path)), toStr(stringStr(pkg)));
   vmReturn(vm, path);
 }
 
@@ -209,7 +214,7 @@ builtinImport(void *pc, Obj val, struct VM *vm, int pos) {
   } else {
     tmp = strShrink(tmp, 3);
     tmp = strCat(tmp, cstr(".cora"));
-    primLoad(vm, toStr(tmp), pkgStr);
+    primLoad(vm, pos, toStr(tmp), pkgStr);
   }
   strFree(tmp);
 

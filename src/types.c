@@ -90,7 +90,7 @@ makeClosure(int required, int nfrees, void *closed, void *code, int sz) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-extern void instrGCFunc(struct GC *gc, void *obj);
+/* extern void instrGCFunc(struct GC *gc, void *obj); */
 
 /* static void */
 /* closureGCFunc(struct GC *gc, void *obj) { */
@@ -491,65 +491,6 @@ eq(Obj x, Obj y) {
   }
 
   return false;
-}
-
-struct scmPrimitive {
-  scmHead head;
-  int required;
-  InstrFunc fn;
-  char *name;
-  char *fname;
-};
-
-/* Obj */
-/* makePrimitive(InstrFunc fn, int required, char *name, char *fname) { */
-/*   struct scmPrimitive* clo = newObj(scmHeadPrimitive, sizeof(struct scmPrimitive)); */
-/*   clo->fn = fn; */
-/*   clo->required = required; */
-/*   clo->name = name; */
-/*   clo->fname = fname; */
-/*   return ((Obj)(&clo->head) | TAG_PTR); */
-/* } */
-
-/* static void */
-/* primitiveGCFunc(struct GC *gc, void *obj) { */
-/*   // TODO? */
-/* } */
-
-bool
-isprimitive(Obj c) {
-  if ((c & TAG_MASK) != TAG_PTR) {
-    return false;
-  }
-  scmHead *h = ptr(c);
-  return h->type == scmHeadPrimitive;
-}
-
-int primitiveRequired(Obj o) {
-  struct scmPrimitive* c = ptr(o);
-  assert(c->head.type == scmHeadPrimitive);
-  return c->required;
-}
-
-InstrFunc
-primitiveFn(Obj o) {
-  struct scmPrimitive* c = ptr(o);
-  assert(c->head.type == scmHeadPrimitive);
-  return c->fn;
-}
-
-char *
-primitiveName(Obj o) {
-  struct scmPrimitive* c = ptr(o);
-  assert(c->head.type == scmHeadPrimitive);
-  return c->name;
-}
-
-char *
-primitiveFnName(Obj o) {
-  struct scmPrimitive* c = ptr(o);
-  assert(c->head.type == scmHeadPrimitive);
-  return c->fname;
 }
 
 void

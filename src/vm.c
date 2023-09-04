@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "reader.h"
+#include "vm.h"
 #include "types.h"
 #include "builtin.h"
 
@@ -790,14 +791,14 @@ run(struct VM *vm, char *pc) {
 }
 
 int
-loadByteCode(struct VM *vm, str path) {
+loadByteCode(struct VM *vm, int pos, str path) {
   FILE *in = fopen(path.str, "r");
   if (in == NULL) {
     assert("wrong path");
   }
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
   int err = 0;
-  Obj ast = sexpRead(&r, in, &err);
+  Obj ast = sexpRead(vm, pos, &r, in, &err);
   while(ast != Nil) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
@@ -810,27 +811,29 @@ loadByteCode(struct VM *vm, str path) {
 }
 
 Obj
-macroExpand(struct VM *vm, Obj exp) {
+macroExpand(struct VM *vm, int pos, int exp) {
   Obj val = symbolGet(symMacroExpand);
   if (val == Nil || val == Undef) {
-    return exp;
+    return vmRef(vm, exp);
   }
-  int pos = 0;
+  int base = pos;
   vm->stack[pos++] = val;
-  vm->stack[pos++] = exp;
-  saveStack(&vm->callstack, NULL, 0, pos, vm->stack);
+  vm->stack[pos++] = vmRef(vm, exp);
+  saveStack(&vm->callstack, NULL, vm->base, pos, vm->stack);
+  vm->base = base;
   makeTheCall(NULL, Nil, vm, pos);
   return vm->result;
 }
 
 Obj
-eval(struct VM *vm, Obj exp) {
+eval(struct VM *vm, int pos, int exp) {
   // call (cora/lib/compile.cc exp) to generate the bytecode
   Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
-  int pos = 0;
+  int base = pos;
   vm->stack[pos++] = compile;
-  vm->stack[pos++] = exp;
-  saveStack(&vm->callstack, NULL, 0, pos, vm->stack);
+  vm->stack[pos++] = vmRef(vm, exp);
+  saveStack(&vm->callstack, NULL, vm->base, pos, vm->stack);
+  vm->base = base;
   makeTheCall(NULL, Nil, vm, pos);
 
   /* printf("the byte code is ===\n"); */
@@ -849,6 +852,38 @@ vmGet(struct VM *vm, int idx) {
 void
 vmReturn(struct VM *vm, Obj val) {
   opExit(NULL, val, vm, 0);
+}
+
+void
+vmSet(struct VM* vm, int ref, Obj val) {
+  vm->stack[ref] = val;
+}
+
+Obj
+vmRef(struct VM *vm, int ref) {
+  return vm->stack[ref];
+}
+
+void
+vmPush(struct VM *vm, int *pos, Obj val) {
+  vm->stack[*pos] = val;
+  (*pos)++;
+  return;
+}
+
+Obj
+vmCar(struct VM *vm, int ref) {
+  return car(vm->stack[ref]);
+}
+
+Obj
+vmCdr(struct VM *vm, int ref) {
+  return cdr(vm->stack[ref]);
+}
+
+Obj
+vmCons(struct VM *vm, int r1, int r2) {
+  return cons(vm->stack[r1], vm->stack[r2]);
 }
 
 #ifdef _EVAL_TEST_
@@ -1026,8 +1061,9 @@ TestEvalBasic() {
   };
 
   struct VM *vm= newVM();
-  loadByteCode(vm, cstr("../init.bc"));
-  loadByteCode(vm, cstr("../compile.bc"));
+  int pos = 0;
+  loadByteCode(vm, pos, cstr("../init.bc"));
+  loadByteCode(vm, pos, cstr("../compile.bc"));
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
 
@@ -1036,8 +1072,10 @@ TestEvalBasic() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(&r, f, &errCode);
-    Obj res = eval(vm, s);
+    Obj s = sexpRead(vm, pos, &r, f, &errCode);
+    int ref = pos++;
+    vmSet(vm, ref, s);
+    Obj res = eval(vm, pos, ref);
 
     char output[512];
     memset(output, 0, 512);
@@ -1172,12 +1210,14 @@ TestTryCatch() {
   };
 
   struct VM *vm= newVM();
-  loadByteCode(vm, cstr("../init.bc"));
-  loadByteCode(vm, cstr("../compile.bc"));
+  int pos = 0;
+  loadByteCode(vm, pos, cstr("../init.bc"));
+  loadByteCode(vm, pos, cstr("../compile.bc"));
 
   /* char *pkgName = "cora/init"; */
   /* eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil))); */
 
+  int ref = pos++;
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
 
@@ -1186,9 +1226,11 @@ TestTryCatch() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(&r, f, &errCode);
-    Obj exp = macroExpand(vm, s);
-    Obj res = eval(vm, exp);
+    Obj s = sexpRead(vm, pos, &r, f, &errCode);
+    vmSet(vm, ref, s);
+    Obj exp = macroExpand(vm, pos, ref);
+    vmSet(vm, ref, exp);
+    Obj res = eval(vm, pos, ref);
 
     char output[512];
     memset(output, 0, 512);
@@ -1225,6 +1267,7 @@ int main() {
 #include "reader.h"
 #include <assert.h>
 
+extern Obj reverse(struct VM *vm, int pos, int O);
 
 void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   Obj path = vmGet(vm, 1);
@@ -1234,14 +1277,18 @@ void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   strBuf pathStr = stringStr(path);
   FILE* f = fopen(toCStr(pathStr), "r");
   int errCode = 0;
-  Obj ret = Nil;
+
+  int ret = pos++;
+  vmSet(vm, ret, Nil);
+  int v = pos++;
   while(errCode == 0) {
-    Obj v = sexpRead(&r, f, &errCode);
-    ret = cons(v, ret);
+    vmSet(vm, v, sexpRead(vm, pos, &r, f, &errCode));
+    vmSet(vm, ret, vmCons(vm, v, ret));
   }
   fclose(f);
-  ret = reverse(ret);
-  vmReturn(vm, ret);
+
+  Obj tmp = reverse(vm, pos, ret);
+  vmReturn(vm, tmp);
 }
 
 void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
@@ -1257,18 +1304,22 @@ void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
 
 int main(int argc, char *argv) {
   struct VM *vm = newVM();
-  loadByteCode(vm, cstr("../init.bc"));
-  loadByteCode(vm, cstr("../compile.bc"));
+  int pos = 0;
+  loadByteCode(vm, pos, cstr("../init.bc"));
+  loadByteCode(vm, pos, cstr("../compile.bc"));
 
   symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(readFileAsSexp, 2));
   symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(writeSexpToFile, 2));
+
   // (load "lib/bootstrap.cora" "")  to generate the new init.bc and compile.bc
   char *s = "../lib/bootstrap.cora";
-  eval(vm, cons(intern("load"), cons(makeString(s, strlen(s)), cons(makeString("", 0), Nil))));
+  int tmp = pos++;
+  vmSet(vm, tmp, cons(intern("load"), cons(makeString(s, strlen(s)), cons(makeString("", 0), Nil))));
+  eval(vm, pos, tmp);
 
   // Check the new generated bytecode can be load successfully
-  loadByteCode(vm, cstr("./init.bc"));
-  loadByteCode(vm, cstr("./compile.bc"));
+  loadByteCode(vm, pos, cstr("./init.bc"));
+  loadByteCode(vm, pos, cstr("./compile.bc"));
 }
 
 #endif

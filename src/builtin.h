@@ -39,7 +39,7 @@ Obj primGensym(Obj sym);
 Obj primIsSymbol(Obj tmp);
 Obj primNot(Obj x);
 
-void primLoad(struct VM *vm, str path, str pkg);
+void primLoad(struct VM *vm, int pos, str path, str pkg);
 /* void primLoadSo(struct VM *vm, char *path); */
 
 #endif
