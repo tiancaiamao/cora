@@ -60,7 +60,7 @@ enum {
 
       // Seems weird, but the instructions object memory management need it.
       // Instr do not use tagged pointer, because it's not Obj.
-      scmHeadInstr,
+      /* scmHeadInstr, */
 };
 
 void typesInit();
@@ -68,8 +68,6 @@ void typesInit();
 void* newObj(scmHeadType tp, int sz);
 
 struct VM;
-typedef void (*InstrFunc)(struct VM *vm);
-
 struct scmCons {
   scmHead head;
   Obj car;
@@ -95,53 +93,6 @@ Obj caddr(Obj v);
 Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
-
-typedef enum {
-  instrHeadConst,
-  instrHeadIf,
-  instrHeadNOP,
-  instrHeadPush,
-  instrHeadLocalRef,
-  instrHeadClosureRef,
-  instrHeadGlobalRef,
-  instrHeadPrimitive,
-  instrHeadExit,
-  instrHeadCall,
-  instrHeadMakeClosure,
-  instrHeadMax,
-} instrHeadType;
-
-typedef struct _instrHead {
-  scmHead head;
-  instrHeadType type;
-} instrHead;
-
-typedef instrHead* Instr;
-
-/* Obj makePrimitive(InstrFunc fn, int required, char* name, char *fname); */
-/* bool isprimitive(Obj o); */
-/* int primitiveRequired(Obj o); */
-/* InstrFunc primitiveFn(Obj o); */
-/* char *primitiveName(Obj o); */
-/* char *primitiveFnName(Obj o); */
-
-/* Obj makeCurry(int required, int captured, Obj *data); */
-/* int curryRequired(Obj curry); */
-/* Obj curryPrim(Obj curry); */
-/* Obj curryCaptured(Obj curry); */
-/* Obj* curryData(Obj curry); */
-/* bool iscurry(Obj o); */
-
-
-/* struct hashForObjItem { */
-/*   int key; */
-/*   Obj value; */
-/* }; */
-
-/* struct hashForObj { */
-/*   struct hashForObjItem *ptr; */
-/*   int size; */
-/* }; */
 
 typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
 
@@ -176,12 +127,6 @@ struct stack {
   Obj *data;
   int base;
   int pos;
-};
-
-struct continuation {
-  struct stack s;
-  InstrFunc code;
-  Instr codeData;
 };
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;

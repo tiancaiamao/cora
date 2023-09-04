@@ -8,7 +8,8 @@
 #include "builtin.h"
 
 static void
-repl(struct VM *vm, FILE* stream) {
+repl(struct VM *vm, int pos, FILE* stream) {
+  int ref = pos++;
   for (int i=0; ; i++) {
     if (stream == stdin) {
       printf("%d #> ", i);
@@ -16,7 +17,7 @@ repl(struct VM *vm, FILE* stream) {
 
     struct SexpReader r = {.pkgMapping = Nil};
     int errCode = 0;
-    Obj exp = sexpRead(&r, stream, &errCode);
+    Obj exp = sexpRead(vm, pos, &r, stream, &errCode);
     if (errCode != 0) {
       break;
     }
@@ -24,13 +25,15 @@ repl(struct VM *vm, FILE* stream) {
     /* printf("before macro expand =="); */
     /* sexpWrite(stdout, exp); */
 
-    exp = macroExpand(vm, exp);
+    vmSet(vm, ref, exp);
+    exp = macroExpand(vm, pos, ref);
 
     /* printf("after macro expand =="); */
     /* sexpWrite(stdout, exp); */
     /* printf("\n"); */
 
-    Obj res = eval(vm, exp);
+    vmSet(vm, ref, exp);
+    Obj res = eval(vm, pos, ref);
 
     if (stream == stdin) {
       sexpWrite(stdout, res);
@@ -42,13 +45,14 @@ repl(struct VM *vm, FILE* stream) {
 
 int main(int argc, char *argv[]) {
   struct VM* vm = newVM();
+  int pos = 0;
 
   // CORA PATH
   strBuf tmp = getCoraPath();
   strBuf tmp1 = strDup(toStr(tmp));
-  loadByteCode(vm, toStr(strCat(tmp, cstr("cora/init.bc"))));
-  loadByteCode(vm, toStr(strCat(tmp1, cstr("cora/compile.bc"))));
-  repl(vm, stdin);
+  loadByteCode(vm, pos, toStr(strCat(tmp, cstr("cora/init.bc"))));
+  loadByteCode(vm, pos, toStr(strCat(tmp1, cstr("cora/compile.bc"))));
+  repl(vm, pos, stdin);
 }
 
 /* static void */
