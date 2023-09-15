@@ -22,21 +22,6 @@ struct callStack {
 };
 
 static void
-ensureSize(char **data, int *len, int *cap, int sz) {
-  if (*len + sz < *cap) {
-    return;
-  }
-
-  while(*len + sz >= *cap) {
-    *cap = *cap * 2;
-  }
-  void *newData = malloc(*cap);
-  memcpy(newData, *data, *len);
-  free(*data);
-  *data = newData;
-}
-
-static void
 saveStack(struct callStack *cs, void *pc, int base, int pos, Obj *stack) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
@@ -73,7 +58,7 @@ struct VM {
   Obj result;
 };
 
-static void
+void
 opConst(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   val = *((Obj*)pc);
@@ -81,7 +66,7 @@ opConst(void* pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)pc))(pc, val, vm, pos);
 }
 
-static void
+void
 opLocalRef(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (char*)pc + sizeof(opcode*);
   uint32_t idx = *((uint32_t*)pc);
@@ -90,7 +75,7 @@ opLocalRef(void* pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)pc))(pc, val, vm, pos);
 }
 
-static void
+void
 opLocalSet(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (char*)pc + sizeof(opcode*);
   uint32_t idx = *((uint32_t*)pc);
@@ -99,7 +84,7 @@ opLocalSet(void* pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)pc))(pc, val, vm, pos);
 }
 
-static void
+void
 opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   Obj sym = *((Obj*)pc);
@@ -114,22 +99,12 @@ opGlobalRef(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static Obj
-makePrimitive(void* fn, int nargs) {
-  Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0);
-  struct scmClosure* clo = mustClosure(tmp);
-  clo->fn = fn;
-  clo->required = nargs;
-  clo->code = &clo->fn;
-  return tmp;
-}
-
 static void makeTheCall(void *pc, Obj val, struct VM *vm, int pos);
-static void opExit(void* pc, Obj val, struct VM *vm, int pos);
+void opExit(void* pc, Obj val, struct VM *vm, int pos);
 
 const int INIT_STACK_SIZE = 4096;
 
-static void
+void
 resumeCurry(void *pc, Obj val, struct VM *vm, int pos) {
   struct scmClosure* clo = mustClosure(vm->stack[vm->base]);
   // TODO: make sure the capacity of the stack is enough
@@ -140,15 +115,6 @@ resumeCurry(void *pc, Obj val, struct VM *vm, int pos) {
   memmove(&vm->stack[vm->base], clo->closed, sizeof(Obj)*clo->nfrees);
   pos += (clo->nfrees - 1);
   makeTheCall(pc, val, vm, pos);
-}
-
-static Obj
-makeCurry(int required, Obj *closed, int nfrees) {
-  Obj tmp = makeClosure(required, nfrees, closed, NULL, 0);
-  struct scmClosure* clo = mustClosure(tmp);
-  clo->fn = resumeCurry;
-  clo->code = &clo->fn;
-  return tmp;
 }
 
 static void
@@ -183,7 +149,7 @@ makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
   }
 }
 
-static void
+void
 opTailCall(void *pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   uint32_t nargs = *((int32_t*)pc);
@@ -194,7 +160,7 @@ opTailCall(void *pc, Obj val, struct VM *vm, int pos) {
   makeTheCall(pc, val, vm, pos);
 }
 
-static void
+void
 opClosureRef(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (char*)pc + sizeof(opcode*);
   uint32_t idx = *((uint32_t*)pc);
@@ -204,7 +170,7 @@ opClosureRef(void* pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)pc))(pc, val, vm, pos);
 }
 
-static void
+void
 opExit(void* pc, Obj val, struct VM *vm, int pos) {
   popStack(&vm->callstack, &pc, &vm->base, &pos, &vm->stack);
   if (pc == NULL) {
@@ -214,7 +180,7 @@ opExit(void* pc, Obj val, struct VM *vm, int pos) {
   }
 }
 
-static void
+void
 opPush(void* pc, Obj val, struct VM *vm, int pos) {
   vm->stack[pos] = val;
   pos++;
@@ -222,7 +188,7 @@ opPush(void* pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opIf(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc + sizeof(opcode*));
   if (val == True) {
@@ -239,7 +205,7 @@ opIf(void* pc, Obj val, struct VM *vm, int pos) {
   assert(false);
 }
 
-static void
+void
 opCall(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc+sizeof(opcode));
   uint32_t nargs = *((uint32_t*)pc);
@@ -250,7 +216,7 @@ opCall(void* pc, Obj val, struct VM *vm, int pos) {
   makeTheCall(pc, val, vm, pos);
 }
 
-static void
+void
 opMakeClosure(void *pc, Obj val, struct VM *vm, int pos) {
   pc = (void*)((char*)pc + sizeof(opcode*));
   uint32_t required = *((uint32_t*)pc);
@@ -274,7 +240,7 @@ opMakeClosure(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimSet(void *pc, Obj val, struct VM *vm, int pos) {
   val = vm->stack[pos-1];
   Obj key = vm->stack[pos-2];
@@ -286,7 +252,7 @@ opPrimSet(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[pos-2];
   Obj y = vm->stack[pos-1];
@@ -301,7 +267,7 @@ opPrimSub(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[pos-1];
   Obj y = vm->stack[pos-2];
@@ -316,7 +282,7 @@ opPrimAdd(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimIsString(void *pc, Obj val, struct VM *vm, int pos) {
   if (isstring(vm->stack[--pos])) {
     val = True;
@@ -327,21 +293,21 @@ opPrimIsString(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimCar(void *pc, Obj val, struct VM *vm, int pos) {
   val = car(vm->stack[--pos]);
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimCdr(void *pc, Obj val, struct VM *vm, int pos) {
   val = cdr(vm->stack[--pos]);
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimCons(void *pc, Obj val, struct VM *vm, int pos) {
   Obj y = vm->stack[--pos];
   Obj x = vm->stack[--pos];
@@ -350,7 +316,7 @@ opPrimCons(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimIsCons(void *pc, Obj val, struct VM *vm, int pos) {
   if (iscons(vm->stack[--pos])) {
     val = True;
@@ -363,7 +329,7 @@ opPrimIsCons(void *pc, Obj val, struct VM *vm, int pos) {
 
 static uint64_t genIdx = 0;
 
-static void
+void
 opPrimGenSym(void *pc, Obj val, struct VM *vm, int pos) {
   Obj arg = vm->stack[--pos];
   assert(issymbol(arg));
@@ -375,7 +341,7 @@ opPrimGenSym(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimIsInteger(void *pc, Obj val, struct VM *vm, int pos) {
   if (isfixnum(vm->stack[--pos])) {
     val = True;
@@ -386,7 +352,7 @@ opPrimIsInteger(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimIsSymbol(void *pc, Obj val, struct VM *vm, int pos) {
   if (issymbol(vm->stack[--pos])) {
     val = True;
@@ -397,7 +363,7 @@ opPrimIsSymbol(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimNot(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[--pos];
   if (x == True) {
@@ -411,7 +377,7 @@ opPrimNot(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimGT(void *pc, Obj val, struct VM *vm, int pos) {
   Obj y = vm->stack[--pos];
   Obj x = vm->stack[--pos];
@@ -426,7 +392,7 @@ opPrimGT(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimLT(void *pc, Obj val, struct VM *vm, int pos) {
   Obj y = vm->stack[--pos];
   Obj x = vm->stack[--pos];
@@ -441,7 +407,7 @@ opPrimLT(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opPrimMul(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[pos-1];
   Obj y = vm->stack[pos-2];
@@ -461,14 +427,10 @@ __inline_eq(Obj x, Obj y) {
   if (tagX != tagY) {
     return False;
   }
-  if (tagX != TAG_CONS && tagX != TAG_PTR) {
-    return False;
-  }
-
   return eq(x, y) ? True : False;
 }
 
-static void
+void
 opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vm->stack[pos-1];
   Obj y = vm->stack[pos-2];
@@ -478,7 +440,7 @@ opPrimEQ(void *pc, Obj val, struct VM *vm, int pos) {
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
 
-static void
+void
 opReserveLocals(void* pc, Obj val, struct VM *vm, int pos) {
   pc = (char*)pc + sizeof(opcode*);
   uint32_t nlocals = *((uint32_t*)pc);
@@ -490,155 +452,6 @@ opReserveLocals(void* pc, Obj val, struct VM *vm, int pos) {
   }
   pos += nlocals;
   (*((opcode*)pc))(pc, val, vm, pos);
-}
-
-struct program {
-  char *code;
-  int len1;
-  int cap1;
-};
-
-static void
-progAppendOP(struct program *p, opcode op) {
-  ensureSize(&p->code, &p->len1, &p->cap1, sizeof(op));
-  memcpy(p->code+p->len1, &op, sizeof(op));
-  p->len1 += sizeof(op);
-}
-
-static void
-progAppendObj(struct program *p, Obj obj) {
-  ensureSize(&p->code, &p->len1, &p->cap1, sizeof(obj));
-  memcpy(p->code+p->len1, &obj, sizeof(obj));
-  p->len1 += sizeof(obj);
-}
-
-static void
-progAppendInt32(struct program *p, int32_t v) {
-  ensureSize(&p->code, &p->len1, &p->cap1, sizeof(int32_t));
-  memcpy(p->code+p->len1, &v, sizeof(int32_t));
-  p->len1 += sizeof(int32_t);
-}
-
-Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet;
-
-static void toExecMany(Obj exp, struct program *p);
-
-static void
-toExec(Obj exp, struct program *p) {
-  Obj sym = car(exp);
-  if (sym == symConst) {
-    progAppendOP(p, opConst);
-    Obj val = cadr(exp);
-    if (iscons(val)) {
-      printObj(stdout, exp);
-      printf("invalid bytecode (const (pair ..))\n");
-      /* assert(false); */
-    }
-    progAppendObj(p, val);
-  } else if (sym == symLocalRef) {
-    progAppendOP(p, opLocalRef);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symClosureRef) {
-    progAppendOP(p, opClosureRef);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symGlobalRef) {
-    progAppendOP(p, opGlobalRef);
-    progAppendObj(p, cadr(exp));
-  } else if (sym == symIf) {
-    progAppendOP(p, opIf);
-    int pos = p->len1;
-    ensureSize(&p->code, &p->len1, &p->cap1, sizeof(uint32_t));
-    p->len1 += sizeof(uint32_t);
-    toExecMany(cadr(exp), p);
-    int sz = p->len1 - pos - sizeof(uint32_t);
-    *((uint32_t*)(p->code+pos)) = sz;
-    toExecMany(cadr(cdr(exp)), p);
-  } else if (sym == symMakeClosure) {
-    progAppendOP(p, opMakeClosure);
-    progAppendInt32(p, fixnum(cadr(exp))); // required
-    progAppendInt32(p, fixnum(cadr(cdr(exp)))); // nfrees
-    int pos = p->len1;
-    ensureSize(&p->code, &p->len1, &p->cap1, sizeof(uint32_t));
-    p->len1 += sizeof(uint32_t);
-    toExecMany(cadr(cdr(cdr(exp))), p);
-    int sz = p->len1 - pos - sizeof(uint32_t);
-    *(uint32_t*)(p->code+pos) = sz;
-  } else if (sym == symTailCall) {
-    progAppendOP(p, opTailCall);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symCall) {
-    progAppendOP(p, opCall);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symPush) {
-    progAppendOP(p, opPush);
-  } else if (sym == symExit) {
-    progAppendOP(p, opExit);
-  } else if (sym == symReserveLocals) {
-    progAppendOP(p, opReserveLocals);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symLocalSet) {
-    progAppendOP(p, opLocalSet);
-    progAppendInt32(p, fixnum(cadr(exp)));
-  } else if (sym == symPrimitive) {
-    Obj prim = cadr(exp);
-    if (prim == makeSymbol("=")) {
-      progAppendOP(p, opPrimEQ);
-    } else if (prim == makeSymbol("set")) {
-      progAppendOP(p, opPrimSet);
-    } else if (prim == makeSymbol("+")) {
-      progAppendOP(p, opPrimAdd);
-    } else if (prim == makeSymbol("-")) {
-      progAppendOP(p, opPrimSub);
-    } else if (prim == makeSymbol("*")) {
-      progAppendOP(p, opPrimMul);
-    } else if (prim == makeSymbol("<")) {
-      progAppendOP(p, opPrimLT);
-    } else if (prim == makeSymbol(">")) {
-      progAppendOP(p, opPrimGT);
-    } else if (prim == makeSymbol("car")) {
-      progAppendOP(p, opPrimCar);
-    } else if (prim == makeSymbol("cdr")) {
-      progAppendOP(p, opPrimCdr);
-    } else if (prim == makeSymbol("cons")) {
-      progAppendOP(p, opPrimCons);
-    } else if (prim == makeSymbol("not")) {
-      progAppendOP(p, opPrimNot);
-    } else if (prim == makeSymbol("cons?")) {
-      progAppendOP(p, opPrimIsCons);
-    } else if (prim == makeSymbol("gensym")) {
-      progAppendOP(p, opPrimGenSym);
-    } else if (prim == makeSymbol("integer?")) {
-      progAppendOP(p, opPrimIsInteger);
-    } else if (prim == makeSymbol("symbol?")) {
-      progAppendOP(p, opPrimIsSymbol);
-    } else if (prim == makeSymbol("string?")) {
-      progAppendOP(p, opPrimIsString);
-    } else {
-      printf("primitive not implement: %s\n", symbolStr(prim));
-    }
-  } else {
-    /* printf("instr not implement: %s\n", symbolStr(car(exp))); */
-    printf("instr not implement: ");
-    printObj(stdout, exp);
-    printf("\n");
-  }
-}
-
-static void
-toExecMany(Obj exp, struct program *p) {
-  for (; exp != Nil; exp = cdr(exp)) {
-    toExec(car(exp), p);
-  }
-}
-
-static char*
-bytecodeToExec(Obj bc)  {
-  struct program p;
-  p.cap1 = 64;
-  p.len1 = 0;
-  p.code = malloc(p.cap1);
-  toExecMany(bc, &p);
-  return p.code;
 }
 
 void
@@ -730,6 +543,8 @@ builtinThrow(void *pc, Obj val, struct VM *vm, int pos) {
   makeTheCall(pc, val, vm, pos);
 }
 
+Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet;
+
 void
 coraInit() {
   symQuote = intern("quote");
@@ -764,6 +579,46 @@ coraInit() {
   symbolSet(makeSymbol("number?"), makePrimitive(builtinIsNumber, 1));
   symbolSet(makeSymbol("try"), makePrimitive(builtinTryCatch, 2));
   symbolSet(makeSymbol("throw"), makePrimitive(builtinThrow, 1));
+
+  symbolSet(makeSymbol("cora/lib/compile.c-make-program"), makePrimitive(builtinMakeProgram, 0));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-op"), makePrimitive(builtinProgAppendOP, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-obj"), makePrimitive(builtinProgAppendObj, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-int32"), makePrimitive(builtinProgAppendInt32, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-prim"), makePrimitive(builtinProgAppendPrim, 2));
+
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-prepare-size"), makePrimitive(builtinProgPrepareSize, 1));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-write-back-size"), makePrimitive(builtinProgWriteBackSize, 2));
+
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-run"), makePrimitive(builtinProgRun, 1));
+
+  symbolSet(makeSymbol("cora/lib/compile.c-opConst"), makeNumber(0));
+  symbolSet(makeSymbol("cora/lib/compile.c-opLocalRef"), makeNumber(1));
+  symbolSet(makeSymbol("cora/lib/compile.c-opLocalSet"), makeNumber(2));
+  symbolSet(makeSymbol("cora/lib/compile.c-opGlobalRef"), makeNumber(3));
+  symbolSet(makeSymbol("cora/lib/compile.c-opTailCall"), makeNumber(4));
+  symbolSet(makeSymbol("cora/lib/compile.c-opClosureRef"), makeNumber(5));
+  symbolSet(makeSymbol("cora/lib/compile.c-opExit"), makeNumber(6));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPush"), makeNumber(7));
+  symbolSet(makeSymbol("cora/lib/compile.c-opIf"), makeNumber(8));
+  symbolSet(makeSymbol("cora/lib/compile.c-opCall"), makeNumber(9));
+  symbolSet(makeSymbol("cora/lib/compile.c-opMakeClosure"), makeNumber(10));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimSet"), makeNumber(11));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimSub"), makeNumber(12));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimAdd"), makeNumber(13));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsString"), makeNumber(14));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimCar"), makeNumber(15));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimCdr"), makeNumber(16));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimCons"), makeNumber(17));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsCons"), makeNumber(18));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimGenSym"), makeNumber(19));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsInteger"), makeNumber(20));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsSymbol"), makeNumber(21));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimNot"), makeNumber(22));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimGT"), makeNumber(23));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimLT"), makeNumber(24));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimMul"), makeNumber(25));
+  symbolSet(makeSymbol("cora/lib/compile.c-opPrimEQ"), makeNumber(26));
+  symbolSet(makeSymbol("cora/lib/compile.c-opReserveLocals"), makeNumber(27));
 }
 
 static bool inited = false;
@@ -784,64 +639,10 @@ newVM() {
 }
 
 Obj
-run(struct VM *vm, char *pc) {
-  saveStack(&vm->callstack, NULL, 0, 0, vm->stack);
-  (*(opcode*)(pc))(pc, Nil, vm, 0); 
-  return vm->result;
-}
-
-int
-loadByteCode(struct VM *vm, int pos, str path) {
-  FILE *in = fopen(path.str, "r");
-  if (in == NULL) {
-    assert("wrong path");
-  }
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
-  int err = 0;
-  Obj ast = sexpRead(vm, pos, &r, in, &err);
-  while(ast != Nil) {
-    /* printf("========================================= read == \n"); */
-    Obj code = car(ast);
-    char *exec = bytecodeToExec(code);
-    run(vm, exec);
-    /* printObj(stdout, res); */
-    ast = cdr(ast);
-  }
-  return 0;
-}
-
-Obj
-macroExpand(struct VM *vm, int pos, int exp) {
-  Obj val = symbolGet(symMacroExpand);
-  if (val == Nil || val == Undef) {
-    return vmRef(vm, exp);
-  }
-  int base = pos;
-  vm->stack[pos++] = val;
-  vm->stack[pos++] = vmRef(vm, exp);
+run(struct VM *vm, char *pc, int pos) {
   saveStack(&vm->callstack, NULL, vm->base, pos, vm->stack);
-  vm->base = base;
-  makeTheCall(NULL, Nil, vm, pos);
+  (*(opcode*)(pc))(pc, Nil, vm, pos); 
   return vm->result;
-}
-
-Obj
-eval(struct VM *vm, int pos, int exp) {
-  // call (cora/lib/compile.cc exp) to generate the bytecode
-  Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
-  int base = pos;
-  vm->stack[pos++] = compile;
-  vm->stack[pos++] = vmRef(vm, exp);
-  saveStack(&vm->callstack, NULL, vm->base, pos, vm->stack);
-  vm->base = base;
-  makeTheCall(NULL, Nil, vm, pos);
-
-  /* printf("the byte code is ===\n"); */
-  /* printObj(stdout, vm->result); */
-
-  // run the bytecode
-  char *pc = bytecodeToExec(vm->result);
-  return run(vm, pc);
 }
 
 Obj
@@ -869,6 +670,22 @@ vmPush(struct VM *vm, int *pos, Obj val) {
   vm->stack[*pos] = val;
   (*pos)++;
   return;
+}
+
+Obj
+vmCall(struct VM *vm, int pos, int n) {
+  // Stack before the call:
+  // ...   <--vm->base
+  // ...
+  // fn    <-- first arg
+  // arg1
+  // arg2
+  // argn  <--pos
+  int newBase = pos-n;
+  saveStack(&vm->callstack, NULL, vm->base, newBase, vm->stack);
+  vm->base = newBase;
+  makeTheCall(NULL, Nil, vm, pos);
+  return vm->result;
 }
 
 Obj

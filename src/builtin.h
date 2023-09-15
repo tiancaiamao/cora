@@ -42,4 +42,14 @@ Obj primNot(Obj x);
 void primLoad(struct VM *vm, int pos, str path, str pkg);
 /* void primLoadSo(struct VM *vm, char *path); */
 
+void builtinMakeProgram(void *pc, Obj val, struct VM *vm, int pos);
+void builtinProgAppendOP(void *pc, Obj val, struct VM *vm, int pos);
+void builtinProgAppendObj(void *pc, Obj val, struct VM *vm, int pos);
+void builtinProgAppendInt32(void *pc, Obj val, struct VM *vm, int pos);
+void builtinProgPrepareSize(void *pc, Obj val, struct VM *vm, int ignore);
+void builtinProgWriteBackSize(void *pc, Obj val, struct VM *vm, int ignore);
+void builtinProgAppendPrim(void *pc, Obj val, struct VM *vm, int pos);
+
+void builtinProgRun(void *pc, Obj val, struct VM *vm, int pos);
+
 #endif
