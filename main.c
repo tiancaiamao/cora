@@ -10,13 +10,14 @@
 static void
 repl(struct VM *vm, int pos, FILE* stream) {
   int ref = pos++;
+  struct SexpReader r = {.pkgMapping = Nil};
+  int errCode = 0;
+
   for (int i=0; ; i++) {
     if (stream == stdin) {
       printf("%d #> ", i);
     }
 
-    struct SexpReader r = {.pkgMapping = Nil};
-    int errCode = 0;
     Obj exp = sexpRead(vm, pos, &r, stream, &errCode);
     if (errCode != 0) {
       break;

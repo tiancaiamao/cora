@@ -6,12 +6,12 @@ OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC -O2
 
-all: libcora.a libcora.so
+all: libcora.a
 
 test: reader_test eval_test bootstrap_test
 
 reader.test: reader.c
-	gcc -g -D_READER_TEST_ -o reader.test reader.c builtin.c types.c gc.c vm.c str.c -ldl
+	gcc -g -D_READER_TEST_ -o reader.test reader.c builtin.c types.c gc.c vm.c str.c
 
 reader_test: reader.test
 	./reader.test

@@ -20,18 +20,18 @@ typedef uintptr_t Obj;
 // 000 fixnum
 // 001 non-fixnum
 // 001 symbol
-// 011 cons
+// 011 cobj
 // 101 immediate const (boolean, null, undef...)
 // 111 general pointer (string, vector, number, error...)
 #define TAG_FIXNUM 0x0
 #define TAG_SYMBOL 0x1
-#define TAG_CONS 0x3
+#define TAG_COBJ 0x3
 #define TAG_IMMEDIATE_CONST 0x5
 // 1-101 boolean
 // 0-101 other constant
 #define TAG_BOOLEAN 0xd
 
-#define iscons(x) (tag(x) == TAG_CONS)
+#define iscobj(x) (tag(x) == TAG_COBJ)
 #define issymbol(x) (tag(x) == TAG_SYMBOL)
 #define isfixnum(x) (((x) & 1) == 0)
 #define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
@@ -79,6 +79,8 @@ bool eq(Obj x, Obj y);
 
 scmHead *getScmHead(Obj);
 
+void* mustCObj(Obj o);
+
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
@@ -86,6 +88,7 @@ Obj symbolSet(Obj sym, Obj val);
 const char* symbolStr(Obj sym);
 
 #define cons(x, y) makeCons(x, y)
+bool iscons(Obj o);
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
@@ -93,6 +96,8 @@ Obj caddr(Obj v);
 Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
+
+Obj makeCObj(void *ptr);
 
 typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
 
@@ -112,6 +117,9 @@ void* closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureSlot(Obj, int);
 int closureRequired(Obj);
+
+Obj makePrimitive(opcode fn, int nargs);
+Obj makeCurry(int required, Obj *closed, int nfrees);
 
 struct tagbstring;
 typedef struct tagbstring * bstring;

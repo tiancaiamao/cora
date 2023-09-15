@@ -34,10 +34,22 @@ newObj(scmHeadType tp, int sz) {
 
 scmHead*
 getScmHead(Obj o) {
-  if (tag(o) == TAG_PTR || tag(o) == TAG_CONS) {
+  if (tag(o) == TAG_PTR) {
     return ptr(o);
   }
   return NULL;
+}
+
+Obj makeCObj(void *ptr) {
+  // The pointer must be aligned to be used as c object.
+  assert(((Obj)ptr & TAG_PTR) == 0);
+  return ((Obj)(ptr) | TAG_COBJ);
+}
+
+void*
+mustCObj(Obj o) {
+  assert(tag(o) == TAG_COBJ);
+  return ptr(o);
 }
 
 Obj
@@ -45,7 +57,15 @@ makeCons(Obj car, Obj cdr) {
   struct scmCons* p = newObj(scmHeadCons, sizeof(struct scmCons));
   p->car = car;
   p->cdr = cdr;
-  return ((Obj)(&p->head) | TAG_CONS);
+  return ((Obj)(&p->head) | TAG_PTR);
+}
+
+bool iscons(Obj o) {
+  if ((o & TAG_MASK) != TAG_PTR) {
+    return false;
+  }
+  scmHead *h = ptr(o);
+  return h->type == scmHeadCons;
 }
 
 /* static void */
@@ -138,6 +158,28 @@ int
 closureRequired(Obj o) {
   struct scmClosure* c = mustClosure(o);
   return c->required;
+}
+
+Obj
+makePrimitive(opcode fn, int nargs) {
+  Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = fn;
+  clo->required = nargs;
+  clo->code = &clo->fn;
+  return tmp;
+}
+
+
+extern void resumeCurry(void *pc, Obj val, struct VM *vm, int pos);
+
+Obj
+makeCurry(int required, Obj *closed, int nfrees) {
+  Obj tmp = makeClosure(required, nfrees, closed, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = resumeCurry;
+  clo->code = &clo->fn;
+  return tmp;
 }
 
 /* static struct hashForObjItem* */
@@ -304,16 +346,16 @@ struct scmCurry {
   Obj *data;
 };
 
-Obj
-makeCurry(int required, int captured, Obj *data) {
-  int sz = sizeof(struct scmCurry) + captured*sizeof(Obj);
-  struct scmCurry* clo = newObj(scmHeadCurry, sz);
-  clo->required = required;
-  clo->captured = captured;
-  clo->data = data;
-  /* assert(captured > 0); */
-  return ((Obj)(&clo->head) | TAG_PTR);
-}
+/* Obj */
+/* makeCurry(int required, int captured, Obj *data) { */
+/*   int sz = sizeof(struct scmCurry) + captured*sizeof(Obj); */
+/*   struct scmCurry* clo = newObj(scmHeadCurry, sz); */
+/*   clo->required = required; */
+/*   clo->captured = captured; */
+/*   clo->data = data; */
+/*   /\* assert(captured > 0); *\/ */
+/*   return ((Obj)(&clo->head) | TAG_PTR); */
+/* } */
 
 /* static void */
 /* curryGCFunc(struct GC *gc, void* obj) { */
