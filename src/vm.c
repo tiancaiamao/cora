@@ -666,9 +666,8 @@ vmRef(struct VM *vm, int ref) {
 }
 
 void
-vmPush(struct VM *vm, int *pos, Obj val) {
-  vm->stack[*pos] = val;
-  (*pos)++;
+vmPush(struct VM *vm, int pos, Obj val) {
+  vm->stack[pos] = val;
   return;
 }
 

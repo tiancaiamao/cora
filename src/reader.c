@@ -112,9 +112,9 @@ reverse(struct VM *vm, int pos, int O) {
 static Obj
 readListMacro(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
   const int hd = pos;
-  vmPush(vm, &pos, intern("list"));
+  vmPush(vm, pos++, intern("list"));
   const int ret = pos;
-  vmPush(vm, &pos, Nil);
+  vmPush(vm, pos++, Nil);
   const int o = pos++;
   char b = peekFirstChar(in);
   while (b != EOF && b != ']') {

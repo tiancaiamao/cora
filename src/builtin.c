@@ -546,6 +546,7 @@ loadByteCode(struct VM *vm, int pos, str path) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
     Obj p = bytecodeToExec(code);
+
     struct program *prog = mustCObj(p);
     run(vm, prog->code, pos);
     /* printObj(stdout, res); */
@@ -559,15 +560,19 @@ Obj
 eval(struct VM *vm, int pos, Ref exp) {
   // call (cora/lib/compile.cc exp) to generate the bytecode
   Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
-  vmPush(vm, &pos, compile);
-  vmPush(vm, &pos, vmRef(vm, exp));
+  vmPush(vm, pos++, compile);
+  vmPush(vm, pos++, vmRef(vm, exp));
   Obj res = vmCall(vm, pos, 2);
 
   /* printf("the byte code is ===\n"); */
   /* printObj(stdout, vm->result); */
 
+  Obj bytecodeToExec = symbolGet(makeSymbol("cora/lib/compile.bytecode-to-exec"));
+  vmPush(vm, pos++, bytecodeToExec);
+  vmPush(vm, pos++, res);
+  Obj p = vmCall(vm, pos, 2);
+
   // run the bytecode
-  Obj p = bytecodeToExec(res);
   struct program *prog = mustCObj(p);
   return run(vm, prog->code, pos);
 }
@@ -578,7 +583,7 @@ macroExpand(struct VM *vm, int pos, Ref exp) {
   if (val == Nil || val == Undef) {
     return vmRef(vm, exp);
   }
-  vmPush(vm, &pos, val);
-  vmPush(vm, &pos, vmRef(vm, exp));
+  vmPush(vm, pos++, val);
+  vmPush(vm, pos++, vmRef(vm, exp));
   return vmCall(vm, pos, 2);
 }

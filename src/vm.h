@@ -13,13 +13,12 @@ typedef int Ref;
 // Basic APIs.
 Obj vmGet(struct VM *vm, int idx);
 void vmReturn(struct VM *vm, Obj val);
-
 Obj vmRef(struct VM *vm, Ref ref);
 Obj vmCar(struct VM *vm, Ref ref);
 Obj vmCdr(struct VM *vm, Ref ref);
 Obj vmCons(struct VM *vm, Ref r1, Ref r2);
 void vmSet(struct VM* vm, Ref ref, Obj val);
-void vmPush(struct VM *vm, int *pos, Obj val);
+void vmPush(struct VM *vm, int pos, Obj val);
 Obj vmCall(struct VM *vm, int pos, int n);
 
 // Essentially, the VM only provide this.
