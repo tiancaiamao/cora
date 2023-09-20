@@ -9,7 +9,6 @@
 
 static void
 repl(struct VM *vm, int pos, FILE* stream) {
-  int ref = pos++;
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode = 0;
 
@@ -18,7 +17,7 @@ repl(struct VM *vm, int pos, FILE* stream) {
       printf("%d #> ", i);
     }
 
-    Obj exp = sexpRead(vm, pos, &r, stream, &errCode);
+    Obj exp = sexpRead(&r, stream, &errCode);
     if (errCode != 0) {
       break;
     }
@@ -26,15 +25,13 @@ repl(struct VM *vm, int pos, FILE* stream) {
     /* printf("before macro expand =="); */
     /* sexpWrite(stdout, exp); */
 
-    vmSet(vm, ref, exp);
-    exp = macroExpand(vm, pos, ref);
+    exp = macroExpand(vm, pos, exp);
 
     /* printf("after macro expand =="); */
     /* sexpWrite(stdout, exp); */
     /* printf("\n"); */
 
-    vmSet(vm, ref, exp);
-    Obj res = eval(vm, pos, ref);
+    Obj res = eval(vm, pos, exp);
 
     if (stream == stdin) {
       sexpWrite(stdout, res);

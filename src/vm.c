@@ -656,16 +656,6 @@ vmReturn(struct VM *vm, Obj val) {
 }
 
 void
-vmSet(struct VM* vm, int ref, Obj val) {
-  vm->stack[ref] = val;
-}
-
-Obj
-vmRef(struct VM *vm, int ref) {
-  return vm->stack[ref];
-}
-
-void
 vmPush(struct VM *vm, int pos, Obj val) {
   vm->stack[pos] = val;
   return;
@@ -685,19 +675,4 @@ vmCall(struct VM *vm, int pos, int n) {
   vm->base = newBase;
   makeTheCall(NULL, Nil, vm, pos);
   return vm->result;
-}
-
-Obj
-vmCar(struct VM *vm, int ref) {
-  return car(vm->stack[ref]);
-}
-
-Obj
-vmCdr(struct VM *vm, int ref) {
-  return cdr(vm->stack[ref]);
-}
-
-Obj
-vmCons(struct VM *vm, int r1, int r2) {
-  return cons(vm->stack[r1], vm->stack[r2]);
 }

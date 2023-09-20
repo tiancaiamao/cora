@@ -6,15 +6,13 @@
 
 static void
 TestReadSexp() {
-  struct VM *vm = newVM();
-  int pos = 0;
   char buffer[] = "(a b c)";
   /* char buffer[] = "(a)"; */
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
   struct SexpReader reader = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(vm, pos, &reader, stream, &errCode);
+  Obj o = sexpRead(&reader, stream, &errCode);
 
   /* Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil))); */
   Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
@@ -39,11 +37,9 @@ TestImport() {
   char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  struct VM *vm = newVM();
-  int pos = 0;
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(vm, pos, &r, stream, &errCode);
+  Obj o = sexpRead(&r, stream, &errCode);
   Obj pathStr = makeString("std/cora/basic", 14);
   Obj s = cons(intern("import"), cons(pathStr, Nil));
   assert(eq(o, s));
@@ -51,7 +47,7 @@ TestImport() {
   /* printf("\n"); */
   assert(eq(r.pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
 
-  Obj x = sexpRead(vm, pos, &r, stream, &errCode);
+  Obj x = sexpRead(&r, stream, &errCode);
   /* printObj(stdout, x); */
   /* printf("\n"); */
   assert(eq(car(x), intern("std/cora/basic.yyy")));

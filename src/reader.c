@@ -1,6 +1,5 @@
 #include "reader.h"
 #include "types.h"
-#include "vm.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +54,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
+readCons(struct SexpReader *r, FILE *in, int *errCode) {
   int c = getc(in);
   if (c == ')') {
     // read the empty list
@@ -63,13 +62,13 @@ readCons(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
   }
 
   ungetc(c, in);
-  Obj hd = sexpRead(vm, pos, r, in, errCode);
+  Obj hd = sexpRead(r, in, errCode);
 
   c = peekFirstChar(in);
   ungetc(c, in);
 
   /* read list */
-  Obj tl = readCons(vm, pos, r, in, errCode);
+  Obj tl = readCons(r, in, errCode);
 
   /* printf("read cdr"); */
   /* printObj(cdr); */
@@ -97,38 +96,31 @@ readCons(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
 }
 
 Obj
-reverse(struct VM *vm, int pos, int O) {
-  const int RET = pos++;
-  const int TMP = pos++;
-  vmSet(vm, RET, Nil);
-  while(vmRef(vm, O) != Nil) {
-    vmSet(vm, TMP, vmCar(vm, O));
-    vmSet(vm, RET, vmCons(vm, TMP, RET));
-    vmSet(vm, O, vmCdr(vm, O));
+reverse(Obj o) {
+  Obj ret = Nil;
+  while (o != Nil) {
+    ret = cons(car(o), ret);
+    o = cdr(o);
   }
-  return vmRef(vm, RET);
+  return ret;
 }
 
 static Obj
-readListMacro(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
-  const int hd = pos;
-  vmPush(vm, pos++, intern("list"));
-  const int ret = pos;
-  vmPush(vm, pos++, Nil);
-  const int o = pos++;
+readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
+  Obj hd = intern("list");
+  Obj ret = Nil;
   char b = peekFirstChar(in);
   while (b != EOF && b != ']') {
     if (b == '.') {
-      vmSet(vm, hd, intern("list-rest"));
+      hd = intern("list-rest");
     } else {
       ungetc(b, in);
-      vmSet(vm, o, sexpRead(vm, pos, r, in, errCode));
-      vmSet(vm, ret, vmCons(vm, o, ret));
+      Obj o = sexpRead(r, in, errCode);
+      ret = cons(o, ret);
     }
     b = peekFirstChar(in);
   }
-  vmSet(vm, ret, reverse(vm, pos, ret));
-  return vmCons(vm, hd, ret);
+  return cons(hd, reverse(ret));
 }
 
 static Obj
@@ -151,7 +143,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(struct VM *vm, int pos, struct SexpReader* r, FILE *in, int *errCode) {
+sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
   int c;
   int i;
   char buffer[512];
@@ -167,18 +159,18 @@ sexpRead(struct VM *vm, int pos, struct SexpReader* r, FILE *in, int *errCode) {
 
   // read quote
   if (c == '\'') {
-    Obj o = sexpRead(vm, pos, r, in, errCode);
+    Obj o = sexpRead( r, in, errCode);
     return cons(symQuote, cons(o, Nil));
   }
 
   // read the empty list or pair
   if (c == '(')	{
-    return readCons(vm, pos, r, in, errCode);
+    return readCons(r, in, errCode);
   }
 
   // read list macro
   if (c == '[') {
-    return readListMacro(vm, pos, r, in, errCode);
+    return readListMacro( r, in, errCode);
   }
 
   // read a string

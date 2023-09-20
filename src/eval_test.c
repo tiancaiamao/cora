@@ -183,10 +183,8 @@ TestEvalBasic() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(vm, pos, &r, f, &errCode);
-    int ref = pos++;
-    vmSet(vm, ref, s);
-    Obj res = eval(vm, pos, ref);
+    Obj s = sexpRead(&r, f, &errCode);
+    Obj res = eval(vm, pos, s);
 
     char output[512];
     memset(output, 0, 512);
@@ -328,7 +326,6 @@ TestTryCatch() {
   /* char *pkgName = "cora/init"; */
   /* eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil))); */
 
-  int ref = pos++;
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
 
@@ -337,11 +334,9 @@ TestTryCatch() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(vm, pos, &r, f, &errCode);
-    vmSet(vm, ref, s);
-    Obj exp = macroExpand(vm, pos, ref);
-    vmSet(vm, ref, exp);
-    Obj res = eval(vm, pos, ref);
+    Obj s = sexpRead(&r, f, &errCode);
+    Obj exp = macroExpand(vm, pos, s);
+    Obj res = eval(vm, pos, exp);
 
     char output[512];
     memset(output, 0, 512);

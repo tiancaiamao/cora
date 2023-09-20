@@ -49,23 +49,18 @@ primLoad(struct VM *vm, int pos, str path, str pkg) {
 
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str};
   int err = 0;
-  Obj ast = sexpRead(vm, pos, &r, in, &err);
-  int ref = pos++;
+  Obj ast = sexpRead(&r, in, &err);
   while(err == 0) {
-
     /* printf("========================================= read == \n"); */
     /* sexpWrite(stdout, ast); */
     /* printf("\n"); */
-    
-    vmSet(vm, ref, ast);
-    Obj exp = macroExpand(vm, pos, ref);
+    Obj exp = macroExpand(vm, pos, ast);
 
     /* printObj(stdout, exp); */
     /* printf("\n"); */
 
-    vmSet(vm, ref, exp);
-    eval(vm, pos, ref);
-    ast = sexpRead(vm, pos, &r, in, &err);
+    eval(vm, pos, exp);
+    ast = sexpRead(&r, in, &err);
   }
   fclose(in);
 }
@@ -541,7 +536,7 @@ loadByteCode(struct VM *vm, int pos, str path) {
   }
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
   int err = 0;
-  Obj ast = sexpRead(vm, pos, &r, in, &err);
+  Obj ast = sexpRead(&r, in, &err);
   while(ast != Nil) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
@@ -557,11 +552,11 @@ loadByteCode(struct VM *vm, int pos, str path) {
 
 
 Obj
-eval(struct VM *vm, int pos, Ref exp) {
+eval(struct VM *vm, int pos, Obj exp) {
   // call (cora/lib/compile.cc exp) to generate the bytecode
   Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
   vmPush(vm, pos++, compile);
-  vmPush(vm, pos++, vmRef(vm, exp));
+  vmPush(vm, pos++, exp);
   Obj res = vmCall(vm, pos, 2);
 
   /* printf("the byte code is ===\n"); */
@@ -578,12 +573,12 @@ eval(struct VM *vm, int pos, Ref exp) {
 }
 
 Obj
-macroExpand(struct VM *vm, int pos, Ref exp) {
+macroExpand(struct VM *vm, int pos, Obj exp) {
   Obj val = symbolGet(symMacroExpand);
   if (val == Nil || val == Undef) {
-    return vmRef(vm, exp);
+    return exp;
   }
   vmPush(vm, pos++, val);
-  vmPush(vm, pos++, vmRef(vm, exp));
+  vmPush(vm, pos++, exp);
   return vmCall(vm, pos, 2);
 }
