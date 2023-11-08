@@ -4,7 +4,8 @@
 SRCS = str.c types.c reader.c builtin.c vm.c reader_test.c eval_test.c bootstrap_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
-CFLAGS = -g -Wall -O2
+# CFLAGS = -g -Wall -O2
+CFLAGS = -Wall -O2
 
 all: libcora.a
 
@@ -28,7 +29,7 @@ bootstrap_test:bootstrap.test
 bootstrap.test: bootstrap_test.o libcora.a
 	$(CC) -o $@ $^
 
-libcora.a: str.o types.o reader.o builtin.o vm.o
+libcora.a: gc.o str.o types.o reader.o builtin.o vm.o
 	ar -rc $@ $^
 
 libcora.so: $(OBJS)

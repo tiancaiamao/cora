@@ -35,7 +35,7 @@ void
 builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos) {
   Obj sym = vmGet(vm, 1);
   const char* str = symbolStr(sym);
-  val = makeString(str, strlen(str)+1);
+  val = makeString(vm, pos, str, strlen(str)+1);
   vmReturn(vm, val);
 }
 
@@ -49,7 +49,7 @@ primLoad(struct VM *vm, int pos, str path, str pkg) {
 
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str};
   int err = 0;
-  Obj ast = sexpRead(&r, in, &err);
+  Obj ast = sexpRead(vm, pos, &r, in, &err);
   while(err == 0) {
     /* printf("========================================= read == \n"); */
     /* sexpWrite(stdout, ast); */
@@ -60,7 +60,7 @@ primLoad(struct VM *vm, int pos, str path, str pkg) {
     /* printf("\n"); */
 
     eval(vm, pos, exp);
-    ast = sexpRead(&r, in, &err);
+    ast = sexpRead(vm, pos, &r, in, &err);
   }
   fclose(in);
 }
@@ -124,7 +124,7 @@ void
 builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos) {
   Obj x = vmGet(vm, 1);
   assert(isfixnum(x));
-  val = makeVector(fixnum(x));
+  val = makeVector(vm, pos, fixnum(x));
   vmReturn(vm, val);
 }
 
@@ -214,7 +214,7 @@ builtinImport(void *pc, Obj val, struct VM *vm, int pos) {
   strFree(tmp);
 
   // Set the *imported* variable to avlid repeated load.
-  symbolSet(sym, cons(cons(pkg, Nil), imported));
+  symbolSet(sym, cons(vm, pos, cons(vm, pos, pkg, Nil), imported));
   vmReturn(vm, pkg);
 }
 
@@ -536,7 +536,7 @@ loadByteCode(struct VM *vm, int pos, str path) {
   }
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
   int err = 0;
-  Obj ast = sexpRead(&r, in, &err);
+  Obj ast = sexpRead(vm, pos, &r, in, &err);
   while(ast != Nil) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
@@ -550,7 +550,6 @@ loadByteCode(struct VM *vm, int pos, str path) {
   return 0;
 }
 
-
 Obj
 eval(struct VM *vm, int pos, Obj exp) {
   // call (cora/lib/compile.cc exp) to generate the bytecode
@@ -562,10 +561,11 @@ eval(struct VM *vm, int pos, Obj exp) {
   /* printf("the byte code is ===\n"); */
   /* printObj(stdout, vm->result); */
 
-  Obj bytecodeToExec = symbolGet(makeSymbol("cora/lib/compile.bytecode-to-exec"));
-  vmPush(vm, pos++, bytecodeToExec);
-  vmPush(vm, pos++, res);
-  Obj p = vmCall(vm, pos, 2);
+  /* Obj bytecodeToExec = symbolGet(makeSymbol("cora/lib/compile.bytecode-to-exec")); */
+  /* vmPush(vm, pos++, bytecodeToExec); */
+  /* vmPush(vm, pos++, res); */
+  /* Obj p = vmCall(vm, pos, 2); */
+  Obj p = bytecodeToExec(res);
 
   // run the bytecode
   struct program *prog = mustCObj(p);

@@ -129,7 +129,7 @@ makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
     int sz = sizeof(Obj) * provided;
     Obj *closed = malloc(sz);
     memcpy(closed, &vm->stack[pos-provided], sz); 
-    val = makeCurry(required - provided, closed, provided);
+    val = makeCurry(vm, pos, required - provided, closed, provided);
     opExit(pc, val, vm, pos);
   } else {
     int newBase = pos;
@@ -233,7 +233,7 @@ opMakeClosure(void *pc, Obj val, struct VM *vm, int pos) {
 
   uint32_t sz = *((uint32_t*)pc);
   pc = (void*)((char*)pc + sizeof(uint32_t));
-  val = makeClosure(required, nfrees, closed, pc, sz);
+  val = makeClosure(vm, pos, required, nfrees, closed, pc, sz);
   pc = (void*)((char*)pc + sz);
 
   /* pc = (void*)((char*)pc + sizeof(opcode*)); */
@@ -311,7 +311,7 @@ void
 opPrimCons(void *pc, Obj val, struct VM *vm, int pos) {
   Obj y = vm->stack[--pos];
   Obj x = vm->stack[--pos];
-  val = cons(x, y);
+  val = cons(vm, pos, x, y);
   pc = (void*)((char*)pc + sizeof(opcode*));
   (*((opcode*)(pc)))(pc, val, vm, pos);
 }
@@ -522,7 +522,7 @@ builtinThrow(void *pc, Obj val, struct VM *vm, int pos) {
   }
 
   // Now that we get the current continuation, disguise as a closure.
-  Obj cc = makeClosure(1, 1, delimited, &continuationAsClosureOP, 0);
+  Obj cc = makeClosure(vm, pos, 1, 1, delimited, &continuationAsClosureOP, 0);
 
   // Reset the stack, go back to (try ... catch)
   vm->callstack.len = p;
@@ -546,7 +546,9 @@ builtinThrow(void *pc, Obj val, struct VM *vm, int pos) {
 Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet;
 
 void
-coraInit() {
+coraInit(struct VM *vm) {
+  g = gcInit();
+
   symQuote = intern("quote");
   symIf = intern("if");
   symLambda = intern("lambda");
@@ -568,28 +570,28 @@ coraInit() {
   symReserveLocals = makeSymbol("reserve-locals");
   symLocalSet = makeSymbol("local-set");
 
-  symbolSet(makeSymbol("symbol->string"), makePrimitive(builtinSymbolToString, 1));
-  symbolSet(makeSymbol("load"), makePrimitive(builtinLoad, 2));
-  symbolSet(makeSymbol("vector"), makePrimitive(builtinMakeVector, 1));
-  symbolSet(makeSymbol("vector?"), makePrimitive(builtinIsVector, 1));
-  symbolSet(makeSymbol("vector-set!"), makePrimitive(builtinVectorSet, 3));
-  symbolSet(makeSymbol("vector-ref"), makePrimitive(builtinVectorRef, 2));
-  symbolSet(makeSymbol("import"), makePrimitive(builtinImport, 1));
-  symbolSet(makeSymbol("intern"), makePrimitive(builtinIntern, 1));
-  symbolSet(makeSymbol("number?"), makePrimitive(builtinIsNumber, 1));
-  symbolSet(makeSymbol("try"), makePrimitive(builtinTryCatch, 2));
-  symbolSet(makeSymbol("throw"), makePrimitive(builtinThrow, 1));
+  symbolSet(makeSymbol("symbol->string"), makePrimitive(vm, 0, builtinSymbolToString, 1));
+  symbolSet(makeSymbol("load"), makePrimitive(vm, 0, builtinLoad, 2));
+  symbolSet(makeSymbol("vector"), makePrimitive(vm, 0, builtinMakeVector, 1));
+  symbolSet(makeSymbol("vector?"), makePrimitive(vm, 0, builtinIsVector, 1));
+  symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3));
+  symbolSet(makeSymbol("vector-ref"), makePrimitive(vm, 0, builtinVectorRef, 2));
+  symbolSet(makeSymbol("import"), makePrimitive(vm, 0, builtinImport, 1));
+  symbolSet(makeSymbol("intern"), makePrimitive(vm, 0, builtinIntern, 1));
+  symbolSet(makeSymbol("number?"), makePrimitive(vm, 0, builtinIsNumber, 1));
+  symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2));
+  symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1));
 
-  symbolSet(makeSymbol("cora/lib/compile.c-make-program"), makePrimitive(builtinMakeProgram, 0));
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-op"), makePrimitive(builtinProgAppendOP, 2));
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-obj"), makePrimitive(builtinProgAppendObj, 2));
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-int32"), makePrimitive(builtinProgAppendInt32, 2));
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-prim"), makePrimitive(builtinProgAppendPrim, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-make-program"), makePrimitive(vm, 0, builtinMakeProgram, 0));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-op"), makePrimitive(vm, 0, builtinProgAppendOP, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-obj"), makePrimitive(vm, 0, builtinProgAppendObj, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-int32"), makePrimitive(vm, 0, builtinProgAppendInt32, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-append-prim"), makePrimitive(vm, 0, builtinProgAppendPrim, 2));
 
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-prepare-size"), makePrimitive(builtinProgPrepareSize, 1));
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-write-back-size"), makePrimitive(builtinProgWriteBackSize, 2));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-prepare-size"), makePrimitive(vm, 0, builtinProgPrepareSize, 1));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-write-back-size"), makePrimitive(vm, 0, builtinProgWriteBackSize, 2));
 
-  symbolSet(makeSymbol("cora/lib/compile.c-prog-run"), makePrimitive(builtinProgRun, 1));
+  symbolSet(makeSymbol("cora/lib/compile.c-prog-run"), makePrimitive(vm, 0, builtinProgRun, 1));
 
   symbolSet(makeSymbol("cora/lib/compile.c-opConst"), makeNumber(0));
   symbolSet(makeSymbol("cora/lib/compile.c-opLocalRef"), makeNumber(1));
@@ -625,11 +627,11 @@ static bool inited = false;
 
 struct VM*
 newVM() {
+  struct VM *vm = malloc(sizeof(struct VM));
   if (!inited) {
-    coraInit();
+    coraInit(vm);
     inited = true;
   }
-  struct VM *vm = malloc(sizeof(struct VM));
   vm->base = 0;
   vm->stack = malloc(INIT_STACK_SIZE * sizeof(Obj));
   vm->callstack.data = malloc(64*sizeof(struct returnAddr));
@@ -675,4 +677,25 @@ vmCall(struct VM *vm, int pos, int n) {
   vm->base = newBase;
   makeTheCall(NULL, Nil, vm, pos);
   return vm->result;
+}
+
+extern void gcGlobal(struct GC *gc);
+
+void
+gcVM(struct GC *gc, struct VM *vm, int pos) {
+  // Current stack
+  for (int i=vm->base; i<pos; i++) {
+    gcMark(gc, getScmHead(vm->stack[i]));
+  }
+
+  // The call stacks
+  for (int i=vm->callstack.len-1; i>=0; i--) {
+    struct returnAddr *addr = &vm->callstack.data[i];
+    for (int j=addr->base; j<addr->pos; j++) {
+      gcMark(gc, getScmHead(addr->stack[j]));
+    }
+  }
+
+  // Global symbol table
+  gcGlobal(gc);
 }

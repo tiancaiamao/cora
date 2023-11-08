@@ -8,8 +8,8 @@
 #include <assert.h>
 
 static void
-addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
-  r->pkgMapping = cons(cons(sym, path), r->pkgMapping);
+addPkgMapping(struct VM *vm, int pos, struct SexpReader *r, Obj sym, Obj path) {
+  r->pkgMapping = cons(vm, pos, cons(vm, pos, sym, path), r->pkgMapping);
 }
 
 static bool
@@ -54,7 +54,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(struct SexpReader *r, FILE *in, int *errCode) {
+readCons(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
   int c = getc(in);
   if (c == ')') {
     // read the empty list
@@ -62,13 +62,13 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
   }
 
   ungetc(c, in);
-  Obj hd = sexpRead(r, in, errCode);
+  Obj hd = sexpRead(vm, pos, r, in, errCode);
 
   c = peekFirstChar(in);
   ungetc(c, in);
 
   /* read list */
-  Obj tl = readCons(r, in, errCode);
+  Obj tl = readCons(vm, pos, r, in, errCode);
 
   /* printf("read cdr"); */
   /* printObj(cdr); */
@@ -84,29 +84,29 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
 	if (iscons(cdr(tl))) {
 	  Obj sym = cadr(tl);
 	  if (issymbol(sym)) {
-	    addPkgMapping(r, sym, path);
-	    return cons(hd, cons(path, Nil));
+	    addPkgMapping(vm, pos, r, sym, path);
+	    return cons(vm, pos, hd, cons(vm, pos, path, Nil));
 	  }
 	}
       }
     }
   }
 
-  return cons(hd, tl);
+  return cons(vm, pos, hd, tl);
 }
 
 Obj
-reverse(Obj o) {
+reverse(struct VM *vm, int pos, Obj o) {
   Obj ret = Nil;
   while (o != Nil) {
-    ret = cons(car(o), ret);
+    ret = cons(vm, pos, car(o), ret);
     o = cdr(o);
   }
   return ret;
 }
 
 static Obj
-readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
+readListMacro(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode) {
   Obj hd = intern("list");
   Obj ret = Nil;
   char b = peekFirstChar(in);
@@ -115,12 +115,12 @@ readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
       hd = intern("list-rest");
     } else {
       ungetc(b, in);
-      Obj o = sexpRead(r, in, errCode);
-      ret = cons(o, ret);
+      Obj o = sexpRead(vm, pos, r, in, errCode);
+      ret = cons(vm, pos, o, ret);
     }
     b = peekFirstChar(in);
   }
-  return cons(hd, reverse(ret));
+  return cons(vm, pos, hd, reverse(vm, pos, ret));
 }
 
 static Obj
@@ -143,7 +143,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
+sexpRead(struct VM *vm, int pos, struct SexpReader* r, FILE *in, int *errCode) {
   int c;
   int i;
   char buffer[512];
@@ -159,18 +159,18 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 
   // read quote
   if (c == '\'') {
-    Obj o = sexpRead( r, in, errCode);
-    return cons(symQuote, cons(o, Nil));
+    Obj o = sexpRead(vm, pos, r, in, errCode);
+    return cons(vm, pos, symQuote, cons(vm, pos, o, Nil));
   }
 
   // read the empty list or pair
   if (c == '(')	{
-    return readCons(r, in, errCode);
+    return readCons(vm, pos, r, in, errCode);
   }
 
   // read list macro
   if (c == '[') {
-    return readListMacro( r, in, errCode);
+    return readListMacro(vm, pos, r, in, errCode);
   }
 
   // read a string
@@ -199,7 +199,7 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
       }
     }
     buffer[i] = '\0';
-    return makeString(buffer, i);
+    return makeString(vm, pos, buffer, i);
   }
 
   // read a symbol
@@ -348,15 +348,15 @@ printObj(FILE *to, Obj o) {
     /* case scmHeadNative: */
     /*   fprintf(to, "native"); */
     /*   break; */
-    case scmHeadCurry:
-      fprintf(to, "curry");
-      break;
+    /* case scmHeadCurry: */
+    /*   fprintf(to, "curry"); */
+    /*   break; */
     case scmHeadClosure:
       fprintf(to, "closure");
       break;
-    case scmHeadContinuation:
-      fprintf(to, "continuation");
-      break;
+    /* case scmHeadContinuation: */
+    /*   fprintf(to, "continuation"); */
+    /*   break; */
     case scmHeadPrimitive:
       fprintf(to, "primitive");
       break;

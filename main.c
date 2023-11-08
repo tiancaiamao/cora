@@ -17,7 +17,7 @@ repl(struct VM *vm, int pos, FILE* stream) {
       printf("%d #> ", i);
     }
 
-    Obj exp = sexpRead(&r, stream, &errCode);
+    Obj exp = sexpRead(vm, pos, &r, stream, &errCode);
     if (errCode != 0) {
       break;
     }

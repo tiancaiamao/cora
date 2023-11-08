@@ -51,11 +51,11 @@ enum {
       // The followings are all pointer types.
       // Except cons, all the others are general pointer.
       scmHeadCons,
-      scmHeadCurry,
+      /* scmHeadCurry, */
       scmHeadString,
       scmHeadVector,
       scmHeadClosure,
-      scmHeadContinuation,
+      /* scmHeadContinuation, */
       scmHeadPrimitive,
 
       // Seems weird, but the instructions object memory management need it.
@@ -65,7 +65,7 @@ enum {
 
 void typesInit();
 
-void* newObj(scmHeadType tp, int sz);
+void* newObj(struct VM *vm, int pos, scmHeadType tp, int sz);
 
 struct VM;
 struct scmCons {
@@ -87,9 +87,9 @@ Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
 const char* symbolStr(Obj sym);
 
-#define cons(x, y) makeCons(x, y)
+#define cons(vm, pos, x, y) makeCons(vm, pos, x, y)
 bool iscons(Obj o);
-Obj makeCons(Obj car, Obj cdr);
+Obj makeCons(struct VM *vm, int pos, Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
 Obj caddr(Obj v);
@@ -111,20 +111,20 @@ struct scmClosure {
   opcode fn;
 };
 
-Obj makeClosure(int requred, int nfrees, void *closed, void *code, int sz);
+Obj makeClosure(struct VM *vm, int pos, int requred, int nfrees, void *closed, void *code, int sz);
 struct scmClosure* mustClosure(Obj o);
 void* closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureSlot(Obj, int);
 int closureRequired(Obj);
 
-Obj makePrimitive(opcode fn, int nargs);
-Obj makeCurry(int required, Obj *closed, int nfrees);
+Obj makePrimitive(struct VM *vm, int pos, opcode fn, int nargs);
+Obj makeCurry(struct VM *vm, int pos, int required, Obj *closed, int nfrees);
 
 struct tagbstring;
 typedef struct tagbstring * bstring;
 
-Obj makeString(const char *s, int len);
+Obj makeString(struct VM *vm, int pos, const char *s, int len);
 strBuf stringStr(Obj o);
 int stringLen(Obj o);
 Obj makeNumber(int v);
@@ -139,7 +139,7 @@ struct stack {
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 
-Obj makeVector(int c);
+Obj makeVector(struct VM *vm, int pos, int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);

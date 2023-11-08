@@ -10,7 +10,8 @@ struct SexpReader {
   char *selfPath;
 };
 
-Obj sexpRead(struct SexpReader *r, FILE *in, int *errCode);
+struct VM;
+Obj sexpRead(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCode);
 void sexpWrite(FILE *out, Obj obj);
 
 void printObj(FILE* f, Obj o);

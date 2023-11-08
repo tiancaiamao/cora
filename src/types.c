@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
+#include "gc.h"
 
 const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
@@ -20,12 +21,12 @@ struct scmString {
 };
 
 
-struct GC *gc;
+extern struct GC *g;
 
 void*
-newObj(scmHeadType tp, int sz) {
-  scmHead* p = malloc(sz);
-  /* scmHead* p = gcAlloc(gc, sz); */
+newObj(struct VM *vm, int pos, scmHeadType tp, int sz) {
+  /* scmHead* p = malloc(sz); */
+  scmHead* p = gcAlloc(g, vm, pos, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -53,8 +54,8 @@ mustCObj(Obj o) {
 }
 
 Obj
-makeCons(Obj car, Obj cdr) {
-  struct scmCons* p = newObj(scmHeadCons, sizeof(struct scmCons));
+makeCons(struct VM *vm, int pos, Obj car, Obj cdr) {
+  struct scmCons* p = newObj(vm, pos, scmHeadCons, sizeof(struct scmCons));
   p->car = car;
   p->cdr = cdr;
   return ((Obj)(&p->head) | TAG_PTR);
@@ -99,8 +100,8 @@ cdddr(Obj x) {
 }
 
 Obj
-makeClosure(int required, int nfrees, void *closed, void *code, int sz) {
-  struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
+makeClosure(struct VM *vm, int pos, int required, int nfrees, void *closed, void *code, int sz) {
+  struct scmClosure* clo = newObj(vm, pos, scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
   clo->closed = closed;
@@ -161,8 +162,8 @@ closureRequired(Obj o) {
 }
 
 Obj
-makePrimitive(opcode fn, int nargs) {
-  Obj tmp = makeClosure(nargs, 0, NULL, NULL, 0);
+makePrimitive(struct VM* vm, int pos, opcode fn, int nargs) {
+  Obj tmp = makeClosure(vm, pos, nargs, 0, NULL, NULL, 0);
   struct scmClosure* clo = mustClosure(tmp);
   clo->fn = fn;
   clo->required = nargs;
@@ -174,8 +175,8 @@ makePrimitive(opcode fn, int nargs) {
 extern void resumeCurry(void *pc, Obj val, struct VM *vm, int pos);
 
 Obj
-makeCurry(int required, Obj *closed, int nfrees) {
-  Obj tmp = makeClosure(required, nfrees, closed, NULL, 0);
+makeCurry(struct VM *vm, int pos, int required, Obj *closed, int nfrees) {
+  Obj tmp = makeClosure(vm, pos, required, nfrees, closed, NULL, 0);
   struct scmClosure* clo = mustClosure(tmp);
   clo->fn = resumeCurry;
   clo->code = &clo->fn;
@@ -237,10 +238,10 @@ isNumber(Obj o) {
 }
 
 Obj
-makeString(const char *s, int len) {
+makeString(struct VM *vm, int pos, const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
   int alloc = len + sizeof(struct scmString) + 1;
-  struct scmString* str = newObj(scmHeadString, alloc);
+  struct scmString* str = newObj(vm, pos, scmHeadString, alloc);
   str->str = fromBlk(s, len);
   return ((Obj)(&str->head) | TAG_PTR);
 }
@@ -277,20 +278,20 @@ isstring(Obj o) {
 
 struct trieNode root = {};
 
-/* static void */
-/* trieNodeGCFunc(struct GC* gc, struct trieNode *node) { */
-/*   gcField(gc, getScmHead(node->value)); */
-/*   for (int i=0; i<256; i++) { */
-/*     if (node->child[i] != NULL) { */
-/*       trieNodeGCFunc(gc, node->child[i]); */
-/*     } */
-/*   } */
-/* } */
+static void
+trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
+  gcMark(gc, getScmHead(node->value));
+  for (int i=0; i<256; i++) {
+    if (node->child[i] != NULL) {
+      trieNodeGCFunc(gc, node->child[i]);
+    }
+  }
+}
 
-/* void */
-/* gcGlobal(struct GC *gc) { */
-/*   trieNodeGCFunc(gc, &root); */
-/* } */
+void
+gcGlobal(struct GC *gc) {
+  trieNodeGCFunc(gc, &root);
+}
 
 Obj
 makeSymbol(char *s) {
@@ -305,6 +306,7 @@ makeSymbol(char *s) {
     }
     p = p->child[offset];
   }
+  /* printf("making symbol ...%p\n", p); */
   if (p->sym == NULL) {
     char* tmp = malloc(strlen(old) + 1);
     strcpy(tmp, old);
@@ -366,32 +368,32 @@ struct scmCurry {
 /*   } */
 /* } */
 
-int
-curryRequired(Obj o) {
-  struct scmCurry *curry = ptr(o);
-  return curry->required;
-}
+/* int */
+/* curryRequired(Obj o) { */
+/*   struct scmCurry *curry = ptr(o); */
+/*   return curry->required; */
+/* } */
 
-Obj
-curryCaptured(Obj o) {
-  struct scmCurry *curry = ptr(o);
-  return curry->captured;
-}
+/* Obj */
+/* curryCaptured(Obj o) { */
+/*   struct scmCurry *curry = ptr(o); */
+/*   return curry->captured; */
+/* } */
 
-Obj*
-curryData(Obj o) {
-  struct scmCurry *curry = ptr(o);
-  return curry->data;
-}
+/* Obj* */
+/* curryData(Obj o) { */
+/*   struct scmCurry *curry = ptr(o); */
+/*   return curry->data; */
+/* } */
 
-bool
-iscurry(Obj c) {
-  if ((c & TAG_MASK) != TAG_PTR) {
-    return false;
-  }
-  scmHead *h = ptr(c);
-  return h->type == scmHeadCurry;
-}
+/* bool */
+/* iscurry(Obj c) { */
+/*   if ((c & TAG_MASK) != TAG_PTR) { */
+/*     return false; */
+/*   } */
+/*   scmHead *h = ptr(c); */
+/*   return h->type == scmHeadCurry; */
+/* } */
 
 /* struct scmNative { */
 /*   scmHead head; */
@@ -472,8 +474,8 @@ struct scmVector {
 };
 
 Obj
-makeVector(int size) {
-  struct scmVector* vec = newObj(scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
+makeVector(struct VM *vm, int pos, int size) {
+  struct scmVector* vec = newObj(vm, pos, scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
   vec->size = size;
   return ((Obj)(&vec->head) | TAG_PTR);
 }
