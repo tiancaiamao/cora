@@ -15,5 +15,6 @@ Obj sexpRead(struct VM *vm, int pos, struct SexpReader *r, FILE *in, int *errCod
 void sexpWrite(FILE *out, Obj obj);
 
 void printObj(FILE* f, Obj o);
+Obj reverse(struct VM *vm, int pos, Obj o);
 
 #endif

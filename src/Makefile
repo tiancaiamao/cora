@@ -4,8 +4,8 @@
 SRCS = str.c types.c reader.c builtin.c vm.c reader_test.c eval_test.c bootstrap_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
-# CFLAGS = -g -Wall -O2
-CFLAGS = -Wall -O2
+CFLAGS = -g -Wall -O2
+# CFLAGS = -Wall -O2
 
 all: libcora.a
 

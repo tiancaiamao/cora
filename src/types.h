@@ -58,9 +58,7 @@ enum {
       /* scmHeadContinuation, */
       scmHeadPrimitive,
 
-      // Seems weird, but the instructions object memory management need it.
-      // Instr do not use tagged pointer, because it's not Obj.
-      /* scmHeadInstr, */
+      scmHeadNative,
 };
 
 void typesInit();

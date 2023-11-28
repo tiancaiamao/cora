@@ -378,7 +378,7 @@ gcCStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
 }
 
 struct VM;
-extern void gcVM(struct GC *gc, struct VM *vm, int pos);
+/* extern void gcVM(struct GC *gc, struct VM *vm, int pos); */
 
 void
 gcFull(struct GC *gc, struct VM *vm, int pos) {
@@ -388,7 +388,7 @@ gcFull(struct GC *gc, struct VM *vm, int pos) {
   setjmp(ctx);
   void* stackAddr = &stackAddr;
   gcCStack(gc, stackAddr, gc->baseStackAddr);
-  gcVM(gc, vm, pos);
+  /* gcVM(gc, vm, pos); */
 
   printf("==== before full gc %d=========\n", gcIdx++);
   /* if (gcIdx == 177) { */

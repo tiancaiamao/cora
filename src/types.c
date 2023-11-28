@@ -25,8 +25,8 @@ extern struct GC *g;
 
 void*
 newObj(struct VM *vm, int pos, scmHeadType tp, int sz) {
-  /* scmHead* p = malloc(sz); */
-  scmHead* p = gcAlloc(g, vm, pos, sz);
+  scmHead* p = malloc(sz);
+  /* scmHead* p = gcAlloc(g, vm, pos, sz); */
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -172,16 +172,7 @@ makePrimitive(struct VM* vm, int pos, opcode fn, int nargs) {
 }
 
 
-extern void resumeCurry(void *pc, Obj val, struct VM *vm, int pos);
-
-Obj
-makeCurry(struct VM *vm, int pos, int required, Obj *closed, int nfrees) {
-  Obj tmp = makeClosure(vm, pos, required, nfrees, closed, NULL, 0);
-  struct scmClosure* clo = mustClosure(tmp);
-  clo->fn = resumeCurry;
-  clo->code = &clo->fn;
-  return tmp;
-}
+/* extern void resumeCurry(void *pc, Obj val, struct VM *vm, int pos); */
 
 /* static struct hashForObjItem* */
 /* hashGet(struct hashForObj *h, int key) { */
@@ -395,36 +386,6 @@ struct scmCurry {
 /*   return h->type == scmHeadCurry; */
 /* } */
 
-/* struct scmNative { */
-/*   scmHead head; */
-/*   nativeFuncPtr fn; */
-/*   // required is the argument number of the nativeFunc. */
-/*   int required; */
-/*   // captured is the size of the data, it's immutable after makeNative. */
-/*   int captured; */
-/*   Obj data[]; */
-/* }; */
-
-/* Obj */
-/* makeNative(nativeFuncPtr fn, int required, int captured, ...) { */
-/*   int sz = sizeof(struct scmNative) + captured*sizeof(Obj); */
-/*   struct scmNative* clo = newObj(scmHeadNative, sz); */
-/*   clo->fn = fn; */
-/*   clo->required = required; */
-/*   clo->captured = captured; */
-
-/*   if (captured > 0) { */
-/*     va_list ap; */
-/*     va_start(ap, captured); */
-/*     for (int i=0; i<captured; i++) { */
-/*       clo->data[i] = va_arg(ap, Obj); */
-/*     } */
-/*     va_end(ap); */
-/*   } */
-
-/*   return ((Obj)(&clo->head) | TAG_PTR); */
-/* } */
-
 /* static void */
 /* nativeGCFunc(struct GC *gc, void* f, void* t) { */
 /*   struct scmNative *from = f; */
@@ -432,20 +393,6 @@ struct scmCurry {
 /*   for (int i=0; i<from->captured; i++) { */
 /*     to->data[i] = gcCopy(gc, from->data[i]); */
 /*   } */
-/* } */
-
-/* nativeFuncPtr */
-/* nativeFn(Obj o) { */
-/*   struct scmNative* native = ptr(o); */
-/*   assert(native->head.type == scmHeadNative); */
-/*   return native->fn; */
-/* } */
-
-/* int */
-/* nativeRequired(Obj o) { */
-/*   struct scmNative* native = ptr(o); */
-/*   assert(native->head.type == scmHeadNative); */
-/*   return native->required; */
 /* } */
 
 /* int */

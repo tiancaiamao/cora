@@ -1,0 +1,377 @@
+(func .assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (.assq var y))
+
+(func .foldl
+      f acc [] => acc
+      f acc [x . y] => (.foldl f (f acc x) y))
+
+(func .pos-in-list0
+      _ x [] => -1
+      pos x [a . b] => pos where (= x a)
+      pos x [a . b] => (.pos-in-list0 (+ pos 1) x b))
+
+(defun .index (x l)
+  (.pos-in-list0 0 x l))
+
+(func .exist-in-env
+      x [] => false
+      x [hd . tl] => (if (< (.index x hd) 0)
+			 (.exist-in-env x tl)
+			 true))
+
+(set '.*builtin-prims*
+     [['set 2 'primSet] ['car 1 'primCar] ['cdr 1 'primCdr] ['cons 2 'primCons] ['cons? 1 'primIsCons]
+     ['+ 2 'primAdd] ['- 2 'primSub] ['* 2 'primMul] ['/ 2 'primDiv]
+     ['= 2 'primEQ] ['> 2 'primGT] ['< 2 'primLT] ['gensym 1 'primGenSym] ['symbol? 1 'primIsSymbol]
+     ['not 1 'primNot] ['integer? 1 'primIsNumber] ['string? 1 'primIsString]])
+
+(defun builtin? (x)
+  (not (null? (.assq x .*builtin-prims*))))
+
+(defun .builtin->name (x)
+  (let find (.assq x .*builtin-prims*)
+       (if (null? find)
+	   "ERROR"
+	   (caddr find))))
+
+(func .parse
+      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
+      _ ['quote x] => ['%const x]
+      env x => (if (elem? x env) x ['%global x]) where (symbol? x)
+      env ['lambda args body] => ['lambda args (.parse (append args env) body)]
+      env ['if . args] => ['if . (map (.parse env) args)]
+      env ['do x y] => ['do (.parse env x) (.parse env y)]
+      env ['let a b c] => ['let a (.parse env b) (.parse (cons a env) c)]
+      env [op . args] => [['%builtin op] . (map (.parse env) args)] where (builtin? op)
+      env ls => (map (.parse env) ls))
+
+(func .union
+      [] s2 => s2
+      [x . y] s2 => (.union y s2) where (elem? x s2)
+      [x . y] s2 => (cons x (.union y s2)))
+
+(func .diff
+      [] _ => []
+      [x . y] s2 => (.diff y s2) where (elem? x s2)
+      [x . y] s2 => (cons x (.diff y s2)))
+
+(func .convert-protect?
+      ['%const x] => true
+      ['%global x] => true
+      ['%builtin op] => true
+      ['quote x] => true
+      ['%closure-ref _] => true
+      x => false)
+
+(func .free-vars
+      x => [] where (.convert-protect? x)
+      x => [x] where (symbol? x)
+      ['lambda args body] => (.diff (.free-vars body) args)
+      ['if x y z] => (.foldl .union [] (map .free-vars [x y z]))
+      ['do x y] => (.foldl .union [] (map .free-vars [x y]))
+      ['let a b c] => (.union (.free-vars b) (.diff (.free-vars c) [a]))
+
+      ;; the following three rules are used by .explicit-stack, not by .convert
+      ['%closure lam . _] => (.free-vars lam)
+      ['return x] => (.free-vars x)
+      ['call exp cont] => (.foldl .union [] (map .free-vars [exp cont]))
+      ['continuation arg body] => (.diff (.free-vars body) arg)
+
+      [f . args] => (.foldl .union [] (map .free-vars [f . args])))
+
+(func .closure-convert
+      _ x => x where (.convert-protect? x)
+      fvs var => (let pos (.index var fvs)
+		      (if (= -1 pos)
+			  var
+			  ['%closure-ref pos])) where (symbol? var)
+      ;; fvs ['do x y] => (cons 'do (map (.convert fvs) [x y]))
+      ;; fvs ['if a b c] => (cons 'if (map (.convert fvs) [a b c]))
+      fvs ['lambda args body] =>
+      (let fvs1 (.free-vars ['lambda args body])
+	   ['%closure ['lambda args (.closure-convert fvs1 body)] .
+	   (map (.closure-convert fvs) fvs1)])
+      fvs ['let a b c] => ['let a (.closure-convert fvs b) (.closure-convert fvs c)]
+      fvs [f . args] => (map (.closure-convert fvs) [f . args]))
+
+(defun .id (x) ['return x])
+
+;; (+ (f g) 1) => (call (f g) (continuation (val) (+ val 1)))
+;; (f g) => (tailcall (f g))
+;; 42 => (return 42)
+(func .tailify
+      x next => (next x) where (or (symbol? x) (.convert-protect? x))
+      x _ => x where (.convert-protect? x)
+      ['if a b c] next => (.tailify a (lambda (ra)
+					['if ra
+					(.tailify b next)
+					(.tailify c next)]))
+      ['do a b] next => (.tailify a (lambda (ra)
+				      (if (symbol? ra)
+					  (.tailify b next)
+					  ['do ra (.tailify b next)])))
+      ['let a b c] next => (.tailify b (lambda (rb)
+					 ['let a rb (.tailify c next)]))
+      ['%closure ['lambda args body] . frees] next => (next ['%closure ['lambda args (.tailify body .id)] . frees])
+      [f . args] next => (.tailify-list [f . args] [] next))
+
+(func .tailify-list
+      [] ls next => (let exp (reverse ls)
+			 ;; (if (or (= next .id)
+			 ;; 	 (and (pair? (car exp)) (= (caar exp) '%builtin)))
+			 (cond
+			   ((and (pair? (car exp)) (= (caar exp) '%builtin)) (.wrap-var exp next))
+			   ((= next .id) ['tailcall exp])
+			   (true (let val (gensym 'val)
+				      ['call exp ['continuation [val] (next val)]]))))
+      [hd . tl] ls next => (.tailify hd (lambda (hd1)
+					  (.tailify-list tl [hd1 . ls] next))))
+
+;; (continuation (val) body) => (continuation (lambda (vm val) body) . stacks)
+(func .explicit-stack
+      _ x => x where (.convert-protect? x)
+      fvs var => (let pos (.index var fvs)
+		      (if (= -1 pos)
+			  var
+			  ['%stack-ref pos])) where (symbol? var)
+      ;; fvs ['do x y] => (cons 'do (map (.explicit-stack fvs) [x y]))
+      ;; fvs ['if a b c] => (cons 'if (map (.explicit-stack fvs) [a b c]))
+      ;; fvs ['let a b c] => ['let a (.explicit-stack fvs b) (.explicit-stack fvs c)]
+      fvs ['%closure lam . closed] => ['%closure (.explicit-stack fvs lam) . closed]
+      fvs ['lambda args body] => ['lambda args (.explicit-stack fvs body)]
+      ;; (let fvs1 (.free-vars ['lambda args body])
+      ;; 	   ['%closure ['lambda args (.explicit-stack fvs1 body)] .
+      ;; 	   (map (.explicit-stack fvs) fvs1)])
+      ;; fvs [['%builtin f] . args] => [['%builtin f] . (map (.explicit-stack fvs) args)]
+      fvs ['continuation val body] => (let fvs1 (.diff (.free-vars body) val)
+					   (let fvs2 (map (.explicit-stack fvs) fvs1)
+						['%continuation ['lambda val (.explicit-stack fvs1 body)] . fvs2]))
+      fvs ['call exp cont] => ['call (map (.explicit-stack fvs) exp) (.explicit-stack fvs cont)]
+      fvs [f . args] => (map (.explicit-stack fvs) [f . args]))
+
+;; [%closure (lambda ..) . frees] => [%closure Label . frees]
+;; [%continuation (lambda ..) . stacks] => [%continuation Label . stacks]
+(func .collect-lambda
+      res [clo-or-cont ['lambda params body] . fvs] return =>
+      (let name (gensym 'clofun)
+	   (.collect-lambda res body
+			    (lambda (res1 body1)
+			      (return (cons [name ['lambda params body1]] res1)
+				      (if (= clo-or-cont '%closure)
+					  [clo-or-cont name (length params) . fvs]
+					  [clo-or-cont name . fvs])))))
+      where (or (= clo-or-cont '%closure)
+		(= clo-or-cont '%continuation))
+      res f-args return => (.collect-lambda-list [] res f-args return) where (cons? f-args)
+      res x return => (return res x))
+
+(func .collect-lambda-list
+      res init [] return => (return init (reverse res))
+      res init [x . y] return => (.collect-lambda init x
+						 (lambda (init1 x1)
+						   (.collect-lambda-list (cons x1 res) init1 y return))))
+
+(defun .wrap-var (x k)
+  (let tmp (gensym 'reg)
+       ['let tmp x
+       (k tmp)]))
+
+(func .generate-inst
+      w x => (.generate-sym w x) where (symbol? x)
+      w ['%global x] => (begin
+			 (.generate-str w "globalRef(intern(\"")
+			 (.generate-sym w x)
+			 (.generate-str w "\"))"))
+      w ['%closure-ref idx] => (begin
+				(.generate-str w "closureRef(")
+				(.generate-num w idx)
+				(.generate-str w ")"))
+      w ['%stack-ref idx] => (begin
+			      (.generate-str w "stackRef(co, ")
+			      (.generate-num w idx)
+			      (.generate-str w ")"))
+      w ['%const x] => (cond
+			 ((symbol? x) (begin
+				       (.generate-str w "intern(\"")
+				       (.generate-sym w x)
+				       (.generate-str w "\")")))
+			 ((number? x) (begin
+				       (.generate-str w "makeNumber(")
+				       (.generate-num w x)
+				       (.generate-str w ")")))
+			 ((string? x) (begin
+				       (.generate-str w "\"")
+				       (.generate-str w x)
+				       (.generate-str w "\"")))
+			 ((= x true) (.generate-str w "True"))
+			 ((= x false) (.generate-str w "Frue")))
+      w ['let a b c] => (begin
+			 (.generate-str w "Obj ")
+			 (.generate-sym w a)
+			 (.generate-str w " = ")
+			 (.generate-inst w b)
+			 (.generate-str w ";\n")
+			 (.generate-inst w c))
+      w [['%builtin f] . args] => (begin
+				   ;; (.generate-str w "prim")
+				   ;; (.generate-sym w f)
+				   (.generate-sym w (.builtin->name f))
+				   (.generate-str w "(")
+				   (.generate-inst-list w args)
+				   (.generate-str w ")"))
+      w ['if a b c] => (begin
+			(.generate-str w "if (True == ")
+			(.generate-inst w a)
+			(.generate-str w ") {\n")
+			(.generate-inst w b)
+			(.generate-str w "} else {\n")
+			(.generate-inst w c)
+			(.generate-str w "}\n"))
+      w ['%closure label nargs . frees] => (begin
+					    (.generate-str w "makeNative(")
+					    (.generate-sym w label)
+					    (.generate-str w ", ")
+					    (.generate-num w nargs)
+					    (if (not (null? frees))
+						(begin
+						 (.generate-str w ", ")
+						 (.generate-inst-list w frees))
+						())
+					    (.generate-str w ")"))
+      w ['do a b] => (begin
+		      (.generate-inst w a)
+		      (.generate-str "\n")
+		      (.generate-inst w b))
+      w ['return x] => (begin
+			(.generate-str w "return coraReturn(co, ")
+			(.generate-inst w x)
+			(.generate-str w ");\n"))
+      w ['tailcall exp] => (begin
+			    (.generate-str w "return ")
+			    (.generate-inst w exp)
+			    (.generate-str w ";\n"))
+      w ['call exp cont] => (begin
+			     (.generate-cont w cont)
+			     (.generate-str w "return ")
+			     (.generate-inst w exp)
+			     (.generate-str w ";\n"))
+      w [f . args] => (begin
+		       (.generate-str w "coraCall")
+		       (.generate-num w (length [f . args]))
+		       (.generate-str w "(co, ")
+		       (.generate-inst-list w [f . args])
+		       (.generate-str w ")")))
+
+(func .generate-cont
+      w ['%continuation label . stacks] => (begin
+					    (.generate-str w "pushCont(co, ")
+					    (.generate-sym w label)
+					    (.generate-str w ");\n")
+					    (if (not (null? stacks))
+						(for-each (lambda (x)
+							    (begin
+							     (.generate-str w "push(co, ")
+							     (.generate-sym w x)
+							     (.generate-str w ");\n")))
+							  stacks)
+						())))
+
+(func .generate-inst-list-h
+      fn w [] => ()
+      fn w [a . b] => (begin (fn w a)
+			     (if (not (null? b))
+				 (.generate-str w ", ")
+				 ())
+			     (.generate-inst-list-h fn w b)))
+
+(defun .generate-inst-list (w l)
+  (.generate-inst-list-h .generate-inst w l))
+
+(defun .generate-params-list (w l)
+  (.generate-inst-list-h (lambda (w x)
+			   (begin
+			    (.generate-str w "Obj ")
+			    (.generate-inst w x)))
+			 w l))
+
+(defun .code-gen-func-declare (w name params)
+  (begin
+   (.generate-str w "void ")
+   (.generate-sym w name)
+   (.generate-str w "(struct Cora* co")
+   (if (not (null? params))
+       (begin (.generate-str w ", ")
+	      (.generate-params-list w params))
+       ())
+   (.generate-str w ")")))
+
+(func .code-gen-toplevel
+      w [name ['lambda params body]] => (begin
+					 (.code-gen-func-declare w name params)
+					 (.generate-str w " {\n")
+					 (.generate-inst w body)
+					 (.generate-str w "}\n\n")))
+
+(defun .parse-pass (exp)
+  (.parse [] exp))
+
+(defun .closure-convert-pass (exp)
+  (.closure-convert [] exp))
+
+(defun .tailify-pass (exp)
+  (.tailify exp .id))
+
+(defun .explicit-stack-pass (exp)
+  (.explicit-stack [] exp))
+
+(defun .collect-lambda-pass (exp)
+  (.collect-lambda [] exp
+		   (lambda (ls e1)
+		     (cons ['entry ['lambda () e1]] ls))))
+
+
+(func .rewrite-->macro
+      obj [] => obj
+      obj [hd . more] => (.rewrite-->macro [hd obj] more))
+
+(defmacro -> (exp)
+  (let obj (cadr exp)
+       (let fns (cddr exp)
+	    (.rewrite-->macro obj fns))))
+
+(defun .compile (exp)
+  (-> exp
+      .parse-pass
+      .closure-convert-pass
+      .tailify-pass
+      .explicit-stack-pass
+      .collect-lambda-pass))
+
+(func for-each
+      fn [] => []
+      fn [x . y] => (begin
+                     (fn x)
+                     (for-each fn y)))
+
+(defun .generate-c (to bc)
+  (begin
+   (.generate-str to "#include \"src/types.h\"\n")
+   (.generate-str to "#include \"runtime.h\"\n\n")
+   (for-each (lambda (x)
+	       ;; x is [label (lambda args body)]
+	       (begin
+		(.code-gen-func-declare to (car x) (cadr (cadr x)))
+		(.generate-str to ";\n"))) bc)
+   (.generate-str to "\n")
+   (for-each (lambda (x) (.code-gen-toplevel to x)) bc)))
+
+(defun .compile-to-c (from to)
+  (let sexp (read-file-as-sexp from)
+       (let input (macroexpand sexp)
+	    (let bc (.compile input)
+		 (let stream (.open-output-file to)
+		      (begin
+		       (.generate-c stream bc)
+		       (.close-output-file stream)))))))

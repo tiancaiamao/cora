@@ -117,6 +117,15 @@ resumeCurry(void *pc, Obj val, struct VM *vm, int pos) {
   makeTheCall(pc, val, vm, pos);
 }
 
+Obj
+makeCurry(struct VM *vm, int pos, int required, Obj *closed, int nfrees) {
+  Obj tmp = makeClosure(vm, pos, required, nfrees, closed, NULL, 0);
+  struct scmClosure* clo = mustClosure(tmp);
+  clo->fn = resumeCurry;
+  clo->code = &clo->fn;
+  return tmp;
+}
+
 static void
 makeTheCall(void *pc, Obj val, struct VM *vm, int pos) {
   Obj fn = vm->stack[vm->base];
@@ -621,6 +630,13 @@ coraInit(struct VM *vm) {
   symbolSet(makeSymbol("cora/lib/compile.c-opPrimMul"), makeNumber(25));
   symbolSet(makeSymbol("cora/lib/compile.c-opPrimEQ"), makeNumber(26));
   symbolSet(makeSymbol("cora/lib/compile.c-opReserveLocals"), makeNumber(27));
+
+  symbolSet(makeSymbol(".open-output-file"), makePrimitive(vm, 0, builtinOpenOutputFile, 1));
+  symbolSet(makeSymbol(".close-output-file"), makePrimitive(vm, 0, builtinCloseOutputFile, 1));
+  symbolSet(makeSymbol(".generate-str"), makePrimitive(vm, 0, builtinGenerateStr, 2));
+  symbolSet(makeSymbol(".generate-sym"), makePrimitive(vm, 0, builtinGenerateSym, 2));
+  symbolSet(makeSymbol(".generate-num"), makePrimitive(vm, 0, builtinGenerateNum, 2));
+  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 1));
 }
 
 static bool inited = false;

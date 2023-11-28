@@ -52,4 +52,13 @@ void builtinProgAppendPrim(void *pc, Obj val, struct VM *vm, int pos);
 
 void builtinProgRun(void *pc, Obj val, struct VM *vm, int pos);
 
+
+void builtinOpenOutputFile(void *pc, Obj val, struct VM *vm, int pos);
+void builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos);
+void builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos);
+void builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos);
+void builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos);
+
+void builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos);
+
 #endif

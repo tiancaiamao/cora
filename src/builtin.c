@@ -582,3 +582,89 @@ macroExpand(struct VM *vm, int pos, Obj exp) {
   vmPush(vm, pos++, exp);
   return vmCall(vm, pos, 2);
 }
+
+void
+builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj to = vmGet(vm, 1);
+  FILE* out = mustCObj(to);
+  Obj exp = vmGet(vm, 2);
+  strBuf s = stringStr(exp);
+  fprintf(out, "%s", toCStr(s));
+  vmReturn(vm, Nil);
+}
+
+void
+builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj to = vmGet(vm, 1);
+  FILE* out = mustCObj(to);
+  Obj exp = vmGet(vm, 2);
+  const char* s = symbolStr(exp);
+  for (const char *p = s; *p != 0; p++) {
+    if ((*p >= 'a' && *p <= 'z') ||
+	(*p >= 'A' && *p <= 'Z') ||
+	(*p >= '0' && *p <= '9')) {
+      fprintf(out, "%c", *p);
+    } else if (*p == '_') {
+      fprintf(out, "__");
+    } else {
+      fprintf(out, "_%d", *p);
+    }
+  }
+  vmReturn(vm, Nil);
+}
+
+void
+builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj to = vmGet(vm, 1);
+  FILE* out = mustCObj(to);
+  Obj exp = vmGet(vm, 2);
+  fprintf(out, "%ld", fixnum(exp));
+  vmReturn(vm, Nil);
+}
+
+void
+builtinOpenOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj arg1 = vmGet(vm, 1);
+  strBuf filePath = stringStr(arg1);
+  FILE* f = fopen(toCStr(filePath), "w");
+  vmReturn(vm, makeCObj(f));
+}
+
+void
+builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj arg1 = vmGet(vm, 1);
+  FILE *f = mustCObj(arg1);
+  int errno = fclose(f);
+  vmReturn(vm, makeNumber(errno));
+}
+
+void
+builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj arg = vmGet(vm, 1);
+  assert(isstring(arg));
+  strBuf fileName = stringStr(arg);
+  FILE* f = fopen(toCStr(fileName), "r");
+  Obj result = Nil;
+  if (f == NULL) {
+    printf("open file fail %s\n", toCStr(fileName));
+    goto exit0;
+  }
+
+  int errCode = 0;
+  struct SexpReader r = {.pkgMapping = Nil};
+  Obj ast = sexpRead(vm, pos, &r, f, &errCode);
+  while (ast != Nil) {
+    result = cons(vm, pos, ast, result);
+    ast = sexpRead(vm, pos, &r, f, &errCode);
+  }
+  if (iscons(result) && cdr(result) != Nil) {
+    result = reverse(vm, pos, result);
+    result = cons(vm, pos, makeSymbol("begin"), result);
+  } else {
+    result = car(result);
+  }
+  fclose(f);
+
+ exit0:
+  vmReturn(vm, result);
+}
