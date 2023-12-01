@@ -77,6 +77,7 @@
       ['%closure lam . _] => (.free-vars lam)
       ['return x] => (.free-vars x)
       ['call exp cont] => (.foldl .union [] (map .free-vars [exp cont]))
+      ['tailcall exp] => (.free-vars exp)
       ['continuation arg body] => (.diff (.free-vars body) arg)
 
       [f . args] => (.foldl .union [] (map .free-vars [f . args])))
@@ -179,20 +180,20 @@
        (k tmp)]))
 
 (func .generate-inst
-      w x => (.generate-sym w x) where (symbol? x)
-      w ['%global x] => (begin
+      env w x => (.generate-sym w x) where (symbol? x)
+      env w ['%global x] => (begin
 			 (.generate-str w "globalRef(intern(\"")
 			 (.generate-sym w x)
 			 (.generate-str w "\"))"))
-      w ['%closure-ref idx] => (begin
-				(.generate-str w "closureRef(")
+      env w ['%closure-ref idx] => (begin
+				(.generate-str w "closureRef(co, ")
 				(.generate-num w idx)
 				(.generate-str w ")"))
-      w ['%stack-ref idx] => (begin
+      env w ['%stack-ref idx] => (begin
 			      (.generate-str w "stackRef(co, ")
 			      (.generate-num w idx)
 			      (.generate-str w ")"))
-      w ['%const x] => (cond
+      env w ['%const x] => (cond
 			 ((symbol? x) (begin
 				       (.generate-str w "intern(\"")
 				       (.generate-sym w x)
@@ -207,61 +208,64 @@
 				       (.generate-str w "\"")))
 			 ((= x true) (.generate-str w "True"))
 			 ((= x false) (.generate-str w "Frue")))
-      w ['let a b c] => (begin
-			 (.generate-str w "Obj ")
-			 (.generate-sym w a)
-			 (.generate-str w " = ")
-			 (.generate-inst w b)
-			 (.generate-str w ";\n")
-			 (.generate-inst w c))
-      w [['%builtin f] . args] => (begin
+      env w ['let a b c] => (let idx (.index a env)
+				 (begin
+				  (if (< idx 0) (.generate-str w "Obj ") ())
+				  (.generate-sym w a)
+				  (.generate-str w " = ")
+				  (.generate-inst env w b)
+				  (.generate-str w ";\n")
+				  (.generate-inst (cons a env) w c)))
+      env w [['%builtin f] . args] => (begin
 				   ;; (.generate-str w "prim")
 				   ;; (.generate-sym w f)
 				   (.generate-sym w (.builtin->name f))
 				   (.generate-str w "(")
-				   (.generate-inst-list w args)
+				   (.generate-inst-list env w args)
 				   (.generate-str w ")"))
-      w ['if a b c] => (begin
+      env w ['if a b c] => (begin
 			(.generate-str w "if (True == ")
-			(.generate-inst w a)
+			(.generate-inst env w a)
 			(.generate-str w ") {\n")
-			(.generate-inst w b)
+			(.generate-inst env w b)
 			(.generate-str w "} else {\n")
-			(.generate-inst w c)
+			(.generate-inst env w c)
 			(.generate-str w "}\n"))
-      w ['%closure label nargs . frees] => (begin
+      env w ['%closure label nargs . frees] => (begin
 					    (.generate-str w "makeNative(")
 					    (.generate-sym w label)
 					    (.generate-str w ", ")
 					    (.generate-num w nargs)
+					    (.generate-str w ", ")
+					    (.generate-num w (length frees))
 					    (if (not (null? frees))
 						(begin
 						 (.generate-str w ", ")
-						 (.generate-inst-list w frees))
+						 (.generate-inst-list env w frees))
 						())
 					    (.generate-str w ")"))
-      w ['do a b] => (begin
-		      (.generate-inst w a)
-		      (.generate-str "\n")
-		      (.generate-inst w b))
-      w ['return x] => (begin
+      env w ['do a b] => (begin
+			  (.generate-inst env w a)
+			  (.generate-str w ";\n")
+			  (.generate-inst env w b))
+      env w ['return x] => (begin
 			(.generate-str w "return coraReturn(co, ")
-			(.generate-inst w x)
+			(.generate-inst env w x)
 			(.generate-str w ");\n"))
-      w ['tailcall exp] => (begin
+      env w ['tailcall exp] => (begin
 			    (.generate-str w "return ")
-			    (.generate-inst w exp)
+			    (.generate-inst env w exp)
 			    (.generate-str w ";\n"))
-      w ['call exp cont] => (begin
+      env w ['call exp cont] => (begin
 			     (.generate-cont w cont)
 			     (.generate-str w "return ")
-			     (.generate-inst w exp)
+			     (.generate-inst env w exp)
 			     (.generate-str w ";\n"))
-      w [f . args] => (begin
+      env w [f . args] => (begin
 		       (.generate-str w "coraCall")
 		       (.generate-num w (length [f . args]))
 		       (.generate-str w "(co, ")
-		       (.generate-inst-list w [f . args])
+		       (.generate-inst-list env w [f . args])
 		       (.generate-str w ")")))
 
 (func .generate-cont
@@ -279,21 +283,21 @@
 						())))
 
 (func .generate-inst-list-h
-      fn w [] => ()
-      fn w [a . b] => (begin (fn w a)
-			     (if (not (null? b))
-				 (.generate-str w ", ")
-				 ())
-			     (.generate-inst-list-h fn w b)))
+      env fn w [] => ()
+      env fn w [a . b] => (begin (fn env w a)
+				 (if (not (null? b))
+				     (.generate-str w ", ")
+				     ())
+				 (.generate-inst-list-h env fn w b)))
 
-(defun .generate-inst-list (w l)
-  (.generate-inst-list-h .generate-inst w l))
+(defun .generate-inst-list (env w l)
+  (.generate-inst-list-h env .generate-inst w l))
 
-(defun .generate-params-list (w l)
-  (.generate-inst-list-h (lambda (w x)
-			   (begin
-			    (.generate-str w "Obj ")
-			    (.generate-inst w x)))
+(defun .generate-params-list (env w l)
+  (.generate-inst-list-h env (lambda (env w x)
+			       (begin
+				(.generate-str w "Obj ")
+				(.generate-inst env w x)))
 			 w l))
 
 (defun .code-gen-func-declare (w name params)
@@ -303,7 +307,7 @@
    (.generate-str w "(struct Cora* co")
    (if (not (null? params))
        (begin (.generate-str w ", ")
-	      (.generate-params-list w params))
+	      (.generate-params-list params w params))
        ())
    (.generate-str w ")")))
 
@@ -311,7 +315,7 @@
       w [name ['lambda params body]] => (begin
 					 (.code-gen-func-declare w name params)
 					 (.generate-str w " {\n")
-					 (.generate-inst w body)
+					 (.generate-inst params w body)
 					 (.generate-str w "}\n\n")))
 
 (defun .parse-pass (exp)

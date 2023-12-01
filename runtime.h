@@ -7,10 +7,13 @@
 
 struct Cora;
 typedef void (*nativeFn)(struct Cora *co, Obj x);
+typedef void (*nativeFn2)(struct Cora *co, Obj x);
 typedef void (*nativeFn3)(struct Cora *co, Obj x, Obj y);
+typedef void (*nativeFn4)(struct Cora *co, Obj x, Obj y, Obj z);
 
 struct returnAddr {
   nativeFn pc;
+  Obj *frees;
   int base;
   int pos;
   Obj *stack;
@@ -23,7 +26,7 @@ struct callStack {
 };
 
 static void
-saveStack(struct callStack *cs, nativeFn pc, int base, int pos, Obj *stack) {
+saveStack(struct callStack *cs, nativeFn pc, int base, int pos, Obj *stack, Obj *frees) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
     void *newData = malloc(cs->cap*sizeof(struct returnAddr));
@@ -37,18 +40,20 @@ saveStack(struct callStack *cs, nativeFn pc, int base, int pos, Obj *stack) {
   addr->base = base;
   addr->pos = pos;
   addr->stack = stack;
+  addr->frees = frees;
   cs->len++;
   return;
 }
 
 static void
-popStack(struct callStack *cs, void **pc, int *base, int *pos, Obj **stack) {
+popStack(struct callStack *cs, void **pc, int *base, int *pos, Obj **stack, Obj **frees) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
   *base = addr->base;
   *pos = addr->pos;
   *stack = addr->stack;
+  *frees = addr->frees;
   return;
 }
 
@@ -58,7 +63,14 @@ struct Cora {
   int pos;
 
   struct callStack callstack;
+
+  Obj *frees;
 };
+
+Obj
+closureRef(struct Cora *co, int idx) {
+  return co->frees[idx];
+}
 
 Obj globalRef(Obj sym) {
   struct trieNode* s = ptr(sym);
@@ -72,6 +84,16 @@ Obj globalRef(Obj sym) {
 
 Obj primEQ(Obj x, Obj y) {
   return eq(x, y) ? True : False;
+}
+
+
+Obj primAdd(Obj x, Obj y) {
+  if (isfixnum(x) && isfixnum(y)) {
+    return x + y;
+  } else {
+    // TODO
+    assert(false);
+  }
 }
 
 Obj primSet(Obj key, Obj val) {
@@ -102,30 +124,39 @@ struct scmNative {
   nativeFn fn;
   // required is the argument number of the nativeFunc.
   int required;
-  /* // captured is the size of the data, it's immutable after makeNative. */
-  /* int captured; */
-  /* Obj data[]; */
+  // captured is the size of the data, it's immutable after makeNative.
+  int captured;
+  Obj data[];
 };
 
 
 Obj
-makeNative(nativeFn fn, int required, ...) {
-  int captured = 0;
+makeNative(nativeFn fn, int required, int captured, ...) {
   int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
   struct scmNative* clo = newObj(NULL, 0, scmHeadNative, sz);
   clo->fn = fn;
   clo->required = required;
-  /* clo->captured = captured; */
-  /* if (captured > 0) { */
-  /*   va_list ap; */
-  /*   va_start(ap, captured); */
-  /*   for (int i=0; i<captured; i++) { */
-  /*     clo->data[i] = va_arg(ap, Obj); */
-  /*   } */
-  /*   va_end(ap); */
-  /* } */
+  clo->captured = captured;
+  if (captured > 0) {
+    va_list ap;
+    va_start(ap, captured);
+    for (int i=0; i<captured; i++) {
+      clo->data[i] = va_arg(ap, Obj);
+    }
+    va_end(ap);
+  }
 
   return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+Obj*
+nativeCaptured(Obj o) {
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  if (native->captured == 0) {
+    return NULL;
+  }
+  return &native->data;
 }
 
 nativeFn
@@ -143,37 +174,37 @@ nativeRequired(Obj o) {
 }
 
 void coraCall(struct Cora *co, Obj fn, Obj n) {
-  /* va_list valist; */
-  /* va_start(valist, x); */
-  /* for (int i=0; i<num; i++) { */
-  /*   Obj tmp = va_arg(valist, i); */
-  /* } */
-  /* va_end(valist); */
-
   nativeFn f = nativeFuncPtr(fn);
+  co->frees = nativeCaptured(fn);
   f(co, n);
 }
 
-void coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
-  /* va_list valist; */
-  /* va_start(valist, x); */
-  /* for (int i=0; i<num; i++) { */
-  /*   Obj tmp = va_arg(valist, i); */
-  /* } */
-  /* va_end(valist); */
+void coraCall2(struct Cora *co, Obj fn, Obj arg1) {
+  nativeFn2 f = nativeFuncPtr(fn);
+  co->frees = nativeCaptured(fn);
+  f(co, arg1);
+}
 
+void coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
   nativeFn3 f = nativeFuncPtr(fn);
+  co->frees = nativeCaptured(fn);
   f(co, arg1, arg2);
+}
+
+void coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
+  nativeFn4 f = nativeFuncPtr(fn);
+  co->frees = nativeCaptured(fn);
+  f(co, arg1, arg2, arg3);
 }
 
 void coraReturn(struct Cora *co, Obj val) {
   void* pc;
-  popStack(&co->callstack, &pc, &co->base, &co->pos, &co->stack);
+  popStack(&co->callstack, &pc, &co->base, &co->pos, &co->stack, &co->frees);
   return ((nativeFn)pc)(co, val);
 }
 
 void pushCont(struct Cora *co, nativeFn cb) {
-  saveStack(&co->callstack, cb, co->pos, co->pos, co->stack);
+  saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees);
 }
 
 void push(struct Cora *co, Obj v) {
