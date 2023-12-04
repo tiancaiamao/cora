@@ -221,11 +221,12 @@
 					   (.generate-num w x)
 					   (.generate-str w ")")))
 			     ((string? x) (begin
-					   (.generate-str w "\"")
+					   (.generate-str w "makeString1(\"")
 					   (.generate-str w x)
-					   (.generate-str w "\"")))
+					   (.generate-str w "\")")))
+			     ((= x ()) (.generate-str w "Nil"))
 			     ((= x true) (.generate-str w "True"))
-			     ((= x false) (.generate-str w "Frue")))
+			     ((= x false) (.generate-str w "False")))
       env w ['let a b c] => (let idx (.index a env)
 				 (begin
 				  (if (< idx 0) (.generate-str w "Obj ") ())
@@ -306,7 +307,7 @@
 						(for-each (lambda (x)
 							    (begin
 							     (.generate-str w "push(co, ")
-							     (.generate-sym w x)
+							     (.generate-inst () w x)
 							     (.generate-str w ");\n")))
 							  stacks)
 						())))

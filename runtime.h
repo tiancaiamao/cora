@@ -104,6 +104,36 @@ Obj primAdd(Obj x, Obj y) {
   }
 }
 
+Obj primCons(Obj x, Obj y) {
+  return cons(NULL, 0, x, y);
+}
+
+Obj primNot(Obj x) {
+  if (x == True) {
+    return False;
+  } else if (x == False) {
+    return True;
+  } else {
+    assert(false);
+  }
+}
+
+Obj primCar(Obj x) {
+  return car(x);
+}
+
+Obj primCdr(Obj x) {
+  return cdr(x);
+}
+
+Obj primIsCons(Obj x) {
+  if (iscons(x)) {
+    return True;
+  } else {
+    return False;
+  }
+}
+
 Obj primSet(Obj key, Obj val) {
   struct trieNode* s = ptr(key);
   s->value = val;
@@ -255,6 +285,10 @@ void coraCall(struct Cora *co) {
     co->pc = coraCall;
   }
   return;
+}
+
+Obj makeString1(char *x) {
+  return makeString(NULL, 0, x, strlen(x));
 }
 
 void push(struct Cora *co, Obj v) {
