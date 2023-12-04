@@ -6,10 +6,7 @@
 #include "src/types.h"
 
 struct Cora;
-typedef void (*nativeFn)(struct Cora *co, Obj x);
-typedef void (*nativeFn2)(struct Cora *co, Obj x);
-typedef void (*nativeFn3)(struct Cora *co, Obj x, Obj y);
-typedef void (*nativeFn4)(struct Cora *co, Obj x, Obj y, Obj z);
+typedef void (*nativeFn)(struct Cora *co);
 
 struct returnAddr {
   nativeFn pc;
@@ -46,7 +43,7 @@ saveStack(struct callStack *cs, nativeFn pc, int base, int pos, Obj *stack, Obj 
 }
 
 static void
-popStack(struct callStack *cs, void **pc, int *base, int *pos, Obj **stack, Obj **frees) {
+popStack(struct callStack *cs, nativeFn *pc, int *base, int *pos, Obj **stack, Obj **frees) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
@@ -65,7 +62,17 @@ struct Cora {
   struct callStack callstack;
 
   Obj *frees;
+  Obj args[32];
+  nativeFn pc;
 };
+
+void
+trampoline(struct Cora *co, nativeFn pc) {
+  co->pc = pc;
+  while(co->pc != NULL) {
+    co->pc(co);
+  }
+}
 
 Obj
 closureRef(struct Cora *co, int idx) {
@@ -156,7 +163,7 @@ nativeCaptured(Obj o) {
   if (native->captured == 0) {
     return NULL;
   }
-  return &native->data;
+  return native->data;
 }
 
 nativeFn
@@ -173,34 +180,11 @@ nativeRequired(Obj o) {
   return native->required;
 }
 
-void coraCall(struct Cora *co, Obj fn, Obj n) {
+void coraCall(struct Cora *co) {
+  Obj fn = co->args[0];
   nativeFn f = nativeFuncPtr(fn);
   co->frees = nativeCaptured(fn);
-  f(co, n);
-}
-
-void coraCall2(struct Cora *co, Obj fn, Obj arg1) {
-  nativeFn2 f = nativeFuncPtr(fn);
-  co->frees = nativeCaptured(fn);
-  f(co, arg1);
-}
-
-void coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
-  nativeFn3 f = nativeFuncPtr(fn);
-  co->frees = nativeCaptured(fn);
-  f(co, arg1, arg2);
-}
-
-void coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
-  nativeFn4 f = nativeFuncPtr(fn);
-  co->frees = nativeCaptured(fn);
-  f(co, arg1, arg2, arg3);
-}
-
-void coraReturn(struct Cora *co, Obj val) {
-  void* pc;
-  popStack(&co->callstack, &pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return ((nativeFn)pc)(co, val);
+  f(co);
 }
 
 void pushCont(struct Cora *co, nativeFn cb) {
@@ -229,12 +213,15 @@ struct Cora* coraNew() {
   co->callstack.cap = 64;
 }
 
-void id(struct Cora *co, Obj x) {
-  printf("call back -- %ld\n", x);
+void id(struct Cora *co) {
+  co->pc = NULL;
+  printf("call back -- %ld\n", co->args[1]);
 }
+
+void entry(struct Cora* co);
 
 int main(int argc, char *argv) {
   struct Cora* co = coraNew();
   pushCont(co, id);
-  entry(co);
+  trampoline(co, entry);
 }
