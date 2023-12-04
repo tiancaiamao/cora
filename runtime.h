@@ -63,6 +63,7 @@ struct Cora {
 
   Obj *frees;
   Obj args[32];
+  int nargs;
   nativeFn pc;
 };
 
@@ -156,14 +157,54 @@ makeNative(nativeFn fn, int required, int captured, ...) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
+void coraCall(struct Cora *co);
+Obj* nativeData(Obj o);
+int nativeCaptured(Obj o);
+
+void callCurry(struct Cora *co) {
+  Obj fn = co->args[0];
+  int captured = nativeCaptured(fn);
+  memmove(co->args+captured, co->args+1, (co->nargs-1) * sizeof(Obj));
+  memcpy(co->args, nativeData(fn), captured*sizeof(Obj));
+  co->nargs = co->nargs + captured - 1;
+  co->pc = coraCall;
+}
+
+Obj
+makeCurry1(int required, int captured, Obj *data) {
+  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
+  struct scmNative* clo = newObj(NULL, 0, scmHeadNative, sz);
+  clo->fn = callCurry;
+  clo->required = required;
+  clo->captured = captured;
+  memcpy(clo->data, data, captured*sizeof(Obj));
+  return ((Obj)(&clo->head) | TAG_PTR);
+}
+
+bool
+isNative(Obj c) {
+  if ((c & TAG_MASK) != TAG_PTR) {
+    return false;
+  }
+  scmHead *h = ptr(c);
+  return h->type == scmHeadNative;
+}
+
 Obj*
-nativeCaptured(Obj o) {
+nativeData(Obj o) {
   struct scmNative* native = ptr(o);
   assert(native->head.type == scmHeadNative);
   if (native->captured == 0) {
     return NULL;
   }
   return native->data;
+}
+
+int
+nativeCaptured(Obj o) {
+  struct scmNative* native = ptr(o);
+  assert(native->head.type == scmHeadNative);
+  return native->captured;
 }
 
 nativeFn
@@ -180,15 +221,40 @@ nativeRequired(Obj o) {
   return native->required;
 }
 
-void coraCall(struct Cora *co) {
-  Obj fn = co->args[0];
-  nativeFn f = nativeFuncPtr(fn);
-  co->frees = nativeCaptured(fn);
-  f(co);
-}
+void id(struct Cora *co);
 
 void pushCont(struct Cora *co, nativeFn cb) {
   saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees);
+}
+
+void coraCall(struct Cora *co) {
+  Obj fn = co->args[0];
+  int required = nativeRequired(co->args[0]);
+  if (co->nargs == required + 1) {
+    co->pc = nativeFuncPtr(fn);
+    co->frees = nativeData(fn);
+  } else if (co->nargs < required + 1) {
+    Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
+    co->nargs = 0;
+    co->args[1] = ret;
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  } else {
+    // save the extra args.
+    int cnt = co->nargs - (required+1);
+    int sz = sizeof(Obj) * cnt;
+    Obj* save = alloca(sz);
+    memcpy(save, co->args+required+1, sz);
+    // eval the first call and get the result;
+    co->nargs = required + 1;
+    pushCont(co, id);
+    trampoline(co, co->pc);
+    // recover args and make the next call.
+    co->args[0] = co->args[1];
+    memcpy(co->args+1, save, sz);
+    co->nargs = cnt + 1;
+    co->pc = coraCall;
+  }
+  return;
 }
 
 void push(struct Cora *co, Obj v) {

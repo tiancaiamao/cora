@@ -36,6 +36,16 @@
 	   "ERROR"
 	   (caddr find))))
 
+(defun .builtin->args (x)
+  (let find (.assq x .*builtin-prims*)
+       (if (null? find)
+	   "ERROR"
+	   (cadr find))))
+
+(func .temp-list
+      0 res => res
+      n res => (.temp-list (- n 1) (cons (gensym 'tmp) res)))
+
 (func .parse
       _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
       _ ['quote x] => ['%const x]
@@ -44,7 +54,17 @@
       env ['if . args] => ['if . (map (.parse env) args)]
       env ['do x y] => ['do (.parse env x) (.parse env y)]
       env ['let a b c] => ['let a (.parse env b) (.parse (cons a env) c)]
-      env [op . args] => [['%builtin op] . (map (.parse env) args)] where (builtin? op)
+      env [op . args] => (let required (.builtin->args op)
+			      provided (length args)
+			      (cond
+				((= required provided)  [['%builtin op] . (map (.parse env) args)])
+				((> required provided)
+				 ;; rewrite partial apply of primitives
+				 ;; (+ x) => (lambda (tmp) (+ x tmp))
+				 (let tmp (.temp-list (- required provided) ())
+				      (.parse env ['lambda tmp (append [op . args] tmp)])))
+				(true (error "primitive call mismatch"))))
+      where (builtin? op)
       env ls => (map (.parse env) ls))
 
 (func .union
@@ -255,8 +275,16 @@
 				 (.generate-inst env w exp))
       env w [f . args] => (begin
 			   (.generate-call-args env w 0 [f . args])
+			   (.generate-str w "co->nargs = ")
+			   (.generate-num w (length [f . args]))
+			   (.generate-str w ";\n")
+			   (.generate-str w "if (nativeRequired(co->args[0]) == ")
+			   (.generate-num w (length args))
+			   (.generate-str w ") {\n")
 			   (.generate-str w "co->pc = nativeFuncPtr(co->args[0]);\n")
-			   (.generate-str w "co->frees = nativeCaptured(co->args[0]);\n")
+			   (.generate-str w "co->frees = nativeData(co->args[0]);\n")
+			   (.generate-str w "} else {\n")
+			   (.generate-str w "co->pc = coraCall;\n}\n")
 			   (.generate-str w "return;\n")))
 
 (func .generate-call-args
