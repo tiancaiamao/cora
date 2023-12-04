@@ -29,7 +29,7 @@ func main() {
 
 		res := vm.Eval(sexp)
 
-		fmt.Printf(res.String())
+		fmt.Print(res.String())
 		fmt.Println()
 	}
 }
