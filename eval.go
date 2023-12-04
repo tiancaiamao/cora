@@ -337,7 +337,7 @@ type instrGlobalRef struct {
 }
 
 func (i *instrGlobalRef) Exec(vm *VM) {
-	if i.sym == nil {
+	if i.sym == nil || i.sym.val == nil {
 		panic("undefined symbol:" + i.sym.str)
 	}
 	vm.val = i.sym.val
