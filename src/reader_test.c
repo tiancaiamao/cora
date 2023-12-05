@@ -12,10 +12,10 @@ TestReadSexp() {
 
   struct SexpReader reader = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(&reader, stream, &errCode);
+  Obj o = sexpRead(NULL, 0, &reader, stream, &errCode);
 
   /* Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil))); */
-  Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
+  Obj z = cons(NULL, 0, intern("a"), cons(NULL, 0, intern("b"), cons(NULL, 0, intern("c"), Nil)));
 
   assert(iscons(o));
   /* printf("here res =  %ld \n", o); */
@@ -39,15 +39,15 @@ TestImport() {
 
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode;
-  Obj o = sexpRead(&r, stream, &errCode);
-  Obj pathStr = makeString("std/cora/basic", 14);
-  Obj s = cons(intern("import"), cons(pathStr, Nil));
+  Obj o = sexpRead(NULL, 0, &r, stream, &errCode);
+  Obj pathStr = makeString(NULL, 0, "std/cora/basic", 14);
+  Obj s = cons(NULL, 0, intern("import"), cons(NULL, 0, pathStr, Nil));
   assert(eq(o, s));
   /* printObj(stdout, r.pkgMapping); */
   /* printf("\n"); */
-  assert(eq(r.pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
+  assert(eq(r.pkgMapping, cons(NULL, 0, cons(NULL, 0, intern("xxx"), pathStr), Nil)));
 
-  Obj x = sexpRead(&r, stream, &errCode);
+  Obj x = sexpRead(NULL, 0, &r, stream, &errCode);
   /* printObj(stdout, x); */
   /* printf("\n"); */
   assert(eq(car(x), intern("std/cora/basic.yyy")));

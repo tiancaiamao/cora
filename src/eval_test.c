@@ -183,7 +183,7 @@ TestEvalBasic() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(&r, f, &errCode);
+    Obj s = sexpRead(NULL, 0, &r, f, &errCode);
     Obj res = eval(vm, pos, s);
 
     char output[512];
@@ -334,7 +334,7 @@ TestTryCatch() {
     struct SexpReader r = {.pkgMapping = Nil};
     FILE* f = fmemopen(c->input, strlen(c->input), "r");
     int errCode;
-    Obj s = sexpRead(&r, f, &errCode);
+    Obj s = sexpRead(NULL, 0, &r, f, &errCode);
     Obj exp = macroExpand(vm, pos, s);
     Obj res = eval(vm, pos, exp);
 
