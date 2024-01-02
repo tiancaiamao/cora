@@ -157,6 +157,24 @@ Obj primMul(Obj x, Obj y) {
   }
 }
 
+static uint64_t genIdx = 0;
+
+Obj primGenSym(Obj arg) {
+  assert(issymbol(arg));
+  char tmp[200];
+  snprintf(tmp, 100, "#%s%ld", symbolStr(arg), genIdx);
+  genIdx++;
+  return makeSymbol(tmp);
+}
+
+Obj primIsSymbol(Obj x) {
+  if (issymbol(x)) {
+    return True;
+  } else {
+    return False;
+  }
+}
+
 struct scmNative {
   scmHead head;
   nativeFn fn;

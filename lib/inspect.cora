@@ -1,0 +1,94 @@
+(@import "cora/lib/let-loop")
+(@import "cora/lib/sys")
+
+(defun inspect (env k stacks)
+  (let-loop recur (ignore 1)
+	    (begin
+	     (display "debug>\n")
+	     (let exp (read-sexp)
+		  (cond
+		    ((and (cons? exp) (= (car exp) 'continue))
+		     (eval (cadr exp) env k stacks))
+		    ((and (cons? exp) (= (car exp) 'stack))
+		     (do (display stacks)
+			 (recur ())))
+		    (true (let res (eval exp env .id stacks)
+			       (begin
+				(display res)
+				(recur ())))))))))
+
+(set '.*prefix* (gensym 'ns-))
+
+(defun .with-prefix (prefix sym)
+  (intern (string-append (symbol->string prefix)
+			  (symbol->string sym))))
+
+(defun .global-set (sym val)
+  (set (.with-prefix .*prefix* sym) val))
+
+(defun .global-get (sym)
+  (value (.with-prefix .*prefix* sym))) 
+
+(func .env-extend
+     [] [] env => env
+     [p . ps] [a . as] env => (.env-extend ps as [[p . a] . env]))
+
+(.global-set '+ (lambda (x y) (+ x y)))
+(.global-set '- (-))
+(.global-set '* (*))
+(.global-set '= (=))
+(.global-set 'set .global-set)
+
+
+(set '*return-addr* ())
+
+(defun .pop-k ()
+  (let ret (car *return-addr*)
+       (begin
+	(set '*return-addr* (cdr *return-addr*))
+	ret)))
+
+(defun .save-k (k)
+  (set '*return-addr* (cons k *return-addr*)))
+
+(func eval
+      exp env k _ => (k exp) where (or (number? exp) (string? exp))
+      exp env k _ => (let find (assq exp env)
+			  (if (null? find)
+			      (k (.global-get exp))
+			      (k (cdr find))))
+      where (symbol? exp)
+      ['quote x] env k _ => (k x)
+      ['do x y] env k stacks => (eval x env (lambda (_)
+					      (eval y env k stacks)) stacks)
+      ['if x y z] env k stacks => (eval x env (lambda (x1)
+						(if x1
+						    (eval y env k stacks)
+						    (eval z env k stacks))) stacks)
+      ['lambda args body] env k _ => (k ['lambda args body . env])
+      ['try exp ['lambda params body]] env k stacks => (begin
+							(.save-k (lambda (v resume)
+								   (let nenv (.env-extend params [v resume] env)
+									(eval body nenv k stacks))))
+							(eval (cons exp ()) env k stacks))
+      ['throw x] env k stacks => (let k1 (.pop-k)
+				      (eval x env (lambda (vx)
+						    (k1 vx k)) stacks))
+      ['inspect] env k stacks => (inspect env k stacks)
+      [f . args] env k stacks => (eval f env (lambda (f1)
+					       (eval-list [] args env
+							  (lambda (vargs)
+							    (match f1
+								   ['lambda params body . cenv]
+								   (let nenv (.env-extend params vargs cenv)
+									(eval body nenv k (cons f stacks)))
+								   host-fn (k (apply host-fn vargs))))
+							  stacks)
+					       ) stacks))
+
+(func eval-list
+      res [] env k stacks => (k (reverse res))
+      res [x . xs] env k stacks => (eval x env (lambda (x1)
+						 (eval-list [x1 . res] xs env k stacks)) stacks))
+
+(defun .id (x) x)

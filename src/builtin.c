@@ -35,8 +35,40 @@ void
 builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos) {
   Obj sym = vmGet(vm, 1);
   const char* str = symbolStr(sym);
-  val = makeString(vm, pos, str, strlen(str)+1);
+  val = makeString(vm, pos, str, strlen(str));
   vmReturn(vm, val);
+}
+
+void
+builtinStringLength(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj str = vmGet(vm, 1);
+  int l = stringLen(str);
+  vmReturn(vm, makeNumber(l));
+}
+
+void
+builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj str1 = vmGet(vm, 1);
+  Obj str2 = vmGet(vm, 2);
+  strBuf x = stringStr(str1);
+  strBuf y = stringStr(str2);
+  strBuf tmp = strNew(strLen(toStr(x)) + strLen(toStr(y)));
+  tmp = strCpy(tmp, toStr(x));
+  tmp = strCat(tmp, toStr(y));
+  val = makeString(vm, pos, toCStr(tmp), strLen(toStr(tmp)));
+  vmReturn(vm, val);
+}
+
+void
+builtinValue(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj sym = vmGet(vm, 1);
+  struct trieNode* s = ptr(sym);
+  Obj ret = s->value;
+  if (ret == Undef) {
+    printf("undefined value: %s\n", s->sym);
+    assert(false);
+  }
+  vmReturn(vm, ret);
 }
 
 void
@@ -667,4 +699,19 @@ builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
 
  exit0:
   vmReturn(vm, result);
+}
+
+void
+builtinDisplay(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj arg = vmGet(vm, 1);
+  sexpWrite(stdout, arg);
+  vmReturn(vm, Nil);
+}
+
+void
+builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos) {
+  struct SexpReader r;
+  int errCode;
+  Obj x = sexpRead(vm, pos, &r, stdin, &errCode);
+  vmReturn(vm, x);
 }

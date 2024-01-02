@@ -94,7 +94,7 @@
       ['let a b c] => (.union (.free-vars b) (.diff (.free-vars c) [a]))
 
       ;; the following three rules are used by .explicit-stack, not by .convert
-      ['%closure lam . _] => (.free-vars lam)
+      ['%closure lam . more] => (.union (.free-vars lam) more)
       ['return x] => (.free-vars x)
       ['call exp cont] => (.foldl .union [] (map .free-vars [exp cont]))
       ['tailcall exp] => (.free-vars exp)
@@ -158,12 +158,8 @@
       ;; fvs ['do x y] => (cons 'do (map (.explicit-stack fvs) [x y]))
       ;; fvs ['if a b c] => (cons 'if (map (.explicit-stack fvs) [a b c]))
       ;; fvs ['let a b c] => ['let a (.explicit-stack fvs b) (.explicit-stack fvs c)]
-      fvs ['%closure lam . closed] => ['%closure (.explicit-stack fvs lam) . closed]
+      ;; fvs ['%closure lam . closed] => ['%closure (.explicit-stack fvs lam) . closed]
       fvs ['lambda args body] => ['lambda args (.explicit-stack fvs body)]
-      ;; (let fvs1 (.free-vars ['lambda args body])
-      ;; 	   ['%closure ['lambda args (.explicit-stack fvs1 body)] .
-      ;; 	   (map (.explicit-stack fvs) fvs1)])
-      ;; fvs [['%builtin f] . args] => [['%builtin f] . (map (.explicit-stack fvs) args)]
       fvs ['continuation val body] => (let fvs1 (.diff (.free-vars body) val)
 					   (let fvs2 (map (.explicit-stack fvs) fvs1)
 						['%continuation ['lambda val (.explicit-stack fvs1 body)] . fvs2]))

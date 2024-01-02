@@ -61,4 +61,10 @@ void builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos);
 
 void builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos);
 
+void builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos);
+void builtinStringLength(void *pc, Obj val, struct VM *vm, int pos);
+void builtinValue(void *pc, Obj val, struct VM *vm, int pos);
+void builtinDisplay(void *pc, Obj val, struct VM *vm, int pos);
+void builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos);
+
 #endif

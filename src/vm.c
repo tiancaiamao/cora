@@ -464,6 +464,20 @@ opReserveLocals(void* pc, Obj val, struct VM *vm, int pos) {
 }
 
 void
+builtinApply(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj fn = vmGet(vm, 1);
+  Obj args = vmGet(vm, 2);
+  pos -= 3;
+  vm->stack[pos++] = fn;
+  while(args != Nil) {
+    Obj tmp = car(args);
+    vm->stack[pos++] = tmp;
+    args = cdr(args);
+  }
+  makeTheCall(NULL, Nil, vm, pos);
+}
+
+void
 builtinTryCatch(void *pc, Obj val, struct VM *vm, int pos) {
   Obj chunk = vm->stack[vm->base + 1];
 
@@ -637,6 +651,13 @@ coraInit(struct VM *vm) {
   symbolSet(makeSymbol(".generate-sym"), makePrimitive(vm, 0, builtinGenerateSym, 2));
   symbolSet(makeSymbol(".generate-num"), makePrimitive(vm, 0, builtinGenerateNum, 2));
   symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 1));
+
+  symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2));
+  symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1));
+  symbolSet(makeSymbol("value"), makePrimitive(vm, 0, builtinValue, 1));
+  symbolSet(makeSymbol("apply"), makePrimitive(vm, 0, builtinApply, 2));
+  symbolSet(makeSymbol("display"), makePrimitive(vm, 0, builtinDisplay, 1));
+  symbolSet(makeSymbol("read-sexp"), makePrimitive(vm, 0, builtinReadSexp, 0));
 }
 
 static bool inited = false;
