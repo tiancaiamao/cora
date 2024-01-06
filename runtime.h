@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "src/types.h"
+#include "src/reader.h"
 
 struct Cora;
 typedef void (*nativeFn)(struct Cora *co);
@@ -333,7 +334,7 @@ struct Cora* coraNew() {
 
 void id(struct Cora *co) {
   co->pc = NULL;
-  printf("call back -- %ld\n", co->args[1]);
+  printObj(stdout, co->args[1]);
 }
 
 void entry(struct Cora* co);

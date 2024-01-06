@@ -94,7 +94,7 @@
       ['let a b c] => (.union (.free-vars b) (.diff (.free-vars c) [a]))
 
       ;; the following three rules are used by .explicit-stack, not by .convert
-      ['%closure lam . more] => (.union (.free-vars lam) more)
+      ['%closure lam . more] => (.free-vars [lam . more])
       ['return x] => (.free-vars x)
       ['call exp cont] => (.foldl .union [] (map .free-vars [exp cont]))
       ['tailcall exp] => (.free-vars exp)
@@ -404,8 +404,8 @@
    (.generate-str to "\n")
    (for-each (lambda (x) (.code-gen-toplevel to x)) bc)))
 
-(defun .compile-to-c (from to)
-  (let sexp (read-file-as-sexp from)
+(defun .compile-to-c (from to pkg-str)
+  (let sexp (read-file-as-sexp from pkg-str)
        (let input (macroexpand sexp)
 	    (let bc (.compile input)
 		 (let stream (.open-output-file to)

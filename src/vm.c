@@ -650,7 +650,7 @@ coraInit(struct VM *vm) {
   symbolSet(makeSymbol(".generate-str"), makePrimitive(vm, 0, builtinGenerateStr, 2));
   symbolSet(makeSymbol(".generate-sym"), makePrimitive(vm, 0, builtinGenerateSym, 2));
   symbolSet(makeSymbol(".generate-num"), makePrimitive(vm, 0, builtinGenerateNum, 2));
-  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 1));
+  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 2));
 
   symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2));
   symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1));

@@ -673,6 +673,7 @@ builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
 void
 builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   Obj arg = vmGet(vm, 1);
+  Obj selfPath = vmGet(vm, 2);
   assert(isstring(arg));
   strBuf fileName = stringStr(arg);
   FILE* f = fopen(toCStr(fileName), "r");
@@ -683,7 +684,8 @@ builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   }
 
   int errCode = 0;
-  struct SexpReader r = {.pkgMapping = Nil};
+  strBuf s = stringStr(selfPath);
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(s)};
   Obj ast = sexpRead(vm, pos, &r, f, &errCode);
   while (ast != Nil) {
     result = cons(vm, pos, ast, result);

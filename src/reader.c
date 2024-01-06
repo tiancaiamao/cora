@@ -345,9 +345,9 @@ printObj(FILE *to, Obj o) {
     case scmHeadBoolean:
       fprintf(to, "boolean");
       break;
-    /* case scmHeadNative: */
-    /*   fprintf(to, "native"); */
-    /*   break; */
+    case scmHeadNative:
+      fprintf(to, "native");
+      break;
     /* case scmHeadCurry: */
     /*   fprintf(to, "curry"); */
     /*   break; */
