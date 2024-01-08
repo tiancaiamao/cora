@@ -197,7 +197,7 @@
       env w x => (.generate-sym w x) where (symbol? x)
       env w ['%global x] => (begin
 			     (.generate-str w "globalRef(intern(\"")
-			     (.generate-sym w x)
+			     (.generate-str w (symbol->string x))
 			     (.generate-str w "\"))"))
       env w ['%closure-ref idx] => (begin
 				    (.generate-str w "closureRef(co, ")
@@ -210,7 +210,7 @@
       env w ['%const x] => (cond
 			     ((symbol? x) (begin
 					   (.generate-str w "intern(\"")
-					   (.generate-sym w x)
+					   (.generate-str w (symbol->string x))
 					   (.generate-str w "\")")))
 			     ((number? x) (begin
 					   (.generate-str w "makeNumber(")
@@ -264,7 +264,8 @@
       env w ['return x] => (begin
 			    (.generate-str w "co->args[1] = ")
 			    (.generate-inst env w x)
-			    (.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);")
+			    ;; (.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);")
+			    (.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);")
 			    (.generate-str w "\nreturn;\n"))
       env w ['tailcall exp] => (.generate-inst env w exp)
       env w ['call exp cont] => (begin

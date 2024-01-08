@@ -83,7 +83,7 @@ void* mustCObj(Obj o);
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
-const char* symbolStr(Obj sym);
+char* symbolStr(Obj sym);
 
 #define cons(vm, pos, x, y) makeCons(vm, pos, x, y)
 bool iscons(Obj o);

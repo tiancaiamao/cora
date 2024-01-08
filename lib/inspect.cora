@@ -1,5 +1,5 @@
-(@import "cora/lib/let-loop")
-(@import "cora/lib/sys")
+;; (@import "cora/lib/let-loop")
+;; (@import "cora/lib/sys")
 
 (defun inspect (env k stacks)
   (let-loop recur (ignore 1)
@@ -52,7 +52,7 @@
   (set '*return-addr* (cons k *return-addr*)))
 
 (func eval
-      exp env k _ => (k exp) where (or (number? exp) (string? exp))
+      exp env k _ => (k exp) where (or (number? exp) (string? exp) (boolean? exp))
       exp env k _ => (let find (assq exp env)
 			  (if (null? find)
 			      (k (.global-get exp))
@@ -92,3 +92,6 @@
 						 (eval-list [x1 . res] xs env k stacks)) stacks))
 
 (defun .id (x) x)
+
+(defun eval0 (exp)
+  (eval exp () .id ()))

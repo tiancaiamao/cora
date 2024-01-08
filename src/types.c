@@ -323,7 +323,7 @@ symbolSet(Obj sym, Obj val) {
   return val;
 }
 
-const char*
+char*
 symbolStr(Obj sym) {
   assert(issymbol(sym));
   struct trieNode *s = ptr(sym);
