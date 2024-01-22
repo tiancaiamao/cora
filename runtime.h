@@ -23,8 +23,21 @@ struct callStack {
   int cap;
 };
 
+struct tryRecord {
+  int pos;
+  Obj handler;
+};
+
+struct tryStack {
+  struct tryRecord *data;
+  int len;
+  int cap;
+};
 
 struct Cora {
+  Obj args[32];
+  int nargs;
+
   Obj *stack;
   int base;
   int pos;
@@ -32,9 +45,9 @@ struct Cora {
   struct callStack callstack;
 
   Obj *frees;
-  Obj args[32];
-  int nargs;
   nativeFn pc;
+
+  struct tryStack trystack;
 };
 
 void trampoline(struct Cora *co, nativeFn pc);
@@ -59,9 +72,10 @@ nativeFn nativeFuncPtr(Obj o);
 Obj makeString1(char *x);
 
 void push(struct Cora *co, Obj v);
-void pushCont(struct Cora *co, nativeFn cb);
+
+void saveStack(struct callStack *cs, nativeFn pc, int base, Obj *frees);
 /* void popStack(struct callStack *cs, nativeFn *pc, int *base, int *pos, Obj **stack, Obj **frees); */
-void popStack(struct callStack *cs, nativeFn *pc, int *base, Obj **stack, Obj **frees);
+void popStack(struct callStack *cs, nativeFn *pc, int *base, Obj **frees);
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);

@@ -716,7 +716,7 @@ vmCall(struct VM *vm, int pos, int n) {
   return vm->result;
 }
 
-extern void gcGlobal(struct GC *gc);
+/* extern void gcGlobal(struct GC *gc); */
 
 void
 gcVM(struct GC *gc, struct VM *vm, int pos) {
@@ -734,5 +734,5 @@ gcVM(struct GC *gc, struct VM *vm, int pos) {
   }
 
   // Global symbol table
-  gcGlobal(gc);
+  /* gcGlobal(gc); */
 }
