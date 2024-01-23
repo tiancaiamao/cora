@@ -100,13 +100,13 @@ cdddr(Obj x) {
 }
 
 Obj
-makeClosure(struct VM *vm, int pos, int required, int nfrees, void *closed, void *code, int sz) {
-  struct scmClosure* clo = newObj(vm, pos, scmHeadClosure, sizeof(struct scmClosure));
+makeClosure(struct VM *vm, int required, int nfrees, void *closed, Obj code, nativeFn *fn) {
+  struct scmClosure* clo = newObj(vm, 0, scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
   clo->closed = closed;
   clo->code = code;
-  clo->sz = sz;
+  clo->fn = fn;
 
   return ((Obj)(&clo->head) | TAG_PTR);
 }
@@ -143,10 +143,16 @@ mustClosure(Obj o) {
   return c;
 }
 
-void*
+Obj
 closureCode(Obj o) {
   struct scmClosure* c = mustClosure(o);
   return c->code;
+}
+
+nativeFn*
+closurePC(Obj o) {
+  struct scmClosure* c = mustClosure(o);
+  return c->fn;
 }
 
 Obj
@@ -162,12 +168,12 @@ closureRequired(Obj o) {
 }
 
 Obj
-makePrimitive(struct VM* vm, int pos, opcode fn, int nargs) {
-  Obj tmp = makeClosure(vm, pos, nargs, 0, NULL, NULL, 0);
-  struct scmClosure* clo = mustClosure(tmp);
-  clo->fn = fn;
-  clo->required = nargs;
-  clo->code = &clo->fn;
+makePrimitive(struct VM* vm, nativeFn *fn, int nargs) {
+  Obj tmp = makeClosure(vm, nargs, 0, NULL, Nil, fn);
+  /* struct scmClosure* clo = mustClosure(tmp); */
+  /* clo->fn = fn; */
+  /* clo->required = nargs; */
+  /* clo->code = &clo->fn; */
   return tmp;
 }
 

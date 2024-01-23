@@ -39,9 +39,9 @@
      [['set . 2] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
      ['= . 2] ['> . 2] ['< . 2] ['gensym . 1] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
 
-(func temp-list
+(func .temp-list
       0 res => res
-      n res => (temp-list (- n 1) (cons (gensym 'tmp) res)))
+      n res => (.temp-list (- n 1) (cons (gensym 'tmp) res)))
 
 ;; TODO: optimize the func macro to make the generate code small enough!
 ;; (func .closure-convert
@@ -69,7 +69,7 @@
 ;; 						   (< (length args) (cdr find)))
 ;; 					      ;; rewrite partial apply of primitives
 ;; 					      ;; (+ x) => (lambda (tmp) (+ x tmp))
-;; 					      (let tmp (temp-list (- (cdr find) (length args)) ())
+;; 					      (let tmp (.temp-list (- (cdr find) (length args)) ())
 ;; 						   (.closure-convert ['lambda tmp (append [f . args] tmp)] locals env frees nlets))
 ;; 					      (.closure-convert-list [f . args] locals env frees nlets ()))) where (symbol? f)
 ;;       [f . args] locals env frees nlets => (.closure-convert-list [f . args] locals env frees nlets ()))
@@ -106,7 +106,7 @@
 						(< (length args) (cdr find)))
 					   ;; rewrite partial apply of primitives
 					   ;; (+ x) => (lambda (tmp) (+ x tmp))
-					   (let tmp (temp-list (- (cdr find) (length args)) ())
+					   (let tmp (.temp-list (- (cdr find) (length args)) ())
 						(.closure-convert ['lambda tmp (append [f . args] tmp)] locals env frees nlets))
 					   (.closure-convert-list [f . args] locals env frees nlets ())))))
 	(true (let f (car exp)
@@ -157,7 +157,7 @@
     ((= 'do (car exp)) (let x (cadr exp)
 			    y (caddr exp)
 			    (.compile x locals frees
-				      (.compile y locals frees next))))
+				      (cons ['pop] (.compile y locals frees next)))))
     ((= 'let (car exp)) (let var (cadr exp)
 			     val (caddr exp)
 			     exp (cadddr exp)
@@ -180,7 +180,7 @@
 (func .compile-list
       [] locals frees next => next
       [hd . tl] locals frees next => (.compile hd locals frees
-					       (cons ['push] (.compile-list tl locals frees next))))
+					       (.compile-list tl locals frees next)))
     
 (defun .cc (exp)
   (match (.closure-convert exp () () () 0)
@@ -190,75 +190,3 @@
 		  res
 		  (cons ['reserve-locals nlets] res)))))
 
-(defun .bytecode-to-exec (bc)
-  (let p (.c-make-program)
-       (begin
-	(.to-exec-many bc p)
-	p)))
-
-(func for-each
-      fn [] => []
-      fn [x . y] => (begin
-                     (fn x)
-                     (for-each fn y)))
-
-(defun .to-exec-many (bc p)
-  (for-each (lambda (x) (.to-exec x p)) bc))
-
-;; (defun .c-prog-append-prim (p x)
-;;   (cond
-;;     ((= x '=) (.c-prog-append-op p .c-opPrimEQ))
-;;     ((= x 'set) (.c-prog-append-op p .c-opPrimSet))
-;;     ((= x '+) (.c-prog-append-op p .c-opPrimAdd))
-;;     ((= x '-) (.c-prog-append-op p .c-opPrimSub))
-;;     ((= x '*) (.c-prog-append-op p .c-opPrimMul))
-;;     ((= x '<) (.c-prog-append-op p .c-opPrimLT))
-;;     ((= x '>) (.c-prog-append-op p .c-opPrimGT))
-;;     ((= x 'car) (.c-prog-append-op p .c-opPrimCar))
-;;     ((= x 'cdr) (.c-prog-append-op p .c-opPrimCdr))
-;;     ((= x 'cons) (.c-prog-append-op p .c-opPrimCons))
-;;     ((= x 'not) (.c-prog-append-op p .c-opPrimNot))
-;;     ((= x 'cons?) (.c-prog-append-op p .c-opPrimIsCons))
-;;     ((= x 'gensym) (.c-prog-append-op p .c-opPrimGenSym))
-;;     ((= x 'integer?) (.c-prog-append-op p .c-opPrimIsInteger))
-;;     ((= x 'symbol?) (.c-prog-append-op p .c-opPrimIsSymbol))
-;;     ((= x 'string?) (.c-prog-append-op p .c-opPrimIsString))))
-
-(func .to-exec
-      ['const x] p => (begin (.c-prog-append-op p .c-opConst)
-			     (.c-prog-append-obj p x))
-      ['local-ref idx] p => (begin
-			     (.c-prog-append-op p .c-opLocalRef)
-			     (.c-prog-append-int32 p idx))
-      ['closure-ref idx] p => (begin
-			       (.c-prog-append-op p .c-opClosureRef)
-			       (.c-prog-append-int32 p idx))
-      ['global-ref obj] p => (begin
-			      (.c-prog-append-op p .c-opGlobalRef)
-			      (.c-prog-append-obj p obj))
-      ['if succ fail] p => (begin (.c-prog-append-op p .c-opIf)
-				  (let pos (.c-prog-prepare-size p)
-				       (begin
-					(.to-exec-many succ p)
-					(.c-prog-write-back-size p pos)
-					(.to-exec-many fail p))))
-      ['make-closure required nfrees code] p => (begin (.c-prog-append-op p .c-opMakeClosure)
-						       (.c-prog-append-int32 p required)
-						       (.c-prog-append-int32 p nfrees)
-						       (let pos (.c-prog-prepare-size p)
-							    (begin(.to-exec-many code p)
-								  (.c-prog-write-back-size p pos))))
-      ['tailcall n] p => (begin (.c-prog-append-op p .c-opTailCall)
-				(.c-prog-append-int32 p n))
-      ['call n] p => (begin (.c-prog-append-op p .c-opCall)
-			    (.c-prog-append-int32 p n))
-      ['push] p => (.c-prog-append-op p .c-opPush)
-      ['exit] p => (.c-prog-append-op p .c-opExit)
-      ['reserve-locals n] p => (begin (.c-prog-append-op p .c-opReserveLocals)
-				      (.c-prog-append-int32 p n))
-      ['local-set idx] p => (begin (.c-prog-append-op p .c-opLocalSet)
-				   (.c-prog-append-int32 p idx))
-      ['primitive x] p => (.c-prog-append-prim p x))
-
-(defun .eval (exp)
-  (.c-prog-run (.bytecode-to-exec (.cc exp))))

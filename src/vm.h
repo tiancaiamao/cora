@@ -12,15 +12,17 @@ struct VM* newVM();
 Obj vmGet(struct VM *vm, int idx);
 void vmReturn(struct VM *vm, Obj val);
 
-void vmPush(struct VM *vm, int pos, Obj val);
-Obj vmCall(struct VM *vm, int pos, int n);
+void vmPush(struct VM *vm, Obj val);
+Obj vmCall(struct VM *vm, int n);
 
 // Essentially, the VM only provide this.
-Obj run(struct VM *vm, char *pc, int pos);
+Obj run(struct VM *vm, Obj exp);
 
 // High level APIs, which can be implemented using previous APIs.
-Obj macroExpand(struct VM *vm, int pos, Obj exp);
-Obj eval(struct VM *vm, int pos, Obj exp);
-int loadByteCode(struct VM *vm, int pos, str path);
+Obj macroExpand(struct VM *vm, Obj exp);
+Obj eval(struct VM *vm, Obj exp);
+int loadByteCode(struct VM *vm, str path);
+
+int vmPos(struct VM *vm);
 
 #endif
