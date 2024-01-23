@@ -696,6 +696,10 @@ coraInit(struct VM *vm) {
   /* symbolSet(makeSymbol(".generate-num"), makePrimitive(vm, 0, builtinGenerateNum, 2)); */
   /* symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 2)); */
 
+
+  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, readFileAsSexp, 2));
+  symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(vm, writeSexpToFile, 2));
+
   /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */
   /* symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1)); */
   /* symbolSet(makeSymbol("value"), makePrimitive(vm, 0, builtinValue, 1)); */
@@ -738,6 +742,7 @@ vmGet(struct VM *vm, int idx) {
 void
 vmReturn(struct VM *vm, Obj val) {
   opExit(vm);
+  vm->stack[vm->pos-1] = val;
 }
 
 void
