@@ -41,26 +41,26 @@ repl(struct VM *vm, FILE* stream) {
   }
 }
 
-static void
-replBytecode(struct VM *vm, FILE* stream) {
-  struct SexpReader r = {.pkgMapping = Nil};
-  int errCode;
+/* static void */
+/* replBytecode(struct VM *vm, FILE* stream) { */
+/*   struct SexpReader r = {.pkgMapping = Nil}; */
+/*   int errCode; */
 
-  for (int i=0; ; i++) {
-    printf("%d #> ", i);
+/*   for (int i=0; ; i++) { */
+/*     printf("%d #> ", i); */
 
-    int err = 0;
-    Obj exp = sexpRead(vm, 0, &r, stdin, &errCode);
-    if (err != 0) {
-      break;
-    }
+/*     int err = 0; */
+/*     Obj exp = sexpRead(vm, 0, &r, stdin, &errCode); */
+/*     if (err != 0) { */
+/*       break; */
+/*     } */
 
-    Obj res = run(vm, exp);
+/*     Obj res = run(vm, exp); */
 
-    sexpWrite(stdout, res);
-    printf("\n");
-  }
-}
+/*     sexpWrite(stdout, res); */
+/*     printf("\n"); */
+/*   } */
+/* } */
 
 int main(int argc, char *argv[]) {
   struct VM* vm = newVM();

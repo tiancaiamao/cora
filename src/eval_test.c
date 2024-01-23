@@ -172,8 +172,8 @@ TestEvalBasic() {
   };
 
   struct VM *vm= newVM();
-  loadByteCode(vm, cstr("../init.bc1"));
-  loadByteCode(vm, cstr("../compile.bc1"));
+  loadByteCode(vm, cstr("../init.bc"));
+  loadByteCode(vm, cstr("../compile.bc"));
   for (int i=0; i<sizeof(cases)/sizeof(struct testCase); i++) {
     struct testCase *c = &cases[i];
 

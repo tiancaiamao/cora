@@ -205,14 +205,6 @@ opPop(struct VM *vm) {
   vm->pos--;
 }
 
-/* void */
-/* opPush(void* pc, Obj val, struct VM *vm, int pos) { */
-/*   vm->stack[pos] = val; */
-/*   pos++; */
-/*   pc = (void*)((char*)pc + sizeof(uint64_t)); */
-/*   (*((opcode*)(pc)))(pc, val, vm, pos); */
-/* } */
-
 void
 opIf(struct VM *vm, Obj succ, Obj fail) {
   Obj val = vm->stack[--vm->pos];
@@ -507,21 +499,6 @@ dispatch(struct VM *vm) {
   vm->data = (void*)cdr((Obj)vm->data);
 }
 
-
-/* void */
-/* builtinApply(void *pc, Obj val, struct VM *vm, int pos) { */
-/*   Obj fn = vmGet(vm, 1); */
-/*   Obj args = vmGet(vm, 2); */
-/*   pos -= 3; */
-/*   vm->stack[pos++] = fn; */
-/*   while(args != Nil) { */
-/*     Obj tmp = car(args); */
-/*     vm->stack[pos++] = tmp; */
-/*     args = cdr(args); */
-/*   } */
-/*   makeTheCall(NULL, Nil, vm, pos); */
-/* } */
-
 /* void */
 /* builtinTryCatch(void *pc, Obj val, struct VM *vm, int pos) { */
 /*   Obj chunk = vm->stack[vm->base + 1]; */
@@ -649,61 +626,12 @@ coraInit(struct VM *vm) {
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
   /* symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1)); */
 
-  /* symbolSet(makeSymbol("cora/lib/compile.c-make-program"), makePrimitive(vm, 0, builtinMakeProgram, 0)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-append-op"), makePrimitive(vm, 0, builtinProgAppendOP, 2)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-append-obj"), makePrimitive(vm, 0, builtinProgAppendObj, 2)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-append-int32"), makePrimitive(vm, 0, builtinProgAppendInt32, 2)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-append-prim"), makePrimitive(vm, 0, builtinProgAppendPrim, 2)); */
-
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-prepare-size"), makePrimitive(vm, 0, builtinProgPrepareSize, 1)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-write-back-size"), makePrimitive(vm, 0, builtinProgWriteBackSize, 2)); */
-
-  /* symbolSet(makeSymbol("cora/lib/compile.c-prog-run"), makePrimitive(vm, 0, builtinProgRun, 1)); */
-
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opConst"), makeNumber(0)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opLocalRef"), makeNumber(1)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opLocalSet"), makeNumber(2)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opGlobalRef"), makeNumber(3)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opTailCall"), makeNumber(4)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opClosureRef"), makeNumber(5)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opExit"), makeNumber(6)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPush"), makeNumber(7)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opIf"), makeNumber(8)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opCall"), makeNumber(9)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opMakeClosure"), makeNumber(10)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimSet"), makeNumber(11)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimSub"), makeNumber(12)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimAdd"), makeNumber(13)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsString"), makeNumber(14)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimCar"), makeNumber(15)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimCdr"), makeNumber(16)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimCons"), makeNumber(17)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsCons"), makeNumber(18)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimGenSym"), makeNumber(19)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsInteger"), makeNumber(20)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimIsSymbol"), makeNumber(21)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimNot"), makeNumber(22)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimGT"), makeNumber(23)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimLT"), makeNumber(24)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimMul"), makeNumber(25)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opPrimEQ"), makeNumber(26)); */
-  /* symbolSet(makeSymbol("cora/lib/compile.c-opReserveLocals"), makeNumber(27)); */
-
-  /* symbolSet(makeSymbol(".open-output-file"), makePrimitive(vm, 0, builtinOpenOutputFile, 1)); */
-  /* symbolSet(makeSymbol(".close-output-file"), makePrimitive(vm, 0, builtinCloseOutputFile, 1)); */
-  /* symbolSet(makeSymbol(".generate-str"), makePrimitive(vm, 0, builtinGenerateStr, 2)); */
-  /* symbolSet(makeSymbol(".generate-sym"), makePrimitive(vm, 0, builtinGenerateSym, 2)); */
-  /* symbolSet(makeSymbol(".generate-num"), makePrimitive(vm, 0, builtinGenerateNum, 2)); */
-  /* symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, 0, builtinReadFileAsSexp, 2)); */
-
-
   symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, readFileAsSexp, 2));
   symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(vm, writeSexpToFile, 2));
 
   /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */
   /* symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1)); */
   /* symbolSet(makeSymbol("value"), makePrimitive(vm, 0, builtinValue, 1)); */
-  /* symbolSet(makeSymbol("apply"), makePrimitive(vm, 0, builtinApply, 2)); */
   /* symbolSet(makeSymbol("display"), makePrimitive(vm, 0, builtinDisplay, 1)); */
   /* symbolSet(makeSymbol("read-sexp"), makePrimitive(vm, 0, builtinReadSexp, 0)); */
 }
