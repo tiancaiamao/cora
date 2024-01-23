@@ -7,38 +7,39 @@
 #include "str.h"
 #include "builtin.h"
 
-/* static void */
-/* repl(struct VM *vm, int pos, FILE* stream) { */
-/*   struct SexpReader r = {.pkgMapping = Nil}; */
-/*   int errCode = 0; */
+static void
+repl(struct VM *vm, FILE* stream) {
+  struct SexpReader r = {.pkgMapping = Nil};
+  int errCode = 0;
 
-/*   for (int i=0; ; i++) { */
-/*     if (stream == stdin) { */
-/*       printf("%d #> ", i); */
-/*     } */
+  for (int i=0; ; i++) {
+    if (stream == stdin) {
+      printf("%d #> ", i);
+    }
 
-/*     Obj exp = sexpRead(vm, pos, &r, stream, &errCode); */
-/*     if (errCode != 0) { */
-/*       break; */
-/*     } */
+    Obj exp = sexpRead(vm, 0, &r, stream, &errCode);
+    if (errCode != 0) {
+      break;
+    }
 
-/*     /\* printf("before macro expand =="); *\/ */
-/*     /\* sexpWrite(stdout, exp); *\/ */
+    /* printf("before macro expand ==%d", vmPos(vm)); */
+    /* sexpWrite(stdout, exp); */
+    /* printf("\n"); */
 
-/*     exp = macroExpand(vm, pos, exp); */
+    exp = macroExpand(vm, exp);
 
-/*     /\* printf("after macro expand =="); *\/ */
-/*     /\* sexpWrite(stdout, exp); *\/ */
-/*     /\* printf("\n"); *\/ */
+    /* printf("after macro expand ==%d", vmPos(vm)); */
+    /* sexpWrite(stdout, exp); */
+    /* printf("\n"); */
 
-/*     Obj res = eval(vm, pos, exp); */
+    Obj res = eval(vm, exp);
 
-/*     if (stream == stdin) { */
-/*       sexpWrite(stdout, res); */
-/*       printf("\n"); */
-/*     } */
-/*   } */
-/* } */
+    if (stream == stdin) {
+      sexpWrite(stdout, res);
+      printf("\n");
+    }
+  }
+}
 
 static void
 replBytecode(struct VM *vm, FILE* stream) {
@@ -63,14 +64,12 @@ replBytecode(struct VM *vm, FILE* stream) {
 
 int main(int argc, char *argv[]) {
   struct VM* vm = newVM();
-  int pos = 0;
-
   // CORA PATH
   strBuf tmp = getCoraPath();
   strBuf tmp1 = strDup(toStr(tmp));
-  loadByteCode(vm, pos, toStr(strCat(tmp, cstr("cora/init.bc1"))));
-  loadByteCode(vm, pos, toStr(strCat(tmp1, cstr("cora/compile.bc1"))));
-  /* repl(vm, pos, stdin); */
+  loadByteCode(vm, toStr(strCat(tmp, cstr("cora/init.bc1"))));
+  loadByteCode(vm, toStr(strCat(tmp1, cstr("cora/compile.bc1"))));
+  repl(vm, stdin);
 
-  replBytecode(vm, stdin);
+  /* replBytecode(vm, stdin); */
 }

@@ -66,6 +66,11 @@ struct VM {
   void *data;
 };
 
+int
+vmPos(struct VM *vm) {
+  return vm->pos;
+}
+
 Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet, symPop;
 
 void
@@ -210,7 +215,7 @@ opPop(struct VM *vm) {
 
 void
 opIf(struct VM *vm, Obj succ, Obj fail) {
-  Obj val = vm->stack[vm->pos-1];
+  Obj val = vm->stack[--vm->pos];
   if (val == True) {
     vm->data = (void*)succ;
     return;
@@ -718,9 +723,11 @@ newVM() {
 
 Obj
 run(struct VM *vm, Obj exp) {
+  int before = vm->pos;
   vm->data = (void*)exp;
   trampoline(vm, dispatch);
-  return vm->stack[vm->pos-1];
+  /* printf("before run and after ==%d %d\n", before, vm->pos); */
+  return vm->stack[--vm->pos];
 }
 
 Obj
@@ -733,27 +740,31 @@ vmReturn(struct VM *vm, Obj val) {
   opExit(vm);
 }
 
-/* void */
-/* vmPush(struct VM *vm, Obj val) { */
-/*   vm->stack[vm->pos++] = val; */
-/*   return; */
-/* } */
+void
+vmPush(struct VM *vm, Obj val) {
+  vm->stack[vm->pos++] = val;
+  return;
+}
 
-/* Obj */
-/* vmCall(struct VM *vm, int pos, int n) { */
-/*   // Stack before the call: */
-/*   // ...   <--vm->base */
-/*   // ... */
-/*   // fn    <-- first arg */
-/*   // arg1 */
-/*   // arg2 */
-/*   // argn  <--pos */
-/*   int newBase = pos-n; */
-/*   saveStack(&vm->callstack, NULL, vm->base, newBase, vm->stack); */
-/*   vm->base = newBase; */
-/*   makeTheCall(NULL, Nil, vm, pos); */
-/*   return vm->result; */
-/* } */
+Obj
+vmCall(struct VM *vm, int n) {
+  // Stack before the call:
+  // ...   <--vm->base
+  // ...
+  // fn    <-- first arg
+  // arg1
+  // arg2
+  // argn  <--pos
+  int newBase = vm->pos-n;
+  saveStack(&vm->callstack, NULL, NULL, vm->base, newBase, vm->stack);
+  vm->base = newBase;
+  vm->pc = makeTheCall;
+  while(vm->pc != NULL) {
+    vm->pc(vm);
+  }
+
+  return vm->stack[--vm->pos];
+}
 
 extern void gcGlobal(struct GC *gc);
 

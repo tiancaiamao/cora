@@ -38,8 +38,8 @@ void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
 int main(int argc, char *argv[]) {
   struct VM *vm = newVM();
   int pos = 0;
-  loadByteCode(vm, pos, cstr("../init.bc"));
-  loadByteCode(vm, pos, cstr("../compile.bc"));
+  loadByteCode(vm, pos, cstr("../init.bc1"));
+  loadByteCode(vm, pos, cstr("../compile.bc1"));
 
   symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(NULL, 0, readFileAsSexp, 2));
   symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(NULL, 0, writeSexpToFile, 2));

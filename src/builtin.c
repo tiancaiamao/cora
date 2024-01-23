@@ -561,14 +561,14 @@ extern Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,
 /* } */
 
 int
-loadByteCode(struct VM *vm, int pos, str path) {
+loadByteCode(struct VM *vm, str path) {
   FILE *in = fopen(path.str, "r");
   if (in == NULL) {
     assert("wrong path");
   }
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
   int err = 0;
-  Obj ast = sexpRead(vm, pos, &r, in, &err);
+  Obj ast = sexpRead(vm, 0, &r, in, &err);
   while(ast != Nil) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
@@ -582,38 +582,38 @@ loadByteCode(struct VM *vm, int pos, str path) {
   return 0;
 }
 
-/* Obj */
-/* eval(struct VM *vm, int pos, Obj exp) { */
-/*   // call (cora/lib/compile.cc exp) to generate the bytecode */
-/*   Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc")); */
-/*   vmPush(vm, pos++, compile); */
-/*   vmPush(vm, pos++, exp); */
-/*   Obj res = vmCall(vm, pos, 2); */
+Obj
+eval(struct VM *vm, Obj exp) {
+  // call (cora/lib/compile.cc exp) to generate the bytecode
+  Obj compile = symbolGet(makeSymbol("cora/lib/compile.cc"));
+  vmPush(vm, compile);
+  vmPush(vm, exp);
+  Obj res = vmCall(vm, 2);
 
-/*   /\* printf("the byte code is ===\n"); *\/ */
-/*   /\* printObj(stdout, vm->result); *\/ */
+  /* printf("the byte code is ===\n"); */
+  /* printObj(stdout, res); */
 
-/*   /\* Obj bytecodeToExec = symbolGet(makeSymbol("cora/lib/compile.bytecode-to-exec")); *\/ */
-/*   /\* vmPush(vm, pos++, bytecodeToExec); *\/ */
-/*   /\* vmPush(vm, pos++, res); *\/ */
-/*   /\* Obj p = vmCall(vm, pos, 2); *\/ */
-/*   /\* Obj p = bytecodeToExec(res); *\/ */
+  /* Obj bytecodeToExec = symbolGet(makeSymbol("cora/lib/compile.bytecode-to-exec")); */
+  /* vmPush(vm, pos++, bytecodeToExec); */
+  /* vmPush(vm, pos++, res); */
+  /* Obj p = vmCall(vm, pos, 2); */
+  /* Obj p = bytecodeToExec(res); */
 
-/*   // run the bytecode */
-/*   /\* struct program *prog = mustCObj(p); *\/ */
-/*   /\* return run(vm, prog->code, pos); *\/ */
-/* } */
+  // run the bytecode
+  /* struct program *prog = mustCObj(p); */
+  return run(vm, res);
+}
 
-/* Obj */
-/* macroExpand(struct VM *vm, int pos, Obj exp) { */
-/*   Obj val = symbolGet(symMacroExpand); */
-/*   if (val == Nil || val == Undef) { */
-/*     return exp; */
-/*   } */
-/*   vmPush(vm, pos++, val); */
-/*   vmPush(vm, pos++, exp); */
-/*   return vmCall(vm, pos, 2); */
-/* } */
+Obj
+macroExpand(struct VM *vm, Obj exp) {
+  Obj val = symbolGet(symMacroExpand);
+  if (val == Nil || val == Undef) {
+    return exp;
+  }
+  vmPush(vm, val);
+  vmPush(vm, exp);
+  return vmCall(vm, 2);
+}
 
 void
 builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos) {
