@@ -97,27 +97,27 @@ Obj cdddr(Obj v);
 
 Obj makeCObj(void *ptr);
 
-typedef void (*opcode)(void *pc, Obj val, struct VM *vm, int pos);
+typedef void (nativeFn)(struct VM*);
 
 struct scmClosure {
   scmHead head;
   int required;
-  void *code;
-  int sz;
+  Obj code;
   void *closed;
   int nfrees;
-  opcode fn;
+  nativeFn *fn;
 };
 
-Obj makeClosure(struct VM *vm, int pos, int requred, int nfrees, void *closed, void *code, int sz);
+Obj makeClosure(struct VM *vm, int requred, int nfrees, void *closed, Obj code, nativeFn *pc);
 struct scmClosure* mustClosure(Obj o);
-void* closureCode(Obj);
+Obj closureCode(Obj);
 bool isclosure(Obj o);
 Obj closureSlot(Obj, int);
 int closureRequired(Obj);
+nativeFn* closurePC(Obj o);
 
-Obj makePrimitive(struct VM *vm, int pos, opcode fn, int nargs);
-Obj makeCurry(struct VM *vm, int pos, int required, Obj *closed, int nfrees);
+/* Obj makePrimitive(struct VM *vm, int pos, opcode fn, int nargs); */
+Obj makeCurry(int required, Obj *closed, int nfrees);
 
 struct tagbstring;
 typedef struct tagbstring * bstring;

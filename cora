@@ -2,7 +2,7 @@
 
 
 BASE_DIR=$(dirname "$0")
-BIN_PATH=${BASE_DIR}/cora.bin
+BIN_PATH=${BASE_DIR}/cora.bin1
 
 export LD_LIBRARY_PATH=${BASE_DIR}/src
 export CORAPATH=/home/genius/project/

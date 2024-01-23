@@ -7,39 +7,59 @@
 #include "str.h"
 #include "builtin.h"
 
+/* static void */
+/* repl(struct VM *vm, int pos, FILE* stream) { */
+/*   struct SexpReader r = {.pkgMapping = Nil}; */
+/*   int errCode = 0; */
+
+/*   for (int i=0; ; i++) { */
+/*     if (stream == stdin) { */
+/*       printf("%d #> ", i); */
+/*     } */
+
+/*     Obj exp = sexpRead(vm, pos, &r, stream, &errCode); */
+/*     if (errCode != 0) { */
+/*       break; */
+/*     } */
+
+/*     /\* printf("before macro expand =="); *\/ */
+/*     /\* sexpWrite(stdout, exp); *\/ */
+
+/*     exp = macroExpand(vm, pos, exp); */
+
+/*     /\* printf("after macro expand =="); *\/ */
+/*     /\* sexpWrite(stdout, exp); *\/ */
+/*     /\* printf("\n"); *\/ */
+
+/*     Obj res = eval(vm, pos, exp); */
+
+/*     if (stream == stdin) { */
+/*       sexpWrite(stdout, res); */
+/*       printf("\n"); */
+/*     } */
+/*   } */
+/* } */
+
 static void
-repl(struct VM *vm, int pos, FILE* stream) {
+replBytecode(struct VM *vm, FILE* stream) {
   struct SexpReader r = {.pkgMapping = Nil};
-  int errCode = 0;
+  int errCode;
 
   for (int i=0; ; i++) {
-    if (stream == stdin) {
-      printf("%d #> ", i);
-    }
+    printf("%d #> ", i);
 
-    Obj exp = sexpRead(vm, pos, &r, stream, &errCode);
-    if (errCode != 0) {
+    int err = 0;
+    Obj exp = sexpRead(vm, 0, &r, stdin, &errCode);
+    if (err != 0) {
       break;
     }
 
-    /* printf("before macro expand =="); */
-    /* sexpWrite(stdout, exp); */
+    Obj res = run(vm, exp);
 
-    exp = macroExpand(vm, pos, exp);
-
-    /* printf("after macro expand =="); */
-    /* sexpWrite(stdout, exp); */
-    /* printf("\n"); */
-
-    Obj res = eval(vm, pos, exp);
-
-    if (stream == stdin) {
-      sexpWrite(stdout, res);
-      printf("\n");
-    }
+    sexpWrite(stdout, res);
+    printf("\n");
   }
 }
-
 
 int main(int argc, char *argv[]) {
   struct VM* vm = newVM();
@@ -48,28 +68,9 @@ int main(int argc, char *argv[]) {
   // CORA PATH
   strBuf tmp = getCoraPath();
   strBuf tmp1 = strDup(toStr(tmp));
-  loadByteCode(vm, pos, toStr(strCat(tmp, cstr("cora/init.bc"))));
-  loadByteCode(vm, pos, toStr(strCat(tmp1, cstr("cora/compile.bc"))));
-  repl(vm, pos, stdin);
+  loadByteCode(vm, pos, toStr(strCat(tmp, cstr("cora/init.bc1"))));
+  loadByteCode(vm, pos, toStr(strCat(tmp1, cstr("cora/compile.bc1"))));
+  /* repl(vm, pos, stdin); */
+
+  replBytecode(vm, stdin);
 }
-
-/* static void */
-/* replBytecode(struct VM *vm, FILE* stream) { */
-/*   for (int i=0; ; i++) { */
-/*     printf("%d #> ", i); */
-
-/*     int err = 0; */
-/*     struct SexpReader r = {.pkgMapping = Nil}; */
-/*     int errCode; */
-/*     Obj exp = sexpRead(&r, stdin, &errCode); */
-/*     if (err != 0) { */
-/*       break; */
-/*     } */
-
-/*     char *exec = bytecodeToExec(exp); */
-/*     Obj res = run(&vm, exec); */
-
-/*     sexpWrite(stdout, res); */
-/*     printf("\n"); */
-/*   } */
-/* } */

@@ -16,7 +16,7 @@ void vmPush(struct VM *vm, int pos, Obj val);
 Obj vmCall(struct VM *vm, int pos, int n);
 
 // Essentially, the VM only provide this.
-Obj run(struct VM *vm, char *pc, int pos);
+Obj run(struct VM *vm, Obj exp);
 
 // High level APIs, which can be implemented using previous APIs.
 Obj macroExpand(struct VM *vm, int pos, Obj exp);
