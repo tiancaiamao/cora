@@ -24,16 +24,16 @@ void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, ret);
 }
 
-void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj path = vmGet(vm, 1);
-  Obj exp = vmGet(vm, 2);
-  strBuf pathStr = stringStr(path);
-  FILE* f = fopen(toCStr(pathStr), "w");
-  /* printObj(stdout, exp); */
-  printObj(f, exp);
-  fclose(f);
-  vmReturn(vm, Nil);
-}
+/* void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj path = vmGet(vm, 1); */
+/*   Obj exp = vmGet(vm, 2); */
+/*   strBuf pathStr = stringStr(path); */
+/*   FILE* f = fopen(toCStr(pathStr), "w"); */
+/*   /\* printObj(stdout, exp); *\/ */
+/*   printObj(f, exp); */
+/*   fclose(f); */
+/*   vmReturn(vm, Nil); */
+/* } */
 
 int main(int argc, char *argv[]) {
   struct VM *vm = newVM();
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   loadByteCode(vm, pos, cstr("../compile.bc"));
 
   symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(NULL, 0, readFileAsSexp, 2));
-  symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(NULL, 0, writeSexpToFile, 2));
+  /* symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(NULL, 0, writeSexpToFile, 2)); */
 
   // (load "lib/bootstrap.cora" "")  to generate the new init.bc and compile.bc
   char *s = "../lib/bootstrap.cora";

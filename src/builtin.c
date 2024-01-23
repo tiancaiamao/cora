@@ -703,6 +703,18 @@ builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, result);
 }
 
+
+void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj path = vmGet(vm, 1);
+  Obj exp = vmGet(vm, 2);
+  strBuf pathStr = stringStr(path);
+  FILE* f = fopen(toCStr(pathStr), "w");
+  /* printObj(stdout, exp); */
+  printObj(f, exp);
+  fclose(f);
+  vmReturn(vm, Nil);
+}
+
 void
 builtinDisplay(void *pc, Obj val, struct VM *vm, int pos) {
   Obj arg = vmGet(vm, 1);
