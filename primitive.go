@@ -369,3 +369,32 @@ var primEQ = &Closure{
 	Required: 2,
 	Name:     "EQ",
 }
+
+var primGT = &Closure{
+	code: instrPrim(func(vm *VM) {
+		y := vm.pop()
+		x := vm.pop()
+		if x.(Integer) > y.(Integer) {
+			vm.ret(True)
+		} else {
+			vm.ret(False)
+		}
+	}),
+	Required: 2,
+	Name:     "GT",
+}
+
+var primLT = &Closure{
+	code: instrPrim(func(vm *VM) {
+		y := vm.pop()
+		x := vm.pop()
+		
+		if x.(Integer) < y.(Integer) {
+			vm.ret(True)
+		} else {
+			vm.ret(False)
+		}
+	}),
+	Required: 2,
+	Name:     "LT",
+}

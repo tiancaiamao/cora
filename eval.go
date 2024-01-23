@@ -123,6 +123,8 @@ func init() {
 	MakeSymbol("-").val = primSub
 	MakeSymbol("*").val = primMul
 	MakeSymbol("/").val = primDiv
+	MakeSymbol(">").val = primGT
+	MakeSymbol("<").val = primLT
 	MakeSymbol("=").val = primEQ
 	MakeSymbol("set").val = primSet
 	MakeSymbol("gensym").val = primGenSym
