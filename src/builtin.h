@@ -60,6 +60,8 @@ void builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos);
 void builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos);
 
 void builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos);
+
+void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos);
 void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos);
 
 void builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos);

@@ -670,39 +670,56 @@ builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, makeNumber(errno));
 }
 
-void
-builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj arg = vmGet(vm, 1);
-  Obj selfPath = vmGet(vm, 2);
-  assert(isstring(arg));
-  strBuf fileName = stringStr(arg);
-  FILE* f = fopen(toCStr(fileName), "r");
-  Obj result = Nil;
-  if (f == NULL) {
-    printf("open file fail %s\n", toCStr(fileName));
-    goto exit0;
-  }
+/* void */
+/* builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj arg = vmGet(vm, 1); */
+/*   Obj selfPath = vmGet(vm, 2); */
+/*   assert(isstring(arg)); */
+/*   strBuf fileName = stringStr(arg); */
+/*   FILE* f = fopen(toCStr(fileName), "r"); */
+/*   Obj result = Nil; */
+/*   if (f == NULL) { */
+/*     printf("open file fail %s\n", toCStr(fileName)); */
+/*     goto exit0; */
+/*   } */
 
+/*   int errCode = 0; */
+/*   strBuf s = stringStr(selfPath); */
+/*   struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(s)}; */
+/*   Obj ast = sexpRead(vm, pos, &r, f, &errCode); */
+/*   while (ast != Nil) { */
+/*     result = cons(vm, pos, ast, result); */
+/*     ast = sexpRead(vm, pos, &r, f, &errCode); */
+/*   } */
+/*   if (iscons(result) && cdr(result) != Nil) { */
+/*     result = reverse(vm, pos, result); */
+/*     result = cons(vm, pos, makeSymbol("begin"), result); */
+/*   } else { */
+/*     result = car(result); */
+/*   } */
+/*   fclose(f); */
+
+/*  exit0: */
+/*   vmReturn(vm, result); */
+/* } */
+
+
+void readFileAsSexp(void *pc, Obj val, struct VM *vm, int pos) {
+  Obj path = vmGet(vm, 1);
+  Obj pkg = vmGet(vm, 2);
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(stringStr(pkg))};
+  strBuf pathStr = stringStr(path);
+  FILE* f = fopen(toCStr(pathStr), "r");
   int errCode = 0;
-  strBuf s = stringStr(selfPath);
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(s)};
-  Obj ast = sexpRead(vm, pos, &r, f, &errCode);
-  while (ast != Nil) {
-    result = cons(vm, pos, ast, result);
-    ast = sexpRead(vm, pos, &r, f, &errCode);
-  }
-  if (iscons(result) && cdr(result) != Nil) {
-    result = reverse(vm, pos, result);
-    result = cons(vm, pos, makeSymbol("begin"), result);
-  } else {
-    result = car(result);
+  Obj ret = Nil;
+  while(errCode == 0) {
+    Obj v = sexpRead(NULL, 0, &r, f, &errCode);
+    ret = cons(NULL, 0, v, ret);
   }
   fclose(f);
-
- exit0:
-  vmReturn(vm, result);
+  ret = reverse(NULL, 0, ret);
+  vmReturn(vm, ret);
 }
-
 
 void writeSexpToFile(void *pc, Obj val, struct VM *vm, int pos) {
   Obj path = vmGet(vm, 1);
