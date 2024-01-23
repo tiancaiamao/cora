@@ -638,12 +638,12 @@ coraInit(struct VM *vm) {
   symLocalSet = makeSymbol("local-set");
 
   /* symbolSet(makeSymbol("symbol->string"), makePrimitive(vm, 0, builtinSymbolToString, 1)); */
-  /* symbolSet(makeSymbol("load"), makePrimitive(vm, 0, builtinLoad, 2)); */
+  symbolSet(makeSymbol("load"), makePrimitive(vm, builtinLoad, 2));
   /* symbolSet(makeSymbol("vector"), makePrimitive(vm, 0, builtinMakeVector, 1)); */
   /* symbolSet(makeSymbol("vector?"), makePrimitive(vm, 0, builtinIsVector, 1)); */
   /* symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3)); */
   /* symbolSet(makeSymbol("vector-ref"), makePrimitive(vm, 0, builtinVectorRef, 2)); */
-  /* symbolSet(makeSymbol("import"), makePrimitive(vm, 0, builtinImport, 1)); */
+  symbolSet(makeSymbol("import"), makePrimitive(vm, builtinImport, 1));
   /* symbolSet(makeSymbol("intern"), makePrimitive(vm, 0, builtinIntern, 1)); */
   /* symbolSet(makeSymbol("number?"), makePrimitive(vm, 0, builtinIsNumber, 1)); */
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
@@ -723,7 +723,7 @@ newVM() {
 
 Obj
 run(struct VM *vm, Obj exp) {
-  int before = vm->pos;
+  /* int before = vm->pos; */
   vm->data = (void*)exp;
   trampoline(vm, dispatch);
   /* printf("before run and after ==%d %d\n", before, vm->pos); */

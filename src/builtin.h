@@ -3,12 +3,12 @@
 
 strBuf getCoraPath();
 void builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos);
-void builtinLoad(void *pc, Obj val, struct VM *vm, int pos);
+void builtinLoad(struct VM *vm);
+void builtinImport(struct VM *vm);
 void builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos);
 void builtinVectorSet(void *pc, Obj val, struct VM *vm, int pos);
 void builtinVectorRef(void *pc, Obj val, struct VM *vm, int pos);
 void builtinIsVector(void *pc, Obj val, struct VM *vm, int pos);
-void builtinImport(void *pc, Obj val, struct VM *vm, int pos);
 void builtinIntern(void *pc, Obj val, struct VM *vm, int pos);
 void builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos);
 

@@ -71,39 +71,39 @@ builtinValue(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, ret);
 }
 
-/* void */
-/* primLoad(struct VM *vm, int pos, str path, str pkg) { */
-/*   FILE *in = fopen(path.str, "r"); */
-/*   if (in == NULL) { */
-/*     // TODO: exception? */
-/*     assert("wrong path"); */
-/*   } */
+void
+primLoad(struct VM *vm, str path, str pkg) {
+  FILE *in = fopen(path.str, "r");
+  if (in == NULL) {
+    // TODO: exception?
+    assert("wrong path");
+  }
 
-/*   struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str}; */
-/*   int err = 0; */
-/*   Obj ast = sexpRead(vm, pos, &r, in, &err); */
-/*   while(err == 0) { */
-/*     /\* printf("========================================= read == \n"); *\/ */
-/*     /\* sexpWrite(stdout, ast); *\/ */
-/*     /\* printf("\n"); *\/ */
-/*     Obj exp = macroExpand(vm, pos, ast); */
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str};
+  int err = 0;
+  Obj ast = sexpRead(vm, 0, &r, in, &err);
+  while(err == 0) {
+    /* printf("========================================= read == \n"); */
+    /* sexpWrite(stdout, ast); */
+    /* printf("\n"); */
+    Obj exp = macroExpand(vm, ast);
 
-/*     /\* printObj(stdout, exp); *\/ */
-/*     /\* printf("\n"); *\/ */
+    /* printObj(stdout, exp); */
+    /* printf("\n"); */
 
-/*     eval(vm, pos, exp); */
-/*     ast = sexpRead(vm, pos, &r, in, &err); */
-/*   } */
-/*   fclose(in); */
-/* } */
+    eval(vm, exp);
+    ast = sexpRead(vm, 0, &r, in, &err);
+  }
+  fclose(in);
+}
 
-/* void */
-/* builtinLoad(void *pc, Obj val, struct VM *vm, int pos) { */
-/*   Obj path = vmGet(vm, 1); */
-/*   Obj pkg = vmGet(vm, 2); */
-/*   primLoad(vm, pos, toStr(stringStr(path)), toStr(stringStr(pkg))); */
-/*   vmReturn(vm, path); */
-/* } */
+void
+builtinLoad(struct VM *vm) {
+  Obj path = vmGet(vm, 1);
+  Obj pkg = vmGet(vm, 2);
+  primLoad(vm, toStr(stringStr(path)), toStr(stringStr(pkg)));
+  vmReturn(vm, path);
+}
 
 /* void */
 /* builtinLoadSo(struct VM *vm) { */
@@ -214,41 +214,41 @@ getCoraPath() {
   return tmp;
 }
 
-/* void */
-/* builtinImport(void *pc, Obj val, struct VM *vm, int pos) { */
-/*   Obj pkg = vmGet(vm, 1); */
-/*   str pkgStr = toStr(stringStr(pkg)); */
-/*   Obj sym = intern("*imported*"); */
-/*   Obj imported = symbolGet(sym); */
-/*   // Avoid repeated load. */
-/*   for (Obj p = imported; p != Nil; p = cdr(p)) { */
-/*     Obj elem = car(p); */
-/*     if (eq(car(elem), pkg)) { */
-/*       vmReturn(vm, sym); */
-/*       return; */
-/*     } */
-/*   } */
+void
+builtinImport(struct VM *vm) {
+  Obj pkg = vmGet(vm, 1);
+  str pkgStr = toStr(stringStr(pkg));
+  Obj sym = intern("*imported*");
+  Obj imported = symbolGet(sym);
+  // Avoid repeated load.
+  for (Obj p = imported; p != Nil; p = cdr(p)) {
+    Obj elem = car(p);
+    if (eq(car(elem), pkg)) {
+      vmReturn(vm, sym);
+      return;
+    }
+  }
 
-/*   // CORA PATH */
-/*   strBuf tmp = getCoraPath(); */
+  // CORA PATH
+  strBuf tmp = getCoraPath();
 
-/*   // TODO: also consider the .so file */
-/*   tmp = strCat(tmp, pkgStr); */
-/*   tmp = strCat(tmp, cstr(".so")); */
-/*   if (0 == access(toCStr(tmp), R_OK)) { */
-/*     /\* primLoadSo(ctx, toCStr(tmp)); *\/ */
-/*     assert(false); */
-/*   } else { */
-/*     tmp = strShrink(tmp, 3); */
-/*     tmp = strCat(tmp, cstr(".cora")); */
-/*     primLoad(vm, pos, toStr(tmp), pkgStr); */
-/*   } */
-/*   strFree(tmp); */
+  // TODO: also consider the .so file
+  tmp = strCat(tmp, pkgStr);
+  tmp = strCat(tmp, cstr(".so"));
+  if (0 == access(toCStr(tmp), R_OK)) {
+    /* primLoadSo(ctx, toCStr(tmp)); */
+    assert(false);
+  } else {
+    tmp = strShrink(tmp, 3);
+    tmp = strCat(tmp, cstr(".cora"));
+    primLoad(vm, toStr(tmp), pkgStr);
+  }
+  strFree(tmp);
 
-/*   // Set the *imported* variable to avlid repeated load. */
-/*   symbolSet(sym, cons(vm, pos, cons(vm, pos, pkg, Nil), imported)); */
-/*   vmReturn(vm, pkg); */
-/* } */
+  // Set the *imported* variable to avlid repeated load.
+  symbolSet(sym, cons(vm, 0, cons(vm, 0, pkg, Nil), imported));
+  vmReturn(vm, pkg);
+}
 
 /* struct program { */
 /*   char *code; */

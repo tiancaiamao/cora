@@ -167,15 +167,15 @@ closureRequired(Obj o) {
   return c->required;
 }
 
-/* Obj */
-/* makePrimitive(struct VM* vm, int pos, nativeFn *fn, int nargs) { */
-/*   Obj tmp = makeClosure(vm, nargs, 0, NULL, Nil); */
-/*   struct scmClosure* clo = mustClosure(tmp); */
-/*   clo->fn = fn; */
-/*   clo->required = nargs; */
-/*   clo->code = &clo->fn; */
-/*   return tmp; */
-/* } */
+Obj
+makePrimitive(struct VM* vm, nativeFn *fn, int nargs) {
+  Obj tmp = makeClosure(vm, nargs, 0, NULL, Nil, fn);
+  /* struct scmClosure* clo = mustClosure(tmp); */
+  /* clo->fn = fn; */
+  /* clo->required = nargs; */
+  /* clo->code = &clo->fn; */
+  return tmp;
+}
 
 
 /* extern void resumeCurry(void *pc, Obj val, struct VM *vm, int pos); */
