@@ -1,7 +1,7 @@
 #include "types.h"
 #include "builtin.h"
-#include "vm.h"
 #include "reader.h"
+#include "vm.h"
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
@@ -31,45 +31,45 @@
 /*   vm->val = ret; */
 /* } */
 
-void
-builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj sym = vmGet(vm, 1);
-  const char* str = symbolStr(sym);
-  val = makeString(vm, pos, str, strlen(str));
-  vmReturn(vm, val);
-}
+/* void */
+/* builtinSymbolToString(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj sym = vmGet(vm, 1); */
+/*   const char* str = symbolStr(sym); */
+/*   val = makeString(vm, pos, str, strlen(str)); */
+/*   vmReturn(vm, val); */
+/* } */
 
-void
-builtinStringLength(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj str = vmGet(vm, 1);
-  int l = stringLen(str);
-  vmReturn(vm, makeNumber(l));
-}
+/* void */
+/* builtinStringLength(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj str = vmGet(vm, 1); */
+/*   int l = stringLen(str); */
+/*   vmReturn(vm, makeNumber(l)); */
+/* } */
 
-void
-builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj str1 = vmGet(vm, 1);
-  Obj str2 = vmGet(vm, 2);
-  strBuf x = stringStr(str1);
-  strBuf y = stringStr(str2);
-  strBuf tmp = strNew(strLen(toStr(x)) + strLen(toStr(y)));
-  tmp = strCpy(tmp, toStr(x));
-  tmp = strCat(tmp, toStr(y));
-  val = makeString(vm, pos, toCStr(tmp), strLen(toStr(tmp)));
-  vmReturn(vm, val);
-}
+/* void */
+/* builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj str1 = vmGet(vm, 1); */
+/*   Obj str2 = vmGet(vm, 2); */
+/*   strBuf x = stringStr(str1); */
+/*   strBuf y = stringStr(str2); */
+/*   strBuf tmp = strNew(strLen(toStr(x)) + strLen(toStr(y))); */
+/*   tmp = strCpy(tmp, toStr(x)); */
+/*   tmp = strCat(tmp, toStr(y)); */
+/*   val = makeString(vm, pos, toCStr(tmp), strLen(toStr(tmp))); */
+/*   vmReturn(vm, val); */
+/* } */
 
-void
-builtinValue(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj sym = vmGet(vm, 1);
-  struct trieNode* s = ptr(sym);
-  Obj ret = s->value;
-  if (ret == Undef) {
-    printf("undefined value: %s\n", s->sym);
-    assert(false);
-  }
-  vmReturn(vm, ret);
-}
+/* void */
+/* builtinValue(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj sym = vmGet(vm, 1); */
+/*   struct trieNode* s = ptr(sym); */
+/*   Obj ret = s->value; */
+/*   if (ret == Undef) { */
+/*     printf("undefined value: %s\n", s->sym); */
+/*     assert(false); */
+/*   } */
+/*   vmReturn(vm, ret); */
+/* } */
 
 void
 primLoad(struct VM *vm, str path, str pkg) {
@@ -105,34 +105,34 @@ builtinLoad(struct VM *vm) {
   vmReturn(vm, path);
 }
 
-/* void */
-/* builtinLoadSo(struct VM *vm) { */
-/*   Obj path = pop(vm); */
-/*   strBuf str = stringStr(path); */
-/*   primLoadSo(vm, toCStr(str)); */
-/* } */
+void
+primLoadSo(struct VM *vm, char* path) {
+  void *handle = dlopen(path, RTLD_LAZY);
+  if (!handle) {
+    fprintf(stderr, "%s\n", dlerror());
+    vmReturn(vm, makeNumber(-1));
+    return;
+  }
 
-/* void */
-/* primLoadSo(struct VM *vm, char* path) { */
-/*   void *handle = dlopen(path, RTLD_LAZY); */
-/*   if (!handle) { */
-/*     fprintf(stderr, "%s\n", dlerror()); */
-/*     vmReturn(vm, makeNumber(-1)); */
-/*     return; */
-/*   } */
+  nativeFn* entry = dlsym(handle, "__entry");
+  char *error = dlerror();
+  if (error != NULL) {
+    // TODO
+    vmReturn(vm, makeString(vm, 0, error, strlen(error)));
+    return;
+  }
 
-/*   InstrFunc entry = dlsym(handle, "__entry"); */
-/*   char *error = dlerror(); */
-/*   if (error != NULL) { */
-/*     // TODO */
-/*     vmReturn(vm, makeString(error, strlen(error))); */
-/*     return; */
-/*   } */
+  /* Call(1, makeNative(entry, 1, 0)); */
+  /* ctxReturn(ctx, path); */
+  trampoline(vm, entry);
+}
 
-/*   /\* Call(1, makeNative(entry, 1, 0)); *\/ */
-/*   /\* ctxReturn(ctx, path); *\/ */
-/*   run(vm, entry); */
-/* } */
+void
+builtinLoadSo(struct VM *vm) {
+  Obj path = vmPop(vm);
+  strBuf str = stringStr(path);
+  primLoadSo(vm, toCStr(str));
+}
 
 void
 builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) {
@@ -151,14 +151,13 @@ builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, False);
 }
 
-
-void
-builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj x = vmGet(vm, 1);
-  assert(isfixnum(x));
-  val = makeVector(vm, pos, fixnum(x));
-  vmReturn(vm, val);
-}
+/* void */
+/* builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj x = vmGet(vm, 1); */
+/*   assert(isfixnum(x)); */
+/*   val = makeVector(vm, pos, fixnum(x)); */
+/*   vmReturn(vm, val); */
+/* } */
 
 void
 builtinVectorSet(void *pc, Obj val, struct VM *vm, int pos) {
@@ -232,12 +231,11 @@ builtinImport(struct VM *vm) {
   // CORA PATH
   strBuf tmp = getCoraPath();
 
-  // TODO: also consider the .so file
   tmp = strCat(tmp, pkgStr);
   tmp = strCat(tmp, cstr(".so"));
   if (0 == access(toCStr(tmp), R_OK)) {
-    /* primLoadSo(ctx, toCStr(tmp)); */
-    assert(false);
+    primLoadSo(vm, toCStr(tmp));
+    return;
   } else {
     tmp = strShrink(tmp, 3);
     tmp = strCat(tmp, cstr(".cora"));
@@ -344,21 +342,41 @@ builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
   vmReturn(vm, makeNumber(errno));
 }
 
-void readFileAsSexp(struct VM *vm) {
-  Obj path = vmGet(vm, 1);
+void
+builtinReadFileAsSexp(struct VM *vm) {
+  Obj arg = vmGet(vm, 1);
+  assert(isstring(arg));
+  char* fileName = toCStr(stringStr(arg));
+  FILE* f = fopen(fileName, "r");
+  if (f == NULL) {
+    printf("open file fail %s\n", fileName);
+    goto exit0;
+  }
+
   Obj pkg = vmGet(vm, 2);
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = toCStr(stringStr(pkg))};
-  strBuf pathStr = stringStr(path);
-  FILE* f = fopen(toCStr(pathStr), "r");
-  int errCode = 0;
-  Obj ret = Nil;
-  while(errCode == 0) {
-    Obj v = sexpRead(NULL, 0, &r, f, &errCode);
-    ret = cons(NULL, 0, v, ret);
+  char *selfPath = toCStr(stringStr(pkg));
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
+  int err = 0;
+  Obj result = Nil;
+  int count = 0;
+  while(true) {
+    Obj ast = sexpRead(NULL, 0, &r, f, &err);
+    if (err != 0) {
+      break;
+    }
+    result = cons(vm, 0, ast, result);
+    count++;
+  }
+  if (count > 1) {
+    result = reverse(NULL, 0, result);
+    result = cons(vm, 0, makeSymbol("begin"), result);
+  } else {
+    result = car(result);
   }
   fclose(f);
-  ret = reverse(NULL, 0, ret);
-  vmReturn(vm, ret);
+
+ exit0:
+  vmReturn(vm, result);
 }
 
 void writeSexpToFile(struct VM *vm) {

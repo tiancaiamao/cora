@@ -63,9 +63,10 @@ enum {
 
 void typesInit();
 
+struct VM;
+
 void* newObj(struct VM *vm, int pos, scmHeadType tp, int sz);
 
-struct VM;
 struct scmCons {
   scmHead head;
   Obj car;

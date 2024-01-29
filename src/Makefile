@@ -4,10 +4,10 @@
 SRCS = str.c types.c reader.c builtin.c vm.c reader_test.c eval_test.c bootstrap_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
-CFLAGS = -g -Wall -O2
+CFLAGS = -g -Wall -fPIC
 # CFLAGS = -Wall -O2
 
-all: libcora.a
+all: libcora.a libcora.so
 
 test: reader_test eval_test bootstrap_test
 
@@ -21,18 +21,20 @@ eval_test: eval.test
 	./eval.test
 
 eval.test: eval_test.o libcora.a
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -ldl
 
 bootstrap_test:bootstrap.test
 	./bootstrap.test
 
 bootstrap.test: bootstrap_test.o libcora.a
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -ldl
 
-libcora.a: gc.o str.o types.o reader.o builtin.o vm.o
+LIBOBJS = gc.o str.o types.o reader.o builtin.o vm.o
+
+libcora.a: $(LIBOBJS)
 	ar -rc $@ $^
 
-libcora.so: $(OBJS)
+libcora.so: $(LIBOBJS)
 	gcc -shared -o $@ $^ -ldl
 
 clean:

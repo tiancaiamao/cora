@@ -17,10 +17,10 @@ lib:
 main.o: main.c
 
 cora.bin: libcora main.o
-	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora lib/lib.a -ldl -o $@
+	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
-	$(CC) main.o -Lsrc -lcora -o $@
+	$(CC) main.o -Lsrc -lcora -ldl -o $@
 
 clean:
 	rm -rf *.o
