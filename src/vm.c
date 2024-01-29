@@ -8,20 +8,6 @@
 #include "types.h"
 #include "builtin.h"
 
-struct returnAddr {
-  void *pc;
-  void *data;
-  int base;
-  int pos;
-  Obj *stack;
-};
-
-struct callStack {
-  struct returnAddr *data;
-  int len;
-  int cap;
-};
-
 static void
 saveStack(struct callStack *cs, void *pc, void *data, int base, int pos, Obj *stack) {
   if (cs->len + 1 >= cs->cap) {
@@ -42,7 +28,7 @@ saveStack(struct callStack *cs, void *pc, void *data, int base, int pos, Obj *st
   return;
 }
 
-static void
+void
 popStack(struct callStack *cs, nativeFn **pc, void **data, int *base, int *pos, Obj **stack) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
@@ -52,23 +38,6 @@ popStack(struct callStack *cs, nativeFn **pc, void **data, int *base, int *pos, 
   *pos = addr->pos;
   *stack = addr->stack;
   return;
-}
-
-struct VM {
-  Obj *stack;
-  int base;
-  int pos;
-
-  struct callStack callstack;
-
-  // pc + data = closure!
-  nativeFn *pc;
-  void *data;
-};
-
-int
-vmPos(struct VM *vm) {
-  return vm->pos;
 }
 
 Obj symConst,symLocalRef,symClosureRef,symGlobalRef,symIf,symMakeClosure,symTailCall,symCall,symPush,symExit,symPrimitive,symReserveLocals,symLocalSet, symPop;
@@ -220,10 +189,9 @@ opIf(struct VM *vm, Obj succ, Obj fail) {
 }
 
 void
-opCall(struct VM *vm, int nargs) {
+opCall(struct VM *vm, int nargs, nativeFn pc, void* data) {
   int newBase = vm->pos - nargs;
-  Obj nextBytecode = cdr((Obj)vm->data);
-  saveStack(&vm->callstack, vm->pc, (void*)nextBytecode, vm->base, newBase, vm->stack);
+  saveStack(&vm->callstack, pc, data, vm->base, newBase, vm->stack);
   vm->base = newBase;
   makeTheCall(vm);
 }
@@ -241,8 +209,8 @@ opMakeClosure(struct VM *vm, int required, int nfrees, Obj body) {
   vm->stack[vm->pos++] = val;
 }
 
-void
-primSet(struct VM *vm) {
+static void
+opPrimSet(struct VM *vm) {
   Obj val = vm->stack[vm->pos-1];
   Obj key = vm->stack[vm->pos-2];
   assert(issymbol(key));
@@ -251,8 +219,24 @@ primSet(struct VM *vm) {
   vm->pos -= 1;
 }
 
-void
-primSub(struct VM *vm) {
+Obj
+primSet(Obj key, Obj val) {
+  assert(issymbol(key));
+  struct trieNode* s = ptr(key);
+  s->value = val;
+  return key;
+}
+
+Obj
+primSub(Obj x, Obj y) {
+  if (isfixnum(x) && isfixnum(y)) {
+    return x - y;
+  }
+  assert(false);
+}
+
+static void
+opPrimSub(struct VM *vm) {
   Obj x = vm->stack[vm->pos-2];
   Obj y = vm->stack[vm->pos-1];
   if (isfixnum(x) && isfixnum(y)) {
@@ -264,8 +248,8 @@ primSub(struct VM *vm) {
   }
 }
 
-void
-primAdd(struct VM *vm) {
+static void
+opPrimAdd(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   Obj y = vm->stack[vm->pos-2];
   if (isfixnum(x) && isfixnum(y)) {
@@ -275,6 +259,14 @@ primAdd(struct VM *vm) {
     // TODO
     assert(false);
   }
+}
+
+Obj
+primAdd(Obj x, Obj y) {
+  if (isfixnum(x) && isfixnum(y)) {
+    return x + y;
+  }
+  assert(false);
 }
 
 void
@@ -380,12 +372,17 @@ primLT(struct VM *vm) {
   }
 }
 
-void
-primMul(struct VM *vm) {
+static void
+opPrimMul(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   Obj y = vm->stack[vm->pos-2];
   vm->stack[vm->pos-2] = makeNumber(fixnum(x) * fixnum(y));
   vm->pos--;
+}
+
+Obj
+primMul(Obj x, Obj y) {
+  return makeNumber(fixnum(x) * fixnum(y));
 }
 
 static Obj
@@ -401,12 +398,17 @@ __inline_eq(Obj x, Obj y) {
   return eq(x, y) ? True : False;
 }
 
-void
-primEQ(struct VM *vm) {
+static void
+opPrimEQ(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   Obj y = vm->stack[vm->pos-2];
   vm->stack[vm->pos-2] = __inline_eq(x, y);
   vm->pos--;
+}
+
+Obj
+primEQ(Obj x, Obj y) {
+  return __inline_eq(x, y);
 }
 
 void
@@ -422,13 +424,13 @@ opReserveLocals(struct VM *vm, int nlocals) {
 void
 opPrimitive(struct VM *vm, Obj prim) {
   if (prim == makeSymbol("+")) {
-    primAdd(vm);
+    opPrimAdd(vm);
   } else if (prim == makeSymbol("-")) {
-    primSub(vm);
+    opPrimSub(vm);
   } else if (prim == makeSymbol("=")) {
-    primEQ(vm);
+    opPrimEQ(vm);
   } else if (prim == makeSymbol("set")) {
-    primSet(vm);
+    opPrimSet(vm);
   } else if (prim == makeSymbol("string?")) {
     primIsString(vm);
   } else if (prim == makeSymbol("car")) {
@@ -452,7 +454,7 @@ opPrimitive(struct VM *vm, Obj prim) {
   } else if (prim == makeSymbol("<")) {
     primLT(vm);
   } else if (prim == makeSymbol("*")) {
-    primMul(vm);
+    opPrimMul(vm);
   } 
 }
 
@@ -480,7 +482,8 @@ dispatch(struct VM *vm) {
   } else if (sym == symTailCall) {
     opTailCall(vm, fixnum(cadr(inst))); return;
   } else if (sym == symCall) {
-    opCall(vm, fixnum(cadr(inst))); return;
+    Obj nextBytecode = cdr((Obj)vm->data);
+    opCall(vm, fixnum(cadr(inst)), dispatch, (void*)nextBytecode); return;
     /* } else if (sym == symPush) { */
   } else if (sym == symPop) {
     opPop(vm);
@@ -616,6 +619,7 @@ coraInit(struct VM *vm) {
 
   /* symbolSet(makeSymbol("symbol->string"), makePrimitive(vm, 0, builtinSymbolToString, 1)); */
   symbolSet(makeSymbol("load"), makePrimitive(vm, builtinLoad, 2));
+  symbolSet(makeSymbol("load-so"), makePrimitive(vm, builtinLoadSo, 1));
   /* symbolSet(makeSymbol("vector"), makePrimitive(vm, 0, builtinMakeVector, 1)); */
   /* symbolSet(makeSymbol("vector?"), makePrimitive(vm, 0, builtinIsVector, 1)); */
   /* symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3)); */
@@ -626,7 +630,7 @@ coraInit(struct VM *vm) {
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
   /* symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1)); */
 
-  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, readFileAsSexp, 2));
+  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, builtinReadFileAsSexp, 2));
   symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(vm, writeSexpToFile, 2));
 
   /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */
@@ -677,6 +681,11 @@ void
 vmPush(struct VM *vm, Obj val) {
   vm->stack[vm->pos++] = val;
   return;
+}
+
+Obj
+vmPop(struct VM *vm) {
+  return vm->stack[--vm->pos];
 }
 
 Obj

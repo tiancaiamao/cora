@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
   strBuf tmp1 = strDup(toStr(tmp));
   loadByteCode(vm, toStr(strCat(tmp, cstr("cora/init.bc"))));
   loadByteCode(vm, toStr(strCat(tmp1, cstr("cora/compile.bc"))));
+
   repl(vm, stdin);
 
   /* replBytecode(vm, stdin); */

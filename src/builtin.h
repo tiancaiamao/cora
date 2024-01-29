@@ -16,8 +16,7 @@ void builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos);
     void builtinMod(struct VM *ctx);
 
 
-
-/* void builtinLoadSo(struct VM *ctx); */
+void builtinLoadSo(struct VM *ctx);
 /* void builtinStringAppend(struct VM *ctx); */
 void builtinNumberToString(struct VM *ctx);
 
@@ -59,9 +58,8 @@ void builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos);
 void builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos);
 void builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos);
 
-void builtinReadFileAsSexp(void *pc, Obj val, struct VM *vm, int pos);
-
 void readFileAsSexp(struct VM *vm);
+void builtinReadFileAsSexp(struct VM *vm);
 void writeSexpToFile(struct VM *vm);
 
 void builtinStringAppend(void *pc, Obj val, struct VM *vm, int pos);

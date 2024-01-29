@@ -273,7 +273,7 @@ isstring(Obj o) {
 /* } */
 
 
-struct trieNode root = {};
+static struct trieNode root = {};
 
 static void
 trieNodeGCFunc(struct GC* gc, struct trieNode *node) {

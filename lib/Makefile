@@ -1,4 +1,9 @@
-all: string.so
+.PHONY: codegen
+
+all: codegen
+
+codegen:
+	make -C codegen
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g
@@ -13,7 +18,7 @@ clean:
 	rm -rf *.o *.so
 
 %.so : %.o
-	gcc -shared -o $@ $^
+	gcc -shared -o $@ $^ -fPIC -I../src
 
 %.o : %.c
 %.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
