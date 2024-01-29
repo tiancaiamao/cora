@@ -3,7 +3,7 @@
 CC = gcc
 CFLAGS = -g -Wall -fPIC
 
-all: cora.bin
+all: cora.bin lib
 
 libcora:
 	make -C src
