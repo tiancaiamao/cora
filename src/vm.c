@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -593,7 +592,7 @@ dispatch(struct VM *vm) {
 
 void
 coraInit(struct VM *vm) {
-  g = gcInit();
+  /* g = gcInit(); */
 
   symQuote = intern("quote");
   symIf = intern("if");
@@ -708,23 +707,21 @@ vmCall(struct VM *vm, int n) {
   return vm->stack[--vm->pos];
 }
 
-extern void gcGlobal(struct GC *gc);
+/* void */
+/* gcVM(struct GC *gc, struct VM *vm, int pos) { */
+/*   // Current stack */
+/*   for (int i=vm->base; i<pos; i++) { */
+/*     gcMark(gc, getScmHead(vm->stack[i])); */
+/*   } */
 
-void
-gcVM(struct GC *gc, struct VM *vm, int pos) {
-  // Current stack
-  for (int i=vm->base; i<pos; i++) {
-    gcMark(gc, getScmHead(vm->stack[i]));
-  }
+/*   // The call stacks */
+/*   for (int i=vm->callstack.len-1; i>=0; i--) { */
+/*     struct returnAddr *addr = &vm->callstack.data[i]; */
+/*     for (int j=addr->base; j<addr->pos; j++) { */
+/*       gcMark(gc, getScmHead(addr->stack[j])); */
+/*     } */
+/*   } */
 
-  // The call stacks
-  for (int i=vm->callstack.len-1; i>=0; i--) {
-    struct returnAddr *addr = &vm->callstack.data[i];
-    for (int j=addr->base; j<addr->pos; j++) {
-      gcMark(gc, getScmHead(addr->stack[j]));
-    }
-  }
-
-  // Global symbol table
-  gcGlobal(gc);
-}
+/*   // Global symbol table */
+/*   gcGlobal(gc); */
+/* } */

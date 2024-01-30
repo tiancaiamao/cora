@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <sys/types.h>
 #include "vm.h"
 #include "builtin.h"

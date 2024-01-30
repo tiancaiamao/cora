@@ -5,7 +5,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <assert.h>
 
 static void
 addPkgMapping(struct VM *vm, int pos, struct SexpReader *r, Obj sym, Obj path) {

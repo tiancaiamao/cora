@@ -6,6 +6,8 @@
 #include "gc.h"
 #include "str.h"
 
+#define assert(c) if (!(c)) __builtin_trap()
+
 typedef uint8_t scmHeadType;
 
 #define TAG_SHIFT 3

@@ -29,7 +29,7 @@ bootstrap_test:bootstrap.test
 bootstrap.test: bootstrap_test.o libcora.a
 	$(CC) -o $@ $^ -ldl
 
-LIBOBJS = gc.o str.o types.o reader.o builtin.o vm.o
+LIBOBJS = str.o types.o reader.o builtin.o vm.o
 
 libcora.a: $(LIBOBJS)
 	ar -rc $@ $^

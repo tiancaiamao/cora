@@ -4,10 +4,8 @@
 #include "vm.h"
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
 #include <dlfcn.h>
 #include <alloca.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <pwd.h>
 #include <unistd.h>

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "reader.h"
-#include <assert.h>
 #include "vm.h"
 
 struct testCase {

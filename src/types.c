@@ -1,7 +1,6 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
@@ -275,20 +274,20 @@ isstring(Obj o) {
 
 static struct trieNode root = {};
 
-static void
-trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  gcMark(gc, getScmHead(node->value));
-  for (int i=0; i<256; i++) {
-    if (node->child[i] != NULL) {
-      trieNodeGCFunc(gc, node->child[i]);
-    }
-  }
-}
+/* static void */
+/* trieNodeGCFunc(struct GC* gc, struct trieNode *node) { */
+/*   gcMark(gc, getScmHead(node->value)); */
+/*   for (int i=0; i<256; i++) { */
+/*     if (node->child[i] != NULL) { */
+/*       trieNodeGCFunc(gc, node->child[i]); */
+/*     } */
+/*   } */
+/* } */
 
-void
-gcGlobal(struct GC *gc) {
-  trieNodeGCFunc(gc, &root);
-}
+/* void */
+/* gcGlobal(struct GC *gc) { */
+/*   trieNodeGCFunc(gc, &root); */
+/* } */
 
 Obj
 makeSymbol(char *s) {

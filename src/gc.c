@@ -1,6 +1,5 @@
 #include "gc.h"
 #include <stdlib.h>
-#include <assert.h>
 #include <stdio.h>
 #include <setjmp.h>
 #include <string.h>
