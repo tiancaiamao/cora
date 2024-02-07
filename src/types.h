@@ -67,7 +67,7 @@ void typesInit();
 
 struct VM;
 
-void* newObj(struct VM *vm, int pos, scmHeadType tp, int sz);
+void* newObj(scmHeadType tp, int sz);
 
 struct scmCons {
   scmHead head;
@@ -88,9 +88,9 @@ Obj symbolGet(Obj sym);
 Obj symbolSet(Obj sym, Obj val);
 char* symbolStr(Obj sym);
 
-#define cons(vm, pos, x, y) makeCons(vm, pos, x, y)
+#define cons(x, y) makeCons(x, y)
 bool iscons(Obj o);
-Obj makeCons(struct VM *vm, int pos, Obj car, Obj cdr);
+Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
 Obj caddr(Obj v);
@@ -125,7 +125,8 @@ Obj makeCurry(int required, Obj *closed, int nfrees);
 struct tagbstring;
 typedef struct tagbstring * bstring;
 
-Obj makeString(struct VM *vm, int pos, const char *s, int len);
+Obj makeString(const char *s, int len);
+Obj makeCString(const char *s);
 strBuf stringStr(Obj o);
 int stringLen(Obj o);
 Obj makeNumber(int v);
@@ -140,7 +141,7 @@ struct stack {
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
 
-Obj makeVector(struct VM *vm, int pos, int c);
+Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);

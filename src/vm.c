@@ -291,7 +291,7 @@ void
 primCons(struct VM *vm) {
   Obj y = vm->stack[--vm->pos];
   Obj x = vm->stack[vm->pos-1];
-  vm->stack[vm->pos-1] = cons(vm, vm->pos, x, y);
+  vm->stack[vm->pos-1] = cons(x, y);
 }
 
 void

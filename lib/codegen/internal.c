@@ -51,7 +51,7 @@ putTOS(struct tosc *cg, FILE *to) {
   if (cg->state < NREG) {
     cg->state++;
   } else {
-    fprintf(to, "*sp++ = r%d\n", cg->cur); // spill
+    fprintf(to, "*sp++ = r%d;\n", cg->cur); // spill
   }
   ret = cg->cur;
   cg->cur = (cg->cur + 1) % NREG;
@@ -86,7 +86,7 @@ instrConstCodeGen(struct CodeGen *cg, FILE *to, Obj val) {
     fprintf(to, "r%d = makeNumber(%ld);\n", reg, fixnum(val));
   } else if (isstring(val)) {
     strBuf s = stringStr(val);
-    fprintf(to, "r%d = makeString(\"%s\");\n", reg, toCStr(s));
+    fprintf(to, "r%d = makeCString(\"%s\");\n", reg, toCStr(s));
   } else if (issymbol(val)) {
     fprintf(to, "r%d = makeSymbol(\"%s\");\n", reg, symbolStr(val));
   } else {
@@ -120,7 +120,7 @@ instrLocalRefCodeGen(struct CodeGen *cg, FILE *to, int idx) {
 static void
 instrLocalSetCodeGen(struct CodeGen *cg, FILE *to, int idx) {
   int reg = getTOS(cg->state);
-  fprintf(to, "bp[%d+1] = r%d;\n", idx + 1, reg);
+  fprintf(to, "bp[%d] = r%d;\n", idx + 1, reg);
 }
 
 static void

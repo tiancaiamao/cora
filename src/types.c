@@ -23,7 +23,7 @@ struct scmString {
 extern struct GC *g;
 
 void*
-newObj(struct VM *vm, int pos, scmHeadType tp, int sz) {
+newObj(scmHeadType tp, int sz) {
   scmHead* p = malloc(sz);
   /* scmHead* p = gcAlloc(g, vm, pos, sz); */
   assert(((Obj)p & TAG_PTR) == 0);
@@ -53,8 +53,8 @@ mustCObj(Obj o) {
 }
 
 Obj
-makeCons(struct VM *vm, int pos, Obj car, Obj cdr) {
-  struct scmCons* p = newObj(vm, pos, scmHeadCons, sizeof(struct scmCons));
+makeCons(Obj car, Obj cdr) {
+  struct scmCons* p = newObj(scmHeadCons, sizeof(struct scmCons));
   p->car = car;
   p->cdr = cdr;
   return ((Obj)(&p->head) | TAG_PTR);
@@ -100,7 +100,7 @@ cdddr(Obj x) {
 
 Obj
 makeClosure(struct VM *vm, int required, int nfrees, void *closed, Obj code, nativeFn *fn) {
-  struct scmClosure* clo = newObj(vm, 0, scmHeadClosure, sizeof(struct scmClosure));
+  struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
   clo->closed = closed;
@@ -234,12 +234,17 @@ isNumber(Obj o) {
 }
 
 Obj
-makeString(struct VM *vm, int pos, const char *s, int len) {
+makeString(const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
   int alloc = len + sizeof(struct scmString) + 1;
-  struct scmString* str = newObj(vm, pos, scmHeadString, alloc);
+  struct scmString* str = newObj(scmHeadString, alloc);
   str->str = fromBlk(s, len);
   return ((Obj)(&str->head) | TAG_PTR);
+}
+
+Obj
+makeCString(const char *s) {
+  return makeString(s, strlen(s));
 }
 
 strBuf
@@ -426,8 +431,8 @@ struct scmVector {
 };
 
 Obj
-makeVector(struct VM *vm, int pos, int size) {
-  struct scmVector* vec = newObj(vm, pos, scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
+makeVector(int size) {
+  struct scmVector* vec = newObj(scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
   vec->size = size;
   return ((Obj)(&vec->head) | TAG_PTR);
 }

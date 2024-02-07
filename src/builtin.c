@@ -79,7 +79,7 @@ primLoad(struct VM *vm, str path, str pkg) {
 
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = pkg.str};
   int err = 0;
-  Obj ast = sexpRead(vm, 0, &r, in, &err);
+  Obj ast = sexpRead(&r, in, &err);
   while(err == 0) {
     /* printf("========================================= read == \n"); */
     /* sexpWrite(stdout, ast); */
@@ -90,7 +90,7 @@ primLoad(struct VM *vm, str path, str pkg) {
     /* printf("\n"); */
 
     eval(vm, exp);
-    ast = sexpRead(vm, 0, &r, in, &err);
+    ast = sexpRead(&r, in, &err);
   }
   fclose(in);
 }
@@ -116,7 +116,7 @@ primLoadSo(struct VM *vm, char* path) {
   char *error = dlerror();
   if (error != NULL) {
     // TODO
-    vmReturn(vm, makeString(vm, 0, error, strlen(error)));
+    vmReturn(vm, makeString(error, strlen(error)));
     return;
   }
 
@@ -242,7 +242,7 @@ builtinImport(struct VM *vm) {
   strFree(tmp);
 
   // Set the *imported* variable to avlid repeated load.
-  symbolSet(sym, cons(vm, 0, cons(vm, 0, pkg, Nil), imported));
+  symbolSet(sym, cons(cons(pkg, Nil), imported));
   vmReturn(vm, pkg);
 }
 
@@ -254,7 +254,7 @@ loadByteCode(struct VM *vm, str path) {
   }
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = ""};
   int err = 0;
-  Obj ast = sexpRead(vm, 0, &r, in, &err);
+  Obj ast = sexpRead(&r, in, &err);
   while(ast != Nil) {
     /* printf("========================================= read == \n"); */
     Obj code = car(ast);
@@ -358,16 +358,16 @@ builtinReadFileAsSexp(struct VM *vm) {
   Obj result = Nil;
   int count = 0;
   while(true) {
-    Obj ast = sexpRead(NULL, 0, &r, f, &err);
+    Obj ast = sexpRead(&r, f, &err);
     if (err != 0) {
       break;
     }
-    result = cons(vm, 0, ast, result);
+    result = cons(ast, result);
     count++;
   }
   if (count > 1) {
-    result = reverse(NULL, 0, result);
-    result = cons(vm, 0, makeSymbol("begin"), result);
+    result = reverse(result);
+    result = cons(makeSymbol("begin"), result);
   } else {
     result = car(result);
   }
@@ -399,6 +399,6 @@ void
 builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos) {
   struct SexpReader r;
   int errCode;
-  Obj x = sexpRead(vm, pos, &r, stdin, &errCode);
+  Obj x = sexpRead(&r, stdin, &errCode);
   vmReturn(vm, x);
 }
