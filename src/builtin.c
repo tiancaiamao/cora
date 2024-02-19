@@ -132,22 +132,22 @@ builtinLoadSo(struct VM *vm) {
   primLoadSo(vm, toCStr(str));
 }
 
-void
-builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj x = vmGet(vm, 1);
-  if (isfixnum(x)) {
-    vmReturn(vm, True);
-    return;
-  }
-  if (tag(x) == TAG_PTR) {
-    scmHead* h = ptr(x);
-    if (h->type == scmHeadNumber) {
-      vmReturn(vm, True);
-      return;
-    }
-  }
-  vmReturn(vm, False);
-}
+/* void */
+/* builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj x = vmGet(vm, 1); */
+/*   if (isfixnum(x)) { */
+/*     vmReturn(vm, True); */
+/*     return; */
+/*   } */
+/*   if (tag(x) == TAG_PTR) { */
+/*     scmHead* h = ptr(x); */
+/*     if (h->type == scmHeadNumber) { */
+/*       vmReturn(vm, True); */
+/*       return; */
+/*     } */
+/*   } */
+/*   vmReturn(vm, False); */
+/* } */
 
 /* void */
 /* builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos) { */
@@ -157,41 +157,41 @@ builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) {
 /*   vmReturn(vm, val); */
 /* } */
 
-void
-builtinVectorSet(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj vec = vmGet(vm, 1);
-  Obj idx = vmGet(vm, 2);
-  Obj v = vmGet(vm, 3);
-  assert(isfixnum(idx));
-  Obj ret = vectorSet(vec, fixnum(idx), v);
-  vmReturn(vm, ret);
-}
+/* void */
+/* builtinVectorSet(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj vec = vmGet(vm, 1); */
+/*   Obj idx = vmGet(vm, 2); */
+/*   Obj v = vmGet(vm, 3); */
+/*   assert(isfixnum(idx)); */
+/*   Obj ret = vectorSet(vec, fixnum(idx), v); */
+/*   vmReturn(vm, ret); */
+/* } */
 
-void
-builtinVectorRef(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj vec = vmGet(vm, 1);
-  Obj idx = vmGet(vm, 2);
-  assert(isfixnum(idx));
-  val = vectorRef(vec, fixnum(idx));
-  vmReturn(vm, val);
-}
+/* void */
+/* builtinVectorRef(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj vec = vmGet(vm, 1); */
+/*   Obj idx = vmGet(vm, 2); */
+/*   assert(isfixnum(idx)); */
+/*   val = vectorRef(vec, fixnum(idx)); */
+/*   vmReturn(vm, val); */
+/* } */
 
-void builtinIsVector(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj o = vmGet(vm, 1);
-  if (isvector(o)) {
-    vmReturn(vm, True);
-  } else {
-    vmReturn(vm, False);
-  }
-}
+/* void builtinIsVector(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj o = vmGet(vm, 1); */
+/*   if (isvector(o)) { */
+/*     vmReturn(vm, True); */
+/*   } else { */
+/*     vmReturn(vm, False); */
+/*   } */
+/* } */
 
-void
-builtinIntern(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj x = vmGet(vm, 1);
-  assert(isstring(x));
-  val = intern(toCStr(stringStr(x)));
-  vmReturn(vm, val);
-}
+/* void */
+/* builtinIntern(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj x = vmGet(vm, 1); */
+/*   assert(isstring(x)); */
+/*   val = intern(toCStr(stringStr(x))); */
+/*   vmReturn(vm, val); */
+/* } */
 
 strBuf
 getCoraPath() {
@@ -285,60 +285,60 @@ macroExpand(struct VM *vm, Obj exp) {
   return vmCall(vm, 2);
 }
 
-void
-builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj to = vmGet(vm, 1);
-  FILE* out = mustCObj(to);
-  Obj exp = vmGet(vm, 2);
-  strBuf s = stringStr(exp);
-  fprintf(out, "%s", toCStr(s));
-  vmReturn(vm, Nil);
-}
+/* void */
+/* builtinGenerateStr(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj to = vmGet(vm, 1); */
+/*   FILE* out = mustCObj(to); */
+/*   Obj exp = vmGet(vm, 2); */
+/*   strBuf s = stringStr(exp); */
+/*   fprintf(out, "%s", toCStr(s)); */
+/*   vmReturn(vm, Nil); */
+/* } */
 
-void
-builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj to = vmGet(vm, 1);
-  FILE* out = mustCObj(to);
-  Obj exp = vmGet(vm, 2);
-  const char* s = symbolStr(exp);
-  for (const char *p = s; *p != 0; p++) {
-    if ((*p >= 'a' && *p <= 'z') ||
-	(*p >= 'A' && *p <= 'Z') ||
-	(*p >= '0' && *p <= '9')) {
-      fprintf(out, "%c", *p);
-    } else if (*p == '_') {
-      fprintf(out, "__");
-    } else {
-      fprintf(out, "_%d", *p);
-    }
-  }
-  vmReturn(vm, Nil);
-}
+/* void */
+/* builtinGenerateSym(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj to = vmGet(vm, 1); */
+/*   FILE* out = mustCObj(to); */
+/*   Obj exp = vmGet(vm, 2); */
+/*   const char* s = symbolStr(exp); */
+/*   for (const char *p = s; *p != 0; p++) { */
+/*     if ((*p >= 'a' && *p <= 'z') || */
+/* 	(*p >= 'A' && *p <= 'Z') || */
+/* 	(*p >= '0' && *p <= '9')) { */
+/*       fprintf(out, "%c", *p); */
+/*     } else if (*p == '_') { */
+/*       fprintf(out, "__"); */
+/*     } else { */
+/*       fprintf(out, "_%d", *p); */
+/*     } */
+/*   } */
+/*   vmReturn(vm, Nil); */
+/* } */
 
-void
-builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj to = vmGet(vm, 1);
-  FILE* out = mustCObj(to);
-  Obj exp = vmGet(vm, 2);
-  fprintf(out, "%ld", fixnum(exp));
-  vmReturn(vm, Nil);
-}
+/* void */
+/* builtinGenerateNum(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj to = vmGet(vm, 1); */
+/*   FILE* out = mustCObj(to); */
+/*   Obj exp = vmGet(vm, 2); */
+/*   fprintf(out, "%ld", fixnum(exp)); */
+/*   vmReturn(vm, Nil); */
+/* } */
 
-void
-builtinOpenOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj arg1 = vmGet(vm, 1);
-  strBuf filePath = stringStr(arg1);
-  FILE* f = fopen(toCStr(filePath), "w");
-  vmReturn(vm, makeCObj(f));
-}
+/* void */
+/* builtinOpenOutputFile(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj arg1 = vmGet(vm, 1); */
+/*   strBuf filePath = stringStr(arg1); */
+/*   FILE* f = fopen(toCStr(filePath), "w"); */
+/*   vmReturn(vm, makeCObj(f)); */
+/* } */
 
-void
-builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj arg1 = vmGet(vm, 1);
-  FILE *f = mustCObj(arg1);
-  int errno = fclose(f);
-  vmReturn(vm, makeNumber(errno));
-}
+/* void */
+/* builtinCloseOutputFile(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj arg1 = vmGet(vm, 1); */
+/*   FILE *f = mustCObj(arg1); */
+/*   int errno = fclose(f); */
+/*   vmReturn(vm, makeNumber(errno)); */
+/* } */
 
 void
 builtinReadFileAsSexp(struct VM *vm) {
@@ -388,17 +388,17 @@ void writeSexpToFile(struct VM *vm) {
   vmReturn(vm, Nil);
 }
 
-void
-builtinDisplay(void *pc, Obj val, struct VM *vm, int pos) {
-  Obj arg = vmGet(vm, 1);
-  sexpWrite(stdout, arg);
-  vmReturn(vm, Nil);
-}
+/* void */
+/* builtinDisplay(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   Obj arg = vmGet(vm, 1); */
+/*   sexpWrite(stdout, arg); */
+/*   vmReturn(vm, Nil); */
+/* } */
 
-void
-builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos) {
-  struct SexpReader r;
-  int errCode;
-  Obj x = sexpRead(&r, stdin, &errCode);
-  vmReturn(vm, x);
-}
+/* void */
+/* builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos) { */
+/*   struct SexpReader r; */
+/*   int errCode; */
+/*   Obj x = sexpRead(&r, stdin, &errCode); */
+/*   vmReturn(vm, x); */
+/* } */

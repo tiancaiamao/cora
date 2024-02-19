@@ -278,7 +278,7 @@ primIsString(struct VM *vm) {
 }
 
 void
-primCar(struct VM *vm) {
+opPrimCar(struct VM *vm) {
   vm->stack[vm->pos-1] = car(vm->stack[vm->pos-1]);
 }
 
@@ -295,7 +295,7 @@ primCons(struct VM *vm) {
 }
 
 void
-primIsCons(struct VM *vm) {
+opPrimIsCons(struct VM *vm) {
   if (iscons(vm->stack[vm->pos-1])) {
     vm->stack[vm->pos-1] = True;
   } else {
@@ -305,14 +305,19 @@ primIsCons(struct VM *vm) {
 
 static uint64_t genIdx = 0;
 
-void
-primGenSym(struct VM *vm) {
-  Obj arg = vm->stack[vm->pos-1];
+Obj
+primGensym(Obj arg) {
   assert(issymbol(arg));
   char tmp[200];
   snprintf(tmp, 100, "#%s%ld", symbolStr(arg), genIdx);
   genIdx++;
-  vm->stack[vm->pos-1] = makeSymbol(tmp);
+  return makeSymbol(tmp);
+}
+
+void
+opPrimGenSym(struct VM *vm) {
+  Obj arg = vm->stack[vm->pos-1];
+  vm->stack[vm->pos-1] = primGensym(arg);
 }
 
 void
@@ -324,8 +329,25 @@ primIsInteger(struct VM *vm) {
   }
 }
 
+Obj
+primIsSymbol(Obj x) {
+  if (issymbol(x)) {
+    return True;
+  } else {
+    return False;
+  }
+}
+
+Obj primIsCons(Obj x) {
+  if (iscons(x)) {
+    return True;
+  } else {
+    return False;
+  }
+}
+
 void
-primIsSymbol(struct VM *vm) {
+opPrimIsSymbol(struct VM *vm) {
   if (issymbol(vm->stack[vm->pos-1])) {
     vm->stack[vm->pos-1] = True;
   } else {
@@ -333,8 +355,18 @@ primIsSymbol(struct VM *vm) {
   }
 }
 
+Obj
+primNot(Obj x) {
+  if (x == True) {
+    return False;
+  } else if (x == False) {
+    return True;
+  }
+  assert(false);
+}
+
 void
-primNot(struct VM *vm) {
+opPrimNot(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   if (x == True) {
     vm->stack[vm->pos-1] = False;
@@ -384,8 +416,8 @@ primMul(Obj x, Obj y) {
   return makeNumber(fixnum(x) * fixnum(y));
 }
 
-static Obj
-__inline_eq(Obj x, Obj y) {
+Obj
+primEQ(Obj x, Obj y) {
   if (x == y) {
     return True;
   }
@@ -401,13 +433,8 @@ static void
 opPrimEQ(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   Obj y = vm->stack[vm->pos-2];
-  vm->stack[vm->pos-2] = __inline_eq(x, y);
+  vm->stack[vm->pos-2] = primEQ(x, y);
   vm->pos--;
-}
-
-Obj
-primEQ(Obj x, Obj y) {
-  return __inline_eq(x, y);
 }
 
 void
@@ -433,21 +460,21 @@ opPrimitive(struct VM *vm, Obj prim) {
   } else if (prim == makeSymbol("string?")) {
     primIsString(vm);
   } else if (prim == makeSymbol("car")) {
-    primCar(vm);
+    opPrimCar(vm);
   } else if (prim == makeSymbol("cdr")) {
     primCdr(vm);
   } else if (prim == makeSymbol("cons")) {
     primCons(vm);
   } else if (prim == makeSymbol("cons?")) {
-    primIsCons(vm);
+    opPrimIsCons(vm);
   } else if (prim == makeSymbol("gensym")) {
-    primGenSym(vm);
+    opPrimGenSym(vm);
   } else if (prim == makeSymbol("integer?")) {
     primIsInteger(vm);
   } else if (prim == makeSymbol("symbol?")) {
-    primIsSymbol(vm);
+    opPrimIsSymbol(vm);
   } else if (prim == makeSymbol("not")) {
-    primNot(vm);
+    opPrimNot(vm);
   } else if (prim == makeSymbol(">")) {
     primGT(vm);
   } else if (prim == makeSymbol("<")) {
@@ -483,7 +510,6 @@ dispatch(struct VM *vm) {
   } else if (sym == symCall) {
     Obj nextBytecode = cdr((Obj)vm->data);
     opCall(vm, fixnum(cadr(inst)), dispatch, (void*)nextBytecode); return;
-    /* } else if (sym == symPush) { */
   } else if (sym == symPop) {
     opPop(vm);
   } else if (sym == symExit) {
@@ -493,7 +519,6 @@ dispatch(struct VM *vm) {
   } else if (sym == symPrimitive) {
     opPrimitive(vm, cadr(inst));
   } else {
-    /* printf("instr not implement: %s\n", symbolStr(car(exp))); */
     printf("instr not implement: ");
     printObj(stdout, inst);
     printf("\n");

@@ -33,7 +33,7 @@ cgAddGlobal(struct CodeGen *cg, FILE *f) {
     cg->cap *= 2;
     FILE ** globals = malloc(sizeof(FILE*) * cg->cap);
     memcpy(globals, cg->globals, sizeof(FILE*)*cg->pos);
-    free(globals);
+    free(cg->globals);
     cg->globals = globals;
   }
 
@@ -59,8 +59,12 @@ putTOS(struct tosc *cg, FILE *to) {
 }
 
 int
-getTOS(struct tosc *cg) {
-  assert(cg->state > 0);
+getTOS(struct tosc *cg, FILE *to) {
+  if (cg->state == 0) {
+    fprintf(to, "*--sp = r0;\n");
+    cg->state = 1;
+    cg->cur = 1;
+  }
   return (cg->cur + NREG - 1) % NREG;
 }
 
@@ -96,7 +100,7 @@ instrConstCodeGen(struct CodeGen *cg, FILE *to, Obj val) {
 
 static void
 instrIfCodeGen(struct CodeGen *cg, FILE *to, Obj succ, Obj fail) {
-  int reg = getTOS(cg->state);
+  int reg = getTOS(cg->state, to);
   popTOS(cg->state);
   struct tosc* old = cg->state;
   struct tosc tmp = *old;
@@ -119,14 +123,14 @@ instrLocalRefCodeGen(struct CodeGen *cg, FILE *to, int idx) {
 
 static void
 instrLocalSetCodeGen(struct CodeGen *cg, FILE *to, int idx) {
-  int reg = getTOS(cg->state);
+  int reg = getTOS(cg->state, to);
   fprintf(to, "bp[%d] = r%d;\n", idx + 1, reg);
 }
 
 static void
 instrClosureRefCodeGen(struct CodeGen *cg, FILE *to, int idx) {
   int reg = putTOS(cg->state, to);
-  fprintf(to, "r%d = opClosureRef(vm, %d);\n", reg, idx);
+  fprintf(to, "r%d = closureSlot(bp[0], %d);\n", reg, idx);
 }
 
 static void
@@ -138,37 +142,37 @@ instrGlobalRefCodeGen(struct CodeGen *cg, FILE *to, Obj sym) {
 static char*
 primitiveFnName(Obj prim) {
   if (prim == makeSymbol("+")) {
-    return "Add";
+    return "primAdd";
   } else if (prim == makeSymbol("-")) {
-    return "Sub";
+    return "primSub";
   } else if (prim == makeSymbol("=")) {
-    return "EQ";
+    return "primEQ";
   } else if (prim == makeSymbol("set")) {
-    return "Set";
+    return "primSet";
   } else if (prim == makeSymbol("string?")) {
     return "IsString";
   } else if (prim == makeSymbol("car")) {
-    return "Car";
+    return "car";
   } else if (prim == makeSymbol("cdr")) {
-    return "Cdr";
+    return "cdr";
   } else if (prim == makeSymbol("cons")) {
-    return "Cons";
+    return "cons";
   } else if (prim == makeSymbol("cons?")) {
-    return "IsCons";
+    return "primIsCons";
   } else if (prim == makeSymbol("gensym")) {
-    return "GenSym";
+    return "primGensym";
   } else if (prim == makeSymbol("integer?")) {
     return "IsInteger";
   } else if (prim == makeSymbol("symbol?")) {
-    return "IsSymbol";
+    return "primIsSymbol";
   } else if (prim == makeSymbol("not")) {
-    return "Not";
-      } else if (prim == makeSymbol(">")) {
+    return "primNot";
+  } else if (prim == makeSymbol(">")) {
     return "GT";
   } else if (prim == makeSymbol("<")) {
     return "LT";
   } else if (prim == makeSymbol("*")) {
-    return "Mul";
+    return "primMul";
   }
 }
 
@@ -220,9 +224,9 @@ instrPrimitiveCodeGen(struct CodeGen *cg, FILE *to, Obj prim)  {
   int size = primitiveSize(prim);
   if (cg->state->state >= size) {
     int dest = (cg->state->cur + NREG - size) % NREG;
-    fprintf(to, "r%d = prim%s(", dest, primitiveFnName(prim));
+    fprintf(to, "r%d = %s(", dest, primitiveFnName(prim));
   } else {
-    fprintf(to, "r0 = prim%s(", primitiveFnName(prim));
+    fprintf(to, "r0 = %s(", primitiveFnName(prim));
   }
   for (int i=0; i<size; i++) {
     if (i != 0) {
@@ -273,10 +277,18 @@ instrPrimitiveCodeGen(struct CodeGen *cg, FILE *to, Obj prim)  {
 static void
 instrExitCodeGen(struct CodeGen *cg, FILE *to) {
   fprintf(to, "popStack(&vm->callstack, &vm->pc, &vm->data, &vm->base, &vm->pos, &vm->stack);\n");
-  int reg = getTOS(cg->state);
+  int reg = getTOS(cg->state, to);
   fprintf(to, "vm->stack[vm->pos++] = r%d;\nreturn;\n", reg);
 }
 
+static void
+instrPopCodeGen(struct CodeGen *cg, FILE *to) {
+  if (cg->state->state > 0) {
+    popTOS(cg->state);
+  } else {
+    fprintf(to, "sp--;\n");
+  }
+}
 
 static void
 instrTailCallCodeGen(struct CodeGen *cg, FILE *to, int nargs) {
@@ -298,7 +310,7 @@ instrCallCodeGen(struct CodeGen *cg, FILE *to, int nargs, Obj cc) {
   FILE *global = open_memstream(&ptr, &sizeloc);
 
   fprintf(global, "static void fn_label_%d(struct VM* vm) {\n", label);
-  fprintf(global, "Obj *bp, *sp, r0, r1, r2, r3;\n");
+  fprintf(global, "Obj *bp, *sp, r0, r1, r2, r3, r4;\n");
   fprintf(global, "bp = vm->stack + vm->base;\n");
   fprintf(global, "sp = vm->stack + vm->pos;\n");
 
@@ -351,7 +363,18 @@ instrMakeClosureCodeGen(struct CodeGen *cg, FILE *to, int required, int nfrees, 
   if (nfrees == 0) {
     fprintf(to, "r%d = makeClosure(vm, %d, 0, NULL, Nil, fn_label_%d);\n", putTOS(cg->state, to), required, label);
   } else {
-    fprintf(to, "opMakeClosure(TODO);\n");
+    int tmp = cgGetLabel(cg);
+    fprintf(to, "Obj *closed%d = malloc(sizeof(Obj) * %d);\n", tmp, nfrees);
+    for (int i=0; i<nfrees; i++) {
+      if (cg->state->state > 0) {
+	fprintf(to, "closed%d[%d] = r%d;\n", tmp, nfrees-i-1, getTOS(cg->state, to));
+	popTOS(cg->state);
+      } else {
+	fprintf(to, "closed%d[%d] = *sp--;\n", tmp, nfrees-i-1);
+      }
+    }
+    fprintf(to, "r%d = makeClosure(vm, %d, %d, closed%d, Nil, fn_label_%d);\n",
+	    putTOS(cg->state, to), required, nfrees, tmp, label);
   }
 }
 
@@ -373,6 +396,11 @@ codeGen(struct CodeGen *cg, FILE *f, Obj bc) {
   while(bc != Nil) {
     Obj inst = car(bc);
     Obj sym = car(inst);
+
+    /* printf("handling inst: "); */
+    /* printObj(stdout, inst); */
+    /* printf("\n"); */
+
     if (sym == symConst) {
       instrConstCodeGen(cg, f, cadr(inst));
     } else if (sym == symLocalRef) {
@@ -395,7 +423,7 @@ codeGen(struct CodeGen *cg, FILE *f, Obj bc) {
     } else if (sym == symCall) {
       instrCallCodeGen(cg, f, fixnum(cadr(inst)), cdr(bc)); return;
     } else if (sym == symPop) {
-      /* cgPop(vm); */
+      instrPopCodeGen(cg, f);
     } else if (sym == symExit) {
       instrExitCodeGen(cg, f); return;
     } else if (sym == symReserveLocals) {
@@ -442,6 +470,7 @@ builtinGenerateC(struct VM* vm) {
   fprintf(outFile, "#include \"types.h\" \n\
 #include \"vm.h\" \n\
 #include \"builtin.h\" \n\
+#include <stdlib.h>\n\
 #include <stdio.h>\n\n");
 
   for (int i=0; i<cg.pos; i++) {

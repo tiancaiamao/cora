@@ -58,6 +58,10 @@ Obj primEQ(Obj x, Obj y);
 Obj primSub(Obj x, Obj y);
 Obj primAdd(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
+Obj primNot(Obj x);
+Obj primGensym(Obj arg);
+Obj primIsSymbol(Obj x);
+Obj primIsCons(Obj x);
 void popStack(struct callStack *cs, nativeFn **pc, void **data, int *base, int *pos, Obj **stack);
 
 #endif
