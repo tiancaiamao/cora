@@ -363,3 +363,12 @@
 
 (defmacro begin (exp)
   (.rewrite-begin (cdr exp)))
+
+(func .rewrite-backquote
+      x => ['quote x] where (symbol? x)
+      ['unquote x] => x
+      [x . more] => ['list . (map .rewrite-backquote [x . more])]
+      x => x)
+      
+(defmacro backquote (exp)
+  (.rewrite-backquote (cadr exp)))

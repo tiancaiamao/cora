@@ -12,7 +12,7 @@ all: libcora.a libcora.so
 test: reader_test eval_test bootstrap_test
 
 reader.test: reader_test.o libcora.a
-	$(CC) -o reader.test $^
+	$(CC) -o reader.test $^ -ldl
 
 reader_test: reader.test
 	./reader.test

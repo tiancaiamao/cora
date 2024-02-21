@@ -139,7 +139,7 @@ struct stack {
   int pos;
 };
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
 Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);

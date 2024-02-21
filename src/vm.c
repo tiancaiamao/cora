@@ -620,6 +620,8 @@ coraInit(struct VM *vm) {
   /* g = gcInit(); */
 
   symQuote = intern("quote");
+  symBackQuote = intern("backquote");
+  symUnQuote = intern("unquote");
   symIf = intern("if");
   symLambda = intern("lambda");
   symDo = intern("do");
