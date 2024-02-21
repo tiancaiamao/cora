@@ -18,6 +18,8 @@ isIdentifierChar(int c) {
   case ')':
   case '"':
   case '\'':
+  case '`':
+  case ',':
   case ';':
   case '[':
   case ']':
@@ -172,6 +174,18 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
     return readListMacro(r, in, errCode);
   }
 
+  // read backquote macro
+  if (c == '`') {
+    Obj o = sexpRead(r, in, errCode);
+    return cons(symBackQuote, cons(o, Nil));
+  }
+
+  // read unquote macro
+  if (c == ',') {
+    Obj o = sexpRead(r, in, errCode);
+    return cons(symUnQuote, cons(o, Nil));
+  }
+
   // read a string
   if (c == '"') {
     i = 0;
@@ -213,7 +227,7 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
       i++;
       c = getc(in);
     }
-    if (c != EOF) {
+    /* if (c != EOF) { */
       buffer[i] = '\0';
       ungetc(c, in);
       if (strcmp(buffer, "true") == 0) {
@@ -268,10 +282,10 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 	}
       }
       return makeSymbol(buffer);
-    }
-    fprintf(stderr, "symbol not followed by delimiter. "
-            "Found '%c'\n", c);
-    exit(1);
+    /* } */
+    /* fprintf(stderr, "symbol not followed by delimiter. " */
+    /*         "Found '%c'\n", c); */
+    /* exit(1); */
   }
 
   if (c == EOF) {
