@@ -232,6 +232,9 @@ builtinImport(struct VM *vm) {
   tmp = strCat(tmp, pkgStr);
   tmp = strCat(tmp, cstr(".so"));
   if (0 == access(toCStr(tmp), R_OK)) {
+    // primLoadSo is a bit special, it requires the current stack of VM is
+    // (load-so "file-path.so" "package-path")
+    vm->stack[vm->base+2] = pkg;
     primLoadSo(vm, toCStr(tmp));
     return;
   } else {

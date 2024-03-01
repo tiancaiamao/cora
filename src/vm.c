@@ -88,7 +88,7 @@ resumeCurry(struct VM *vm) {
 
 Obj
 makeCurry(int required, Obj *closed, int nfrees) {
-  Obj tmp = makeClosure(NULL, required, nfrees, closed, Nil, resumeCurry);
+  Obj tmp = makeClosure(required, nfrees, closed, Nil, resumeCurry);
   /* struct scmClosure* clo = mustClosure(tmp); */
   return tmp;
 }
@@ -204,7 +204,7 @@ opMakeClosure(struct VM *vm, int required, int nfrees, Obj body) {
     vm->pos -= nfrees;
   }
 
-  Obj val = makeClosure(vm, required, nfrees, closed, body, dispatch);
+  Obj val = makeClosure(required, nfrees, closed, body, dispatch);
   vm->stack[vm->pos++] = val;
 }
 
@@ -615,10 +615,8 @@ dispatch(struct VM *vm) {
 /*   makeTheCall(pc, val, vm, pos); */
 /* } */
 
-void
-coraInit(struct VM *vm) {
-  /* g = gcInit(); */
-
+static void
+initSymbols() {
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
@@ -642,23 +640,32 @@ coraInit(struct VM *vm) {
   symPrimitive = makeSymbol("primitive");
   symReserveLocals = makeSymbol("reserve-locals");
   symLocalSet = makeSymbol("local-set");
+}
+
+static struct registerModule coraModule = {
+  initSymbols,
+  {
+    {"load", builtinLoad, 2},
+    {"load-so", builtinLoadSo, 2},
+    {"import", builtinImport, 1},
+    {"read-file-as-sexp", builtinReadFileAsSexp, 2},
+    {"write-sexp-to-file", writeSexpToFile, 2},
+  }
+};
+
+void
+coraInit(struct VM *vm) {
+  registerAPI(&coraModule, cstr(""));
 
   /* symbolSet(makeSymbol("symbol->string"), makePrimitive(vm, 0, builtinSymbolToString, 1)); */
-  symbolSet(makeSymbol("load"), makePrimitive(vm, builtinLoad, 2));
-  symbolSet(makeSymbol("load-so"), makePrimitive(vm, builtinLoadSo, 1));
   /* symbolSet(makeSymbol("vector"), makePrimitive(vm, 0, builtinMakeVector, 1)); */
   /* symbolSet(makeSymbol("vector?"), makePrimitive(vm, 0, builtinIsVector, 1)); */
   /* symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3)); */
   /* symbolSet(makeSymbol("vector-ref"), makePrimitive(vm, 0, builtinVectorRef, 2)); */
-  symbolSet(makeSymbol("import"), makePrimitive(vm, builtinImport, 1));
   /* symbolSet(makeSymbol("intern"), makePrimitive(vm, 0, builtinIntern, 1)); */
   /* symbolSet(makeSymbol("number?"), makePrimitive(vm, 0, builtinIsNumber, 1)); */
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
   /* symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1)); */
-
-  symbolSet(makeSymbol("read-file-as-sexp"), makePrimitive(vm, builtinReadFileAsSexp, 2));
-  symbolSet(makeSymbol("write-sexp-to-file"), makePrimitive(vm, writeSexpToFile, 2));
-
   /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */
   /* symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1)); */
   /* symbolSet(makeSymbol("value"), makePrimitive(vm, 0, builtinValue, 1)); */
@@ -752,3 +759,28 @@ vmCall(struct VM *vm, int n) {
 /*   // Global symbol table */
 /*   gcGlobal(gc); */
 /* } */
+
+void
+registerAPI(struct registerModule* m, str pkg) {
+  if (m->init != NULL) {
+    m->init();
+  }
+
+  for (int i=0; ; i++) {
+    struct registerEntry entry = m->entries[i];
+    if (entry.func == NULL) {
+      break;
+    }
+
+    Obj sym;
+    if (strLen(pkg) > 0) {
+      strBuf tmp = strDup(pkg);
+      tmp = strAppend(tmp, '.');
+      tmp = strCat(tmp, cstr(entry.name));
+      sym = intern(toCStr(tmp));
+    } else {
+      sym = intern(entry.name);
+    }
+    symbolSet(sym, makePrimitive(entry.func, entry.args));
+  }
+}

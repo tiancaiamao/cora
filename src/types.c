@@ -99,7 +99,7 @@ cdddr(Obj x) {
 }
 
 Obj
-makeClosure(struct VM *vm, int required, int nfrees, void *closed, Obj code, nativeFn *fn) {
+makeClosure(int required, int nfrees, void *closed, Obj code, nativeFn *fn) {
   struct scmClosure* clo = newObj(scmHeadClosure, sizeof(struct scmClosure));
   clo->required = required;
   clo->nfrees = nfrees;
@@ -167,8 +167,8 @@ closureRequired(Obj o) {
 }
 
 Obj
-makePrimitive(struct VM* vm, nativeFn *fn, int nargs) {
-  Obj tmp = makeClosure(vm, nargs, 0, NULL, Nil, fn);
+makePrimitive(nativeFn *fn, int nargs) {
+  Obj tmp = makeClosure(nargs, 0, NULL, Nil, fn);
   /* struct scmClosure* clo = mustClosure(tmp); */
   /* clo->fn = fn; */
   /* clo->required = nargs; */

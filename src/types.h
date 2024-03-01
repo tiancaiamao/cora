@@ -111,7 +111,7 @@ struct scmClosure {
   nativeFn *fn;
 };
 
-Obj makeClosure(struct VM *vm, int requred, int nfrees, void *closed, Obj code, nativeFn *pc);
+Obj makeClosure(int requred, int nfrees, void *closed, Obj code, nativeFn *pc);
 struct scmClosure* mustClosure(Obj o);
 Obj closureCode(Obj);
 bool isclosure(Obj o);
@@ -119,7 +119,7 @@ Obj closureSlot(Obj, int);
 int closureRequired(Obj);
 nativeFn* closurePC(Obj o);
 
-Obj makePrimitive(struct VM *vm, nativeFn *fn, int nargs);
+Obj makePrimitive(nativeFn *fn, int nargs);
 Obj makeCurry(int required, Obj *closed, int nfrees);
 
 struct tagbstring;

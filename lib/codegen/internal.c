@@ -361,7 +361,7 @@ instrMakeClosureCodeGen(struct CodeGen *cg, FILE *to, int required, int nfrees, 
 
   cg->state = old;
   if (nfrees == 0) {
-    fprintf(to, "r%d = makeClosure(vm, %d, 0, NULL, Nil, fn_label_%d);\n", putTOS(cg->state, to), required, label);
+    fprintf(to, "r%d = makeClosure(%d, 0, NULL, Nil, fn_label_%d);\n", putTOS(cg->state, to), required, label);
   } else {
     int tmp = cgGetLabel(cg);
     fprintf(to, "Obj *closed%d = malloc(sizeof(Obj) * %d);\n", tmp, nfrees);
@@ -373,7 +373,7 @@ instrMakeClosureCodeGen(struct CodeGen *cg, FILE *to, int required, int nfrees, 
 	fprintf(to, "closed%d[%d] = *sp--;\n", tmp, nfrees-i-1);
       }
     }
-    fprintf(to, "r%d = makeClosure(vm, %d, %d, closed%d, Nil, fn_label_%d);\n",
+    fprintf(to, "r%d = makeClosure(%d, %d, closed%d, Nil, fn_label_%d);\n",
 	    putTOS(cg->state, to), required, nfrees, tmp, label);
   }
 }
@@ -542,21 +542,19 @@ builtinGCCCompileToSo(struct VM* ctx) {
   vmReturn(ctx, makeNumber(ret));
 }
 
-/* struct registModule codeGenModule = { */
-/*   NULL, */
-/*   { */
-/*    {"cora/lib/codegen/internal.read-file-as-sexp", builtinReadFileAsSexp, 1}, */
-/*    {"cora/lib/codegen/internal.generate-c", builtinGenerateC, 2}, */
-/*    {"cora/lib/codegen/internal.gcc-compile-to-so", builtinGCCCompileToSo, 2}, */
-/*    {NULL, NULL, 0} */
-/*   } */
-/* }; */
+static struct registerModule codeGenModule = {
+  NULL,
+  {
+    {"generate-c", builtinGenerateC, 2},
+    {"gcc-compile-to-so", builtinGCCCompileToSo, 2},
+    {NULL, NULL, 0}
+  }
+};
 
 void
 __entry(struct VM *vm) {
-  /* registAPI(&codeGenModule); */
-  symbolSet(makeSymbol("cora/lib/codegen/internal.generate-c"), makePrimitive(vm, builtinGenerateC, 2));
-  symbolSet(makeSymbol("cora/lib/codegen/internal.gcc-compile-to-so"), makePrimitive(vm, builtinGCCCompileToSo, 2));
+  Obj pkg = vmGet(vm, 2);
+  registerAPI(&codeGenModule, toStr(stringStr(pkg)));
   return vmReturn(vm, intern("codegen"));
 }
 

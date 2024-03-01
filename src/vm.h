@@ -64,4 +64,17 @@ Obj primIsSymbol(Obj x);
 Obj primIsCons(Obj x);
 void popStack(struct callStack *cs, nativeFn **pc, void **data, int *base, int *pos, Obj **stack);
 
+struct registerEntry {
+  char *name;
+  nativeFn *func;
+  int args;
+};
+
+struct registerModule {
+  void (*init)();
+  struct registerEntry entries[];
+};
+
+void registerAPI(struct registerModule* m, str pkg);
+
 #endif
