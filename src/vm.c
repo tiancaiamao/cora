@@ -650,6 +650,7 @@ static struct registerModule coraModule = {
     {"import", builtinImport, 1},
     {"read-file-as-sexp", builtinReadFileAsSexp, 2},
     {"write-sexp-to-file", writeSexpToFile, 2},
+    {"number?", builtinIsNumber, 1},
   }
 };
 
@@ -663,7 +664,6 @@ coraInit(struct VM *vm) {
   /* symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3)); */
   /* symbolSet(makeSymbol("vector-ref"), makePrimitive(vm, 0, builtinVectorRef, 2)); */
   /* symbolSet(makeSymbol("intern"), makePrimitive(vm, 0, builtinIntern, 1)); */
-  /* symbolSet(makeSymbol("number?"), makePrimitive(vm, 0, builtinIsNumber, 1)); */
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
   /* symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1)); */
   /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */

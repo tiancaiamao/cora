@@ -132,22 +132,22 @@ builtinLoadSo(struct VM *vm) {
   primLoadSo(vm, toCStr(str));
 }
 
-/* void */
-/* builtinIsNumber(void *pc, Obj val, struct VM *vm, int pos) { */
-/*   Obj x = vmGet(vm, 1); */
-/*   if (isfixnum(x)) { */
-/*     vmReturn(vm, True); */
-/*     return; */
-/*   } */
-/*   if (tag(x) == TAG_PTR) { */
-/*     scmHead* h = ptr(x); */
-/*     if (h->type == scmHeadNumber) { */
-/*       vmReturn(vm, True); */
-/*       return; */
-/*     } */
-/*   } */
-/*   vmReturn(vm, False); */
-/* } */
+void
+builtinIsNumber(struct VM *vm) {
+  Obj x = vmGet(vm, 1);
+  if (isfixnum(x)) {
+    vmReturn(vm, True);
+    return;
+  }
+  if (tag(x) == TAG_PTR) {
+    scmHead* h = ptr(x);
+    if (h->type == scmHeadNumber) {
+      vmReturn(vm, True);
+      return;
+    }
+  }
+  vmReturn(vm, False);
+}
 
 /* void */
 /* builtinMakeVector(void *pc, Obj val, struct VM *vm, int pos) { */
