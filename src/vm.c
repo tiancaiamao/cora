@@ -377,8 +377,8 @@ opPrimNot(struct VM *vm) {
   }
 }
 
-void
-primGT(struct VM *vm) {
+static void
+opPrimGT(struct VM *vm) {
   Obj y = vm->stack[--vm->pos];
   Obj x = vm->stack[vm->pos-1];
   assert(isfixnum(x));
@@ -390,8 +390,8 @@ primGT(struct VM *vm) {
   }
 }
 
-void
-primLT(struct VM *vm) {
+static void
+opPrimLT(struct VM *vm) {
   Obj y = vm->stack[--vm->pos];
   Obj x = vm->stack[vm->pos-1];
   assert(isfixnum(x));
@@ -408,6 +408,14 @@ opPrimMul(struct VM *vm) {
   Obj x = vm->stack[vm->pos-1];
   Obj y = vm->stack[vm->pos-2];
   vm->stack[vm->pos-2] = makeNumber(fixnum(x) * fixnum(y));
+  vm->pos--;
+}
+
+static void
+opPrimDiv(struct VM *vm) {
+  Obj x = vm->stack[vm->pos-1];
+  Obj y = vm->stack[vm->pos-2];
+  vm->stack[vm->pos-2] =  makeNumber(fixnum(x) % fixnum(y));
   vm->pos--;
 }
 
@@ -476,11 +484,13 @@ opPrimitive(struct VM *vm, Obj prim) {
   } else if (prim == makeSymbol("not")) {
     opPrimNot(vm);
   } else if (prim == makeSymbol(">")) {
-    primGT(vm);
+    opPrimGT(vm);
   } else if (prim == makeSymbol("<")) {
-    primLT(vm);
+    opPrimLT(vm);
   } else if (prim == makeSymbol("*")) {
     opPrimMul(vm);
+  } else if (prim == makeSymbol("/")) {
+    opPrimDiv(vm);
   } 
 }
 
@@ -651,6 +661,15 @@ static struct registerModule coraModule = {
     {"read-file-as-sexp", builtinReadFileAsSexp, 2},
     {"write-sexp-to-file", writeSexpToFile, 2},
     {"number?", builtinIsNumber, 1},
+    {"mod", builtinMod, 2},
+    {"vector", builtinMakeVector, 1},
+    {"vector?", builtinIsVector, 1},
+    {"vector-set!", builtinVectorSet, 3},
+    {"vector-ref", builtinVectorRef, 2},
+    {"symbol->string", builtinSymbolToString, 1},
+    {"intern", builtinIntern, 1},
+    {"string-append", builtinStringAppend, 2},
+    {"string-length", builtinStringLength, 1},
   }
 };
 
@@ -658,18 +677,9 @@ void
 coraInit(struct VM *vm) {
   registerAPI(&coraModule, cstr(""));
 
-  /* symbolSet(makeSymbol("symbol->string"), makePrimitive(vm, 0, builtinSymbolToString, 1)); */
-  /* symbolSet(makeSymbol("vector"), makePrimitive(vm, 0, builtinMakeVector, 1)); */
-  /* symbolSet(makeSymbol("vector?"), makePrimitive(vm, 0, builtinIsVector, 1)); */
-  /* symbolSet(makeSymbol("vector-set!"), makePrimitive(vm, 0, builtinVectorSet, 3)); */
-  /* symbolSet(makeSymbol("vector-ref"), makePrimitive(vm, 0, builtinVectorRef, 2)); */
-  /* symbolSet(makeSymbol("intern"), makePrimitive(vm, 0, builtinIntern, 1)); */
   /* symbolSet(makeSymbol("try"), makePrimitive(vm, 0, builtinTryCatch, 2)); */
   /* symbolSet(makeSymbol("throw"), makePrimitive(vm, 0, builtinThrow, 1)); */
-  /* symbolSet(makeSymbol("string-append"), makePrimitive(vm, 0, builtinStringAppend, 2)); */
-  /* symbolSet(makeSymbol("string-length"), makePrimitive(vm, 0, builtinStringLength, 1)); */
   /* symbolSet(makeSymbol("value"), makePrimitive(vm, 0, builtinValue, 1)); */
-  /* symbolSet(makeSymbol("display"), makePrimitive(vm, 0, builtinDisplay, 1)); */
   /* symbolSet(makeSymbol("read-sexp"), makePrimitive(vm, 0, builtinReadSexp, 0)); */
 }
 

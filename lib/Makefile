@@ -1,9 +1,12 @@
-.PHONY: codegen
+.PHONY: tosc toc
 
-all: tosc
+all: tosc toc
 
 tosc:
 	make -C tosc
+
+toc:
+	make -C toc
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g
