@@ -1,4 +1,5 @@
 (@import "cora/lib/toc/internal" c)
+(@import "cora/lib/io" io)
 
 (func .assq
       var [] => ()
@@ -411,7 +412,7 @@
   (let sexp (read-file-as-sexp from pkg-str)
        (let input (macroexpand sexp)
 	    (let bc (.compile input)
-		 (let stream (c.open-output-file to)
+		 (let stream (io.open-output-file to)
 		      (begin
 		       (.generate-c stream bc)
-		       (c.close-output-file stream)))))))
+		       (io.close-output-file stream)))))))

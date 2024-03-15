@@ -40,35 +40,10 @@ builtinGenerateNum(struct VM *vm) {
   vmReturn(vm, Nil);
 }
 
-static void
-builtinOpenOutputFile(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
-  strBuf filePath = stringStr(arg1);
-  FILE* f = fopen(toCStr(filePath), "w");
-  vmReturn(vm, makeCObj(f));
-}
-
-static void
-builtinCloseOutputFile(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
-  FILE *f = mustCObj(arg1);
-  int errno = fclose(f);
-  vmReturn(vm, makeNumber(errno));
-}
-
-static void
-builtinDisplay(struct VM *vm) {
-  Obj arg = vmGet(vm, 1);
-  sexpWrite(stdout, arg);
-  vmReturn(vm, Nil);
-}
 
 static struct registerModule codeGenModule = {
   NULL,
   {
-    {"display", builtinDisplay, 1},
-    {"open-output-file", builtinOpenOutputFile, 1},
-    {"close-output-file", builtinCloseOutputFile, 1},
     {"generate-str", builtinGenerateStr, 2},
     {"generate-sym", builtinGenerateSym, 2},
     {"generate-num", builtinGenerateNum, 2},

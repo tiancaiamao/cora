@@ -1,0 +1,1 @@
+(((lambda (x y) (lambda (z) y)) 1 2) 3)

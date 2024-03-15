@@ -1,0 +1,5 @@
+(do (set (quote f) (lambda (x)
+		     (do (set (quote ignore) (lambda (z w)
+					       (lambda (y)
+						 z))) (ignore))))
+    (((f 1) 2 3) 4))

@@ -1,0 +1,1 @@
+(do (set (quote f) (lambda (a b) (let a 3 a))) (f 4 5))
