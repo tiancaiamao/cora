@@ -1,8 +1,10 @@
+#include "types.h"
+#include "str.h"
+#include "vm.h"
+#include "reader.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "types.h"
-#include "str.h"
 
 static void
 stringSlice(struct VM *ctx) {
@@ -80,6 +82,57 @@ numberToString(struct VM *ctx) {
 	return;
 }
 
+static void
+stringReplace(struct VM *vm) {
+  Obj arg1 = vmGet(vm, 1);
+  Obj arg2 = vmGet(vm, 2);
+  Obj arg3 = vmGet(vm, 3);
+
+  strBuf raw = stringStr(arg1);
+  strBuf from = stringStr(arg2);
+  strBuf to = stringStr(arg3);
+
+  int pos = strStr(toStr(raw), toStr(from));
+  if (pos < 0) {
+    vmReturn(vm, arg1);
+    return;
+  }
+
+  int cap = strLen(toStr(raw)) + strLen(toStr(to)) - strLen(toStr(from)) + 1;
+  strBuf buf = strNew(cap);
+  buf = strCpy(buf, strSub(toStr(raw), 0, pos));
+  buf = strCat(buf, toStr(to));
+  buf = strCat(buf, strSub(toStr(raw), pos+strLen(toStr(from)), strLen(toStr(raw))));
+  str s = toStr(buf);
+  Obj res = makeString(s.str, s.len);
+  vmReturn(vm, res);
+  return;
+}
+
+static void
+stringSplit(struct VM *vm) {
+  Obj arg1 = vmGet(vm, 1);
+  Obj arg2 = vmGet(vm, 2);
+  strBuf from = stringStr(arg1);
+  strBuf tmp = stringStr(arg2);
+
+  Obj res = Nil;
+  str s = toStr(from);
+  str split = toStr(tmp);
+  while (1) {
+    int pos = strStr(s, split);
+    if (pos > 0) {
+      str find = strSub(s, 0, pos);
+      res = cons(makeString(find.str, strLen(find)), res);
+      s = strSub(s, pos+strLen(split), strLen(s));
+      continue;
+    }
+    res = cons(makeString(s.str, strLen(s)), res);
+    break;
+  }
+  vmReturn(vm, reverse(res));
+}
+
 /* void */
 /* builtinStringAppend(struct VM *ctx) { */
 /* 	Obj x = vmGet(ctx, 1); */
@@ -95,24 +148,25 @@ numberToString(struct VM *ctx) {
 /* 	ctxReturn(ctx, makeString(dest, len)); */
 /* } */
 
-struct registModule stringModule = {
+static struct registerModule stringModule = {
   NULL,
   {
-    {"cora/lib/string.slice", stringSlice, 2},
-    {"cora/lib/string.has-prefix?", stringHasPrefix, 2},
-    {"cora/lib/string.length", stringLength, 1},
-    {"cora/lib/string.index", stringIndex, 2},
-    {"cora/lib/string.compare", stringCompare, 2},
-    {"cora/lib/string.number->string", numberToString, 1},
-    {NULL, NULL, 0}
+    {"slice", stringSlice, 2},
+    {"has-prefix?", stringHasPrefix, 2},
+    {"length", stringLength, 1},
+    {"index", stringIndex, 2},
+    {"compare", stringCompare, 2},
+    {"number->string", numberToString, 1},
+    {"replace", stringReplace, 3},
+    {"split", stringSplit, 2},
+    /* {NULL, NULL, 0} */
   }
 };
 
-
-
 void
 __entry(struct VM *vm) {
-  registAPI(&stringModule);
+  Obj pkg = vmGet(vm, 2);
+  registerAPI(&stringModule, toStr(stringStr(pkg)));
   return vmReturn(vm, intern("string"));
 }
 

@@ -1,0 +1,1 @@
+(do (set (quote x) 42) x)

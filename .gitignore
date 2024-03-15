@@ -6,3 +6,5 @@ cora.bin
 a.out
 libcora.a
 .deps
+test/t/*.c
+test/t/*.bin

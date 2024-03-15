@@ -1,0 +1,1 @@
+(do (set (quote id) (lambda (x) x)) (id (do 1 (do 2 42))))

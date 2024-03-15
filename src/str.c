@@ -83,7 +83,7 @@ strCmp(str s1, str s2) {
 static const char*
 ptrByIdx(const char* p, int len, int idx) {
   if (idx >= 0) {
-    if(idx < len) {
+    if(idx <= len) {
       return p+idx;
     }
     return NULL;

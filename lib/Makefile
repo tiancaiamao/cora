@@ -1,6 +1,6 @@
 .PHONY: tosc toc
 
-all: tosc toc
+all: tosc toc string.so os.so io.so
 
 tosc:
 	make -C tosc
@@ -11,7 +11,7 @@ toc:
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
-SRCS := codegen/internal.c string.c
+SRCS := tsoc/internal.c toc/internal.c string.c os.c io.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
