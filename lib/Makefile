@@ -1,6 +1,6 @@
 .PHONY: tosc toc
 
-all: tosc toc string.so os.so
+all: tosc toc string.so os.so io.so
 
 tosc:
 	make -C tosc
