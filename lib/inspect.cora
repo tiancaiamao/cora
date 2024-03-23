@@ -1,5 +1,23 @@
-;; (@import "cora/lib/let-loop")
-;; (@import "cora/lib/sys")
+(@import "cora/lib/let-loop")
+(@import "cora/lib/sys")
+
+(set 'set (set))
+(set 'car (car))
+(set 'cdr (cdr))
+(set 'cons (cons))
+(set 'cons (cons))
+(set '+ (+))
+(set '- (-))
+(set '* (*))
+(set '/ (/))
+(set '= (=))
+(set '> (>))
+(set '< (<))
+(set 'gensym (gensym))
+(set 'symbol? (symbol?))
+(set 'not (not))
+(set 'integer? (integer?))
+(set 'string? (string?))
 
 (defun inspect (env k stacks)
   (let-loop recur (ignore 1)
@@ -17,28 +35,9 @@
 				(display res)
 				(recur ())))))))))
 
-(set '.*prefix* (gensym 'ns-))
-
-(defun .with-prefix (prefix sym)
-  (intern (string-append (symbol->string prefix)
-			  (symbol->string sym))))
-
-(defun .global-set (sym val)
-  (set (.with-prefix .*prefix* sym) val))
-
-(defun .global-get (sym)
-  (value (.with-prefix .*prefix* sym))) 
-
 (func .env-extend
      [] [] env => env
      [p . ps] [a . as] env => (.env-extend ps as [[p . a] . env]))
-
-(.global-set '+ (lambda (x y) (+ x y)))
-(.global-set '- (-))
-(.global-set '* (*))
-(.global-set '= (=))
-(.global-set 'set .global-set)
-
 
 (set '*return-addr* ())
 
@@ -55,7 +54,7 @@
       exp env k _ => (k exp) where (or (number? exp) (string? exp) (boolean? exp))
       exp env k _ => (let find (assq exp env)
 			  (if (null? find)
-			      (k (.global-get exp))
+			      (k (value exp))
 			      (k (cdr find))))
       where (symbol? exp)
       ['quote x] env k _ => (k x)
@@ -66,6 +65,8 @@
 						    (eval y env k stacks)
 						    (eval z env k stacks))) stacks)
       ['lambda args body] env k _ => (k ['lambda args body . env])
+      ['let var val body] env k stacks => (eval val env (lambda (val1)
+							  (eval body (cons [var . val1] env) k stacks)) stacks)
       ['try exp ['lambda params body]] env k stacks => (begin
 							(.save-k (lambda (v resume)
 								   (let nenv (.env-extend params [v resume] env)

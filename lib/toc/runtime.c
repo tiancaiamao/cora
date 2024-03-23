@@ -163,7 +163,7 @@ Obj stackRef(struct Cora *co, int idx) {
   return co->stack[co->base + idx];
 }
 
-const int INIT_STACK_SIZE = 1000;
+const int INIT_STACK_SIZE = 2000;
 
 struct Cora* coraNew() {
   struct Cora *co = malloc(sizeof(struct Cora));
@@ -183,7 +183,7 @@ struct Cora* coraNew() {
 
 void id(struct Cora *co) {
   co->pc = NULL;
-  printObj(stdout, co->args[1]);
+  /* printObj(stdout, co->args[1]); */
 }
 
 void
@@ -212,6 +212,23 @@ Obj globalRef(Obj sym) {
 
 Obj primEQ(Obj x, Obj y) {
   return eq(x, y) ? True : False;
+}
+
+Obj primGT(Obj x, Obj y) {
+  return x > y ? True : False;
+}
+
+Obj primLT(Obj x, Obj y) {
+  return x < y ? True : False;
+}
+
+Obj primDiv(Obj x, Obj y) {
+  if (isfixnum(x) && isfixnum(y)) {
+    return makeNumber(x / y);
+  } else {
+    // TODO
+    assert(false);
+  }
 }
 
 Obj primAdd(Obj x, Obj y) {
@@ -288,6 +305,14 @@ Obj primGenSym(Obj arg) {
 
 Obj primIsSymbol(Obj x) {
   if (issymbol(x)) {
+    return True;
+  } else {
+    return False;
+  }
+}
+
+Obj primIsNumber(Obj x) {
+  if (isNumber(x)) {
     return True;
   } else {
     return False;
@@ -484,6 +509,7 @@ builtinApply(struct Cora *co) {
 }
 
 int main(int argc, char *argv) {
+  symQuote = intern("quote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
   primSet(intern("intern"), makeNative(builtinIntern, 1, 0));
@@ -494,40 +520,49 @@ int main(int argc, char *argv) {
   /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
     
   struct Cora* co = coraNew();
-  /* trampoline(co, entry_init); */
-  /* trampoline(co, entry_let_loop); */
-  /* trampoline(co, entry_sys); */
+  trampoline(co, entry_init);
+  trampoline(co, entry_let_loop);
+  trampoline(co, entry_sys);
   trampoline(co, entry);
 
-  return 0;
+  /* return 0; */
 
 
-  /* struct SexpReader r = {.pkgMapping = Nil}; */
-  /* int errCode = 0; */
+  struct SexpReader r = {.pkgMapping = Nil};
+  int errCode = 0;
 
-  /* for (int i=0; ; i++) { */
-  /*   printf("%d #> ", i); */
+  for (int i=0; ; i++) {
+    printf("%d #> ", i);
 
-  /*   Obj exp = sexpRead(&r, stdin, &errCode); */
-  /*   if (errCode != 0) { */
-  /*     break; */
-  /*   } */
+    Obj exp = sexpRead(&r, stdin, &errCode);
+    if (errCode != 0) {
+      break;
+    }
 
-  /*   /\* printf("before macro expand =="); *\/ */
-  /*   /\* sexpWrite(stdout, exp); *\/ */
+    printf("before macro expand ==");
+    sexpWrite(stdout, exp);
+    printf("\n");
 
-  /*   /\* exp = macroExpand(vm, pos, exp); *\/ */
+    co->args[0] = globalRef(intern("macroexpand"));
+    co->args[1] = exp;
+    co->nargs = 2;
+    trampoline(co, coraCall);
+    exp = co->args[1];
 
-  /*   /\* printf("after macro expand =="); *\/ */
-  /*   /\* sexpWrite(stdout, exp); *\/ */
-  /*   /\* printf("\n"); *\/ */
 
-  /*   co->args[0] = globalRef(intern("eval0")); */
-  /*   co->args[1] = exp; */
-  /*   co->nargs = 2; */
-  /*   trampoline(co, coraCall); */
+    /* exp = macroExpand(vm, pos, exp); */
 
-  /*   sexpWrite(stdout, co->args[1]); */
-  /*   printf("\n"); */
-  /* } */
+    printf("after macro expand ==");
+    sexpWrite(stdout, exp);
+    printf(" --- %d %d\n", co->base, co->pos);
+    printf("\n");
+
+    co->args[0] = globalRef(intern("eval0"));
+    co->args[1] = exp;
+    co->nargs = 2;
+    trampoline(co, coraCall);
+
+    sexpWrite(stdout, co->args[1]);
+    printf("\n");
+  }
 }

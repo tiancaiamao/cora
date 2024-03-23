@@ -24,7 +24,8 @@ void builtinStringLength(struct VM *vm);
 void builtinReadFileAsSexp(struct VM *vm);
 void writeSexpToFile(struct VM *vm);
 
-void builtinValue(void *pc, Obj val, struct VM *vm, int pos);
-void builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos);
+void builtinValue(struct VM *vm);
+void builtinApply(struct VM *vm);
+/* void builtinReadSexp(void *pc, Obj val, struct VM *vm, int pos); */
 
 #endif

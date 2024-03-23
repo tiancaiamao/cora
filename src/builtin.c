@@ -47,17 +47,36 @@ builtinStringAppend(struct VM *vm) {
   vmReturn(vm, val);
 }
 
-/* void */
-/* builtinValue(void *pc, Obj val, struct VM *vm, int pos) { */
-/*   Obj sym = vmGet(vm, 1); */
-/*   struct trieNode* s = ptr(sym); */
-/*   Obj ret = s->value; */
-/*   if (ret == Undef) { */
-/*     printf("undefined value: %s\n", s->sym); */
-/*     assert(false); */
-/*   } */
-/*   vmReturn(vm, ret); */
-/* } */
+void
+builtinValue(struct VM *vm) {
+  Obj sym = vmGet(vm, 1);
+  struct trieNode* s = ptr(sym);
+  Obj ret = s->value;
+  if (ret == Undef) {
+    printf("undefined value: %s\n", s->sym);
+    assert(false);
+  }
+  vmReturn(vm, ret);
+}
+
+extern void makeTheCall(struct VM *vm);
+void
+builtinApply(struct VM *vm) {
+  // Adjust the order
+  // From [apply fn (args0 args1 ...)]
+  // To [fn args0 args1 ...]
+  Obj args = vmPop(vm);
+  Obj fn = vmPop(vm);
+  Obj apply = vmPop(vm);  // ignore
+  vmPush(vm, fn);
+  while(args != Nil) {
+    Obj cur = car(args);
+    vmPush(vm, cur);
+    args = cdr(args);
+  }
+  
+  vm->pc = makeTheCall;
+}
 
 void
 primLoad(struct VM *vm, str path, str pkg) {

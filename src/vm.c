@@ -68,7 +68,7 @@ opGlobalRef(struct VM *vm, Obj sym) {
   vm->stack[vm->pos++] = val;
 }
 
-static void makeTheCall(struct VM *vm);
+void makeTheCall(struct VM *vm);
 void opExit(struct VM *vm);
 
 const int INIT_STACK_SIZE = 4096;
@@ -104,7 +104,7 @@ trampoline(struct VM *vm, nativeFn pc) {
   }
 }
 
-static void
+void
 makeTheCall(struct VM *vm) {
   Obj fn = vm->stack[vm->base];
   int required = closureRequired(fn) + 1;
@@ -670,6 +670,8 @@ static struct registerModule coraModule = {
     {"intern", builtinIntern, 1},
     {"string-append", builtinStringAppend, 2},
     {"string-length", builtinStringLength, 1},
+    {"value", builtinValue, 1},
+    {"apply", builtinApply, 2},
   }
 };
 

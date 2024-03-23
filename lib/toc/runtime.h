@@ -66,6 +66,8 @@ Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);
 
 Obj primEQ(Obj x, Obj y);
+Obj primLT(Obj x, Obj y);
+Obj primGT(Obj x, Obj y);
 Obj primAdd(Obj x, Obj y);
 Obj primCons(Obj x, Obj y);
 Obj primNot(Obj x);
@@ -75,9 +77,11 @@ Obj primIsCons(Obj x);
 Obj primSet(Obj key, Obj val);
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
+Obj primDiv(Obj x, Obj y);
 Obj primGenSym(Obj arg);
 Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
+Obj primIsNumber(Obj x);
 
 
 void id(struct Cora *co);
