@@ -2,7 +2,7 @@
 
 void
 /* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
-saveStack(struct callStack *cs, basicBlock pc, int base, Obj *frees) {
+saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
     void *newData = malloc(cs->cap*sizeof(struct returnAddr));
@@ -14,28 +14,28 @@ saveStack(struct callStack *cs, basicBlock pc, int base, Obj *frees) {
   struct returnAddr *addr = &cs->data[cs->len];
   addr->pc = pc;
   addr->base = base;
-  /* addr->pos = pos; */
+  addr->pos = pos;
   /* addr->stack = stack; */
   addr->frees = frees;
   cs->len++;
   return;
 }
 
-void pushCont(struct Cora *co, basicBlock cb) {
+void pushCont(struct Cora *co, basicBlock cb, int nstack) {
   /* saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees); */
   /* saveStack(&co->callstack, cb, co->stack, co->frees); */
-  saveStack(&co->callstack, cb, co->pos, co->frees);
+  saveStack(&co->callstack, cb, co->pos, co->pos + nstack, co->frees);
 }
 
 void
 /* popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) { */
-popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **stack, Obj **frees) {
+popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) {
 /* popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **frees) { */
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
   *base = addr->base;
-  /* *pos = addr->pos; */
+  *pos = addr->pos;
   /* *stack = addr->stack; */
   *frees = addr->frees;
   return;
@@ -130,8 +130,8 @@ void coraCall(struct Cora *co) {
     Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
     co->nargs = 0;
     co->args[1] = ret;
-    /* popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees); */
-    popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    /* popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees); */
   } else {
     // save the extra args.
     int cnt = co->nargs - (required+1);
@@ -163,7 +163,7 @@ Obj stackRef(struct Cora *co, int idx) {
   return co->stack[co->base + idx];
 }
 
-const int INIT_STACK_SIZE = 2000;
+const int INIT_STACK_SIZE = 5000;
 
 struct Cora* coraNew() {
   struct Cora *co = malloc(sizeof(struct Cora));
@@ -181,14 +181,15 @@ struct Cora* coraNew() {
   return co;
 }
 
-void id(struct Cora *co) {
+void
+id(struct Cora *co) {
   co->pc = NULL;
-  /* printObj(stdout, co->args[1]); */
+  printObj(stdout, co->args[1]);
 }
 
 void
 trampoline(struct Cora *co, basicBlock pc) {
-  saveStack(&co->callstack, id, co->pos, co->frees); 
+  saveStack(&co->callstack, id, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
     co->pc(co);
@@ -332,7 +333,7 @@ void symbolToString(struct Cora *co) {
   char* str = symbolStr(sym);
   Obj val = makeString1(str);
   co->args[1] = val;
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
@@ -347,7 +348,7 @@ stringAppend(struct Cora *co) {
   tmp = strCat(tmp, toStr(y));
   Obj val = makeString1(toCStr(tmp));
   co->args[1] = val;
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
@@ -409,7 +410,7 @@ continuationAsClosure(struct Cora *co) {
       assert(false); // TODO?
     }
   }
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 /* void */
@@ -456,7 +457,7 @@ builtinIntern(struct Cora *co) {
   assert(isstring(x));
   Obj val = intern(toCStr(stringStr(x)));
   co->args[1] = val;
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 void
@@ -464,19 +465,19 @@ builtinIsNumber(struct Cora *co) {
   Obj x = co->args[1];
   if (isfixnum(x)) {
     co->args[1] = True;
-    popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
   }
   if (tag(x) == TAG_PTR) {
     scmHead* h = ptr(x);
     if (h->type == scmHeadNumber) {
       co->args[1] = True;
-      popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+      popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
       return;
     }
   }
   co->args[1] = False;
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 void
@@ -489,7 +490,7 @@ builtinValue(struct Cora *co) {
     assert(false);
   }
   co->args[1] = ret;
-  popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 void

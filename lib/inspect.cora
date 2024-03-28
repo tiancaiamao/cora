@@ -1,5 +1,5 @@
-(@import "cora/lib/let-loop")
-(@import "cora/lib/sys")
+;; (@import "cora/lib/let-loop")
+;; (@import "cora/lib/sys")
 
 (set 'set (set))
 (set 'car (car))
@@ -36,8 +36,12 @@
 				(recur ())))))))))
 
 (func .env-extend
-     [] [] env => env
-     [p . ps] [a . as] env => (.env-extend ps as [[p . a] . env]))
+      [] [] env => env
+      [p . ps] [a . as] env => (.env-extend ps as [[p . a] . env]))
+
+(func .env-extend-k
+      [p . ps] [a . as] env k => (.env-extend-k ps as [[p . a] . env] k)
+      params args env k => (k params args env))
 
 (set '*return-addr* ())
 
@@ -51,11 +55,11 @@
   (set '*return-addr* (cons k *return-addr*)))
 
 (func eval
-      exp env k _ => (k exp) where (or (number? exp) (string? exp) (boolean? exp))
+      exp env k _ => (k exp) where (or (number? exp) (string? exp) (boolean? exp) (null? exp))
       exp env k _ => (let find (assq exp env)
-			  (if (null? find)
-			      (k (value exp))
-			      (k (cdr find))))
+		       (if (null? find)
+			   (k (value exp))
+			   (k (cdr find))))
       where (symbol? exp)
       ['quote x] env k _ => (k x)
       ['do x y] env k stacks => (eval x env (lambda (_)
@@ -64,26 +68,37 @@
 						(if x1
 						    (eval y env k stacks)
 						    (eval z env k stacks))) stacks)
-      ['lambda args body] env k _ => (k ['lambda args body . env])
+      ['lambda args body . more] env k _ => (k ['lambda args body . (append more env)])
       ['let var val body] env k stacks => (eval val env (lambda (val1)
 							  (eval body (cons [var . val1] env) k stacks)) stacks)
       ['try exp ['lambda params body]] env k stacks => (begin
-							(.save-k (lambda (v resume)
-								   (let nenv (.env-extend params [v resume] env)
-									(eval body nenv k stacks))))
-							(eval (cons exp ()) env k stacks))
+							 (.save-k (lambda (v resume)
+								    (let nenv (.env-extend params [v resume] env)
+								      (eval body nenv k stacks))))
+							 (eval (cons exp ()) env k stacks))
       ['throw x] env k stacks => (let k1 (.pop-k)
-				      (eval x env (lambda (vx)
-						    (k1 vx k)) stacks))
+				   (eval x env (lambda (vx)
+						 (k1 vx k)) stacks))
       ['inspect] env k stacks => (inspect env k stacks)
       [f . args] env k stacks => (eval f env (lambda (f1)
 					       (eval-list [] args env
 							  (lambda (vargs)
 							    (match f1
-								   ['lambda params body . cenv]
-								   (let nenv (.env-extend params vargs cenv)
-									(eval body nenv k (cons f stacks)))
-								   host-fn (k (apply host-fn vargs))))
+							      ['lambda params body . cenv]
+							      ;; (eval body (.env-extend params vargs cenv) k (cons f stacks))
+							      (.env-extend-k params vargs cenv
+									     (lambda (params1 vargs1 nenv)
+									       (cond
+										((and (null? params1) (null? vargs1))
+										 (eval body nenv k (cons f stacks)))
+										((null? vargs1)
+										 (k ['lambda params1 body . nenv]))
+										((null? params1)
+										 (eval body nenv
+										       (lambda (v)
+											 (eval (cons v vargs1) () k stacks))
+										       stacks)))))
+							      host-fn (k (apply host-fn vargs))))
 							  stacks)
 					       ) stacks))
 

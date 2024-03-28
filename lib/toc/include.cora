@@ -267,8 +267,8 @@
       env w ['return x] => (begin
 			    (c.generate-str w "co->args[1] = ")
 			    (.generate-inst env w x)
-			    ;; (c.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);")
-			    (c.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);")
+			    (c.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);")
+			    ;; (c.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees);")
 			    (c.generate-str w "\nreturn;\n"))
       env w ['tailcall exp] => (.generate-inst env w exp)
       env w ['call exp cont] => (begin
@@ -302,6 +302,8 @@
       w ['%continuation label . stacks] => (begin
 					    (c.generate-str w "pushCont(co, ")
 					    (c.generate-sym w label)
+					    (c.generate-str w ", ")
+					    (c.generate-num w (length stacks))
 					    (c.generate-str w ");\n")
 					    (if (not (null? stacks))
 						(for-each (lambda (x)
