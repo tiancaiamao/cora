@@ -58,14 +58,16 @@ basicBlock nativeFuncPtr(Obj o);
 Obj makeString1(char *x);
 
 void push(struct Cora *co, Obj v);
-void pushCont(struct Cora *co, basicBlock cb);
-/* void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees); */
-void popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **stack, Obj **frees);
+void pushCont(struct Cora *co, basicBlock cb, int nstack);
+void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees);
+/* void popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **stack, Obj **frees); */
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);
 
 Obj primEQ(Obj x, Obj y);
+Obj primLT(Obj x, Obj y);
+Obj primGT(Obj x, Obj y);
 Obj primAdd(Obj x, Obj y);
 Obj primCons(Obj x, Obj y);
 Obj primNot(Obj x);
@@ -75,9 +77,11 @@ Obj primIsCons(Obj x);
 Obj primSet(Obj key, Obj val);
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
+Obj primDiv(Obj x, Obj y);
 Obj primGenSym(Obj arg);
 Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
+Obj primIsNumber(Obj x);
 
 
 void id(struct Cora *co);
