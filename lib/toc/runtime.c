@@ -521,12 +521,12 @@ int main(int argc, char *argv) {
   /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
     
   struct Cora* co = coraNew();
-  trampoline(co, entry_init);
-  trampoline(co, entry_let_loop);
-  trampoline(co, entry_sys);
+  /* trampoline(co, entry_init); */
+  /* trampoline(co, entry_let_loop); */
+  /* trampoline(co, entry_sys); */
   trampoline(co, entry);
 
-  /* return 0; */
+  return 0;
 
 
   struct SexpReader r = {.pkgMapping = Nil};
