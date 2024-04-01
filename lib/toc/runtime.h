@@ -1,3 +1,6 @@
+#ifndef _RUNTIME_H
+#define _RUNTIME_H
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,12 +87,6 @@ Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
 
-void id(struct Cora *co);
+struct Cora* coraNew();
 
-
-
-void entry(struct Cora* co);
-void entry_init(struct Cora* co);
-void entry_sys(struct Cora* co);
-void entry_let_loop(struct Cora* co);
-
+#endif
