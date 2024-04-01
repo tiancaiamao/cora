@@ -172,24 +172,24 @@
 ;; [%closure (lambda ..) . frees] => [%closure Label . frees]
 ;; [%continuation (lambda ..) . stacks] => [%continuation Label . stacks]
 (func .collect-lambda
-      res [clo-or-cont ['lambda params body] . fvs] return =>
+      res [clo-or-cont ['lambda params body] . fvs] k =>
       (let name (gensym 'clofun)
 	   (.collect-lambda res body
 			    (lambda (res1 body1)
-			      (return (cons [name ['lambda params body1]] res1)
+			      (k (cons [name ['lambda params body1]] res1)
 				      (if (= clo-or-cont '%closure)
 					  [clo-or-cont name (length params) . fvs]
 					  [clo-or-cont name . fvs])))))
       where (or (= clo-or-cont '%closure)
 		(= clo-or-cont '%continuation))
-      res f-args return => (.collect-lambda-list [] res f-args return) where (cons? f-args)
-      res x return => (return res x))
+      res f-args k => (.collect-lambda-list [] res f-args k) where (cons? f-args)
+      res x k => (k res x))
 
 (func .collect-lambda-list
-      res init [] return => (return init (reverse res))
-      res init [x . y] return => (.collect-lambda init x
+      res init [] k => (k init (reverse res))
+      res init [x . y] k => (.collect-lambda init x
 						 (lambda (init1 x1)
-						   (.collect-lambda-list (cons x1 res) init1 y return))))
+						   (.collect-lambda-list (cons x1 res) init1 y k))))
 
 (defun .wrap-var (x k)
   (let tmp (gensym 'reg)
@@ -221,7 +221,7 @@
 					   (c.generate-str w ")")))
 			     ((string? x) (begin
 					   (c.generate-str w "makeString1(\"")
-					   (c.generate-str w x)
+					   (c.generate-str w (c.escape-str x))
 					   (c.generate-str w "\")")))
 			     ((= x ()) (c.generate-str w "Nil"))
 			     ((= x true) (c.generate-str w "True"))

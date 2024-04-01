@@ -1,4 +1,5 @@
 #include "runtime.h"
+#include <dlfcn.h>
 
 void
 /* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
@@ -165,7 +166,8 @@ Obj stackRef(struct Cora *co, int idx) {
 
 const int INIT_STACK_SIZE = 5000;
 
-struct Cora* coraNew() {
+struct Cora*
+coraNew() {
   struct Cora *co = malloc(sizeof(struct Cora));
   co->stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
   co->base = 0;
@@ -182,14 +184,8 @@ struct Cora* coraNew() {
 }
 
 void
-id(struct Cora *co) {
-  co->pc = NULL;
-  printObj(stdout, co->args[1]);
-}
-
-void
 trampoline(struct Cora *co, basicBlock pc) {
-  saveStack(&co->callstack, id, co->base, co->pos, co->frees); 
+  saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
     co->pc(co);
@@ -216,11 +212,15 @@ Obj primEQ(Obj x, Obj y) {
 }
 
 Obj primGT(Obj x, Obj y) {
-  return x > y ? True : False;
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  return fixnum(x) > fixnum(y) ? True : False;
 }
 
 Obj primLT(Obj x, Obj y) {
-  return x < y ? True : False;
+  assert(isfixnum(x));
+  assert(isfixnum(y));
+  return fixnum(x) < fixnum(y) ? True : False;
 }
 
 Obj primDiv(Obj x, Obj y) {
@@ -509,61 +509,245 @@ builtinApply(struct Cora *co) {
   co->pc = coraCall;
 }
 
+void
+builtinImport(struct Cora *co) {
+  // DUMMY now
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
+}
+
+void
+builtinLoadSo(struct Cora *co) {
+  // (load-so "file-path.so" "package-path")
+  Obj filePath = co->args[1];
+  strBuf str = stringStr(filePath);
+  char *path = toCStr(str);
+  void *handle = dlopen(path, RTLD_LAZY);
+  if (!handle) {
+    fprintf(stderr, "%s\n", dlerror());
+    co->args[1] = makeNumber(-1);
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    return;
+  }
+
+  basicBlock entry = dlsym(handle, "entry");
+  char *error = dlerror();
+  if (error != NULL) {
+    // TODO
+    co->args[1] = makeString(error, strlen(error));
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    return;
+  }
+
+  /* Call(1, makeNative(entry, 1, 0)); */
+  /* ctxReturn(ctx, path); */
+  trampoline(co, entry);
+}
+
+// ================ utilities for toc ==================
+
+static void
+builtinGenerateStr(struct Cora *co) {
+  Obj to = co->args[1];
+  FILE* out = mustCObj(to);
+  Obj exp = co->args[2];
+  strBuf s = stringStr(exp);
+  fprintf(out, "%s", toCStr(s));
+  co->args[1] = Nil;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinGenerateSym(struct Cora *co) {
+  Obj to = co->args[1];
+  FILE* out = mustCObj(to);
+  Obj exp = co->args[2];
+  const char* s = symbolStr(exp);
+  for (const char *p = s; *p != 0; p++) {
+    if ((*p >= 'a' && *p <= 'z') ||
+	(*p >= 'A' && *p <= 'Z') ||
+	(*p >= '0' && *p <= '9')) {
+      fprintf(out, "%c", *p);
+    } else if (*p == '_') {
+      fprintf(out, "__");
+    } else {
+      fprintf(out, "_%d", *p);
+    }
+  }
+  co->args[1] = Nil;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinGenerateNum(struct Cora *co) {
+  Obj to = co->args[1];
+  FILE* out = mustCObj(to);
+  Obj exp = co->args[2];
+  fprintf(out, "%ld", fixnum(exp));
+  co->args[1] = Nil;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinEscapeStr(struct Cora *co) {
+  Obj s = co->args[1];
+  strBuf buf = stringStr(s);
+  str str = toStr(buf);
+  strBuf dst = strNew(strLen(str));
+  
+  for (int i=0; i<strLen(str); i++) {
+    char c = str.str[i];
+    switch (c) {
+    case '"':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, '"');
+      break;
+    case '\n':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, 'n');
+      break;
+    case '\t':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, 't');
+      break;
+    default:
+      dst = strAppend(dst, c);
+    };
+  }
+  co->args[1] = makeString(toCStr(dst), strLen(toStr(dst)));
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinOpenOutputFile(struct Cora *co) {
+  Obj arg1 = co->args[1];
+  strBuf filePath = stringStr(arg1);
+  FILE* f = fopen(toCStr(filePath), "w");
+  co->args[1] = makeCObj(f);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinCloseOutputFile(struct Cora *co) {
+  Obj arg1 = co->args[1];
+  FILE *f = mustCObj(arg1);
+  int errno = fclose(f);
+  co->args[1] = makeNumber(errno);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+void
+builtinReadFileAsSexp(struct Cora *co) {
+  Obj arg = co->args[1];
+  assert(isstring(arg));
+  char* fileName = toCStr(stringStr(arg));
+  FILE* f = fopen(fileName, "r");
+  if (f == NULL) {
+    printf("open file fail %s\n", fileName);
+    goto exit0;
+  }
+
+  Obj pkg = co->args[2];
+  char *selfPath = toCStr(stringStr(pkg));
+  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
+  int err = 0;
+  Obj result = Nil;
+  int count = 0;
+  while(true) {
+    Obj ast = sexpRead(&r, f, &err);
+    if (err != 0) {
+      break;
+    }
+    result = cons(ast, result);
+    count++;
+  }
+  if (count > 1) {
+    result = reverse(result);
+    result = cons(makeSymbol("begin"), result);
+  } else {
+    result = car(result);
+  }
+  fclose(f);
+
+ exit0:
+  co->args[1] = result;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static strBuf
+cmdListStr(Obj args) {
+  strBuf cmd = strNew(64);
+  while(args != Nil) {
+    Obj tmp = car(args);
+    strBuf s = stringStr(tmp);
+    cmd = strCat(cmd, toStr(s));
+    cmd = strCat(cmd, cstr(" "));
+    args = cdr(args);
+  }
+  return cmd;
+}
+
+static void
+builtinOSExec(struct Cora *co) {
+  Obj args = co->args[1];
+  strBuf cmd = cmdListStr(args);
+  int exitCode = system(toCStr(cmd));
+  co->args[1] = makeNumber(exitCode);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
+}
+
+// ============ end utilities for toc =================
+
+void
+coraInit() {
+  symQuote = intern("quote");
+  primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
+  primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
+  primSet(intern("intern"), makeNative(builtinIntern, 1, 0));
+  primSet(intern("number?"), makeNative(builtinIsNumber, 1, 0));
+  primSet(intern("read-file-as-sexp"), makeNative(builtinReadFileAsSexp, 2, 0));
+  primSet(intern("value"), makeNative(builtinValue, 1, 0));
+  primSet(intern("apply"), makeNative(builtinApply, 2, 0));
+  primSet(intern("load-so"), makeNative(builtinLoadSo, 2, 0));
+  primSet(intern("import"), makeNative(builtinImport, 1, 0));
+  /* primSet(intern("try"), makeNative(builtinTryCatch, 2, 0)); */
+  /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
+
+  primSet(intern("cora/lib/toc/internal.generate-str"), makeNative(builtinGenerateStr, 2, 0));
+  primSet(intern("cora/lib/toc/internal.generate-sym"), makeNative(builtinGenerateSym, 2, 0));
+  primSet(intern("cora/lib/toc/internal.generate-num"), makeNative(builtinGenerateNum, 2, 0));
+  primSet(intern("cora/lib/toc/internal.escape-str"), makeNative(builtinEscapeStr, 1, 0));
+
+  primSet(intern("cora/lib/io.open-output-file"), makeNative(builtinOpenOutputFile, 1, 0));
+  primSet(intern("cora/lib/io.close-output-file"), makeNative(builtinCloseOutputFile, 1, 0));
+
+  primSet(intern("cora/lib/os.exec"), makeNative(builtinOSExec, 1, 0));
+}
+
+#ifdef ForTest
+
+extern void entry(struct Cora* co);
+
 int main(int argc, char *argv) {
   symQuote = intern("quote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
   primSet(intern("intern"), makeNative(builtinIntern, 1, 0));
   primSet(intern("number?"), makeNative(builtinIsNumber, 1, 0));
+  primSet(intern("read-file-as-sexp"), makeNative(builtinReadFileAsSexp, 2, 0));
   primSet(intern("value"), makeNative(builtinValue, 1, 0));
   primSet(intern("apply"), makeNative(builtinApply, 2, 0));
+  primSet(intern("load-so"), makeNative(builtinLoadSo, 2, 0));
+  primSet(intern("import"), makeNative(builtinImport, 1, 0));
   /* primSet(intern("try"), makeNative(builtinTryCatch, 2, 0)); */
   /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
     
   struct Cora* co = coraNew();
-  /* trampoline(co, entry_init); */
-  /* trampoline(co, entry_let_loop); */
-  /* trampoline(co, entry_sys); */
   trampoline(co, entry);
+  printObj(stdout, co->args[1]);
 
   return 0;
-
-
-  struct SexpReader r = {.pkgMapping = Nil};
-  int errCode = 0;
-
-  for (int i=0; ; i++) {
-    printf("%d #> ", i);
-
-    Obj exp = sexpRead(&r, stdin, &errCode);
-    if (errCode != 0) {
-      break;
-    }
-
-    printf("before macro expand ==");
-    sexpWrite(stdout, exp);
-    printf("\n");
-
-    co->args[0] = globalRef(intern("macroexpand"));
-    co->args[1] = exp;
-    co->nargs = 2;
-    trampoline(co, coraCall);
-    exp = co->args[1];
-
-
-    /* exp = macroExpand(vm, pos, exp); */
-
-    printf("after macro expand ==");
-    sexpWrite(stdout, exp);
-    printf(" --- %d %d\n", co->base, co->pos);
-    printf("\n");
-
-    co->args[0] = globalRef(intern("eval0"));
-    co->args[1] = exp;
-    co->nargs = 2;
-    trampoline(co, coraCall);
-
-    sexpWrite(stdout, co->args[1]);
-    printf("\n");
-  }
 }
+
+#endif

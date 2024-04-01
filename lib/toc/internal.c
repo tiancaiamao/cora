@@ -40,6 +40,34 @@ builtinGenerateNum(struct VM *vm) {
   vmReturn(vm, Nil);
 }
 
+static void
+builtinEscapeStr(struct VM *vm) {
+  Obj s = vmGet(vm, 1);
+  strBuf buf = stringStr(s);
+  str str = toStr(buf);
+  strBuf dst = strNew(strLen(str));
+  
+  for (int i=0; i<strLen(str); i++) {
+    char c = str.str[i];
+    switch (c) {
+    case '"':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, '"');
+      break;
+    case '\n':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, 'n');
+      break;
+    case '\t':
+      dst = strAppend(dst, '\\');
+      dst = strAppend(dst, 't');
+      break;
+    default:
+      dst = strAppend(dst, c);
+    };
+  }
+  vmReturn(vm, makeString(toCStr(dst), strLen(toStr(dst))));
+}
 
 static struct registerModule codeGenModule = {
   NULL,
@@ -47,6 +75,7 @@ static struct registerModule codeGenModule = {
     {"generate-str", builtinGenerateStr, 2},
     {"generate-sym", builtinGenerateSym, 2},
     {"generate-num", builtinGenerateNum, 2},
+    {"escape-str", builtinEscapeStr, 1},
     {NULL, NULL, 0}
   }
 };
