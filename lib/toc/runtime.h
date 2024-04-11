@@ -61,7 +61,7 @@ basicBlock nativeFuncPtr(Obj o);
 Obj makeString1(char *x);
 
 void push(struct Cora *co, Obj v);
-void pushCont(struct Cora *co, basicBlock cb, int nstack);
+void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
 void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees);
 /* void popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **stack, Obj **frees); */
 Obj globalRef(Obj sym);

@@ -13,7 +13,7 @@ int main(int argc, char *argv) {
   co->nargs = 3;
   trampoline(co, builtinLoadSo);
   
-  co->args[1] = makeString1("./eval0.so");
+  co->args[1] = makeString1("./toc.so");
   co->args[2] = makeString1("");
   co->nargs = 3;
   trampoline(co, builtinLoadSo);
@@ -44,7 +44,7 @@ int main(int argc, char *argv) {
     printf(" --- %d %d\n", co->base, co->pos);
     printf("\n");
 
-    co->args[0] = globalRef(intern("eval0"));
+    co->args[0] = globalRef(intern("cora/lib/toc/include.eval0"));
     co->args[1] = exp;
     co->nargs = 2;
     trampoline(co, coraCall);
