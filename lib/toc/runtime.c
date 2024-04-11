@@ -1,5 +1,6 @@
 #include "runtime.h"
 #include <dlfcn.h>
+#include <stdio.h>
 
 void
 /* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
@@ -559,6 +560,46 @@ builtinLoadSo(struct Cora *co) {
   trampoline(co, entry);
 }
 
+static int unique = 1;
+
+void
+builtinLoad(struct Cora *co) {
+  // (load "file-path.cora" "package-path")
+  Obj filePath = co->args[1];
+  Obj pkg = co->args[2];
+
+  co->args[0] = globalRef(intern("cora/lib/toc/include.compile-to-c"));
+  co->args[1] = filePath;
+
+  const int BUFSIZE = 512;
+  char buf[BUFSIZE];
+  snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", unique);
+  str tmpCFile = cstr(buf);
+  co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
+  co->args[3] = pkg;
+  co->nargs = 4;
+  trampoline(co, coraCall);
+  Obj res = co->args[1];
+
+  snprintf(buf, BUFSIZE, "gcc -shared -Ilib/toc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl", unique, unique);
+  int exitCode = system(buf);
+  if (exitCode == 0) {
+    /* co->args[0] = globalRef(intern("load-so"));  */
+    snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", unique);
+    unique++;
+    str tmpSoFile = cstr(buf);
+    co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
+    co->args[2] = pkg;
+    co->nargs = 3;
+    co->pc = builtinLoadSo;
+    return;
+  }
+
+  unique++;
+  co->args[1] = makeNumber(exitCode);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
 // ================ utilities for toc ==================
 
 static void
@@ -726,6 +767,7 @@ coraInit() {
   primSet(intern("apply"), makeNative(builtinApply, 2, 0));
   primSet(intern("load-so"), makeNative(builtinLoadSo, 2, 0));
   primSet(intern("import"), makeNative(builtinImport, 1, 0));
+  primSet(intern("load"), makeNative(builtinLoad, 2, 0));
   /* primSet(intern("try"), makeNative(builtinTryCatch, 2, 0)); */
   /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
 
