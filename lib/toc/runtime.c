@@ -22,10 +22,25 @@ saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
   return;
 }
 
-void pushCont(struct Cora *co, basicBlock cb, int nstack) {
+void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
   /* saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees); */
   /* saveStack(&co->callstack, cb, co->stack, co->frees); */
-  saveStack(&co->callstack, cb, co->pos, co->pos + nstack, co->frees);
+  /* saveStack(&co->callstack, cb, co->pos, co->pos + nstack, co->frees); */
+  saveStack(&co->callstack, cb, co->base, co->base + nstack, co->frees);
+  if (nstack > 0) {
+    va_list ap;
+    va_start(ap, nstack);
+    for (int i=0; i<nstack; i++) {
+      co->stack[co->base + i] = va_arg(ap, Obj);
+    }
+    if (co->base + nstack > co->pos) {
+      co->pos = co->base + nstack;
+    }
+    va_end(ap);
+  }
+
+  assert(co->pos >= co->base);
+  co->base = co->pos;
 }
 
 void

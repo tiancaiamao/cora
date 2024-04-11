@@ -154,10 +154,7 @@
 ;; (continuation (val) body) => (continuation (lambda (vm val) body) . stacks)
 (func .explicit-stack
       _ x => x where (.convert-protect? x)
-      fvs var => (let pos (.index var fvs)
-		      (if (= -1 pos)
-			  var
-			  ['%stack-ref pos])) where (symbol? var)
+      fvs var => var where (symbol? var)
       ;; fvs ['do x y] => (cons 'do (map (.explicit-stack fvs) [x y]))
       ;; fvs ['if a b c] => (cons 'if (map (.explicit-stack fvs) [a b c]))
       ;; fvs ['let a b c] => ['let a (.explicit-stack fvs b) (.explicit-stack fvs c)]
@@ -176,10 +173,9 @@
       (let name (gensym 'clofun)
 	   (.collect-lambda res body
 			    (lambda (res1 body1)
-			      (k (cons [name ['lambda params body1]] res1)
-				      (if (= clo-or-cont '%closure)
-					  [clo-or-cont name (length params) . fvs]
-					  [clo-or-cont name . fvs])))))
+			      (if (= clo-or-cont '%closure)
+				  (k (cons [name ['lambda params () body1]] res1) [clo-or-cont name (length params) . fvs])
+				  (k (cons [name ['lambda params fvs body1]] res1) [clo-or-cont name . fvs])))))
       where (or (= clo-or-cont '%closure)
 		(= clo-or-cont '%continuation))
       res f-args k => (.collect-lambda-list [] res f-args k) where (cons? f-args)
@@ -304,15 +300,14 @@
 					    (c.generate-sym w label)
 					    (c.generate-str w ", ")
 					    (c.generate-num w (length stacks))
-					    (c.generate-str w ");\n")
 					    (if (not (null? stacks))
 						(for-each (lambda (x)
 							    (begin
-							     (c.generate-str w "push(co, ")
-							     (.generate-inst () w x)
-							     (c.generate-str w ");\n")))
+							     (c.generate-str w ", ")
+							     (.generate-inst () w x)))
 							  stacks)
-						())))
+						())
+					    (c.generate-str w ");\n")))
 
 (func .generate-inst-list-h
       env fn w [] => ()
@@ -332,7 +327,7 @@
 ;; 				(.generate-inst env w x)))
 ;; 			 w l))
 
-(defun .code-gen-func-declare (w name params)
+(defun .code-gen-func-declare (w name)
   (begin
    (c.generate-str w "void ")
    (c.generate-sym w name)
@@ -340,22 +335,23 @@
    (c.generate-str w ")")))
 
 (func .generate-call-args-reverse
-      env w idx [] => ()
-      env w idx [a . b] => (begin
-			    (c.generate-str w "Obj ")
-			    (.generate-inst env w a)
-			    (c.generate-str w " = co->args[")
-			    (c.generate-num w idx)
-			    (c.generate-str w "];\n")
-			    (.generate-call-args-reverse env w (+ idx 1) b)))
+      env w dest-str idx [] => ()
+      env w dest-str idx [a . b] => (begin
+				     (c.generate-str w "Obj ")
+				     (.generate-inst env w a)
+				     (c.generate-str w dest-str)
+				     (c.generate-num w idx)
+				     (c.generate-str w "];\n")
+				     (.generate-call-args-reverse env w dest-str (+ idx 1) b)))
 
 (func .code-gen-toplevel
-      w [name ['lambda params body]] => (begin
-					 (.code-gen-func-declare w name params)
-					 (c.generate-str w " {\n")
-					 (.generate-call-args-reverse () w 1 params)
-					 (.generate-inst params w body)
-					 (c.generate-str w "}\n\n")))
+      w [name ['lambda params actives body]] => (begin
+						(.code-gen-func-declare w name)
+						(c.generate-str w " {\n")
+						(.generate-call-args-reverse () w " = co->args[" 1 params)
+						(.generate-call-args-reverse () w " = co->stack[co->base + " 0 actives)
+						(.generate-inst params w body)
+						(c.generate-str w "}\n\n")))
 
 (defun .parse-pass (exp)
   (.parse [] exp))
@@ -372,7 +368,7 @@
 (defun .collect-lambda-pass (exp)
   (.collect-lambda [] exp
 		   (lambda (ls e1)
-		     (cons ['entry ['lambda () e1]] ls))))
+		     (cons ['entry ['lambda () () e1]] ls))))
 
 
 (func .rewrite-->macro
@@ -403,9 +399,9 @@
    (c.generate-str to "#include \"src/types.h\"\n")
    (c.generate-str to "#include \"runtime.h\"\n\n")
    (for-each (lambda (x)
-	       ;; x is [label (lambda args body)]
+	       ;; x is [label (lambda params active body)]
 	       (begin
-		(.code-gen-func-declare to (car x) (cadr (cadr x)))
+		(.code-gen-func-declare to (car x))
 		(c.generate-str to ";\n"))) bc)
    (c.generate-str to "\n")
    (for-each (lambda (x) (.code-gen-toplevel to x)) bc)))
@@ -418,3 +414,33 @@
 		      (begin
 		       (.generate-c stream bc)
 		       (io.close-output-file stream)))))))
+
+
+;; ============== utilities of eval0 ==========
+
+(set 'set (set))
+(set 'car (car))
+(set 'cdr (cdr))
+(set 'cons (cons))
+(set 'cons (cons))
+(set '+ (+))
+(set '- (-))
+(set '* (*))
+(set '/ (/))
+(set '= (=))
+(set '> (>))
+(set '< (<))
+(set 'gensym (gensym))
+(set 'symbol? (symbol?))
+(set 'not (not))
+(set 'string? (string?))
+
+(defun .eval0 (exp)
+  (cond
+    ((symbol? exp) (value exp))
+    ((or (number? exp) (string? exp) (boolean? exp) (null? exp))
+     exp)
+    ((cons? exp)
+     (if (= (car exp) 'quote)
+	 (cadr exp)
+	 (apply (.eval0 (car exp)) (map .eval0 (cdr exp)))))))
