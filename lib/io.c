@@ -1,33 +1,38 @@
 #include <stdio.h>
-#include "vm.h"
+#include "runtime.h"
 #include "str.h"
 
 static void
-builtinDisplay(struct VM *vm) {
-  Obj arg = vmGet(vm, 1);
+builtinDisplay(struct Cora *co) {
+  Obj arg = co->args[1];
   sexpWrite(stdout, arg);
-  vmReturn(vm, Nil);
+  co->args[1] = Nil;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 static void
-builtinOpenOutputFile(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
+builtinOpenOutputFile(struct Cora *co) {
+  Obj arg1 = co->args[1];
   strBuf filePath = stringStr(arg1);
   FILE* f = fopen(toCStr(filePath), "w");
-  vmReturn(vm, makeCObj(f));
+
+  co->args[1] = makeCObj(f);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 static void
-builtinCloseOutputFile(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
+builtinCloseOutputFile(struct Cora *co) {
+  Obj arg1 = co->args[1];
   FILE *f = mustCObj(arg1);
   int errno = fclose(f);
-  vmReturn(vm, makeNumber(errno));
+
+  co->args[1] = makeNumber(errno);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 static void
-ioReadAll(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
+ioReadAll(struct Cora *co) {
+  Obj arg1 = co->args[1];
   FILE *f = mustCObj(arg1);
 
   const int BATCH_SIZE = 64;
@@ -41,13 +46,15 @@ ioReadAll(struct VM *vm) {
       break;
     }
   }
-  vmReturn(vm, makeString(toCStr(dest), strLen(toStr(dest))));
+  Obj ret = makeString(toCStr(dest), strLen(toStr(dest)));
+  co->args[1] = ret;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 static void
-ioCopy(struct VM *vm) {
-  Obj from1 = vmGet(vm, 1);
-  Obj to1 = vmGet(vm, 2);
+ioCopy(struct Cora *co) {
+  Obj from1 = co->args[1];
+  Obj to1 = co->args[2];
   FILE *from = mustCObj(from1);
   FILE *to = mustCObj(to1);
 
@@ -60,7 +67,8 @@ ioCopy(struct VM *vm) {
       break;
     }
   }
-  vmReturn(vm, feof(from));
+  co->args[1] = feof(from);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 struct registerModule ioModule = {
@@ -76,8 +84,9 @@ struct registerModule ioModule = {
 };
 
 void
-__entry(struct VM *vm) {
-  Obj pkg = vmGet(vm, 2);
+entry(struct Cora *co) {
+  Obj pkg = co->args[2];
   registerAPI(&ioModule, toStr(stringStr(pkg)));
-  return vmReturn(vm, intern("io"));
+  co->args[1] = intern("io");
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }

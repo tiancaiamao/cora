@@ -5,6 +5,7 @@ BASE_DIR=$(dirname "$0")
 BIN_PATH=${BASE_DIR}/cora.bin
 
 export LD_LIBRARY_PATH=${BASE_DIR}/src
+export LD_LIBRARY_PATH=${BASE_DIR}:${LD_LIBRARY_PATH}
 export CORAPATH=/home/genius/project/
 
 exec rlwrap ${BIN_PATH} $*

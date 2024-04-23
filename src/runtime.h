@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "src/types.h"
-#include "src/reader.h"
+#include "types.h"
+#include "reader.h"
 
 struct Cora;
 typedef void (*basicBlock)(struct Cora *co);
@@ -85,6 +85,19 @@ Obj primGenSym(Obj arg);
 Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
+
+struct registerEntry {
+  char *name;
+  basicBlock func;
+  int args;
+};
+
+struct registerModule {
+  void (*init)();
+  struct registerEntry entries[];
+};
+
+void registerAPI(struct registerModule* m, str pkg);
 
 
 struct Cora* coraNew();

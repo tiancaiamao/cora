@@ -119,7 +119,7 @@ Obj closureSlot(Obj, int);
 int closureRequired(Obj);
 nativeFn* closurePC(Obj o);
 
-Obj makePrimitive(nativeFn *fn, int nargs);
+/* Obj makePrimitive(nativeFn *fn, int nargs); */
 Obj makeCurry(int required, Obj *closed, int nfrees);
 
 struct tagbstring;

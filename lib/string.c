@@ -1,15 +1,15 @@
 #include "types.h"
 #include "str.h"
-#include "vm.h"
+#include "runtime.h"
 #include "reader.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
 static void
-stringSlice(struct VM *ctx) {
-  Obj str = vmGet(ctx, 1);
-  Obj pos = fixnum(vmGet(ctx, 2));
+stringSlice(struct Cora *co) {
+  Obj str = co->args[1];
+  Obj pos = fixnum(co->args[2]);
   Obj ret;
   int len = stringLen(str);
   if (pos >= len) {
@@ -18,75 +18,91 @@ stringSlice(struct VM *ctx) {
     strBuf s = stringStr(str);
     ret = makeString(toCStr(s)+pos, len-pos);
   }
-  vmReturn(ctx, ret);
+  co->args[1] = ret;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 static void
-stringHasPrefix(struct VM *ctx) {
-  Obj str = vmGet(ctx, 1);
-  Obj prefix = vmGet(ctx, 2);
+stringHasPrefix(struct Cora *co) {
+  Obj str = co->args[1];
+  Obj prefix = co->args[2];
 
   strBuf str1 = stringStr(str);
   strBuf prefix1 = stringStr(prefix);
 
   int lPrefix = stringLen(prefix);
   if (lPrefix > stringLen(str)) {
-    return vmReturn(ctx, False);
+    co->args[1] = False;
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    return;
   }
 
   for(int i=0; i<lPrefix; i++) {
     if (toCStr(prefix1)[i] != toCStr(str1)[i]) {
-      return vmReturn(ctx, False);
+      co->args[1] = False;
+      popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+      return;
     }
   }
 
-  return vmReturn(ctx, True);
+  co->args[1] = True;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static void
-stringLength(struct VM *ctx) {
-  Obj o = vmGet(ctx, 1);
+stringLength(struct Cora *co) {
+  Obj o = co->args[1];
   int l = stringLen(o);
-  vmReturn(ctx, makeNumber(l));
+
+  co->args[1] = makeNumber(l);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static void
-stringIndex(struct VM *ctx) {
-  Obj x = vmGet(ctx, 1);
-  Obj y = vmGet(ctx, 2);
+stringIndex(struct Cora *co) {
+  Obj x = co->args[1];
+  Obj y = co->args[2];
 
   strBuf str = stringStr(x);
   int idx = fixnum(y);
-  vmReturn(ctx, makeString(toCStr(str)+idx, 1));
+  Obj ret =  makeString(toCStr(str)+idx, 1);
+  co->args[1] = ret;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static void
-stringCompare(struct VM *ctx) {
-  Obj x = vmGet(ctx, 1);
-  Obj y = vmGet(ctx, 2);
+stringCompare(struct Cora *co) {
+  Obj x = co->args[1];
+  Obj y = co->args[2];
 
   strBuf x1 = stringStr(x);
   strBuf y1 = stringStr(y);
   int ret = strCmp(toStr(x1), toStr(y1));
-  vmReturn(ctx, makeNumber(ret));
+  co->args[1] = makeNumber(ret);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static void
-numberToString(struct VM *ctx) {
-	Obj n = vmGet(ctx, 1);
-	assert(isfixnum(n));
+numberToString(struct Cora *co) {
+  Obj n = co->args[1];
+  assert(isfixnum(n));
 
-	char tmp[32];
-	int l = snprintf(tmp, 32, "%ld", fixnum(n));
- 	vmReturn(ctx, makeString(tmp, l));
-	return;
+  char tmp[32];
+  int l = snprintf(tmp, 32, "%ld", fixnum(n));
+  co->args[1] = makeString(tmp, l);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static void
-stringReplace(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
-  Obj arg2 = vmGet(vm, 2);
-  Obj arg3 = vmGet(vm, 3);
+stringReplace(struct Cora *co) {
+  Obj arg1 = co->args[1];
+  Obj arg2 = co->args[2];
+  Obj arg3 = co->args[3];
 
   strBuf raw = stringStr(arg1);
   strBuf from = stringStr(arg2);
@@ -94,7 +110,8 @@ stringReplace(struct VM *vm) {
 
   int pos = strStr(toStr(raw), toStr(from));
   if (pos < 0) {
-    vmReturn(vm, arg1);
+    co->args[1] = arg1;
+    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
   }
 
@@ -105,14 +122,15 @@ stringReplace(struct VM *vm) {
   buf = strCat(buf, strSub(toStr(raw), pos+strLen(toStr(from)), strLen(toStr(raw))));
   str s = toStr(buf);
   Obj res = makeString(s.str, s.len);
-  vmReturn(vm, res);
+  co->args[1] = res;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
 static void
-stringSplit(struct VM *vm) {
-  Obj arg1 = vmGet(vm, 1);
-  Obj arg2 = vmGet(vm, 2);
+stringSplit(struct Cora *co) {
+  Obj arg1 = co->args[1];
+  Obj arg2 = co->args[2];
   strBuf from = stringStr(arg1);
   strBuf tmp = stringStr(arg2);
 
@@ -130,7 +148,9 @@ stringSplit(struct VM *vm) {
     res = cons(makeString(s.str, strLen(s)), res);
     break;
   }
-  vmReturn(vm, reverse(res));
+
+  co->args[1] = reverse(res);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 /* void */
@@ -164,10 +184,11 @@ static struct registerModule stringModule = {
 };
 
 void
-__entry(struct VM *vm) {
-  Obj pkg = vmGet(vm, 2);
+entry(struct Cora *co) {
+  Obj pkg = co->args[2];
   registerAPI(&stringModule, toStr(stringStr(pkg)));
-  return vmReturn(vm, intern("string"));
+  co->args[1] = intern("string");
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
 

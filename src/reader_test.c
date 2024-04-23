@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "vm.h"
+/* #include "vm.h" */
+#include "reader.h"
 
 
 static void
