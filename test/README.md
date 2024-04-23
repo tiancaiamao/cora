@@ -1,3 +1,3 @@
-../cora
-
-(load "run-all-tests.cora" "")
+cd ..
+./cora
+(load "test/run-all-test.cora" "")

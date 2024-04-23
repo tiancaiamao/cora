@@ -574,6 +574,9 @@ builtinLoadSo(struct Cora *co) {
   /* Call(1, makeNative(entry, 1, 0)); */
   /* ctxReturn(ctx, path); */
   trampoline(co, entry);
+
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }
 
 static int unique = 1;

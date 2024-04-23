@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   symbolSet(imported, cons(makeString1("cora/init"), Nil));
 
   symbolSet(imported, cons(makeString1("cora/lib/toc/internal"), symbolGet(imported)));
-  symbolSet(imported, cons(makeString1("cora/lib/io"), symbolGet(imported)));
+  /* symbolSet(imported, cons(makeString1("cora/lib/io"), symbolGet(imported))); */
   
   co->args[1] = makeString1("toc.so");
   co->args[2] = makeString1("");
