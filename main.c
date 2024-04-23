@@ -1,76 +1,61 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include "vm.h"
-#include "str.h"
-#include "builtin.h"
+#include "runtime.h"
 
-static void
-repl(struct VM *vm, FILE* stream) {
+
+extern void coraInit();
+extern void builtinLoadSo(struct Cora *co);
+
+int main(int argc, char *argv[]) {
+  coraInit();
+  struct Cora* co = coraNew();
+  Obj imported = intern("*imported*");
+
+  co->args[1] = makeString1("init.so");
+  co->args[2] = makeString1("cora/init");
+  co->nargs = 3;
+  trampoline(co, builtinLoadSo);
+  symbolSet(imported, cons(makeString1("cora/init"), Nil));
+
+  symbolSet(imported, cons(makeString1("cora/lib/toc/internal"), symbolGet(imported)));
+  symbolSet(imported, cons(makeString1("cora/lib/io"), symbolGet(imported)));
+  
+  co->args[1] = makeString1("toc.so");
+  co->args[2] = makeString1("");
+  co->nargs = 3;
+  trampoline(co, builtinLoadSo);
+  symbolSet(imported, cons(makeString1("cora/lib/toc/include"), symbolGet(imported)));
+  
   struct SexpReader r = {.pkgMapping = Nil};
   int errCode = 0;
 
   for (int i=0; ; i++) {
-    if (stream == stdin) {
-      printf("%d #> ", i);
-    }
+    printf("%d #> ", i);
 
-    Obj exp = sexpRead(&r, stream, &errCode);
+    Obj exp = sexpRead(&r, stdin, &errCode);
     if (errCode != 0) {
       break;
     }
 
-    /* printf("before macro expand ==%d", vmPos(vm)); */
+    /* printf("before macro expand =="); */
     /* sexpWrite(stdout, exp); */
     /* printf("\n"); */
 
-    exp = macroExpand(vm, exp);
+    co->args[0] = globalRef(intern("macroexpand"));
+    co->args[1] = exp;
+    co->nargs = 2;
+    trampoline(co, coraCall);
+    exp = co->args[1];
 
-    /* printf("after macro expand ==%d", vmPos(vm)); */
+    /* printf("after macro expand =="); */
     /* sexpWrite(stdout, exp); */
+    /* printf(" --- %d %d\n", co->base, co->pos); */
     /* printf("\n"); */
 
-    Obj res = eval(vm, exp);
+    co->args[0] = globalRef(intern("cora/lib/toc/include.eval0"));
+    co->args[1] = exp;
+    co->nargs = 2;
+    trampoline(co, coraCall);
 
-    if (stream == stdin) {
-      sexpWrite(stdout, res);
-      printf("\n");
-    }
+    sexpWrite(stdout, co->args[1]);
+    printf("\n");
   }
-}
-
-/* static void */
-/* replBytecode(struct VM *vm, FILE* stream) { */
-/*   struct SexpReader r = {.pkgMapping = Nil}; */
-/*   int errCode; */
-
-/*   for (int i=0; ; i++) { */
-/*     printf("%d #> ", i); */
-
-/*     int err = 0; */
-/*     Obj exp = sexpRead(vm, 0, &r, stdin, &errCode); */
-/*     if (err != 0) { */
-/*       break; */
-/*     } */
-
-/*     Obj res = run(vm, exp); */
-
-/*     sexpWrite(stdout, res); */
-/*     printf("\n"); */
-/*   } */
-/* } */
-
-int main(int argc, char *argv[]) {
-  struct VM* vm = newVM();
-  // CORA PATH
-  strBuf tmp = getCoraPath();
-  strBuf tmp1 = strDup(toStr(tmp));
-  loadByteCode(vm, toStr(strCat(tmp, cstr("cora/init.bc"))));
-  loadByteCode(vm, toStr(strCat(tmp1, cstr("cora/compile.bc"))));
-
-  repl(vm, stdin);
-
-  /* replBytecode(vm, stdin); */
 }

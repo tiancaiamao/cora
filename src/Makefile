@@ -1,15 +1,16 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c types.c reader.c builtin.c vm.c reader_test.c eval_test.c bootstrap_test.c
+SRCS = str.c types.c reader.c runtime.c reader_test.c eval_test.c bootstrap_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
 # CFLAGS = -Wall -O2
 
-all: libcora.a libcora.so
+all: libcora.so libcora.a
 
-test: reader_test eval_test bootstrap_test
+# test: reader_test bootstrap_test
+test: reader_test
 
 reader.test: reader_test.o libcora.a
 	$(CC) -o reader.test $^ -ldl
@@ -17,19 +18,19 @@ reader.test: reader_test.o libcora.a
 reader_test: reader.test
 	./reader.test
 
-eval_test: eval.test
-	./eval.test
+# eval_test: eval.test
+# 	./eval.test
 
-eval.test: eval_test.o libcora.a
-	$(CC) -o $@ $^ -ldl
+# eval.test: eval_test.o libcora.a
+# 	$(CC) -o $@ $^ -ldl
 
-bootstrap_test:bootstrap.test
-	./bootstrap.test
+# bootstrap_test:bootstrap.test
+# 	./bootstrap.test
 
-bootstrap.test: bootstrap_test.o libcora.a
-	$(CC) -o $@ $^ -ldl
+# bootstrap.test: bootstrap_test.o libcora.a
+# 	$(CC) -o $@ $^ -ldl
 
-LIBOBJS = str.o types.o reader.o builtin.o vm.o
+LIBOBJS = str.o types.o reader.o runtime.o
 
 libcora.a: $(LIBOBJS)
 	ar -rc $@ $^

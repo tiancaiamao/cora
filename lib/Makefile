@@ -1,12 +1,4 @@
-.PHONY: tosc toc
-
-all: tosc toc string.so os.so io.so
-
-tosc:
-	make -C tosc
-
-toc:
-	make -C toc
+all:
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g

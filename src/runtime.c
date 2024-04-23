@@ -1,6 +1,10 @@
-#include "runtime.h"
+#include <sys/types.h>
+#include <unistd.h>
+#include <pwd.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include "runtime.h"
+#include "str.h"
 
 void
 /* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
@@ -290,6 +294,7 @@ Obj primIsCons(Obj x) {
 Obj primSet(Obj key, Obj val) {
   struct trieNode* s = ptr(key);
   s->value = val;
+  return key;
 }
 
 Obj primSub(Obj x, Obj y) {
@@ -525,11 +530,22 @@ builtinApply(struct Cora *co) {
   co->pc = coraCall;
 }
 
-void
-builtinImport(struct Cora *co) {
-  // DUMMY now
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+strBuf
+getCoraPath() {
+  strBuf tmp = strNew(512);
+  char* coraPath = getenv("CORAPATH");
+  if (coraPath == NULL) {
+    struct passwd* pw = getpwuid(getuid());
+    const char* homeDir = pw->pw_dir;
+    tmp = strCpy(tmp, cstr(homeDir));
+    tmp = strCat(tmp, cstr("/.corapath/"));
+  } else {
+    tmp = strCpy(tmp, cstr(coraPath));
+    if (toCStr(tmp)[strLen(toStr(tmp))-1] != '/') {
+      tmp = strCat(tmp, cstr("/"));
+    }
+  }
+  return tmp;
 }
 
 void
@@ -581,7 +597,7 @@ builtinLoad(struct Cora *co) {
   trampoline(co, coraCall);
   Obj res = co->args[1];
 
-  snprintf(buf, BUFSIZE, "gcc -shared -Ilib/toc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl", unique, unique);
+  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl", unique, unique);
   int exitCode = system(buf);
   if (exitCode == 0) {
     /* co->args[0] = globalRef(intern("load-so"));  */
@@ -597,6 +613,53 @@ builtinLoad(struct Cora *co) {
 
   unique++;
   co->args[1] = makeNumber(exitCode);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+void
+builtinImport(struct Cora *co) {
+  Obj pkg = co->args[1];
+  str pkgStr = toStr(stringStr(pkg));
+  Obj sym = intern("*imported*");
+  Obj imported = symbolGet(sym);
+
+  // Avoid repeated load.
+  for (Obj p = imported; p != Nil; p = cdr(p)) {
+    Obj elem = car(p);
+    if (eq(elem, pkg)) {
+      co->args[1] = sym;
+      popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+      return;
+    }
+  }
+
+  // CORA PATH
+  strBuf tmp = getCoraPath();
+
+  tmp = strCat(tmp, pkgStr);
+  tmp = strCat(tmp, cstr(".so"));
+  if (0 == access(toCStr(tmp), R_OK)) {
+    // primLoadSo is a bit special, it requires the current stack of VM is
+    // (load-so "file-path.so" "package-path")
+    co->args[2] = pkg;
+    co->nargs = 3;
+    co->pc = builtinLoadSo;
+    return;
+  } else {
+    tmp = strShrink(tmp, 3);
+    tmp = strCat(tmp, cstr(".cora"));
+    co->args[0] = makeNative(builtinLoad, 2, 0);
+    co->args[1] = makeString1(toCStr(tmp));
+    co->args[2] = pkg;
+    co->nargs = 3;
+    trampoline(co, coraCall);
+  }
+  strFree(tmp);
+
+  // Set the *imported* variable to avlid repeated load.
+  symbolSet(sym, cons(pkg, imported));
+
+  co->args[1] = pkg;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
 
@@ -758,6 +821,8 @@ builtinOSExec(struct Cora *co) {
 void
 coraInit() {
   symQuote = intern("quote");
+  symBackQuote = intern("backquote");
+  symUnQuote = intern("unquote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
   primSet(intern("intern"), makeNative(builtinIntern, 1, 0));

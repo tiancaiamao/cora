@@ -396,7 +396,7 @@
 
 (defun .generate-c (to bc)
   (begin
-   (c.generate-str to "#include \"src/types.h\"\n")
+   (c.generate-str to "#include \"types.h\"\n")
    (c.generate-str to "#include \"runtime.h\"\n\n")
    (for-each (lambda (x)
 	       ;; x is [label (lambda params active body)]

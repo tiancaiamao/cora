@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "src/types.h"
-#include "src/reader.h"
+#include "types.h"
+#include "reader.h"
 
 struct Cora;
 typedef void (*basicBlock)(struct Cora *co);

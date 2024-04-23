@@ -16,25 +16,20 @@ lib:
 
 main.o: main.c
 
-cora.bin: libcora main.o
+cora.bin: libcora main.o init.so toc.so
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
 	$(CC) main.o -Lsrc -lcora -ldl -o $@
 
 clean:
-	rm -rf *.o
+	rm -f *.o *.so
 	make clean -C src
 	make clean -C lib
 
-a.out: init.so toc.so libxx.so
-	gcc -o a.out -g xx.c $^ -I./lib/toc/ -I. -ldl
-
 toc.so: toc.c
-	gcc -shared -o toc.so -g -fPIC toc.c -Ilib/toc -I.
+	gcc -shared -o toc.so -g -fPIC toc.c -Isrc -I.
 
 init.so: init.c
-	gcc -shared -o init.so -g -fPIC init.c -Ilib/toc -I.
+	gcc -shared -o init.so -g -fPIC init.c -Isrc -I.
 
-libxx.so: lib/toc/runtime.c src/reader.c src/str.c src/types.c
-	gcc -shared -o libxx.so -g -fPIC lib/toc/runtime.c src/reader.c src/str.c src/types.c -I./lib/toc/ -I. -ldl
