@@ -641,6 +641,7 @@ builtinImport(struct Cora *co) {
   if (0 == access(toCStr(tmp), R_OK)) {
     // primLoadSo is a bit special, it requires the current stack of VM is
     // (load-so "file-path.so" "package-path")
+    co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
     co->args[2] = pkg;
     co->nargs = 3;
     co->pc = builtinLoadSo;
@@ -814,6 +815,31 @@ builtinOSExec(struct Cora *co) {
   co->args[1] = makeNumber(exitCode);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
+}
+
+void
+registerAPI(struct registerModule* m, str pkg) {
+  if (m->init != NULL) {
+    m->init();
+  }
+
+  for (int i=0; ; i++) {
+    struct registerEntry entry = m->entries[i];
+    if (entry.func == NULL) {
+      break;
+    }
+
+    Obj sym;
+    if (strLen(pkg) > 0) {
+      strBuf tmp = strDup(pkg);
+      tmp = strAppend(tmp, '.');
+      tmp = strCat(tmp, cstr(entry.name));
+      sym = intern(toCStr(tmp));
+    } else {
+      sym = intern(entry.name);
+    }
+    symbolSet(sym, makeNative(entry.func, entry.args, 0));
+  }
 }
 
 // ============ end utilities for toc =================

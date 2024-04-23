@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include "types.h"
 #include "str.h"
-#include "vm.h"
+#include "runtime.h"
 
 static strBuf
 cmdListStr(Obj args) {
@@ -18,33 +18,36 @@ cmdListStr(Obj args) {
 }
 
 static void
-exec(struct VM *vm) {
-  Obj args = vmGet(vm, 1);
+exec(struct Cora *co) {
+  Obj args = co->args[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
-  vmReturn(vm, makeNumber(exitCode));
+  co->args[1] = makeNumber(exitCode);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
 static void
-popenFn(struct VM *vm) {
-  Obj cmd = vmGet(vm, 1);
-  Obj mode = vmGet(vm, 2);
+popenFn(struct Cora *co) {
+  Obj cmd = co->args[1];
+  Obj mode = co->args[2];
   char* type = symbolStr(mode);
 
   strBuf cmdStr = cmdListStr(cmd);
   FILE* f = popen(toCStr(cmdStr), type);
 
-  vmReturn(vm, makeCObj(f));
+  co->args[1] = makeCObj(f);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
 static void
-pcloseFn(struct VM *vm) {
-  Obj arg = vmGet(vm, 1);
+pcloseFn(struct Cora *co) {
+  Obj arg = co->args[1];
   FILE *f = mustCObj(arg);
   int res = pclose(f);
-  vmReturn(vm, res);
+  co->args[1] = res;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
 }
 
@@ -58,8 +61,10 @@ static struct registerModule osModule = {
 };
 
 void
-__entry(struct VM *vm) {
-  Obj pkg = vmGet(vm, 2);
+entry(struct Cora *co) {
+  Obj pkg = co->args[2];
   registerAPI(&osModule, toStr(stringStr(pkg)));
-  return vmReturn(vm, intern("os"));
+  co->args[1] = intern("os");
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  return;
 }

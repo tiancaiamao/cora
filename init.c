@@ -1,4 +1,4 @@
-#include "src/types.h"
+#include "types.h"
 #include "runtime.h"
 
 void entry(struct Cora* co);

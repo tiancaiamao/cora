@@ -1,9 +1,9 @@
-all:
+all: os.so string.so io.so
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
-SRCS := tsoc/internal.c toc/internal.c string.c os.c io.c
+SRCS := string.c os.c io.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d

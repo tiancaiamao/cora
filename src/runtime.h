@@ -86,6 +86,19 @@ Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
+struct registerEntry {
+  char *name;
+  basicBlock func;
+  int args;
+};
+
+struct registerModule {
+  void (*init)();
+  struct registerEntry entries[];
+};
+
+void registerAPI(struct registerModule* m, str pkg);
+
 
 struct Cora* coraNew();
 
