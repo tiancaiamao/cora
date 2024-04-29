@@ -320,7 +320,7 @@ static uint64_t genIdx = 0;
 Obj primGenSym(Obj arg) {
   assert(issymbol(arg));
   char tmp[200];
-  snprintf(tmp, 100, "#%s%ld", symbolStr(arg), genIdx);
+  snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
   genIdx++;
   return makeSymbol(tmp);
 }
@@ -416,23 +416,23 @@ struct contStack {
   int len2;
 };
 
-static void
-continuationAsClosure(struct Cora *co) {
-  // Replace the current stack with the delimited continuation.
-  Obj k = co->args[0];
-  struct scmNative* native = ptr(k);
-  struct contStack* delimitedCC = ptr(native->data[0]);
-  Obj val = co->args[1];
-  for (int i=0; i< delimitedCC->size; i++) {
-    struct returnAddr *addr = &delimitedCC->data[i];
-    co->callstack.data[co->callstack.len] = *addr;
-    co->callstack.len++;
-    if (co->callstack.len + 1 >= co->callstack.cap) {
-      assert(false); // TODO?
-    }
-  }
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-}
+/* static void */
+/* continuationAsClosure(struct Cora *co) { */
+/*   // Replace the current stack with the delimited continuation. */
+/*   Obj k = co->args[0]; */
+/*   struct scmNative* native = ptr(k); */
+/*   struct contStack* delimitedCC = ptr(native->data[0]); */
+/*   Obj val = co->args[1]; */
+/*   for (int i=0; i< delimitedCC->size; i++) { */
+/*     struct returnAddr *addr = &delimitedCC->data[i]; */
+/*     co->callstack.data[co->callstack.len] = *addr; */
+/*     co->callstack.len++; */
+/*     if (co->callstack.len + 1 >= co->callstack.cap) { */
+/*       assert(false); // TODO? */
+/*     } */
+/*   } */
+/*   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees); */
+/* } */
 
 /* void */
 /* builtinThrow(struct Cora *co) { */
@@ -599,8 +599,9 @@ builtinLoad(struct Cora *co) {
   co->nargs = 4;
   trampoline(co, coraCall);
   Obj res = co->args[1];
+  // TODO: check res?
 
-  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl", unique, unique);
+  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", unique, unique);
   int exitCode = system(buf);
   if (exitCode == 0) {
     /* co->args[0] = globalRef(intern("load-so"));  */
@@ -763,6 +764,7 @@ void
 builtinReadFileAsSexp(struct Cora *co) {
   Obj arg = co->args[1];
   assert(isstring(arg));
+  Obj result = Nil;
   char* fileName = toCStr(stringStr(arg));
   FILE* f = fopen(fileName, "r");
   if (f == NULL) {
@@ -774,7 +776,6 @@ builtinReadFileAsSexp(struct Cora *co) {
   char *selfPath = toCStr(stringStr(pkg));
   struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
   int err = 0;
-  Obj result = Nil;
   int count = 0;
   while(true) {
     Obj ast = sexpRead(&r, f, &err);
@@ -880,7 +881,7 @@ coraInit() {
 
 extern void entry(struct Cora* co);
 
-int main(int argc, char *argv) {
+int main(int argc, char *argv[]) {
   symQuote = intern("quote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
