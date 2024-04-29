@@ -63,7 +63,7 @@ enum {
       scmHeadNative,
 };
 
-void typesInit();
+/* void typesInit(); */
 
 struct VM;
 

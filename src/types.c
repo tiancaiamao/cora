@@ -494,8 +494,8 @@ eq(Obj x, Obj y) {
   return false;
 }
 
-void
-typesInit(struct GC *gc) {
+/* void */
+/* typesInit(struct GC *gc) { */
   /* gcRegistForType(gc, scmHeadCons, consGCFunc); */
   /* gcRegistForType(gc, scmHeadClosure, closureGCFunc); */
   /* gcRegistForType(gc, scmHeadCurry, curryGCFunc); */
@@ -504,4 +504,4 @@ typesInit(struct GC *gc) {
   /* gcRegistForType(gc, scmHeadVector, vectorGCFunc); */
   /* gcRegistForType(gc, scmHeadContinuation, continuationGCFunc); */
   /* gcRegistForType(gc, scmHeadInstr, instrGCFunc); */
-}
+/* } */

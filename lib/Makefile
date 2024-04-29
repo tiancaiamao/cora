@@ -13,7 +13,7 @@ clean:
 	rm -rf *.o *.so
 
 %.so : %.o
-	gcc -shared -o $@ $^ -fPIC -I../src
+	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
 
 %.o : %.c
 %.o : %.c $(DEPDIR)/%.d | $(DEPDIR)

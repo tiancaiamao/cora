@@ -4,8 +4,36 @@
 BASE_DIR=$(dirname "$0")
 BIN_PATH=${BASE_DIR}/cora.bin
 
-export LD_LIBRARY_PATH=${BASE_DIR}/src
-export LD_LIBRARY_PATH=${BASE_DIR}:${LD_LIBRARY_PATH}
-export CORAPATH=/home/genius/project/
+#!/bin/sh
+
+case "$(uname -sr)" in
+
+   Darwin*)
+     export DYLD_LIBRARY_PATH=${BASE_DIR}/src
+     export DYLD_LIBRARY_PATH=${BASE_DIR}:${DYLD_LIBRARY_PATH}
+     ;;
+
+   Linux*Microsoft*)
+     echo 'WSL'  # Windows Subsystem for Linux
+     ;;
+
+   Linux*)
+     export LD_LIBRARY_PATH=${BASE_DIR}/src
+     export LD_LIBRARY_PATH=${BASE_DIR}:${LD_LIBRARY_PATH}
+     ;;
+
+   CYGWIN*|MINGW*|MINGW32*|MSYS*)
+     echo 'MS Windows'
+     ;;
+
+   # Add here more strings to compare
+   # See correspondence table at the bottom of this answer
+
+   *)
+     echo 'Other OS'
+     ;;
+esac
+
+export CORAPATH=${HOME}/project/
 
 exec rlwrap ${BIN_PATH} $*

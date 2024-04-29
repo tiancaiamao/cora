@@ -27,9 +27,9 @@ clean:
 	make clean -C src
 	make clean -C lib
 
-toc.so: toc.c
-	gcc -shared -o toc.so -g -fPIC toc.c -Isrc -I.
+toc.so: toc.c libcora
+	gcc -shared -o toc.so -g -fPIC toc.c -Isrc -I. -Lsrc -lcora
 
-init.so: init.c
-	gcc -shared -o init.so -g -fPIC init.c -Isrc -I.
+init.so: init.c libcora
+	gcc -shared -o init.so -g -fPIC init.c -Isrc -I. -Lsrc -lcora
 
