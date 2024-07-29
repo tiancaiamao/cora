@@ -205,6 +205,7 @@ coraNew() {
 
 void
 trampoline(struct Cora *co, basicBlock pc) {
+  int mark;
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {

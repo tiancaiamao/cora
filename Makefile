@@ -23,7 +23,7 @@ cora.bin: libcora main.o init.so toc.so
 	$(CC) main.o -Lsrc -lcora -ldl -o $@
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so *.bin
 	make clean -C src
 	make clean -C lib
 
