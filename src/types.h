@@ -53,17 +53,13 @@ enum {
       // The followings are all pointer types.
       // Except cons, all the others are general pointer.
       scmHeadCons,
-      /* scmHeadCurry, */
       scmHeadString,
       scmHeadVector,
-      scmHeadClosure,
-      /* scmHeadContinuation, */
-      scmHeadPrimitive,
-
       scmHeadNative,
+      /* scmHeadContinuation, */
 };
 
-/* void typesInit(); */
+void typesInit();
 
 struct VM;
 
@@ -100,30 +96,7 @@ Obj cdddr(Obj v);
 
 Obj makeCObj(void *ptr);
 
-typedef void (nativeFn)(struct VM*);
-
-struct scmClosure {
-  scmHead head;
-  int required;
-  Obj code;
-  void *closed;
-  int nfrees;
-  nativeFn *fn;
-};
-
-Obj makeClosure(int requred, int nfrees, void *closed, Obj code, nativeFn *pc);
-struct scmClosure* mustClosure(Obj o);
-Obj closureCode(Obj);
-bool isclosure(Obj o);
-Obj closureSlot(Obj, int);
-int closureRequired(Obj);
-nativeFn* closurePC(Obj o);
-
-/* Obj makePrimitive(nativeFn *fn, int nargs); */
-Obj makeCurry(int required, Obj *closed, int nfrees);
-
-struct tagbstring;
-typedef struct tagbstring * bstring;
+Obj makeString1(char *x);
 
 Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
@@ -132,6 +105,26 @@ int stringLen(Obj o);
 Obj makeNumber(int v);
 bool isstring(Obj o);
 bool isNumber(Obj o);
+
+struct Cora;
+
+typedef void (*basicBlock)(struct Cora *co);
+
+struct scmNative {
+  scmHead head;
+  basicBlock fn;
+  // required is the argument number of the nativeFunc.
+  int required;
+  // captured is the size of the data, it's immutable after makeNative.
+  int captured;
+  Obj data[];
+};
+
+Obj makeNative(basicBlock fn, int required, int captured, ...);
+Obj* nativeData(Obj o);
+int nativeCaptured(Obj o);
+int nativeRequired(Obj o);
+basicBlock nativeFuncPtr(Obj o);
 
 struct stack {
   Obj *data;
@@ -151,5 +144,8 @@ struct trieNode {
   char *sym;
   struct trieNode* child[256];
 };
+
+
+void trieNodeGCFunc(struct GC* gc, struct trieNode *node);
 
 #endif

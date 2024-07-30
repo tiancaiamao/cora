@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "gc.h"
 
-const int MEM_BLOCK_SIZE = 4*1024*1024;
+const int MEM_BLOCK_SIZE = 3*1024;
 
 struct Block {
   int offset;
@@ -139,9 +139,8 @@ struct GC gc;
 void* baseStackAddr = NULL;
 
 void
-gcInit(struct GC *gc) {
-  void* dummy;
-  baseStackAddr = &dummy;
+gcInit(struct GC *gc, void *dummy) {
+  baseStackAddr = dummy;
   areaInit(&gc->area1);
   areaInit(&gc->area2);
   gc->curr = &gc->area1;
@@ -194,7 +193,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
   memcpy(to, from, from->size);
   from->forwarding = (uintptr_t)to | tag(p);
 
-  /* printf("gccopy from %p to %p ==%ld\n", from, to, p); */
+  printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type);
 
   // Copy the children to the new place.
   // And update the reference of the new object.
@@ -208,6 +207,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
 
 static void
 gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
+  printf("gcStack -- from %p to %p\n", from, to);
   assert(from < to);
   assert(((uintptr_t)from & 0x7) == 0);
   assert(((uintptr_t)to & 0x7) == 0);
@@ -216,6 +216,9 @@ gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
     uintptr_t stackValue = *p;
     if (areaContains(gc->curr, ptr(stackValue))) {
       *p = gcCopy(gc, stackValue);
+      printf("gcStack update == %p to %ld\n", p, *p);
+    } else {
+      printf("gcStack skip == %p\n", p);
     }
   }
 }
@@ -242,7 +245,7 @@ gcAlloc(struct GC* gc, int size) {
   if (sz1 >= gc->nextSize) {
     gcRun(gc);
     int sz2 = areaSize(gc->curr);
-    /* printf("run gc, current size = %d, after gc = %d\n", sz1, sz2); */
+    printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2);
     gc->nextSize = 2 * sz2;
     if (gc->nextSize < MEM_BLOCK_SIZE) {
       // Because a block is at least that size, GC smaller then this is meanless.

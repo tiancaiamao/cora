@@ -7,7 +7,6 @@
 #include "str.h"
 
 void
-/* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
 saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
@@ -21,16 +20,12 @@ saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
   addr->pc = pc;
   addr->base = base;
   addr->pos = pos;
-  /* addr->stack = stack; */
   addr->frees = frees;
   cs->len++;
   return;
 }
 
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
-  /* saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees); */
-  /* saveStack(&co->callstack, cb, co->stack, co->frees); */
-  /* saveStack(&co->callstack, cb, co->pos, co->pos + nstack, co->frees); */
   saveStack(&co->callstack, cb, co->base, co->base + nstack, co->frees);
   if (nstack > 0) {
     va_list ap;
@@ -48,37 +43,31 @@ void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
   co->base = co->pos;
 }
 
+
+void pushCont3(struct Cora *co, basicBlock cb, Obj a, Obj b, Obj c) {
+  saveStack(&co->callstack, cb, co->base, co->base + 3, co->frees);
+  co->stack[co->base] = a;
+  co->stack[co->base+1] = b;
+  co->stack[co->base+2] = c;
+  assert(co->pos >= co->base);
+
+  if (co->base + 3 > co->pos) {
+    co->pos = co->base + 3;
+  }
+
+  co->base = co->pos;
+}
+
+
 void
-/* popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) { */
 popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) {
-/* popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **frees) { */
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
   *base = addr->base;
   *pos = addr->pos;
-  /* *stack = addr->stack; */
   *frees = addr->frees;
   return;
-}
-
-Obj
-makeNative(basicBlock fn, int required, int captured, ...) {
-  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
-  struct scmNative* clo = newObj(scmHeadNative, sz);
-  clo->fn = fn;
-  clo->required = required;
-  clo->captured = captured;
-  if (captured > 0) {
-    va_list ap;
-    va_start(ap, captured);
-    for (int i=0; i<captured; i++) {
-      clo->data[i] = va_arg(ap, Obj);
-    }
-    va_end(ap);
-  }
-
-  return ((Obj)(&clo->head) | TAG_PTR);
 }
 
 void callCurry(struct Cora *co) {
@@ -101,46 +90,6 @@ makeCurry1(int required, int captured, Obj *data) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-bool
-isNative(Obj c) {
-  if ((c & TAG_MASK) != TAG_PTR) {
-    return false;
-  }
-  scmHead *h = ptr(c);
-  return h->type == scmHeadNative;
-}
-
-Obj*
-nativeData(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  if (native->captured == 0) {
-    return NULL;
-  }
-  return native->data;
-}
-
-int
-nativeCaptured(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->captured;
-}
-
-basicBlock
-nativeFuncPtr(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->fn;
-}
-
-int
-nativeRequired(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->required;
-}
-
 void coraCall(struct Cora *co) {
   Obj fn = co->args[0];
   int required = nativeRequired(co->args[0]);
@@ -152,7 +101,6 @@ void coraCall(struct Cora *co) {
     co->nargs = 0;
     co->args[1] = ret;
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-    /* popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees); */
   } else {
     // save the extra args.
     int cnt = co->nargs - (required+1);
@@ -171,10 +119,6 @@ void coraCall(struct Cora *co) {
   return;
 }
 
-Obj makeString1(char *x) {
-  return makeString(x, strlen(x));
-}
-
 void push(struct Cora *co, Obj v) {
   co->stack[co->pos] = v;
   co->pos++;
@@ -185,6 +129,10 @@ Obj stackRef(struct Cora *co, int idx) {
 }
 
 const int INIT_STACK_SIZE = 5000;
+
+
+extern struct trieNode gRoot;
+struct Cora *gCo;
 
 struct Cora*
 coraNew() {
@@ -200,12 +148,34 @@ coraNew() {
   /* co->trystack.data = malloc(4 * sizeof(struct tryRecord)); */
   /* co->trystack.len = 0; */
   /* co->trystack.cap = 4; */
+
+  gCo = co;
+
   return co;
+}
+
+static void
+coraGCFunc(struct GC *gc, struct Cora *co) {
+  // The stack.
+  for (int i=0; i<co->pos; i++) {
+    co->stack[i] = gcCopy(gc, co->stack[i]);
+  }
+  // The args.
+  for (int i=0; i<co->nargs; i++) {
+    Obj before = co->args[i];
+    co->args[i] = gcCopy(gc, co->args[i]);
+    printf("coraGC fun, args[%ld] %p -> %p\n", i, before, co->args[i]);
+  }
+}
+
+void
+gcGlobal(struct GC *gc) {
+  trieNodeGCFunc(gc, &gRoot);
+  coraGCFunc(gc, gCo);
 }
 
 void
 trampoline(struct Cora *co, basicBlock pc) {
-  int mark;
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
@@ -281,6 +251,7 @@ Obj primCar(Obj x) {
 }
 
 Obj primCdr(Obj x) {
+  assert(iscons(x));
   return cdr(x);
 }
 
@@ -321,7 +292,7 @@ static uint64_t genIdx = 0;
 Obj primGenSym(Obj arg) {
   assert(issymbol(arg));
   char tmp[200];
-  snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
+  snprintf(tmp, 100, "#%s%lu", symbolStr(arg), genIdx);
   genIdx++;
   return makeSymbol(tmp);
 }
@@ -850,7 +821,9 @@ registerAPI(struct registerModule* m, str pkg) {
 // ============ end utilities for toc =================
 
 void
-coraInit() {
+coraInit(void *mark) {
+  gcInit(&gc, mark);
+  typesInit();
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");

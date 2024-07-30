@@ -1,11 +1,11 @@
 #include "runtime.h"
 
 
-extern void coraInit();
 extern void builtinLoadSo(struct Cora *co);
 
 int main(int argc, char *argv[]) {
-  coraInit();
+  void* dummy;
+  coraInit(&dummy);
   struct Cora* co = coraNew();
   Obj imported = intern("*imported*");
 
@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
     trampoline(co, coraCall);
     exp = co->args[1];
 
-    /* printf("after macro expand =="); */
-    /* sexpWrite(stdout, exp); */
-    /* printf(" --- %d %d\n", co->base, co->pos); */
-    /* printf("\n"); */
+    printf("after macro expand ==");
+    sexpWrite(stdout, exp);
+    printf(" --- %d %d\n", co->base, co->pos);
+    printf("\n");
 
     co->args[0] = globalRef(intern("cora/lib/toc/include.eval0"));
     co->args[1] = exp;

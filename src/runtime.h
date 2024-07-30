@@ -8,9 +8,6 @@
 #include "types.h"
 #include "reader.h"
 
-struct Cora;
-typedef void (*basicBlock)(struct Cora *co);
-
 struct returnAddr {
   basicBlock pc;
   Obj *frees;
@@ -40,30 +37,9 @@ struct Cora {
 };
 
 void trampoline(struct Cora *co, basicBlock pc);
-
-struct scmNative {
-  scmHead head;
-  basicBlock fn;
-  // required is the argument number of the nativeFunc.
-  int required;
-  // captured is the size of the data, it's immutable after makeNative.
-  int captured;
-  Obj data[];
-};
-
 void coraCall(struct Cora *co);
-Obj makeNative(basicBlock fn, int required, int captured, ...);
-Obj* nativeData(Obj o);
-int nativeCaptured(Obj o);
-int nativeRequired(Obj o);
-basicBlock nativeFuncPtr(Obj o);
-
-Obj makeString1(char *x);
-
-void push(struct Cora *co, Obj v);
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
 void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees);
-/* void popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **stack, Obj **frees); */
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);
@@ -101,5 +77,6 @@ void registerAPI(struct registerModule* m, str pkg);
 
 
 struct Cora* coraNew();
+void coraInit(void *mark);
 
 #endif

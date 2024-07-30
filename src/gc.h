@@ -20,7 +20,7 @@ typedef struct {
 #define tag(x) ((x) & TAG_MASK)
 
 extern struct GC gc;
-void gcInit(struct GC* gc);
+void gcInit(struct GC* gc, void* mark);
 uintptr_t gcCopy(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
 
