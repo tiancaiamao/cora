@@ -6161,7 +6161,6 @@ return;
 void _35clofun1021(struct Cora* co) {
 Obj f = co->args[1];
 Obj l = co->args[2];
- /* assert(iscons(l)); */
 co->args[0] = globalRef(intern("map-h"));
 co->args[1] = Nil;
 co->args[2] = f;
@@ -6180,17 +6179,10 @@ void _35clofun1019(struct Cora* co) {
 Obj res = co->args[1];
 Obj f = co->args[2];
 Obj l = co->args[3];
-
-scmHead* h = getScmHead(l);
- if (h) {
-   assert(h->forwarding == 0);
- }
-
 Obj _35reg82 = primIsCons(l);
 if (True == _35reg82) {
 Obj _35reg83 = primCar(l);
-/* pushCont(co, _35clofun1020, 3, res, l, f); */
-pushCont3(co, _35clofun1020, res, l, f);
+pushCont(co, _35clofun1020, 3, res, l, f);
 co->args[0] = f;
 co->args[1] = _35reg83;
 co->nargs = 2;

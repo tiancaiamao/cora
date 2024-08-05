@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "runtime.h"
 #include "str.h"
+#include "gc.h"
 
 void
 saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees) {
@@ -164,7 +165,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
   for (int i=0; i<co->nargs; i++) {
     Obj before = co->args[i];
     co->args[i] = gcCopy(gc, co->args[i]);
-    printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]);
+    /* printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]); */
   }
   // Closure register.
   co->frees = gcCopy(gc, co->frees);
@@ -195,6 +196,9 @@ trampoline(struct Cora *co, basicBlock pc) {
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
+    if (gcCheck(&gc)) {
+      gcRun(&gc);
+    }
     co->pc(co);
   }
 }
@@ -873,6 +877,9 @@ coraInit(void *mark) {
 extern void entry(struct Cora* co);
 
 int main(int argc, char *argv[]) {
+  void* dummy;
+  coraInit(&dummy);
+
   symQuote = intern("quote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));

@@ -24,7 +24,12 @@ void gcInit(struct GC* gc, void* mark);
 uintptr_t gcCopy(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
 
+bool gcCheck(struct GC* gc);
+void gcRun(struct GC *gc);
+
 typedef void (*gcFunc)(struct GC *gc, void* from, void* to);
 bool gcRegistForType(uint8_t type, gcFunc fn);
+
+extern struct GC gc;
 
 #endif

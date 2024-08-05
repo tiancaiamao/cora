@@ -78,9 +78,9 @@ areaContains(struct Area *area, void *p) {
 
 static scmHead*
 areaAlloc(struct Area *area, int size) {
-  if (size > 500) {
-    printf("what the fuck??\n");
-  }
+  /* if (size > 500) { */
+  /*   printf("what the fuck??\n"); */
+  /* } */
   assert(size > sizeof(scmHead));
   // Lazy initialize the first block.
   if (area->len == 0) {
@@ -138,6 +138,7 @@ struct GC {
   struct Area area2;
   struct Area *curr;
   int nextSize;
+  bool flag;
 };
 
 struct GC gc;
@@ -151,6 +152,7 @@ gcInit(struct GC *gc, void *dummy) {
   areaInit(&gc->area2);
   gc->curr = &gc->area1;
   gc->nextSize = MEM_BLOCK_SIZE;
+  gc->flag = false;
 }
 
 static gcFunc registry[256] = {};
@@ -232,8 +234,10 @@ gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
 
 extern void gcGlobal(struct GC *gc);
 
-static void
+void
 gcRun(struct GC *gc) {
+  int sz1 = areaSize(gc->curr);
+
   void* stackAddr = &stackAddr;
   // Dump registers onto stack and scan the stack.
   jmp_buf ctx;
@@ -244,20 +248,29 @@ gcRun(struct GC *gc) {
 
   areaReset(gc->curr);
   gc->curr = gcGetNextArea(gc);
+
+  int sz2 = areaSize(gc->curr);
+  printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2);
+  gc->nextSize = 2 * sz2;
+  if (gc->nextSize < MEM_BLOCK_SIZE) {
+    // Because a block is at least that size, GC smaller then this is meanless.
+    gc->nextSize = MEM_BLOCK_SIZE;
+  }
+
+  gc->flag = false;
+}
+
+
+bool
+gcCheck(struct GC* gc) {
+  return gc->flag;
 }
 
 void*
 gcAlloc(struct GC* gc, int size) {
   int sz1 = areaSize(gc->curr);
   if (sz1 >= gc->nextSize) {
-    gcRun(gc);
-    int sz2 = areaSize(gc->curr);
-    printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2);
-    gc->nextSize = 2 * sz2;
-    if (gc->nextSize < MEM_BLOCK_SIZE) {
-      // Because a block is at least that size, GC smaller then this is meanless.
-      gc->nextSize = MEM_BLOCK_SIZE;
-    }
+    gc->flag = true;
   }
   return areaAlloc(gc->curr, size);
 }

@@ -16,9 +16,6 @@ struct scmString {
   strBuf str;
 };
 
-
-extern struct GC gc;
-
 const char* typeNameX[7] = {
   "boolean",
   "null",
@@ -35,7 +32,7 @@ newObj(scmHeadType tp, int sz) {
   scmHead* p = gcAlloc(&gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
-  printf("alloc object -- %p %s\n", p, typeNameX[tp]);
+  /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
   return (void*)p;
 }
 
