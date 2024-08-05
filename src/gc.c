@@ -21,6 +21,9 @@ blockInit(struct Block *block) {
 
 static void
 blockReset(struct Block *block) {
+  printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE);
+  // For easy debug ... not really a MUST
+  memset(block->data, 0, MEM_BLOCK_SIZE);
   free(block->data);
   block->offset = 0;
 }
@@ -75,6 +78,9 @@ areaContains(struct Area *area, void *p) {
 
 static scmHead*
 areaAlloc(struct Area *area, int size) {
+  if (size > 500) {
+    printf("what the fuck??\n");
+  }
   assert(size > sizeof(scmHead));
   // Lazy initialize the first block.
   if (area->len == 0) {
@@ -186,6 +192,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
     return from->forwarding;
   }
   assert(from->size > 0);
+  assert(from->type <= 6);
 
   // Copy the data of itself to the new place.
   struct Area *area = gcGetNextArea(gc);

@@ -7,7 +7,7 @@
 #include "str.h"
 
 void
-saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
+saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
     void *newData = malloc(cs->cap*sizeof(struct returnAddr));
@@ -60,7 +60,7 @@ void pushCont3(struct Cora *co, basicBlock cb, Obj a, Obj b, Obj c) {
 
 
 void
-popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) {
+popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj *frees) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
@@ -95,7 +95,7 @@ void coraCall(struct Cora *co) {
   int required = nativeRequired(co->args[0]);
   if (co->nargs == required + 1) {
     co->pc = nativeFuncPtr(fn);
-    co->frees = nativeData(fn);
+    co->frees = fn;
   } else if (co->nargs < required + 1) {
     Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
     co->nargs = 0;
@@ -164,7 +164,23 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
   for (int i=0; i<co->nargs; i++) {
     Obj before = co->args[i];
     co->args[i] = gcCopy(gc, co->args[i]);
-    printf("coraGC fun, args[%ld] %p -> %p\n", i, before, co->args[i]);
+    printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]);
+  }
+  // Closure register.
+  co->frees = gcCopy(gc, co->frees);
+  // Return stack
+  for (int i=0; i<co->callstack.len; i++) {
+    struct returnAddr* addr = &co->callstack.data[i];
+    for (int j=addr->base; j<addr->pos; j++) {
+      // TODO: It should be addr->stack!!
+      // But currently now saveStack do not save the stack pointer.
+      /* addr->stack[j] = gcCopy(gc, addr->stack[j]); */
+
+      
+      co->stack[j] = gcCopy(gc, co->stack[j]);
+    }
+    // Don't forget this one!
+    addr->frees = gcCopy(gc, addr->frees);
   }
 }
 
@@ -185,7 +201,8 @@ trampoline(struct Cora *co, basicBlock pc) {
 
 Obj
 closureRef(struct Cora *co, int idx) {
-  return co->frees[idx];
+  Obj* frees = nativeData(co->frees);
+  return frees[idx];
 }
 
 Obj globalRef(Obj sym) {

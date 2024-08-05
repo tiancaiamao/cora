@@ -10,7 +10,7 @@
 
 struct returnAddr {
   basicBlock pc;
-  Obj *frees;
+  Obj frees;
   int base;
   int pos;
   Obj *stack;
@@ -30,7 +30,7 @@ struct Cora {
 
   struct callStack callstack;
 
-  Obj *frees;
+  Obj frees;
   Obj args[32];
   int nargs;
   basicBlock pc;
@@ -39,7 +39,7 @@ struct Cora {
 void trampoline(struct Cora *co, basicBlock pc);
 void coraCall(struct Cora *co);
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
-void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees);
+void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj *frees);
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);

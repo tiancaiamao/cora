@@ -231,7 +231,7 @@ co->args[1] = Nil;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -260,7 +260,7 @@ co->args[2] = globalRef(intern("defmacro-macro"));
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -276,7 +276,7 @@ co->args[2] = makeNative(_35clofun1038, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -292,7 +292,7 @@ co->args[2] = makeNative(_35clofun1040, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -311,7 +311,7 @@ co->args[2] = makeNative(_35clofun1052, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -327,7 +327,7 @@ co->args[2] = makeNative(_35clofun1054, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -344,7 +344,7 @@ co->args[2] = makeNative(_35clofun1061, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -361,7 +361,7 @@ co->args[2] = makeNative(_35clofun1065, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -379,7 +379,7 @@ co->args[2] = makeNative(_35clofun1071, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -400,7 +400,7 @@ co->args[2] = makeNative(_35clofun1128, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -426,7 +426,7 @@ co->args[2] = makeNative(_35clofun1157, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -446,7 +446,7 @@ co->args[2] = makeNative(_35clofun1206, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -462,7 +462,7 @@ co->args[2] = makeNative(_35clofun1214, 1, 0);
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -477,7 +477,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -491,7 +491,7 @@ co->args[1] = _35val1005;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -514,7 +514,7 @@ co->args[0] = _35cc34;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -547,7 +547,7 @@ co->args[0] = _35cc35;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -558,7 +558,7 @@ co->args[0] = _35cc35;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -569,7 +569,7 @@ co->args[0] = _35cc35;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -580,7 +580,7 @@ co->args[0] = _35cc35;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -604,7 +604,7 @@ co->args[2] = _35reg988;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -614,7 +614,7 @@ co->args[0] = _35cc36;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -644,7 +644,7 @@ co->args[1] = makeString1("no match-help found!");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -659,7 +659,7 @@ co->args[1] = _35reg983;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -684,7 +684,7 @@ co->args[0] = _35cc30;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -695,7 +695,7 @@ co->args[0] = _35cc30;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -730,7 +730,7 @@ co->args[0] = _35cc31;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -741,7 +741,7 @@ co->args[0] = _35cc31;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -752,7 +752,7 @@ co->args[0] = _35cc31;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -774,7 +774,7 @@ co->args[1] = y;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -784,7 +784,7 @@ co->args[0] = _35cc32;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -809,7 +809,7 @@ co->args[1] = makeString1("no match-help found!");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -824,7 +824,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -838,7 +838,7 @@ co->args[1] = _35val957;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -873,7 +873,7 @@ co->args[0] = _35cc18;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -884,7 +884,7 @@ co->args[0] = _35cc18;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -895,7 +895,7 @@ co->args[0] = _35cc18;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -906,7 +906,7 @@ co->args[0] = _35cc18;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -937,7 +937,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -947,18 +947,7 @@ co->args[0] = _35cc19;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc19;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -969,7 +958,7 @@ co->args[0] = _35cc19;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -980,7 +969,18 @@ co->args[0] = _35cc19;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc19;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -998,7 +998,7 @@ co->args[1] = _35reg943;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1028,7 +1028,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1038,18 +1038,7 @@ co->args[0] = _35cc20;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc20;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1060,7 +1049,7 @@ co->args[0] = _35cc20;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1071,7 +1060,18 @@ co->args[0] = _35cc20;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc20;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1089,7 +1089,7 @@ co->args[1] = _35reg930;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1119,7 +1119,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1129,18 +1129,7 @@ co->args[0] = _35cc21;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc21;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1151,7 +1140,7 @@ co->args[0] = _35cc21;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1162,7 +1151,18 @@ co->args[0] = _35cc21;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc21;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1180,7 +1180,7 @@ co->args[1] = _35reg917;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1219,7 +1219,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1229,18 +1229,7 @@ co->args[0] = _35cc22;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc22;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1251,7 +1240,7 @@ co->args[0] = _35cc22;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1262,7 +1251,7 @@ co->args[0] = _35cc22;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1273,7 +1262,18 @@ co->args[0] = _35cc22;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc22;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1291,7 +1291,7 @@ co->args[1] = y;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1310,7 +1310,7 @@ co->args[1] = _35reg904;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1340,7 +1340,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1350,18 +1350,7 @@ co->args[0] = _35cc23;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc23;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1372,7 +1361,7 @@ co->args[0] = _35cc23;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1383,7 +1372,18 @@ co->args[0] = _35cc23;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc23;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1401,7 +1401,7 @@ co->args[1] = _35reg882;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1431,7 +1431,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1441,18 +1441,7 @@ co->args[0] = _35cc24;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc24;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1463,7 +1452,7 @@ co->args[0] = _35cc24;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1474,7 +1463,18 @@ co->args[0] = _35cc24;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc24;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1492,7 +1492,7 @@ co->args[1] = _35reg869;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1542,7 +1542,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1552,18 +1552,7 @@ co->args[0] = _35cc25;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc25;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1574,7 +1563,7 @@ co->args[0] = _35cc25;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1585,7 +1574,7 @@ co->args[0] = _35cc25;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1596,7 +1585,7 @@ co->args[0] = _35cc25;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1607,7 +1596,18 @@ co->args[0] = _35cc25;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc25;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1626,7 +1626,7 @@ co->args[1] = y;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1644,7 +1644,7 @@ co->args[1] = z;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1665,7 +1665,7 @@ co->args[1] = _35reg856;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1704,7 +1704,7 @@ co->args[1] = body;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1714,18 +1714,7 @@ co->args[0] = _35cc26;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc26;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1736,7 +1725,7 @@ co->args[0] = _35cc26;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1747,7 +1736,7 @@ co->args[0] = _35cc26;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1758,7 +1747,18 @@ co->args[0] = _35cc26;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc26;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1792,7 +1792,7 @@ co->args[2] = _35reg802;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1802,7 +1802,7 @@ co->args[0] = _35cc27;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1824,7 +1824,7 @@ co->args[1] = makeString1("no match-help found!");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1892,7 +1892,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1903,7 +1903,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1914,7 +1914,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1925,7 +1925,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1936,7 +1936,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1947,7 +1947,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1958,7 +1958,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1969,7 +1969,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -1980,7 +1980,7 @@ co->args[0] = _35cc6;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2048,7 +2048,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2059,7 +2059,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2070,7 +2070,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2081,7 +2081,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2092,7 +2092,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2103,7 +2103,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2114,7 +2114,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2125,7 +2125,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2136,7 +2136,7 @@ co->args[0] = _35cc7;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2204,7 +2204,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2215,7 +2215,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2226,7 +2226,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2237,7 +2237,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2248,7 +2248,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2259,7 +2259,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2270,7 +2270,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2281,7 +2281,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2292,7 +2292,7 @@ co->args[0] = _35cc8;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2336,7 +2336,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2347,7 +2347,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2358,7 +2358,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2369,7 +2369,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2380,7 +2380,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2391,7 +2391,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2402,7 +2402,7 @@ co->args[0] = _35cc9;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2436,7 +2436,7 @@ co->args[0] = _35cc10;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2447,7 +2447,7 @@ co->args[0] = _35cc10;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2458,7 +2458,7 @@ co->args[0] = _35cc10;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2469,7 +2469,7 @@ co->args[0] = _35cc10;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2480,7 +2480,7 @@ co->args[0] = _35cc10;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2548,7 +2548,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2559,7 +2559,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2570,7 +2570,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2581,7 +2581,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2592,7 +2592,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2603,7 +2603,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2614,7 +2614,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2625,7 +2625,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2636,7 +2636,7 @@ co->args[0] = _35cc11;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2670,7 +2670,7 @@ co->args[0] = _35cc12;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2681,7 +2681,7 @@ co->args[0] = _35cc12;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2692,7 +2692,7 @@ co->args[0] = _35cc12;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2703,7 +2703,7 @@ co->args[0] = _35cc12;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2714,7 +2714,7 @@ co->args[0] = _35cc12;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2748,7 +2748,7 @@ co->args[0] = _35cc13;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2759,7 +2759,7 @@ co->args[0] = _35cc13;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2770,7 +2770,7 @@ co->args[0] = _35cc13;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2781,7 +2781,7 @@ co->args[0] = _35cc13;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2792,7 +2792,7 @@ co->args[0] = _35cc13;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2846,7 +2846,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2857,7 +2857,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2868,7 +2868,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2879,7 +2879,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2890,7 +2890,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2901,7 +2901,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2912,7 +2912,7 @@ co->args[0] = _35cc14;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2966,7 +2966,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2977,7 +2977,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2988,7 +2988,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -2999,7 +2999,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3010,7 +3010,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3021,7 +3021,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3032,7 +3032,7 @@ co->args[0] = _35cc15;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3054,7 +3054,7 @@ co->args[1] = makeString1("no match-help found!");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3069,7 +3069,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3085,7 +3085,7 @@ co->args[1] = _35val523;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3102,7 +3102,7 @@ co->args[1] = body;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3120,7 +3120,7 @@ co->args[1] = nargs;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3138,7 +3138,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3177,7 +3177,7 @@ co->args[1] = _35reg519;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3203,7 +3203,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3221,7 +3221,7 @@ co->args[2] = pats;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3242,7 +3242,7 @@ co->args[2] = _35reg512;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3258,7 +3258,7 @@ co->args[1] = _35val513;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3275,7 +3275,7 @@ co->args[1] = makeString1("inconsistent func rule args count");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3304,7 +3304,7 @@ co->args[1] = _35reg507;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3329,7 +3329,7 @@ co->args[2] = l2;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3356,7 +3356,7 @@ co->args[3] = l;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3376,7 +3376,7 @@ co->args[1] = _35reg492;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3387,7 +3387,7 @@ co->args[1] = res;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3411,7 +3411,7 @@ co->args[3] = _35reg496;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3425,7 +3425,7 @@ co->args[3] = _35reg497;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3441,7 +3441,7 @@ co->args[2] = l;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3465,7 +3465,7 @@ co->args[2] = _35reg488;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3482,7 +3482,7 @@ co->args[1] = rules;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3499,7 +3499,7 @@ co->args[1] = res;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3513,7 +3513,7 @@ co->args[1] = rules;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3530,7 +3530,7 @@ co->args[2] = _35val484;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3546,7 +3546,7 @@ co->args[3] = Nil;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3565,7 +3565,7 @@ co->args[1] = result;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3575,7 +3575,7 @@ co->args[0] = _35cc1;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3626,7 +3626,7 @@ co->args[1] = closureRef(co, 1);
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3636,18 +3636,7 @@ co->args[0] = _35cc2;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc2;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3658,7 +3647,7 @@ co->args[0] = _35cc2;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3669,7 +3658,7 @@ co->args[0] = _35cc2;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3680,7 +3669,7 @@ co->args[0] = _35cc2;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3691,7 +3680,18 @@ co->args[0] = _35cc2;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc2;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3718,7 +3718,7 @@ co->args[3] = _35reg477;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3747,7 +3747,7 @@ co->args[1] = closureRef(co, 1);
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3757,18 +3757,7 @@ co->args[0] = _35cc3;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
-} else {
-co->pc = coraCall;
-}
-return;
-}
-} else {
-co->args[0] = _35cc3;
-co->nargs = 1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3779,7 +3768,18 @@ co->args[0] = _35cc3;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
+} else {
+co->pc = coraCall;
+}
+return;
+}
+} else {
+co->args[0] = _35cc3;
+co->nargs = 1;
+if (nativeRequired(co->args[0]) == 0) {
+co->pc = nativeFuncPtr(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3802,7 +3802,7 @@ co->args[3] = _35reg444;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3825,7 +3825,7 @@ co->args[3] = closureRef(co, 2);
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3835,7 +3835,7 @@ co->args[0] = _35cc4;
 co->nargs = 1;
 if (nativeRequired(co->args[0]) == 0) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3849,7 +3849,7 @@ co->args[1] = makeString1("no match-help found!");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3863,7 +3863,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3878,7 +3878,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3894,7 +3894,7 @@ co->args[1] = _35val401;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3911,7 +3911,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3938,7 +3938,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3950,7 +3950,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3967,7 +3967,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3979,7 +3979,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -3997,7 +3997,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4009,7 +4009,7 @@ co->args[2] = rules;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4066,7 +4066,7 @@ co->args[1] = rules;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4090,7 +4090,7 @@ co->args[1] = rules;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4110,7 +4110,7 @@ co->args[1] = _35reg353;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4128,7 +4128,7 @@ co->args[2] = cc;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4139,7 +4139,7 @@ co->args[1] = makeString1("no cond match");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4161,7 +4161,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4183,7 +4183,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4205,7 +4205,7 @@ co->args[2] = _35reg391;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4246,7 +4246,7 @@ co->args[2] = cc;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4257,7 +4257,7 @@ co->args[1] = makeString1("no cond match");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4276,7 +4276,7 @@ co->args[2] = cc;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4287,7 +4287,7 @@ co->args[1] = makeString1("no cond match");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4309,7 +4309,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4331,7 +4331,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4353,7 +4353,7 @@ co->args[2] = _35reg376;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4390,7 +4390,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4412,7 +4412,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4434,7 +4434,7 @@ co->args[2] = _35reg361;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4470,7 +4470,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4492,7 +4492,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4510,7 +4510,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4529,7 +4529,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4552,7 +4552,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4583,7 +4583,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4614,7 +4614,7 @@ co->args[1] = action;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4647,7 +4647,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4696,7 +4696,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4738,7 +4738,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4749,7 +4749,7 @@ co->args[1] = makeString1("no cond match");
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4764,7 +4764,7 @@ co->args[2] = pat;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4779,7 +4779,7 @@ co->args[1] = _35val320;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4794,7 +4794,7 @@ co->args[1] = x;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4834,7 +4834,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4854,7 +4854,7 @@ co->args[1] = pat;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4880,7 +4880,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4901,7 +4901,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4915,7 +4915,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4936,7 +4936,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4951,7 +4951,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4972,7 +4972,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -4996,7 +4996,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5031,7 +5031,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5055,7 +5055,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5075,7 +5075,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5097,7 +5097,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5132,7 +5132,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5156,7 +5156,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5176,7 +5176,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5198,7 +5198,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5233,7 +5233,7 @@ co->args[1] = expr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5257,7 +5257,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5277,7 +5277,7 @@ co->args[4] = cc;
 co->nargs = 5;
 if (nativeRequired(co->args[0]) == 4) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5292,7 +5292,7 @@ co->args[1] = _35reg233;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5308,7 +5308,7 @@ co->args[1] = _35reg223;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5332,7 +5332,7 @@ co->args[1] = _35reg227;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5380,7 +5380,7 @@ co->args[1] = _35reg218;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5409,7 +5409,7 @@ co->args[1] = _35reg209;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5447,7 +5447,7 @@ co->args[1] = _35reg204;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5476,7 +5476,7 @@ co->args[1] = _35reg195;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5523,7 +5523,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5542,7 +5542,7 @@ co->args[1] = curr;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5559,7 +5559,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5588,7 +5588,7 @@ co->args[1] = _35reg176;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5604,7 +5604,7 @@ co->args[1] = _35reg164;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5627,7 +5627,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5645,7 +5645,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5662,7 +5662,7 @@ co->args[1] = _35val169;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5710,7 +5710,7 @@ co->args[2] = _35reg159;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5731,7 +5731,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5749,7 +5749,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5766,7 +5766,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5796,7 +5796,7 @@ co->args[1] = _35reg142;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5811,7 +5811,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5829,7 +5829,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5846,7 +5846,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5888,7 +5888,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5907,7 +5907,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5930,7 +5930,7 @@ co->args[1] = _35val127;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5947,7 +5947,7 @@ co->args[2] = exp1;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5958,7 +5958,7 @@ co->args[1] = exp1;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5975,7 +5975,7 @@ co->args[1] = exp;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -5991,7 +5991,7 @@ co->args[1] = _35val119;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6017,7 +6017,7 @@ co->args[2] = globalRef(intern("*macros*"));
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6039,7 +6039,7 @@ co->args[1] = _35reg109;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6062,7 +6062,7 @@ co->args[1] = closureRef(co, 0);
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6075,7 +6075,7 @@ co->args[2] = _35reg104;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6089,7 +6089,7 @@ co->args[1] = closureRef(co, 0);
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6102,7 +6102,7 @@ co->args[2] = _35reg106;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6117,7 +6117,7 @@ co->args[1] = closureRef(co, 0);
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6130,7 +6130,7 @@ co->args[2] = _35reg108;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6161,7 +6161,7 @@ return;
 void _35clofun1021(struct Cora* co) {
 Obj f = co->args[1];
 Obj l = co->args[2];
- assert(iscons(l));
+ /* assert(iscons(l)); */
 co->args[0] = globalRef(intern("map-h"));
 co->args[1] = Nil;
 co->args[2] = f;
@@ -6169,7 +6169,7 @@ co->args[3] = l;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6196,7 +6196,7 @@ co->args[1] = _35reg83;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6207,7 +6207,7 @@ co->args[1] = res;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6229,7 +6229,7 @@ co->args[3] = _35reg86;
 co->nargs = 4;
 if (nativeRequired(co->args[0]) == 3) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6250,7 +6250,7 @@ co->args[2] = _35reg78;
 co->nargs = 3;
 if (nativeRequired(co->args[0]) == 2) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }
@@ -6282,7 +6282,7 @@ co->args[1] = _35reg67;
 co->nargs = 2;
 if (nativeRequired(co->args[0]) == 1) {
 co->pc = nativeFuncPtr(co->args[0]);
-co->frees = nativeData(co->args[0]);
+co->frees = co->args[0];
 } else {
 co->pc = coraCall;
 }

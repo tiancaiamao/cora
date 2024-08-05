@@ -279,7 +279,7 @@
 			   (c.generate-num w (length args))
 			   (c.generate-str w ") {\n")
 			   (c.generate-str w "co->pc = nativeFuncPtr(co->args[0]);\n")
-			   (c.generate-str w "co->frees = nativeData(co->args[0]);\n")
+			   (c.generate-str w "co->frees = co->args[0];\n")
 			   (c.generate-str w "} else {\n")
 			   (c.generate-str w "co->pc = coraCall;\n}\n")
 			   (c.generate-str w "return;\n")))
