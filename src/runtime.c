@@ -168,7 +168,9 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
     /* printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]); */
   }
   // Closure register.
+  Obj save = co->frees;
   co->frees = gcCopy(gc, co->frees);
+  /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
   // Return stack
   for (int i=0; i<co->callstack.len; i++) {
     struct returnAddr* addr = &co->callstack.data[i];
@@ -580,6 +582,7 @@ builtinLoad(struct Cora *co) {
   Obj filePath = co->args[1];
   Obj pkg = co->args[2];
 
+  co->nargs = 4;
   co->args[0] = globalRef(intern("cora/lib/toc/include.compile-to-c"));
   co->args[1] = filePath;
 
@@ -589,7 +592,6 @@ builtinLoad(struct Cora *co) {
   str tmpCFile = cstr(buf);
   co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
   co->args[3] = pkg;
-  co->nargs = 4;
   trampoline(co, coraCall);
   Obj res = co->args[1];
   // TODO: check res?
@@ -601,9 +603,9 @@ builtinLoad(struct Cora *co) {
     snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", unique);
     unique++;
     str tmpSoFile = cstr(buf);
+    co->nargs = 3;
     co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
     co->args[2] = pkg;
-    co->nargs = 3;
     co->pc = builtinLoadSo;
     return;
   }
@@ -638,18 +640,18 @@ builtinImport(struct Cora *co) {
   if (0 == access(toCStr(tmp), R_OK)) {
     // primLoadSo is a bit special, it requires the current stack of VM is
     // (load-so "file-path.so" "package-path")
+    co->nargs = 3;
     co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
     co->args[2] = pkg;
-    co->nargs = 3;
     co->pc = builtinLoadSo;
     return;
   } else {
     tmp = strShrink(tmp, 3);
     tmp = strCat(tmp, cstr(".cora"));
+    co->nargs = 3;
     co->args[0] = makeNative(builtinLoad, 2, 0);
     co->args[1] = makeString1(toCStr(tmp));
     co->args[2] = pkg;
-    co->nargs = 3;
     trampoline(co, coraCall);
   }
   strFree(tmp);

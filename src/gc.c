@@ -21,7 +21,7 @@ blockInit(struct Block *block) {
 
 static void
 blockReset(struct Block *block) {
-  printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE);
+  /* printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE); */
   // For easy debug ... not really a MUST
   memset(block->data, 0, MEM_BLOCK_SIZE);
   free(block->data);
@@ -202,7 +202,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
   memcpy(to, from, from->size);
   from->forwarding = (uintptr_t)to | tag(p);
 
-  printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type);
+  /* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); */
 
   // Copy the children to the new place.
   // And update the reference of the new object.
@@ -216,7 +216,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
 
 static void
 gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
-  printf("gcStack -- from %p to %p\n", from, to);
+  /* printf("gcStack -- from %p to %p\n", from, to); */
   assert(from < to);
   assert(((uintptr_t)from & 0x7) == 0);
   assert(((uintptr_t)to & 0x7) == 0);
@@ -225,9 +225,9 @@ gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
     uintptr_t stackValue = *p;
     if (areaContains(gc->curr, ptr(stackValue))) {
       *p = gcCopy(gc, stackValue);
-      printf("gcStack update == %p to %ld\n", p, *p);
+      /* printf("gcStack update == %p to %ld\n", p, *p); */
     } else {
-      printf("gcStack skip == %p\n", p);
+      /* printf("gcStack skip == %p\n", p); */
     }
   }
 }
