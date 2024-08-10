@@ -250,7 +250,7 @@ gcRun(struct GC *gc) {
   gc->curr = gcGetNextArea(gc);
 
   int sz2 = areaSize(gc->curr);
-  printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2);
+  /* printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2); */
   gc->nextSize = 2 * sz2;
   if (gc->nextSize < MEM_BLOCK_SIZE) {
     // Because a block is at least that size, GC smaller then this is meanless.

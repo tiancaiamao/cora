@@ -99,7 +99,7 @@ void coraCall(struct Cora *co) {
     co->frees = fn;
   } else if (co->nargs < required + 1) {
     Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
-    co->nargs = 0;
+    co->nargs = 2;
     co->args[1] = ret;
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   } else {
@@ -348,6 +348,7 @@ void symbolToString(struct Cora *co) {
   Obj sym = co->args[1];
   char* str = symbolStr(sym);
   Obj val = makeString1(str);
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
@@ -363,6 +364,7 @@ stringAppend(struct Cora *co) {
   tmp = strCpy(tmp, toStr(x));
   tmp = strCat(tmp, toStr(y));
   Obj val = makeString1(toCStr(tmp));
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
@@ -472,6 +474,7 @@ builtinIntern(struct Cora *co) {
   Obj x = co->args[1];
   assert(isstring(x));
   Obj val = intern(toCStr(stringStr(x)));
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -480,6 +483,7 @@ void
 builtinIsNumber(struct Cora *co) {
   Obj x = co->args[1];
   if (isfixnum(x)) {
+    co->nargs = 2;
     co->args[1] = True;
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -487,11 +491,13 @@ builtinIsNumber(struct Cora *co) {
   if (tag(x) == TAG_PTR) {
     scmHead* h = ptr(x);
     if (h->type == scmHeadNumber) {
+      co->nargs = 2;
       co->args[1] = True;
       popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
       return;
     }
   }
+  co->nargs = 2;
   co->args[1] = False;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -505,6 +511,7 @@ builtinValue(struct Cora *co) {
     printf("undefined value: %s\n", s->sym);
     assert(false);
   }
+  co->nargs = 2;
   co->args[1] = ret;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -552,6 +559,7 @@ builtinLoadSo(struct Cora *co) {
   void *handle = dlopen(path, RTLD_LAZY);
   if (!handle) {
     fprintf(stderr, "%s\n", dlerror());
+    co->nargs = 2;
     co->args[1] = makeNumber(-1);
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -561,6 +569,7 @@ builtinLoadSo(struct Cora *co) {
   char *error = dlerror();
   if (error != NULL) {
     // TODO
+    co->nargs = 2;
     co->args[1] = makeString(error, strlen(error));
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -611,6 +620,7 @@ builtinLoad(struct Cora *co) {
   }
 
   unique++;
+  co->nargs = 2;
   co->args[1] = makeNumber(exitCode);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -626,6 +636,7 @@ builtinImport(struct Cora *co) {
   for (Obj p = imported; p != Nil; p = cdr(p)) {
     Obj elem = car(p);
     if (eq(elem, pkg)) {
+      co->nargs = 2;
       co->args[1] = sym;
       popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
       return;
@@ -659,6 +670,7 @@ builtinImport(struct Cora *co) {
   // Set the *imported* variable to avlid repeated load.
   symbolSet(sym, cons(pkg, imported));
 
+  co->nargs = 2;
   co->args[1] = pkg;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -672,6 +684,7 @@ builtinGenerateStr(struct Cora *co) {
   Obj exp = co->args[2];
   strBuf s = stringStr(exp);
   fprintf(out, "%s", toCStr(s));
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -693,6 +706,7 @@ builtinGenerateSym(struct Cora *co) {
       fprintf(out, "_%d", *p);
     }
   }
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -703,6 +717,7 @@ builtinGenerateNum(struct Cora *co) {
   FILE* out = mustCObj(to);
   Obj exp = co->args[2];
   fprintf(out, "%ld", fixnum(exp));
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -733,6 +748,7 @@ builtinEscapeStr(struct Cora *co) {
       dst = strAppend(dst, c);
     };
   }
+  co->nargs = 2;
   co->args[1] = makeString(toCStr(dst), strLen(toStr(dst)));
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -742,6 +758,7 @@ builtinOpenOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   strBuf filePath = stringStr(arg1);
   FILE* f = fopen(toCStr(filePath), "w");
+  co->nargs = 2;
   co->args[1] = makeCObj(f);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -751,6 +768,7 @@ builtinCloseOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   FILE *f = mustCObj(arg1);
   int errno = fclose(f);
+  co->nargs = 2;
   co->args[1] = makeNumber(errno);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -789,6 +807,7 @@ builtinReadFileAsSexp(struct Cora *co) {
   fclose(f);
 
  exit0:
+  co->nargs = 2;
   co->args[1] = result;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -811,6 +830,7 @@ builtinOSExec(struct Cora *co) {
   Obj args = co->args[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
+  co->nargs = 2;
   co->args[1] = makeNumber(exitCode);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
