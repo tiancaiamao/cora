@@ -787,7 +787,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 
   Obj pkg = co->args[2];
   char *selfPath = toCStr(stringStr(pkg));
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
+  struct SexpReader r = {.selfPath = selfPath};
   int err = 0;
   int count = 0;
   while(true) {
@@ -870,6 +870,7 @@ coraInit(void *mark) {
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
+  primSet(intern("*package-mapping*"), Nil);
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
   primSet(intern("intern"), makeNative(builtinIntern, 1, 0));

@@ -6,7 +6,7 @@
 
 struct SexpReader {
   // associate list ((pkg . path1) (pkg2 . path2) ...)
-  Obj pkgMapping;
+  /* Obj pkgMapping; */
   char *selfPath;
 };
 
