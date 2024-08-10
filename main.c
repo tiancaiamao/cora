@@ -1,11 +1,11 @@
 #include "runtime.h"
 
 
-extern void coraInit();
 extern void builtinLoadSo(struct Cora *co);
 
 int main(int argc, char *argv[]) {
-  coraInit();
+  void* dummy;
+  coraInit(&dummy);
   struct Cora* co = coraNew();
   Obj imported = intern("*imported*");
 

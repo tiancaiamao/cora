@@ -8,7 +8,10 @@
 
 static void
 addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
-  r->pkgMapping = cons(cons(sym, path), r->pkgMapping);
+  Obj var = intern("*package-mapping*");
+  Obj pkgMapping = symbolGet(var);
+  symbolSet(var, cons(cons(sym, path), pkgMapping));
+  /* r->pkgMapping = cons(cons(sym, path), r->pkgMapping); */
 }
 
 static bool
@@ -257,7 +260,8 @@ sexpRead(struct SexpReader* r, FILE *in, int *errCode) {
 	  buffer[firstDot] = 0;
 	  Obj pkg = makeSymbol(buffer);
 
-	  Obj p = r->pkgMapping;
+	  Obj p = symbolGet(intern("*package-mapping*"));
+	  /* Obj p = r->pkgMapping; */
 	  for (; p != Nil; p = cdr(p)) {
 	    Obj item = car(p);
 	    if (car(item) == pkg) {
@@ -361,18 +365,9 @@ printObj(FILE *to, Obj o) {
     case scmHeadNative:
       fprintf(to, "native");
       break;
-    /* case scmHeadCurry: */
-    /*   fprintf(to, "curry"); */
-    /*   break; */
-    case scmHeadClosure:
-      fprintf(to, "closure");
-      break;
     /* case scmHeadContinuation: */
     /*   fprintf(to, "continuation"); */
     /*   break; */
-    case scmHeadPrimitive:
-      fprintf(to, "primitive");
-      break;
     default:
       fprintf(to, "ptr unknown type = %d\n", h->type);
     };

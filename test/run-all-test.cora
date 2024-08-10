@@ -26,7 +26,7 @@
        outfile-path (get-exec-file file-path)
        (begin
 	(toc.compile-to-c file-path c-file-path "")
-	(os.exec ["gcc" "-DForTest -Isrc src/runtime.c ./src/str.c ./src/types.c ./src/reader.c" c-file-path
+	(os.exec ["gcc" "-g" "-DForTest -Isrc src/runtime.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" c-file-path
 		 "-o" outfile-path "-ldl"]))))
 
 (defun run (file-path)

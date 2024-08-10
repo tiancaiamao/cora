@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include "runtime.h"
 #include "str.h"
+#include "gc.h"
 
 void
-/* saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *stack, Obj *frees) { */
-saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
+saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees) {
   if (cs->len + 1 >= cs->cap) {
     cs->cap = cs->cap * 2;
     void *newData = malloc(cs->cap*sizeof(struct returnAddr));
@@ -21,16 +21,12 @@ saveStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj *frees) {
   addr->pc = pc;
   addr->base = base;
   addr->pos = pos;
-  /* addr->stack = stack; */
   addr->frees = frees;
   cs->len++;
   return;
 }
 
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
-  /* saveStack(&co->callstack, cb, co->pos, co->pos, co->stack, co->frees); */
-  /* saveStack(&co->callstack, cb, co->stack, co->frees); */
-  /* saveStack(&co->callstack, cb, co->pos, co->pos + nstack, co->frees); */
   saveStack(&co->callstack, cb, co->base, co->base + nstack, co->frees);
   if (nstack > 0) {
     va_list ap;
@@ -48,37 +44,31 @@ void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
   co->base = co->pos;
 }
 
+
+void pushCont3(struct Cora *co, basicBlock cb, Obj a, Obj b, Obj c) {
+  saveStack(&co->callstack, cb, co->base, co->base + 3, co->frees);
+  co->stack[co->base] = a;
+  co->stack[co->base+1] = b;
+  co->stack[co->base+2] = c;
+  assert(co->pos >= co->base);
+
+  if (co->base + 3 > co->pos) {
+    co->pos = co->base + 3;
+  }
+
+  co->base = co->pos;
+}
+
+
 void
-/* popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) { */
-popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj **frees) {
-/* popStack(struct callStack *cs, basicBlock *pc, int *base, Obj **frees) { */
+popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj *frees) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   *pc = addr->pc;
   *base = addr->base;
   *pos = addr->pos;
-  /* *stack = addr->stack; */
   *frees = addr->frees;
   return;
-}
-
-Obj
-makeNative(basicBlock fn, int required, int captured, ...) {
-  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
-  struct scmNative* clo = newObj(scmHeadNative, sz);
-  clo->fn = fn;
-  clo->required = required;
-  clo->captured = captured;
-  if (captured > 0) {
-    va_list ap;
-    va_start(ap, captured);
-    for (int i=0; i<captured; i++) {
-      clo->data[i] = va_arg(ap, Obj);
-    }
-    va_end(ap);
-  }
-
-  return ((Obj)(&clo->head) | TAG_PTR);
 }
 
 void callCurry(struct Cora *co) {
@@ -101,58 +91,17 @@ makeCurry1(int required, int captured, Obj *data) {
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
-bool
-isNative(Obj c) {
-  if ((c & TAG_MASK) != TAG_PTR) {
-    return false;
-  }
-  scmHead *h = ptr(c);
-  return h->type == scmHeadNative;
-}
-
-Obj*
-nativeData(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  if (native->captured == 0) {
-    return NULL;
-  }
-  return native->data;
-}
-
-int
-nativeCaptured(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->captured;
-}
-
-basicBlock
-nativeFuncPtr(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->fn;
-}
-
-int
-nativeRequired(Obj o) {
-  struct scmNative* native = ptr(o);
-  assert(native->head.type == scmHeadNative);
-  return native->required;
-}
-
 void coraCall(struct Cora *co) {
   Obj fn = co->args[0];
   int required = nativeRequired(co->args[0]);
   if (co->nargs == required + 1) {
     co->pc = nativeFuncPtr(fn);
-    co->frees = nativeData(fn);
+    co->frees = fn;
   } else if (co->nargs < required + 1) {
     Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
-    co->nargs = 0;
+    co->nargs = 2;
     co->args[1] = ret;
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-    /* popStack(&co->callstack, &co->pc, &co->base, &co->stack, &co->frees); */
   } else {
     // save the extra args.
     int cnt = co->nargs - (required+1);
@@ -171,10 +120,6 @@ void coraCall(struct Cora *co) {
   return;
 }
 
-Obj makeString1(char *x) {
-  return makeString(x, strlen(x));
-}
-
 void push(struct Cora *co, Obj v) {
   co->stack[co->pos] = v;
   co->pos++;
@@ -185,6 +130,10 @@ Obj stackRef(struct Cora *co, int idx) {
 }
 
 const int INIT_STACK_SIZE = 5000;
+
+
+extern struct trieNode gRoot;
+struct Cora *gCo;
 
 struct Cora*
 coraNew() {
@@ -200,7 +149,48 @@ coraNew() {
   /* co->trystack.data = malloc(4 * sizeof(struct tryRecord)); */
   /* co->trystack.len = 0; */
   /* co->trystack.cap = 4; */
+
+  gCo = co;
+
   return co;
+}
+
+static void
+coraGCFunc(struct GC *gc, struct Cora *co) {
+  // The stack.
+  for (int i=0; i<co->pos; i++) {
+    co->stack[i] = gcCopy(gc, co->stack[i]);
+  }
+  // The args.
+  for (int i=0; i<co->nargs; i++) {
+    Obj before = co->args[i];
+    co->args[i] = gcCopy(gc, co->args[i]);
+    /* printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]); */
+  }
+  // Closure register.
+  Obj save = co->frees;
+  co->frees = gcCopy(gc, co->frees);
+  /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
+  // Return stack
+  for (int i=0; i<co->callstack.len; i++) {
+    struct returnAddr* addr = &co->callstack.data[i];
+    for (int j=addr->base; j<addr->pos; j++) {
+      // TODO: It should be addr->stack!!
+      // But currently now saveStack do not save the stack pointer.
+      /* addr->stack[j] = gcCopy(gc, addr->stack[j]); */
+
+      
+      co->stack[j] = gcCopy(gc, co->stack[j]);
+    }
+    // Don't forget this one!
+    addr->frees = gcCopy(gc, addr->frees);
+  }
+}
+
+void
+gcGlobal(struct GC *gc) {
+  trieNodeGCFunc(gc, &gRoot);
+  coraGCFunc(gc, gCo);
 }
 
 void
@@ -208,13 +198,17 @@ trampoline(struct Cora *co, basicBlock pc) {
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
+    if (gcCheck(&gc)) {
+      gcRun(&gc);
+    }
     co->pc(co);
   }
 }
 
 Obj
 closureRef(struct Cora *co, int idx) {
-  return co->frees[idx];
+  Obj* frees = nativeData(co->frees);
+  return frees[idx];
 }
 
 Obj globalRef(Obj sym) {
@@ -280,6 +274,7 @@ Obj primCar(Obj x) {
 }
 
 Obj primCdr(Obj x) {
+  assert(iscons(x));
   return cdr(x);
 }
 
@@ -320,7 +315,7 @@ static uint64_t genIdx = 0;
 Obj primGenSym(Obj arg) {
   assert(issymbol(arg));
   char tmp[200];
-  snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
+  snprintf(tmp, 100, "#%s%lu", symbolStr(arg), genIdx);
   genIdx++;
   return makeSymbol(tmp);
 }
@@ -353,6 +348,7 @@ void symbolToString(struct Cora *co) {
   Obj sym = co->args[1];
   char* str = symbolStr(sym);
   Obj val = makeString1(str);
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
@@ -368,6 +364,7 @@ stringAppend(struct Cora *co) {
   tmp = strCpy(tmp, toStr(x));
   tmp = strCat(tmp, toStr(y));
   Obj val = makeString1(toCStr(tmp));
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
@@ -477,6 +474,7 @@ builtinIntern(struct Cora *co) {
   Obj x = co->args[1];
   assert(isstring(x));
   Obj val = intern(toCStr(stringStr(x)));
+  co->nargs = 2;
   co->args[1] = val;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -485,6 +483,7 @@ void
 builtinIsNumber(struct Cora *co) {
   Obj x = co->args[1];
   if (isfixnum(x)) {
+    co->nargs = 2;
     co->args[1] = True;
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -492,11 +491,13 @@ builtinIsNumber(struct Cora *co) {
   if (tag(x) == TAG_PTR) {
     scmHead* h = ptr(x);
     if (h->type == scmHeadNumber) {
+      co->nargs = 2;
       co->args[1] = True;
       popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
       return;
     }
   }
+  co->nargs = 2;
   co->args[1] = False;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -510,6 +511,7 @@ builtinValue(struct Cora *co) {
     printf("undefined value: %s\n", s->sym);
     assert(false);
   }
+  co->nargs = 2;
   co->args[1] = ret;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -557,6 +559,7 @@ builtinLoadSo(struct Cora *co) {
   void *handle = dlopen(path, RTLD_LAZY);
   if (!handle) {
     fprintf(stderr, "%s\n", dlerror());
+    co->nargs = 2;
     co->args[1] = makeNumber(-1);
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -566,6 +569,7 @@ builtinLoadSo(struct Cora *co) {
   char *error = dlerror();
   if (error != NULL) {
     // TODO
+    co->nargs = 2;
     co->args[1] = makeString(error, strlen(error));
     popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
     return;
@@ -587,6 +591,7 @@ builtinLoad(struct Cora *co) {
   Obj filePath = co->args[1];
   Obj pkg = co->args[2];
 
+  co->nargs = 4;
   co->args[0] = globalRef(intern("cora/lib/toc/include.compile-to-c"));
   co->args[1] = filePath;
 
@@ -596,7 +601,6 @@ builtinLoad(struct Cora *co) {
   str tmpCFile = cstr(buf);
   co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
   co->args[3] = pkg;
-  co->nargs = 4;
   trampoline(co, coraCall);
   Obj res = co->args[1];
   // TODO: check res?
@@ -608,14 +612,15 @@ builtinLoad(struct Cora *co) {
     snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", unique);
     unique++;
     str tmpSoFile = cstr(buf);
+    co->nargs = 3;
     co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
     co->args[2] = pkg;
-    co->nargs = 3;
     co->pc = builtinLoadSo;
     return;
   }
 
   unique++;
+  co->nargs = 2;
   co->args[1] = makeNumber(exitCode);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -631,6 +636,7 @@ builtinImport(struct Cora *co) {
   for (Obj p = imported; p != Nil; p = cdr(p)) {
     Obj elem = car(p);
     if (eq(elem, pkg)) {
+      co->nargs = 2;
       co->args[1] = sym;
       popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
       return;
@@ -645,18 +651,18 @@ builtinImport(struct Cora *co) {
   if (0 == access(toCStr(tmp), R_OK)) {
     // primLoadSo is a bit special, it requires the current stack of VM is
     // (load-so "file-path.so" "package-path")
+    co->nargs = 3;
     co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
     co->args[2] = pkg;
-    co->nargs = 3;
     co->pc = builtinLoadSo;
     return;
   } else {
     tmp = strShrink(tmp, 3);
     tmp = strCat(tmp, cstr(".cora"));
+    co->nargs = 3;
     co->args[0] = makeNative(builtinLoad, 2, 0);
     co->args[1] = makeString1(toCStr(tmp));
     co->args[2] = pkg;
-    co->nargs = 3;
     trampoline(co, coraCall);
   }
   strFree(tmp);
@@ -664,6 +670,7 @@ builtinImport(struct Cora *co) {
   // Set the *imported* variable to avlid repeated load.
   symbolSet(sym, cons(pkg, imported));
 
+  co->nargs = 2;
   co->args[1] = pkg;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -677,6 +684,7 @@ builtinGenerateStr(struct Cora *co) {
   Obj exp = co->args[2];
   strBuf s = stringStr(exp);
   fprintf(out, "%s", toCStr(s));
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -698,6 +706,7 @@ builtinGenerateSym(struct Cora *co) {
       fprintf(out, "_%d", *p);
     }
   }
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -708,6 +717,7 @@ builtinGenerateNum(struct Cora *co) {
   FILE* out = mustCObj(to);
   Obj exp = co->args[2];
   fprintf(out, "%ld", fixnum(exp));
+  co->nargs = 2;
   co->args[1] = Nil;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -738,6 +748,7 @@ builtinEscapeStr(struct Cora *co) {
       dst = strAppend(dst, c);
     };
   }
+  co->nargs = 2;
   co->args[1] = makeString(toCStr(dst), strLen(toStr(dst)));
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -747,6 +758,7 @@ builtinOpenOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   strBuf filePath = stringStr(arg1);
   FILE* f = fopen(toCStr(filePath), "w");
+  co->nargs = 2;
   co->args[1] = makeCObj(f);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -756,6 +768,7 @@ builtinCloseOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   FILE *f = mustCObj(arg1);
   int errno = fclose(f);
+  co->nargs = 2;
   co->args[1] = makeNumber(errno);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -774,7 +787,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 
   Obj pkg = co->args[2];
   char *selfPath = toCStr(stringStr(pkg));
-  struct SexpReader r = {.pkgMapping = Nil, .selfPath = selfPath};
+  struct SexpReader r = {.selfPath = selfPath};
   int err = 0;
   int count = 0;
   while(true) {
@@ -794,6 +807,7 @@ builtinReadFileAsSexp(struct Cora *co) {
   fclose(f);
 
  exit0:
+  co->nargs = 2;
   co->args[1] = result;
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
 }
@@ -816,6 +830,7 @@ builtinOSExec(struct Cora *co) {
   Obj args = co->args[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
+  co->nargs = 2;
   co->args[1] = makeNumber(exitCode);
   popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
   return;
@@ -849,10 +864,13 @@ registerAPI(struct registerModule* m, str pkg) {
 // ============ end utilities for toc =================
 
 void
-coraInit() {
+coraInit(void *mark) {
+  gcInit(&gc, mark);
+  typesInit();
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
+  primSet(intern("*package-mapping*"), Nil);
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
   primSet(intern("intern"), makeNative(builtinIntern, 1, 0));
@@ -882,6 +900,9 @@ coraInit() {
 extern void entry(struct Cora* co);
 
 int main(int argc, char *argv[]) {
+  void* dummy;
+  coraInit(&dummy);
+
   symQuote = intern("quote");
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
