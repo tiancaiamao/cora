@@ -6,26 +6,28 @@
 #include <assert.h>
 #include "gc.h"
 
-const int MEM_BLOCK_SIZE = 3*1024;
+const int MEM_BLOCK_SIZE = 1024;
 
 struct Block {
   int offset;
-  char *data;
+  struct Block *next;
+  char data[];
 };
 
-static void
-blockInit(struct Block *block) {
-  block->data = malloc(MEM_BLOCK_SIZE);
-  block->offset = 0;
+static struct Block *
+blockNew() {
+  struct Block *b = malloc(MEM_BLOCK_SIZE);
+  b->offset = 0;
+  b->next = NULL;
+  return b;
 }
 
 static void
 blockReset(struct Block *block) {
   /* printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE); */
   // For easy debug ... not really a MUST
-  memset(block->data, 0, MEM_BLOCK_SIZE);
-  free(block->data);
-  block->offset = 0;
+  memset(block, 0, MEM_BLOCK_SIZE);
+  free(block);
 }
 
 static bool
@@ -41,7 +43,8 @@ blockContains(struct Block *block, void *p) {
 
 static scmHead*
 blockAlloc(struct Block *block, int size) {
-  if (block->offset + size > MEM_BLOCK_SIZE) {
+  assert(size < MEM_BLOCK_SIZE);
+  if (block->data + block->offset + size > (char*)block + MEM_BLOCK_SIZE) {
     return NULL;
   }
   size = aligntonext(size, TAG_SHIFT);
@@ -53,82 +56,72 @@ blockAlloc(struct Block *block, int size) {
 }
 
 struct Area {
-  struct Block *blocks;
-  int len;
-  int cap;
+  struct Block *head;
+  struct Block *tail;
 };
 
 static void
 areaInit(struct Area *area) {
-  area->len = 0;
-  area->cap = 8;
-  area->blocks = malloc(sizeof(struct Block) * area->cap);
+  area->head = NULL;
+  area->tail = NULL;
 }
 
 static bool
 areaContains(struct Area *area, void *p) {
-  for (int i=0; i<area->len; i++) {
-    struct Block *b = &area->blocks[i];
+  struct Block *b = area->head;
+  while (b != NULL) {
     if (blockContains(b, p)) {
       return true;
     }
+    b = b->next;
   }
   return false;
 }
 
 static scmHead*
 areaAlloc(struct Area *area, int size) {
-  /* if (size > 500) { */
-  /*   printf("what the fuck??\n"); */
-  /* } */
   assert(size > sizeof(scmHead));
   // Lazy initialize the first block.
-  if (area->len == 0) {
-    area->len = 1;
-    blockInit(&area->blocks[0]);
+  if (area->tail == NULL) {
+    struct Block *b = blockNew();
+    area->head = b;
+    area->tail = b;
   }
 
-  struct Block *curr = &area->blocks[area->len - 1];
+  struct Block *curr = area->tail;
   scmHead *res = blockAlloc(curr, size);
   if (res != NULL) {
     return res;
   }
 
-  if (area->len == area->cap) {
-    struct Block *tmp = malloc(sizeof(struct Block) * area->cap * 2);
-    if (tmp == NULL) {
-      abort();
-    }
-    memcpy(tmp, area->blocks, sizeof(struct Block) * area->len);
-    free(area->blocks);
-    area->blocks = tmp;
-    area->cap = area->cap * 2;
+  struct Block *tmp = blockNew();
+  if (tmp == NULL) {
+    abort();
   }
-  curr = &area->blocks[area->len];
-  blockInit(curr);
-  area->len++;
 
+  /* fprintf("new block === [%p,  %p]\n", tmp, (char*)tmp + MEM_BLOCK_SIZE); */
+  curr->next = tmp;
+  area->tail = tmp;
   return areaAlloc(area, size);
 }
 
 static void
 areaReset(struct Area *area) {
-  for (int i=0; i<area->len; i++) {
-    struct Block *b = &area->blocks[i];
-    blockReset(b);
+  while (area->head != NULL) {
+    struct Block *p = area->head;
+    area->head = p->next;
+    blockReset(p);
   }
-  area->len = 0;
+  area->tail = NULL;
 }
 
 static int
 areaSize(struct Area *area) {
   int size = 0;
-  for (int i=0; i<area->len - 1; i++) {
-    size += MEM_BLOCK_SIZE;
-  }
-  if (area->len > 0) {
-    struct Block *b = &area->blocks[area->len - 1];
+  struct Block *b = area->head;
+  while (b != NULL) {
     size += b->offset;
+    b = b->next;
   }
   return size;
 }
@@ -205,14 +198,6 @@ gcCopy(struct GC *gc, uintptr_t p) {
 
   /* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); */
 
-  // DONE
-  // Copy the children to the new place.
-  // And update the reference of the new object.
-  /* gcFunc copyChildren = registry[from->type]; */
-  /* if (copyChildren != NULL) { */
-  /*   copyChildren(gc, from, to); */
-  /* } */
-
   return from->forwarding;
 }
 
@@ -252,10 +237,9 @@ gcRun(struct GC *gc) {
 
   // breadth first.
   struct Area *area = gcGetNextArea(gc);
-  int currBlockIdx = 0;
-  while(currBlockIdx < area->len) {
+  struct Block *curr = area->head;
+  while(curr != NULL) {
     int currOffset = 0;
-    struct Block *curr = &area->blocks[currBlockIdx];
     while (currOffset < curr->offset) {
       scmHead *head = (scmHead*)&curr->data[currOffset];
       gcFunc copyChildren = registry[head->type];
@@ -265,7 +249,7 @@ gcRun(struct GC *gc) {
       }
       currOffset += head->size;
     }
-    currBlockIdx++;
+    curr = curr->next;
   }
 
   areaReset(gc->curr);
