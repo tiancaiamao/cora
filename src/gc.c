@@ -11,6 +11,7 @@ const int MEM_BLOCK_SIZE = 1024;
 struct Block {
   int offset;
   struct Block *next;
+  struct Block *prev;
   char data[];
 };
 
@@ -19,12 +20,13 @@ blockNew() {
   struct Block *b = malloc(MEM_BLOCK_SIZE);
   b->offset = 0;
   b->next = NULL;
+  b->prev = NULL;
   return b;
 }
 
 static void
 blockReset(struct Block *block) {
-  /* printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE); */
+  /* printf("reset data in rage [%p, %p]\n", block, (char*)block + MEM_BLOCK_SIZE); */
   // For easy debug ... not really a MUST
   memset(block, 0, MEM_BLOCK_SIZE);
   free(block);
@@ -99,8 +101,11 @@ areaAlloc(struct Area *area, int size) {
     abort();
   }
 
-  /* fprintf("new block === [%p,  %p]\n", tmp, (char*)tmp + MEM_BLOCK_SIZE); */
+  /* printf("new block === [%p,  %p]\n", tmp, (char*)tmp + MEM_BLOCK_SIZE); */
+
+  // Insert the new block to head.
   curr->next = tmp;
+  tmp->prev = curr;
   area->tail = tmp;
   return areaAlloc(area, size);
 }
@@ -202,17 +207,17 @@ gcCopy(struct GC *gc, uintptr_t p) {
 }
 
 static void
-gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
-  /* printf("gcStack -- from %p to %p\n", from, to); */
-  assert(from < to);
-  assert(((uintptr_t)from & 0x7) == 0);
-  assert(((uintptr_t)to & 0x7) == 0);
+gcStack(struct GC* gc, uintptr_t* start, uintptr_t* end) {
+  /* printf("gcStack -- start %p end %p\n", start, end); */
+  assert(start < end);
+  assert(((uintptr_t)start & 0x7) == 0);
+  assert(((uintptr_t)end & 0x7) == 0);
 
-  for (uintptr_t *p = from; p<to; p++) {
+  for (uintptr_t *p = start; p<end; p++) {
     uintptr_t stackValue = *p;
     if (areaContains(gc->curr, ptr(stackValue))) {
       *p = gcCopy(gc, stackValue);
-      /* printf("gcStack update == %p to %ld\n", p, *p); */
+      /* printf("gcStack update == %p end %ld\n", p, *p); */
     } else {
       /* printf("gcStack skip == %p\n", p); */
     }
@@ -249,7 +254,7 @@ gcRun(struct GC *gc) {
       }
       currOffset += head->size;
     }
-    curr = curr->next;
+    curr = curr->next; // Note, it's in reverse order from tail to head
   }
 
   areaReset(gc->curr);
