@@ -159,6 +159,7 @@ static gcFunc registry[256] = {};
 
 bool
 gcRegistForType(uint8_t idx, gcFunc fn) {
+  assert(idx < 256);
   if (registry[idx] != NULL) {
     return false;
   }
@@ -204,12 +205,13 @@ gcCopy(struct GC *gc, uintptr_t p) {
 
   /* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); */
 
+  // DONE
   // Copy the children to the new place.
   // And update the reference of the new object.
-  gcFunc copyChildren = registry[from->type];
-  if (copyChildren != NULL) {
-    copyChildren(gc, from, to);
-  }
+  /* gcFunc copyChildren = registry[from->type]; */
+  /* if (copyChildren != NULL) { */
+  /*   copyChildren(gc, from, to); */
+  /* } */
 
   return from->forwarding;
 }
@@ -243,8 +245,28 @@ gcRun(struct GC *gc) {
   jmp_buf ctx;
   memset(&ctx, 0, sizeof(jmp_buf));
   setjmp(ctx);
+
+  // enqueue the root.
   gcStack(gc, stackAddr, baseStackAddr);
   gcGlobal(gc);
+
+  // breadth first.
+  struct Area *area = gcGetNextArea(gc);
+  int currBlockIdx = 0;
+  while(currBlockIdx < area->len) {
+    int currOffset = 0;
+    struct Block *curr = &area->blocks[currBlockIdx];
+    while (currOffset < curr->offset) {
+      scmHead *head = (scmHead*)&curr->data[currOffset];
+      gcFunc copyChildren = registry[head->type];
+      if (copyChildren != NULL) {
+	copyChildren(gc, head);
+	/* printf("gcCopy handle %p ==%ld, sz=%d tp=%d\n", head, head, head->size, head->type); */
+      }
+      currOffset += head->size;
+    }
+    currBlockIdx++;
+  }
 
   areaReset(gc->curr);
   gc->curr = gcGetNextArea(gc);

@@ -27,7 +27,7 @@ void* gcAlloc(struct GC* gc, int size);
 bool gcCheck(struct GC* gc);
 void gcRun(struct GC *gc);
 
-typedef void (*gcFunc)(struct GC *gc, void* from, void* to);
+typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);
 
 extern struct GC gc;

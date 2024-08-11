@@ -73,11 +73,11 @@ bool iscons(Obj o) {
 }
 
 static void
-consGCFunc(struct GC *gc, void* f, void* t) {
+consGCFunc(struct GC *gc, void* f) {
   struct scmCons *from = f;
-  struct scmCons *to = t;
-  to->car = gcCopy(gc, from->car);
-  to->cdr = gcCopy(gc, from->cdr);
+  assert(from->head.forwarding == 0);
+  from->car = gcCopy(gc, from->car);
+  from->cdr = gcCopy(gc, from->cdr);
 }
 
 Obj
@@ -172,7 +172,7 @@ isstring(Obj o) {
 }
 
 static void
-stringGCFunc(struct GC *gc, void* f, void* t) {
+stringGCFunc(struct GC *gc, void* f) {
   // TODO:
 }
 
@@ -255,11 +255,11 @@ makeNative(basicBlock fn, int required, int captured, ...) {
 }
 
 static void
-nativeGCFunc(struct GC *gc, void* f, void* t) {
+nativeGCFunc(struct GC *gc, void* f) {
   struct scmNative *from = f;
-  struct scmNative *to = t;
+  assert(from->head.forwarding == 0);
   for (int i=0; i<from->captured; i++) {
-    to->data[i] = gcCopy(gc, from->data[i]);
+    from->data[i] = gcCopy(gc, from->data[i]);
   }
 }
 
@@ -345,11 +345,11 @@ isvector(Obj o) {
 
 
 static void
-vectorGCFunc(struct GC *gc, void* f, void* t) {
+vectorGCFunc(struct GC *gc, void* f) {
   struct scmVector *from = f;
-  struct scmVector *to = t;
+  assert(from->head.forwarding == 0);
   for (int i=0; i<from->size; i++) {
-    to->data[i] = gcCopy(gc, from->data[i]);
+    from->data[i] = gcCopy(gc, from->data[i]);
   }
 }
 
