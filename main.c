@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   trampoline(co, builtinLoadSo);
   symbolSet(imported, cons(makeString1("cora/lib/toc/include"), symbolGet(imported)));
   
-  struct SexpReader r = {.pkgMapping = Nil};
+  struct SexpReader r = {};
   int errCode = 0;
 
   for (int i=0; ; i++) {
