@@ -6,26 +6,30 @@
 #include <assert.h>
 #include "gc.h"
 
-const int MEM_BLOCK_SIZE = 3*1024;
+const int MEM_BLOCK_SIZE = 1024;
 
 struct Block {
   int offset;
-  char *data;
+  struct Block *next;
+  struct Block *prev;
+  char data[];
 };
 
-static void
-blockInit(struct Block *block) {
-  block->data = malloc(MEM_BLOCK_SIZE);
-  block->offset = 0;
+static struct Block *
+blockNew() {
+  struct Block *b = malloc(MEM_BLOCK_SIZE);
+  b->offset = 0;
+  b->next = NULL;
+  b->prev = NULL;
+  return b;
 }
 
 static void
 blockReset(struct Block *block) {
-  /* printf("reset data in rage [%p, %p]\n", block->data, block->data + MEM_BLOCK_SIZE); */
+  /* printf("reset data in rage [%p, %p]\n", block, (char*)block + MEM_BLOCK_SIZE); */
   // For easy debug ... not really a MUST
-  memset(block->data, 0, MEM_BLOCK_SIZE);
-  free(block->data);
-  block->offset = 0;
+  memset(block, 0, MEM_BLOCK_SIZE);
+  free(block);
 }
 
 static bool
@@ -41,7 +45,8 @@ blockContains(struct Block *block, void *p) {
 
 static scmHead*
 blockAlloc(struct Block *block, int size) {
-  if (block->offset + size > MEM_BLOCK_SIZE) {
+  assert(size < MEM_BLOCK_SIZE);
+  if (block->data + block->offset + size > (char*)block + MEM_BLOCK_SIZE) {
     return NULL;
   }
   size = aligntonext(size, TAG_SHIFT);
@@ -53,82 +58,113 @@ blockAlloc(struct Block *block, int size) {
 }
 
 struct Area {
-  struct Block *blocks;
-  int len;
-  int cap;
+  struct Block *head;
+  struct Block *tail;
 };
 
 static void
 areaInit(struct Area *area) {
-  area->len = 0;
-  area->cap = 8;
-  area->blocks = malloc(sizeof(struct Block) * area->cap);
+  area->head = NULL;
+  area->tail = NULL;
 }
 
-static bool
+static struct Block*
 areaContains(struct Area *area, void *p) {
-  for (int i=0; i<area->len; i++) {
-    struct Block *b = &area->blocks[i];
+  struct Block *b = area->head;
+  while (b != NULL) {
     if (blockContains(b, p)) {
-      return true;
+      return b;
     }
+    b = b->next;
   }
-  return false;
+  return NULL;
 }
 
 static scmHead*
 areaAlloc(struct Area *area, int size) {
-  /* if (size > 500) { */
-  /*   printf("what the fuck??\n"); */
-  /* } */
   assert(size > sizeof(scmHead));
   // Lazy initialize the first block.
-  if (area->len == 0) {
-    area->len = 1;
-    blockInit(&area->blocks[0]);
+  if (area->tail == NULL) {
+    struct Block *b = blockNew();
+    area->head = b;
+    area->tail = b;
   }
 
-  struct Block *curr = &area->blocks[area->len - 1];
+  struct Block *curr = area->tail;
   scmHead *res = blockAlloc(curr, size);
   if (res != NULL) {
     return res;
   }
 
-  if (area->len == area->cap) {
-    struct Block *tmp = malloc(sizeof(struct Block) * area->cap * 2);
-    if (tmp == NULL) {
-      abort();
-    }
-    memcpy(tmp, area->blocks, sizeof(struct Block) * area->len);
-    free(area->blocks);
-    area->blocks = tmp;
-    area->cap = area->cap * 2;
+  struct Block *tmp = blockNew();
+  if (tmp == NULL) {
+    abort();
   }
-  curr = &area->blocks[area->len];
-  blockInit(curr);
-  area->len++;
 
+  /* printf("new block === [%p,  %p]\n", tmp, (char*)tmp + MEM_BLOCK_SIZE); */
+
+  // Insert the new block to head.
+  curr->next = tmp;
+  tmp->prev = curr;
+  area->tail = tmp;
   return areaAlloc(area, size);
 }
 
 static void
-areaReset(struct Area *area) {
-  for (int i=0; i<area->len; i++) {
-    struct Block *b = &area->blocks[i];
-    blockReset(b);
+areaUnlinkBlock(struct Area *area, struct Block *b) {
+  if (b->prev != NULL) {
+    b->prev->next = b->next;
   }
-  area->len = 0;
+  if (b->next != NULL) {
+    b->next->prev = b->prev;
+  }
+
+  // b is special, like head or tail, update the area's link.
+  if (area->head == b) {
+    area->head = b->next;
+  }
+  if (area->tail == b) {
+    area->tail = b->next;
+  }
+
+  // unlink b
+  b->prev = NULL;
+  b->next = NULL;
+}
+
+static void
+areaLinkBlock(struct Area *area, struct Block *b) {
+  if (area->tail == NULL) {
+    assert(area->head == NULL);
+    area->head = b;
+    area->tail = b;
+    return;
+  }
+
+  area->tail->next = b;
+  b->prev = area->tail;
+  b->next = NULL;
+  area->tail = b;
+  return;
+}
+
+static void
+areaReset(struct Area *area) {
+  while (area->head != NULL) {
+    struct Block *p = area->head;
+    area->head = p->next;
+    blockReset(p);
+  }
+  area->tail = NULL;
 }
 
 static int
 areaSize(struct Area *area) {
   int size = 0;
-  for (int i=0; i<area->len - 1; i++) {
-    size += MEM_BLOCK_SIZE;
-  }
-  if (area->len > 0) {
-    struct Block *b = &area->blocks[area->len - 1];
+  struct Block *b = area->head;
+  while (b != NULL) {
     size += b->offset;
+    b = b->next;
   }
   return size;
 }
@@ -178,6 +214,36 @@ gcGetNextArea(struct GC *gc) {
   return area;
 }
 
+void
+gcCopyBlock(struct GC *gc, uintptr_t p) {
+  // If p is in curr area, move the block to next area.
+  // p is not gc alloced, skip it.
+  // This magic number kinda dirty, see types.h
+  if ((p&0x3) != 0x3) {
+    return;
+  }
+
+  struct Block *b = areaContains(gc->curr, ptr(p));
+  if (b == NULL) {
+    /* printf("gcStack skip == %p\n", p); */
+    return;
+  }
+
+  /* printf("gcStack copy block == %p end %ld\n", p, p); */
+
+  // remove it from the current area.
+  areaUnlinkBlock(gc->curr, b);
+
+  scmHead *from = ptr(p);
+  assert(from->forwarding == 0);
+  assert(from->size > 0);
+  assert(from->type <= 6);
+
+  // link it to the next area.
+  struct Area *area = gcGetNextArea(gc);
+  areaLinkBlock(area, b);
+}
+
 uintptr_t
 gcCopy(struct GC *gc, uintptr_t p) {
   // p is not gc alloced, skip it.
@@ -186,7 +252,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
     return p;
   }
 
-  if (!areaContains(gc->curr, ptr(p))) {
+  if (areaContains(gc->curr, ptr(p)) == NULL) {
     return p;
   }
 
@@ -205,32 +271,20 @@ gcCopy(struct GC *gc, uintptr_t p) {
 
   /* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); */
 
-  // DONE
-  // Copy the children to the new place.
-  // And update the reference of the new object.
-  /* gcFunc copyChildren = registry[from->type]; */
-  /* if (copyChildren != NULL) { */
-  /*   copyChildren(gc, from, to); */
-  /* } */
-
   return from->forwarding;
 }
 
 static void
-gcStack(struct GC* gc, uintptr_t* from, uintptr_t* to) {
-  /* printf("gcStack -- from %p to %p\n", from, to); */
-  assert(from < to);
-  assert(((uintptr_t)from & 0x7) == 0);
-  assert(((uintptr_t)to & 0x7) == 0);
+gcStack(struct GC* gc, uintptr_t* start, uintptr_t* end) {
+  /* printf("gcStack -- start %p end %p\n", start, end); */
+  assert(start < end);
+  assert(((uintptr_t)start & 0x7) == 0);
+  assert(((uintptr_t)end & 0x7) == 0);
 
-  for (uintptr_t *p = from; p<to; p++) {
+  for (uintptr_t *p = start; p<end; p++) {
     uintptr_t stackValue = *p;
-    if (areaContains(gc->curr, ptr(stackValue))) {
-      *p = gcCopy(gc, stackValue);
-      /* printf("gcStack update == %p to %ld\n", p, *p); */
-    } else {
-      /* printf("gcStack skip == %p\n", p); */
-    }
+    // mostly copying!!
+    gcCopyBlock(gc, stackValue);
   }
 }
 
@@ -252,10 +306,9 @@ gcRun(struct GC *gc) {
 
   // breadth first.
   struct Area *area = gcGetNextArea(gc);
-  int currBlockIdx = 0;
-  while(currBlockIdx < area->len) {
+  struct Block *curr = area->head;
+  while(curr != NULL) {
     int currOffset = 0;
-    struct Block *curr = &area->blocks[currBlockIdx];
     while (currOffset < curr->offset) {
       scmHead *head = (scmHead*)&curr->data[currOffset];
       gcFunc copyChildren = registry[head->type];
@@ -265,7 +318,7 @@ gcRun(struct GC *gc) {
       }
       currOffset += head->size;
     }
-    currBlockIdx++;
+    curr = curr->next; // Note, it's in reverse order from tail to head
   }
 
   areaReset(gc->curr);

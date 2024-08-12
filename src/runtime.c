@@ -168,7 +168,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
     /* printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]); */
   }
   // Closure register.
-  Obj save = co->frees;
+  /* Obj save = co->frees; */
   co->frees = gcCopy(gc, co->frees);
   /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
   // Return stack
