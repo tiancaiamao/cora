@@ -68,16 +68,16 @@ areaInit(struct Area *area) {
   area->tail = NULL;
 }
 
-static bool
+static struct Block*
 areaContains(struct Area *area, void *p) {
   struct Block *b = area->head;
   while (b != NULL) {
     if (blockContains(b, p)) {
-      return true;
+      return b;
     }
     b = b->next;
   }
-  return false;
+  return NULL;
 }
 
 static scmHead*
@@ -108,6 +108,44 @@ areaAlloc(struct Area *area, int size) {
   tmp->prev = curr;
   area->tail = tmp;
   return areaAlloc(area, size);
+}
+
+static void
+areaUnlinkBlock(struct Area *area, struct Block *b) {
+  if (b->prev != NULL) {
+    b->prev->next = b->next;
+  }
+  if (b->next != NULL) {
+    b->next->prev = b->prev;
+  }
+
+  // b is special, like head or tail, update the area's link.
+  if (area->head == b) {
+    area->head = b->next;
+  }
+  if (area->tail == b) {
+    area->tail = b->next;
+  }
+
+  // unlink b
+  b->prev = NULL;
+  b->next = NULL;
+}
+
+static void
+areaLinkBlock(struct Area *area, struct Block *b) {
+  if (area->tail == NULL) {
+    assert(area->head == NULL);
+    area->head = b;
+    area->tail = b;
+    return;
+  }
+
+  area->tail->next = b;
+  b->prev = area->tail;
+  b->next = NULL;
+  area->tail = b;
+  return;
 }
 
 static void
@@ -176,6 +214,36 @@ gcGetNextArea(struct GC *gc) {
   return area;
 }
 
+void
+gcCopyBlock(struct GC *gc, uintptr_t p) {
+  // If p is in curr area, move the block to next area.
+  // p is not gc alloced, skip it.
+  // This magic number kinda dirty, see types.h
+  if ((p&0x3) != 0x3) {
+    return;
+  }
+
+  struct Block *b = areaContains(gc->curr, ptr(p));
+  if (b == NULL) {
+    /* printf("gcStack skip == %p\n", p); */
+    return;
+  }
+
+  /* printf("gcStack copy block == %p end %ld\n", p, p); */
+
+  // remove it from the current area.
+  areaUnlinkBlock(gc->curr, b);
+
+  scmHead *from = ptr(p);
+  assert(from->forwarding == 0);
+  assert(from->size > 0);
+  assert(from->type <= 6);
+
+  // link it to the next area.
+  struct Area *area = gcGetNextArea(gc);
+  areaLinkBlock(area, b);
+}
+
 uintptr_t
 gcCopy(struct GC *gc, uintptr_t p) {
   // p is not gc alloced, skip it.
@@ -184,7 +252,7 @@ gcCopy(struct GC *gc, uintptr_t p) {
     return p;
   }
 
-  if (!areaContains(gc->curr, ptr(p))) {
+  if (areaContains(gc->curr, ptr(p)) == NULL) {
     return p;
   }
 
@@ -215,12 +283,8 @@ gcStack(struct GC* gc, uintptr_t* start, uintptr_t* end) {
 
   for (uintptr_t *p = start; p<end; p++) {
     uintptr_t stackValue = *p;
-    if (areaContains(gc->curr, ptr(stackValue))) {
-      *p = gcCopy(gc, stackValue);
-      /* printf("gcStack update == %p end %ld\n", p, *p); */
-    } else {
-      /* printf("gcStack skip == %p\n", p); */
-    }
+    // mostly copying!!
+    gcCopyBlock(gc, stackValue);
   }
 }
 
