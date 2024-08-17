@@ -198,9 +198,9 @@ trampoline(struct Cora *co, basicBlock pc) {
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
   while(co->pc != NULL) {
-    if (gcCheck(&gc)) {
-      gcRun(&gc);
-    }
+    /* if (gcCheck(&gc)) { */
+    /*   gcRun(&gc); */
+    /* } */
     co->pc(co);
   }
 }

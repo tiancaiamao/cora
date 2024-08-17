@@ -44,19 +44,20 @@ extern const Obj Nil;
 extern const Obj Undef;
 
 enum {
-      // Instant values.
-      scmHeadBoolean,
-      scmHeadNull,
-      // Symbol is a special pointer, but it's basically instant value.
-      // Number may be or may not be pointer.
-      scmHeadNumber,
-      // The followings are all pointer types.
-      // Except cons, all the others are general pointer.
-      scmHeadCons,
-      scmHeadString,
-      scmHeadVector,
-      scmHeadNative,
-      /* scmHeadContinuation, */
+  scmHeadUnused = 0,
+  // Instant values.
+  scmHeadBoolean,
+  scmHeadNull,
+  // Symbol is a special pointer, but it's basically instant value.
+  // Number may be or may not be pointer.
+  scmHeadNumber,
+  // The followings are all pointer types.
+  // Except cons, all the others are general pointer.
+  scmHeadCons,
+  scmHeadString,
+  scmHeadVector,
+  scmHeadNative,
+  /* scmHeadContinuation, */
 };
 
 void typesInit();

@@ -6,10 +6,9 @@
 #include <assert.h>
 #include "gc.h"
 
-const int MEM_BLOCK_SIZE = 1024;
+const int MEM_BLOCK_SIZE = 4 * 1024;
 
 struct Block {
-  int offset;
   struct Block *next;
   struct Block *prev;
   char data[];
@@ -18,59 +17,66 @@ struct Block {
 static struct Block *
 blockNew() {
   struct Block *b = malloc(MEM_BLOCK_SIZE);
-  b->offset = 0;
   b->next = NULL;
   b->prev = NULL;
+  scmHead* h = (scmHead*)b->data;
+  h->type = 0; // scmHeadUnused
+  h->size = (char*)b + MEM_BLOCK_SIZE - b->data;
   return b;
 }
 
-static void
-blockReset(struct Block *block) {
-  /* printf("reset data in rage [%p, %p]\n", block, (char*)block + MEM_BLOCK_SIZE); */
-  // For easy debug ... not really a MUST
-  memset(block, 0, MEM_BLOCK_SIZE);
-  free(block);
-}
+/* static void */
+/* blockReset(struct Block *block) { */
+/*   /\* printf("reset data in rage [%p, %p]\n", block, (char*)block + MEM_BLOCK_SIZE); *\/ */
+/*   // For easy debug ... not really a MUST */
+/*   memset(block, 0, MEM_BLOCK_SIZE); */
+/*   free(block); */
+/* } */
 
 static bool
 blockContains(struct Block *block, void *p) {
-  if (p < (void*)block->data || p >= (void*)&block->data[block->offset]) {
-    return false;
-  }
-  return true;
+  return p>= (void*)block->data && p < (void*)block + MEM_BLOCK_SIZE;
 }
 
 #define alignto(p, bits)      (((p) >> bits) << bits)
 #define aligntonext(p, bits)  alignto(((p) + (1 << bits) - 1), bits)
 
-static scmHead*
-blockAlloc(struct Block *block, int size) {
-  assert(size < MEM_BLOCK_SIZE);
-  if (block->data + block->offset + size > (char*)block + MEM_BLOCK_SIZE) {
-    return NULL;
-  }
-  size = aligntonext(size, TAG_SHIFT);
-  scmHead *head = (void*)&block->data[block->offset];
-  head->size = size;
-  head->forwarding = 0;
-  block->offset += size;
-  return head;
-}
-
-struct Area {
+struct GC {
+  void* baseStackAddr;
   struct Block *head;
   struct Block *tail;
+
+  // currBlock + currOffset determines the allocat position.
+  struct Block *currBlock;
+  int currOffset;
+
+  // TODO: implement a freelist
+  void* freeList[5];
+
+  // Initially, allocate objects version=0
+  // For every round of GC, the version++
+  // gc mark make the inuse object version+1, while dead object version keep unchanged
+  // If an object's version < gc version, it's garbage and sweep lazily
+  int version;
+  int nextSize;
 };
 
-static void
-areaInit(struct Area *area) {
-  area->head = NULL;
-  area->tail = NULL;
+void
+gcInit(struct GC *gc, void *baseStackAddr) {
+  gc->baseStackAddr = baseStackAddr;
+  struct Block *b = blockNew();
+  gc->head = b;
+  gc->tail = b;
+
+  gc->currBlock = b;
+  gc->currOffset = 0;
+  gc->version = 0;
+  gc->nextSize = MEM_BLOCK_SIZE;
 }
 
 static struct Block*
-areaContains(struct Area *area, void *p) {
-  struct Block *b = area->head;
+gcContains(struct GC *gc, void *p) {
+  struct Block *b = gc->head;
   while (b != NULL) {
     if (blockContains(b, p)) {
       return b;
@@ -81,115 +87,135 @@ areaContains(struct Area *area, void *p) {
 }
 
 static scmHead*
-areaAlloc(struct Area *area, int size) {
-  assert(size > sizeof(scmHead));
-  // Lazy initialize the first block.
-  if (area->tail == NULL) {
+moveToNextBlock(struct GC *gc) {
+  gc->currBlock = gc->currBlock->next;
+  // all blocks exhausted?
+  if (gc->currBlock == NULL) {
     struct Block *b = blockNew();
-    area->head = b;
-    area->tail = b;
+    b->prev = gc->tail;
+    gc->tail->next = b;
+    gc->tail = b;
+    gc->currBlock = gc->tail;
   }
-
-  struct Block *curr = area->tail;
-  scmHead *res = blockAlloc(curr, size);
-  if (res != NULL) {
-    return res;
-  }
-
-  struct Block *tmp = blockNew();
-  if (tmp == NULL) {
-    abort();
-  }
-
-  /* printf("new block === [%p,  %p]\n", tmp, (char*)tmp + MEM_BLOCK_SIZE); */
-
-  // Insert the new block to head.
-  curr->next = tmp;
-  tmp->prev = curr;
-  area->tail = tmp;
-  return areaAlloc(area, size);
+  gc->currOffset = 0;
+  return (scmHead*)&gc->currBlock->data[gc->currOffset];
 }
 
-static void
-areaUnlinkBlock(struct Area *area, struct Block *b) {
-  if (b->prev != NULL) {
-    b->prev->next = b->next;
+static scmHead*
+moveToFirstUnused(struct GC *gc) {
+  scmHead *head = (void*)(gc->currBlock->data + gc->currOffset);
+  while(head->version == gc->version && head->type != 0) {
+    gc->currOffset += head->size;
+    head = (void*)&gc->currBlock->data[gc->currOffset];
+    // The next block.
+    if ((char*)head >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
+      head = moveToNextBlock(gc);
+    }
   }
-  if (b->next != NULL) {
-    b->next->prev = b->prev;
-  }
-
-  // b is special, like head or tail, update the area's link.
-  if (area->head == b) {
-    area->head = b->next;
-  }
-  if (area->tail == b) {
-    area->tail = b->next;
-  }
-
-  // unlink b
-  b->prev = NULL;
-  b->next = NULL;
+  return head;
 }
 
-static void
-areaLinkBlock(struct Area *area, struct Block *b) {
-  if (area->tail == NULL) {
-    assert(area->head == NULL);
-    area->head = b;
-    area->tail = b;
-    return;
-  }
+void*
+gcAlloc(struct GC *gc, int size) {
+  size = aligntonext(size, TAG_SHIFT);
 
-  area->tail->next = b;
-  b->prev = area->tail;
-  b->next = NULL;
-  area->tail = b;
-  return;
+  assert(size > sizeof(scmHead));
+  assert(size < MEM_BLOCK_SIZE);
+  // TODO: try allocate from freelist first.
+
+  scmHead* head = moveToFirstUnused(gc);
+  // merge adjacent object until the unused size is greater than required.
+  while(head->size < size) {
+    scmHead *next = (scmHead*)((char*)head + head->size);
+    if ((char*)next >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
+      moveToNextBlock(gc);
+      head = moveToFirstUnused(gc);
+      continue;
+    }
+    if (next->version == gc->version && next->type != 0) {
+      // Meet inuse object, fragments cause allocation fail.
+      assert(false);
+      break;
+    }
+    head->size += next->size;
+  }
+  
+  // now alloc from this unused obj.
+  if (head->size > size) {
+    int remain = head->size - size;
+    scmHead* tmp = (void*)head + size;
+    tmp->size = remain;
+    tmp->type = 0;
+    tmp->version = gc->version;
+
+    gc->currOffset = (char*)head - gc->currBlock->data;
+    head->size = size;
+  }
+  // not mandatory to move to the next unused obj, let the next alloc operation handle it.
+  head->version = gc->version;
+  return head;
 }
 
-static void
-areaReset(struct Area *area) {
-  while (area->head != NULL) {
-    struct Block *p = area->head;
-    area->head = p->next;
-    blockReset(p);
-  }
-  area->tail = NULL;
-}
+/* static void */
+/* gcUnlinkBlock(struct GC *gc, struct Block *b) { */
+/*   if (b->prev != NULL) { */
+/*     b->prev->next = b->next; */
+/*   } */
+/*   if (b->next != NULL) { */
+/*     b->next->prev = b->prev; */
+/*   } */
 
-static int
-areaSize(struct Area *area) {
-  int size = 0;
-  struct Block *b = area->head;
-  while (b != NULL) {
-    size += b->offset;
-    b = b->next;
-  }
-  return size;
-}
+/*   // b is special, like head or tail, update the gc's link. */
+/*   if (gc->head == b) { */
+/*     gc->head = b->next; */
+/*   } */
+/*   if (gc->tail == b) { */
+/*     gc->tail = b->next; */
+/*   } */
 
-struct GC {
-  struct Area area1;
-  struct Area area2;
-  struct Area *curr;
-  int nextSize;
-  bool flag;
-};
+/*   // unlink b */
+/*   b->prev = NULL; */
+/*   b->next = NULL; */
+/* } */
+
+/* static void */
+/* gcLinkBlock(struct GC *gc, struct Block *b) { */
+/*   if (gc->tail == NULL) { */
+/*     assert(gc->head == NULL); */
+/*     gc->head = b; */
+/*     gc->tail = b; */
+/*     return; */
+/*   } */
+
+/*   gc->tail->next = b; */
+/*   b->prev = gc->tail; */
+/*   b->next = NULL; */
+/*   gc->tail = b; */
+/*   return; */
+/* } */
+
+/* static void */
+/* gcReset(struct GC *gc) { */
+/*   while (gc->head != NULL) { */
+/*     struct Block *p = gc->head; */
+/*     gc->head = p->next; */
+/*     blockReset(p); */
+/*   } */
+/*   gc->tail = NULL; */
+/* } */
+
+/* static int */
+/* gcSize(struct GC *gc) { */
+/*   int size = 0; */
+/*   struct Block *b = gc->head; */
+/*   while (b != NULL) { */
+/*     size += b->offset; */
+/*     b = b->next; */
+/*   } */
+/*   return size; */
+/* } */
 
 struct GC gc;
-
-void* baseStackAddr = NULL;
-
-void
-gcInit(struct GC *gc, void *dummy) {
-  baseStackAddr = dummy;
-  areaInit(&gc->area1);
-  areaInit(&gc->area2);
-  gc->curr = &gc->area1;
-  gc->nextSize = MEM_BLOCK_SIZE;
-  gc->flag = false;
-}
 
 static gcFunc registry[256] = {};
 
@@ -203,149 +229,91 @@ gcRegistForType(uint8_t idx, gcFunc fn) {
   return true;
 }
 
-static struct Area*
-gcGetNextArea(struct GC *gc) {
-  struct Area *area;
-  if (gc->curr == &gc->area1) {
-    area = &gc->area2;
-  } else {
-    area = &gc->area1;
-  }
-  return area;
-}
-
-void
-gcCopyBlock(struct GC *gc, uintptr_t p) {
-  // If p is in curr area, move the block to next area.
-  // p is not gc alloced, skip it.
-  // This magic number kinda dirty, see types.h
-  if ((p&0x3) != 0x3) {
-    return;
-  }
-
-  struct Block *b = areaContains(gc->curr, ptr(p));
-  if (b == NULL) {
-    /* printf("gcStack skip == %p\n", p); */
-    return;
-  }
-
-  /* printf("gcStack copy block == %p end %ld\n", p, p); */
-
-  // remove it from the current area.
-  areaUnlinkBlock(gc->curr, b);
-
-  scmHead *from = ptr(p);
-  assert(from->forwarding == 0);
-  assert(from->size > 0);
-  assert(from->type <= 6);
-
-  // link it to the next area.
-  struct Area *area = gcGetNextArea(gc);
-  areaLinkBlock(area, b);
-}
-
 uintptr_t
 gcCopy(struct GC *gc, uintptr_t p) {
-  // p is not gc alloced, skip it.
-  // This magic number kinda dirty, see types.h
-  if ((p&0x3) != 0x3) {
-    return p;
-  }
-
-  if (areaContains(gc->curr, ptr(p)) == NULL) {
-    return p;
-  }
-
-  scmHead *from = ptr(p);
-  if (from->forwarding != 0) {
-    return from->forwarding;
-  }
-  assert(from->size > 0);
-  assert(from->type <= 6);
-
-  // Copy the data of itself to the new place.
-  struct Area *area = gcGetNextArea(gc);
-  void* to = areaAlloc(area, from->size);
-  memcpy(to, from, from->size);
-  from->forwarding = (uintptr_t)to | tag(p);
-
-  /* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); */
-
-  return from->forwarding;
 }
+/*   // p is not gc alloced, skip it. */
+/*   // This magic number kinda dirty, see types.h */
+/*   if ((p&0x3) != 0x3) { */
+/*     return p; */
+/*   } */
 
-static void
-gcStack(struct GC* gc, uintptr_t* start, uintptr_t* end) {
-  /* printf("gcStack -- start %p end %p\n", start, end); */
-  assert(start < end);
-  assert(((uintptr_t)start & 0x7) == 0);
-  assert(((uintptr_t)end & 0x7) == 0);
+/*   if (areaContains(gc->curr, ptr(p)) == NULL) { */
+/*     return p; */
+/*   } */
 
-  for (uintptr_t *p = start; p<end; p++) {
-    uintptr_t stackValue = *p;
-    // mostly copying!!
-    gcCopyBlock(gc, stackValue);
-  }
-}
+/*   scmHead *from = ptr(p); */
+/*   if (from->forwarding != 0) { */
+/*     return from->forwarding; */
+/*   } */
+/*   assert(from->size > 0); */
+/*   assert(from->type <= 6); */
+
+/*   // Copy the data of itself to the new place. */
+/*   struct GC *area = gcGetNextArea(gc); */
+/*   void* to = areaAlloc(area, from->size); */
+/*   memcpy(to, from, from->size); */
+/*   from->forwarding = (uintptr_t)to | tag(p); */
+
+/*   /\* printf("gcCopy from %p to %p ==%ld, sz=%d tp=%d\n", from, to, p, from->size, from->type); *\/ */
+
+/*   return from->forwarding; */
+/* } */
+
+/* static void */
+/* gcStack(struct GC* gc, uintptr_t* start, uintptr_t* end) { */
+/*   /\* printf("gcStack -- start %p end %p\n", start, end); *\/ */
+/*   assert(start < end); */
+/*   assert(((uintptr_t)start & 0x7) == 0); */
+/*   assert(((uintptr_t)end & 0x7) == 0); */
+
+/*   for (uintptr_t *p = start; p<end; p++) { */
+/*     uintptr_t stackValue = *p; */
+/*     // mostly copying!! */
+/*     gcCopyBlock(gc, stackValue); */
+/*   } */
+/* } */
 
 extern void gcGlobal(struct GC *gc);
 
 void
 gcRun(struct GC *gc) {
-  int sz1 = areaSize(gc->curr);
+  /* void* stackAddr = &stackAddr; */
+  /* // Dump registers onto stack and scan the stack. */
+  /* jmp_buf ctx; */
+  /* memset(&ctx, 0, sizeof(jmp_buf)); */
+  /* setjmp(ctx); */
 
-  void* stackAddr = &stackAddr;
-  // Dump registers onto stack and scan the stack.
-  jmp_buf ctx;
-  memset(&ctx, 0, sizeof(jmp_buf));
-  setjmp(ctx);
+  /* // enqueue the root. */
+  /* /\* gcStack(gc, stackAddr, baseStackAddr); *\/ */
+  /* /\* gcGlobal(gc); *\/ */
 
-  // enqueue the root.
-  gcStack(gc, stackAddr, baseStackAddr);
-  gcGlobal(gc);
+  /* // breadth first. */
+  /* struct GC *area = gcGetNextArea(gc); */
+  /* struct Block *curr = area->head; */
+  /* while(curr != NULL) { */
+  /*   int currOffset = 0; */
+  /*   while (currOffset < curr->offset) { */
+  /*     scmHead *head = (scmHead*)&curr->data[currOffset]; */
+  /*     gcFunc copyChildren = registry[head->type]; */
+  /*     if (copyChildren != NULL) { */
+  /* 	copyChildren(gc, head); */
+  /* 	/\* printf("gcCopy handle %p ==%ld, sz=%d tp=%d\n", head, head, head->size, head->type); *\/ */
+  /*     } */
+  /*     currOffset += head->size; */
+  /*   } */
+  /*   curr = curr->next; // Note, it's in reverse order from tail to head */
+  /* } */
 
-  // breadth first.
-  struct Area *area = gcGetNextArea(gc);
-  struct Block *curr = area->head;
-  while(curr != NULL) {
-    int currOffset = 0;
-    while (currOffset < curr->offset) {
-      scmHead *head = (scmHead*)&curr->data[currOffset];
-      gcFunc copyChildren = registry[head->type];
-      if (copyChildren != NULL) {
-	copyChildren(gc, head);
-	/* printf("gcCopy handle %p ==%ld, sz=%d tp=%d\n", head, head, head->size, head->type); */
-      }
-      currOffset += head->size;
-    }
-    curr = curr->next; // Note, it's in reverse order from tail to head
-  }
+  /* areaReset(gc->curr); */
+  /* gc->curr = gcGetNextArea(gc); */
 
-  areaReset(gc->curr);
-  gc->curr = gcGetNextArea(gc);
+  /* int sz2 = areaSize(gc->curr); */
+  /* /\* printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2); *\/ */
+  /* gc->nextSize = 2 * sz2; */
+  /* if (gc->nextSize < MEM_BLOCK_SIZE) { */
+  /*   // Because a block is at least that size, GC smaller then this is meanless. */
+  /*   gc->nextSize = MEM_BLOCK_SIZE; */
+  /* } */
 
-  int sz2 = areaSize(gc->curr);
-  /* printf("after run gc, current size = %d, after gc = %d\n", sz1, sz2); */
-  gc->nextSize = 2 * sz2;
-  if (gc->nextSize < MEM_BLOCK_SIZE) {
-    // Because a block is at least that size, GC smaller then this is meanless.
-    gc->nextSize = MEM_BLOCK_SIZE;
-  }
-
-  gc->flag = false;
-}
-
-
-bool
-gcCheck(struct GC* gc) {
-  return gc->flag;
-}
-
-void*
-gcAlloc(struct GC* gc, int size) {
-  int sz1 = areaSize(gc->curr);
-  if (sz1 >= gc->nextSize) {
-    gc->flag = true;
-  }
-  return areaAlloc(gc->curr, size);
 }

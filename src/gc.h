@@ -9,7 +9,7 @@ typedef uint8_t scmHeadType;
 typedef struct {
   scmHeadType type;
   uint16_t size;
-  uintptr_t forwarding;
+  int version;
 } scmHead;
 
 #define TAG_SHIFT 3
