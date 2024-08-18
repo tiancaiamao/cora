@@ -21,11 +21,12 @@ typedef struct {
 
 extern struct GC gc;
 void gcInit(struct GC* gc, void* mark);
-uintptr_t gcCopy(struct GC *gc, uintptr_t head);
+void gcMark(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
 
 bool gcCheck(struct GC* gc);
 void gcRun(struct GC *gc);
+void gcInuseSizeInc(struct GC *gc, int size);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);

@@ -16,7 +16,8 @@ struct scmString {
   strBuf str;
 };
 
-const char* typeNameX[7] = {
+const char* typeNameX[8] = {
+  "unused",
   "boolean",
   "null",
   "number",
@@ -76,8 +77,10 @@ static void
 consGCFunc(struct GC *gc, void* f) {
   struct scmCons *from = f;
   /* assert(from->head.forwarding == 0); */
-  from->car = gcCopy(gc, from->car);
-  from->cdr = gcCopy(gc, from->cdr);
+  gcMark(gc, from->car);
+  gcMark(gc, from->cdr);
+  from->head.version++;
+  gcInuseSizeInc(gc, from->head.size);
 }
 
 Obj
@@ -174,6 +177,8 @@ isstring(Obj o) {
 static void
 stringGCFunc(struct GC *gc, void* f) {
   // TODO:
+  struct scmString *from = f;
+  from->head.version++;
 }
 
 
@@ -181,7 +186,7 @@ struct trieNode gRoot = {};
 
 void
 trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  node->value = gcCopy(gc, node->value);
+  gcMark(gc, node->value);
   for (int i=0; i<256; i++) {
     if (node->child[i] != NULL) {
       trieNodeGCFunc(gc, node->child[i]);
@@ -259,8 +264,10 @@ nativeGCFunc(struct GC *gc, void* f) {
   struct scmNative *from = f;
   /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->captured; i++) {
-    from->data[i] = gcCopy(gc, from->data[i]);
+    gcMark(gc, from->data[i]);
   }
+  from->head.version++;
+  gcInuseSizeInc(gc, from->head.size);
 }
 
 bool
@@ -349,8 +356,9 @@ vectorGCFunc(struct GC *gc, void* f) {
   struct scmVector *from = f;
   /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->size; i++) {
-    from->data[i] = gcCopy(gc, from->data[i]);
+    gcMark(gc, from->data[i]);
   }
+  from->head.version++;
 }
 
 bool
