@@ -159,17 +159,15 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
   // The stack.
   for (int i=0; i<co->pos; i++) {
-    co->stack[i] = gcCopy(gc, co->stack[i]);
+    gcMark(gc, co->stack[i]);
   }
   // The args.
   for (int i=0; i<co->nargs; i++) {
-    Obj before = co->args[i];
-    co->args[i] = gcCopy(gc, co->args[i]);
-    /* printf("coraGC fun, args[%d] %p -> %p\n", i, before, co->args[i]); */
+    gcMark(gc, co->args[i]);
   }
   // Closure register.
   /* Obj save = co->frees; */
-  co->frees = gcCopy(gc, co->frees);
+  gcMark(gc, co->frees);
   /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
   // Return stack
   for (int i=0; i<co->callstack.len; i++) {
@@ -180,10 +178,10 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
       /* addr->stack[j] = gcCopy(gc, addr->stack[j]); */
 
       
-      co->stack[j] = gcCopy(gc, co->stack[j]);
+      gcMark(gc, co->stack[j]);
     }
     // Don't forget this one!
-    addr->frees = gcCopy(gc, addr->frees);
+    gcMark(gc, addr->frees);
   }
 }
 
