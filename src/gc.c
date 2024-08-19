@@ -333,6 +333,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcRunIncremental(struct GC *gc) {
+  int N = 50;
   // breadth first.
   scmHead *curr = gcDequeue(gc);
   while(curr != NULL) {
@@ -342,10 +343,16 @@ gcRunIncremental(struct GC *gc) {
       fn(gc, curr);
       /* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
     }
+    N--;
+    if (N == 0) {
+      break;
+    }
     curr = gcDequeue(gc);
   }
+  if (N == 0) {
+    return;
+  }
 
-  /* int sz2 = areaSize(gc->curr); */
   /* printf("after run gc, current size = %d, after gc = %d\n", gc->nextSize, gc->inuseSize); */
   gc->nextSize = 2 * gc->inuseSize;
   if (gc->nextSize < MEM_BLOCK_SIZE) {
