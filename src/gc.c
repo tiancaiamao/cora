@@ -6,6 +6,12 @@
 #include <assert.h>
 #include "gc.h"
 
+enum gcState {
+  gcStateNone = 0,
+  gcStateMark,
+  gcStateIncremental,
+};
+
 const int MEM_BLOCK_SIZE = 4 * 1024;
 
 struct Block {
@@ -46,6 +52,7 @@ struct doubleLinkList {
 };
 
 struct GC {
+  enum gcState state;
   void* baseStackAddr;
   // The blocks list for allocation.
   struct doubleLinkList data;
@@ -76,6 +83,7 @@ struct GC {
 
 void
 gcInit(struct GC *gc, void *baseStackAddr) {
+  gc->state = gcStateNone;
   gc->baseStackAddr = baseStackAddr;
   struct Block *b = blockNew();
   gc->data.head = b;
@@ -123,10 +131,17 @@ moveToNextBlock(struct GC *gc) {
   return (scmHead*)&gc->currBlock->data[gc->currOffset];
 }
 
+static bool
+inuse(struct GC *gc, scmHead *h) {
+  // h is gray or black
+  // and h is not an unused obj
+  return (h->version+1) >= gc->version && h->type != 0;
+}
+
 static scmHead*
 moveToFirstUnused(struct GC *gc) {
   scmHead *head = (void*)(gc->currBlock->data + gc->currOffset);
-  while(head->version == gc->version && head->type != 0) {
+  while(inuse(gc, head)) {
     gc->currOffset += head->size;
     head = (void*)&gc->currBlock->data[gc->currOffset];
     // The next block.
@@ -154,7 +169,7 @@ gcAlloc(struct GC *gc, int size) {
       head = moveToFirstUnused(gc);
       continue;
     }
-    if (next->version == gc->version && next->type != 0) {
+    if (inuse(gc, next)) {
       // Meet inuse object, fragments cause allocation fail.
       assert(false);
       break;
@@ -173,9 +188,18 @@ gcAlloc(struct GC *gc, int size) {
     gc->currOffset = (char*)head - gc->currBlock->data;
     head->size = size;
   }
+
+  if (head->type != 0) {
+    assert(head->version+1 < gc->version);
+  }
+
   // not mandatory to move to the next unused obj, let the next alloc operation handle it.
   head->version = gc->version;
   gc->allocated += size;
+  // should trigger the next round of GC.
+  if (gc->allocated > gc->nextSize) {
+    gc->state = gcStateMark;
+  }
 
   /* printf("gcAlloc== %p size=%d version=%d\n", head, head->size, gc->version); */
   return head;
@@ -286,8 +310,8 @@ gcStack(struct GC* gc, uintptr_t* start) {
 
 extern void gcGlobal(struct GC *gc);
 
-void
-gcRun(struct GC *gc) {
+static void
+gcRunMark(struct GC *gc) {
   void* stackAddr = &stackAddr;
   // Dump registers onto stack and scan the stack.
   jmp_buf ctx;
@@ -304,6 +328,12 @@ gcRun(struct GC *gc) {
   gcStack(gc, stackAddr);
   gcGlobal(gc);
 
+  gc->state = gcStateIncremental;
+}
+
+static void
+gcRunIncremental(struct GC *gc) {
+  int N = 50;
   // breadth first.
   scmHead *curr = gcDequeue(gc);
   while(curr != NULL) {
@@ -313,21 +343,41 @@ gcRun(struct GC *gc) {
       fn(gc, curr);
       /* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
     }
+    N--;
+    if (N == 0) {
+      break;
+    }
     curr = gcDequeue(gc);
   }
+  if (N == 0) {
+    return;
+  }
 
-  /* int sz2 = areaSize(gc->curr); */
   /* printf("after run gc, current size = %d, after gc = %d\n", gc->nextSize, gc->inuseSize); */
   gc->nextSize = 2 * gc->inuseSize;
   if (gc->nextSize < MEM_BLOCK_SIZE) {
     // Because a block is at least that size, GC smaller then this is meanless.
     gc->nextSize = MEM_BLOCK_SIZE;
   }
+  gc->state = gcStateNone;
+}
+
+void
+gcRun(struct GC *gc) {
+  switch (gc->state) {
+  case gcStateNone:
+    assert(false);
+  case gcStateMark:
+    gcRunMark(gc);
+    break;
+  case gcStateIncremental:
+    gcRunIncremental(gc);
+  }
 }
 
 bool
 gcCheck(struct GC* gc) {
-  return gc->allocated > gc->nextSize;
+  return gc->state != gcStateNone;
 }
 
 void
