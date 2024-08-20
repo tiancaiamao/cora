@@ -336,8 +336,15 @@ vectorSet(Obj vec, int idx, Obj val) {
   struct scmVector* v = ptr(vec);
   assert(v->head.type == scmHeadVector);
   assert(idx >= 0 && idx < v->size);
-  v->data[idx] = val;
+  writeBarrier(&v->data[idx], val);
   return vec;
+}
+
+int
+vectorLength(Obj vec) {
+  assert(isvector(vec));
+  struct scmVector *v = ptr(vec);
+  return v->size;
 }
 
 bool

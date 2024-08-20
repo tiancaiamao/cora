@@ -369,6 +369,7 @@ gcRun(struct GC *gc) {
     break;
   case gcStateIncremental:
     gcRunIncremental(gc);
+    break;
   }
 }
 
@@ -380,4 +381,14 @@ gcCheck(struct GC* gc) {
 void
 gcInuseSizeInc(struct GC *gc, int size) {
   gc->inuseSize += size;
+}
+
+void
+writeBarrier(uintptr_t *slot, uintptr_t val) {
+  // Yuasa-style deletion barrier
+  if (gc.state == gcStateIncremental) {
+    uintptr_t old = *slot;
+    gcMark(&gc, old);
+  }
+  *slot = val;
 }
