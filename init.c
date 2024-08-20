@@ -506,9 +506,7 @@ Obj _35reg1001 = primIsSymbol(x);
 if (True == _35reg1001) {
 Obj _35reg1002 = primCons(x, Nil);
 Obj _35reg1003 = primCons(intern("quote"), _35reg1002);
-co->nargs = 2;
-co->args[1] = _35reg1003;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg1003);
 return;
 } else {
 co->nargs = 1;
@@ -540,9 +538,7 @@ Obj _35reg998 = primCdr(closureRef(co, 0));
 Obj _35reg999 = primCdr(_35reg998);
 Obj _35reg1000 = primEQ(Nil, _35reg999);
 if (True == _35reg1000) {
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 } else {
 co->nargs = 1;
@@ -627,18 +623,14 @@ return;
 void _35clofun1213(struct Cora* co) {
 Obj _35val989 = co->args[1];
 Obj _35reg990 = primCons(intern("list"), _35val989);
-co->nargs = 2;
-co->args[1] = _35reg990;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg990);
 return;
 }
 
 void _35clofun1211(struct Cora* co) {
 Obj _35cc37 = makeNative(_35clofun1212, 0, 0);
 Obj x = closureRef(co, 0);
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 }
 
@@ -680,9 +672,7 @@ Obj x = _35reg979;
 Obj _35reg980 = primCdr(_35p29);
 Obj _35reg981 = primEQ(Nil, _35reg980);
 if (True == _35reg981) {
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 } else {
 co->nargs = 1;
@@ -727,9 +717,7 @@ if (True == _35reg974) {
 Obj _35reg975 = primCons(y, Nil);
 Obj _35reg976 = primCons(x, _35reg975);
 Obj _35reg977 = primCons(intern("do"), _35reg976);
-co->nargs = 2;
-co->args[1] = _35reg977;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg977);
 return;
 } else {
 co->nargs = 1;
@@ -804,9 +792,7 @@ Obj x = co->stack[co->base + 0];
 Obj _35reg963 = primCons(_35val962, Nil);
 Obj _35reg964 = primCons(x, _35reg963);
 Obj _35reg965 = primCons(intern("do"), _35reg964);
-co->nargs = 2;
-co->args[1] = _35reg965;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg965);
 return;
 }
 
@@ -872,9 +858,7 @@ Obj _35reg953 = primEQ(Nil, _35reg952);
 if (True == _35reg953) {
 Obj _35reg954 = primCons(x, Nil);
 Obj _35reg955 = primCons(intern("quote"), _35reg954);
-co->nargs = 2;
-co->args[1] = _35reg955;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg955);
 return;
 } else {
 co->nargs = 1;
@@ -1780,9 +1764,7 @@ Obj args = co->stack[co->base + 0];
 Obj _35reg821 = primCons(_35val820, Nil);
 Obj _35reg822 = primCons(args, _35reg821);
 Obj _35reg823 = primCons(intern("lambda"), _35reg822);
-co->nargs = 2;
-co->args[1] = _35reg823;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg823);
 return;
 }
 
@@ -1822,9 +1804,7 @@ return;
 void _35clofun1186(struct Cora* co) {
 Obj _35cc28 = makeNative(_35clofun1187, 0, 0);
 Obj x = closureRef(co, 0);
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 }
 
@@ -1894,9 +1874,7 @@ Obj _35reg795 = primCdr(_35p5);
 Obj _35reg796 = primCdr(_35reg795);
 Obj _35reg797 = primEQ(Nil, _35reg796);
 if (True == _35reg797) {
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 } else {
 co->nargs = 1;
@@ -2051,9 +2029,7 @@ Obj _35reg756 = primCdr(closureRef(co, 0));
 Obj _35reg757 = primCdr(_35reg756);
 Obj _35reg758 = primEQ(Nil, _35reg757);
 if (True == _35reg758) {
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 } else {
 co->nargs = 1;
@@ -2208,9 +2184,7 @@ Obj _35reg717 = primCdr(closureRef(co, 0));
 Obj _35reg718 = primCdr(_35reg717);
 Obj _35reg719 = primEQ(Nil, _35reg718);
 if (True == _35reg719) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 co->nargs = 1;
@@ -2341,9 +2315,7 @@ Obj _35reg678 = primCdr(_35reg677);
 Obj _35reg679 = primCdr(_35reg678);
 Obj _35reg680 = primEQ(Nil, _35reg679);
 if (True == _35reg680) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 co->nargs = 1;
@@ -2442,9 +2414,7 @@ Obj _35reg659 = primCdr(closureRef(co, 0));
 Obj _35reg660 = primCdr(_35reg659);
 Obj _35reg661 = primEQ(Nil, _35reg660);
 if (True == _35reg661) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 co->nargs = 1;
@@ -2555,9 +2525,7 @@ Obj _35reg648 = primCdr(closureRef(co, 0));
 Obj _35reg649 = primCdr(_35reg648);
 Obj _35reg650 = primEQ(Nil, _35reg649);
 if (True == _35reg650) {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 } else {
 co->nargs = 1;
@@ -2678,9 +2646,7 @@ Obj _35reg609 = primCdr(closureRef(co, 0));
 Obj _35reg610 = primCdr(_35reg609);
 Obj _35reg611 = primEQ(Nil, _35reg610);
 if (True == _35reg611) {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 } else {
 co->nargs = 1;
@@ -2757,9 +2723,7 @@ Obj _35reg598 = primCdr(closureRef(co, 0));
 Obj _35reg599 = primCdr(_35reg598);
 Obj _35reg600 = primEQ(Nil, _35reg599);
 if (True == _35reg600) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 co->nargs = 1;
@@ -2856,9 +2820,7 @@ Obj _35reg587 = primCdr(_35reg586);
 Obj _35reg588 = primCdr(_35reg587);
 Obj _35reg589 = primEQ(Nil, _35reg588);
 if (True == _35reg589) {
-co->nargs = 2;
-co->args[1] = y;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, y);
 return;
 } else {
 co->nargs = 1;
@@ -2977,9 +2939,7 @@ Obj _35reg560 = primCdr(_35reg559);
 Obj _35reg561 = primCdr(_35reg560);
 Obj _35reg562 = primEQ(Nil, _35reg561);
 if (True == _35reg562) {
-co->nargs = 2;
-co->args[1] = z;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, z);
 return;
 } else {
 co->nargs = 1;
@@ -3063,9 +3023,7 @@ return;
 void _35clofun1174(struct Cora* co) {
 Obj _35cc16 = makeNative(_35clofun1175, 0, 0);
 Obj x = closureRef(co, 0);
-co->nargs = 2;
-co->args[1] = x;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, x);
 return;
 }
 
@@ -3177,9 +3135,7 @@ Obj _35reg531 = primCons(_35reg530, Nil);
 Obj _35reg532 = primCons(args, _35reg531);
 Obj _35reg533 = primCons(_35val527, _35reg532);
 Obj _35reg534 = primCons(intern("defun"), _35reg533);
-co->nargs = 2;
-co->args[1] = _35reg534;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg534);
 return;
 }
 
@@ -3187,9 +3143,7 @@ void _35clofun1155(struct Cora* co) {
 Obj n = co->args[1];
 Obj _35reg517 = primEQ(n, makeNumber(0));
 if (True == _35reg517) {
-co->nargs = 2;
-co->args[1] = Nil;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, Nil);
 return;
 } else {
 Obj _35reg518 = primGenSym(intern("p"));
@@ -3212,9 +3166,7 @@ void _35clofun1156(struct Cora* co) {
 Obj _35val520 = co->args[1];
 Obj _35reg518 = co->stack[co->base + 0];
 Obj _35reg521 = primCons(_35reg518, _35val520);
-co->nargs = 2;
-co->args[1] = _35reg521;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg521);
 return;
 }
 
@@ -3305,9 +3257,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = n;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, n);
 return;
 }
 }
@@ -3316,9 +3266,7 @@ void _35clofun1152(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg510 = primEQ(closureRef(co, 0), x);
 Obj _35reg511 = primNot(_35reg510);
-co->nargs = 2;
-co->args[1] = _35reg511;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg511);
 return;
 }
 
@@ -3342,9 +3290,7 @@ Obj l1 = co->args[1];
 Obj l2 = co->args[2];
 Obj _35reg500 = primEQ(l1, Nil);
 if (True == _35reg500) {
-co->nargs = 2;
-co->args[1] = l2;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, l2);
 return;
 } else {
 Obj _35reg501 = primCar(l1);
@@ -3368,9 +3314,7 @@ void _35clofun1147(struct Cora* co) {
 Obj _35val503 = co->args[1];
 Obj _35reg501 = co->stack[co->base + 0];
 Obj _35reg504 = primCons(_35reg501, _35val503);
-co->nargs = 2;
-co->args[1] = _35reg504;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg504);
 return;
 }
 
@@ -3481,9 +3425,7 @@ Obj i = co->args[1];
 Obj l = co->args[2];
 Obj _35reg486 = primEQ(l, Nil);
 if (True == _35reg486) {
-co->nargs = 2;
-co->args[1] = i;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, i);
 return;
 } else {
 Obj _35reg487 = primAdd(i, makeNumber(1));
@@ -4055,9 +3997,7 @@ Obj _35reg422 = primCons(_35val421, Nil);
 Obj _35reg423 = primCons(value, _35reg422);
 Obj _35reg424 = primCons(val, _35reg423);
 Obj _35reg425 = primCons(intern("let"), _35reg424);
-co->nargs = 2;
-co->args[1] = _35reg425;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg425);
 return;
 }
 
@@ -4069,9 +4009,7 @@ Obj _35reg416 = primCons(_35val415, Nil);
 Obj _35reg417 = primCons(value, _35reg416);
 Obj _35reg418 = primCons(val, _35reg417);
 Obj _35reg419 = primCons(intern("let"), _35reg418);
-co->nargs = 2;
-co->args[1] = _35reg419;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg419);
 return;
 }
 
@@ -4083,9 +4021,7 @@ Obj _35reg410 = primCons(_35val409, Nil);
 Obj _35reg411 = primCons(value, _35reg410);
 Obj _35reg412 = primCons(val, _35reg411);
 Obj _35reg413 = primCons(intern("let"), _35reg412);
-co->nargs = 2;
-co->args[1] = _35reg413;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg413);
 return;
 }
 
@@ -4112,9 +4048,7 @@ Obj value = co->stack[co->base + 1];
 if (True == _35val349) {
 Obj _35reg350 = primCons(makeString1("no match-help found!"), Nil);
 Obj _35reg351 = primCons(intern("error"), _35reg350);
-co->nargs = 2;
-co->args[1] = _35reg351;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg351);
 return;
 } else {
 pushCont(co, _35clofun1107, 2, rules, value);
@@ -4257,9 +4191,7 @@ Obj _35reg396 = primCons(curr, Nil);
 Obj _35reg397 = primCons(_35reg395, _35reg396);
 Obj _35reg398 = primCons(cc, _35reg397);
 Obj _35reg399 = primCons(intern("let"), _35reg398);
-co->nargs = 2;
-co->args[1] = _35reg399;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg399);
 return;
 }
 
@@ -4406,9 +4338,7 @@ Obj _35reg381 = primCons(curr, Nil);
 Obj _35reg382 = primCons(_35reg380, _35reg381);
 Obj _35reg383 = primCons(cc, _35reg382);
 Obj _35reg384 = primCons(intern("let"), _35reg383);
-co->nargs = 2;
-co->args[1] = _35reg384;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg384);
 return;
 }
 
@@ -4488,9 +4418,7 @@ Obj _35reg366 = primCons(curr, Nil);
 Obj _35reg367 = primCons(_35reg365, _35reg366);
 Obj _35reg368 = primCons(cc, _35reg367);
 Obj _35reg369 = primCons(intern("let"), _35reg368);
-co->nargs = 2;
-co->args[1] = _35reg369;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg369);
 return;
 }
 
@@ -4534,9 +4462,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = action;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, action);
 return;
 }
 } else {
@@ -4553,9 +4479,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = action;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, action);
 return;
 }
 }
@@ -4573,9 +4497,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = action;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, action);
 return;
 }
 }
@@ -4607,9 +4529,7 @@ Obj _35reg344 = primCons(_35reg343, Nil);
 Obj _35reg345 = primCons(_35val342, _35reg344);
 Obj _35reg346 = primCons(_35val341, _35reg345);
 Obj _35reg347 = primCons(intern("if"), _35reg346);
-co->nargs = 2;
-co->args[1] = _35reg347;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg347);
 return;
 }
 
@@ -4639,9 +4559,7 @@ Obj _35reg337 = primCons(_35reg336, Nil);
 Obj _35reg338 = primCons(_35val335, _35reg337);
 Obj _35reg339 = primCons(_35val334, _35reg338);
 Obj _35reg340 = primCons(intern("if"), _35reg339);
-co->nargs = 2;
-co->args[1] = _35reg340;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg340);
 return;
 }
 
@@ -4671,9 +4589,7 @@ Obj _35reg330 = primCons(_35reg329, Nil);
 Obj _35reg331 = primCons(_35val328, _35reg330);
 Obj _35reg332 = primCons(_35val327, _35reg331);
 Obj _35reg333 = primCons(intern("if"), _35reg332);
-co->nargs = 2;
-co->args[1] = _35reg333;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg333);
 return;
 }
 
@@ -4705,9 +4621,7 @@ Obj pat = co->stack[co->base + 3];
 if (True == _35val292) {
 Obj _35reg293 = primEQ(pat, expr);
 if (True == _35reg293) {
-co->nargs = 2;
-co->args[1] = body;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, body);
 return;
 } else {
 Obj _35reg294 = primCons(expr, Nil);
@@ -4718,9 +4632,7 @@ Obj _35reg298 = primCons(_35reg297, Nil);
 Obj _35reg299 = primCons(body, _35reg298);
 Obj _35reg300 = primCons(_35reg296, _35reg299);
 Obj _35reg301 = primCons(intern("if"), _35reg300);
-co->nargs = 2;
-co->args[1] = _35reg301;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg301);
 return;
 }
 } else {
@@ -4730,9 +4642,7 @@ Obj _35reg303 = primCons(body, Nil);
 Obj _35reg304 = primCons(expr, _35reg303);
 Obj _35reg305 = primCons(pat, _35reg304);
 Obj _35reg306 = primCons(intern("let"), _35reg305);
-co->nargs = 2;
-co->args[1] = _35reg306;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg306);
 return;
 } else {
 pushCont(co, _35clofun1095, 4, expr, body, cc, pat);
@@ -4768,9 +4678,7 @@ Obj _35reg314 = primCons(_35reg313, Nil);
 Obj _35reg315 = primCons(body, _35reg314);
 Obj _35reg316 = primCons(_35reg312, _35reg315);
 Obj _35reg317 = primCons(intern("if"), _35reg316);
-co->nargs = 2;
-co->args[1] = _35reg317;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg317);
 return;
 } else {
 Obj _35reg318 = primCar(pat);
@@ -4854,20 +4762,14 @@ if (True == _35val289) {
 Obj _35reg290 = primIsSymbol(x);
 Obj _35reg291 = primNot(_35reg290);
 if (True == _35reg291) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 }
 } else {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 }
 }
@@ -5061,9 +4963,7 @@ Obj _35reg284 = primCons(_35reg283, Nil);
 Obj _35reg285 = primCons(_35val282, _35reg284);
 Obj _35reg286 = primCons(_35reg276, _35reg285);
 Obj _35reg287 = primCons(intern("if"), _35reg286);
-co->nargs = 2;
-co->args[1] = _35reg287;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg287);
 return;
 }
 
@@ -5163,9 +5063,7 @@ Obj _35reg268 = primCons(_35reg267, Nil);
 Obj _35reg269 = primCons(_35val266, _35reg268);
 Obj _35reg270 = primCons(_35reg260, _35reg269);
 Obj _35reg271 = primCons(intern("if"), _35reg270);
-co->nargs = 2;
-co->args[1] = _35reg271;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg271);
 return;
 }
 
@@ -5265,9 +5163,7 @@ Obj _35reg252 = primCons(_35reg251, Nil);
 Obj _35reg253 = primCons(_35val250, _35reg252);
 Obj _35reg254 = primCons(_35reg244, _35reg253);
 Obj _35reg255 = primCons(intern("if"), _35reg254);
-co->nargs = 2;
-co->args[1] = _35reg255;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg255);
 return;
 }
 
@@ -5372,9 +5268,7 @@ Obj _35val224 = co->args[1];
 Obj pat = co->stack[co->base + 0];
 if (True == _35val224) {
 Obj _35reg225 = primCar(pat);
-co->nargs = 2;
-co->args[1] = _35reg225;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg225);
 return;
 } else {
 Obj _35reg226 = primCar(pat);
@@ -5399,9 +5293,7 @@ Obj _35reg226 = co->stack[co->base + 0];
 Obj _35reg229 = primCons(_35val228, Nil);
 Obj _35reg230 = primCons(_35reg226, _35reg229);
 Obj _35reg231 = primCons(intern("cons"), _35reg230);
-co->nargs = 2;
-co->args[1] = _35reg231;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg231);
 return;
 }
 
@@ -5409,21 +5301,15 @@ void _35clofun1067(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg220 = primEQ(x, True);
 if (True == _35reg220) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 Obj _35reg221 = primEQ(x, False);
 if (True == _35reg221) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 }
 }
@@ -5448,17 +5334,13 @@ void _35clofun1063(struct Cora* co) {
 Obj l = co->args[1];
 Obj _35reg206 = primEQ(Nil, l);
 if (True == _35reg206) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 Obj _35reg207 = primCar(l);
 Obj _35reg208 = primEQ(_35reg207, False);
 if (True == _35reg208) {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 } else {
 Obj _35reg209 = primCdr(l);
@@ -5483,9 +5365,7 @@ Obj l = co->stack[co->base + 0];
 Obj more = _35val210;
 Obj _35reg211 = primEQ(more, False);
 if (True == _35reg211) {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 } else {
 Obj _35reg212 = primCar(l);
@@ -5493,9 +5373,7 @@ Obj _35reg213 = primCons(False, Nil);
 Obj _35reg214 = primCons(more, _35reg213);
 Obj _35reg215 = primCons(_35reg212, _35reg214);
 Obj _35reg216 = primCons(intern("if"), _35reg215);
-co->nargs = 2;
-co->args[1] = _35reg216;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg216);
 return;
 }
 }
@@ -5519,17 +5397,13 @@ void _35clofun1059(struct Cora* co) {
 Obj l = co->args[1];
 Obj _35reg192 = primEQ(l, Nil);
 if (True == _35reg192) {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 } else {
 Obj _35reg193 = primCar(l);
 Obj _35reg194 = primEQ(_35reg193, True);
 if (True == _35reg194) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 Obj _35reg195 = primCdr(l);
@@ -5554,9 +5428,7 @@ Obj l = co->stack[co->base + 0];
 Obj more = _35val196;
 Obj _35reg197 = primEQ(more, True);
 if (True == _35reg197) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 Obj _35reg198 = primCar(l);
@@ -5564,9 +5436,7 @@ Obj _35reg199 = primCons(more, Nil);
 Obj _35reg200 = primCons(True, _35reg199);
 Obj _35reg201 = primCons(_35reg198, _35reg200);
 Obj _35reg202 = primCons(intern("if"), _35reg201);
-co->nargs = 2;
-co->args[1] = _35reg202;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg202);
 return;
 }
 }
@@ -5578,9 +5448,7 @@ Obj _35reg179 = primEQ(Nil, _35reg178);
 if (True == _35reg179) {
 Obj _35reg180 = primCons(makeString1("no cond match"), Nil);
 Obj _35reg181 = primCons(intern("error"), _35reg180);
-co->nargs = 2;
-co->args[1] = _35reg181;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg181);
 return;
 } else {
 pushCont(co, _35clofun1055, 1, exp);
@@ -5641,9 +5509,7 @@ Obj _35reg187 = primCons(_35reg186, Nil);
 Obj _35reg188 = primCons(_35val184, _35reg187);
 Obj _35reg189 = primCons(_35reg183, _35reg188);
 Obj _35reg190 = primCons(intern("if"), _35reg189);
-co->nargs = 2;
-co->args[1] = _35reg190;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg190);
 return;
 }
 
@@ -5683,9 +5549,7 @@ Obj _35val165 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 if (True == _35val165) {
 Obj _35reg166 = primCar(exp);
-co->nargs = 2;
-co->args[1] = _35reg166;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg166);
 return;
 } else {
 Obj _35reg167 = primCar(exp);
@@ -5745,9 +5609,7 @@ Obj _35reg171 = primCons(_35val170, Nil);
 Obj _35reg172 = primCons(_35val168, _35reg171);
 Obj _35reg173 = primCons(_35reg167, _35reg172);
 Obj _35reg174 = primCons(intern("let"), _35reg173);
-co->nargs = 2;
-co->args[1] = _35reg174;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg174);
 return;
 }
 
@@ -5755,9 +5617,7 @@ void _35clofun1046(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg161 = primIsCons(x);
 Obj _35reg162 = primNot(_35reg161);
-co->nargs = 2;
-co->args[1] = _35reg162;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg162);
 return;
 }
 
@@ -5769,9 +5629,7 @@ if (True == _35reg156) {
 Obj _35reg157 = primCar(l);
 Obj _35reg158 = primEQ(_35reg157, x);
 if (True == _35reg158) {
-co->nargs = 2;
-co->args[1] = True;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, True);
 return;
 } else {
 Obj _35reg159 = primCdr(l);
@@ -5788,9 +5646,7 @@ co->pc = coraCall;
 return;
 }
 } else {
-co->nargs = 2;
-co->args[1] = False;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, False);
 return;
 }
 }
@@ -5855,9 +5711,7 @@ Obj _35reg151 = primCons(intern("lambda"), _35reg150);
 Obj _35reg152 = primCons(_35reg151, Nil);
 Obj _35reg153 = primCons(_35reg146, _35reg152);
 Obj _35reg154 = primCons(intern("set"), _35reg153);
-co->nargs = 2;
-co->args[1] = _35reg154;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg154);
 return;
 }
 
@@ -5935,9 +5789,7 @@ Obj _35reg136 = primCons(intern("lambda"), _35reg135);
 Obj _35reg137 = primCons(_35reg136, Nil);
 Obj _35reg138 = primCons(_35reg132, _35reg137);
 Obj _35reg139 = primCons(intern("cora/init.add-to-*macros*"), _35reg138);
-co->nargs = 2;
-co->args[1] = _35reg139;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg139);
 return;
 }
 
@@ -5949,9 +5801,7 @@ Obj _35reg113 = primCar(exp);
 Obj _35reg114 = primEQ(_35reg113, globalRef(intern("*protect-symbol*")));
 if (True == _35reg114) {
 Obj _35reg115 = primCdr(exp);
-co->nargs = 2;
-co->args[1] = _35reg115;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg115);
 return;
 } else {
 Obj _35reg116 = primCar(exp);
@@ -5972,9 +5822,7 @@ return;
 Obj _35reg124 = primCar(exp);
 Obj _35reg125 = primEQ(_35reg124, intern("quote"));
 if (True == _35reg125) {
-co->nargs = 2;
-co->args[1] = exp;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, exp);
 return;
 } else {
 pushCont(co, _35clofun1031, 1, exp);
@@ -5992,9 +5840,7 @@ return;
 }
 }
 } else {
-co->nargs = 2;
-co->args[1] = exp;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, exp);
 return;
 }
 }
@@ -6081,9 +5927,7 @@ Obj _35val118 = co->stack[co->base + 0];
 Obj _35reg121 = primCons(_35val120, Nil);
 Obj _35reg122 = primCons(_35val118, _35reg121);
 Obj _35reg123 = primCons(intern("lambda"), _35reg122);
-co->nargs = 2;
-co->args[1] = _35reg123;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg123);
 return;
 }
 
@@ -6107,9 +5951,7 @@ Obj exp = co->args[1];
 Obj macros = co->args[2];
 Obj _35reg98 = primEQ(Nil, macros);
 if (True == _35reg98) {
-co->nargs = 2;
-co->args[1] = exp;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, exp);
 return;
 } else {
 Obj _35reg109 = primCar(macros);
@@ -6224,18 +6066,14 @@ Obj v = co->args[2];
 Obj _35reg94 = primCons(n, v);
 Obj _35reg95 = primCons(_35reg94, globalRef(intern("*macros*")));
 Obj _35reg96 = primSet(intern("*macros*"), _35reg95);
-co->nargs = 2;
-co->args[1] = _35reg96;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg96);
 return;
 }
 
 void _35clofun1022(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg92 = primCons(globalRef(intern("*protect-symbol*")), x);
-co->nargs = 2;
-co->args[1] = _35reg92;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg92);
 return;
 }
 
@@ -6329,9 +6167,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = res;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, res);
 return;
 }
 }
@@ -6339,9 +6175,7 @@ return;
 void _35clofun1016(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg73 = primIsCons(x);
-co->nargs = 2;
-co->args[1] = _35reg73;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg73);
 return;
 }
 
@@ -6363,9 +6197,7 @@ co->pc = coraCall;
 }
 return;
 } else {
-co->nargs = 2;
-co->args[1] = Nil;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, Nil);
 return;
 }
 }
@@ -6376,9 +6208,7 @@ Obj _35reg66 = co->stack[co->base + 0];
 Obj _35reg69 = primCons(_35val68, Nil);
 Obj _35reg70 = primCons(_35reg66, _35reg69);
 Obj _35reg71 = primCons(intern("cons"), _35reg70);
-co->nargs = 2;
-co->args[1] = _35reg71;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg71);
 return;
 }
 
@@ -6387,9 +6217,7 @@ Obj x = co->args[1];
 Obj _35reg61 = primCdr(x);
 Obj _35reg62 = primCdr(_35reg61);
 Obj _35reg63 = primCdr(_35reg62);
-co->nargs = 2;
-co->args[1] = _35reg63;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg63);
 return;
 }
 
@@ -6399,9 +6227,7 @@ Obj _35reg56 = primCdr(x);
 Obj _35reg57 = primCdr(_35reg56);
 Obj _35reg58 = primCdr(_35reg57);
 Obj _35reg59 = primCar(_35reg58);
-co->nargs = 2;
-co->args[1] = _35reg59;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg59);
 return;
 }
 
@@ -6410,9 +6236,7 @@ Obj x = co->args[1];
 Obj _35reg52 = primCdr(x);
 Obj _35reg53 = primCdr(_35reg52);
 Obj _35reg54 = primCar(_35reg53);
-co->nargs = 2;
-co->args[1] = _35reg54;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg54);
 return;
 }
 
@@ -6420,9 +6244,7 @@ void _35clofun1010(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg49 = primCdr(x);
 Obj _35reg50 = primCdr(_35reg49);
-co->nargs = 2;
-co->args[1] = _35reg50;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg50);
 return;
 }
 
@@ -6430,9 +6252,7 @@ void _35clofun1009(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg46 = primCar(x);
 Obj _35reg47 = primCdr(_35reg46);
-co->nargs = 2;
-co->args[1] = _35reg47;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg47);
 return;
 }
 
@@ -6440,9 +6260,7 @@ void _35clofun1008(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg43 = primCar(x);
 Obj _35reg44 = primCar(_35reg43);
-co->nargs = 2;
-co->args[1] = _35reg44;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg44);
 return;
 }
 
@@ -6450,18 +6268,14 @@ void _35clofun1007(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg40 = primCdr(x);
 Obj _35reg41 = primCar(_35reg40);
-co->nargs = 2;
-co->args[1] = _35reg41;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg41);
 return;
 }
 
 void _35clofun1006(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg38 = primEQ(x, Nil);
-co->nargs = 2;
-co->args[1] = _35reg38;
-popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+coraReturn(co, _35reg38);
 return;
 }
 

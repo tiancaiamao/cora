@@ -261,11 +261,9 @@
 			  (c.generate-str w ";\n")
 			  (.generate-inst env w b))
       env w ['return x] => (begin
-			    (c.generate-str w "co->nargs = 2;\n")
-			    (c.generate-str w "co->args[1] = ")
+			    (c.generate-str w "coraReturn(co, ")
 			    (.generate-inst env w x)
-			    (c.generate-str w ";\npopStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);")
-			    (c.generate-str w "\nreturn;\n"))
+			    (c.generate-str w ");\nreturn;\n"))
       env w ['tailcall exp] => (.generate-inst env w exp)
       env w ['call exp cont] => (begin
 				 (.generate-cont w cont)
