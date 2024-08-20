@@ -195,11 +195,16 @@ void
 trampoline(struct Cora *co, basicBlock pc) {
   saveStack(&co->callstack, NULL, co->base, co->pos, co->frees); 
   co->pc = pc;
+  int i = 0;
   while(co->pc != NULL) {
-    if (gcCheck(&gc)) {
-      gcRun(&gc);
-    }
     co->pc(co);
+    i++;
+    if (i == 100) {
+      i = 0;
+      if (gcCheck(&gc)) {
+	gcRun(&gc);
+      }
+    }
   }
 }
 

@@ -197,7 +197,7 @@ gcAlloc(struct GC *gc, int size) {
   head->version = gc->version;
   gc->allocated += size;
   // should trigger the next round of GC.
-  if (gc->allocated > gc->nextSize) {
+  if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
     gc->state = gcStateMark;
   }
 
@@ -333,7 +333,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcRunIncremental(struct GC *gc) {
-  int N = 50;
+  int N = 100;
   // breadth first.
   scmHead *curr = gcDequeue(gc);
   while(curr != NULL) {
@@ -345,16 +345,13 @@ gcRunIncremental(struct GC *gc) {
     }
     N--;
     if (N == 0) {
-      break;
+      return;
     }
     curr = gcDequeue(gc);
   }
-  if (N == 0) {
-    return;
-  }
 
-  /* printf("after run gc, current size = %d, after gc = %d\n", gc->nextSize, gc->inuseSize); */
-  gc->nextSize = 2 * gc->inuseSize;
+  /* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
+  gc->nextSize = 2 * gc->inuseSize + gc->allocated;
   if (gc->nextSize < MEM_BLOCK_SIZE) {
     // Because a block is at least that size, GC smaller then this is meanless.
     gc->nextSize = MEM_BLOCK_SIZE;
