@@ -38,6 +38,8 @@ struct Cora {
 
 void trampoline(struct Cora *co, basicBlock pc);
 void coraCall(struct Cora *co);
+void coraReturn(struct Cora *co, Obj val);
+
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
 void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj *frees);
 Obj globalRef(Obj sym);
