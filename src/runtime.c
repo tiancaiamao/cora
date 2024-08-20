@@ -715,6 +715,45 @@ builtinGenerateSym(struct Cora *co) {
 }
 
 static void
+builtinVector(struct Cora *co) {
+  Obj o = co->args[1];
+  int n = fixnum(o);
+  Obj res = makeVector(n);
+  co->nargs = 2;
+  co->args[1] = res;
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinVectorRef(struct Cora *co) {
+  Obj v = co->args[1];
+  Obj idx = co->args[2];
+  co->nargs = 2;
+  co->args[1] = vectorRef(v, fixnum(idx));
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinVectorSet(struct Cora *co) {
+  Obj v = co->args[1];
+  Obj idx = co->args[2];
+  Obj o = co->args[3];
+
+  co->nargs = 2;
+  co->args[1] = vectorSet(v, fixnum(idx), o);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
+builtinVectorLength(struct Cora *co) {
+  Obj o = co->args[1];
+  int res = vectorLength(o);
+  co->nargs = 2;
+  co->args[1] = makeNumber(res);
+  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+}
+
+static void
 builtinGenerateNum(struct Cora *co) {
   Obj to = co->args[1];
   FILE* out = mustCObj(to);
@@ -884,6 +923,11 @@ coraInit(void *mark) {
   primSet(intern("load-so"), makeNative(builtinLoadSo, 2, 0));
   primSet(intern("import"), makeNative(builtinImport, 1, 0));
   primSet(intern("load"), makeNative(builtinLoad, 2, 0));
+
+  primSet(intern("vector"), makeNative(builtinVector, 1, 0));
+  primSet(intern("vector-set!"), makeNative(builtinVectorSet, 3, 0));
+  primSet(intern("vector-ref"), makeNative(builtinVectorRef, 2, 0));
+  primSet(intern("vector-length"), makeNative(builtinVectorLength, 1, 0));
   /* primSet(intern("try"), makeNative(builtinTryCatch, 2, 0)); */
   /* primSet(intern("throw"), makeNative(builtinThrow, 1, 0)); */
 

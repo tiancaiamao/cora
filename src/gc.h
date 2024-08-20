@@ -24,6 +24,8 @@ void gcInit(struct GC* gc, void* mark);
 void gcMark(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
 
+void writeBarrier(uintptr_t *slot, uintptr_t val);
+
 bool gcCheck(struct GC* gc);
 void gcRun(struct GC *gc);
 void gcInuseSizeInc(struct GC *gc, int size);

@@ -139,6 +139,7 @@ Obj makeVector(int c);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
 bool isvector(Obj o);
+int vectorLength(Obj vec);
 
 struct trieNode {
   Obj value;
