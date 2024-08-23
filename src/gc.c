@@ -248,8 +248,9 @@ gcAlloc(struct GC *gc, int size) {
     }
     if (inuse(gc, next)) {
       // Meet inuse object, fragments cause allocation fail.
-      assert(false);
-      break;
+      gc->currOffset = (char*)next + next->size - gc->currBlock->data;
+      head = moveToFirstUnused(gc);
+      continue;
     }
     head->size += next->size;
   }
@@ -434,6 +435,8 @@ gcRunIncremental(struct GC *gc) {
     gc->nextSize = MEM_BLOCK_SIZE;
   }
   gc->state = gcStateNone;
+  gc->currBlock = gc->data.head;
+  gc->currOffset = 0;
 }
 
 void
