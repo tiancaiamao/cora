@@ -234,13 +234,15 @@ inuse(struct GC *gc, scmHead *h) {
 static scmHead*
 moveToFirstUnused(struct GC *gc) {
   scmHead *head = (void*)(gc->currBlock->data + gc->currOffset);
-  while(inuse(gc, head)) {
-    gc->currOffset += head->size;
-    head = (void*)&gc->currBlock->data[gc->currOffset];
-    // The next block.
+  while(true) {
     if ((char*)head >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
       head = moveToNextBlock(gc);
     }
+    if (!inuse(gc, head)) {
+      break;
+    }
+    gc->currOffset += head->size;
+    head = (void*)&gc->currBlock->data[gc->currOffset];
   }
   return head;
 }
@@ -265,9 +267,6 @@ gcAlloc(struct GC *gc, int size) {
     if (inuse(gc, next)) {
       // Meet inuse object, fragments cause allocation fail.
       gc->currOffset = (char*)next + next->size - gc->currBlock->data;
-      if ((char*)&gc->currBlock->data[gc->currOffset] >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
-	moveToNextBlock(gc);
-      }
       head = moveToFirstUnused(gc);
       continue;
     }
