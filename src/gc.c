@@ -203,6 +203,7 @@ moveToNextBlock(struct GC *gc) {
     gc->data.tail->next = b;
     gc->data.tail = b;
     gc->currBlock = gc->data.tail;
+    /* printf("all blocks exhaused, allocate a new one ---%d %d\n", gc->allocated, gc->state); */
   }
   gc->currOffset = 0;
   return (scmHead*)&gc->currBlock->data[gc->currOffset];
@@ -210,9 +211,25 @@ moveToNextBlock(struct GC *gc) {
 
 static bool
 inuse(struct GC *gc, scmHead *h) {
-  // h is gray or black
-  // and h is not an unused obj
-  return (h->version+1) >= gc->version && h->type != 0;
+  // h is an unused obj
+  if (h->type == 0) {
+    return false;
+  }
+  if (gc->state == gcStateIncremental) {
+    // gc.version +2 already, and object.version is laggy
+    // when h is in this round of mark phase, it should not be recycled.
+    // for example:
+    //    gc.version == 6
+    //    object.version == 4 white
+    //    object.version == 5 gray
+    //    object.version == 6 black
+    return (h->version+2) >= gc->version;
+  }
+
+  // gcStateNone or gcStateMark
+  // only white should exist.
+  assert((h->version & 1) == 0);
+  return h->version == gc->version;
 }
 
 static scmHead*
@@ -396,7 +413,7 @@ gcRunMark(struct GC *gc) {
   memset(&ctx, 0, sizeof(jmp_buf));
   setjmp(ctx);
 
-  /* printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+1); */
+  /* printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+2); */
   gc->version+=2;
 
   gc->allocated = 0;
