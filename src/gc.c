@@ -380,9 +380,15 @@ checkPointer(struct GC *gc, uintptr_t p) {
   if (from->version == gc->version || from->version+1 == gc->version) {
     return false;
   }
-  assert(from->size > 0);
-  assert(from->type <= 7);
-  return true;
+
+  if (from->type >=1 && from->type <= 7) {
+    return true;
+  }
+
+  // Not a cora Object?
+  printf("WARNING: some thing is wrong when checkPointer? %p {type=%d, size=%d, version=%d}\n",
+	 from, from->type, from->size, from->version);
+  return false;
 }
 
 void
