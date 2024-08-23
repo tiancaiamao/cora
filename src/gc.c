@@ -266,6 +266,9 @@ gcAlloc(struct GC *gc, int size) {
     if (inuse(gc, next)) {
       // Meet inuse object, fragments cause allocation fail.
       gc->currOffset = (char*)next + next->size - gc->currBlock->data;
+      if ((char*)&gc->currBlock->data[gc->currOffset] >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
+	moveToNextBlock(gc);
+      }
       head = moveToFirstUnused(gc);
       continue;
     }
@@ -445,7 +448,7 @@ gcRunIncremental(struct GC *gc) {
     curr = gcDequeue(gc);
   }
 
-  printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+  /* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
   gc->nextSize = 2 * gc->inuseSize + gc->allocated;
   if (gc->nextSize < MEM_BLOCK_SIZE) {
     // Because a block is at least that size, GC smaller then this is meanless.
