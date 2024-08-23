@@ -49,6 +49,7 @@ heapArenaNew() {
   struct heapArena *ha = malloc(sizeof(struct heapArena));
   ha->next = NULL;
   ha->ptr = mmap(0, HEAP_ARENA_SIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  /* printf("mmap return ptr ====== %p\n", ha->ptr); */
   ha->freelist = NULL;
   ha->idx = 0;
   return ha;
@@ -76,7 +77,7 @@ heapArenaAlloc(struct heapArena *h) {
 
 static bool
 heapArenaContains(struct heapArena* h, void *p) {
-  return p>= (void*)h->ptr && p < (void*)h->ptr + HEAP_ARENA_SIZE;
+  return p>= (void*)h->ptr && p < (void*)h->ptr + (h->idx * MEM_BLOCK_SIZE);
 }
 
 #define alignto(p, bits)      (((p) >> bits) << bits)
@@ -133,7 +134,6 @@ static struct Block *
 blockNew(struct GC *gc) {
   struct heapArena *ha = gcGetHeapArena(gc);
   struct Block *b = heapArenaAlloc(ha);
-  /* struct Block *b = malloc(MEM_BLOCK_SIZE); */
 
   b->next = NULL;
   b->prev = NULL;
@@ -148,7 +148,6 @@ blockReset(struct Block *block) {
   struct heapArena *ha = block->ha;
   // For easy debug ... not really a MUST
   memset(block, 0, MEM_BLOCK_SIZE);
-  /* free(block); */
   if (ha->freelist == NULL) {
     ha->freelist = block;
   } else {
