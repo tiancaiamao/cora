@@ -1,3 +1,4 @@
+#include <sys/mman.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,34 +14,70 @@ enum gcState {
 };
 
 const int MEM_BLOCK_SIZE = 4 * 1024;
+const int HEAP_ARENA_SIZE = 64 * 1024 * 1024;
+/* const int BLOCKS_PER_HEAP = HEAP_ARENA_SIZE / MEM_BLOCK_SIZE; */
 
+// each heapArena maintains 64MB virtual memory (mmap from OS)
+// Block are allocated from and recycle to heapArena.
+struct heapArena {
+  char *ptr;
+  struct heapArena *next;
+
+  // bitmap are used to combine contiguous blocks.
+  // currently not used???
+  /* char bitmap[BLOCKS_PER_HEAP / 8]; */
+
+  // freelist is used for recycling and fast allocation.
+  struct Block *freelist;
+  // idx record the current (max) position of the allocated blocks.
+  // when idx == (HEAP_ARENA_SIZE / MEM_BLOCK_SIZE) and freelist is empty,
+  // this heapArena is full.
+  int idx;
+};
+
+// each Block is 4K and cora object is allocated from it.
 struct Block {
   struct Block *next;
   struct Block *prev;
+  // block is allocated from it, so it should be recycle to it when reset.
+  struct heapArena *ha;
   char data[];
 };
 
-static struct Block *
-blockNew() {
-  struct Block *b = malloc(MEM_BLOCK_SIZE);
-  b->next = NULL;
-  b->prev = NULL;
-  scmHead* h = (scmHead*)b->data;
-  h->type = 0; // scmHeadUnused
-  h->size = (char*)b + MEM_BLOCK_SIZE - b->data;
-  return b;
-}
-
-static void
-blockReset(struct Block *block) {
-  // For easy debug ... not really a MUST
-  memset(block, 0, MEM_BLOCK_SIZE);
-  free(block);
+static struct heapArena*
+heapArenaNew() {
+  struct heapArena *ha = malloc(sizeof(struct heapArena));
+  ha->next = NULL;
+  ha->ptr = mmap(0, HEAP_ARENA_SIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  /* printf("mmap return ptr ====== %p\n", ha->ptr); */
+  ha->freelist = NULL;
+  ha->idx = 0;
+  return ha;
 }
 
 static bool
-blockContains(struct Block *block, void *p) {
-  return p>= (void*)block->data && p < (void*)block + MEM_BLOCK_SIZE;
+heapArenaFull(struct heapArena* ha) {
+  return ha->freelist == NULL && ha->idx == (HEAP_ARENA_SIZE / MEM_BLOCK_SIZE);
+}
+
+static struct Block*
+heapArenaAlloc(struct heapArena *h) {
+  struct Block *b = h->freelist;
+  if (h->freelist != NULL) {
+    h->freelist = b->next;
+    b->next = NULL;
+    b->ha = h;
+    return b;
+  }
+  b = (struct Block*)(h->ptr + h->idx * MEM_BLOCK_SIZE);
+  b->ha = h;
+  h->idx++;
+  return b;
+}
+
+static bool
+heapArenaContains(struct heapArena* h, void *p) {
+  return p>= (void*)h->ptr && p < (void*)h->ptr + (h->idx * MEM_BLOCK_SIZE);
 }
 
 #define alignto(p, bits)      (((p) >> bits) << bits)
@@ -52,6 +89,8 @@ struct doubleLinkList {
 };
 
 struct GC {
+  struct heapArena *heap;
+
   enum gcState state;
   void* baseStackAddr;
   // The blocks list for allocation.
@@ -81,11 +120,48 @@ struct GC {
   int inuseSize;
 };
 
+static struct heapArena*
+gcGetHeapArena(struct GC *gc) {
+  if (gc->heap == NULL || heapArenaFull(gc->heap)) {
+    struct heapArena* ha = heapArenaNew();
+    ha->next = gc->heap;
+    gc->heap = ha;
+  }
+  return gc->heap;
+}
+
+static struct Block *
+blockNew(struct GC *gc) {
+  struct heapArena *ha = gcGetHeapArena(gc);
+  struct Block *b = heapArenaAlloc(ha);
+
+  b->next = NULL;
+  b->prev = NULL;
+  scmHead* h = (scmHead*)b->data;
+  h->type = 0; // scmHeadUnused
+  h->size = (char*)b + MEM_BLOCK_SIZE - b->data;
+  return b;
+}
+
+static void
+blockReset(struct Block *block) {
+  struct heapArena *ha = block->ha;
+  // For easy debug ... not really a MUST
+  memset(block, 0, MEM_BLOCK_SIZE);
+  if (ha->freelist == NULL) {
+    ha->freelist = block;
+  } else {
+    block->next = ha->freelist->next;
+    ha->freelist->next = block;
+  }
+}
+
 void
 gcInit(struct GC *gc, void *baseStackAddr) {
+  gc->heap = NULL;
   gc->state = gcStateNone;
   gc->baseStackAddr = baseStackAddr;
-  struct Block *b = blockNew();
+  struct Block *b = blockNew(gc);
   gc->data.head = b;
   gc->data.tail = b;
 
@@ -104,16 +180,16 @@ gcInit(struct GC *gc, void *baseStackAddr) {
   gc->inuseSize = 0;
 }
 
-static struct Block*
+static bool
 gcContains(struct GC *gc, void *p) {
-  struct Block *b = gc->data.head;
-  while (b != NULL) {
-    if (blockContains(b, p)) {
-      return b;
+  struct heapArena *h = gc->heap;
+  while (h != NULL) {
+    if (heapArenaContains(h, p)) {
+      return true;
     }
-    b = b->next;
+    h = h->next;
   }
-  return NULL;
+  return false;
 }
 
 static scmHead*
@@ -121,7 +197,7 @@ moveToNextBlock(struct GC *gc) {
   gc->currBlock = gc->currBlock->next;
   // all blocks exhausted?
   if (gc->currBlock == NULL) {
-    struct Block *b = blockNew();
+    struct Block *b = blockNew(gc);
     b->prev = gc->data.tail;
     gc->data.tail->next = b;
     gc->data.tail = b;
@@ -158,13 +234,15 @@ inuse(struct GC *gc, scmHead *h) {
 static scmHead*
 moveToFirstUnused(struct GC *gc) {
   scmHead *head = (void*)(gc->currBlock->data + gc->currOffset);
-  while(inuse(gc, head)) {
-    gc->currOffset += head->size;
-    head = (void*)&gc->currBlock->data[gc->currOffset];
-    // The next block.
+  while(true) {
     if ((char*)head >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
       head = moveToNextBlock(gc);
     }
+    if (!inuse(gc, head)) {
+      break;
+    }
+    gc->currOffset += head->size;
+    head = (void*)&gc->currBlock->data[gc->currOffset];
   }
   return head;
 }
@@ -240,7 +318,7 @@ struct GC gc;
 
 static void
 gcQueueInit(struct GC *gc) {
-  struct Block *b = blockNew();
+  struct Block *b = blockNew(gc);
   gc->gray.head = b;
   gc->gray.tail = b;
   gc->start = 0;
@@ -253,7 +331,7 @@ gcEnqueue(struct GC *gc, scmHead* p) {
 
   struct Block *b = gc->gray.tail;
   if (&b->data[gc->end + sizeof(scmHead*)] > ((char*)b + MEM_BLOCK_SIZE)) {
-    b = blockNew();
+    b = blockNew(gc);
     b->prev = gc->gray.tail;
     gc->gray.tail->next = b;
     gc->gray.tail = b;
@@ -292,7 +370,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
   }
 
   // not gc allocated
-  if (gcContains(gc, ptr(p)) == NULL) {
+  if (!gcContains(gc, ptr(p))) {
     return false;
   }
 
@@ -301,9 +379,15 @@ checkPointer(struct GC *gc, uintptr_t p) {
   if (from->version == gc->version || from->version+1 == gc->version) {
     return false;
   }
-  assert(from->size > 0);
-  assert(from->type <= 7);
-  return true;
+
+  if (from->type >=1 && from->type <= 7) {
+    return true;
+  }
+
+  // Not a cora Object?
+  printf("WARNING: some thing is wrong when checkPointer? %p {type=%d, size=%d, version=%d}\n",
+	 from, from->type, from->size, from->version);
+  return false;
 }
 
 void
