@@ -365,7 +365,7 @@ bool
 checkPointer(struct GC *gc, uintptr_t p) {
   // p is not gc alloced, skip it.
   // This magic number kinda dirty, see types.h
-  if ((p&0x3) != 0x3) {
+  if ((p&0x7) != 0x7) {
     return false;
   }
 

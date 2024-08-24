@@ -19,8 +19,8 @@ typedef uint8_t scmHeadType;
 
 typedef uintptr_t Obj;
 
-// 000 fixnum
-// 001 non-fixnum
+// XX0 fixnum
+// XX1 non-fixnum
 // 001 symbol
 // 011 cobj
 // 101 immediate const (boolean, null, undef...)
@@ -52,7 +52,6 @@ enum {
   // Number may be or may not be pointer.
   scmHeadNumber,
   // The followings are all pointer types.
-  // Except cons, all the others are general pointer.
   scmHeadCons,
   scmHeadString,
   scmHeadVector,

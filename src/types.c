@@ -320,6 +320,9 @@ Obj
 makeVector(int size) {
   struct scmVector* vec = newObj(scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
   vec->size = size;
+  for (int i=0; i<vec->size; i++) {
+    vec->data[i] = Undef;
+  }
   return ((Obj)(&vec->head) | TAG_PTR);
 }
 
