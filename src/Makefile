@@ -5,6 +5,9 @@ SRCS = str.c gc.c types.c reader.c runtime.c reader_test.c eval_test.c bootstrap
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
+ifeq ("${ENABLE_ASAN}", "1")
+	CFLAGS = -g -Wall -fPIC -fsanitize=address
+endif
 # CFLAGS = -Wall -O2
 
 all: libcora.so

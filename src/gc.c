@@ -103,7 +103,7 @@ struct GC {
   struct heapArena *heap;
 
   enum gcState state;
-  void* baseStackAddr;
+  uintptr_t* baseStackAddr;
   // The blocks list for allocation.
   struct doubleLinkList data;
   // currBlock + currOffset determines the allocat position.
@@ -169,7 +169,7 @@ blockReset(struct Block *block) {
 }
 
 void
-gcInit(struct GC *gc, void *baseStackAddr) {
+gcInit(struct GC *gc, uintptr_t *baseStackAddr) {
   gc->heap = NULL;
   gc->state = gcStateNone;
   gc->baseStackAddr = baseStackAddr;
@@ -442,14 +442,29 @@ gcMark(struct GC *gc, uintptr_t p) {
   }
 }
 
+#if defined(__clang__) || defined (__GNUC__)
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
+#else
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS
+#endif
+
+
+ATTRIBUTE_NO_SANITIZE_ADDRESS
 static void
-gcStack(struct GC* gc, uintptr_t* start) {
-  /* printf("gcStack -- start %p end %p\n", start, end); */
-  assert(start < (uintptr_t*)gc->baseStackAddr);
-  assert(((uintptr_t)start & 0x7) == 0);
+gcStack(struct GC* gc) {
+  uintptr_t* stackAddr = (uintptr_t*)&stackAddr;
+  /* printf("gcStack -- start %p end %p\n", gc->baseStackAddr, stackAddr); */
+
+  // Dump registers onto stack and scan the stack.
+  jmp_buf ctx;
+  memset(&ctx, 0, sizeof(jmp_buf));
+  setjmp(ctx);
+  assert(stackAddr < gc->baseStackAddr);
+  assert(((uintptr_t)stackAddr & 0x7) == 0);
   assert(((uintptr_t)gc->baseStackAddr & 0x7) == 0);
 
-  for (uintptr_t *p = start; p<(uintptr_t*)gc->baseStackAddr; p++) {
+  for (uintptr_t *p = stackAddr; p<(uintptr_t*)gc->baseStackAddr; p++) {
+    /* printf("handling -- %p\n", p); */
     uintptr_t stackValue = *p;
     gcMark(gc, stackValue);
   }
@@ -459,11 +474,6 @@ extern void gcGlobal(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
-  void* stackAddr = &stackAddr;
-  // Dump registers onto stack and scan the stack.
-  jmp_buf ctx;
-  memset(&ctx, 0, sizeof(jmp_buf));
-  setjmp(ctx);
 
   /* printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+2); */
   gc->version+=2;
@@ -472,7 +482,7 @@ gcRunMark(struct GC *gc) {
   gc->inuseSize = 0;
   gcQueueInit(gc);
   // enqueue the root.
-  gcStack(gc, stackAddr);
+  gcStack(gc);
   gcGlobal(gc);
 
   gc->state = gcStateIncremental;

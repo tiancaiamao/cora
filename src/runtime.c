@@ -640,16 +640,17 @@ builtinImport(struct Cora *co) {
     co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
     co->args[2] = pkg;
     co->pc = builtinLoadSo;
+    strFree(tmp);
     return;
-  } else {
-    tmp = strShrink(tmp, 3);
-    tmp = strCat(tmp, cstr(".cora"));
-    co->nargs = 3;
-    co->args[0] = makeNative(builtinLoad, 2, 0);
-    co->args[1] = makeString1(toCStr(tmp));
-    co->args[2] = pkg;
-    trampoline(co, coraCall);
   }
+
+  tmp = strShrink(tmp, 3);
+  tmp = strCat(tmp, cstr(".cora"));
+  co->nargs = 3;
+  co->args[0] = makeNative(builtinLoad, 2, 0);
+  co->args[1] = makeString1(toCStr(tmp));
+  co->args[2] = pkg;
+  trampoline(co, coraCall);
   strFree(tmp);
 
   // Set the *imported* variable to avlid repeated load.
@@ -859,6 +860,7 @@ registerAPI(struct registerModule* m, str pkg) {
       tmp = strAppend(tmp, '.');
       tmp = strCat(tmp, cstr(entry.name));
       sym = intern(toCStr(tmp));
+      strFree(tmp);
     } else {
       sym = intern(entry.name);
     }
@@ -869,7 +871,7 @@ registerAPI(struct registerModule* m, str pkg) {
 // ============ end utilities for toc =================
 
 void
-coraInit(void *mark) {
+coraInit(uintptr_t *mark) {
   gcInit(&gc, mark);
   typesInit();
   symQuote = intern("quote");
@@ -910,7 +912,7 @@ coraInit(void *mark) {
 extern void entry(struct Cora* co);
 
 int main(int argc, char *argv[]) {
-  void* dummy;
+  uintptr_t dummy;
   coraInit(&dummy);
 
   symQuote = intern("quote");
