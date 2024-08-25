@@ -72,6 +72,9 @@ heapArenaAlloc(struct heapArena *h) {
   b = (struct Block*)(h->ptr + h->idx * MEM_BLOCK_SIZE);
   b->ha = h;
   h->idx++;
+
+  /* printf("allocate new block, current idx==%d\n", h->idx); */
+
   return b;
 }
 
@@ -83,9 +86,17 @@ heapArenaContains(struct heapArena* h, void *p) {
 #define alignto(p, bits)      (((p) >> bits) << bits)
 #define aligntonext(p, bits)  alignto(((p) + (1 << bits) - 1), bits)
 
+#define FREE_LIST_SLOTS 6
+
 struct doubleLinkList {
   struct Block *head;
   struct Block *tail;
+};
+
+// The type of scmFreeNode should be scmHeadUnused.
+struct scmFreeNode {
+  scmHead head;
+  struct scmFreeNode *next;
 };
 
 struct GC {
@@ -99,8 +110,9 @@ struct GC {
   struct Block *currBlock;
   int currOffset;
 
-  // TODO: implement a freelist
-  void* freeList[5];
+  // implement a freelist
+  // 24, 32, 40, 48, 56, 64
+  struct scmFreeNode* freeList[FREE_LIST_SLOTS];
 
   // Initially, allocate objects version=0
   // For every round of GC, the version+=2
@@ -178,6 +190,8 @@ gcInit(struct GC *gc, void *baseStackAddr) {
   gc->nextSize = MEM_BLOCK_SIZE;
   gc->allocated = 0;
   gc->inuseSize = 0;
+
+  memset(gc->freeList, 0, FREE_LIST_SLOTS*sizeof(struct FreeNode*));
 }
 
 static bool
@@ -247,16 +261,36 @@ moveToFirstUnused(struct GC *gc) {
   return head;
 }
 
+static void*
+gcAllocReturn(struct GC *gc, scmHead *head) {
+  head->version = gc->version;
+  gc->allocated += head->size;
+  // should trigger the next round of GC.
+  if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
+    gc->state = gcStateMark;
+  }
+  /* printf("gcAlloc== %p size=%d version=%d\n", head, head->size, gc->version); */
+  return head;
+}
+
 void*
 gcAlloc(struct GC *gc, int size) {
   size = aligntonext(size, TAG_SHIFT);
-
   assert(size > sizeof(scmHead));
   assert(size < MEM_BLOCK_SIZE);
-  // TODO: try allocate from freelist first.
 
-  scmHead* head = moveToFirstUnused(gc);
+  // try allocate from freelist first.
+  int slot = ((size+7) / 8) - 3;
+  if (slot >= 0 && slot < FREE_LIST_SLOTS && gc->freeList[slot] != NULL) {
+    struct scmFreeNode* ret = gc->freeList[slot];
+    gc->freeList[slot] = ret->next;
+    /* printf("alloc from freelist[%d] --- size=%d %p\n", slot, ret->head.size, ret); */
+    return gcAllocReturn(gc, &ret->head);
+  }
+
   // merge adjacent object until the unused size is greater than required.
+  scmHead* head = moveToFirstUnused(gc);
+  assert(head->size > 0);
   while(head->size < size) {
     scmHead *next = (scmHead*)((char*)head + head->size);
     if ((char*)next >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
@@ -264,7 +298,19 @@ gcAlloc(struct GC *gc, int size) {
       head = moveToFirstUnused(gc);
       continue;
     }
+    assert(next->size > 0);
+
     if (inuse(gc, next)) {
+      assert(head->size % 8 == 0);
+      slot = (head->size / 8) - 3;
+      if (slot >= 0 && slot < FREE_LIST_SLOTS) {
+	/* printf("recycle freelist[%d] -- size=%d %p\n", slot, head->size, head); */
+	struct scmFreeNode* tmp = (struct scmFreeNode*)head;
+	tmp->next = gc->freeList[slot];
+	gc->freeList[slot] = tmp;
+      }
+
+      /* printf("skip and waste mem == %d\n", head->size); */
       // Meet inuse object, fragments cause allocation fail.
       gc->currOffset = (char*)next + next->size - gc->currBlock->data;
       head = moveToFirstUnused(gc);
@@ -284,21 +330,13 @@ gcAlloc(struct GC *gc, int size) {
     gc->currOffset = (char*)head - gc->currBlock->data;
     head->size = size;
   }
+  // not mandatory to move to the next unused obj, let the next alloc operation handle it.
 
   if (head->type != 0) {
     assert(head->version+1 < gc->version);
   }
 
-  // not mandatory to move to the next unused obj, let the next alloc operation handle it.
-  head->version = gc->version;
-  gc->allocated += size;
-  // should trigger the next round of GC.
-  if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
-    gc->state = gcStateMark;
-  }
-
-  /* printf("gcAlloc== %p size=%d version=%d\n", head, head->size, gc->version); */
-  return head;
+  return gcAllocReturn(gc, head);
 }
 
 
@@ -348,13 +386,20 @@ gcDequeue(struct GC *gc) {
   struct Block *b = gc->gray.head;
   if (b->data + gc->start >= (char*)b + MEM_BLOCK_SIZE) {
     b = b->next;
+    blockReset(gc->gray.head);
+    gc->start = 0;
+    gc->gray.head = b;
     if (b == NULL) {
       return NULL;
-    } else {
-      blockReset(gc->gray.head);
-      gc->gray.head = b;
-      gc->start = 0;
     }
+  }
+  if (b == gc->gray.tail && gc->start >= gc->end) {
+    blockReset(b);
+    gc->gray.head = NULL;
+    gc->gray.tail = NULL;
+    gc->start = 0;
+    gc->end = 0;
+    return NULL;
   }
   scmHead* ret = *((scmHead**)&b->data[gc->start]);
   gc->start += sizeof(scmHead*);
@@ -459,6 +504,7 @@ gcRunIncremental(struct GC *gc) {
     gc->nextSize = MEM_BLOCK_SIZE;
   }
   gc->state = gcStateNone;
+  memset(gc->freeList, 0, FREE_LIST_SLOTS*sizeof(struct FreeNode*));
   gc->currBlock = gc->data.head;
   gc->currOffset = 0;
 }
