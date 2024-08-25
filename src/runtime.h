@@ -79,6 +79,6 @@ void registerAPI(struct registerModule* m, str pkg);
 
 
 struct Cora* coraNew();
-void coraInit(void *mark);
+void coraInit(uintptr_t *mark);
 
 #endif

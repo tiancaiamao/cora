@@ -2,6 +2,10 @@
 
 CC = gcc
 CFLAGS = -g -Wall -fPIC
+LD_FLAG	:=  -lcora -ldl
+ifeq ("${ENABLE_ASAN}", "1")
+	LD_FLAG = -lasan -lcora -ldl
+endif
 
 all: cora.bin lib
 
@@ -20,7 +24,7 @@ cora.bin: libcora main.o init.so toc.so
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
-	$(CC) main.o -Lsrc -lcora -ldl -o $@
+	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
 	rm -f *.o *.so *.bin
