@@ -393,11 +393,41 @@ eq(Obj x, Obj y) {
   return false;
 }
 
+struct scmContinuation {
+  scmHead head;
+  struct callStack cs;
+};
+
+Obj
+makeContinuation() {
+  struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
+  struct callStack stack = &cont->cs;
+  stack.data = malloc(64*sizeof(struct returnAddr));
+  stack.len = 0;
+  stack.cap = 64;
+  return ((Obj)(&cont->head) | TAG_PTR);
+}
+
+struct callStack*
+contCallStack(Obj cont) {
+  struct scmContinuation* v = ptr(cont);
+  assert(v->head.type == scmHeadContinuation);
+  return &v->cs;
+}
+
+static void
+continuationGCFunc(struct GC *gc, void* f) {
+  struct scmContinuation *from = f;
+  gcMarkCallStack(gc, &f->cs);
+  from->head.version++;
+  gcInuseSizeInc(gc, from->head.size);
+}
+
 void
 typesInit() {
   gcRegistForType(scmHeadCons, consGCFunc);
   gcRegistForType(scmHeadString, stringGCFunc);
   gcRegistForType(scmHeadVector, vectorGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);
-  /* gcRegistForType(gc, scmHeadContinuation, continuationGCFunc); */
+  gcRegistForType(gc, scmHeadContinuation, continuationGCFunc);
 }

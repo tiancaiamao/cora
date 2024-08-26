@@ -56,7 +56,7 @@ enum {
   scmHeadString,
   scmHeadVector,
   scmHeadNative,
-  /* scmHeadContinuation, */
+  scmHeadContinuation,
 };
 
 void typesInit();
