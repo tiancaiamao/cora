@@ -344,7 +344,6 @@ static gcFunc registry[256] = {};
 
 bool
 gcRegistForType(uint8_t idx, gcFunc fn) {
-  assert(idx < 256);
   if (registry[idx] != NULL) {
     return false;
   }

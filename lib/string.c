@@ -18,9 +18,7 @@ stringSlice(struct Cora *co) {
     strBuf s = stringStr(str);
     ret = makeString(toCStr(s)+pos, len-pos);
   }
-  co->nargs = 2;
-  co->args[1] = ret;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, ret);
 }
 
 static void
@@ -33,25 +31,18 @@ stringHasPrefix(struct Cora *co) {
 
   int lPrefix = stringLen(prefix);
   if (lPrefix > stringLen(str)) {
-    co->nargs = 2;
-    co->args[1] = False;
-    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    coraReturn(co, False);
     return;
   }
 
   for(int i=0; i<lPrefix; i++) {
     if (toCStr(prefix1)[i] != toCStr(str1)[i]) {
-      co->nargs = 2;
-      co->args[1] = False;
-      popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+      coraReturn(co, False);
       return;
     }
   }
 
-  co->nargs = 2;
-  co->args[1] = True;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, True);
 }
 
 static void
@@ -59,10 +50,7 @@ stringLength(struct Cora *co) {
   Obj o = co->args[1];
   int l = stringLen(o);
 
-  co->nargs = 2;
-  co->args[1] = makeNumber(l);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, makeNumber(l));
 }
 
 static void
@@ -73,10 +61,7 @@ stringIndex(struct Cora *co) {
   strBuf str = stringStr(x);
   int idx = fixnum(y);
   Obj ret =  makeString(toCStr(str)+idx, 1);
-  co->nargs = 2;
-  co->args[1] = ret;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, ret);
 }
 
 static void
@@ -87,10 +72,7 @@ stringCompare(struct Cora *co) {
   strBuf x1 = stringStr(x);
   strBuf y1 = stringStr(y);
   int ret = strCmp(toStr(x1), toStr(y1));
-  co->nargs = 2;
-  co->args[1] = makeNumber(ret);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, makeNumber(ret));
 }
 
 static void
@@ -100,10 +82,7 @@ numberToString(struct Cora *co) {
 
   char tmp[32];
   int l = snprintf(tmp, 32, "%ld", fixnum(n));
-  co->nargs = 2;
-  co->args[1] = makeString(tmp, l);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, makeString(tmp, l));
 }
 
 static void
@@ -118,9 +97,7 @@ stringReplace(struct Cora *co) {
 
   int pos = strStr(toStr(raw), toStr(from));
   if (pos < 0) {
-    co->nargs = 2;
-    co->args[1] = arg1;
-    popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+    coraReturn(co, arg1);
     return;
   }
 
@@ -131,10 +108,7 @@ stringReplace(struct Cora *co) {
   buf = strCat(buf, strSub(toStr(raw), pos+strLen(toStr(from)), strLen(toStr(raw))));
   str s = toStr(buf);
   Obj res = makeString(s.str, s.len);
-  co->nargs = 2;
-  co->args[1] = res;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, res);
 }
 
 static void
@@ -158,10 +132,7 @@ stringSplit(struct Cora *co) {
     res = cons(makeString(s.str, strLen(s)), res);
     break;
   }
-
-  co->nargs = 2;
-  co->args[1] = reverse(res);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, reverse(res));
 }
 
 /* void */
@@ -198,9 +169,7 @@ void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
   registerAPI(&stringModule, toStr(stringStr(pkg)));
-  co->nargs = 2;
-  co->args[1] = intern("string");
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, intern("string"));
 }
 
 

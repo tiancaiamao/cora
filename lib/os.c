@@ -22,10 +22,7 @@ exec(struct Cora *co) {
   Obj args = co->args[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
-  co->nargs = 2;
-  co->args[1] = makeNumber(exitCode);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, makeNumber(exitCode));
 }
 
 static void
@@ -37,9 +34,7 @@ popenFn(struct Cora *co) {
   strBuf cmdStr = cmdListStr(cmd);
   FILE* f = popen(toCStr(cmdStr), type);
 
-  co->nargs = 2;
-  co->args[1] = makeCObj(f);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, makeCObj(f));
   return;
 }
 
@@ -48,10 +43,7 @@ pcloseFn(struct Cora *co) {
   Obj arg = co->args[1];
   FILE *f = mustCObj(arg);
   int res = pclose(f);
-  co->nargs = 2;
-  co->args[1] = res;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, res);
 }
 
 static struct registerModule osModule = {
@@ -67,8 +59,5 @@ void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
   registerAPI(&osModule, toStr(stringStr(pkg)));
-  co->nargs = 2;
-  co->args[1] = intern("os");
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
-  return;
+  coraReturn(co, intern("os"));
 }

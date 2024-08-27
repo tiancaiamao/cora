@@ -126,11 +126,30 @@ int nativeCaptured(Obj o);
 int nativeRequired(Obj o);
 basicBlock nativeFuncPtr(Obj o);
 
-struct stack {
-  Obj *data;
+struct returnAddr {
+  basicBlock pc;
+  Obj frees;
   int base;
   int pos;
+  Obj *stack;
 };
+
+struct callStack {
+  struct returnAddr *data;
+  int len;
+  int cap;
+};
+
+Obj makeContinuation();
+struct callStack* contCallStack(Obj cont);
+
+void gcMarkCallStack(struct GC *gc, struct callStack *stack);
+
+/* struct stack { */
+/*   Obj *data; */
+/*   int base; */
+/*   int pos; */
+/* }; */
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 

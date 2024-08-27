@@ -8,21 +8,6 @@
 #include "types.h"
 #include "reader.h"
 
-struct returnAddr {
-  basicBlock pc;
-  Obj frees;
-  int base;
-  int pos;
-  Obj *stack;
-};
-
-struct callStack {
-  struct returnAddr *data;
-  int len;
-  int cap;
-};
-
-
 struct Cora {
   Obj *stack;
   int base;
@@ -41,7 +26,6 @@ void coraCall(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
-void popStack(struct callStack *cs, basicBlock *pc, int *base, int *pos, Obj **stack, Obj *frees);
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 Obj stackRef(struct Cora *co, int idx);

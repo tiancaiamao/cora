@@ -6,9 +6,7 @@ static void
 builtinDisplay(struct Cora *co) {
   Obj arg = co->args[1];
   sexpWrite(stdout, arg);
-  co->nargs = 2;
-  co->args[1] = Nil;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, Nil);
 }
 
 static void
@@ -16,10 +14,7 @@ builtinOpenOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   strBuf filePath = stringStr(arg1);
   FILE* f = fopen(toCStr(filePath), "w");
-
-  co->nargs = 2;
-  co->args[1] = makeCObj(f);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, makeCObj(f));
 }
 
 static void
@@ -27,10 +22,7 @@ builtinCloseOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
   FILE *f = mustCObj(arg1);
   int errno = fclose(f);
-
-  co->nargs = 2;
-  co->args[1] = makeNumber(errno);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, makeNumber(errno));
 }
 
 static void
@@ -50,9 +42,7 @@ ioReadAll(struct Cora *co) {
     }
   }
   Obj ret = makeString(toCStr(dest), strLen(toStr(dest)));
-  co->nargs = 2;
-  co->args[1] = ret;
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, ret);
 }
 
 static void
@@ -71,9 +61,7 @@ ioCopy(struct Cora *co) {
       break;
     }
   }
-  co->nargs = 2;
-  co->args[1] = feof(from);
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, feof(from));
 }
 
 struct registerModule ioModule = {
@@ -92,7 +80,5 @@ void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
   registerAPI(&ioModule, toStr(stringStr(pkg)));
-  co->nargs = 2;
-  co->args[1] = intern("io");
-  popStack(&co->callstack, &co->pc, &co->base, &co->pos, &co->stack, &co->frees);
+  coraReturn(co, intern("io"));
 }

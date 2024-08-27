@@ -401,10 +401,10 @@ struct scmContinuation {
 Obj
 makeContinuation() {
   struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
-  struct callStack stack = &cont->cs;
-  stack.data = malloc(64*sizeof(struct returnAddr));
-  stack.len = 0;
-  stack.cap = 64;
+  struct callStack* stack = &cont->cs;
+  stack->data = malloc(64*sizeof(struct returnAddr));
+  stack->len = 0;
+  stack->cap = 64;
   return ((Obj)(&cont->head) | TAG_PTR);
 }
 
@@ -415,10 +415,22 @@ contCallStack(Obj cont) {
   return &v->cs;
 }
 
+void
+gcMarkCallStack(struct GC *gc, struct callStack *stack) {
+  for (int i=0; i<stack->len; i++) {
+    struct returnAddr* addr = &stack->data[i];
+    for (int j=addr->base; j<addr->pos; j++) {
+      gcMark(gc, addr->stack[j]);
+    }
+    // Don't forget this one!
+    gcMark(gc, addr->frees);
+  }
+}
+
 static void
 continuationGCFunc(struct GC *gc, void* f) {
   struct scmContinuation *from = f;
-  gcMarkCallStack(gc, &f->cs);
+  gcMarkCallStack(gc, &from->cs);
   from->head.version++;
   gcInuseSizeInc(gc, from->head.size);
 }
@@ -429,5 +441,5 @@ typesInit() {
   gcRegistForType(scmHeadString, stringGCFunc);
   gcRegistForType(scmHeadVector, vectorGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);
-  gcRegistForType(gc, scmHeadContinuation, continuationGCFunc);
+  gcRegistForType(scmHeadContinuation, continuationGCFunc);
 }
