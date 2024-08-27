@@ -424,7 +424,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
     return false;
   }
 
-  if (from->type >=1 && from->type <= 7) {
+  if (from->type > scmHeadUnused && from->type < scmHeadMax) {
     return true;
   }
 

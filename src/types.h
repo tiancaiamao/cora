@@ -43,22 +43,6 @@ extern const Obj False;
 extern const Obj Nil;
 extern const Obj Undef;
 
-enum {
-  scmHeadUnused = 0,
-  // Instant values.
-  scmHeadBoolean,
-  scmHeadNull,
-  // Symbol is a special pointer, but it's basically instant value.
-  // Number may be or may not be pointer.
-  scmHeadNumber,
-  // The followings are all pointer types.
-  scmHeadCons,
-  scmHeadString,
-  scmHeadVector,
-  scmHeadNative,
-  scmHeadContinuation,
-};
-
 void typesInit();
 
 struct VM;
@@ -144,12 +128,6 @@ Obj makeContinuation();
 struct callStack* contCallStack(Obj cont);
 
 void gcMarkCallStack(struct GC *gc, struct callStack *stack);
-
-/* struct stack { */
-/*   Obj *data; */
-/*   int base; */
-/*   int pos; */
-/* }; */
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 

@@ -6,6 +6,24 @@
 
 typedef uint8_t scmHeadType;
 
+enum {
+  scmHeadUnused = 0,
+  // Instant values.
+  scmHeadBoolean,
+  scmHeadNull,
+  // Symbol is a special pointer, but it's basically instant value.
+  // Number may be or may not be pointer.
+  scmHeadNumber,
+  // The followings are all pointer types.
+  scmHeadCons,
+  scmHeadString,
+  scmHeadVector,
+  scmHeadNative,
+  scmHeadContinuation,
+
+  scmHeadMax,
+};
+
 typedef struct {
   scmHeadType type;
   uint16_t size;
