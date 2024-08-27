@@ -27,7 +27,8 @@ saveToStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees, O
   return;
 }
 
-void pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
+void
+pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
   saveToStack(&co->callstack, cb, co->base, co->base + nstack, co->frees, co->stack);
   if (nstack > 0) {
     va_list ap;
@@ -170,7 +171,7 @@ gcGlobal(struct GC *gc) {
 
 void
 trampoline(struct Cora *co, basicBlock pc) {
-  saveToStack(&co->callstack, NULL, co->base, co->pos, co->frees, co->stack);
+  pushCont(co, NULL, 0);
   co->pc = pc;
   int i = 0;
   while(co->pc != NULL) {
@@ -386,7 +387,7 @@ void
 builtinThrow(struct Cora *co) {
   Obj v = co->args[1];
 
-  int p = co->callstack.len;
+  int p = co->callstack.len - 1;
   for (; p >= 0; p--) {
     struct returnAddr *addr = &co->callstack.data[p];
     if (addr->stack != co->stack) {
@@ -402,7 +403,7 @@ builtinThrow(struct Cora *co) {
   // Now p point to the try-marked stack.
   Obj cont = makeContinuation();
   struct callStack* stack = contCallStack(cont);
-  for (int i=p; i<co->callstack.len; i++) {
+  for (int i=p+1; i<co->callstack.len; i++) {
     struct returnAddr *addr = &co->callstack.data[i];
     saveToStack(stack, addr->pc, addr->base, addr->pos, addr->frees, addr->stack);
   }
@@ -410,9 +411,11 @@ builtinThrow(struct Cora *co) {
   // Now that we get the current continuation, disguise as a closure.
   Obj clo = makeNative(continuationAsClosure, 1, 1, cont);
 
-  // Reset the stack
-  co->callstack.len = p;
-  struct returnAddr *addr = &co->callstack.data[p-1];
+  // Reset to the try stack.
+  // Note, don't pop the try stack itself now, because after resume the code block
+  // still belongs to this try.
+  co->callstack.len = p + 1;
+  struct returnAddr *addr = &co->callstack.data[p];
   co->stack = addr->stack;
   co->base = addr->base;
   co->pos = addr->pos;
