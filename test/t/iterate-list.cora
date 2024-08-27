@@ -1,1 +1,6 @@
+(defun map (f l)
+  (if (cons? l)
+      (cons (f (car l)) (map f (cdr l)))
+      ())) ;; cora/init is not loaded, so map is undefined
+
 (try (lambda () (map (lambda (x) (throw x)) [1 2 3 4 5])) (lambda (v cc) (cc v)))

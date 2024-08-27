@@ -834,6 +834,7 @@ coraInit(uintptr_t *mark) {
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
+  primSet(intern("*imported*"), Nil);
   primSet(intern("*package-mapping*"), Nil);
   primSet(intern("symbol->string"), makeNative(symbolToString, 1, 0));
   primSet(intern("string-append"), makeNative(stringAppend, 2, 0));
