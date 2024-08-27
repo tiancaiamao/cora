@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-/* #include "vm.h" */
+#include "runtime.h"
 #include "reader.h"
 
 
@@ -10,7 +10,7 @@ TestReadSexp() {
   /* char buffer[] = "(a)"; */
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  struct SexpReader reader = {.pkgMapping = Nil};
+  struct SexpReader reader = {};
   int errCode;
   Obj o = sexpRead(&reader, stream, &errCode);
 
@@ -37,7 +37,7 @@ TestImport() {
   char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  struct SexpReader r = {.pkgMapping = Nil};
+  struct SexpReader r = {};
   int errCode;
   Obj o = sexpRead(&r, stream, &errCode);
   Obj pathStr = makeString("std/cora/basic", 14);
@@ -45,7 +45,10 @@ TestImport() {
   assert(eq(o, s));
   /* printObj(stdout, r.pkgMapping); */
   /* printf("\n"); */
-  assert(eq(r.pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
+
+  Obj var = intern("*package-mapping*");
+  Obj pkgMapping = symbolGet(var);
+  assert(eq(pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
 
   Obj x = sexpRead(&r, stream, &errCode);
   /* printObj(stdout, x); */
@@ -72,7 +75,7 @@ TestReaderMacro() {
     {"`(1 ,a 2 ,(a b) c)",  "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
   };
 
-  struct SexpReader r = {.pkgMapping = Nil};
+  struct SexpReader r = {};
   int errCode = 0;
   for (int i=0; i<sizeof(cases) / sizeof(struct readerMacroTest); i++) {
     struct readerMacroTest *c = &cases[i];
@@ -94,7 +97,8 @@ TestReaderMacro() {
 }
 
 int main(int argc, char *argv[]) {
-  coraInit(NULL);
+  uintptr_t dummy;
+  coraInit(&dummy);
   TestReadSexp();
   TestImport();
   TestReaderMacro();

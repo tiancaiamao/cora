@@ -1,0 +1,7 @@
+(try (lambda () 
+		(try (lambda () 
+			(throw "from body")) 
+		     (lambda (v cc) 
+			(throw "from inner")))) 
+	    (lambda (v1 cc1) 
+		v1))

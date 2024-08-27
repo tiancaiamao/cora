@@ -76,7 +76,6 @@ bool iscons(Obj o) {
 static void
 consGCFunc(struct GC *gc, void* f) {
   struct scmCons *from = f;
-  /* assert(from->head.forwarding == 0); */
   gcMark(gc, from->car);
   gcMark(gc, from->cdr);
   from->head.version++;
@@ -262,7 +261,6 @@ makeNative(basicBlock fn, int required, int captured, ...) {
 static void
 nativeGCFunc(struct GC *gc, void* f) {
   struct scmNative *from = f;
-  /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->captured; i++) {
     gcMark(gc, from->data[i]);
   }
@@ -364,7 +362,6 @@ isvector(Obj o) {
 static void
 vectorGCFunc(struct GC *gc, void* f) {
   struct scmVector *from = f;
-  /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->size; i++) {
     gcMark(gc, from->data[i]);
   }
