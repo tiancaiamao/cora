@@ -1,0 +1,1 @@
+(try (lambda () (let X 666 42)) (lambda (E) (cons '--> (cons 'A ()))))

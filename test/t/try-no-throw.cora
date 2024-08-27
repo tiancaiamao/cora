@@ -1,0 +1,1 @@
+(try (lambda () 42) (lambda (v cc) v))

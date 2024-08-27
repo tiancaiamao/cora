@@ -355,5 +355,5 @@ TestTryCatch() {
 
 int main() {
   TestEvalBasic();
-  /* TestTryCatch(); */
+  TestTryCatch();
 }

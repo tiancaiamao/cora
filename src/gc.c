@@ -344,7 +344,6 @@ static gcFunc registry[256] = {};
 
 bool
 gcRegistForType(uint8_t idx, gcFunc fn) {
-  assert(idx < 256);
   if (registry[idx] != NULL) {
     return false;
   }
@@ -425,7 +424,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
     return false;
   }
 
-  if (from->type >=1 && from->type <= 7) {
+  if (from->type > scmHeadUnused && from->type < scmHeadMax) {
     return true;
   }
 

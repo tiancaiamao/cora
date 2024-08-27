@@ -76,7 +76,6 @@ bool iscons(Obj o) {
 static void
 consGCFunc(struct GC *gc, void* f) {
   struct scmCons *from = f;
-  /* assert(from->head.forwarding == 0); */
   gcMark(gc, from->car);
   gcMark(gc, from->cdr);
   from->head.version++;
@@ -262,7 +261,6 @@ makeNative(basicBlock fn, int required, int captured, ...) {
 static void
 nativeGCFunc(struct GC *gc, void* f) {
   struct scmNative *from = f;
-  /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->captured; i++) {
     gcMark(gc, from->data[i]);
   }
@@ -364,7 +362,6 @@ isvector(Obj o) {
 static void
 vectorGCFunc(struct GC *gc, void* f) {
   struct scmVector *from = f;
-  /* assert(from->head.forwarding == 0); */
   for (int i=0; i<from->size; i++) {
     gcMark(gc, from->data[i]);
   }
@@ -393,11 +390,53 @@ eq(Obj x, Obj y) {
   return false;
 }
 
+struct scmContinuation {
+  scmHead head;
+  struct callStack cs;
+};
+
+Obj
+makeContinuation() {
+  struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
+  struct callStack* stack = &cont->cs;
+  stack->data = malloc(64*sizeof(struct returnAddr));
+  stack->len = 0;
+  stack->cap = 64;
+  return ((Obj)(&cont->head) | TAG_PTR);
+}
+
+struct callStack*
+contCallStack(Obj cont) {
+  struct scmContinuation* v = ptr(cont);
+  assert(v->head.type == scmHeadContinuation);
+  return &v->cs;
+}
+
+void
+gcMarkCallStack(struct GC *gc, struct callStack *stack) {
+  for (int i=0; i<stack->len; i++) {
+    struct returnAddr* addr = &stack->data[i];
+    for (int j=addr->base; j<addr->pos; j++) {
+      gcMark(gc, addr->stack[j]);
+    }
+    // Don't forget this one!
+    gcMark(gc, addr->frees);
+  }
+}
+
+static void
+continuationGCFunc(struct GC *gc, void* f) {
+  struct scmContinuation *from = f;
+  gcMarkCallStack(gc, &from->cs);
+  from->head.version++;
+  gcInuseSizeInc(gc, from->head.size);
+}
+
 void
 typesInit() {
   gcRegistForType(scmHeadCons, consGCFunc);
   gcRegistForType(scmHeadString, stringGCFunc);
   gcRegistForType(scmHeadVector, vectorGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);
-  /* gcRegistForType(gc, scmHeadContinuation, continuationGCFunc); */
+  gcRegistForType(scmHeadContinuation, continuationGCFunc);
 }

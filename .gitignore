@@ -2,6 +2,7 @@ cora.bin
 *.o
 *.so
 *.a
+*.dSYM
 *~
 a.out
 libcora.a

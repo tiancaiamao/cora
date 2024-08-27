@@ -1,0 +1,9 @@
+(do 
+ (set 'add (lambda (x y) (+ x y))) 
+ (do (set 'f (lambda (n) 
+	       (if (= n 0) 
+		   (throw 42) 
+		 (add (f (- n 1)) 1)))) 
+     (try (lambda () 
+	    (f 300)) 
+      (lambda (v cc) (cc v)))))

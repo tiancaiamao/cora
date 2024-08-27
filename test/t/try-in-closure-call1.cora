@@ -1,0 +1,1 @@
+(do (set 'f (lambda (a b) b)) (try (lambda () (f (throw 42) 33)) (lambda (v _) v)))
