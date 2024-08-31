@@ -1,105 +1,73 @@
-;; blog link https://www.zenlife.tk/use-algebraic-effect.md
+(import "cora/lib/sys")
+(import "cora/lib/net" net)
+(@import "cora/lib/queue" queue)
 
-(load "lib/sys.cora")
-(load "lib/queue.cora")
-(load "lib/eff.cora")
+(set '.task-queue (queue.make))
+(set '.enqueue (queue.enqueue .task-queue))
+(set '.dequeue (queue.dequeue .task-queue))
+(set '.empty? (queue.empty? .task-queue))
 
-(let s1 (gensym 's1)
-     s2 (gensym 's2)
-     (begin
-      (set s1 ())
-      (set s2 ())
-      (set 'enqueue (make-enqueue s1 s2))
-      (set 'dequeue (make-dequeue s1 s2))
-      (set 'empty? (empty-queue? s1 s2))))
-
-(let s (gensym 'block)
-     (begin
-      (set s ())
-      (defun add-blocked-queue (fd val)
-        (set s (cons (cons fd val) (value s))))
-      (defun remove-blocked-queue (fd)
-        (set s (filter (lambda (x) (not (= fd (car x)))) (value s))))
-      (defun blocked-queue-empty? ()
-        (null? (value s)))
-      (defun collect-blocked-fds ()
-        (map car (value s)))
-      (defun find-blocked-by-fd (fd)
-        (assq fd (value s)))))
-
-(func recv-handler
+(func .recv-handler
       [fd buf pos] k => (begin
 			 ;; (display "run in recv-handler")
-			 (match (net-recv fd buf pos)
-				[block pos] (begin
-					     (add-blocked-queue fd ['Blocked ['Recv fd buf pos] k])
-					     ;; (display "recv-handler block and go to scheduler\n")
-					     (schedule)
-					     ;; (display "finish schedule in recv-handler")
-                         )
+			 (match (net.recv fd buf pos k)
+				[block] (schedule)
 				res (k res))))
 
-(func send-handler
-      [fd buf pos] k => (match (net-send fd buf pos)
-                               [block pos] (begin
-                                            (add-blocked-queue fd ['Blocked ['Send fd buf pos] k])
-                                            ;; (display "send-handler block and go to schedule\n")
-                                            (schedule)
-                                            ;; (display "finish send-handler")
-                                            )
-                               res (k res))
+(func .send-handler
+      [fd buf pos] k => (match (net.send fd buf pos k)
+			       [block] (schedule)
+			       res (k res))
       _ k => (display "wrong argument for send-handler"))
 
-(defun accept-handler (ln k)
+(defun .accept-handler (ln k)
   (begin
-   (add-blocked-queue ln ['Blocked ['Accept ln] k])
-   (net-accept-1 ln)
+   (net.accept-1 ln k)
    ;; (display "before accept handle go to schedule")
    ;; (display ln)
    (schedule)
    (display "finish schedule")))
 
-(defun yield-handler (_ cc)
+(defun .yield-handler (cc)
   (begin
-   (enqueue cc)
-   (let task (dequeue)
+   (.enqueue cc)
+   (let task (.dequeue)
 	(task ()))))
 
-(defun spawn-handler (fn k)
+(defun .spawn-handler (fn k)
   (begin
-   (enqueue k)
+   (.enqueue k)
    (run fn)))
 
-
 (defun run (main)
-  (handler (lambda (_) (schedule))
-	   ['Send send-handler
-	   'Recv recv-handler
-	   'Accept accept-handler
-	   'Spawn spawn-handler
-	   'Yield yield-handler]
-	   main))
+  (try main .trap-in-handler))
 
-(defun schedule ()
+(func .trap-in-handler
+      ['Spawn . data] k =>  (.spawn-handler data k)
+      ['Yield] k => (.yield-handler k)
+      ['Send . data] k =>  (.send-handler data k)
+      ['Accept . data] k =>  (.accept-handler data k)
+      ['Recv . data] k => (.recv-handler data k)
+      _ => (error "wrong type of trap in"))
+
+(defun .schedule ()
   (if (not (empty?)) ;; running-queue
       (begin
        ;; (display "handle running queue...")
-       (let task (dequeue)
-            (task ())))
-      (if (blocked-queue-empty?)
-          (display "no more task, exit!") ;; no more task
-          (begin
-           (let ready-fds (net-poll)
-                (for-each (lambda (fd)
-                            (begin
-                             (match (find-blocked-by-fd fd)
-                                    [fd . ['Blocked ['Accept ln] k]] (k (net-accept-2 fd))
-                                    [fd . ['Blocked ['Recv . data] k]] (recv-handler data k)
-                                    [fd . ['Blocked ['Send . data] k]] (send-handler data k)
-                                    _ (error "fd is not found in the blocked list?"))
-                             (remove-blocked-queue fd)))
-                          ready-fds))
-           (schedule)))))
+       (let task (.dequeue)
+	    (task ())))
+      (let ready-tasks (net.poll)
+	   (if (null? ready-tasks)
+	       (display "no more task, exit!") ;; no more task
+	       (begin
+		(for-each (lambda (task)
+			    (match task
+				   ['Send fd buf pos k] (.send-handler [fd buf pos] k)
+				   ['Recv fd buf pos k] (.recv-handler [fd buf pos] k)
+				   ['Accept fd k] (k (net.accept-2 fd))
+				   _ (error "don't know how to handle task?")))
+			  ready-tasks)
+		(.schedule))))))
 
 ;; (defun accept-loop (ln)
 ;;   (yield fd (eff 'Accept ln)
@@ -113,20 +81,20 @@
 ;;               (yield _ (eff 'Recv [fd buf 0])
 ;;                      (begin
 ;;                       (display buf)
-;;                       (net-close fd))))))
+;;                       (net.close fd))))))
 
 ;; (defun client-main (_)
-;;   (let fd (net-dial "127.0.0.1:8080")
+;;   (let fd (net.dial "127.0.0.1:8080")
 ;;        buf (make-buffer 11)
 ;;        (yield v (eff 'Recv [fd buf 0])
 ;;               (begin
 ;;                (display buf)
 ;;                (yield v (eff 'Send [fd "hello arthur" 0])
-;;                       (net-close fd))))))
+;;                       (net.close fd))))))
 
-(defun server-main (_)
-  (let ln (net-listen "127.0.0.1:8080")
-       (accept-loop ln)))
+;; (defun server-main (_)
+;;   (let ln (net.listen "127.0.0.1:8080")
+;;        (accept-loop ln)))
 
 ;; (run server-main)
 ;; (run client-main)

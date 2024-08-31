@@ -1,29 +1,26 @@
 ;; use two stack to implement a list
-;; usage:  (let s1 (gensym 's1)
-;; 	     s2 (gensym 's2)
-;; 	     (begin
-;;            (set s1 ())
-;;            (set s2 ())
-;; 	      (set 'enqueue (make-enqueue s1 s2))
-;; 	      (set 'dequeue (make-dequeue s1 s2))
-;; 	      (set 'empty? (empty-queue? s1 s2))))
+(defun .make ()
+  (let q (vector 2)
+       (begin
+	(vector-set! q 0 ())
+	(vector-set! q 1 ())
+	q)))
 
-(defun make-enqueue (s1 s2 x)
-  (set s1 (cons x (value s1))))
+(defun .enqueue (q x)
+  (vector-set! q 0 (cons x (vector-ref q 0))))
 
-(defun make-dequeue (s1 s2)
-  (lambda ()
-    (begin
-     (if (null? (value s2))
-	 (begin
-	  (set s2 (reverse (value s1)))
-	  (set s1 ()))
+(defun .dequeue (q)
+  (begin
+   (if (null? (vector-ref q 1))
+       (begin
+	(vector-set! q 1 (reverse (vector-ref q 0)))
+	(vector-set! q 0 ()))
        ())
-     (let ret (car (value s2))
-	  (begin
-	   (set s2 (cdr (value s2)))
-	   ret)))))
+   (let ret (car (vector-ref q 1))
+	(begin
+	 (vector-set! q 1 (cdr (vector-ref q 1)))
+	 ret))))
 
-(defun empty-queue? (s1 s2)
+(defun .empty? (q)
   (lambda ()
-    (and (null? (value s1)) (null? (value s2)))))
+    (and (null? (vector-ref q 0)) (null? (vector-ref q 1)))))

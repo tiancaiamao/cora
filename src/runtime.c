@@ -119,7 +119,8 @@ void push(struct Cora *co, Obj v) {
   co->pos++;
 }
 
-Obj stackRef(struct Cora *co, int idx) {
+Obj
+coraGet(struct Cora *co, int idx) {
   return co->stack[co->base + idx];
 }
 
