@@ -1,32 +1,51 @@
 (import "cora/lib/sys")
-(import "cora/lib/net" net)
+(@import "cora/lib/io" io)
+(@import "cora/lib/net" net)
 (@import "cora/lib/queue" queue)
+(@import "cora/lib/hash" hash)
 
 (set '.task-queue (queue.make))
-(set '.enqueue (queue.enqueue .task-queue))
-(set '.dequeue (queue.dequeue .task-queue))
-(set '.empty? (queue.empty? .task-queue))
+(set '.enqueue (lambda (x) (queue.enqueue .task-queue x)))
+(set '.dequeue (lambda () (queue.dequeue .task-queue)))
+
+(set '.block-queue (hash.make 64))
+(defun .add-blocked-queue (fd val)
+  (hash.set! .block-queue fd val))
+(defun .remove-blocked-queue (fd)
+  (hash.set! .block-queue fd Nil))
+(defun .blocked-queue-empty? ()
+  (= 0 (hash.count .block-queue)))
+(defun .find-blocked-by-fd (fd)
+  (hash.get .block-queue fd))
 
 (func .recv-handler
       [fd buf pos] k => (begin
 			 ;; (display "run in recv-handler")
-			 (match (net.recv fd buf pos k)
-				[block] (schedule)
+			 (match (net.recv fd buf pos)
+				[block pos] (begin
+					     (.add-blocked-queue fd ['Blocked ['Recv fd buf pos] k])
+					     ;; (display "recv-handler block and go to scheduler\n")
+					     (.schedule))
+				;; (display "finish schedule in recv-handler")
 				res (k res))))
 
 (func .send-handler
-      [fd buf pos] k => (match (net.send fd buf pos k)
-			       [block] (schedule)
-			       res (k res))
-      _ k => (display "wrong argument for send-handler"))
+      [fd buf pos] k => (match (net.send fd buf pos)
+			       [block pos] (begin
+					    (.add-blocked-queue fd ['Blocked ['Send fd buf pos] k])
+					    ;; (display "send-handler block and go to schedule\n")
+					    (.schedule)
+					    ;; (display "finish send-handler")
+					    ))
+      _ k => (io.display "wrong argument for send-handler\n"))
 
 (defun .accept-handler (ln k)
   (begin
-   (net.accept-1 ln k)
+   (net.accept-1 ln)
    ;; (display "before accept handle go to schedule")
    ;; (display ln)
    (schedule)
-   (display "finish schedule")))
+   (io.display "finish schedule\n")))
 
 (defun .yield-handler (cc)
   (begin
@@ -40,7 +59,9 @@
    (run fn)))
 
 (defun run (main)
-  (try main .trap-in-handler))
+  (begin
+   (try main .trap-in-handler)
+   (.schedule)))
 
 (func .trap-in-handler
       ['Spawn . data] k =>  (.spawn-handler data k)
@@ -48,26 +69,30 @@
       ['Send . data] k =>  (.send-handler data k)
       ['Accept . data] k =>  (.accept-handler data k)
       ['Recv . data] k => (.recv-handler data k)
-      _ => (error "wrong type of trap in"))
+      _ k => (error "wrong type of trap in"))
 
 (defun .schedule ()
-  (if (not (empty?)) ;; running-queue
+  (if (not (queue.empty? .task-queue)) ;; running-queue
       (begin
        ;; (display "handle running queue...")
        (let task (.dequeue)
 	    (task ())))
-      (let ready-tasks (net.poll)
-	   (if (null? ready-tasks)
-	       (display "no more task, exit!") ;; no more task
-	       (begin
-		(for-each (lambda (task)
-			    (match task
-				   ['Send fd buf pos k] (.send-handler [fd buf pos] k)
-				   ['Recv fd buf pos k] (.recv-handler [fd buf pos] k)
-				   ['Accept fd k] (k (net.accept-2 fd))
-				   _ (error "don't know how to handle task?")))
-			  ready-tasks)
-		(.schedule))))))
+      (if (.blocked-queue-empty?)
+	  (io.display "no more task, exit!\n") ;; no more task
+	  (let ready-fds (net.poll)
+	       (if (null? ready-fds)
+		   (io.display "no more task, exit!\n") ;; no more task
+		   (begin
+		    (for-each (lambda (fd)
+				(begin
+				 (match (.find-blocked-by-fd fd)
+					['Send fd buf pos k] (.send-handler [fd buf pos] k)
+					['Recv fd buf pos k] (.recv-handler [fd buf pos] k)
+					['Accept fd k] (k (net.accept-2 fd))
+					_ (error "don't know how to handle task?"))
+				 (.remove-blocked-queue fd)))
+			      ready-tasks)
+		    (.schedule)))))))
 
 ;; (defun accept-loop (ln)
 ;;   (yield fd (eff 'Accept ln)

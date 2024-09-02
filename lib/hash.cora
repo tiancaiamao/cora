@@ -1,5 +1,6 @@
 ;; this is a dead simple hash, it doesn't support resize, and handle hash collision with seperate chaining
 ;; then seperate chaining is simply a assoc list
+(@import "cora/lib/hash-h" internal)
 
 (func assoc
       key [] => []
@@ -16,7 +17,7 @@
       key [[key . _] . more] => more
       key [x . more] => [x . (assoc-rm key x more)])
 
-(defun hash (n)
+(defun .make (n)
   (let h (vector (+ 3 n))
        (begin
 	(vector-set! h 0 'hash) ;; tag
@@ -24,33 +25,33 @@
 	(vector-set! h 2 n) ;; cap
 	h)))
 
-(defun hash? (h)
+(defun .hash? (h)
   (and (vector? h)
        (= (vector-ref h 0) 'hash)))
        
-(defun hash-count (h)
+(defun .count (h)
   (vector-ref h 1))
     
-(defun hash-capacity (h)
+(defun .hash-capacity (h)
   (vector-ref h 2))
 
 (defun list? (x)
   (or (null? x) (cons? x)))
 
-(defun hash-bucket-get (h idx)
+(defun .hash-bucket-get (h idx)
   (let ret (vector-ref h (+ idx 3))
        (if (list? ret) ret ()))) ;; the slot data maybe not initialized.
 
-(defun hash-bucket-set! (h idx)
+(defun .hash-bucket-set! (h idx)
   (vector-set! h (+ idx 3)))
 
-(defun hash-get (h key)
-  (let idx (% (hash-to-number key) (hash-capacity h))
-       (let bucket (hash-bucket-get h idx)
+(defun .get (h key)
+  (let idx (% (internal.hash-to-number key) (hash-capacity h))
+       (let bucket (.hash-bucket-get h idx)
 	    (assoc key bucket))))
 
-(defun hash-set! (h key value)
-  (let idx (% (hash-to-number key) (hash-capacity h))
-       (let old-bucket (hash-bucket-get h idx)
+(defun .set! (h key value)
+  (let idx (% (internal.hash-to-number key) (hash-capacity h))
+       (let old-bucket (.hash-bucket-get h idx)
 	    (let new-bucket (assoc-set key value old-bucket)
-		 (hash-bucket-set! h idx new-bucket)))))
+		 (.hash-bucket-set! h idx new-bucket)))))

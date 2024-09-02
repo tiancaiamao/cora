@@ -22,5 +22,4 @@
 	 ret))))
 
 (defun .empty? (q)
-  (lambda ()
-    (and (null? (vector-ref q 0)) (null? (vector-ref q 1)))))
+    (and (null? (vector-ref q 0)) (null? (vector-ref q 1))))

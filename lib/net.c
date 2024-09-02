@@ -20,17 +20,17 @@ static int pollfd = -1;
 
 static bool
 splitHostAndPort(Obj str, Obj *host, Obj *port) {
-  char* s = stringStr(str);
+  strBuf s = stringStr(str);
   int sz = stringLen(str);
   int i = 0;
-  char *p = s;
+  char *p = toCStr(s);
   while(i < sz && p[i] != ':') { i++; }
   if (i == sz) {
     return false;
   }
 
-  *host = makeString(s, i);
-  *port = makeString(s+i+1, sz-i-1);
+  *host = makeString(toCStr(s), i);
+  *port = makeString(toCStr(s)+i+1, sz-i-1);
   return true;
 }
 
@@ -49,9 +49,9 @@ netListen(struct Cora *ctx) {
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
   }
-  char *host = stringStr(ret1);
-  char *portStr = stringStr(ret2);
-  int port = atoi(portStr);
+  strBuf host = stringStr(ret1);
+  strBuf portStr = stringStr(ret2);
+  int port = atoi(toCStr(portStr));
   /* printf("host = %s, port = %d\n", host, port); */
 
   int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -85,8 +85,8 @@ netDial(struct Cora *ctx) {
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
   }
-  char* host = stringStr(ret1);
-  char* port = stringStr(ret2);
+  strBuf host = stringStr(ret1);
+  strBuf port = stringStr(ret2);
   /* printf("host = %s, port = %s\n", host, port); */
 
   struct addrinfo hint;
@@ -94,7 +94,7 @@ netDial(struct Cora *ctx) {
   hint.ai_family = AF_INET;
   hint.ai_socktype = SOCK_STREAM;
   struct addrinfo *result, *rp;
-  int s = getaddrinfo(host, port, &hint, &result);
+  int s = getaddrinfo(toCStr(host), toCStr(port), &hint, &result);
   if (s != 0) {
     fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
     coraReturn(ctx, Nil);
@@ -116,29 +116,27 @@ netDial(struct Cora *ctx) {
   coraReturn(ctx, makeNumber(fd));
 }
 
-// input: (net-send fd buf pos k)
+// input: (net-send fd buf pos)
 // output: [block] or [ok] or [err errno]
 static void
 netSend(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   Obj arg2 = coraGet(ctx, 2);
   Obj arg3 = coraGet(ctx, 3);
-  Obj k = coraGet(ctx, 4);
   int fd = fixnum(arg1);
-  char *buf = stringStr(arg2);
+  strBuf buf = stringStr(arg2);
   int len = stringLen(arg2);
   int pos = fixnum(arg3);
 
   /* printf("call net send fd ===%d\n", fd); */
 
   while(pos < len) {
-    int ret = send(fd, buf+pos, len-pos, 0);
+    int ret = send(fd, toCStr(buf)+pos, len-pos, 0);
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	printf("EAGAIN here...%d\n", pos);
 	// ['Send fd buf pos k]
-	void* udata = (void*)cons(intern("'Send"), cons(arg1, cons(arg2, cons(makeNumber(pos), cons(k, Nil)))));
-	pollWriteAdd(pollfd, fd, udata);
+	pollWriteAdd(pollfd, fd);
 	// [block]
 	coraReturn(ctx, cons(makeSymbol("block"), Nil));
       }
@@ -160,29 +158,27 @@ netPoll(struct Cora *ctx) {
 }
 
 
-// input: (net-recv fd buf pos k)
+// input: (net-recv fd buf pos)
 // output: [block] or [ok] or [err errno]
 static void
 netRecv(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   Obj arg2 = coraGet(ctx, 2);
   Obj arg3 = coraGet(ctx, 3);
-  Obj k = coraGet(ctx, 4);
   int fd = fixnum(arg1);
-  char *buf = stringStr(arg2);
+  strBuf buf = stringStr(arg2);
   int len = stringLen(arg2);
   int pos = fixnum(arg3);
 
   /* printf("in netRecv... fd=%d, len=%d, pos=%d\n", fd, len, pos); */
 
   while(pos < len) {
-    int ret = recv(fd, buf+pos, len-pos, 0);
+    int ret = recv(fd, toCStr(buf)+pos, len-pos, 0);
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	// [block pos]
 	/* printf("EAGAIN here...%d\n", pos); */
-	void* udata = (void*)cons(intern("'Recv"), cons(arg1, cons(arg2, cons(makeNumber(fd), cons(k, Nil)))));
-	pollReadAdd(pollfd, fd, udata);
+	pollReadAdd(pollfd, fd);
 	coraReturn(ctx, cons(makeSymbol("block"), Nil));
       }
       // [err errno]
@@ -201,10 +197,7 @@ static void
 netAcceptStep1(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   int fd = fixnum(arg1);
-  Obj k = coraGet(ctx, 2);
-
-  void *udata = (void*)cons(intern("'Accept"), cons(makeNumber(fd), cons(k, Nil)));
-  pollReadAdd(pollfd, fd, udata);
+  pollReadAdd(pollfd, fd);
   coraReturn(ctx, Nil);
 }
 
@@ -259,10 +252,10 @@ struct registerModule netModule = {
    {"make-buffer", makeBuffer, 1},
    {"dial", netDial, 1},
    {"poll", netPoll, 0},
-   {"send", netSend, 4},
-   {"recv", netRecv, 4},
+   {"send", netSend, 3},
+   {"recv", netRecv, 3},
    {"listen", netListen, 1},
-   {"accept-1", netAcceptStep1, 2},
+   {"accept-1", netAcceptStep1, 1},
    {"accept-2", netAcceptStep2, 1},
    {"close", netClose, 1},
    {NULL, NULL, 0}
