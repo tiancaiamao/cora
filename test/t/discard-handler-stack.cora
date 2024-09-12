@@ -1,0 +1,11 @@
+(try (lambda ()
+       (let fd (throw 'Accept)
+	    (begin
+	     (throw 'Spawn)
+	     (+ fd 42))))
+     (lambda (v k)
+       (match v
+	      'Accept (begin
+		       (k 666)
+		       42)
+	      'Spawn (k ()))))
