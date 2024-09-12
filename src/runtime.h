@@ -24,11 +24,11 @@ struct Cora {
 void trampoline(struct Cora *co, basicBlock pc);
 void coraCall(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
+Obj coraGet(struct Cora *co, int i);
 
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
-Obj stackRef(struct Cora *co, int idx);
 
 Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);
