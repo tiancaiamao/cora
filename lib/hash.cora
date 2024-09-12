@@ -2,20 +2,20 @@
 ;; then seperate chaining is simply a assoc list
 (@import "cora/lib/hash-h" internal)
 
-(func assoc
+(func .assoc
       key [] => []
       key [[x . y] . more] => [x . y] where (= key x)
-      key [_ . more] => (assoc key more))
+      key [_ . more] => (.assoc key more))
 
-(func assoc-set
+(func .assoc-set
       key value [] => [[key . value]]
       key value [[k1 . _] . more] => [[key . value] . more] where (= key k1)
-      key value [x . more] => [x . (assoc-set key value more)])
+      key value [x . more] => [x . (.assoc-set key value more)])
 
-(func assoc-rm
+(func .assoc-rm
       key [] => []
       key [[key . _] . more] => more
-      key [x . more] => [x . (assoc-rm key x more)])
+      key [x . more] => [x . (.assoc-rm key x more)])
 
 (defun .make (n)
   (let h (vector (+ 3 n))
@@ -32,26 +32,31 @@
 (defun .count (h)
   (vector-ref h 1))
     
-(defun .hash-capacity (h)
+(defun .capacity (h)
   (vector-ref h 2))
 
-(defun list? (x)
+(defun .list? (x)
   (or (null? x) (cons? x)))
 
 (defun .hash-bucket-get (h idx)
   (let ret (vector-ref h (+ idx 3))
-       (if (list? ret) ret ()))) ;; the slot data maybe not initialized.
+       (if (.list? ret) ret ()))) ;; the slot data maybe not initialized.
 
 (defun .hash-bucket-set! (h idx)
   (vector-set! h (+ idx 3)))
 
 (defun .get (h key)
-  (let idx (% (internal.hash-to-number key) (hash-capacity h))
+  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
        (let bucket (.hash-bucket-get h idx)
-	    (assoc key bucket))))
+	    (.assoc key bucket))))
 
 (defun .set! (h key value)
-  (let idx (% (internal.hash-to-number key) (hash-capacity h))
+  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
        (let old-bucket (.hash-bucket-get h idx)
-	    (let new-bucket (assoc-set key value old-bucket)
-		 (.hash-bucket-set! h idx new-bucket)))))
+	    (begin
+	     (let exist (.assoc key old-bucket)
+		  (if (null? exist)
+		      (vector-set! h 1 (+ (.count h) 1))
+		      ()))
+	     (let new-bucket (.assoc-set key value old-bucket)
+		  (.hash-bucket-set! h idx new-bucket))))))

@@ -1,4 +1,4 @@
-all: os.so string.so io.so net.so
+all: os.so string.so io.so net.so hash-h.so
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g

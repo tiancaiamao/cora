@@ -121,7 +121,7 @@ void push(struct Cora *co, Obj v) {
 
 Obj
 coraGet(struct Cora *co, int idx) {
-  return co->stack[co->base + idx];
+  return co->args[idx];
 }
 
 const int INIT_STACK_SIZE = 5000;
@@ -297,7 +297,7 @@ static uint64_t genIdx = 0;
 Obj primGenSym(Obj arg) {
   assert(issymbol(arg));
   char tmp[200];
-  snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
+  snprintf(tmp, 100, "#%s%lu", symbolStr(arg), genIdx);
   genIdx++;
   return makeSymbol(tmp);
 }
@@ -423,6 +423,9 @@ builtinThrow(struct Cora *co) {
 
   // Find the handler, invoke it, passing the continuation.
   Obj handler = co->stack[co->base];
+  assert(co->pos >= co->base);
+  co->base = co->pos;
+
   co->nargs = 3;
   co->args[0] = handler;
   co->args[1] =  v;

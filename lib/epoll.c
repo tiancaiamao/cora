@@ -52,4 +52,5 @@ poll(int pollfd) {
     ret = cons(fd, ret);
     pollDel(pollfd, fd);
   }
+  return ret;
 }
