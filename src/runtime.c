@@ -347,6 +347,12 @@ stringAppend(struct Cora *co) {
   coraReturn(co, val);
 }
 
+
+static void
+tryStackMark(struct Cora *co) {
+  popStack(co);
+}
+
 // (try (lambda () (+ (throw 42) 1))
 //      (lambda (v resume) (resume (+ v 66))))
 void
@@ -357,7 +363,7 @@ builtinTryCatch(struct Cora *co) {
   // Save the old cont.
   // This save can make the chunk and handler available to the recovering process.
   // Use a call protocol instead of tail call protocol.
-  pushCont(co, popStack, 1, handler);
+  pushCont(co, tryStackMark, 1, handler);
 
   // Prepare a new stack for the chunk to run, segment stack!
   co->stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
@@ -370,8 +376,28 @@ builtinTryCatch(struct Cora *co) {
   co->pc = coraCall;
 }
 
+static int
+findTryMark(struct Cora *co) {
+  int p = co->callstack.len - 1;
+  for (; p >= 0; p--) {
+    struct returnAddr *addr = &co->callstack.data[p];
+    if (addr->pc == tryStackMark) {
+      break;
+    }
+  }
+  if (p < 0) {
+    // TODO: panic, not in any try-catch block!
+    assert(false);
+  }
+  return p;
+}
+
 static void
 continuationAsClosure(struct Cora *co) {
+  // Discard the stack to the try.
+  int p = findTryMark(co);
+  co->callstack.len = p+1;
+
   // Replace the current stack with the delimited continuation.
   Obj this = co->args[0];
   Obj cont = nativeData(this)[0];
@@ -387,21 +413,10 @@ continuationAsClosure(struct Cora *co) {
 void
 builtinThrow(struct Cora *co) {
   Obj v = co->args[1];
+  int p = findTryMark(co);
 
-  int p = co->callstack.len - 1;
-  for (; p >= 0; p--) {
-    struct returnAddr *addr = &co->callstack.data[p];
-    if (addr->stack != co->stack) {
-      break;
-    }
-  }
-  if (p < 0) {
-    // TODO: panic, not in any try-catch block!
-    assert(false);
-  }
-
-  // Capture the call stack as continuation.
   // Now p point to the try-marked stack.
+  // Capture the call stack as continuation.
   Obj cont = makeContinuation();
   struct callStack* stack = contCallStack(cont);
   for (int i=p+1; i<co->callstack.len; i++) {
