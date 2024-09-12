@@ -48,6 +48,7 @@ netListen(struct Cora *ctx) {
     // TODO?
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
+    return;
   }
   strBuf host = stringStr(ret1);
   strBuf portStr = stringStr(ret2);
@@ -65,11 +66,13 @@ netListen(struct Cora *ctx) {
   if (bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0) {
     fprintf(stderr, "bind error\n");
     coraReturn(ctx, Nil);
+    return;
   }
 
   if (listen(fd, 200) < 0) {
     fprintf(stderr, "listen error\n");
     coraReturn(ctx, Nil);
+    return;
   }
   setNonBlock(fd);
 
@@ -84,6 +87,7 @@ netDial(struct Cora *ctx) {
     // TODO?
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
+    return;
   }
   strBuf host = stringStr(ret1);
   strBuf port = stringStr(ret2);
@@ -98,6 +102,7 @@ netDial(struct Cora *ctx) {
   if (s != 0) {
     fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
     coraReturn(ctx, Nil);
+    return;
   }
   int fd;
   for (rp = result; rp != NULL; rp = rp->ai_next) {
@@ -109,6 +114,7 @@ netDial(struct Cora *ctx) {
   if (rp == NULL) {
     fprintf(stderr, "Could not connect\n");
     coraReturn(ctx, Nil);
+    return;
   }
   freeaddrinfo(result);           /* No longer needed */
   setNonBlock(fd);
@@ -117,7 +123,7 @@ netDial(struct Cora *ctx) {
 }
 
 // input: (net-send fd buf pos)
-// output: [block] or [ok] or [err errno]
+// output: [block pos] or [ok] or [err errno]
 static void
 netSend(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
@@ -137,18 +143,21 @@ netSend(struct Cora *ctx) {
 	printf("EAGAIN here...%d\n", pos);
 	// ['Send fd buf pos k]
 	pollWriteAdd(pollfd, fd);
-	// [block]
-	coraReturn(ctx, cons(makeSymbol("block"), Nil));
+	// [block pos]
+	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
+	return;
       }
       // [err errno]
       printf("netSend error %d\n", errno);
       coraReturn(ctx, cons(makeSymbol("err"), cons(makeNumber(errno), Nil)));
+      return;
     }
     pos = pos + ret;
   }
   // [ok]
   /* printf("netSend success\n"); */
   coraReturn(ctx, cons(makeSymbol("ok"), Nil));
+  return;
 }
 
 static void
@@ -159,7 +168,7 @@ netPoll(struct Cora *ctx) {
 
 
 // input: (net-recv fd buf pos)
-// output: [block] or [ok] or [err errno]
+// output: [block pos] or [ok] or [err errno]
 static void
 netRecv(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
@@ -177,14 +186,16 @@ netRecv(struct Cora *ctx) {
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	// [block pos]
-	/* printf("EAGAIN here...%d\n", pos); */
+	printf("EAGAIN here...%d\n", pos);
 	pollReadAdd(pollfd, fd);
-	coraReturn(ctx, cons(makeSymbol("block"), Nil));
+	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
+	return;
       }
       // [err errno]
       printf("netRecv error %d\n", errno);
       perror("recv error");
       coraReturn(ctx, cons(makeSymbol("err"), cons(makeNumber(errno), Nil)));
+      return;
     }
     pos = pos + ret;
   }
@@ -214,6 +225,7 @@ netAcceptStep2(struct Cora *ctx) {
     // TODO
     printf("accept error: %s\n", strerror(errno));
     coraReturn(ctx, Nil);
+    return;
   }
   /* printf("accept a handle ==== %d\n", fd); */
   setNonBlock(fd);

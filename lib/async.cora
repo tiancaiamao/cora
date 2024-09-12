@@ -35,8 +35,8 @@
 					    (.add-blocked-queue fd ['Send fd buf pos k])
 					    (io.display "send-handler block and go to schedule\n")
 					    (.schedule)
-					    (io.display "finish send-handler\n")
-					    ))
+					    (io.display "finish send-handler\n"))
+			       res (k res))
       _ k => (io.display "wrong argument for send-handler\n"))
 
 (defun .accept-handler (ln k)
