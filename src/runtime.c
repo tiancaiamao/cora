@@ -413,7 +413,22 @@ continuationAsClosure(struct Cora *co) {
 void
 builtinThrow(struct Cora *co) {
   Obj v = co->args[1];
-  int p = findTryMark(co);
+  // Cannot be replaced by findTryMark().
+  // It's a bit tricky here, panic in handler should not be catch by this try.
+  // (try (lambda () (throw 1)
+  //      (lambda (v k)
+  //         (throw 42)))) ;; should panic
+  int p = co->callstack.len - 1;
+  for (; p >= 0; p--) {
+    struct returnAddr *addr = &co->callstack.data[p];
+    if (addr->stack != co->stack) {
+      break;
+    }
+  }
+  if (p < 0) {
+    // TODO: panic, not in any try-catch block!
+    assert(false);
+  }
 
   // Now p point to the try-marked stack.
   // Capture the call stack as continuation.
