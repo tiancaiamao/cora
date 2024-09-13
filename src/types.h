@@ -126,6 +126,7 @@ struct callStack {
 
 Obj makeContinuation();
 struct callStack* contCallStack(Obj cont);
+int contTryMark(Obj cont);
 
 void gcMarkCallStack(struct GC *gc, struct callStack *stack);
 

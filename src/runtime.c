@@ -360,15 +360,21 @@ builtinTryCatch(struct Cora *co) {
   Obj chunk = co->args[1];
   Obj handler = co->args[2];
 
-  // Save the old cont.
-  // This save can make the chunk and handler available to the recovering process.
-  // Use a call protocol instead of tail call protocol.
-  pushCont(co, tryStackMark, 1, handler);
+  // Conceptually, (try chunk handler), thunk belongs to the try block, while handler does not.
+  // In chunk, we can throw twice, they will be handled by the same try, so chunk belongs to the try.
+  //     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42)))
+  // If we throw in handler however, it's panic in panic and cannot be catch by this try.
+  //     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
   // Prepare a new stack for the chunk to run, segment stack!
   co->stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
   co->base = 0;
   co->pos = 0;
+
+  // Save the old cont.
+  // This save can make the chunk and handler available to the recovering process.
+  // Use a call protocol instead of tail call protocol.
+  pushCont(co, tryStackMark, 1, handler);
 
   // Call the chunk.
   co->nargs = 1;
@@ -394,13 +400,14 @@ findTryMark(struct Cora *co) {
 
 static void
 continuationAsClosure(struct Cora *co) {
-  // Discard the stack to the try.
-  int p = findTryMark(co);
-  co->callstack.len = p+1;
-
-  // Replace the current stack with the delimited continuation.
   Obj this = co->args[0];
   Obj cont = nativeData(this)[0];
+
+  // Discard the stack to the try.
+  int p = contTryMark(cont);
+  co->callstack.len = p;
+
+  // Replace the current stack with the delimited continuation.
   struct callStack* cs = contCallStack(cont);
   Obj val = co->args[1];
   for (int i=0; i< cs->len; i++) {
@@ -412,29 +419,18 @@ continuationAsClosure(struct Cora *co) {
 
 void
 builtinThrow(struct Cora *co) {
+  int p = findTryMark(co);
   Obj v = co->args[1];
-  // Cannot be replaced by findTryMark().
-  // It's a bit tricky here, panic in handler should not be catch by this try.
-  // (try (lambda () (throw 1)
-  //      (lambda (v k)
-  //         (throw 42)))) ;; should panic
-  int p = co->callstack.len - 1;
-  for (; p >= 0; p--) {
-    struct returnAddr *addr = &co->callstack.data[p];
-    if (addr->stack != co->stack) {
-      break;
-    }
-  }
-  if (p < 0) {
-    // TODO: panic, not in any try-catch block!
-    assert(false);
-  }
 
   // Now p point to the try-marked stack.
+  struct returnAddr *try = &co->callstack.data[p];
+  assert(try->base == 0);
+  assert(try->pos == 1);
+
   // Capture the call stack as continuation.
-  Obj cont = makeContinuation();
+  Obj cont = makeContinuation(p);
   struct callStack* stack = contCallStack(cont);
-  for (int i=p+1; i<co->callstack.len; i++) {
+  for (int i=p; i<co->callstack.len; i++) {
     struct returnAddr *addr = &co->callstack.data[i];
     saveToStack(stack, addr->pc, addr->base, addr->pos, addr->frees, addr->stack);
   }
@@ -442,18 +438,15 @@ builtinThrow(struct Cora *co) {
   // Now that we get the current continuation, disguise as a closure.
   Obj clo = makeNative(continuationAsClosure, 1, 1, cont);
 
-  // Reset to the try stack.
-  // Note, don't pop the try stack itself now, because after resume the code block
-  // still belongs to this try.
-  co->callstack.len = p + 1;
-  struct returnAddr *addr = &co->callstack.data[p];
+  // Reset to the stack before try.
+  co->callstack.len = p;
+  struct returnAddr *addr = &co->callstack.data[p-1];
   co->stack = addr->stack;
   co->base = addr->base;
   co->pos = addr->pos;
 
   // Find the handler, invoke it, passing the continuation.
-  Obj handler = co->stack[co->base];
-  assert(co->pos >= co->base);
+  Obj handler = try->stack[try->base];
   co->base = co->pos;
 
   co->nargs = 3;
