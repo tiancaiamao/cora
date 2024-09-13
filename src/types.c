@@ -393,16 +393,25 @@ eq(Obj x, Obj y) {
 struct scmContinuation {
   scmHead head;
   struct callStack cs;
+  int pos;
 };
 
 Obj
-makeContinuation() {
+makeContinuation(int pos) {
   struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
+  cont->pos = pos;
   struct callStack* stack = &cont->cs;
   stack->data = malloc(64*sizeof(struct returnAddr));
   stack->len = 0;
   stack->cap = 64;
   return ((Obj)(&cont->head) | TAG_PTR);
+}
+
+int
+contTryMark(Obj cont) {
+  struct scmContinuation* v = ptr(cont);
+  assert(v->head.type == scmHeadContinuation);
+  return v->pos;
 }
 
 struct callStack*
