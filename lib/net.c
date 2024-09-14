@@ -209,6 +209,7 @@ netAcceptStep1(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   int fd = fixnum(arg1);
   pollReadAdd(pollfd, fd);
+  printf("netAcceptStep1 add fd == %d\n", fd);
   coraReturn(ctx, Nil);
 }
 

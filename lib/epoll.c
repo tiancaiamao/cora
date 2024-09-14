@@ -12,7 +12,7 @@ pollReadAdd(int pollfd, int fd) {
   ev.data.fd = fd;
   /* printf("netRecv, epoll_ctl add fd = %d\n", fd); */
   if (epoll_ctl(pollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
-    printf("epoll ctl add fail\n");
+    printf("epoll ctl add read fail %d\n", fd);
   }
 }
 
@@ -24,7 +24,7 @@ pollWriteAdd(int pollfd, int fd) {
   printf("netSend, epoll_ctl add fd = %d\n", fd);
   if (epoll_ctl(pollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
     // TODO
-    printf("epoll ctl add fail");
+    printf("epoll ctl add write fail");
   }
 }
 
@@ -51,6 +51,7 @@ poll(int pollfd) {
     Obj fd = makeNumber(data);
     ret = cons(fd, ret);
     pollDel(pollfd, fd);
+    printf("netpoll del fd == %ld\n", fd);
   }
   return ret;
 }

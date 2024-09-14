@@ -1,1 +1,1 @@
-2
+(try (lambda () (do (throw 1) (throw 2))) (lambda (v cc) (cc v)))

@@ -407,13 +407,6 @@ makeContinuation(int pos) {
   return ((Obj)(&cont->head) | TAG_PTR);
 }
 
-int
-contTryMark(Obj cont) {
-  struct scmContinuation* v = ptr(cont);
-  assert(v->head.type == scmHeadContinuation);
-  return v->pos;
-}
-
 struct callStack*
 contCallStack(Obj cont) {
   struct scmContinuation* v = ptr(cont);
