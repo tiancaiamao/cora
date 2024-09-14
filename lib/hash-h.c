@@ -23,13 +23,6 @@ hashToNumberHelp(Obj key) {
       return makeNumber(sum);
     }
 
-  case TAG_CONS:
-    {
-      Obj v1 = hashToNumberHelp(car(key));
-      Obj v2 = hashToNumberHelp(cdr(key));
-      return makeNumber(fixnum(v1) + fixnum(v2));
-    }
-
   case TAG_IMMEDIATE_CONST:
     if (key == True) {
       return makeNumber(17);
@@ -45,9 +38,14 @@ hashToNumberHelp(Obj key) {
     if (isNumber(key)) {
       return key;
     } else if (isstring(key)) {
-      int sum = 7671 + hashForString(stringStr(key));
+      strBuf s = stringStr(key);
+      int sum = 7671 + hashForString(toCStr(s));
       return makeNumber(sum);
     } else if (isvector(key)) {
+    } else if (iscons(key)) {
+      Obj v1 = hashToNumberHelp(car(key));
+      Obj v2 = hashToNumberHelp(cdr(key));
+      return makeNumber(fixnum(v1) + fixnum(v2));
     }
   }
 
@@ -56,17 +54,33 @@ hashToNumberHelp(Obj key) {
 }
 
 void
-hashToNumber(struct controlFlow *ctx) {
+hashToNumber(struct Cora *ctx) {
   // See types.h for tags definitions
-  Obj key = ctxGet(ctx, 1);
+  Obj key = coraGet(ctx, 1);
   Obj ret = hashToNumberHelp(key);
-  ctxReturn(ctx, ret);
+  coraReturn(ctx, ret);
 }
 
-struct registModule hashModule = {
+void
+builtinMod(struct Cora *co) {
+  Obj x = co->args[1];
+  Obj y = co->args[2];
+  Obj ret = makeNumber(fixnum(x) % fixnum(y));
+  coraReturn(co, ret);
+}
+
+struct registerModule hashModule = {
   NULL,
   {
+    {"mod", builtinMod, 2},
     {"hash-to-number", hashToNumber, 1},
     {NULL, NULL, 0}
   }
 };
+
+void
+entry(struct Cora *co) {
+  Obj pkg = co->args[2];
+  registerAPI(&hashModule, toStr(stringStr(pkg)));
+  coraReturn(co, intern("hash"));
+}
