@@ -50,8 +50,8 @@ poll(int pollfd) {
     int data = events[i].data.fd;
     Obj fd = makeNumber(data);
     ret = cons(fd, ret);
-    pollDel(pollfd, fd);
-    printf("netpoll del fd == %ld\n", fd);
+    pollDel(pollfd, data);
+    /* printf("netpoll del fd == %d\n", data); */
   }
   return ret;
 }

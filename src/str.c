@@ -118,7 +118,9 @@ toCStr(strBuf s) {
 strBuf
 fromBlk(const void *ptr, int len) {
   strBuf ret = (strBuf)malloc(sizeof(struct _strBuf) + len + 1);
-  memcpy(&ret->data, ptr, len);
+  if(ptr != NULL) {
+    memcpy(&ret->data, ptr, len);
+  }
   ret->data[len] = '\0';
   ret->len = len;
   ret->cap = len + 1;

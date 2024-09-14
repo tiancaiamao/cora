@@ -140,7 +140,7 @@ netSend(struct Cora *ctx) {
     int ret = send(fd, toCStr(buf)+pos, len-pos, 0);
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-	printf("EAGAIN here...%d\n", pos);
+	/* printf("EAGAIN here...%d\n", pos); */
 	// ['Send fd buf pos k]
 	pollWriteAdd(pollfd, fd);
 	// [block pos]
@@ -186,7 +186,7 @@ netRecv(struct Cora *ctx) {
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	// [block pos]
-	printf("EAGAIN here...%d\n", pos);
+	/* printf("EAGAIN here...%d\n", pos); */
 	pollReadAdd(pollfd, fd);
 	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
 	return;
@@ -209,7 +209,7 @@ netAcceptStep1(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   int fd = fixnum(arg1);
   pollReadAdd(pollfd, fd);
-  printf("netAcceptStep1 add fd == %d\n", fd);
+  /* printf("netAcceptStep1 add fd == %d\n", fd); */
   coraReturn(ctx, Nil);
 }
 

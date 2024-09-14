@@ -12,7 +12,7 @@
 (defun .add-blocked-queue (fd val)
   (hash.set! .block-queue fd val))
 (defun .remove-blocked-queue (fd)
-  (hash.set! .block-queue fd Nil))
+  (hash.del! .block-queue fd))
 (defun .blocked-queue-empty? ()
   (= 0 (hash.count .block-queue)))
 (defun .find-blocked-by-fd (fd)
@@ -20,22 +20,24 @@
 
 (func .recv-handler
       [fd buf pos] k => (begin
-			 (io.display "run in recv-handler\n")
+			 ;; (io.display "run in recv-handler\n")
 			 (match (net.recv fd buf pos)
 				[block pos] (begin
 					     (.add-blocked-queue fd ['Recv fd buf pos k])
-					     (io.display "recv-handler block and go to scheduler\n")
+					     ;; (io.display "recv-handler block and go to scheduler\n")
 					     (.schedule)
-					     (io.display "finish schedule in recv-handler"))
+					     ;; (io.display "finish schedule in recv-handler")
+					     )
 				res (k res))))
 
 (func .send-handler
       [fd buf pos] k => (match (net.send fd buf pos)
 			       [block pos] (begin
 					    (.add-blocked-queue fd ['Send fd buf pos k])
-					    (io.display "send-handler block and go to schedule\n")
+					    ;; (io.display "send-handler block and go to schedule\n")
 					    (.schedule)
-					    (io.display "finish send-handler\n"))
+					    ;; (io.display "finish send-handler\n")
+					    )
 			       res (k res))
       _ k => (io.display "wrong argument for send-handler\n"))
 
@@ -43,10 +45,11 @@
   (begin
    (.add-blocked-queue ln ['Accept ln k])
    (net.accept-1 ln)
-   (io.display "before accept handle go to schedule\n")
+   ;; (io.display "before accept handle go to schedule\n")
    ;; (display ln)
    (.schedule)
-   (io.display "finish schedule\n")))
+   ;; (io.display "finish schedule\n")
+   ))
 
 (defun .yield-handler (cc)
   (begin
@@ -56,7 +59,7 @@
 
 (defun .spawn-handler (fn k)
   (begin
-   (io.display "spawn a new fn\n")
+   ;; (io.display "spawn a new fn\n")
    (.enqueue k)
    (run fn)))
 
@@ -76,7 +79,7 @@
 (defun .schedule ()
   (if (not (queue.empty? .task-queue)) ;; running-queue
       (begin
-       (io.display "handle running queue...\n")
+       ;; (io.display "handle running queue...\n")
        (let task (.dequeue)
 	    (task ())))
       (if (.blocked-queue-empty?)
@@ -85,14 +88,14 @@
 	       (if (null? ready-fds)
 		   (io.display "no more task, exit!\n") ;; no more task
 		   (begin
-		    (io.display ready-fds)
-		    (io.display "ready-blocks\n")
+		    ;; (io.display ready-fds)
+		    ;; (io.display "ready-blocks\n")
 		    (for-each (lambda (fd)
 				(let msg (.find-blocked-by-fd fd)
 				     (begin
-				      (io.display "poll find blocked fd")
-				      (io.display msg)
-				      (io.display "\n")
+				      ;; (io.display "poll find blocked fd")
+				      ;; (io.display msg)
+				      ;; (io.display "\n")
 				      (match msg
 					     ['Send fd buf pos k] (.send-handler [fd buf pos] k)
 					     ['Recv fd buf pos k] (.recv-handler [fd buf pos] k)
@@ -102,32 +105,43 @@
 			      ready-fds)
 		    (.schedule)))))))
 
+
+;; (@import "cora/lib/net" net)
+;; (@import "cora/lib/io" io)
+;; (@import "cora/lib/async" async)
+
 ;; (defun accept-loop (ln)
-;;   (yield fd (eff 'Accept ln)
-;;          (yield _ (eff 'Spawn (lambda ()
-;;                                 (handle-conn fd)))
-;;                 (accept-loop ln))))
+;;   (let fd (throw ['Accept . ln])
+;;        (begin
+;; 	(io.display "accept a new conn\n")
+;; 	(throw ['Spawn . (lambda ()
+;; 			   (begin
+;; 			    (io.display "handle conn in new coroutine\n")
+;; 			    (handle-conn fd)))])
+;; 	(accept-loop ln))))
 
 ;; (defun handle-conn (fd)
-;;   (yield v (eff 'Send [fd "hello world" 0])
-;;          (let buf (make-buffer 11)
-;;               (yield _ (eff 'Recv [fd buf 0])
-;;                      (begin
-;;                       (display buf)
-;;                       (net.close fd))))))
+;;   (let v (throw ['Send fd "hello world" 0])
+;;        (let buf (net.make-buffer 12)
+;; 	    (let pos (throw ['Recv fd buf 0])
+;; 		 (begin
+;; 		  (io.display buf)
+;; 		  (net.close fd))))))
 
-;; (defun client-main (_)
-;;   (let fd (net.dial "127.0.0.1:8080")
-;;        buf (make-buffer 11)
-;;        (yield v (eff 'Recv [fd buf 0])
-;;               (begin
-;;                (display buf)
-;;                (yield v (eff 'Send [fd "hello arthur" 0])
-;;                       (net.close fd))))))
-
-;; (defun server-main (_)
+;; (defun server-main ()
 ;;   (let ln (net.listen "127.0.0.1:8080")
 ;;        (accept-loop ln)))
 
 ;; (run server-main)
+
+;; (defun client-main ()
+;;   (let fd (net.dial "127.0.0.1:8080")
+;;        buf (net.make-buffer 11)
+;;        (let v (throw ['Recv fd buf 0])
+;; 	    (begin
+;; 	     (io.display buf)
+;; 	     (io.display "\n")
+;; 	     (let v (throw ['Send fd "hello arthur" 0])
+;; 		  (net.close fd))))))
+
 ;; (run client-main)

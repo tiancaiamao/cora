@@ -60,3 +60,13 @@
 		      ()))
 	     (let new-bucket (.assoc-set key value old-bucket)
 		  (.hash-bucket-set! h idx new-bucket))))))
+
+(defun .del! (h key)
+  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
+       (let old-bucket (.hash-bucket-get h idx)
+	    (if (null? (.assoc key old-bucket))
+		()
+		(begin
+		 (let new-bucket (.assoc-rm key old-bucket)
+		      (.hash-bucket-set! h idx new-bucket))
+		 (vector-set! h 1 (- (.count h) 1)))))))
