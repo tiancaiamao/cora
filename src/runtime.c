@@ -403,10 +403,6 @@ continuationAsClosure(struct Cora *co) {
   Obj this = co->args[0];
   Obj cont = nativeData(this)[0];
 
-  // Discard the stack to the try.
-  int p = contTryMark(cont);
-  co->callstack.len = p;
-
   // Replace the current stack with the delimited continuation.
   struct callStack* cs = contCallStack(cont);
   Obj val = co->args[1];
@@ -428,7 +424,7 @@ builtinThrow(struct Cora *co) {
   assert(try->pos == 1);
 
   // Capture the call stack as continuation.
-  Obj cont = makeContinuation(p);
+  Obj cont = makeContinuation();
   struct callStack* stack = contCallStack(cont);
   for (int i=p; i<co->callstack.len; i++) {
     struct returnAddr *addr = &co->callstack.data[i];

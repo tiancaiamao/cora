@@ -1,1 +1,4 @@
-44
+(do (set 'f (lambda (a b) (+ a b)))
+    (try (lambda ()
+	   (f (throw 42) 1))
+	 (lambda (v resume) (resume (+ v 1)))))

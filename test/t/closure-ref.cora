@@ -1,1 +1,5 @@
-667
+((lambda (x y)
+	(try (lambda ()
+		(+ x (throw 'ignore)))
+	    (lambda (v resume) (resume y))))
+	666 1)

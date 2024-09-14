@@ -2,10 +2,8 @@
        (let fd (throw 'Accept)
 	    (begin
 	     (throw 'Spawn)
-	     (+ fd 42))))
+	     (+ fd 1))))
      (lambda (v k)
        (match v
-	      'Accept (begin
-		       (k 666)
-		       42)
+	      'Accept (+ (k 666) 42)
 	      'Spawn (k ()))))
