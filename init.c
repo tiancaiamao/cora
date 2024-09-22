@@ -226,16 +226,7 @@ Obj _35reg72 = primSet(intern("rcons"), makeNative(_35clofun1014, 1, 0));
 Obj _35reg74 = primSet(intern("pair?"), makeNative(_35clofun1016, 1, 0));
 Obj _35reg79 = primSet(intern("cora/init.reverse-h"), makeNative(_35clofun1017, 2, 0));
 pushCont(co, _35clofun1018, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.reverse-h"));
-co->args[1] = Nil;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.reverse-h")), Nil);
 }
 
 void _35clofun1018(struct Cora* co) {
@@ -254,49 +245,19 @@ Obj _35reg128 = primSet(intern("cora/init.macroexpand-boot"), makeNative(_35clof
 Obj _35reg129 = primSet(intern("macroexpand"), globalRef(intern("cora/init.macroexpand-boot")));
 Obj _35reg140 = primSet(intern("defmacro-macro"), makeNative(_35clofun1033, 1, 0));
 pushCont(co, _35clofun1037, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("defmacro");
-co->args[2] = globalRef(intern("defmacro-macro"));
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defmacro"), globalRef(intern("defmacro-macro")));
 }
 
 void _35clofun1037(struct Cora* co) {
 Obj _35val141 = co->args[1];
 pushCont(co, _35clofun1039, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("list");
-co->args[2] = makeNative(_35clofun1038, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list"), makeNative(_35clofun1038, 1, 0));
 }
 
 void _35clofun1039(struct Cora* co) {
 Obj _35val143 = co->args[1];
 pushCont(co, _35clofun1044, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("defun");
-co->args[2] = makeNative(_35clofun1040, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defun"), makeNative(_35clofun1040, 1, 0));
 }
 
 void _35clofun1044(struct Cora* co) {
@@ -305,67 +266,27 @@ Obj _35reg160 = primSet(intern("elem?"), makeNative(_35clofun1045, 2, 0));
 Obj _35reg163 = primSet(intern("atom?"), makeNative(_35clofun1046, 1, 0));
 Obj _35reg175 = primSet(intern("cora/init.rewrite-let"), makeNative(_35clofun1047, 1, 0));
 pushCont(co, _35clofun1053, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("let");
-co->args[2] = makeNative(_35clofun1052, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("let"), makeNative(_35clofun1052, 1, 0));
 }
 
 void _35clofun1053(struct Cora* co) {
 Obj _35val177 = co->args[1];
 pushCont(co, _35clofun1058, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("cond");
-co->args[2] = makeNative(_35clofun1054, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("cond"), makeNative(_35clofun1054, 1, 0));
 }
 
 void _35clofun1058(struct Cora* co) {
 Obj _35val191 = co->args[1];
 Obj _35reg203 = primSet(intern("cora/init.rewrite-or"), makeNative(_35clofun1059, 1, 0));
 pushCont(co, _35clofun1062, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("or");
-co->args[2] = makeNative(_35clofun1061, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("or"), makeNative(_35clofun1061, 1, 0));
 }
 
 void _35clofun1062(struct Cora* co) {
 Obj _35val205 = co->args[1];
 Obj _35reg217 = primSet(intern("cora/init.rewrite-and"), makeNative(_35clofun1063, 1, 0));
 pushCont(co, _35clofun1066, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("and");
-co->args[2] = makeNative(_35clofun1065, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("and"), makeNative(_35clofun1065, 1, 0));
 }
 
 void _35clofun1066(struct Cora* co) {
@@ -373,17 +294,7 @@ Obj _35val219 = co->args[1];
 Obj _35reg222 = primSet(intern("boolean?"), makeNative(_35clofun1067, 1, 0));
 Obj _35reg232 = primSet(intern("cora/init.rcons1"), makeNative(_35clofun1068, 1, 0));
 pushCont(co, _35clofun1072, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("list-rest");
-co->args[2] = makeNative(_35clofun1071, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list-rest"), makeNative(_35clofun1071, 1, 0));
 }
 
 void _35clofun1072(struct Cora* co) {
@@ -394,17 +305,7 @@ Obj _35reg348 = primSet(intern("cora/init.extract-rule-action"), makeNative(_35c
 Obj _35reg400 = primSet(intern("cora/init.match-helper"), makeNative(_35clofun1105, 2, 0));
 Obj _35reg426 = primSet(intern("cora/init.rewrite-match"), makeNative(_35clofun1121, 1, 0));
 pushCont(co, _35clofun1129, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("match");
-co->args[2] = makeNative(_35clofun1128, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("match"), makeNative(_35clofun1128, 1, 0));
 }
 
 void _35clofun1129(struct Cora* co) {
@@ -420,17 +321,7 @@ Obj _35reg505 = primSet(intern("append"), makeNative(_35clofun1146, 2, 0));
 Obj _35reg516 = primSet(intern("cora/init.rules-arg-count"), makeNative(_35clofun1148, 1, 0));
 Obj _35reg522 = primSet(intern("cora/init.gen-parameters"), makeNative(_35clofun1155, 1, 0));
 pushCont(co, _35clofun1163, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("func");
-co->args[2] = makeNative(_35clofun1157, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("func"), makeNative(_35clofun1157, 1, 0));
 }
 
 void _35clofun1163(struct Cora* co) {
@@ -440,62 +331,24 @@ Obj _35reg956 = primSet(intern("cora/init.propagate-boolean"), makeNative(_35clo
 Obj _35reg958 = primSet(intern("macroexpand"), makeNative(_35clofun1199, 1, 0));
 Obj _35reg982 = primSet(intern("cora/init.rewrite-begin"), makeNative(_35clofun1201, 1, 0));
 pushCont(co, _35clofun1207, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("begin");
-co->args[2] = makeNative(_35clofun1206, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("begin"), makeNative(_35clofun1206, 1, 0));
 }
 
 void _35clofun1207(struct Cora* co) {
 Obj _35val984 = co->args[1];
 Obj _35reg1004 = primSet(intern("cora/init.rewrite-backquote"), makeNative(_35clofun1208, 1, 0));
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.add-to-*macros*"));
-co->args[1] = intern("backquote");
-co->args[2] = makeNative(_35clofun1214, 1, 0);
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("backquote"), makeNative(_35clofun1214, 1, 0));
 }
 
 void _35clofun1214(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1215, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 
 void _35clofun1215(struct Cora* co) {
 Obj _35val1005 = co->args[1];
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-backquote"));
-co->args[1] = _35val1005;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-backquote")), _35val1005);
 }
 
 void _35clofun1208(struct Cora* co) {
@@ -509,15 +362,7 @@ Obj _35reg1003 = primCons(intern("quote"), _35reg1002);
 coraReturn(co, _35reg1003);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc34;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc34);
 }
 }
 
@@ -541,48 +386,16 @@ if (True == _35reg1000) {
 coraReturn(co, x);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc35;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc35);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc35;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc35);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc35;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc35);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc35;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc35);
 }
 }
 
@@ -596,27 +409,9 @@ Obj _35reg987 = primCdr(closureRef(co, 0));
 Obj more = _35reg987;
 Obj _35reg988 = primCons(x, more);
 pushCont(co, _35clofun1213, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("map"));
-co->args[1] = globalRef(intern("cora/init.rewrite-backquote"));
-co->args[2] = _35reg988;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/init.rewrite-backquote")), _35reg988);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc36;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc36);
 }
 }
 
@@ -635,31 +430,13 @@ return;
 }
 
 void _35clofun1212(struct Cora* co) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no match-help found!");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"));
 }
 
 void _35clofun1206(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg983 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-begin"));
-co->args[1] = _35reg983;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-begin")), _35reg983);
 }
 
 void _35clofun1201(struct Cora* co) {
@@ -675,26 +452,10 @@ if (True == _35reg981) {
 coraReturn(co, x);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc30;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc30);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc30;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc30);
 }
 }
 
@@ -720,37 +481,13 @@ Obj _35reg977 = primCons(intern("do"), _35reg976);
 coraReturn(co, _35reg977);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc31;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc31);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc31;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc31);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc31;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc31);
 }
 }
 
@@ -763,26 +500,9 @@ Obj x = _35reg960;
 Obj _35reg961 = primCdr(closureRef(co, 0));
 Obj y = _35reg961;
 pushCont(co, _35clofun1205, 1, x);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-begin"));
-co->args[1] = y;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-begin")), y);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc32;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc32);
 }
 }
 
@@ -797,45 +517,18 @@ return;
 }
 
 void _35clofun1204(struct Cora* co) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no match-help found!");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"));
 }
 
 void _35clofun1199(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1200, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.macroexpand-boot"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.macroexpand-boot")), exp);
 }
 
 void _35clofun1200(struct Cora* co) {
 Obj _35val957 = co->args[1];
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = _35val957;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), _35val957);
 }
 
 void _35clofun1176(struct Cora* co) {
@@ -861,48 +554,16 @@ Obj _35reg955 = primCons(intern("quote"), _35reg954);
 coraReturn(co, _35reg955);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc18;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc18);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc18;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc18);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc18;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc18);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc18;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc18);
 }
 }
 
@@ -924,59 +585,18 @@ Obj _35reg939 = primCdr(_35reg938);
 Obj _35reg940 = primEQ(Nil, _35reg939);
 if (True == _35reg940) {
 pushCont(co, _35clofun1198, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc19;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc19);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc19;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc19);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc19;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc19);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc19;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc19);
 }
 }
 
@@ -985,16 +605,7 @@ Obj _35val941 = co->args[1];
 Obj x1 = _35val941;
 Obj _35reg942 = primCons(x1, Nil);
 Obj _35reg943 = primCons(intern("cons?"), _35reg942);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg943;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg943);
 }
 
 void _35clofun1178(struct Cora* co) {
@@ -1015,59 +626,18 @@ Obj _35reg926 = primCdr(_35reg925);
 Obj _35reg927 = primEQ(Nil, _35reg926);
 if (True == _35reg927) {
 pushCont(co, _35clofun1197, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc20;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc20);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc20;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc20);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc20;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc20);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc20;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc20);
 }
 }
 
@@ -1076,16 +646,7 @@ Obj _35val928 = co->args[1];
 Obj x1 = _35val928;
 Obj _35reg929 = primCons(x1, Nil);
 Obj _35reg930 = primCons(intern("car"), _35reg929);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg930;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg930);
 }
 
 void _35clofun1179(struct Cora* co) {
@@ -1106,59 +667,18 @@ Obj _35reg913 = primCdr(_35reg912);
 Obj _35reg914 = primEQ(Nil, _35reg913);
 if (True == _35reg914) {
 pushCont(co, _35clofun1196, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc21;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc21);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc21;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc21);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc21;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc21);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc21;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc21);
 }
 }
 
@@ -1167,16 +687,7 @@ Obj _35val915 = co->args[1];
 Obj x1 = _35val915;
 Obj _35reg916 = primCons(x1, Nil);
 Obj _35reg917 = primCons(intern("cdr"), _35reg916);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg917;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg917);
 }
 
 void _35clofun1180(struct Cora* co) {
@@ -1206,70 +717,21 @@ Obj _35reg898 = primCdr(_35reg897);
 Obj _35reg899 = primEQ(Nil, _35reg898);
 if (True == _35reg899) {
 pushCont(co, _35clofun1194, 1, y);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc22;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc22);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc22;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc22);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc22;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc22);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc22;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc22);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc22;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc22);
 }
 }
 
@@ -1278,16 +740,7 @@ Obj _35val900 = co->args[1];
 Obj y = co->stack[co->base + 0];
 Obj x1 = _35val900;
 pushCont(co, _35clofun1195, 1, x1);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = y;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
 }
 
 void _35clofun1195(struct Cora* co) {
@@ -1297,16 +750,7 @@ Obj y1 = _35val901;
 Obj _35reg902 = primCons(y1, Nil);
 Obj _35reg903 = primCons(x1, _35reg902);
 Obj _35reg904 = primCons(intern("and"), _35reg903);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg904;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg904);
 }
 
 void _35clofun1181(struct Cora* co) {
@@ -1327,59 +771,18 @@ Obj _35reg878 = primCdr(_35reg877);
 Obj _35reg879 = primEQ(Nil, _35reg878);
 if (True == _35reg879) {
 pushCont(co, _35clofun1193, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc23;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc23);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc23;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc23);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc23;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc23);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc23;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc23);
 }
 }
 
@@ -1388,16 +791,7 @@ Obj _35val880 = co->args[1];
 Obj x1 = _35val880;
 Obj _35reg881 = primCons(x1, Nil);
 Obj _35reg882 = primCons(intern("null?"), _35reg881);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg882;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg882);
 }
 
 void _35clofun1182(struct Cora* co) {
@@ -1418,59 +812,18 @@ Obj _35reg865 = primCdr(_35reg864);
 Obj _35reg866 = primEQ(Nil, _35reg865);
 if (True == _35reg866) {
 pushCont(co, _35clofun1192, 0);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc24;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc24);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc24;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc24);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc24;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc24);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc24;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc24);
 }
 }
 
@@ -1479,16 +832,7 @@ Obj _35val867 = co->args[1];
 Obj x1 = _35val867;
 Obj _35reg868 = primCons(x1, Nil);
 Obj _35reg869 = primCons(intern("not"), _35reg868);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg869;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg869);
 }
 
 void _35clofun1183(struct Cora* co) {
@@ -1529,81 +873,24 @@ Obj _35reg848 = primCdr(_35reg847);
 Obj _35reg849 = primEQ(Nil, _35reg848);
 if (True == _35reg849) {
 pushCont(co, _35clofun1189, 2, y, z);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), x);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc25;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc25);
 }
 }
 
@@ -1613,16 +900,7 @@ Obj y = co->stack[co->base + 0];
 Obj z = co->stack[co->base + 1];
 Obj x1 = _35val850;
 pushCont(co, _35clofun1190, 2, z, x1);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = y;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
 }
 
 void _35clofun1190(struct Cora* co) {
@@ -1631,16 +909,7 @@ Obj z = co->stack[co->base + 0];
 Obj x1 = co->stack[co->base + 1];
 Obj y1 = _35val851;
 pushCont(co, _35clofun1191, 2, y1, x1);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = z;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), z);
 }
 
 void _35clofun1191(struct Cora* co) {
@@ -1652,16 +921,7 @@ Obj _35reg853 = primCons(z1, Nil);
 Obj _35reg854 = primCons(y1, _35reg853);
 Obj _35reg855 = primCons(x1, _35reg854);
 Obj _35reg856 = primCons(intern("if"), _35reg855);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean0"));
-co->args[1] = _35reg856;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg856);
 }
 
 void _35clofun1184(struct Cora* co) {
@@ -1691,70 +951,21 @@ Obj _35reg818 = primCdr(_35reg817);
 Obj _35reg819 = primEQ(Nil, _35reg818);
 if (True == _35reg819) {
 pushCont(co, _35clofun1188, 1, args);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[1] = body;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), body);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc26;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc26);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc26;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc26);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc26;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc26);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc26;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc26);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc26;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc26);
 }
 }
 
@@ -1777,27 +988,9 @@ Obj f = _35reg800;
 Obj _35reg801 = primCdr(closureRef(co, 0));
 Obj args = _35reg801;
 Obj _35reg802 = primCons(f, args);
-co->nargs = 3;
-co->args[0] = globalRef(intern("map"));
-co->args[1] = globalRef(intern("cora/init.propagate-boolean"));
-co->args[2] = _35reg802;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/init.propagate-boolean")), _35reg802);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc27;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc27);
 }
 }
 
@@ -1809,16 +1002,7 @@ return;
 }
 
 void _35clofun1187(struct Cora* co) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no match-help found!");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"));
 }
 
 void _35clofun1164(struct Cora* co) {
@@ -1877,103 +1061,31 @@ if (True == _35reg797) {
 coraReturn(co, x);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc6;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc6);
 }
 }
 
@@ -2032,103 +1144,31 @@ if (True == _35reg758) {
 coraReturn(co, x);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc7;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc7);
 }
 }
 
@@ -2187,103 +1227,31 @@ if (True == _35reg719) {
 coraReturn(co, True);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc8;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc8);
 }
 }
 
@@ -2318,81 +1286,25 @@ if (True == _35reg680) {
 coraReturn(co, True);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc9;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc9);
 }
 }
 
@@ -2417,59 +1329,19 @@ if (True == _35reg661) {
 coraReturn(co, True);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc10;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc10);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc10;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc10);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc10;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc10);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc10;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc10);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc10;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc10);
 }
 }
 
@@ -2528,103 +1400,31 @@ if (True == _35reg650) {
 coraReturn(co, False);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc11;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc11);
 }
 }
 
@@ -2649,59 +1449,19 @@ if (True == _35reg611) {
 coraReturn(co, False);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc12;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc12);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc12;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc12);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc12;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc12);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc12;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc12);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc12;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc12);
 }
 }
 
@@ -2726,59 +1486,19 @@ if (True == _35reg600) {
 coraReturn(co, True);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc13;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc13);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc13;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc13);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc13;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc13);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc13;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc13);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc13;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc13);
 }
 }
 
@@ -2823,81 +1543,25 @@ if (True == _35reg589) {
 coraReturn(co, y);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc14;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc14);
 }
 }
 
@@ -2942,81 +1606,25 @@ if (True == _35reg562) {
 coraReturn(co, z);
 return;
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc15;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc15);
 }
 }
 
@@ -3028,47 +1636,20 @@ return;
 }
 
 void _35clofun1175(struct Cora* co) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no match-help found!");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"));
 }
 
 void _35clofun1157(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1158, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1158(struct Cora* co) {
 Obj _35val523 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 pushCont(co, _35clofun1159, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.extract-rules"));
-co->args[1] = _35val523;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.extract-rules")), _35val523);
 }
 
 void _35clofun1159(struct Cora* co) {
@@ -3076,16 +1657,7 @@ Obj _35val524 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj body = _35val524;
 pushCont(co, _35clofun1160, 2, exp, body);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rules-arg-count"));
-co->args[1] = body;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rules-arg-count")), body);
 }
 
 void _35clofun1160(struct Cora* co) {
@@ -3094,16 +1666,7 @@ Obj exp = co->stack[co->base + 0];
 Obj body = co->stack[co->base + 1];
 Obj nargs = _35val525;
 pushCont(co, _35clofun1161, 2, exp, body);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.gen-parameters"));
-co->args[1] = nargs;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.gen-parameters")), nargs);
 }
 
 void _35clofun1161(struct Cora* co) {
@@ -3112,16 +1675,7 @@ Obj exp = co->stack[co->base + 0];
 Obj body = co->stack[co->base + 1];
 Obj args = _35val526;
 pushCont(co, _35clofun1162, 2, body, args);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 
 void _35clofun1162(struct Cora* co) {
@@ -3149,16 +1703,7 @@ return;
 Obj _35reg518 = primGenSym(intern("p"));
 Obj _35reg519 = primSub(n, makeNumber(1));
 pushCont(co, _35clofun1156, 1, _35reg518);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.gen-parameters"));
-co->args[1] = _35reg519;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.gen-parameters")), _35reg519);
 }
 }
 
@@ -3173,17 +1718,7 @@ return;
 void _35clofun1148(struct Cora* co) {
 Obj rules = co->args[1];
 pushCont(co, _35clofun1149, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.rules-patterns"));
-co->args[1] = Nil;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.rules-patterns")), Nil, rules);
 }
 
 void _35clofun1149(struct Cora* co) {
@@ -3191,17 +1726,7 @@ Obj _35val506 = co->args[1];
 Obj pats = _35val506;
 Obj len = makeNative(_35clofun1150, 1, 0);
 pushCont(co, _35clofun1151, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("map"));
-co->args[1] = len;
-co->args[2] = pats;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("map")), len, pats);
 }
 
 void _35clofun1151(struct Cora* co) {
@@ -3212,33 +1737,14 @@ Obj n = _35reg509;
 Obj dif = makeNative(_35clofun1152, 1, 1, n);
 Obj _35reg512 = primCdr(counts);
 pushCont(co, _35clofun1153, 1, n);
-co->nargs = 3;
-co->args[0] = globalRef(intern("filter"));
-co->args[1] = dif;
-co->args[2] = _35reg512;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("filter")), dif, _35reg512);
 }
 
 void _35clofun1153(struct Cora* co) {
 Obj _35val513 = co->args[1];
 Obj n = co->stack[co->base + 0];
 pushCont(co, _35clofun1154, 1, n);
-co->nargs = 2;
-co->args[0] = globalRef(intern("null?"));
-co->args[1] = _35val513;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("null?")), _35val513);
 }
 
 void _35clofun1154(struct Cora* co) {
@@ -3246,16 +1752,7 @@ Obj _35val514 = co->args[1];
 Obj n = co->stack[co->base + 0];
 Obj _35reg515 = primNot(_35val514);
 if (True == _35reg515) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("inconsistent func rule args count");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("inconsistent func rule args count"));
 } else {
 coraReturn(co, n);
 return;
@@ -3273,16 +1770,7 @@ return;
 void _35clofun1150(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg507 = primCdr(x);
-co->nargs = 2;
-co->args[0] = globalRef(intern("length"));
-co->args[1] = _35reg507;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("length")), _35reg507);
 }
 
 void _35clofun1146(struct Cora* co) {
@@ -3296,17 +1784,7 @@ return;
 Obj _35reg501 = primCar(l1);
 Obj _35reg502 = primCdr(l1);
 pushCont(co, _35clofun1147, 1, _35reg501);
-co->nargs = 3;
-co->args[0] = globalRef(intern("append"));
-co->args[1] = _35reg502;
-co->args[2] = l2;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("append")), _35reg502, l2);
 }
 }
 
@@ -3321,18 +1799,7 @@ return;
 void _35clofun1145(struct Cora* co) {
 Obj fn = co->args[1];
 Obj l = co->args[2];
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.filter-h"));
-co->args[1] = Nil;
-co->args[2] = fn;
-co->args[3] = l;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.filter-h")), Nil, fn, l);
 }
 
 void _35clofun1143(struct Cora* co) {
@@ -3343,27 +1810,9 @@ Obj _35reg491 = primIsCons(l);
 if (True == _35reg491) {
 Obj _35reg492 = primCar(l);
 pushCont(co, _35clofun1144, 3, l, res, fn);
-co->nargs = 2;
-co->args[0] = fn;
-co->args[1] = _35reg492;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, fn, _35reg492);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = res;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("reverse")), res);
 }
 }
 
@@ -3376,48 +1825,16 @@ if (True == _35val493) {
 Obj _35reg494 = primCar(l);
 Obj _35reg495 = primCons(_35reg494, res);
 Obj _35reg496 = primCdr(l);
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.filter-h"));
-co->args[1] = _35reg495;
-co->args[2] = fn;
-co->args[3] = _35reg496;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.filter-h")), _35reg495, fn, _35reg496);
 } else {
 Obj _35reg497 = primCdr(l);
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.filter-h"));
-co->args[1] = res;
-co->args[2] = fn;
-co->args[3] = _35reg497;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.filter-h")), res, fn, _35reg497);
 }
 }
 
 void _35clofun1142(struct Cora* co) {
 Obj l = co->args[1];
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.length-h"));
-co->args[1] = makeNumber(0);
-co->args[2] = l;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.length-h")), makeNumber(0), l);
 }
 
 void _35clofun1141(struct Cora* co) {
@@ -3430,17 +1847,7 @@ return;
 } else {
 Obj _35reg487 = primAdd(i, makeNumber(1));
 Obj _35reg488 = primCdr(l);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.length-h"));
-co->args[1] = _35reg487;
-co->args[2] = _35reg488;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.length-h")), _35reg487, _35reg488);
 }
 }
 
@@ -3448,16 +1855,7 @@ void _35clofun1138(struct Cora* co) {
 Obj res = co->args[1];
 Obj rules = co->args[2];
 pushCont(co, _35clofun1139, 2, res, rules);
-co->nargs = 2;
-co->args[0] = globalRef(intern("null?"));
-co->args[1] = rules;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("null?")), rules);
 }
 
 void _35clofun1139(struct Cora* co) {
@@ -3465,63 +1863,24 @@ Obj _35val481 = co->args[1];
 Obj res = co->stack[co->base + 0];
 Obj rules = co->stack[co->base + 1];
 if (True == _35val481) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = res;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("reverse")), res);
 } else {
 Obj _35reg482 = primCar(rules);
 Obj _35reg483 = primCons(_35reg482, res);
 pushCont(co, _35clofun1140, 1, _35reg483);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cddr"));
-co->args[1] = rules;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cddr")), rules);
 }
 }
 
 void _35clofun1140(struct Cora* co) {
 Obj _35val484 = co->args[1];
 Obj _35reg483 = co->stack[co->base + 0];
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.rules-patterns"));
-co->args[1] = _35reg483;
-co->args[2] = _35val484;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.rules-patterns")), _35reg483, _35val484);
 }
 
 void _35clofun1137(struct Cora* co) {
 Obj input = co->args[1];
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.extract-rules1"));
-co->args[1] = input;
-co->args[2] = Nil;
-co->args[3] = Nil;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), input, Nil, Nil);
 }
 
 void _35clofun1130(struct Cora* co) {
@@ -3531,26 +1890,9 @@ Obj result = co->args[3];
 Obj _35cc1 = makeNative(_35clofun1131, 0, 3, input, current, result);
 Obj _35reg478 = primEQ(Nil, input);
 if (True == _35reg478) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = result;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("reverse")), result);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc1;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc1);
 }
 }
 
@@ -3592,81 +1934,24 @@ Obj _35reg469 = primCdr(_35reg468);
 Obj _35reg470 = primCdr(_35reg469);
 Obj remain = _35reg470;
 pushCont(co, _35clofun1136, 3, act, pred, remain);
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = closureRef(co, 1);
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("reverse")), closureRef(co, 1));
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc2;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc2);
 }
 }
 
@@ -3682,18 +1967,7 @@ Obj _35reg474 = primCons(pred, _35reg473);
 Obj _35reg475 = primCons(intern("where"), _35reg474);
 Obj _35reg476 = primCons(pat, closureRef(co, 2));
 Obj _35reg477 = primCons(_35reg475, _35reg476);
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.extract-rules1"));
-co->args[1] = remain;
-co->args[2] = Nil;
-co->args[3] = _35reg477;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), remain, Nil, _35reg477);
 }
 
 void _35clofun1132(struct Cora* co) {
@@ -3713,48 +1987,15 @@ Obj _35reg439 = primCdr(closureRef(co, 0));
 Obj _35reg440 = primCdr(_35reg439);
 Obj remain = _35reg440;
 pushCont(co, _35clofun1135, 2, act, remain);
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = closureRef(co, 1);
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, globalRef(intern("reverse")), closureRef(co, 1));
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc3;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc3);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc3;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc3);
 }
 } else {
-co->nargs = 1;
-co->args[0] = _35cc3;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc3);
 }
 }
 
@@ -3766,18 +2007,7 @@ Obj _35reg442 = primCons(intern("list"), _35val441);
 Obj pat = _35reg442;
 Obj _35reg443 = primCons(pat, closureRef(co, 2));
 Obj _35reg444 = primCons(act, _35reg443);
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.extract-rules1"));
-co->args[1] = remain;
-co->args[2] = Nil;
-co->args[3] = _35reg444;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), remain, Nil, _35reg444);
 }
 
 void _35clofun1133(struct Cora* co) {
@@ -3789,87 +2019,32 @@ Obj x = _35reg429;
 Obj _35reg430 = primCdr(closureRef(co, 0));
 Obj y = _35reg430;
 Obj _35reg431 = primCons(x, closureRef(co, 1));
-co->nargs = 4;
-co->args[0] = globalRef(intern("cora/init.extract-rules1"));
-co->args[1] = y;
-co->args[2] = _35reg431;
-co->args[3] = closureRef(co, 2);
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), y, _35reg431, closureRef(co, 2));
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 1;
-co->args[0] = _35cc4;
-if (nativeRequired(co->args[0]) == 0) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 1, _35cc4);
 }
 }
 
 void _35clofun1134(struct Cora* co) {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no match-help found!");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"));
 }
 
 void _35clofun1128(struct Cora* co) {
 Obj exp = co->args[1];
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-match"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-match")), exp);
 }
 
 void _35clofun1121(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1122, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 
 void _35clofun1122(struct Cora* co) {
 Obj _35val401 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 pushCont(co, _35clofun1123, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("macroexpand"));
-co->args[1] = _35val401;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("macroexpand")), _35val401);
 }
 
 void _35clofun1123(struct Cora* co) {
@@ -3877,16 +2052,7 @@ Obj _35val402 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj value = _35val402;
 pushCont(co, _35clofun1124, 1, value);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1124(struct Cora* co) {
@@ -3903,58 +2069,18 @@ if (True == True) {
 Obj _35reg408 = primGenSym(intern("val"));
 Obj val = _35reg408;
 pushCont(co, _35clofun1125, 2, value, val);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = val;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), val, rules);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, rules);
 }
 } else {
 if (True == False) {
 Obj _35reg414 = primGenSym(intern("val"));
 Obj val = _35reg414;
 pushCont(co, _35clofun1126, 2, value, val);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = val;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), val, rules);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, rules);
 }
 }
 } else {
@@ -3962,29 +2088,9 @@ if (True == False) {
 Obj _35reg420 = primGenSym(intern("val"));
 Obj val = _35reg420;
 pushCont(co, _35clofun1127, 2, value, val);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = val;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), val, rules);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = rules;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, rules);
 }
 }
 }
@@ -4029,16 +2135,7 @@ void _35clofun1105(struct Cora* co) {
 Obj value = co->args[1];
 Obj rules = co->args[2];
 pushCont(co, _35clofun1106, 2, rules, value);
-co->nargs = 2;
-co->args[0] = globalRef(intern("null?"));
-co->args[1] = rules;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("null?")), rules);
 }
 
 void _35clofun1106(struct Cora* co) {
@@ -4052,16 +2149,7 @@ coraReturn(co, _35reg351);
 return;
 } else {
 pushCont(co, _35clofun1107, 2, rules, value);
-co->nargs = 2;
-co->args[0] = globalRef(intern("pair?"));
-co->args[1] = rules;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("pair?")), rules);
 }
 }
 
@@ -4072,16 +2160,7 @@ Obj value = co->stack[co->base + 1];
 if (True == _35val352) {
 Obj _35reg353 = primCdr(rules);
 pushCont(co, _35clofun1108, 2, rules, value);
-co->nargs = 2;
-co->args[0] = globalRef(intern("pair?"));
-co->args[1] = _35reg353;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("pair?")), _35reg353);
 } else {
 if (True == False) {
 Obj _35reg385 = primCar(rules);
@@ -4089,28 +2168,9 @@ Obj pat = _35reg385;
 Obj _35reg386 = primGenSym(intern("cc"));
 Obj cc = _35reg386;
 pushCont(co, _35clofun1117, 4, pat, rules, value, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.extract-rule-action"));
-co->args[1] = rules;
-co->args[2] = cc;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.extract-rule-action")), rules, cc);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no cond match");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 }
 }
 }
@@ -4123,16 +2183,7 @@ Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 Obj action = _35val387;
 pushCont(co, _35clofun1118, 4, action, rules, value, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("macroexpand"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 }
 
 void _35clofun1118(struct Cora* co) {
@@ -4142,19 +2193,7 @@ Obj rules = co->stack[co->base + 1];
 Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 pushCont(co, _35clofun1119, 3, rules, value, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = _35val388;
-co->args[2] = value;
-co->args[3] = action;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val388, value, action, cc);
 }
 
 void _35clofun1119(struct Cora* co) {
@@ -4166,17 +2205,7 @@ Obj curr = _35val389;
 Obj _35reg390 = primCdr(rules);
 Obj _35reg391 = primCdr(_35reg390);
 pushCont(co, _35clofun1120, 2, curr, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = _35reg391;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg391);
 }
 
 void _35clofun1120(struct Cora* co) {
@@ -4206,28 +2235,9 @@ Obj pat = _35reg355;
 Obj _35reg356 = primGenSym(intern("cc"));
 Obj cc = _35reg356;
 pushCont(co, _35clofun1109, 4, pat, rules, value, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.extract-rule-action"));
-co->args[1] = rules;
-co->args[2] = cc;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.extract-rule-action")), rules, cc);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no cond match");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 }
 } else {
 if (True == False) {
@@ -4236,28 +2246,9 @@ Obj pat = _35reg370;
 Obj _35reg371 = primGenSym(intern("cc"));
 Obj cc = _35reg371;
 pushCont(co, _35clofun1113, 4, pat, rules, value, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.extract-rule-action"));
-co->args[1] = rules;
-co->args[2] = cc;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("cora/init.extract-rule-action")), rules, cc);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no cond match");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 }
 }
 }
@@ -4270,16 +2261,7 @@ Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 Obj action = _35val372;
 pushCont(co, _35clofun1114, 4, action, rules, value, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("macroexpand"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 }
 
 void _35clofun1114(struct Cora* co) {
@@ -4289,19 +2271,7 @@ Obj rules = co->stack[co->base + 1];
 Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 pushCont(co, _35clofun1115, 3, rules, value, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = _35val373;
-co->args[2] = value;
-co->args[3] = action;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val373, value, action, cc);
 }
 
 void _35clofun1115(struct Cora* co) {
@@ -4313,17 +2283,7 @@ Obj curr = _35val374;
 Obj _35reg375 = primCdr(rules);
 Obj _35reg376 = primCdr(_35reg375);
 pushCont(co, _35clofun1116, 2, curr, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = _35reg376;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg376);
 }
 
 void _35clofun1116(struct Cora* co) {
@@ -4350,16 +2310,7 @@ Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 Obj action = _35val357;
 pushCont(co, _35clofun1110, 4, action, rules, value, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("macroexpand"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 }
 
 void _35clofun1110(struct Cora* co) {
@@ -4369,19 +2320,7 @@ Obj rules = co->stack[co->base + 1];
 Obj value = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 pushCont(co, _35clofun1111, 3, rules, value, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = _35val358;
-co->args[2] = value;
-co->args[3] = action;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val358, value, action, cc);
 }
 
 void _35clofun1111(struct Cora* co) {
@@ -4393,17 +2332,7 @@ Obj curr = _35val359;
 Obj _35reg360 = primCdr(rules);
 Obj _35reg361 = primCdr(_35reg360);
 pushCont(co, _35clofun1112, 2, curr, cc);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.match-helper"));
-co->args[1] = value;
-co->args[2] = _35reg361;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg361);
 }
 
 void _35clofun1112(struct Cora* co) {
@@ -4429,16 +2358,7 @@ Obj _35reg322 = primCdr(rules);
 Obj _35reg323 = primCar(_35reg322);
 Obj action = _35reg323;
 pushCont(co, _35clofun1098, 2, cc, action);
-co->nargs = 2;
-co->args[0] = globalRef(intern("pair?"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("pair?")), action);
 }
 
 void _35clofun1098(struct Cora* co) {
@@ -4451,16 +2371,7 @@ Obj _35reg326 = primEQ(_35reg325, intern("where"));
 if (True == _35reg326) {
 if (True == True) {
 pushCont(co, _35clofun1099, 2, action, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), action);
 } else {
 coraReturn(co, action);
 return;
@@ -4468,16 +2379,7 @@ return;
 } else {
 if (True == False) {
 pushCont(co, _35clofun1101, 2, action, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), action);
 } else {
 coraReturn(co, action);
 return;
@@ -4486,16 +2388,7 @@ return;
 } else {
 if (True == False) {
 pushCont(co, _35clofun1103, 2, action, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), action);
 } else {
 coraReturn(co, action);
 return;
@@ -4508,16 +2401,7 @@ Obj _35val341 = co->args[1];
 Obj action = co->stack[co->base + 0];
 Obj cc = co->stack[co->base + 1];
 pushCont(co, _35clofun1104, 2, cc, _35val341);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1104(struct Cora* co) {
@@ -4538,16 +2422,7 @@ Obj _35val334 = co->args[1];
 Obj action = co->stack[co->base + 0];
 Obj cc = co->stack[co->base + 1];
 pushCont(co, _35clofun1102, 2, cc, _35val334);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1102(struct Cora* co) {
@@ -4568,16 +2443,7 @@ Obj _35val327 = co->args[1];
 Obj action = co->stack[co->base + 0];
 Obj cc = co->stack[co->base + 1];
 pushCont(co, _35clofun1100, 2, cc, _35val327);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = action;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1100(struct Cora* co) {
@@ -4600,16 +2466,7 @@ Obj body = co->args[3];
 Obj cc = co->args[4];
 Obj literal_63 = makeNative(_35clofun1092, 1, 0);
 pushCont(co, _35clofun1094, 4, expr, body, cc, pat);
-co->nargs = 2;
-co->args[0] = literal_63;
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, literal_63, pat);
 }
 
 void _35clofun1094(struct Cora* co) {
@@ -4646,16 +2503,7 @@ coraReturn(co, _35reg306);
 return;
 } else {
 pushCont(co, _35clofun1095, 4, expr, body, cc, pat);
-co->nargs = 2;
-co->args[0] = globalRef(intern("pair?"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("pair?")), pat);
 }
 }
 }
@@ -4684,75 +2532,26 @@ return;
 Obj _35reg318 = primCar(pat);
 Obj _35reg319 = primEQ(_35reg318, intern("cons"));
 if (True == _35reg319) {
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match-cons-expander"));
-co->args[1] = pat;
-co->args[2] = expr;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 5, globalRef(intern("cora/init.match-cons-expander")), pat, expr, body, cc);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = makeString1("no cond match");
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 }
 }
 } else {
 pushCont(co, _35clofun1096, 0);
-co->nargs = 3;
-co->args[0] = globalRef(intern("str"));
-co->args[1] = makeString1("match fail ");
-co->args[2] = pat;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("str")), makeString1("match fail "), pat);
 }
 }
 
 void _35clofun1096(struct Cora* co) {
 Obj _35val320 = co->args[1];
-co->nargs = 2;
-co->args[0] = globalRef(intern("error"));
-co->args[1] = _35val320;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("error")), _35val320);
 }
 
 void _35clofun1092(struct Cora* co) {
 Obj x = co->args[1];
 pushCont(co, _35clofun1093, 1, x);
-co->nargs = 2;
-co->args[0] = globalRef(intern("atom?"));
-co->args[1] = x;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("atom?")), x);
 }
 
 void _35clofun1093(struct Cora* co) {
@@ -4780,16 +2579,7 @@ Obj expr = co->args[2];
 Obj body = co->args[3];
 Obj cc = co->args[4];
 pushCont(co, _35clofun1074, 4, pat, expr, body, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), pat);
 }
 
 void _35clofun1074(struct Cora* co) {
@@ -4800,16 +2590,7 @@ Obj body = co->stack[co->base + 2];
 Obj cc = co->stack[co->base + 3];
 Obj x = _35val235;
 pushCont(co, _35clofun1075, 4, expr, body, x, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = pat;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), pat);
 }
 
 void _35clofun1075(struct Cora* co) {
@@ -4826,16 +2607,7 @@ Obj _35reg239 = primEQ(_35reg238, intern("cons"));
 if (True == _35reg239) {
 if (True == True) {
 pushCont(co, _35clofun1076, 5, expr, y, body, x, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), expr);
 } else {
 Obj _35reg243 = primCons(expr, Nil);
 Obj _35reg244 = primCons(intern("cons?"), _35reg243);
@@ -4844,33 +2616,12 @@ Obj _35reg246 = primCons(intern("car"), _35reg245);
 Obj _35reg247 = primCons(expr, Nil);
 Obj _35reg248 = primCons(intern("cdr"), _35reg247);
 pushCont(co, _35clofun1079, 4, x, _35reg246, cc, _35reg244);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = _35reg248;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, _35reg248, body, cc);
 }
 } else {
 if (True == False) {
 pushCont(co, _35clofun1081, 5, expr, y, body, x, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), expr);
 } else {
 Obj _35reg259 = primCons(expr, Nil);
 Obj _35reg260 = primCons(intern("cons?"), _35reg259);
@@ -4879,34 +2630,13 @@ Obj _35reg262 = primCons(intern("car"), _35reg261);
 Obj _35reg263 = primCons(expr, Nil);
 Obj _35reg264 = primCons(intern("cdr"), _35reg263);
 pushCont(co, _35clofun1084, 4, x, _35reg262, cc, _35reg260);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = _35reg264;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, _35reg264, body, cc);
 }
 }
 } else {
 if (True == False) {
 pushCont(co, _35clofun1086, 5, expr, y, body, x, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), expr);
 } else {
 Obj _35reg275 = primCons(expr, Nil);
 Obj _35reg276 = primCons(intern("cons?"), _35reg275);
@@ -4915,19 +2645,7 @@ Obj _35reg278 = primCons(intern("car"), _35reg277);
 Obj _35reg279 = primCons(expr, Nil);
 Obj _35reg280 = primCons(intern("cdr"), _35reg279);
 pushCont(co, _35clofun1089, 4, x, _35reg278, cc, _35reg276);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = _35reg280;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, _35reg280, body, cc);
 }
 }
 }
@@ -4939,19 +2657,7 @@ Obj _35reg278 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
 Obj _35reg276 = co->stack[co->base + 3];
 pushCont(co, _35clofun1090, 2, cc, _35reg276);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = _35reg278;
-co->args[3] = _35val281;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg278, _35val281, cc);
 }
 
 void _35clofun1090(struct Cora* co) {
@@ -4976,16 +2682,7 @@ Obj x = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e1 = _35val272;
 pushCont(co, _35clofun1087, 5, y, body, x, e1, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), expr);
 }
 
 void _35clofun1087(struct Cora* co) {
@@ -4997,19 +2694,7 @@ Obj e1 = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e2 = _35val273;
 pushCont(co, _35clofun1088, 3, x, e1, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = e2;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 }
 
 void _35clofun1088(struct Cora* co) {
@@ -5017,19 +2702,7 @@ Obj _35val274 = co->args[1];
 Obj x = co->stack[co->base + 0];
 Obj e1 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = e1;
-co->args[3] = _35val274;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val274, cc);
 }
 
 void _35clofun1084(struct Cora* co) {
@@ -5039,19 +2712,7 @@ Obj _35reg262 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
 Obj _35reg260 = co->stack[co->base + 3];
 pushCont(co, _35clofun1085, 2, cc, _35reg260);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = _35reg262;
-co->args[3] = _35val265;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg262, _35val265, cc);
 }
 
 void _35clofun1085(struct Cora* co) {
@@ -5076,16 +2737,7 @@ Obj x = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e1 = _35val256;
 pushCont(co, _35clofun1082, 5, y, body, x, e1, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), expr);
 }
 
 void _35clofun1082(struct Cora* co) {
@@ -5097,19 +2749,7 @@ Obj e1 = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e2 = _35val257;
 pushCont(co, _35clofun1083, 3, x, e1, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = e2;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 }
 
 void _35clofun1083(struct Cora* co) {
@@ -5117,19 +2757,7 @@ Obj _35val258 = co->args[1];
 Obj x = co->stack[co->base + 0];
 Obj e1 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = e1;
-co->args[3] = _35val258;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val258, cc);
 }
 
 void _35clofun1079(struct Cora* co) {
@@ -5139,19 +2767,7 @@ Obj _35reg246 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
 Obj _35reg244 = co->stack[co->base + 3];
 pushCont(co, _35clofun1080, 2, cc, _35reg244);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = _35reg246;
-co->args[3] = _35val249;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg246, _35val249, cc);
 }
 
 void _35clofun1080(struct Cora* co) {
@@ -5176,16 +2792,7 @@ Obj x = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e1 = _35val240;
 pushCont(co, _35clofun1077, 5, y, body, x, e1, cc);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = expr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), expr);
 }
 
 void _35clofun1077(struct Cora* co) {
@@ -5197,19 +2804,7 @@ Obj e1 = co->stack[co->base + 3];
 Obj cc = co->stack[co->base + 4];
 Obj e2 = _35val241;
 pushCont(co, _35clofun1078, 3, x, e1, cc);
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = y;
-co->args[2] = e2;
-co->args[3] = body;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 }
 
 void _35clofun1078(struct Cora* co) {
@@ -5217,50 +2812,20 @@ Obj _35val242 = co->args[1];
 Obj x = co->stack[co->base + 0];
 Obj e1 = co->stack[co->base + 1];
 Obj cc = co->stack[co->base + 2];
-co->nargs = 5;
-co->args[0] = globalRef(intern("cora/init.match1"));
-co->args[1] = x;
-co->args[2] = e1;
-co->args[3] = _35val242;
-co->args[4] = cc;
-if (nativeRequired(co->args[0]) == 4) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val242, cc);
 }
 
 void _35clofun1071(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg233 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rcons1"));
-co->args[1] = _35reg233;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rcons1")), _35reg233);
 }
 
 void _35clofun1068(struct Cora* co) {
 Obj pat = co->args[1];
 Obj _35reg223 = primCdr(pat);
 pushCont(co, _35clofun1069, 1, pat);
-co->nargs = 2;
-co->args[0] = globalRef(intern("null?"));
-co->args[1] = _35reg223;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("null?")), _35reg223);
 }
 
 void _35clofun1069(struct Cora* co) {
@@ -5274,16 +2839,7 @@ return;
 Obj _35reg226 = primCar(pat);
 Obj _35reg227 = primCdr(pat);
 pushCont(co, _35clofun1070, 1, _35reg226);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rcons1"));
-co->args[1] = _35reg227;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rcons1")), _35reg227);
 }
 }
 
@@ -5318,16 +2874,7 @@ return;
 void _35clofun1065(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg218 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-and"));
-co->args[1] = _35reg218;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-and")), _35reg218);
 }
 
 void _35clofun1063(struct Cora* co) {
@@ -5345,16 +2892,7 @@ return;
 } else {
 Obj _35reg209 = primCdr(l);
 pushCont(co, _35clofun1064, 1, l);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-and"));
-co->args[1] = _35reg209;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-and")), _35reg209);
 }
 }
 }
@@ -5381,16 +2919,7 @@ return;
 void _35clofun1061(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg204 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-or"));
-co->args[1] = _35reg204;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-or")), _35reg204);
 }
 
 void _35clofun1059(struct Cora* co) {
@@ -5408,16 +2937,7 @@ return;
 } else {
 Obj _35reg195 = primCdr(l);
 pushCont(co, _35clofun1060, 1, l);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-or"));
-co->args[1] = _35reg195;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-or")), _35reg195);
 }
 }
 }
@@ -5452,16 +2972,7 @@ coraReturn(co, _35reg181);
 return;
 } else {
 pushCont(co, _35clofun1055, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 }
 
@@ -5471,16 +2982,7 @@ Obj exp = co->stack[co->base + 0];
 Obj curr = _35val182;
 Obj _35reg183 = primCar(curr);
 pushCont(co, _35clofun1056, 2, exp, _35reg183);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = curr;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), curr);
 }
 
 void _35clofun1056(struct Cora* co) {
@@ -5488,16 +2990,7 @@ Obj _35val184 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg183 = co->stack[co->base + 1];
 pushCont(co, _35clofun1057, 2, _35val184, _35reg183);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1057(struct Cora* co) {
@@ -5516,32 +3009,14 @@ return;
 void _35clofun1052(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg176 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-let"));
-co->args[1] = _35reg176;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-let")), _35reg176);
 }
 
 void _35clofun1047(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg164 = primCdr(exp);
 pushCont(co, _35clofun1048, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("null?"));
-co->args[1] = _35reg164;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("null?")), _35reg164);
 }
 
 void _35clofun1048(struct Cora* co) {
@@ -5554,16 +3029,7 @@ return;
 } else {
 Obj _35reg167 = primCar(exp);
 pushCont(co, _35clofun1049, 2, exp, _35reg167);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 }
 
@@ -5572,16 +3038,7 @@ Obj _35val168 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg167 = co->stack[co->base + 1];
 pushCont(co, _35clofun1050, 2, _35val168, _35reg167);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1050(struct Cora* co) {
@@ -5589,16 +3046,7 @@ Obj _35val169 = co->args[1];
 Obj _35val168 = co->stack[co->base + 0];
 Obj _35reg167 = co->stack[co->base + 1];
 pushCont(co, _35clofun1051, 2, _35val168, _35reg167);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.rewrite-let"));
-co->args[1] = _35val169;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.rewrite-let")), _35val169);
 }
 
 void _35clofun1051(struct Cora* co) {
@@ -5633,17 +3081,7 @@ coraReturn(co, True);
 return;
 } else {
 Obj _35reg159 = primCdr(l);
-co->nargs = 3;
-co->args[0] = globalRef(intern("elem?"));
-co->args[1] = x;
-co->args[2] = _35reg159;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("elem?")), x, _35reg159);
 }
 } else {
 coraReturn(co, False);
@@ -5654,16 +3092,7 @@ return;
 void _35clofun1040(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1041, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 
 void _35clofun1041(struct Cora* co) {
@@ -5672,16 +3101,7 @@ Obj exp = co->stack[co->base + 0];
 Obj _35reg145 = primCons(_35val144, Nil);
 Obj _35reg146 = primCons(intern("quote"), _35reg145);
 pushCont(co, _35clofun1042, 2, exp, _35reg146);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), exp);
 }
 
 void _35clofun1042(struct Cora* co) {
@@ -5689,16 +3109,7 @@ Obj _35val147 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg146 = co->stack[co->base + 1];
 pushCont(co, _35clofun1043, 2, _35val147, _35reg146);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadddr")), exp);
 }
 
 void _35clofun1043(struct Cora* co) {
@@ -5718,31 +3129,13 @@ return;
 void _35clofun1038(struct Cora* co) {
 Obj exp = co->args[1];
 Obj _35reg142 = primCdr(exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("rcons"));
-co->args[1] = _35reg142;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("rcons")), _35reg142);
 }
 
 void _35clofun1033(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun1034, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 }
 
 void _35clofun1034(struct Cora* co) {
@@ -5751,16 +3144,7 @@ Obj exp = co->stack[co->base + 0];
 Obj _35reg131 = primCons(_35val130, Nil);
 Obj _35reg132 = primCons(intern("quote"), _35reg131);
 pushCont(co, _35clofun1035, 2, exp, _35reg132);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), exp);
 }
 
 void _35clofun1035(struct Cora* co) {
@@ -5768,16 +3152,7 @@ Obj _35val133 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg132 = co->stack[co->base + 1];
 pushCont(co, _35clofun1036, 2, _35val133, _35reg132);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cdddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cdddr")), exp);
 }
 
 void _35clofun1036(struct Cora* co) {
@@ -5808,16 +3183,7 @@ Obj _35reg116 = primCar(exp);
 Obj _35reg117 = primEQ(_35reg116, intern("lambda"));
 if (True == _35reg117) {
 pushCont(co, _35clofun1028, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cadr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg124 = primCar(exp);
 Obj _35reg125 = primEQ(_35reg124, intern("quote"));
@@ -5826,16 +3192,7 @@ coraReturn(co, exp);
 return;
 } else {
 pushCont(co, _35clofun1031, 1, exp);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.macroexpand1"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.macroexpand1")), exp);
 }
 }
 }
@@ -5848,44 +3205,16 @@ return;
 void _35clofun1031(struct Cora* co) {
 Obj _35val127 = co->args[1];
 Obj exp = co->stack[co->base + 0];
-co->nargs = 2;
-co->args[0] = makeNative(_35clofun1032, 1, 1, exp);
-co->args[1] = _35val127;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, makeNative(_35clofun1032, 1, 1, exp), _35val127);
 }
 
 void _35clofun1032(struct Cora* co) {
 Obj exp1 = co->args[1];
 Obj _35reg126 = primEQ(exp1, closureRef(co, 0));
 if (True == _35reg126) {
-co->nargs = 3;
-co->args[0] = globalRef(intern("map"));
-co->args[1] = globalRef(intern("cora/init.macroexpand-boot"));
-co->args[2] = exp1;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/init.macroexpand-boot")), exp1);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.macroexpand-boot"));
-co->args[1] = exp1;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.macroexpand-boot")), exp1);
 }
 }
 
@@ -5893,32 +3222,14 @@ void _35clofun1028(struct Cora* co) {
 Obj _35val118 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 pushCont(co, _35clofun1029, 1, _35val118);
-co->nargs = 2;
-co->args[0] = globalRef(intern("caddr"));
-co->args[1] = exp;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("caddr")), exp);
 }
 
 void _35clofun1029(struct Cora* co) {
 Obj _35val119 = co->args[1];
 Obj _35val118 = co->stack[co->base + 0];
 pushCont(co, _35clofun1030, 1, _35val118);
-co->nargs = 2;
-co->args[0] = globalRef(intern("cora/init.macroexpand-boot"));
-co->args[1] = _35val119;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("cora/init.macroexpand-boot")), _35val119);
 }
 
 void _35clofun1030(struct Cora* co) {
@@ -5933,17 +3244,7 @@ return;
 
 void _35clofun1026(struct Cora* co) {
 Obj exp = co->args[1];
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.macroexpand1-h"));
-co->args[1] = exp;
-co->args[2] = globalRef(intern("*macros*"));
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.macroexpand1-h")), exp, globalRef(intern("*macros*")));
 }
 
 void _35clofun1024(struct Cora* co) {
@@ -5955,16 +3256,7 @@ coraReturn(co, exp);
 return;
 } else {
 Obj _35reg109 = primCar(macros);
-co->nargs = 2;
-co->args[0] = makeNative(_35clofun1025, 1, 2, exp, macros);
-co->args[1] = _35reg109;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, makeNative(_35clofun1025, 1, 2, exp, macros), _35reg109);
 }
 }
 
@@ -5978,84 +3270,27 @@ Obj _35reg102 = primEQ(_35reg100, _35reg101);
 if (True == _35reg102) {
 if (True == True) {
 Obj _35reg103 = primCdr(item);
-co->nargs = 2;
-co->args[0] = _35reg103;
-co->args[1] = closureRef(co, 0);
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, _35reg103, closureRef(co, 0));
 } else {
 Obj _35reg104 = primCdr(closureRef(co, 1));
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.macroexpand1-h"));
-co->args[1] = closureRef(co, 0);
-co->args[2] = _35reg104;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.macroexpand1-h")), closureRef(co, 0), _35reg104);
 }
 } else {
 if (True == False) {
 Obj _35reg105 = primCdr(item);
-co->nargs = 2;
-co->args[0] = _35reg105;
-co->args[1] = closureRef(co, 0);
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, _35reg105, closureRef(co, 0));
 } else {
 Obj _35reg106 = primCdr(closureRef(co, 1));
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.macroexpand1-h"));
-co->args[1] = closureRef(co, 0);
-co->args[2] = _35reg106;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.macroexpand1-h")), closureRef(co, 0), _35reg106);
 }
 }
 } else {
 if (True == False) {
 Obj _35reg107 = primCdr(item);
-co->nargs = 2;
-co->args[0] = _35reg107;
-co->args[1] = closureRef(co, 0);
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, _35reg107, closureRef(co, 0));
 } else {
 Obj _35reg108 = primCdr(closureRef(co, 1));
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.macroexpand1-h"));
-co->args[1] = closureRef(co, 0);
-co->args[2] = _35reg108;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.macroexpand1-h")), closureRef(co, 0), _35reg108);
 }
 }
 }
@@ -6080,18 +3315,7 @@ return;
 void _35clofun1021(struct Cora* co) {
 Obj f = co->args[1];
 Obj l = co->args[2];
-co->nargs = 4;
-co->args[0] = globalRef(intern("map-h"));
-co->args[1] = Nil;
-co->args[2] = f;
-co->args[3] = l;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("map-h")), Nil, f, l);
 }
 
 void _35clofun1019(struct Cora* co) {
@@ -6102,27 +3326,9 @@ Obj _35reg82 = primIsCons(l);
 if (True == _35reg82) {
 Obj _35reg83 = primCar(l);
 pushCont(co, _35clofun1020, 3, res, l, f);
-co->nargs = 2;
-co->args[0] = f;
-co->args[1] = _35reg83;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
+coraCall(co, 2, f, _35reg83);
 } else {
-co->pc = coraCall;
-}
-return;
-} else {
-co->nargs = 2;
-co->args[0] = globalRef(intern("reverse"));
-co->args[1] = res;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("reverse")), res);
 }
 }
 
@@ -6133,18 +3339,7 @@ Obj l = co->stack[co->base + 1];
 Obj f = co->stack[co->base + 2];
 Obj _35reg85 = primCons(_35val84, res);
 Obj _35reg86 = primCdr(l);
-co->nargs = 4;
-co->args[0] = globalRef(intern("map-h"));
-co->args[1] = _35reg85;
-co->args[2] = f;
-co->args[3] = _35reg86;
-if (nativeRequired(co->args[0]) == 3) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 4, globalRef(intern("map-h")), _35reg85, f, _35reg86);
 }
 
 void _35clofun1017(struct Cora* co) {
@@ -6155,17 +3350,7 @@ if (True == _35reg75) {
 Obj _35reg76 = primCar(l);
 Obj _35reg77 = primCons(_35reg76, res);
 Obj _35reg78 = primCdr(l);
-co->nargs = 3;
-co->args[0] = globalRef(intern("cora/init.reverse-h"));
-co->args[1] = _35reg77;
-co->args[2] = _35reg78;
-if (nativeRequired(co->args[0]) == 2) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 3, globalRef(intern("cora/init.reverse-h")), _35reg77, _35reg78);
 } else {
 coraReturn(co, res);
 return;
@@ -6186,16 +3371,7 @@ if (True == _35reg65) {
 Obj _35reg66 = primCar(exp);
 Obj _35reg67 = primCdr(exp);
 pushCont(co, _35clofun1015, 1, _35reg66);
-co->nargs = 2;
-co->args[0] = globalRef(intern("rcons"));
-co->args[1] = _35reg67;
-if (nativeRequired(co->args[0]) == 1) {
-co->pc = nativeFuncPtr(co->args[0]);
-co->frees = co->args[0];
-} else {
-co->pc = coraCall;
-}
-return;
+coraCall(co, 2, globalRef(intern("rcons")), _35reg67);
 } else {
 coraReturn(co, Nil);
 return;

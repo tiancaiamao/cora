@@ -22,9 +22,10 @@ struct Cora {
 };
 
 void trampoline(struct Cora *co, basicBlock pc);
-void coraCall(struct Cora *co);
+void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
+void coraCall(struct Cora *co, int nargs, ...);
 
 void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
 Obj globalRef(Obj sym);

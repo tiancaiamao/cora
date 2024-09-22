@@ -269,18 +269,14 @@
 				 (.generate-cont w cont)
 				 (.generate-inst env w exp))
       env w [f . args] => (begin
-			   (c.generate-str w "co->nargs = ")
-			   (c.generate-num w (length [f . args]))
-			   (c.generate-str w ";\n")
-			   (.generate-call-args env w 0 [f . args])
-			   (c.generate-str w "if (nativeRequired(co->args[0]) == ")
-			   (c.generate-num w (length args))
-			   (c.generate-str w ") {\n")
-			   (c.generate-str w "co->pc = nativeFuncPtr(co->args[0]);\n")
-			   (c.generate-str w "co->frees = co->args[0];\n")
-			   (c.generate-str w "} else {\n")
-			   (c.generate-str w "co->pc = coraCall;\n}\n")
-			   (c.generate-str w "return;\n")))
+			   (c.generate-str w "coraCall(co, ")
+			   (c.generate-num w (+ 1 (length args)))
+			   (for-each (lambda (x)
+				       (begin
+					(c.generate-str w ", ")
+					(.generate-inst () w x)))
+				     [f . args])
+			   (c.generate-str w ");\n")))
 
 (func .generate-call-args
       env w idx [] => ()
