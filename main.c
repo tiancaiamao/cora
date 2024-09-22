@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     co->args[0] = globalRef(intern("macroexpand"));
     co->args[1] = exp;
     co->nargs = 2;
-    trampoline(co, coraCall);
+    trampoline(co, coraDispatch);
     exp = co->args[1];
 
     /* printf("after macro expand =="); */
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     co->args[0] = globalRef(intern("cora/lib/toc/include.eval0"));
     co->args[1] = exp;
     co->nargs = 2;
-    trampoline(co, coraCall);
+    trampoline(co, coraDispatch);
 
     sexpWrite(stdout, co->args[1]);
     printf("\n");

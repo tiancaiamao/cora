@@ -28,6 +28,24 @@ saveToStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees, O
 }
 
 void
+coraCall(struct Cora *co, int nargs, ...) {
+  co->nargs = nargs;
+  va_list ap;
+  va_start(ap, nargs);
+  for (int i=0; i<nargs; i++) {
+    co->args[i] = va_arg(ap, Obj);
+  }
+  va_end(ap);
+
+  if (nativeRequired(co->args[0]) +1 == nargs) {
+    co->pc = nativeFuncPtr(co->args[0]);
+    co->frees = co->args[0];
+  } else {
+    co->pc = coraDispatch;
+  }
+}
+
+void
 pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
   saveToStack(&co->callstack, cb, co->base, co->base + nstack, co->frees, co->stack);
   if (nstack > 0) {
@@ -65,7 +83,7 @@ void callCurry(struct Cora *co) {
   memmove(co->args+captured, co->args+1, (co->nargs-1) * sizeof(Obj));
   memcpy(co->args, nativeData(fn), captured*sizeof(Obj));
   co->nargs = co->nargs + captured - 1;
-  co->pc = coraCall;
+  co->pc = coraDispatch;
 }
 
 Obj
@@ -80,7 +98,7 @@ makeCurry1(int required, int captured, Obj *data) {
 }
 
 void
-coraCall(struct Cora *co) {
+coraDispatch(struct Cora *co) {
   Obj fn = co->args[0];
   int required = nativeRequired(co->args[0]);
   if (co->nargs == required + 1) {
@@ -102,7 +120,7 @@ coraCall(struct Cora *co) {
     co->args[0] = co->args[1];
     memcpy(co->args+1, save, sz);
     co->nargs = cnt + 1;
-    co->pc = coraCall;
+    co->pc = coraDispatch;
   }
   return;
 }
@@ -379,7 +397,7 @@ builtinTryCatch(struct Cora *co) {
   // Call the chunk.
   co->nargs = 1;
   co->args[0] = chunk;
-  co->pc = coraCall;
+  co->pc = coraDispatch;
 }
 
 static int
@@ -449,7 +467,7 @@ builtinThrow(struct Cora *co) {
   co->args[0] = handler;
   co->args[1] =  v;
   co->args[2] = clo;
-  co->pc = coraCall;
+  co->pc = coraDispatch;
 }
 
 void
@@ -502,7 +520,7 @@ builtinApply(struct Cora *co) {
     args = cdr(args);
   }
   co->nargs = pos;
-  co->pc = coraCall;
+  co->pc = coraDispatch;
 }
 
 strBuf
@@ -570,7 +588,7 @@ builtinLoad(struct Cora *co) {
   str tmpCFile = cstr(buf);
   co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
   co->args[3] = pkg;
-  trampoline(co, coraCall);
+  trampoline(co, coraDispatch);
   Obj res = co->args[1];
   // TODO: check res?
 
@@ -630,7 +648,7 @@ builtinImport(struct Cora *co) {
   co->args[0] = makeNative(builtinLoad, 2, 0);
   co->args[1] = makeString1(toCStr(tmp));
   co->args[2] = pkg;
-  trampoline(co, coraCall);
+  trampoline(co, coraDispatch);
   strFree(tmp);
 
   // Set the *imported* variable to avlid repeated load.
