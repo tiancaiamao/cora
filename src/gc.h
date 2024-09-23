@@ -39,13 +39,10 @@ typedef struct {
 
 extern struct GC gc;
 void gcInit(struct GC* gc, uintptr_t* mark);
-void gcMark(struct GC *gc, uintptr_t head);
 void* gcAlloc(struct GC* gc, int size);
 
 void writeBarrier(uintptr_t *slot, uintptr_t val);
-
-bool gcCheck(struct GC* gc);
-void gcRun(struct GC *gc);
+void gcMark(struct GC *gc, uintptr_t head);
 void gcInuseSizeInc(struct GC *gc, int size);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
