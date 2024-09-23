@@ -290,7 +290,7 @@
 
 (func .generate-cont
       w ['%continuation label . stacks] => (begin
-					    (c.generate-str w "pushCont(co, ")
+					    (c.generate-str w "pushCont(co, 0, ")
 					    (c.generate-sym w label)
 					    (c.generate-str w ", ")
 					    (c.generate-num w (length stacks))
@@ -343,7 +343,7 @@
 						(.code-gen-func-declare w name)
 						(c.generate-str w " {\n")
 						(.generate-call-args-reverse () w " = co->args[" 1 params)
-						(.generate-call-args-reverse () w " = co->stack[co->base + " 0 actives)
+						(.generate-call-args-reverse () w " = co->ctx.stk.stack[co->ctx.stk.base + " 0 actives)
 						(.generate-inst params w body)
 						(c.generate-str w "}\n\n")))
 
