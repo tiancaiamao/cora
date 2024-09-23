@@ -110,11 +110,14 @@ int nativeCaptured(Obj o);
 int nativeRequired(Obj o);
 basicBlock nativeFuncPtr(Obj o);
 
-struct returnAddr {
+struct stackState {
   Obj *stack;
   int base;
   int pos;
+};
 
+struct returnAddr {
+  struct stackState stk;
   basicBlock pc;
   Obj frees;
 };

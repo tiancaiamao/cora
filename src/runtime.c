@@ -19,10 +19,10 @@ saveToStack(struct callStack *cs, basicBlock pc, int base, int pos, Obj frees, O
   
   struct returnAddr *addr = &cs->data[cs->len];
   addr->pc = pc;
-  addr->base = base;
-  addr->pos = pos;
+  addr->stk.stack = stack;
+  addr->stk.base = base;
+  addr->stk.pos = pos;
   addr->frees = frees;
-  addr->stack = stack;
   cs->len++;
   return;
 }
@@ -70,9 +70,9 @@ popStack(struct Cora *co) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   co->pc = addr->pc;
-  co->stack = addr->stack;
-  co->base = addr->base;
-  co->pos = addr->pos;
+  co->stack = addr->stk.stack;
+  co->base = addr->stk.base;
+  co->pos = addr->stk.pos;
   co->frees = addr->frees;
   return;
 }
@@ -418,7 +418,7 @@ continuationAsClosure(struct Cora *co) {
   Obj val = co->args[1];
   for (int i=0; i< cs->len; i++) {
     struct returnAddr *addr = &cs->data[i];
-    saveToStack(&co->callstack, addr->pc, addr->base, addr->pos, addr->frees, addr->stack);
+    saveToStack(&co->callstack, addr->pc, addr->stk.base, addr->stk.pos, addr->frees, addr->stk.stack);
   }
   coraReturn(co, val);
 }
@@ -430,15 +430,15 @@ builtinThrow(struct Cora *co) {
 
   // Now p point to the try-marked stack.
   struct returnAddr *try = &co->callstack.data[p];
-  assert(try->base == 0);
-  assert(try->pos == 1);
+  assert(try->stk.base == 0);
+  assert(try->stk.pos == 1);
 
   // Capture the call stack as continuation.
   Obj cont = makeContinuation();
   struct callStack* stack = contCallStack(cont);
   for (int i=p; i<co->callstack.len; i++) {
     struct returnAddr *addr = &co->callstack.data[i];
-    saveToStack(stack, addr->pc, addr->base, addr->pos, addr->frees, addr->stack);
+    saveToStack(stack, addr->pc, addr->stk.base, addr->stk.pos, addr->frees, addr->stk.stack);
   }
 
   // Now that we get the current continuation, disguise as a closure.
@@ -447,12 +447,12 @@ builtinThrow(struct Cora *co) {
   // Reset to the stack before try.
   co->callstack.len = p;
   struct returnAddr *addr = &co->callstack.data[p-1];
-  co->stack = addr->stack;
-  co->base = addr->base;
-  co->pos = addr->pos;
+  co->stack = addr->stk.stack;
+  co->base = addr->stk.base;
+  co->pos = addr->stk.pos;
 
   // Find the handler, invoke it, passing the continuation.
-  Obj handler = try->stack[try->base];
+  Obj handler = try->stk.stack[try->stk.base];
   co->base = co->pos;
 
   co->nargs = 3;

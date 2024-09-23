@@ -418,8 +418,8 @@ void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
   for (int i=0; i<stack->len; i++) {
     struct returnAddr* addr = &stack->data[i];
-    for (int j=addr->base; j<addr->pos; j++) {
-      gcMark(gc, addr->stack[j]);
+    for (int j=addr->stk.base; j<addr->stk.pos; j++) {
+      gcMark(gc, addr->stk.stack[j]);
     }
     // Don't forget this one!
     gcMark(gc, addr->frees);
