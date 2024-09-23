@@ -9,13 +9,11 @@
 #include "reader.h"
 
 struct Cora {
-  struct stackState stk;
+  struct returnAddr ctx;
   struct callStack callstack;
 
-  Obj frees;
   Obj args[32];
   int nargs;
-  basicBlock pc;
 };
 
 void trampoline(struct Cora *co, basicBlock pc);

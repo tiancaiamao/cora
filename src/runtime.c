@@ -38,40 +38,36 @@ coraCall(struct Cora *co, int nargs, ...) {
   va_end(ap);
 
   if (nativeRequired(co->args[0]) +1 == nargs) {
-    co->pc = nativeFuncPtr(co->args[0]);
-    co->frees = co->args[0];
+    co->ctx.pc = nativeFuncPtr(co->args[0]);
+    co->ctx.frees = co->args[0];
   } else {
-    co->pc = coraDispatch;
+    co->ctx.pc = coraDispatch;
   }
 }
 
 void
 pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
-  saveToStack(&co->callstack, cb, co->stk.base, co->stk.base + nstack, co->frees, co->stk.stack);
+  saveToStack(&co->callstack, cb, co->ctx.stk.base, co->ctx.stk.base + nstack, co->ctx.frees, co->ctx.stk.stack);
   if (nstack > 0) {
     va_list ap;
     va_start(ap, nstack);
     for (int i=0; i<nstack; i++) {
-      co->stk.stack[co->stk.base + i] = va_arg(ap, Obj);
+      co->ctx.stk.stack[co->ctx.stk.base + i] = va_arg(ap, Obj);
     }
-    if (co->stk.base + nstack > co->stk.pos) {
-      co->stk.pos = co->stk.base + nstack;
+    if (co->ctx.stk.base + nstack > co->ctx.stk.pos) {
+      co->ctx.stk.pos = co->ctx.stk.base + nstack;
     }
     va_end(ap);
   }
 
-  assert(co->stk.pos >= co->stk.base);
-  co->stk.base = co->stk.pos;
+  assert(co->ctx.stk.pos >= co->ctx.stk.base);
+  co->ctx.stk.base = co->ctx.stk.pos;
 }
 
 static void
 popStack(struct Cora *co) {
   struct callStack *cs = &co->callstack;
-  cs->len--;
-  struct returnAddr *addr = &cs->data[cs->len];
-  co->pc = addr->pc;
-  co->stk = addr->stk;
-  co->frees = addr->frees;
+  co->ctx = cs->data[cs->len--];
   return;
 }
 
@@ -81,7 +77,7 @@ void callCurry(struct Cora *co) {
   memmove(co->args+captured, co->args+1, (co->nargs-1) * sizeof(Obj));
   memcpy(co->args, nativeData(fn), captured*sizeof(Obj));
   co->nargs = co->nargs + captured - 1;
-  co->pc = coraDispatch;
+  co->ctx.pc = coraDispatch;
 }
 
 Obj
@@ -100,8 +96,8 @@ coraDispatch(struct Cora *co) {
   Obj fn = co->args[0];
   int required = nativeRequired(co->args[0]);
   if (co->nargs == required + 1) {
-    co->pc = nativeFuncPtr(fn);
-    co->frees = fn;
+    co->ctx.pc = nativeFuncPtr(fn);
+    co->ctx.frees = fn;
   } else if (co->nargs < required + 1) {
     Obj ret = makeCurry1(required+1-co->nargs, co->nargs, co->args);
     coraReturn(co, ret);
@@ -113,12 +109,12 @@ coraDispatch(struct Cora *co) {
     memcpy(save, co->args+required+1, sz);
     // eval the first call and get the result;
     co->nargs = required + 1;
-    trampoline(co, co->pc);
+    trampoline(co, co->ctx.pc);
     // recover args and make the next call.
     co->args[0] = co->args[1];
     memcpy(co->args+1, save, sz);
     co->nargs = cnt + 1;
-    co->pc = coraDispatch;
+    co->ctx.pc = coraDispatch;
   }
   return;
 }
@@ -131,8 +127,8 @@ coraReturn(struct Cora *co, Obj val) {
 }
 
 void push(struct Cora *co, Obj v) {
-  co->stk.stack[co->stk.pos] = v;
-  co->stk.pos++;
+  co->ctx.stk.stack[co->ctx.stk.pos] = v;
+  co->ctx.stk.pos++;
 }
 
 Obj
@@ -149,9 +145,9 @@ struct Cora *gCo;
 struct Cora*
 coraNew() {
   struct Cora *co = malloc(sizeof(struct Cora));
-  co->stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
-  co->stk.base = 0;
-  co->stk.pos = 0;
+  co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+  co->ctx.stk.base = 0;
+  co->ctx.stk.pos = 0;
 
   co->callstack.data = malloc(64*sizeof(struct returnAddr));
   co->callstack.len = 0;
@@ -165,8 +161,8 @@ coraNew() {
 static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
   // The stack.
-  for (int i=0; i<co->stk.pos; i++) {
-    gcMark(gc, co->stk.stack[i]);
+  for (int i=0; i<co->ctx.stk.pos; i++) {
+    gcMark(gc, co->ctx.stk.stack[i]);
   }
   // The args.
   for (int i=0; i<co->nargs; i++) {
@@ -174,7 +170,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
   }
   // Closure register.
   /* Obj save = co->frees; */
-  gcMark(gc, co->frees);
+  gcMark(gc, co->ctx.frees);
   /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
   // Return addr
   gcMarkCallStack(gc, &co->callstack);
@@ -189,15 +185,15 @@ gcGlobal(struct GC *gc) {
 void
 trampoline(struct Cora *co, basicBlock pc) {
   pushCont(co, NULL, 0);
-  co->pc = pc;
-  while(co->pc != NULL) {
-    co->pc(co);
+  co->ctx.pc = pc;
+  while(co->ctx.pc != NULL) {
+    co->ctx.pc(co);
   }
 }
 
 Obj
 closureRef(struct Cora *co, int idx) {
-  Obj* frees = nativeData(co->frees);
+  Obj* frees = nativeData(co->ctx.frees);
   return frees[idx];
 }
 
@@ -375,9 +371,9 @@ builtinTryCatch(struct Cora *co) {
   //     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
   // Prepare a new stack for the chunk to run, segment stack!
-  co->stk.stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
-  co->stk.base = 0;
-  co->stk.pos = 0;
+  co->ctx.stk.stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
+  co->ctx.stk.base = 0;
+  co->ctx.stk.pos = 0;
 
   // Save the old cont.
   // This save can make the chunk and handler available to the recovering process.
@@ -387,7 +383,7 @@ builtinTryCatch(struct Cora *co) {
   // Call the chunk.
   co->nargs = 1;
   co->args[0] = chunk;
-  co->pc = coraDispatch;
+  co->ctx.pc = coraDispatch;
 }
 
 static int
@@ -445,17 +441,17 @@ builtinThrow(struct Cora *co) {
   // Reset to the stack before try.
   co->callstack.len = p;
   struct returnAddr *addr = &co->callstack.data[p-1];
-  co->stk = addr->stk;
+  co->ctx.stk = addr->stk;
 
   // Find the handler, invoke it, passing the continuation.
   Obj handler = try->stk.stack[try->stk.base];
-  co->stk.base = co->stk.pos;
+  co->ctx.stk.base = co->ctx.stk.pos;
 
   co->nargs = 3;
   co->args[0] = handler;
   co->args[1] =  v;
   co->args[2] = clo;
-  co->pc = coraDispatch;
+  co->ctx.pc = coraDispatch;
 }
 
 void
@@ -508,7 +504,7 @@ builtinApply(struct Cora *co) {
     args = cdr(args);
   }
   co->nargs = pos;
-  co->pc = coraDispatch;
+  co->ctx.pc = coraDispatch;
 }
 
 strBuf
@@ -590,7 +586,7 @@ builtinLoad(struct Cora *co) {
     co->nargs = 3;
     co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
     co->args[2] = pkg;
-    co->pc = builtinLoadSo;
+    co->ctx.pc = builtinLoadSo;
     return;
   }
 
@@ -625,7 +621,7 @@ builtinImport(struct Cora *co) {
     co->nargs = 3;
     co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
     co->args[2] = pkg;
-    co->pc = builtinLoadSo;
+    co->ctx.pc = builtinLoadSo;
     strFree(tmp);
     return;
   }
