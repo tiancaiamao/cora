@@ -381,11 +381,11 @@ coraCall(co, 2, globalRef(intern("import")), makeString1("cora/lib/io"));
 
 void _35clofun2850(struct Cora* co) {
 Obj _35val1399 = co->args[1];
-Obj _35reg1414 = primSet(intern("cora/lib/toc/include.assq"), makeNative(_35clofun2851, 2, 0));
-Obj _35reg1420 = primSet(intern("cora/lib/toc/include.foldl"), makeNative(_35clofun2855, 3, 0));
-Obj _35reg1430 = primSet(intern("cora/lib/toc/include.pos-in-list0"), makeNative(_35clofun2859, 3, 0));
-Obj _35reg1431 = primSet(intern("cora/lib/toc/include.index"), makeNative(_35clofun2863, 2, 0));
-Obj _35reg1438 = primSet(intern("cora/lib/toc/include.exist-in-env"), makeNative(_35clofun2864, 2, 0));
+Obj _35reg1414 = primSet(intern("cora/lib/toc.assq"), makeNative(_35clofun2851, 2, 0));
+Obj _35reg1420 = primSet(intern("cora/lib/toc.foldl"), makeNative(_35clofun2855, 3, 0));
+Obj _35reg1430 = primSet(intern("cora/lib/toc.pos-in-list0"), makeNative(_35clofun2859, 3, 0));
+Obj _35reg1431 = primSet(intern("cora/lib/toc.index"), makeNative(_35clofun2863, 2, 0));
+Obj _35reg1438 = primSet(intern("cora/lib/toc.exist-in-env"), makeNative(_35clofun2864, 2, 0));
 Obj _35reg1439 = primCons(intern("primSet"), Nil);
 Obj _35reg1440 = primCons(makeNumber(2), _35reg1439);
 Obj _35reg1441 = primCons(intern("set"), _35reg1440);
@@ -454,48 +454,48 @@ Obj _35reg1503 = primCons(_35reg1450, _35reg1502);
 Obj _35reg1504 = primCons(_35reg1447, _35reg1503);
 Obj _35reg1505 = primCons(_35reg1444, _35reg1504);
 Obj _35reg1506 = primCons(_35reg1441, _35reg1505);
-Obj _35reg1507 = primSet(intern("cora/lib/toc/include.*builtin-prims*"), _35reg1506);
+Obj _35reg1507 = primSet(intern("cora/lib/toc.*builtin-prims*"), _35reg1506);
 Obj _35reg1511 = primSet(intern("builtin?"), makeNative(_35clofun2868, 1, 0));
-Obj _35reg1514 = primSet(intern("cora/lib/toc/include.builtin->name"), makeNative(_35clofun2871, 1, 0));
-Obj _35reg1517 = primSet(intern("cora/lib/toc/include.builtin->args"), makeNative(_35clofun2874, 1, 0));
-Obj _35reg1522 = primSet(intern("cora/lib/toc/include.temp-list"), makeNative(_35clofun2877, 2, 0));
-Obj _35reg1658 = primSet(intern("cora/lib/toc/include.parse"), makeNative(_35clofun2880, 2, 0));
-Obj _35reg1669 = primSet(intern("cora/lib/toc/include.union"), makeNative(_35clofun2910, 2, 0));
-Obj _35reg1680 = primSet(intern("cora/lib/toc/include.diff"), makeNative(_35clofun2916, 2, 0));
-Obj _35reg1731 = primSet(intern("cora/lib/toc/include.convert-protect?"), makeNative(_35clofun2922, 1, 0));
-Obj _35reg1906 = primSet(intern("cora/lib/toc/include.free-vars"), makeNative(_35clofun2929, 1, 0));
-Obj _35reg1979 = primSet(intern("cora/lib/toc/include.closure-convert"), makeNative(_35clofun2952, 2, 0));
-Obj _35reg1982 = primSet(intern("cora/lib/toc/include.id"), makeNative(_35clofun2967, 1, 0));
-Obj _35reg2119 = primSet(intern("cora/lib/toc/include.tailify"), makeNative(_35clofun2968, 2, 0));
-Obj _35reg2166 = primSet(intern("cora/lib/toc/include.tailify-list"), makeNative(_35clofun2986, 3, 0));
-Obj _35reg2245 = primSet(intern("cora/lib/toc/include.explicit-stack"), makeNative(_35clofun2996, 2, 0));
-Obj _35reg2352 = primSet(intern("cora/lib/toc/include.collect-lambda"), makeNative(_35clofun3014, 3, 0));
-Obj _35reg2359 = primSet(intern("cora/lib/toc/include.collect-lambda-list"), makeNative(_35clofun3024, 4, 0));
-Obj _35reg2366 = primSet(intern("cora/lib/toc/include.wrap-var"), makeNative(_35clofun3029, 2, 0));
-Obj _35reg2617 = primSet(intern("cora/lib/toc/include.generate-inst"), makeNative(_35clofun3031, 3, 0));
-Obj _35reg2628 = primSet(intern("cora/lib/toc/include.generate-call-args"), makeNative(_35clofun3103, 4, 0));
-Obj _35reg2647 = primSet(intern("cora/lib/toc/include.generate-cont"), makeNative(_35clofun3111, 2, 0));
-Obj _35reg2656 = primSet(intern("cora/lib/toc/include.generate-inst-list-h"), makeNative(_35clofun3122, 4, 0));
-Obj _35reg2657 = primSet(intern("cora/lib/toc/include.generate-inst-list"), makeNative(_35clofun3128, 3, 0));
-Obj _35reg2661 = primSet(intern("cora/lib/toc/include.code-gen-func-declare"), makeNative(_35clofun3129, 2, 0));
-Obj _35reg2672 = primSet(intern("cora/lib/toc/include.generate-call-args-reverse"), makeNative(_35clofun3133, 5, 0));
-Obj _35reg2729 = primSet(intern("cora/lib/toc/include.code-gen-toplevel"), makeNative(_35clofun3141, 2, 0));
-Obj _35reg2730 = primSet(intern("cora/lib/toc/include.parse-pass"), makeNative(_35clofun3148, 1, 0));
-Obj _35reg2731 = primSet(intern("cora/lib/toc/include.closure-convert-pass"), makeNative(_35clofun3149, 1, 0));
-Obj _35reg2732 = primSet(intern("cora/lib/toc/include.tailify-pass"), makeNative(_35clofun3150, 1, 0));
-Obj _35reg2733 = primSet(intern("cora/lib/toc/include.explicit-stack-pass"), makeNative(_35clofun3151, 1, 0));
-Obj _35reg2741 = primSet(intern("cora/lib/toc/include.collect-lambda-pass"), makeNative(_35clofun3152, 1, 0));
-Obj _35reg2748 = primSet(intern("cora/lib/toc/include.rewrite-->macro"), makeNative(_35clofun3154, 2, 0));
+Obj _35reg1514 = primSet(intern("cora/lib/toc.builtin->name"), makeNative(_35clofun2871, 1, 0));
+Obj _35reg1517 = primSet(intern("cora/lib/toc.builtin->args"), makeNative(_35clofun2874, 1, 0));
+Obj _35reg1522 = primSet(intern("cora/lib/toc.temp-list"), makeNative(_35clofun2877, 2, 0));
+Obj _35reg1658 = primSet(intern("cora/lib/toc.parse"), makeNative(_35clofun2880, 2, 0));
+Obj _35reg1669 = primSet(intern("cora/lib/toc.union"), makeNative(_35clofun2910, 2, 0));
+Obj _35reg1680 = primSet(intern("cora/lib/toc.diff"), makeNative(_35clofun2916, 2, 0));
+Obj _35reg1731 = primSet(intern("cora/lib/toc.convert-protect?"), makeNative(_35clofun2922, 1, 0));
+Obj _35reg1906 = primSet(intern("cora/lib/toc.free-vars"), makeNative(_35clofun2929, 1, 0));
+Obj _35reg1979 = primSet(intern("cora/lib/toc.closure-convert"), makeNative(_35clofun2952, 2, 0));
+Obj _35reg1982 = primSet(intern("cora/lib/toc.id"), makeNative(_35clofun2967, 1, 0));
+Obj _35reg2119 = primSet(intern("cora/lib/toc.tailify"), makeNative(_35clofun2968, 2, 0));
+Obj _35reg2166 = primSet(intern("cora/lib/toc.tailify-list"), makeNative(_35clofun2986, 3, 0));
+Obj _35reg2245 = primSet(intern("cora/lib/toc.explicit-stack"), makeNative(_35clofun2996, 2, 0));
+Obj _35reg2352 = primSet(intern("cora/lib/toc.collect-lambda"), makeNative(_35clofun3014, 3, 0));
+Obj _35reg2359 = primSet(intern("cora/lib/toc.collect-lambda-list"), makeNative(_35clofun3024, 4, 0));
+Obj _35reg2366 = primSet(intern("cora/lib/toc.wrap-var"), makeNative(_35clofun3029, 2, 0));
+Obj _35reg2617 = primSet(intern("cora/lib/toc.generate-inst"), makeNative(_35clofun3031, 3, 0));
+Obj _35reg2628 = primSet(intern("cora/lib/toc.generate-call-args"), makeNative(_35clofun3103, 4, 0));
+Obj _35reg2647 = primSet(intern("cora/lib/toc.generate-cont"), makeNative(_35clofun3111, 2, 0));
+Obj _35reg2656 = primSet(intern("cora/lib/toc.generate-inst-list-h"), makeNative(_35clofun3122, 4, 0));
+Obj _35reg2657 = primSet(intern("cora/lib/toc.generate-inst-list"), makeNative(_35clofun3128, 3, 0));
+Obj _35reg2661 = primSet(intern("cora/lib/toc.code-gen-func-declare"), makeNative(_35clofun3129, 2, 0));
+Obj _35reg2672 = primSet(intern("cora/lib/toc.generate-call-args-reverse"), makeNative(_35clofun3133, 5, 0));
+Obj _35reg2729 = primSet(intern("cora/lib/toc.code-gen-toplevel"), makeNative(_35clofun3141, 2, 0));
+Obj _35reg2730 = primSet(intern("cora/lib/toc.parse-pass"), makeNative(_35clofun3148, 1, 0));
+Obj _35reg2731 = primSet(intern("cora/lib/toc.closure-convert-pass"), makeNative(_35clofun3149, 1, 0));
+Obj _35reg2732 = primSet(intern("cora/lib/toc.tailify-pass"), makeNative(_35clofun3150, 1, 0));
+Obj _35reg2733 = primSet(intern("cora/lib/toc.explicit-stack-pass"), makeNative(_35clofun3151, 1, 0));
+Obj _35reg2741 = primSet(intern("cora/lib/toc.collect-lambda-pass"), makeNative(_35clofun3152, 1, 0));
+Obj _35reg2748 = primSet(intern("cora/lib/toc.rewrite-->macro"), makeNative(_35clofun3154, 2, 0));
 pushCont(co, _35clofun3160, 0);
 coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("->"), makeNative(_35clofun3157, 1, 0));
 }
 
 void _35clofun3160(struct Cora* co) {
 Obj _35val2751 = co->args[1];
-Obj _35reg2756 = primSet(intern("cora/lib/toc/include.compile"), makeNative(_35clofun3161, 1, 0));
+Obj _35reg2756 = primSet(intern("cora/lib/toc.compile"), makeNative(_35clofun3161, 1, 0));
 Obj _35reg2762 = primSet(intern("for-each"), makeNative(_35clofun3166, 2, 0));
-Obj _35reg2769 = primSet(intern("cora/lib/toc/include.generate-c"), makeNative(_35clofun3170, 2, 0));
-Obj _35reg2775 = primSet(intern("cora/lib/toc/include.compile-to-c"), makeNative(_35clofun3178, 3, 0));
+Obj _35reg2769 = primSet(intern("cora/lib/toc.generate-c"), makeNative(_35clofun3170, 2, 0));
+Obj _35reg2775 = primSet(intern("cora/lib/toc.compile-to-c"), makeNative(_35clofun3178, 3, 0));
 Obj _35reg2777 = primSet(intern("set"), makeNative(_35clofun3184, 2, 0));
 Obj _35reg2779 = primSet(intern("car"), makeNative(_35clofun3185, 1, 0));
 Obj _35reg2781 = primSet(intern("cdr"), makeNative(_35clofun3186, 1, 0));
@@ -512,7 +512,7 @@ Obj _35reg2801 = primSet(intern("gensym"), makeNative(_35clofun3196, 1, 0));
 Obj _35reg2803 = primSet(intern("symbol?"), makeNative(_35clofun3197, 1, 0));
 Obj _35reg2805 = primSet(intern("not"), makeNative(_35clofun3198, 1, 0));
 Obj _35reg2807 = primSet(intern("string?"), makeNative(_35clofun3199, 1, 0));
-Obj _35reg2848 = primSet(intern("cora/lib/toc/include.eval0"), makeNative(_35clofun3200, 1, 0));
+Obj _35reg2848 = primSet(intern("cora/lib/toc.eval0"), makeNative(_35clofun3200, 1, 0));
 coraReturn(co, _35reg2848);
 return;
 }
@@ -545,7 +545,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg2813 = primCar(exp);
 pushCont(co, _35clofun3202, 1, exp);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.eval0")), _35reg2813);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.eval0")), _35reg2813);
 }
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
@@ -567,7 +567,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg2821 = primCar(exp);
 pushCont(co, _35clofun3204, 1, exp);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.eval0")), _35reg2821);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.eval0")), _35reg2821);
 }
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
@@ -597,7 +597,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg2829 = primCar(exp);
 pushCont(co, _35clofun3207, 1, exp);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.eval0")), _35reg2829);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.eval0")), _35reg2829);
 }
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
@@ -626,7 +626,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg2837 = primCar(exp);
 pushCont(co, _35clofun3210, 1, exp);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.eval0")), _35reg2837);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.eval0")), _35reg2837);
 }
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
@@ -646,7 +646,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 } else {
 Obj _35reg2844 = primCar(exp);
 pushCont(co, _35clofun3212, 1, exp);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.eval0")), _35reg2844);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.eval0")), _35reg2844);
 }
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
@@ -660,7 +660,7 @@ Obj _35val2845 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg2846 = primCdr(exp);
 pushCont(co, _35clofun3213, 1, _35val2845);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.eval0")), _35reg2846);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.eval0")), _35reg2846);
 }
 
 void _35clofun3213(struct Cora* co) {
@@ -674,7 +674,7 @@ Obj _35val2838 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg2839 = primCdr(exp);
 pushCont(co, _35clofun3211, 1, _35val2838);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.eval0")), _35reg2839);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.eval0")), _35reg2839);
 }
 
 void _35clofun3211(struct Cora* co) {
@@ -688,7 +688,7 @@ Obj _35val2830 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg2831 = primCdr(exp);
 pushCont(co, _35clofun3208, 1, _35val2830);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.eval0")), _35reg2831);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.eval0")), _35reg2831);
 }
 
 void _35clofun3208(struct Cora* co) {
@@ -702,7 +702,7 @@ Obj _35val2822 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg2823 = primCdr(exp);
 pushCont(co, _35clofun3205, 1, _35val2822);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.eval0")), _35reg2823);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.eval0")), _35reg2823);
 }
 
 void _35clofun3205(struct Cora* co) {
@@ -716,7 +716,7 @@ Obj _35val2814 = co->args[1];
 Obj exp = co->stack[co->base + 0];
 Obj _35reg2815 = primCdr(exp);
 pushCont(co, _35clofun3203, 1, _35val2814);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.eval0")), _35reg2815);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.eval0")), _35reg2815);
 }
 
 void _35clofun3203(struct Cora* co) {
@@ -868,7 +868,7 @@ Obj _35val2771 = co->args[1];
 Obj to = co->stack[co->base + 0];
 Obj input = _35val2771;
 pushCont(co, _35clofun3181, 1, to);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.compile")), input);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.compile")), input);
 }
 
 void _35clofun3181(struct Cora* co) {
@@ -884,7 +884,7 @@ Obj _35val2773 = co->args[1];
 Obj bc = co->stack[co->base + 0];
 Obj stream = _35val2773;
 pushCont(co, _35clofun3183, 1, stream);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.generate-c")), stream, bc);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.generate-c")), stream, bc);
 }
 
 void _35clofun3183(struct Cora* co) {
@@ -933,14 +933,14 @@ coraCall(co, 3, globalRef(intern("for-each")), makeNative(_35clofun3177, 1, 1, t
 
 void _35clofun3177(struct Cora* co) {
 Obj x = co->args[1];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.code-gen-toplevel")), closureRef(co, 0), x);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.code-gen-toplevel")), closureRef(co, 0), x);
 }
 
 void _35clofun3173(struct Cora* co) {
 Obj x = co->args[1];
 Obj _35reg2765 = primCar(x);
 pushCont(co, _35clofun3174, 0);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.code-gen-func-declare")), closureRef(co, 0), _35reg2765);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.code-gen-func-declare")), closureRef(co, 0), _35reg2765);
 }
 
 void _35clofun3174(struct Cora* co) {
@@ -992,30 +992,30 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"))
 void _35clofun3161(struct Cora* co) {
 Obj exp = co->args[1];
 pushCont(co, _35clofun3162, 0);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.parse-pass")), exp);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.parse-pass")), exp);
 }
 
 void _35clofun3162(struct Cora* co) {
 Obj _35val2752 = co->args[1];
 pushCont(co, _35clofun3163, 0);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.closure-convert-pass")), _35val2752);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.closure-convert-pass")), _35val2752);
 }
 
 void _35clofun3163(struct Cora* co) {
 Obj _35val2753 = co->args[1];
 pushCont(co, _35clofun3164, 0);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.tailify-pass")), _35val2753);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.tailify-pass")), _35val2753);
 }
 
 void _35clofun3164(struct Cora* co) {
 Obj _35val2754 = co->args[1];
 pushCont(co, _35clofun3165, 0);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.explicit-stack-pass")), _35val2754);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.explicit-stack-pass")), _35val2754);
 }
 
 void _35clofun3165(struct Cora* co) {
 Obj _35val2755 = co->args[1];
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.collect-lambda-pass")), _35val2755);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.collect-lambda-pass")), _35val2755);
 }
 
 void _35clofun3157(struct Cora* co) {
@@ -1036,7 +1036,7 @@ void _35clofun3159(struct Cora* co) {
 Obj _35val2750 = co->args[1];
 Obj obj = co->stack[co->base + 0];
 Obj fns = _35val2750;
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.rewrite-->macro")), obj, fns);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.rewrite-->macro")), obj, fns);
 }
 
 void _35clofun3154(struct Cora* co) {
@@ -1064,7 +1064,7 @@ Obj _35reg2744 = primCdr(closureRef(co, 1));
 Obj more = _35reg2744;
 Obj _35reg2745 = primCons(obj, Nil);
 Obj _35reg2746 = primCons(hd, _35reg2745);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.rewrite-->macro")), _35reg2746, more);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.rewrite-->macro")), _35reg2746, more);
 } else {
 coraCall(co, 1, _35cc1367);
 }
@@ -1076,7 +1076,7 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"))
 
 void _35clofun3152(struct Cora* co) {
 Obj exp = co->args[1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.collect-lambda")), Nil, exp, makeNative(_35clofun3153, 2, 0));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.collect-lambda")), Nil, exp, makeNative(_35clofun3153, 2, 0));
 }
 
 void _35clofun3153(struct Cora* co) {
@@ -1095,22 +1095,22 @@ return;
 
 void _35clofun3151(struct Cora* co) {
 Obj exp = co->args[1];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.explicit-stack")), Nil, exp);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.explicit-stack")), Nil, exp);
 }
 
 void _35clofun3150(struct Cora* co) {
 Obj exp = co->args[1];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), exp, globalRef(intern("cora/lib/toc/include.id")));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), exp, globalRef(intern("cora/lib/toc.id")));
 }
 
 void _35clofun3149(struct Cora* co) {
 Obj exp = co->args[1];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.closure-convert")), Nil, exp);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.closure-convert")), Nil, exp);
 }
 
 void _35clofun3148(struct Cora* co) {
 Obj exp = co->args[1];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), Nil, exp);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), Nil, exp);
 }
 
 void _35clofun3141(struct Cora* co) {
@@ -1183,7 +1183,7 @@ Obj _35reg2722 = primCdr(_35reg2721);
 Obj _35reg2723 = primEQ(Nil, _35reg2722);
 if (True == _35reg2723) {
 pushCont(co, _35clofun3143, 4, actives, params, body, w);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.code-gen-func-declare")), w, name);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.code-gen-func-declare")), w, name);
 } else {
 coraCall(co, 1, _35cc1363);
 }
@@ -1230,7 +1230,7 @@ Obj params = co->stack[co->base + 1];
 Obj body = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 pushCont(co, _35clofun3145, 4, actives, params, body, w);
-coraCall(co, 6, globalRef(intern("cora/lib/toc/include.generate-call-args-reverse")), Nil, w, makeString1(" = co->args["), makeNumber(1), params);
+coraCall(co, 6, globalRef(intern("cora/lib/toc.generate-call-args-reverse")), Nil, w, makeString1(" = co->args["), makeNumber(1), params);
 }
 
 void _35clofun3145(struct Cora* co) {
@@ -1240,7 +1240,7 @@ Obj params = co->stack[co->base + 1];
 Obj body = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 pushCont(co, _35clofun3146, 3, params, body, w);
-coraCall(co, 6, globalRef(intern("cora/lib/toc/include.generate-call-args-reverse")), Nil, w, makeString1(" = co->stack[co->base + "), makeNumber(0), actives);
+coraCall(co, 6, globalRef(intern("cora/lib/toc.generate-call-args-reverse")), Nil, w, makeString1(" = co->stack[co->base + "), makeNumber(0), actives);
 }
 
 void _35clofun3146(struct Cora* co) {
@@ -1249,7 +1249,7 @@ Obj params = co->stack[co->base + 0];
 Obj body = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 pushCont(co, _35clofun3147, 1, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), params, w, body);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), params, w, body);
 }
 
 void _35clofun3147(struct Cora* co) {
@@ -1310,7 +1310,7 @@ Obj w = co->stack[co->base + 3];
 Obj dest_45str = co->stack[co->base + 4];
 Obj b = co->stack[co->base + 5];
 pushCont(co, _35clofun3137, 5, idx, env, w, dest_45str, b);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, a);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, a);
 }
 
 void _35clofun3137(struct Cora* co) {
@@ -1354,7 +1354,7 @@ Obj w = co->stack[co->base + 2];
 Obj dest_45str = co->stack[co->base + 3];
 Obj b = co->stack[co->base + 4];
 Obj _35reg2670 = primAdd(idx, makeNumber(1));
-coraCall(co, 6, globalRef(intern("cora/lib/toc/include.generate-call-args-reverse")), env, w, dest_45str, _35reg2670, b);
+coraCall(co, 6, globalRef(intern("cora/lib/toc.generate-call-args-reverse")), env, w, dest_45str, _35reg2670, b);
 }
 
 void _35clofun3135(struct Cora* co) {
@@ -1393,7 +1393,7 @@ void _35clofun3128(struct Cora* co) {
 Obj env = co->args[1];
 Obj w = co->args[2];
 Obj l = co->args[3];
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.generate-inst-list-h")), env, globalRef(intern("cora/lib/toc/include.generate-inst")), w, l);
+coraCall(co, 5, globalRef(intern("cora/lib/toc.generate-inst-list-h")), env, globalRef(intern("cora/lib/toc.generate-inst")), w, l);
 }
 
 void _35clofun3122(struct Cora* co) {
@@ -1454,7 +1454,7 @@ pushCont(co, _35clofun3127, 4, env, fn, w, b);
 coraCall(co, 3, globalRef(intern("cora/lib/toc/internal.generate-str")), w, makeString1(", "));
 } else {
 Nil;
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.generate-inst-list-h")), env, fn, w, b);
+coraCall(co, 5, globalRef(intern("cora/lib/toc.generate-inst-list-h")), env, fn, w, b);
 }
 }
 
@@ -1464,7 +1464,7 @@ Obj env = co->stack[co->base + 0];
 Obj fn = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 Obj b = co->stack[co->base + 3];
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.generate-inst-list-h")), env, fn, w, b);
+coraCall(co, 5, globalRef(intern("cora/lib/toc.generate-inst-list-h")), env, fn, w, b);
 }
 
 void _35clofun3124(struct Cora* co) {
@@ -1573,7 +1573,7 @@ coraCall(co, 3, globalRef(intern("cora/lib/toc/internal.generate-str")), closure
 void _35clofun3120(struct Cora* co) {
 Obj _35val2645 = co->args[1];
 Obj x = co->stack[co->base + 0];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), Nil, closureRef(co, 0), x);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), Nil, closureRef(co, 0), x);
 }
 
 void _35clofun3112(struct Cora* co) {
@@ -1646,7 +1646,7 @@ Obj env = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 Obj b = co->stack[co->base + 4];
 pushCont(co, _35clofun3109, 4, idx, env, w, b);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, a);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, a);
 }
 
 void _35clofun3109(struct Cora* co) {
@@ -1666,7 +1666,7 @@ Obj env = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 Obj b = co->stack[co->base + 3];
 Obj _35reg2626 = primAdd(idx, makeNumber(1));
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.generate-call-args")), env, w, _35reg2626, b);
+coraCall(co, 5, globalRef(intern("cora/lib/toc.generate-call-args")), env, w, _35reg2626, b);
 }
 
 void _35clofun3105(struct Cora* co) {
@@ -2013,7 +2013,7 @@ Obj _35reg2540 = primCdr(_35reg2539);
 Obj _35reg2541 = primEQ(Nil, _35reg2540);
 if (True == _35reg2541) {
 pushCont(co, _35clofun3077, 5, b, a, env, w, c);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.index")), a, env);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.index")), a, env);
 } else {
 coraCall(co, 1, _35cc1330);
 }
@@ -2072,7 +2072,7 @@ Obj env = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 Obj c = co->stack[co->base + 4];
 pushCont(co, _35clofun3085, 4, a, env, w, c);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, b);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, b);
 }
 
 void _35clofun3085(struct Cora* co) {
@@ -2092,7 +2092,7 @@ Obj env = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 Obj c = co->stack[co->base + 3];
 Obj _35reg2554 = primCons(a, env);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), _35reg2554, w, c);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), _35reg2554, w, c);
 }
 
 void _35clofun3078(struct Cora* co) {
@@ -2125,7 +2125,7 @@ Obj env = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 Obj c = co->stack[co->base + 4];
 pushCont(co, _35clofun3081, 4, a, env, w, c);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, b);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, b);
 }
 
 void _35clofun3081(struct Cora* co) {
@@ -2145,7 +2145,7 @@ Obj env = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 Obj c = co->stack[co->base + 3];
 Obj _35reg2549 = primCons(a, env);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), _35reg2549, w, c);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), _35reg2549, w, c);
 }
 
 void _35clofun3037(struct Cora* co) {
@@ -2177,7 +2177,7 @@ if (True == _35reg2510) {
 Obj _35reg2511 = primCdr(closureRef(co, 2));
 Obj args = _35reg2511;
 pushCont(co, _35clofun3073, 3, env, args, w);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.builtin->name")), f);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.builtin->name")), f);
 } else {
 coraCall(co, 1, _35cc1331);
 }
@@ -2219,7 +2219,7 @@ Obj env = co->stack[co->base + 0];
 Obj args = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 pushCont(co, _35clofun3076, 1, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst-list")), env, w, args);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst-list")), env, w, args);
 }
 
 void _35clofun3076(struct Cora* co) {
@@ -2297,7 +2297,7 @@ Obj env = co->stack[co->base + 2];
 Obj c = co->stack[co->base + 3];
 Obj w = co->stack[co->base + 4];
 pushCont(co, _35clofun3068, 4, b, env, c, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, a);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, a);
 }
 
 void _35clofun3068(struct Cora* co) {
@@ -2317,7 +2317,7 @@ Obj env = co->stack[co->base + 1];
 Obj c = co->stack[co->base + 2];
 Obj w = co->stack[co->base + 3];
 pushCont(co, _35clofun3070, 3, env, c, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, b);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, b);
 }
 
 void _35clofun3070(struct Cora* co) {
@@ -2335,7 +2335,7 @@ Obj env = co->stack[co->base + 0];
 Obj c = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 pushCont(co, _35clofun3072, 1, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, c);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, c);
 }
 
 void _35clofun3072(struct Cora* co) {
@@ -2475,7 +2475,7 @@ Obj env = co->stack[co->base + 0];
 Obj frees = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 pushCont(co, _35clofun3066, 1, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst-list")), env, w, frees);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst-list")), env, w, frees);
 }
 
 void _35clofun3066(struct Cora* co) {
@@ -2513,7 +2513,7 @@ Obj _35reg2432 = primCdr(_35reg2431);
 Obj _35reg2433 = primEQ(Nil, _35reg2432);
 if (True == _35reg2433) {
 pushCont(co, _35clofun3055, 3, env, w, b);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, a);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, a);
 } else {
 coraCall(co, 1, _35cc1334);
 }
@@ -2545,7 +2545,7 @@ Obj _35val2435 = co->args[1];
 Obj env = co->stack[co->base + 0];
 Obj w = co->stack[co->base + 1];
 Obj b = co->stack[co->base + 2];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, b);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, b);
 }
 
 void _35clofun3041(struct Cora* co) {
@@ -2589,7 +2589,7 @@ Obj env = co->stack[co->base + 0];
 Obj x = co->stack[co->base + 1];
 Obj w = co->stack[co->base + 2];
 pushCont(co, _35clofun3054, 1, w);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, x);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, x);
 }
 
 void _35clofun3054(struct Cora* co) {
@@ -2617,7 +2617,7 @@ Obj _35reg2402 = primCdr(closureRef(co, 2));
 Obj _35reg2403 = primCdr(_35reg2402);
 Obj _35reg2404 = primEQ(Nil, _35reg2403);
 if (True == _35reg2404) {
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, exp);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, exp);
 } else {
 coraCall(co, 1, _35cc1336);
 }
@@ -2661,7 +2661,7 @@ Obj _35reg2392 = primCdr(_35reg2391);
 Obj _35reg2393 = primEQ(Nil, _35reg2392);
 if (True == _35reg2393) {
 pushCont(co, _35clofun3052, 3, env, w, exp);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.generate-cont")), w, cont);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.generate-cont")), w, cont);
 } else {
 coraCall(co, 1, _35cc1337);
 }
@@ -2684,7 +2684,7 @@ Obj _35val2394 = co->args[1];
 Obj env = co->stack[co->base + 0];
 Obj w = co->stack[co->base + 1];
 Obj exp = co->stack[co->base + 2];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), env, w, exp);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), env, w, exp);
 }
 
 void _35clofun3044(struct Cora* co) {
@@ -2748,7 +2748,7 @@ coraCall(co, 3, globalRef(intern("cora/lib/toc/internal.generate-str")), closure
 void _35clofun3050(struct Cora* co) {
 Obj _35val2374 = co->args[1];
 Obj x = co->stack[co->base + 0];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.generate-inst")), Nil, closureRef(co, 0), x);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.generate-inst")), Nil, closureRef(co, 0), x);
 }
 
 void _35clofun3045(struct Cora* co) {
@@ -2812,7 +2812,7 @@ Obj x = _35reg2354;
 Obj _35reg2355 = primCdr(closureRef(co, 2));
 Obj y = _35reg2355;
 Obj k = closureRef(co, 3);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.collect-lambda")), init, x, makeNative(_35clofun3027, 2, 3, res, y, k));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.collect-lambda")), init, x, makeNative(_35clofun3027, 2, 3, res, y, k));
 } else {
 coraCall(co, 1, _35cc1321);
 }
@@ -2822,7 +2822,7 @@ void _35clofun3027(struct Cora* co) {
 Obj init1 = co->args[1];
 Obj x1 = co->args[2];
 Obj _35reg2356 = primCons(x1, closureRef(co, 0));
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.collect-lambda-list")), _35reg2356, init1, closureRef(co, 1), closureRef(co, 2));
+coraCall(co, 5, globalRef(intern("cora/lib/toc.collect-lambda-list")), _35reg2356, init1, closureRef(co, 1), closureRef(co, 2));
 }
 
 void _35clofun3026(struct Cora* co) {
@@ -2889,7 +2889,7 @@ if (True == _35reg2284) {
 if (True == True) {
 Obj _35reg2285 = primGenSym(intern("clofun"));
 Obj name = _35reg2285;
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.collect-lambda")), res, body, makeNative(_35clofun3018, 2, 5, k, params, clo_45or_45cont, name, fvs));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.collect-lambda")), res, body, makeNative(_35clofun3018, 2, 5, k, params, clo_45or_45cont, name, fvs));
 } else {
 coraCall(co, 1, _35cc1313);
 }
@@ -2899,7 +2899,7 @@ if (True == _35reg2307) {
 if (True == True) {
 Obj _35reg2308 = primGenSym(intern("clofun"));
 Obj name = _35reg2308;
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.collect-lambda")), res, body, makeNative(_35clofun3020, 2, 5, k, params, clo_45or_45cont, name, fvs));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.collect-lambda")), res, body, makeNative(_35clofun3020, 2, 5, k, params, clo_45or_45cont, name, fvs));
 } else {
 coraCall(co, 1, _35cc1313);
 }
@@ -2907,7 +2907,7 @@ coraCall(co, 1, _35cc1313);
 if (True == False) {
 Obj _35reg2330 = primGenSym(intern("clofun"));
 Obj name = _35reg2330;
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.collect-lambda")), res, body, makeNative(_35clofun3022, 2, 5, k, params, clo_45or_45cont, name, fvs));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.collect-lambda")), res, body, makeNative(_35clofun3022, 2, 5, k, params, clo_45or_45cont, name, fvs));
 } else {
 coraCall(co, 1, _35cc1313);
 }
@@ -3054,7 +3054,7 @@ Obj f_45args = closureRef(co, 1);
 Obj k = closureRef(co, 2);
 Obj _35reg2246 = primIsCons(f_45args);
 if (True == _35reg2246) {
-coraCall(co, 5, globalRef(intern("cora/lib/toc/include.collect-lambda-list")), Nil, res, f_45args, k);
+coraCall(co, 5, globalRef(intern("cora/lib/toc.collect-lambda-list")), Nil, res, f_45args, k);
 } else {
 coraCall(co, 1, _35cc1314);
 }
@@ -3079,7 +3079,7 @@ Obj _35cc1304 = makeNative(_35clofun2997, 0, 2, _35p1302, _35p1303);
 Obj __ = _35p1302;
 Obj x = _35p1303;
 pushCont(co, _35clofun3013, 2, x, _35cc1304);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.convert-protect?")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.convert-protect?")), x);
 }
 
 void _35clofun3013(struct Cora* co) {
@@ -3135,7 +3135,7 @@ Obj _35reg2237 = primCdr(_35reg2236);
 Obj _35reg2238 = primEQ(Nil, _35reg2237);
 if (True == _35reg2238) {
 pushCont(co, _35clofun3012, 1, args);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs, body);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.explicit-stack")), fvs, body);
 } else {
 coraCall(co, 1, _35cc1306);
 }
@@ -3191,7 +3191,7 @@ Obj _35reg2210 = primCdr(_35reg2209);
 Obj _35reg2211 = primEQ(Nil, _35reg2210);
 if (True == _35reg2211) {
 pushCont(co, _35clofun3007, 3, fvs, body, val);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), body);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), body);
 } else {
 coraCall(co, 1, _35cc1307);
 }
@@ -3215,7 +3215,7 @@ Obj fvs = co->stack[co->base + 0];
 Obj body = co->stack[co->base + 1];
 Obj val = co->stack[co->base + 2];
 pushCont(co, _35clofun3008, 3, fvs, body, val);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), _35val2212, val);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), _35val2212, val);
 }
 
 void _35clofun3008(struct Cora* co) {
@@ -3225,7 +3225,7 @@ Obj body = co->stack[co->base + 1];
 Obj val = co->stack[co->base + 2];
 Obj fvs1 = _35val2213;
 pushCont(co, _35clofun3009, 3, fvs1, body, val);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.explicit-stack")), fvs);
 }
 
 void _35clofun3009(struct Cora* co) {
@@ -3244,7 +3244,7 @@ Obj body = co->stack[co->base + 1];
 Obj val = co->stack[co->base + 2];
 Obj fvs2 = _35val2215;
 pushCont(co, _35clofun3011, 2, val, fvs2);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs1, body);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.explicit-stack")), fvs1, body);
 }
 
 void _35clofun3011(struct Cora* co) {
@@ -3288,7 +3288,7 @@ Obj _35reg2187 = primCdr(_35reg2186);
 Obj _35reg2188 = primEQ(Nil, _35reg2187);
 if (True == _35reg2188) {
 pushCont(co, _35clofun3004, 3, exp, fvs, cont);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.explicit-stack")), fvs);
 } else {
 coraCall(co, 1, _35cc1308);
 }
@@ -3320,7 +3320,7 @@ Obj _35val2190 = co->args[1];
 Obj fvs = co->stack[co->base + 0];
 Obj cont = co->stack[co->base + 1];
 pushCont(co, _35clofun3006, 1, _35val2190);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs, cont);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.explicit-stack")), fvs, cont);
 }
 
 void _35clofun3006(struct Cora* co) {
@@ -3343,7 +3343,7 @@ Obj f = _35reg2168;
 Obj _35reg2169 = primCdr(closureRef(co, 1));
 Obj args = _35reg2169;
 pushCont(co, _35clofun3003, 2, f, args);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.explicit-stack")), fvs);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.explicit-stack")), fvs);
 } else {
 coraCall(co, 1, _35cc1309);
 }
@@ -3395,9 +3395,9 @@ pushCont(co, _35clofun2992, 2, next, exp);
 coraCall(co, 2, globalRef(intern("caar")), exp);
 } else {
 if (True == False) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.wrap-var")), exp, next);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.wrap-var")), exp, next);
 } else {
-Obj _35reg2154 = primEQ(next, globalRef(intern("cora/lib/toc/include.id")));
+Obj _35reg2154 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
 if (True == _35reg2154) {
 Obj _35reg2155 = primCons(exp, Nil);
 Obj _35reg2156 = primCons(intern("tailcall"), _35reg2155);
@@ -3435,9 +3435,9 @@ Obj exp = co->stack[co->base + 1];
 Obj _35reg2129 = primEQ(_35val2128, intern("%builtin"));
 if (True == _35reg2129) {
 if (True == True) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.wrap-var")), exp, next);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.wrap-var")), exp, next);
 } else {
-Obj _35reg2130 = primEQ(next, globalRef(intern("cora/lib/toc/include.id")));
+Obj _35reg2130 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
 if (True == _35reg2130) {
 Obj _35reg2131 = primCons(exp, Nil);
 Obj _35reg2132 = primCons(intern("tailcall"), _35reg2131);
@@ -3453,9 +3453,9 @@ coraCall(co, 2, next, val);
 }
 } else {
 if (True == False) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.wrap-var")), exp, next);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.wrap-var")), exp, next);
 } else {
-Obj _35reg2142 = primEQ(next, globalRef(intern("cora/lib/toc/include.id")));
+Obj _35reg2142 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
 if (True == _35reg2142) {
 Obj _35reg2143 = primCons(exp, Nil);
 Obj _35reg2144 = primCons(intern("tailcall"), _35reg2143);
@@ -3510,7 +3510,7 @@ Obj _35reg2122 = primCdr(closureRef(co, 0));
 Obj tl = _35reg2122;
 Obj ls = closureRef(co, 1);
 Obj next = closureRef(co, 2);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), hd, makeNative(_35clofun2989, 1, 3, tl, ls, next));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), hd, makeNative(_35clofun2989, 1, 3, tl, ls, next));
 } else {
 coraCall(co, 1, _35cc1301);
 }
@@ -3519,7 +3519,7 @@ coraCall(co, 1, _35cc1301);
 void _35clofun2989(struct Cora* co) {
 Obj hd1 = co->args[1];
 Obj _35reg2123 = primCons(hd1, closureRef(co, 1));
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.tailify-list")), closureRef(co, 0), _35reg2123, closureRef(co, 2));
+coraCall(co, 4, globalRef(intern("cora/lib/toc.tailify-list")), closureRef(co, 0), _35reg2123, closureRef(co, 2));
 }
 
 void _35clofun2988(struct Cora* co) {
@@ -3541,7 +3541,7 @@ coraCall(co, 1, _35cc1290);
 }
 } else {
 pushCont(co, _35clofun2985, 3, next, x, _35cc1290);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.convert-protect?")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.convert-protect?")), x);
 }
 }
 
@@ -3570,7 +3570,7 @@ Obj _35cc1291 = makeNative(_35clofun2970, 0, 2, closureRef(co, 0), closureRef(co
 Obj x = closureRef(co, 0);
 Obj __ = closureRef(co, 1);
 pushCont(co, _35clofun2984, 2, x, _35cc1291);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.convert-protect?")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.convert-protect?")), x);
 }
 
 void _35clofun2984(struct Cora* co) {
@@ -3623,7 +3623,7 @@ Obj _35reg2108 = primCdr(_35reg2107);
 Obj _35reg2109 = primEQ(Nil, _35reg2108);
 if (True == _35reg2109) {
 Obj next = closureRef(co, 1);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), a, makeNative(_35clofun2981, 1, 3, b, c, next));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), a, makeNative(_35clofun2981, 1, 3, b, c, next));
 } else {
 coraCall(co, 1, _35cc1292);
 }
@@ -3647,14 +3647,14 @@ coraCall(co, 1, _35cc1292);
 void _35clofun2981(struct Cora* co) {
 Obj ra = co->args[1];
 pushCont(co, _35clofun2982, 1, ra);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), closureRef(co, 0), closureRef(co, 2));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), closureRef(co, 0), closureRef(co, 2));
 }
 
 void _35clofun2982(struct Cora* co) {
 Obj _35val2110 = co->args[1];
 Obj ra = co->stack[co->base + 0];
 pushCont(co, _35clofun2983, 2, _35val2110, ra);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), closureRef(co, 1), closureRef(co, 2));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), closureRef(co, 1), closureRef(co, 2));
 }
 
 void _35clofun2983(struct Cora* co) {
@@ -3696,7 +3696,7 @@ Obj _35reg2077 = primCdr(_35reg2076);
 Obj _35reg2078 = primEQ(Nil, _35reg2077);
 if (True == _35reg2078) {
 Obj next = closureRef(co, 1);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), a, makeNative(_35clofun2979, 1, 2, b, next));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), a, makeNative(_35clofun2979, 1, 2, b, next));
 } else {
 coraCall(co, 1, _35cc1293);
 }
@@ -3718,10 +3718,10 @@ void _35clofun2979(struct Cora* co) {
 Obj ra = co->args[1];
 Obj _35reg2079 = primIsSymbol(ra);
 if (True == _35reg2079) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), closureRef(co, 0), closureRef(co, 1));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), closureRef(co, 0), closureRef(co, 1));
 } else {
 pushCont(co, _35clofun2980, 1, ra);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), closureRef(co, 0), closureRef(co, 1));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), closureRef(co, 0), closureRef(co, 1));
 }
 }
 
@@ -3773,7 +3773,7 @@ Obj _35reg2055 = primCdr(_35reg2054);
 Obj _35reg2056 = primEQ(Nil, _35reg2055);
 if (True == _35reg2056) {
 Obj next = closureRef(co, 1);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), b, makeNative(_35clofun2977, 1, 3, a, c, next));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), b, makeNative(_35clofun2977, 1, 3, a, c, next));
 } else {
 coraCall(co, 1, _35cc1294);
 }
@@ -3797,7 +3797,7 @@ coraCall(co, 1, _35cc1294);
 void _35clofun2977(struct Cora* co) {
 Obj rb = co->args[1];
 pushCont(co, _35clofun2978, 1, rb);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), closureRef(co, 1), closureRef(co, 2));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), closureRef(co, 1), closureRef(co, 2));
 }
 
 void _35clofun2978(struct Cora* co) {
@@ -3864,7 +3864,7 @@ Obj _35reg2024 = primCdr(_35reg2023);
 Obj frees = _35reg2024;
 Obj next = closureRef(co, 1);
 pushCont(co, _35clofun2976, 3, args, frees, next);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.tailify")), body, globalRef(intern("cora/lib/toc/include.id")));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.tailify")), body, globalRef(intern("cora/lib/toc.id")));
 } else {
 coraCall(co, 1, _35cc1295);
 }
@@ -3914,7 +3914,7 @@ Obj _35reg1985 = primCdr(closureRef(co, 0));
 Obj args = _35reg1985;
 Obj next = closureRef(co, 1);
 Obj _35reg1986 = primCons(f, args);
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.tailify-list")), _35reg1986, Nil, next);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.tailify-list")), _35reg1986, Nil, next);
 } else {
 coraCall(co, 1, _35cc1296);
 }
@@ -3939,7 +3939,7 @@ Obj _35cc1283 = makeNative(_35clofun2953, 0, 2, _35p1281, _35p1282);
 Obj __ = _35p1281;
 Obj x = _35p1282;
 pushCont(co, _35clofun2966, 2, x, _35cc1283);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.convert-protect?")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.convert-protect?")), x);
 }
 
 void _35clofun2966(struct Cora* co) {
@@ -3961,7 +3961,7 @@ Obj var = closureRef(co, 1);
 Obj _35reg1973 = primIsSymbol(var);
 if (True == _35reg1973) {
 pushCont(co, _35clofun2965, 1, var);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.index")), var, fvs);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.index")), var, fvs);
 } else {
 coraCall(co, 1, _35cc1284);
 }
@@ -4014,7 +4014,7 @@ Obj _35reg1961 = primCons(body, Nil);
 Obj _35reg1962 = primCons(args, _35reg1961);
 Obj _35reg1963 = primCons(intern("lambda"), _35reg1962);
 pushCont(co, _35clofun2961, 3, body, args, fvs);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1963);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), _35reg1963);
 } else {
 coraCall(co, 1, _35cc1285);
 }
@@ -4039,7 +4039,7 @@ Obj args = co->stack[co->base + 1];
 Obj fvs = co->stack[co->base + 2];
 Obj fvs1 = _35val1964;
 pushCont(co, _35clofun2962, 3, args, fvs, fvs1);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.closure-convert")), fvs1, body);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.closure-convert")), fvs1, body);
 }
 
 void _35clofun2962(struct Cora* co) {
@@ -4051,7 +4051,7 @@ Obj _35reg1966 = primCons(_35val1965, Nil);
 Obj _35reg1967 = primCons(args, _35reg1966);
 Obj _35reg1968 = primCons(intern("lambda"), _35reg1967);
 pushCont(co, _35clofun2963, 2, fvs1, _35reg1968);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.closure-convert")), fvs);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.closure-convert")), fvs);
 }
 
 void _35clofun2963(struct Cora* co) {
@@ -4110,7 +4110,7 @@ Obj _35reg1936 = primCdr(_35reg1935);
 Obj _35reg1937 = primEQ(Nil, _35reg1936);
 if (True == _35reg1937) {
 pushCont(co, _35clofun2959, 3, fvs, c, a);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.closure-convert")), fvs, b);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.closure-convert")), fvs, b);
 } else {
 coraCall(co, 1, _35cc1286);
 }
@@ -4137,7 +4137,7 @@ Obj fvs = co->stack[co->base + 0];
 Obj c = co->stack[co->base + 1];
 Obj a = co->stack[co->base + 2];
 pushCont(co, _35clofun2960, 2, _35val1938, a);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.closure-convert")), fvs, c);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.closure-convert")), fvs, c);
 }
 
 void _35clofun2960(struct Cora* co) {
@@ -4162,7 +4162,7 @@ Obj f = _35reg1908;
 Obj _35reg1909 = primCdr(closureRef(co, 1));
 Obj args = _35reg1909;
 pushCont(co, _35clofun2958, 2, f, args);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.closure-convert")), fvs);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.closure-convert")), fvs);
 } else {
 coraCall(co, 1, _35cc1287);
 }
@@ -4185,7 +4185,7 @@ Obj _35p1268 = co->args[1];
 Obj _35cc1269 = makeNative(_35clofun2930, 0, 1, _35p1268);
 Obj x = _35p1268;
 pushCont(co, _35clofun2951, 1, _35cc1269);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.convert-protect?")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.convert-protect?")), x);
 }
 
 void _35clofun2951(struct Cora* co) {
@@ -4239,7 +4239,7 @@ Obj _35reg1900 = primCdr(_35reg1899);
 Obj _35reg1901 = primEQ(Nil, _35reg1900);
 if (True == _35reg1901) {
 pushCont(co, _35clofun2950, 1, args);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), body);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), body);
 } else {
 coraCall(co, 1, _35cc1271);
 }
@@ -4260,7 +4260,7 @@ coraCall(co, 1, _35cc1271);
 void _35clofun2950(struct Cora* co) {
 Obj _35val1902 = co->args[1];
 Obj args = co->stack[co->base + 0];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), _35val1902, args);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), _35val1902, args);
 }
 
 void _35clofun2932(struct Cora* co) {
@@ -4304,7 +4304,7 @@ Obj _35reg1881 = primCons(z, Nil);
 Obj _35reg1882 = primCons(y, _35reg1881);
 Obj _35reg1883 = primCons(x, _35reg1882);
 pushCont(co, _35clofun2949, 0);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1883);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.free-vars")), _35reg1883);
 } else {
 coraCall(co, 1, _35cc1272);
 }
@@ -4327,7 +4327,7 @@ coraCall(co, 1, _35cc1272);
 
 void _35clofun2949(struct Cora* co) {
 Obj _35val1884 = co->args[1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.foldl")), globalRef(intern("cora/lib/toc/include.union")), Nil, _35val1884);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.foldl")), globalRef(intern("cora/lib/toc.union")), Nil, _35val1884);
 }
 
 void _35clofun2933(struct Cora* co) {
@@ -4359,7 +4359,7 @@ if (True == _35reg1851) {
 Obj _35reg1852 = primCons(y, Nil);
 Obj _35reg1853 = primCons(x, _35reg1852);
 pushCont(co, _35clofun2948, 0);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1853);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.free-vars")), _35reg1853);
 } else {
 coraCall(co, 1, _35cc1273);
 }
@@ -4379,7 +4379,7 @@ coraCall(co, 1, _35cc1273);
 
 void _35clofun2948(struct Cora* co) {
 Obj _35val1854 = co->args[1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.foldl")), globalRef(intern("cora/lib/toc/include.union")), Nil, _35val1854);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.foldl")), globalRef(intern("cora/lib/toc.union")), Nil, _35val1854);
 }
 
 void _35clofun2934(struct Cora* co) {
@@ -4420,7 +4420,7 @@ Obj _35reg1829 = primCdr(_35reg1828);
 Obj _35reg1830 = primEQ(Nil, _35reg1829);
 if (True == _35reg1830) {
 pushCont(co, _35clofun2945, 2, c, a);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), b);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), b);
 } else {
 coraCall(co, 1, _35cc1274);
 }
@@ -4446,7 +4446,7 @@ Obj _35val1831 = co->args[1];
 Obj c = co->stack[co->base + 0];
 Obj a = co->stack[co->base + 1];
 pushCont(co, _35clofun2946, 2, a, _35val1831);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), c);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), c);
 }
 
 void _35clofun2946(struct Cora* co) {
@@ -4455,13 +4455,13 @@ Obj a = co->stack[co->base + 0];
 Obj _35val1831 = co->stack[co->base + 1];
 Obj _35reg1833 = primCons(a, Nil);
 pushCont(co, _35clofun2947, 1, _35val1831);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), _35val1832, _35reg1833);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), _35val1832, _35reg1833);
 }
 
 void _35clofun2947(struct Cora* co) {
 Obj _35val1834 = co->args[1];
 Obj _35val1831 = co->stack[co->base + 0];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.union")), _35val1831, _35val1834);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.union")), _35val1831, _35val1834);
 }
 
 void _35clofun2935(struct Cora* co) {
@@ -4481,7 +4481,7 @@ Obj _35reg1802 = primCdr(closureRef(co, 0));
 Obj _35reg1803 = primCdr(_35reg1802);
 Obj more = _35reg1803;
 Obj _35reg1804 = primCons(lam, more);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1804);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), _35reg1804);
 } else {
 coraCall(co, 1, _35cc1275);
 }
@@ -4510,7 +4510,7 @@ Obj _35reg1792 = primCdr(closureRef(co, 0));
 Obj _35reg1793 = primCdr(_35reg1792);
 Obj _35reg1794 = primEQ(Nil, _35reg1793);
 if (True == _35reg1794) {
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), x);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), x);
 } else {
 coraCall(co, 1, _35cc1276);
 }
@@ -4554,7 +4554,7 @@ if (True == _35reg1781) {
 Obj _35reg1782 = primCons(cont, Nil);
 Obj _35reg1783 = primCons(exp, _35reg1782);
 pushCont(co, _35clofun2944, 0);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1783);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.free-vars")), _35reg1783);
 } else {
 coraCall(co, 1, _35cc1277);
 }
@@ -4574,7 +4574,7 @@ coraCall(co, 1, _35cc1277);
 
 void _35clofun2944(struct Cora* co) {
 Obj _35val1784 = co->args[1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.foldl")), globalRef(intern("cora/lib/toc/include.union")), Nil, _35val1784);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.foldl")), globalRef(intern("cora/lib/toc.union")), Nil, _35val1784);
 }
 
 void _35clofun2938(struct Cora* co) {
@@ -4594,7 +4594,7 @@ Obj _35reg1762 = primCdr(closureRef(co, 0));
 Obj _35reg1763 = primCdr(_35reg1762);
 Obj _35reg1764 = primEQ(Nil, _35reg1763);
 if (True == _35reg1764) {
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), exp);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), exp);
 } else {
 coraCall(co, 1, _35cc1278);
 }
@@ -4636,7 +4636,7 @@ Obj _35reg1752 = primCdr(_35reg1751);
 Obj _35reg1753 = primEQ(Nil, _35reg1752);
 if (True == _35reg1753) {
 pushCont(co, _35clofun2943, 1, arg);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.free-vars")), body);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.free-vars")), body);
 } else {
 coraCall(co, 1, _35cc1279);
 }
@@ -4657,7 +4657,7 @@ coraCall(co, 1, _35cc1279);
 void _35clofun2943(struct Cora* co) {
 Obj _35val1754 = co->args[1];
 Obj arg = co->stack[co->base + 0];
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), _35val1754, arg);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), _35val1754, arg);
 }
 
 void _35clofun2940(struct Cora* co) {
@@ -4670,7 +4670,7 @@ Obj _35reg1734 = primCdr(closureRef(co, 0));
 Obj args = _35reg1734;
 Obj _35reg1735 = primCons(f, args);
 pushCont(co, _35clofun2942, 0);
-coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc/include.free-vars")), _35reg1735);
+coraCall(co, 3, globalRef(intern("map")), globalRef(intern("cora/lib/toc.free-vars")), _35reg1735);
 } else {
 coraCall(co, 1, _35cc1280);
 }
@@ -4678,7 +4678,7 @@ coraCall(co, 1, _35cc1280);
 
 void _35clofun2942(struct Cora* co) {
 Obj _35val1736 = co->args[1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.foldl")), globalRef(intern("cora/lib/toc/include.union")), Nil, _35val1736);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.foldl")), globalRef(intern("cora/lib/toc.union")), Nil, _35val1736);
 }
 
 void _35clofun2941(struct Cora* co) {
@@ -4898,7 +4898,7 @@ Obj y = co->stack[co->base + 0];
 Obj s2 = co->stack[co->base + 1];
 Obj _35cc1259 = co->stack[co->base + 2];
 if (True == _35val1678) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), y, s2);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), y, s2);
 } else {
 coraCall(co, 1, _35cc1259);
 }
@@ -4914,7 +4914,7 @@ Obj _35reg1672 = primCdr(closureRef(co, 0));
 Obj y = _35reg1672;
 Obj s2 = closureRef(co, 1);
 pushCont(co, _35clofun2920, 1, x);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.diff")), y, s2);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.diff")), y, s2);
 } else {
 coraCall(co, 1, _35cc1260);
 }
@@ -4968,7 +4968,7 @@ Obj y = co->stack[co->base + 0];
 Obj s2 = co->stack[co->base + 1];
 Obj _35cc1254 = co->stack[co->base + 2];
 if (True == _35val1667) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.union")), y, s2);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.union")), y, s2);
 } else {
 coraCall(co, 1, _35cc1254);
 }
@@ -4984,7 +4984,7 @@ Obj _35reg1661 = primCdr(closureRef(co, 0));
 Obj y = _35reg1661;
 Obj s2 = closureRef(co, 1);
 pushCont(co, _35clofun2914, 1, x);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.union")), y, s2);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.union")), y, s2);
 } else {
 coraCall(co, 1, _35cc1255);
 }
@@ -5201,7 +5201,7 @@ Obj _35val1623 = co->args[1];
 Obj body = co->stack[co->base + 0];
 Obj args = co->stack[co->base + 1];
 pushCont(co, _35clofun2905, 1, args);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), _35val1623, body);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), _35val1623, body);
 }
 
 void _35clofun2905(struct Cora* co) {
@@ -5225,7 +5225,7 @@ if (True == _35reg1601) {
 Obj _35reg1602 = primCdr(closureRef(co, 1));
 Obj args = _35reg1602;
 pushCont(co, _35clofun2902, 1, args);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.parse")), env);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.parse")), env);
 } else {
 coraCall(co, 1, _35cc1246);
 }
@@ -5276,7 +5276,7 @@ Obj _35reg1592 = primCdr(_35reg1591);
 Obj _35reg1593 = primEQ(Nil, _35reg1592);
 if (True == _35reg1593) {
 pushCont(co, _35clofun2900, 2, env, y);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), env, x);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), env, x);
 } else {
 coraCall(co, 1, _35cc1247);
 }
@@ -5299,7 +5299,7 @@ Obj _35val1594 = co->args[1];
 Obj env = co->stack[co->base + 0];
 Obj y = co->stack[co->base + 1];
 pushCont(co, _35clofun2901, 1, _35val1594);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), env, y);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), env, y);
 }
 
 void _35clofun2901(struct Cora* co) {
@@ -5351,7 +5351,7 @@ Obj _35reg1568 = primCdr(_35reg1567);
 Obj _35reg1569 = primEQ(Nil, _35reg1568);
 if (True == _35reg1569) {
 pushCont(co, _35clofun2898, 3, env, c, a);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), env, b);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), env, b);
 } else {
 coraCall(co, 1, _35cc1248);
 }
@@ -5379,7 +5379,7 @@ Obj c = co->stack[co->base + 1];
 Obj a = co->stack[co->base + 2];
 Obj _35reg1571 = primCons(a, env);
 pushCont(co, _35clofun2899, 2, _35val1570, a);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), _35reg1571, c);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), _35reg1571, c);
 }
 
 void _35clofun2899(struct Cora* co) {
@@ -5418,7 +5418,7 @@ Obj env = co->stack[co->base + 2];
 Obj _35cc1249 = co->stack[co->base + 3];
 if (True == _35val1527) {
 pushCont(co, _35clofun2892, 3, op, args, env);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.builtin->args")), op);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.builtin->args")), op);
 } else {
 coraCall(co, 1, _35cc1249);
 }
@@ -5446,13 +5446,13 @@ if (True == _35reg1530) {
 Obj _35reg1531 = primCons(op, Nil);
 Obj _35reg1532 = primCons(intern("%builtin"), _35reg1531);
 pushCont(co, _35clofun2894, 2, args, _35reg1532);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.parse")), env);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.parse")), env);
 } else {
 Obj _35reg1536 = primGT(required, provided);
 if (True == _35reg1536) {
 Obj _35reg1537 = primSub(required, provided);
 pushCont(co, _35clofun2896, 3, op, args, env);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.temp-list")), _35reg1537, Nil);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.temp-list")), _35reg1537, Nil);
 } else {
 coraCall(co, 2, globalRef(intern("error")), makeString1("primitive call mismatch"));
 }
@@ -5477,7 +5477,7 @@ Obj env = co->stack[co->base + 1];
 Obj _35reg1541 = primCons(_35val1540, Nil);
 Obj _35reg1542 = primCons(tmp, _35reg1541);
 Obj _35reg1543 = primCons(intern("lambda"), _35reg1542);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.parse")), env, _35reg1543);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.parse")), env, _35reg1543);
 }
 
 void _35clofun2894(struct Cora* co) {
@@ -5501,7 +5501,7 @@ Obj _35cc1250 = makeNative(_35clofun2889, 0, 0);
 Obj env = closureRef(co, 0);
 Obj ls = closureRef(co, 1);
 pushCont(co, _35clofun2890, 1, ls);
-coraCall(co, 2, globalRef(intern("cora/lib/toc/include.parse")), env);
+coraCall(co, 2, globalRef(intern("cora/lib/toc.parse")), env);
 }
 
 void _35clofun2890(struct Cora* co) {
@@ -5535,7 +5535,7 @@ Obj res = closureRef(co, 1);
 Obj _35reg1518 = primSub(n, makeNumber(1));
 Obj _35reg1519 = primGenSym(intern("tmp"));
 Obj _35reg1520 = primCons(_35reg1519, res);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.temp-list")), _35reg1518, _35reg1520);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.temp-list")), _35reg1518, _35reg1520);
 }
 
 void _35clofun2879(struct Cora* co) {
@@ -5545,7 +5545,7 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"))
 void _35clofun2874(struct Cora* co) {
 Obj x = co->args[1];
 pushCont(co, _35clofun2875, 0);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.assq")), x, globalRef(intern("cora/lib/toc/include.*builtin-prims*")));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.assq")), x, globalRef(intern("cora/lib/toc.*builtin-prims*")));
 }
 
 void _35clofun2875(struct Cora* co) {
@@ -5569,7 +5569,7 @@ coraCall(co, 2, globalRef(intern("cadr")), find);
 void _35clofun2871(struct Cora* co) {
 Obj x = co->args[1];
 pushCont(co, _35clofun2872, 0);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.assq")), x, globalRef(intern("cora/lib/toc/include.*builtin-prims*")));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.assq")), x, globalRef(intern("cora/lib/toc.*builtin-prims*")));
 }
 
 void _35clofun2872(struct Cora* co) {
@@ -5593,7 +5593,7 @@ coraCall(co, 2, globalRef(intern("caddr")), find);
 void _35clofun2868(struct Cora* co) {
 Obj x = co->args[1];
 pushCont(co, _35clofun2869, 0);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.assq")), x, globalRef(intern("cora/lib/toc/include.*builtin-prims*")));
+coraCall(co, 3, globalRef(intern("cora/lib/toc.assq")), x, globalRef(intern("cora/lib/toc.*builtin-prims*")));
 }
 
 void _35clofun2869(struct Cora* co) {
@@ -5633,7 +5633,7 @@ Obj hd = _35reg1433;
 Obj _35reg1434 = primCdr(closureRef(co, 1));
 Obj tl = _35reg1434;
 pushCont(co, _35clofun2867, 2, x, tl);
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.index")), x, hd);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.index")), x, hd);
 } else {
 coraCall(co, 1, _35cc1235);
 }
@@ -5645,7 +5645,7 @@ Obj x = co->stack[co->base + 0];
 Obj tl = co->stack[co->base + 1];
 Obj _35reg1436 = primLT(_35val1435, makeNumber(0));
 if (True == _35reg1436) {
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.exist-in-env")), x, tl);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.exist-in-env")), x, tl);
 } else {
 coraReturn(co, True);
 return;
@@ -5659,7 +5659,7 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"))
 void _35clofun2863(struct Cora* co) {
 Obj x = co->args[1];
 Obj l = co->args[2];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.pos-in-list0")), makeNumber(0), x, l);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.pos-in-list0")), makeNumber(0), x, l);
 }
 
 void _35clofun2859(struct Cora* co) {
@@ -5711,7 +5711,7 @@ Obj a = _35reg1422;
 Obj _35reg1423 = primCdr(closureRef(co, 2));
 Obj b = _35reg1423;
 Obj _35reg1424 = primAdd(pos, makeNumber(1));
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.pos-in-list0")), _35reg1424, x, b);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.pos-in-list0")), _35reg1424, x, b);
 } else {
 coraCall(co, 1, _35cc1231);
 }
@@ -5758,7 +5758,7 @@ void _35clofun2858(struct Cora* co) {
 Obj _35val1418 = co->args[1];
 Obj f = co->stack[co->base + 0];
 Obj y = co->stack[co->base + 1];
-coraCall(co, 4, globalRef(intern("cora/lib/toc/include.foldl")), f, _35val1418, y);
+coraCall(co, 4, globalRef(intern("cora/lib/toc.foldl")), f, _35val1418, y);
 }
 
 void _35clofun2857(struct Cora* co) {
@@ -5820,7 +5820,7 @@ Obj _35reg1401 = primCar(closureRef(co, 1));
 Obj __ = _35reg1401;
 Obj _35reg1402 = primCdr(closureRef(co, 1));
 Obj y = _35reg1402;
-coraCall(co, 3, globalRef(intern("cora/lib/toc/include.assq")), var, y);
+coraCall(co, 3, globalRef(intern("cora/lib/toc.assq")), var, y);
 } else {
 coraCall(co, 1, _35cc1220);
 }
