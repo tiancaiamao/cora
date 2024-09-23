@@ -9,10 +9,7 @@
 #include "reader.h"
 
 struct Cora {
-  Obj *stack;
-  int base;
-  int pos;
-
+  struct stackState stk;
   struct callStack callstack;
 
   Obj frees;

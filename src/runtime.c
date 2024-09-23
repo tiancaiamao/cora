@@ -47,21 +47,21 @@ coraCall(struct Cora *co, int nargs, ...) {
 
 void
 pushCont(struct Cora *co, basicBlock cb, int nstack, ...) {
-  saveToStack(&co->callstack, cb, co->base, co->base + nstack, co->frees, co->stack);
+  saveToStack(&co->callstack, cb, co->stk.base, co->stk.base + nstack, co->frees, co->stk.stack);
   if (nstack > 0) {
     va_list ap;
     va_start(ap, nstack);
     for (int i=0; i<nstack; i++) {
-      co->stack[co->base + i] = va_arg(ap, Obj);
+      co->stk.stack[co->stk.base + i] = va_arg(ap, Obj);
     }
-    if (co->base + nstack > co->pos) {
-      co->pos = co->base + nstack;
+    if (co->stk.base + nstack > co->stk.pos) {
+      co->stk.pos = co->stk.base + nstack;
     }
     va_end(ap);
   }
 
-  assert(co->pos >= co->base);
-  co->base = co->pos;
+  assert(co->stk.pos >= co->stk.base);
+  co->stk.base = co->stk.pos;
 }
 
 static void
@@ -70,9 +70,7 @@ popStack(struct Cora *co) {
   cs->len--;
   struct returnAddr *addr = &cs->data[cs->len];
   co->pc = addr->pc;
-  co->stack = addr->stk.stack;
-  co->base = addr->stk.base;
-  co->pos = addr->stk.pos;
+  co->stk = addr->stk;
   co->frees = addr->frees;
   return;
 }
@@ -133,8 +131,8 @@ coraReturn(struct Cora *co, Obj val) {
 }
 
 void push(struct Cora *co, Obj v) {
-  co->stack[co->pos] = v;
-  co->pos++;
+  co->stk.stack[co->stk.pos] = v;
+  co->stk.pos++;
 }
 
 Obj
@@ -151,9 +149,9 @@ struct Cora *gCo;
 struct Cora*
 coraNew() {
   struct Cora *co = malloc(sizeof(struct Cora));
-  co->stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
-  co->base = 0;
-  co->pos = 0;
+  co->stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+  co->stk.base = 0;
+  co->stk.pos = 0;
 
   co->callstack.data = malloc(64*sizeof(struct returnAddr));
   co->callstack.len = 0;
@@ -167,8 +165,8 @@ coraNew() {
 static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
   // The stack.
-  for (int i=0; i<co->pos; i++) {
-    gcMark(gc, co->stack[i]);
+  for (int i=0; i<co->stk.pos; i++) {
+    gcMark(gc, co->stk.stack[i]);
   }
   // The args.
   for (int i=0; i<co->nargs; i++) {
@@ -377,9 +375,9 @@ builtinTryCatch(struct Cora *co) {
   //     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
   // Prepare a new stack for the chunk to run, segment stack!
-  co->stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
-  co->base = 0;
-  co->pos = 0;
+  co->stk.stack = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
+  co->stk.base = 0;
+  co->stk.pos = 0;
 
   // Save the old cont.
   // This save can make the chunk and handler available to the recovering process.
@@ -447,13 +445,11 @@ builtinThrow(struct Cora *co) {
   // Reset to the stack before try.
   co->callstack.len = p;
   struct returnAddr *addr = &co->callstack.data[p-1];
-  co->stack = addr->stk.stack;
-  co->base = addr->stk.base;
-  co->pos = addr->stk.pos;
+  co->stk = addr->stk;
 
   // Find the handler, invoke it, passing the continuation.
   Obj handler = try->stk.stack[try->stk.base];
-  co->base = co->pos;
+  co->stk.base = co->stk.pos;
 
   co->nargs = 3;
   co->args[0] = handler;

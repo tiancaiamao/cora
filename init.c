@@ -508,7 +508,7 @@ coraCall(co, 1, _35cc32);
 
 void _35clofun1205(struct Cora* co) {
 Obj _35val962 = co->args[1];
-Obj x = co->stack[co->base + 0];
+Obj x = co->stk.stack[co->stk.base + 0];
 Obj _35reg963 = primCons(_35val962, Nil);
 Obj _35reg964 = primCons(x, _35reg963);
 Obj _35reg965 = primCons(intern("do"), _35reg964);
@@ -737,7 +737,7 @@ coraCall(co, 1, _35cc22);
 
 void _35clofun1194(struct Cora* co) {
 Obj _35val900 = co->args[1];
-Obj y = co->stack[co->base + 0];
+Obj y = co->stk.stack[ co->stk.base + 0];
 Obj x1 = _35val900;
 pushCont(co, _35clofun1195, 1, x1);
 coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
@@ -745,7 +745,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
 
 void _35clofun1195(struct Cora* co) {
 Obj _35val901 = co->args[1];
-Obj x1 = co->stack[co->base + 0];
+Obj x1 = co->stk.stack[ co->stk.base + 0];
 Obj y1 = _35val901;
 Obj _35reg902 = primCons(y1, Nil);
 Obj _35reg903 = primCons(x1, _35reg902);
@@ -896,8 +896,8 @@ coraCall(co, 1, _35cc25);
 
 void _35clofun1189(struct Cora* co) {
 Obj _35val850 = co->args[1];
-Obj y = co->stack[co->base + 0];
-Obj z = co->stack[co->base + 1];
+Obj y = co->stk.stack[ co->stk.base + 0];
+Obj z = co->stk.stack[ co->stk.base + 1];
 Obj x1 = _35val850;
 pushCont(co, _35clofun1190, 2, z, x1);
 coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
@@ -905,8 +905,8 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), y);
 
 void _35clofun1190(struct Cora* co) {
 Obj _35val851 = co->args[1];
-Obj z = co->stack[co->base + 0];
-Obj x1 = co->stack[co->base + 1];
+Obj z = co->stk.stack[ co->stk.base + 0];
+Obj x1 = co->stk.stack[ co->stk.base + 1];
 Obj y1 = _35val851;
 pushCont(co, _35clofun1191, 2, y1, x1);
 coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), z);
@@ -914,8 +914,8 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), z);
 
 void _35clofun1191(struct Cora* co) {
 Obj _35val852 = co->args[1];
-Obj y1 = co->stack[co->base + 0];
-Obj x1 = co->stack[co->base + 1];
+Obj y1 = co->stk.stack[ co->stk.base + 0];
+Obj x1 = co->stk.stack[ co->stk.base + 1];
 Obj z1 = _35val852;
 Obj _35reg853 = primCons(z1, Nil);
 Obj _35reg854 = primCons(y1, _35reg853);
@@ -971,7 +971,7 @@ coraCall(co, 1, _35cc26);
 
 void _35clofun1188(struct Cora* co) {
 Obj _35val820 = co->args[1];
-Obj args = co->stack[co->base + 0];
+Obj args = co->stk.stack[ co->stk.base + 0];
 Obj _35reg821 = primCons(_35val820, Nil);
 Obj _35reg822 = primCons(args, _35reg821);
 Obj _35reg823 = primCons(intern("lambda"), _35reg822);
@@ -1647,14 +1647,14 @@ coraCall(co, 2, globalRef(intern("cddr")), exp);
 
 void _35clofun1158(struct Cora* co) {
 Obj _35val523 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 pushCont(co, _35clofun1159, 1, exp);
 coraCall(co, 2, globalRef(intern("cora/init.extract-rules")), _35val523);
 }
 
 void _35clofun1159(struct Cora* co) {
 Obj _35val524 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 Obj body = _35val524;
 pushCont(co, _35clofun1160, 2, exp, body);
 coraCall(co, 2, globalRef(intern("cora/init.rules-arg-count")), body);
@@ -1662,8 +1662,8 @@ coraCall(co, 2, globalRef(intern("cora/init.rules-arg-count")), body);
 
 void _35clofun1160(struct Cora* co) {
 Obj _35val525 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
 Obj nargs = _35val525;
 pushCont(co, _35clofun1161, 2, exp, body);
 coraCall(co, 2, globalRef(intern("cora/init.gen-parameters")), nargs);
@@ -1671,8 +1671,8 @@ coraCall(co, 2, globalRef(intern("cora/init.gen-parameters")), nargs);
 
 void _35clofun1161(struct Cora* co) {
 Obj _35val526 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
 Obj args = _35val526;
 pushCont(co, _35clofun1162, 2, body, args);
 coraCall(co, 2, globalRef(intern("cadr")), exp);
@@ -1680,8 +1680,8 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1162(struct Cora* co) {
 Obj _35val527 = co->args[1];
-Obj body = co->stack[co->base + 0];
-Obj args = co->stack[co->base + 1];
+Obj body = co->stk.stack[ co->stk.base + 0];
+Obj args = co->stk.stack[ co->stk.base + 1];
 Obj _35reg528 = primCons(intern("list"), args);
 Obj _35reg529 = primCons(_35reg528, body);
 Obj _35reg530 = primCons(intern("match"), _35reg529);
@@ -1709,7 +1709,7 @@ coraCall(co, 2, globalRef(intern("cora/init.gen-parameters")), _35reg519);
 
 void _35clofun1156(struct Cora* co) {
 Obj _35val520 = co->args[1];
-Obj _35reg518 = co->stack[co->base + 0];
+Obj _35reg518 = co->stk.stack[ co->stk.base + 0];
 Obj _35reg521 = primCons(_35reg518, _35val520);
 coraReturn(co, _35reg521);
 return;
@@ -1742,14 +1742,14 @@ coraCall(co, 3, globalRef(intern("filter")), dif, _35reg512);
 
 void _35clofun1153(struct Cora* co) {
 Obj _35val513 = co->args[1];
-Obj n = co->stack[co->base + 0];
+Obj n = co->stk.stack[ co->stk.base + 0];
 pushCont(co, _35clofun1154, 1, n);
 coraCall(co, 2, globalRef(intern("null?")), _35val513);
 }
 
 void _35clofun1154(struct Cora* co) {
 Obj _35val514 = co->args[1];
-Obj n = co->stack[co->base + 0];
+Obj n = co->stk.stack[ co->stk.base + 0];
 Obj _35reg515 = primNot(_35val514);
 if (True == _35reg515) {
 coraCall(co, 2, globalRef(intern("error")), makeString1("inconsistent func rule args count"));
@@ -1790,7 +1790,7 @@ coraCall(co, 3, globalRef(intern("append")), _35reg502, l2);
 
 void _35clofun1147(struct Cora* co) {
 Obj _35val503 = co->args[1];
-Obj _35reg501 = co->stack[co->base + 0];
+Obj _35reg501 = co->stk.stack[ co->stk.base + 0];
 Obj _35reg504 = primCons(_35reg501, _35val503);
 coraReturn(co, _35reg504);
 return;
@@ -1818,9 +1818,9 @@ coraCall(co, 2, globalRef(intern("reverse")), res);
 
 void _35clofun1144(struct Cora* co) {
 Obj _35val493 = co->args[1];
-Obj l = co->stack[co->base + 0];
-Obj res = co->stack[co->base + 1];
-Obj fn = co->stack[co->base + 2];
+Obj l = co->stk.stack[ co->stk.base + 0];
+Obj res = co->stk.stack[ co->stk.base + 1];
+Obj fn = co->stk.stack[ co->stk.base + 2];
 if (True == _35val493) {
 Obj _35reg494 = primCar(l);
 Obj _35reg495 = primCons(_35reg494, res);
@@ -1860,8 +1860,8 @@ coraCall(co, 2, globalRef(intern("null?")), rules);
 
 void _35clofun1139(struct Cora* co) {
 Obj _35val481 = co->args[1];
-Obj res = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
+Obj res = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
 if (True == _35val481) {
 coraCall(co, 2, globalRef(intern("reverse")), res);
 } else {
@@ -1874,7 +1874,7 @@ coraCall(co, 2, globalRef(intern("cddr")), rules);
 
 void _35clofun1140(struct Cora* co) {
 Obj _35val484 = co->args[1];
-Obj _35reg483 = co->stack[co->base + 0];
+Obj _35reg483 = co->stk.stack[ co->stk.base + 0];
 coraCall(co, 3, globalRef(intern("cora/init.rules-patterns")), _35reg483, _35val484);
 }
 
@@ -1957,9 +1957,9 @@ coraCall(co, 1, _35cc2);
 
 void _35clofun1136(struct Cora* co) {
 Obj _35val471 = co->args[1];
-Obj act = co->stack[co->base + 0];
-Obj pred = co->stack[co->base + 1];
-Obj remain = co->stack[co->base + 2];
+Obj act = co->stk.stack[ co->stk.base + 0];
+Obj pred = co->stk.stack[ co->stk.base + 1];
+Obj remain = co->stk.stack[ co->stk.base + 2];
 Obj _35reg472 = primCons(intern("list"), _35val471);
 Obj pat = _35reg472;
 Obj _35reg473 = primCons(act, Nil);
@@ -2001,8 +2001,8 @@ coraCall(co, 1, _35cc3);
 
 void _35clofun1135(struct Cora* co) {
 Obj _35val441 = co->args[1];
-Obj act = co->stack[co->base + 0];
-Obj remain = co->stack[co->base + 1];
+Obj act = co->stk.stack[ co->stk.base + 0];
+Obj remain = co->stk.stack[ co->stk.base + 1];
 Obj _35reg442 = primCons(intern("list"), _35val441);
 Obj pat = _35reg442;
 Obj _35reg443 = primCons(pat, closureRef(co, 2));
@@ -2042,14 +2042,14 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1122(struct Cora* co) {
 Obj _35val401 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 pushCont(co, _35clofun1123, 1, exp);
 coraCall(co, 2, globalRef(intern("macroexpand")), _35val401);
 }
 
 void _35clofun1123(struct Cora* co) {
 Obj _35val402 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 Obj value = _35val402;
 pushCont(co, _35clofun1124, 1, value);
 coraCall(co, 2, globalRef(intern("cddr")), exp);
@@ -2057,7 +2057,7 @@ coraCall(co, 2, globalRef(intern("cddr")), exp);
 
 void _35clofun1124(struct Cora* co) {
 Obj _35val403 = co->args[1];
-Obj value = co->stack[co->base + 0];
+Obj value = co->stk.stack[ co->stk.base + 0];
 Obj rules = _35val403;
 Obj _35reg404 = primIsCons(value);
 if (True == _35reg404) {
@@ -2097,8 +2097,8 @@ coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, rules);
 
 void _35clofun1127(struct Cora* co) {
 Obj _35val421 = co->args[1];
-Obj value = co->stack[co->base + 0];
-Obj val = co->stack[co->base + 1];
+Obj value = co->stk.stack[ co->stk.base + 0];
+Obj val = co->stk.stack[ co->stk.base + 1];
 Obj _35reg422 = primCons(_35val421, Nil);
 Obj _35reg423 = primCons(value, _35reg422);
 Obj _35reg424 = primCons(val, _35reg423);
@@ -2109,8 +2109,8 @@ return;
 
 void _35clofun1126(struct Cora* co) {
 Obj _35val415 = co->args[1];
-Obj value = co->stack[co->base + 0];
-Obj val = co->stack[co->base + 1];
+Obj value = co->stk.stack[ co->stk.base + 0];
+Obj val = co->stk.stack[ co->stk.base + 1];
 Obj _35reg416 = primCons(_35val415, Nil);
 Obj _35reg417 = primCons(value, _35reg416);
 Obj _35reg418 = primCons(val, _35reg417);
@@ -2121,8 +2121,8 @@ return;
 
 void _35clofun1125(struct Cora* co) {
 Obj _35val409 = co->args[1];
-Obj value = co->stack[co->base + 0];
-Obj val = co->stack[co->base + 1];
+Obj value = co->stk.stack[ co->stk.base + 0];
+Obj val = co->stk.stack[ co->stk.base + 1];
 Obj _35reg410 = primCons(_35val409, Nil);
 Obj _35reg411 = primCons(value, _35reg410);
 Obj _35reg412 = primCons(val, _35reg411);
@@ -2140,8 +2140,8 @@ coraCall(co, 2, globalRef(intern("null?")), rules);
 
 void _35clofun1106(struct Cora* co) {
 Obj _35val349 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
 if (True == _35val349) {
 Obj _35reg350 = primCons(makeString1("no match-help found!"), Nil);
 Obj _35reg351 = primCons(intern("error"), _35reg350);
@@ -2155,8 +2155,8 @@ coraCall(co, 2, globalRef(intern("pair?")), rules);
 
 void _35clofun1107(struct Cora* co) {
 Obj _35val352 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
 if (True == _35val352) {
 Obj _35reg353 = primCdr(rules);
 pushCont(co, _35clofun1108, 2, rules, value);
@@ -2177,10 +2177,10 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 
 void _35clofun1117(struct Cora* co) {
 Obj _35val387 = co->args[1];
-Obj pat = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj pat = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 Obj action = _35val387;
 pushCont(co, _35clofun1118, 4, action, rules, value, cc);
 coraCall(co, 2, globalRef(intern("macroexpand")), pat);
@@ -2188,19 +2188,19 @@ coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 
 void _35clofun1118(struct Cora* co) {
 Obj _35val388 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1119, 3, rules, value, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val388, value, action, cc);
 }
 
 void _35clofun1119(struct Cora* co) {
 Obj _35val389 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 Obj curr = _35val389;
 Obj _35reg390 = primCdr(rules);
 Obj _35reg391 = primCdr(_35reg390);
@@ -2210,8 +2210,8 @@ coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg391);
 
 void _35clofun1120(struct Cora* co) {
 Obj _35val392 = co->args[1];
-Obj curr = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj curr = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 Obj rest = _35val392;
 Obj _35reg393 = primCons(rest, Nil);
 Obj _35reg394 = primCons(Nil, _35reg393);
@@ -2226,8 +2226,8 @@ return;
 
 void _35clofun1108(struct Cora* co) {
 Obj _35val354 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
 if (True == _35val354) {
 if (True == True) {
 Obj _35reg355 = primCar(rules);
@@ -2255,10 +2255,10 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no cond match"));
 
 void _35clofun1113(struct Cora* co) {
 Obj _35val372 = co->args[1];
-Obj pat = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj pat = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 Obj action = _35val372;
 pushCont(co, _35clofun1114, 4, action, rules, value, cc);
 coraCall(co, 2, globalRef(intern("macroexpand")), pat);
@@ -2266,19 +2266,19 @@ coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 
 void _35clofun1114(struct Cora* co) {
 Obj _35val373 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1115, 3, rules, value, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val373, value, action, cc);
 }
 
 void _35clofun1115(struct Cora* co) {
 Obj _35val374 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 Obj curr = _35val374;
 Obj _35reg375 = primCdr(rules);
 Obj _35reg376 = primCdr(_35reg375);
@@ -2288,8 +2288,8 @@ coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg376);
 
 void _35clofun1116(struct Cora* co) {
 Obj _35val377 = co->args[1];
-Obj curr = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj curr = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 Obj rest = _35val377;
 Obj _35reg378 = primCons(rest, Nil);
 Obj _35reg379 = primCons(Nil, _35reg378);
@@ -2304,10 +2304,10 @@ return;
 
 void _35clofun1109(struct Cora* co) {
 Obj _35val357 = co->args[1];
-Obj pat = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj pat = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 Obj action = _35val357;
 pushCont(co, _35clofun1110, 4, action, rules, value, cc);
 coraCall(co, 2, globalRef(intern("macroexpand")), pat);
@@ -2315,19 +2315,19 @@ coraCall(co, 2, globalRef(intern("macroexpand")), pat);
 
 void _35clofun1110(struct Cora* co) {
 Obj _35val358 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj rules = co->stack[co->base + 1];
-Obj value = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj rules = co->stk.stack[ co->stk.base + 1];
+Obj value = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1111, 3, rules, value, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), _35val358, value, action, cc);
 }
 
 void _35clofun1111(struct Cora* co) {
 Obj _35val359 = co->args[1];
-Obj rules = co->stack[co->base + 0];
-Obj value = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj rules = co->stk.stack[ co->stk.base + 0];
+Obj value = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 Obj curr = _35val359;
 Obj _35reg360 = primCdr(rules);
 Obj _35reg361 = primCdr(_35reg360);
@@ -2337,8 +2337,8 @@ coraCall(co, 3, globalRef(intern("cora/init.match-helper")), value, _35reg361);
 
 void _35clofun1112(struct Cora* co) {
 Obj _35val362 = co->args[1];
-Obj curr = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj curr = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 Obj rest = _35val362;
 Obj _35reg363 = primCons(rest, Nil);
 Obj _35reg364 = primCons(Nil, _35reg363);
@@ -2363,8 +2363,8 @@ coraCall(co, 2, globalRef(intern("pair?")), action);
 
 void _35clofun1098(struct Cora* co) {
 Obj _35val324 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj action = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj action = co->stk.stack[ co->stk.base + 1];
 if (True == _35val324) {
 Obj _35reg325 = primCar(action);
 Obj _35reg326 = primEQ(_35reg325, intern("where"));
@@ -2398,16 +2398,16 @@ return;
 
 void _35clofun1103(struct Cora* co) {
 Obj _35val341 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1104, 2, cc, _35val341);
 coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1104(struct Cora* co) {
 Obj _35val342 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35val341 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35val341 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg343 = primCons(cc, Nil);
 Obj _35reg344 = primCons(_35reg343, Nil);
 Obj _35reg345 = primCons(_35val342, _35reg344);
@@ -2419,16 +2419,16 @@ return;
 
 void _35clofun1101(struct Cora* co) {
 Obj _35val334 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1102, 2, cc, _35val334);
 coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1102(struct Cora* co) {
 Obj _35val335 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35val334 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35val334 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg336 = primCons(cc, Nil);
 Obj _35reg337 = primCons(_35reg336, Nil);
 Obj _35reg338 = primCons(_35val335, _35reg337);
@@ -2440,16 +2440,16 @@ return;
 
 void _35clofun1099(struct Cora* co) {
 Obj _35val327 = co->args[1];
-Obj action = co->stack[co->base + 0];
-Obj cc = co->stack[co->base + 1];
+Obj action = co->stk.stack[ co->stk.base + 0];
+Obj cc = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1100, 2, cc, _35val327);
 coraCall(co, 2, globalRef(intern("caddr")), action);
 }
 
 void _35clofun1100(struct Cora* co) {
 Obj _35val328 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35val327 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35val327 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg329 = primCons(cc, Nil);
 Obj _35reg330 = primCons(_35reg329, Nil);
 Obj _35reg331 = primCons(_35val328, _35reg330);
@@ -2471,10 +2471,10 @@ coraCall(co, 2, literal_63, pat);
 
 void _35clofun1094(struct Cora* co) {
 Obj _35val292 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
-Obj pat = co->stack[co->base + 3];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
+Obj pat = co->stk.stack[ co->stk.base + 3];
 if (True == _35val292) {
 Obj _35reg293 = primEQ(pat, expr);
 if (True == _35reg293) {
@@ -2510,10 +2510,10 @@ coraCall(co, 2, globalRef(intern("pair?")), pat);
 
 void _35clofun1095(struct Cora* co) {
 Obj _35val307 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
-Obj pat = co->stack[co->base + 3];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
+Obj pat = co->stk.stack[ co->stk.base + 3];
 if (True == _35val307) {
 Obj _35reg308 = primCar(pat);
 Obj _35reg309 = primEQ(_35reg308, intern("quote"));
@@ -2556,7 +2556,7 @@ coraCall(co, 2, globalRef(intern("atom?")), x);
 
 void _35clofun1093(struct Cora* co) {
 Obj _35val289 = co->args[1];
-Obj x = co->stack[co->base + 0];
+Obj x = co->stk.stack[ co->stk.base + 0];
 if (True == _35val289) {
 Obj _35reg290 = primIsSymbol(x);
 Obj _35reg291 = primNot(_35reg290);
@@ -2584,10 +2584,10 @@ coraCall(co, 2, globalRef(intern("cadr")), pat);
 
 void _35clofun1074(struct Cora* co) {
 Obj _35val235 = co->args[1];
-Obj pat = co->stack[co->base + 0];
-Obj expr = co->stack[co->base + 1];
-Obj body = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj pat = co->stk.stack[ co->stk.base + 0];
+Obj expr = co->stk.stack[ co->stk.base + 1];
+Obj body = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 Obj x = _35val235;
 pushCont(co, _35clofun1075, 4, expr, body, x, cc);
 coraCall(co, 2, globalRef(intern("caddr")), pat);
@@ -2595,10 +2595,10 @@ coraCall(co, 2, globalRef(intern("caddr")), pat);
 
 void _35clofun1075(struct Cora* co) {
 Obj _35val236 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj x = co->stack[co->base + 2];
-Obj cc = co->stack[co->base + 3];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj x = co->stk.stack[ co->stk.base + 2];
+Obj cc = co->stk.stack[ co->stk.base + 3];
 Obj y = _35val236;
 Obj _35reg237 = primIsCons(expr);
 if (True == _35reg237) {
@@ -2652,18 +2652,18 @@ coraCall(co, 5, globalRef(intern("cora/init.match1")), y, _35reg280, body, cc);
 
 void _35clofun1089(struct Cora* co) {
 Obj _35val281 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj _35reg278 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
-Obj _35reg276 = co->stack[co->base + 3];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj _35reg278 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
+Obj _35reg276 = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1090, 2, cc, _35reg276);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg278, _35val281, cc);
 }
 
 void _35clofun1090(struct Cora* co) {
 Obj _35val282 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35reg276 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35reg276 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg283 = primCons(cc, Nil);
 Obj _35reg284 = primCons(_35reg283, Nil);
 Obj _35reg285 = primCons(_35val282, _35reg284);
@@ -2675,11 +2675,11 @@ return;
 
 void _35clofun1086(struct Cora* co) {
 Obj _35val272 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj y = co->stack[co->base + 1];
-Obj body = co->stack[co->base + 2];
-Obj x = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj y = co->stk.stack[ co->stk.base + 1];
+Obj body = co->stk.stack[ co->stk.base + 2];
+Obj x = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e1 = _35val272;
 pushCont(co, _35clofun1087, 5, y, body, x, e1, cc);
 coraCall(co, 2, globalRef(intern("caddr")), expr);
@@ -2687,11 +2687,11 @@ coraCall(co, 2, globalRef(intern("caddr")), expr);
 
 void _35clofun1087(struct Cora* co) {
 Obj _35val273 = co->args[1];
-Obj y = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj x = co->stack[co->base + 2];
-Obj e1 = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj y = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj x = co->stk.stack[ co->stk.base + 2];
+Obj e1 = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e2 = _35val273;
 pushCont(co, _35clofun1088, 3, x, e1, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
@@ -2699,26 +2699,26 @@ coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 
 void _35clofun1088(struct Cora* co) {
 Obj _35val274 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj e1 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj e1 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val274, cc);
 }
 
 void _35clofun1084(struct Cora* co) {
 Obj _35val265 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj _35reg262 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
-Obj _35reg260 = co->stack[co->base + 3];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj _35reg262 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
+Obj _35reg260 = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1085, 2, cc, _35reg260);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg262, _35val265, cc);
 }
 
 void _35clofun1085(struct Cora* co) {
 Obj _35val266 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35reg260 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35reg260 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg267 = primCons(cc, Nil);
 Obj _35reg268 = primCons(_35reg267, Nil);
 Obj _35reg269 = primCons(_35val266, _35reg268);
@@ -2730,11 +2730,11 @@ return;
 
 void _35clofun1081(struct Cora* co) {
 Obj _35val256 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj y = co->stack[co->base + 1];
-Obj body = co->stack[co->base + 2];
-Obj x = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj y = co->stk.stack[ co->stk.base + 1];
+Obj body = co->stk.stack[ co->stk.base + 2];
+Obj x = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e1 = _35val256;
 pushCont(co, _35clofun1082, 5, y, body, x, e1, cc);
 coraCall(co, 2, globalRef(intern("caddr")), expr);
@@ -2742,11 +2742,11 @@ coraCall(co, 2, globalRef(intern("caddr")), expr);
 
 void _35clofun1082(struct Cora* co) {
 Obj _35val257 = co->args[1];
-Obj y = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj x = co->stack[co->base + 2];
-Obj e1 = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj y = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj x = co->stk.stack[ co->stk.base + 2];
+Obj e1 = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e2 = _35val257;
 pushCont(co, _35clofun1083, 3, x, e1, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
@@ -2754,26 +2754,26 @@ coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 
 void _35clofun1083(struct Cora* co) {
 Obj _35val258 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj e1 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj e1 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val258, cc);
 }
 
 void _35clofun1079(struct Cora* co) {
 Obj _35val249 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj _35reg246 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
-Obj _35reg244 = co->stack[co->base + 3];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj _35reg246 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
+Obj _35reg244 = co->stk.stack[ co->stk.base + 3];
 pushCont(co, _35clofun1080, 2, cc, _35reg244);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, _35reg246, _35val249, cc);
 }
 
 void _35clofun1080(struct Cora* co) {
 Obj _35val250 = co->args[1];
-Obj cc = co->stack[co->base + 0];
-Obj _35reg244 = co->stack[co->base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 0];
+Obj _35reg244 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg251 = primCons(cc, Nil);
 Obj _35reg252 = primCons(_35reg251, Nil);
 Obj _35reg253 = primCons(_35val250, _35reg252);
@@ -2785,11 +2785,11 @@ return;
 
 void _35clofun1076(struct Cora* co) {
 Obj _35val240 = co->args[1];
-Obj expr = co->stack[co->base + 0];
-Obj y = co->stack[co->base + 1];
-Obj body = co->stack[co->base + 2];
-Obj x = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj expr = co->stk.stack[ co->stk.base + 0];
+Obj y = co->stk.stack[ co->stk.base + 1];
+Obj body = co->stk.stack[ co->stk.base + 2];
+Obj x = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e1 = _35val240;
 pushCont(co, _35clofun1077, 5, y, body, x, e1, cc);
 coraCall(co, 2, globalRef(intern("caddr")), expr);
@@ -2797,11 +2797,11 @@ coraCall(co, 2, globalRef(intern("caddr")), expr);
 
 void _35clofun1077(struct Cora* co) {
 Obj _35val241 = co->args[1];
-Obj y = co->stack[co->base + 0];
-Obj body = co->stack[co->base + 1];
-Obj x = co->stack[co->base + 2];
-Obj e1 = co->stack[co->base + 3];
-Obj cc = co->stack[co->base + 4];
+Obj y = co->stk.stack[ co->stk.base + 0];
+Obj body = co->stk.stack[ co->stk.base + 1];
+Obj x = co->stk.stack[ co->stk.base + 2];
+Obj e1 = co->stk.stack[ co->stk.base + 3];
+Obj cc = co->stk.stack[ co->stk.base + 4];
 Obj e2 = _35val241;
 pushCont(co, _35clofun1078, 3, x, e1, cc);
 coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
@@ -2809,9 +2809,9 @@ coraCall(co, 5, globalRef(intern("cora/init.match1")), y, e2, body, cc);
 
 void _35clofun1078(struct Cora* co) {
 Obj _35val242 = co->args[1];
-Obj x = co->stack[co->base + 0];
-Obj e1 = co->stack[co->base + 1];
-Obj cc = co->stack[co->base + 2];
+Obj x = co->stk.stack[ co->stk.base + 0];
+Obj e1 = co->stk.stack[ co->stk.base + 1];
+Obj cc = co->stk.stack[ co->stk.base + 2];
 coraCall(co, 5, globalRef(intern("cora/init.match1")), x, e1, _35val242, cc);
 }
 
@@ -2830,7 +2830,7 @@ coraCall(co, 2, globalRef(intern("null?")), _35reg223);
 
 void _35clofun1069(struct Cora* co) {
 Obj _35val224 = co->args[1];
-Obj pat = co->stack[co->base + 0];
+Obj pat = co->stk.stack[ co->stk.base + 0];
 if (True == _35val224) {
 Obj _35reg225 = primCar(pat);
 coraReturn(co, _35reg225);
@@ -2845,7 +2845,7 @@ coraCall(co, 2, globalRef(intern("cora/init.rcons1")), _35reg227);
 
 void _35clofun1070(struct Cora* co) {
 Obj _35val228 = co->args[1];
-Obj _35reg226 = co->stack[co->base + 0];
+Obj _35reg226 = co->stk.stack[ co->stk.base + 0];
 Obj _35reg229 = primCons(_35val228, Nil);
 Obj _35reg230 = primCons(_35reg226, _35reg229);
 Obj _35reg231 = primCons(intern("cons"), _35reg230);
@@ -2899,7 +2899,7 @@ coraCall(co, 2, globalRef(intern("cora/init.rewrite-and")), _35reg209);
 
 void _35clofun1064(struct Cora* co) {
 Obj _35val210 = co->args[1];
-Obj l = co->stack[co->base + 0];
+Obj l = co->stk.stack[ co->stk.base + 0];
 Obj more = _35val210;
 Obj _35reg211 = primEQ(more, False);
 if (True == _35reg211) {
@@ -2944,7 +2944,7 @@ coraCall(co, 2, globalRef(intern("cora/init.rewrite-or")), _35reg195);
 
 void _35clofun1060(struct Cora* co) {
 Obj _35val196 = co->args[1];
-Obj l = co->stack[co->base + 0];
+Obj l = co->stk.stack[ co->stk.base + 0];
 Obj more = _35val196;
 Obj _35reg197 = primEQ(more, True);
 if (True == _35reg197) {
@@ -2978,7 +2978,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1055(struct Cora* co) {
 Obj _35val182 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 Obj curr = _35val182;
 Obj _35reg183 = primCar(curr);
 pushCont(co, _35clofun1056, 2, exp, _35reg183);
@@ -2987,16 +2987,16 @@ coraCall(co, 2, globalRef(intern("cadr")), curr);
 
 void _35clofun1056(struct Cora* co) {
 Obj _35val184 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj _35reg183 = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj _35reg183 = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1057, 2, _35val184, _35reg183);
 coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1057(struct Cora* co) {
 Obj _35val185 = co->args[1];
-Obj _35val184 = co->stack[co->base + 0];
-Obj _35reg183 = co->stack[co->base + 1];
+Obj _35val184 = co->stk.stack[ co->stk.base + 0];
+Obj _35reg183 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg186 = primCons(intern("cond"), _35val185);
 Obj _35reg187 = primCons(_35reg186, Nil);
 Obj _35reg188 = primCons(_35val184, _35reg187);
@@ -3021,7 +3021,7 @@ coraCall(co, 2, globalRef(intern("null?")), _35reg164);
 
 void _35clofun1048(struct Cora* co) {
 Obj _35val165 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 if (True == _35val165) {
 Obj _35reg166 = primCar(exp);
 coraReturn(co, _35reg166);
@@ -3035,24 +3035,24 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1049(struct Cora* co) {
 Obj _35val168 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj _35reg167 = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj _35reg167 = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1050, 2, _35val168, _35reg167);
 coraCall(co, 2, globalRef(intern("cddr")), exp);
 }
 
 void _35clofun1050(struct Cora* co) {
 Obj _35val169 = co->args[1];
-Obj _35val168 = co->stack[co->base + 0];
-Obj _35reg167 = co->stack[co->base + 1];
+Obj _35val168 = co->stk.stack[ co->stk.base + 0];
+Obj _35reg167 = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1051, 2, _35val168, _35reg167);
 coraCall(co, 2, globalRef(intern("cora/init.rewrite-let")), _35val169);
 }
 
 void _35clofun1051(struct Cora* co) {
 Obj _35val170 = co->args[1];
-Obj _35val168 = co->stack[co->base + 0];
-Obj _35reg167 = co->stack[co->base + 1];
+Obj _35val168 = co->stk.stack[ co->stk.base + 0];
+Obj _35reg167 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg171 = primCons(_35val170, Nil);
 Obj _35reg172 = primCons(_35val168, _35reg171);
 Obj _35reg173 = primCons(_35reg167, _35reg172);
@@ -3097,7 +3097,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1041(struct Cora* co) {
 Obj _35val144 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 Obj _35reg145 = primCons(_35val144, Nil);
 Obj _35reg146 = primCons(intern("quote"), _35reg145);
 pushCont(co, _35clofun1042, 2, exp, _35reg146);
@@ -3106,16 +3106,16 @@ coraCall(co, 2, globalRef(intern("caddr")), exp);
 
 void _35clofun1042(struct Cora* co) {
 Obj _35val147 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj _35reg146 = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj _35reg146 = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1043, 2, _35val147, _35reg146);
 coraCall(co, 2, globalRef(intern("cadddr")), exp);
 }
 
 void _35clofun1043(struct Cora* co) {
 Obj _35val148 = co->args[1];
-Obj _35val147 = co->stack[co->base + 0];
-Obj _35reg146 = co->stack[co->base + 1];
+Obj _35val147 = co->stk.stack[ co->stk.base + 0];
+Obj _35reg146 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg149 = primCons(_35val148, Nil);
 Obj _35reg150 = primCons(_35val147, _35reg149);
 Obj _35reg151 = primCons(intern("lambda"), _35reg150);
@@ -3140,7 +3140,7 @@ coraCall(co, 2, globalRef(intern("cadr")), exp);
 
 void _35clofun1034(struct Cora* co) {
 Obj _35val130 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 Obj _35reg131 = primCons(_35val130, Nil);
 Obj _35reg132 = primCons(intern("quote"), _35reg131);
 pushCont(co, _35clofun1035, 2, exp, _35reg132);
@@ -3149,16 +3149,16 @@ coraCall(co, 2, globalRef(intern("caddr")), exp);
 
 void _35clofun1035(struct Cora* co) {
 Obj _35val133 = co->args[1];
-Obj exp = co->stack[co->base + 0];
-Obj _35reg132 = co->stack[co->base + 1];
+Obj exp = co->stk.stack[ co->stk.base + 0];
+Obj _35reg132 = co->stk.stack[ co->stk.base + 1];
 pushCont(co, _35clofun1036, 2, _35val133, _35reg132);
 coraCall(co, 2, globalRef(intern("cdddr")), exp);
 }
 
 void _35clofun1036(struct Cora* co) {
 Obj _35val134 = co->args[1];
-Obj _35val133 = co->stack[co->base + 0];
-Obj _35reg132 = co->stack[co->base + 1];
+Obj _35val133 = co->stk.stack[ co->stk.base + 0];
+Obj _35reg132 = co->stk.stack[ co->stk.base + 1];
 Obj _35reg135 = primCons(_35val133, _35val134);
 Obj _35reg136 = primCons(intern("lambda"), _35reg135);
 Obj _35reg137 = primCons(_35reg136, Nil);
@@ -3204,7 +3204,7 @@ return;
 
 void _35clofun1031(struct Cora* co) {
 Obj _35val127 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 coraCall(co, 2, makeNative(_35clofun1032, 1, 1, exp), _35val127);
 }
 
@@ -3220,21 +3220,21 @@ coraCall(co, 2, globalRef(intern("cora/init.macroexpand-boot")), exp1);
 
 void _35clofun1028(struct Cora* co) {
 Obj _35val118 = co->args[1];
-Obj exp = co->stack[co->base + 0];
+Obj exp = co->stk.stack[ co->stk.base + 0];
 pushCont(co, _35clofun1029, 1, _35val118);
 coraCall(co, 2, globalRef(intern("caddr")), exp);
 }
 
 void _35clofun1029(struct Cora* co) {
 Obj _35val119 = co->args[1];
-Obj _35val118 = co->stack[co->base + 0];
+Obj _35val118 = co->stk.stack[ co->stk.base + 0];
 pushCont(co, _35clofun1030, 1, _35val118);
 coraCall(co, 2, globalRef(intern("cora/init.macroexpand-boot")), _35val119);
 }
 
 void _35clofun1030(struct Cora* co) {
 Obj _35val120 = co->args[1];
-Obj _35val118 = co->stack[co->base + 0];
+Obj _35val118 = co->stk.stack[ co->stk.base + 0];
 Obj _35reg121 = primCons(_35val120, Nil);
 Obj _35reg122 = primCons(_35val118, _35reg121);
 Obj _35reg123 = primCons(intern("lambda"), _35reg122);
@@ -3334,9 +3334,9 @@ coraCall(co, 2, globalRef(intern("reverse")), res);
 
 void _35clofun1020(struct Cora* co) {
 Obj _35val84 = co->args[1];
-Obj res = co->stack[co->base + 0];
-Obj l = co->stack[co->base + 1];
-Obj f = co->stack[co->base + 2];
+Obj res = co->stk.stack[ co->stk.base + 0];
+Obj l = co->stk.stack[ co->stk.base + 1];
+Obj f = co->stk.stack[ co->stk.base + 2];
 Obj _35reg85 = primCons(_35val84, res);
 Obj _35reg86 = primCdr(l);
 coraCall(co, 4, globalRef(intern("map-h")), _35reg85, f, _35reg86);
@@ -3380,7 +3380,7 @@ return;
 
 void _35clofun1015(struct Cora* co) {
 Obj _35val68 = co->args[1];
-Obj _35reg66 = co->stack[co->base + 0];
+Obj _35reg66 = co->stk.stack[ co->stk.base + 0];
 Obj _35reg69 = primCons(_35val68, Nil);
 Obj _35reg70 = primCons(_35reg66, _35reg69);
 Obj _35reg71 = primCons(intern("cons"), _35reg70);
