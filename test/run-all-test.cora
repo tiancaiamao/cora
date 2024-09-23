@@ -1,5 +1,5 @@
 (@import "cora/lib/sys")
-(@import "cora/lib/toc/include" toc)
+(@import "cora/lib/toc" toc)
 (@import "cora/lib/os" os)
 (@import "cora/lib/io" io)
 (@import "cora/lib/string" string)

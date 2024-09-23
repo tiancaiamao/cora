@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   co->args[2] = makeString1("");
   co->nargs = 3;
   trampoline(co, builtinLoadSo);
-  symbolSet(imported, cons(makeString1("cora/lib/toc/include"), symbolGet(imported)));
+  symbolSet(imported, cons(makeString1("cora/lib/toc"), symbolGet(imported)));
   
   struct SexpReader r = {};
   int errCode = 0;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     /* printf(" --- %d %d\n", co->base, co->pos); */
     /* printf("\n"); */
 
-    co->args[0] = globalRef(intern("cora/lib/toc/include.eval0"));
+    co->args[0] = globalRef(intern("cora/lib/toc.eval0"));
     co->args[1] = exp;
     co->nargs = 2;
     trampoline(co, coraDispatch);

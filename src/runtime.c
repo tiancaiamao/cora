@@ -579,7 +579,7 @@ builtinLoad(struct Cora *co) {
   Obj pkg = co->args[2];
 
   co->nargs = 4;
-  co->args[0] = globalRef(intern("cora/lib/toc/include.compile-to-c"));
+  co->args[0] = globalRef(intern("cora/lib/toc.compile-to-c"));
   co->args[1] = filePath;
 
   const int BUFSIZE = 512;
