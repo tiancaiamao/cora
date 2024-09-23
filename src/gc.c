@@ -273,8 +273,14 @@ gcAllocReturn(struct GC *gc, scmHead *head) {
   return head;
 }
 
+static void gcRun(struct GC *gc);
+
 void*
 gcAlloc(struct GC *gc, int size) {
+  if (gc->state != gcStateNone) {
+    gcRun(gc);
+  }
+
   size = aligntonext(size, TAG_SHIFT);
   assert(size > sizeof(scmHead));
   assert(size < MEM_BLOCK_SIZE);
@@ -489,7 +495,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcRunIncremental(struct GC *gc) {
-  int N = 100;
+  int N = 20;
   // breadth first.
   scmHead *curr = gcDequeue(gc);
   while(curr != NULL) {
@@ -518,7 +524,7 @@ gcRunIncremental(struct GC *gc) {
   gc->currOffset = 0;
 }
 
-void
+static void
 gcRun(struct GC *gc) {
   switch (gc->state) {
   case gcStateNone:
@@ -530,11 +536,6 @@ gcRun(struct GC *gc) {
     gcRunIncremental(gc);
     break;
   }
-}
-
-bool
-gcCheck(struct GC* gc) {
-  return gc->state != gcStateNone;
 }
 
 void

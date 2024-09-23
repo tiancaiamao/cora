@@ -111,11 +111,12 @@ int nativeRequired(Obj o);
 basicBlock nativeFuncPtr(Obj o);
 
 struct returnAddr {
-  basicBlock pc;
-  Obj frees;
+  Obj *stack;
   int base;
   int pos;
-  Obj *stack;
+
+  basicBlock pc;
+  Obj frees;
 };
 
 struct callStack {
