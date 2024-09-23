@@ -94,9 +94,14 @@ struct Cora;
 
 typedef void (*basicBlock)(struct Cora *co);
 
+struct pcState {
+  basicBlock func;
+  int label;
+};
+
 struct scmNative {
   scmHead head;
-  basicBlock fn;
+  struct pcState code;
   // required is the argument number of the nativeFunc.
   int required;
   // captured is the size of the data, it's immutable after makeNative.
@@ -108,7 +113,7 @@ Obj makeNative(basicBlock fn, int required, int captured, ...);
 Obj* nativeData(Obj o);
 int nativeCaptured(Obj o);
 int nativeRequired(Obj o);
-basicBlock nativeFuncPtr(Obj o);
+struct pcState* nativeFuncPtr(Obj o);
 
 struct stackState {
   Obj *stack;
@@ -118,7 +123,7 @@ struct stackState {
 
 struct returnAddr {
   struct stackState stk;
-  basicBlock pc;
+  struct pcState pc;
   Obj frees;
 };
 

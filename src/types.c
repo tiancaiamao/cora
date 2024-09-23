@@ -240,10 +240,11 @@ symbolStr(Obj sym) {
 }
 
 Obj
-makeNative(basicBlock fn, int required, int captured, ...) {
+makeNative(/* int label,  */basicBlock fn, int required, int captured, ...) {
   int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
   struct scmNative* clo = newObj(scmHeadNative, sz);
-  clo->fn = fn;
+  clo->code.func = fn;
+  /* clo->code.label = label; */
   clo->required = required;
   clo->captured = captured;
   if (captured > 0) {
@@ -294,11 +295,11 @@ nativeCaptured(Obj o) {
   return native->captured;
 }
 
-basicBlock
+struct pcState*
 nativeFuncPtr(Obj o) {
   struct scmNative* native = ptr(o);
   assert(native->head.type == scmHeadNative);
-  return native->fn;
+  return &native->code;
 }
 
 int

@@ -16,13 +16,13 @@ struct Cora {
   int nargs;
 };
 
-void trampoline(struct Cora *co, basicBlock pc);
+void trampoline(struct Cora *co, int label, basicBlock pc);
 void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
 void coraCall(struct Cora *co, int nargs, ...);
 
-void pushCont(struct Cora *co, basicBlock cb, int nstack, ...);
+void pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...);
 Obj globalRef(Obj sym);
 Obj closureRef(struct Cora *co, int idx);
 
