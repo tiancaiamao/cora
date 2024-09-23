@@ -68,7 +68,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 static void
 popStack(struct Cora *co) {
   struct callStack *cs = &co->callstack;
-  co->ctx = cs->data[cs->len--];
+  co->ctx = cs->data[--cs->len];
   return;
 }
 
@@ -900,7 +900,7 @@ int main(int argc, char *argv[]) {
   uintptr_t dummy;
   coraInit(&dummy);
   struct Cora* co = coraNew();
-  trampoline(co, entry);
+  trampoline(co, 0, entry);
   printObj(stdout, co->args[1]);
   return 0;
 }
