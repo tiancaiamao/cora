@@ -214,17 +214,17 @@ void _35clofun1007(struct Cora* co);
 void _35clofun1006(struct Cora* co);
 
 void entry(struct Cora* co) {
-Obj _35reg39 = primSet(intern("null?"), makeNative(_35clofun1006, 1, 0));
-Obj _35reg42 = primSet(intern("cadr"), makeNative(_35clofun1007, 1, 0));
-Obj _35reg45 = primSet(intern("caar"), makeNative(_35clofun1008, 1, 0));
-Obj _35reg48 = primSet(intern("cdar"), makeNative(_35clofun1009, 1, 0));
-Obj _35reg51 = primSet(intern("cddr"), makeNative(_35clofun1010, 1, 0));
-Obj _35reg55 = primSet(intern("caddr"), makeNative(_35clofun1011, 1, 0));
-Obj _35reg60 = primSet(intern("cadddr"), makeNative(_35clofun1012, 1, 0));
-Obj _35reg64 = primSet(intern("cdddr"), makeNative(_35clofun1013, 1, 0));
-Obj _35reg72 = primSet(intern("rcons"), makeNative(_35clofun1014, 1, 0));
-Obj _35reg74 = primSet(intern("pair?"), makeNative(_35clofun1016, 1, 0));
-Obj _35reg79 = primSet(intern("cora/init.reverse-h"), makeNative(_35clofun1017, 2, 0));
+Obj _35reg39 = primSet(intern("null?"), makeNative(0, _35clofun1006, 1, 0));
+Obj _35reg42 = primSet(intern("cadr"), makeNative(0, _35clofun1007, 1, 0));
+Obj _35reg45 = primSet(intern("caar"), makeNative(0, _35clofun1008, 1, 0));
+Obj _35reg48 = primSet(intern("cdar"), makeNative(0, _35clofun1009, 1, 0));
+Obj _35reg51 = primSet(intern("cddr"), makeNative(0, _35clofun1010, 1, 0));
+Obj _35reg55 = primSet(intern("caddr"), makeNative(0, _35clofun1011, 1, 0));
+Obj _35reg60 = primSet(intern("cadddr"), makeNative(0, _35clofun1012, 1, 0));
+Obj _35reg64 = primSet(intern("cdddr"), makeNative(0, _35clofun1013, 1, 0));
+Obj _35reg72 = primSet(intern("rcons"), makeNative(0, _35clofun1014, 1, 0));
+Obj _35reg74 = primSet(intern("pair?"), makeNative(0, _35clofun1016, 1, 0));
+Obj _35reg79 = primSet(intern("cora/init.reverse-h"), makeNative(0, _35clofun1017, 2, 0));
 pushCont(co, 0, _35clofun1018, 0);
 coraCall(co, 2, globalRef(intern("cora/init.reverse-h")), Nil);
 }
@@ -232,18 +232,18 @@ coraCall(co, 2, globalRef(intern("cora/init.reverse-h")), Nil);
 void _35clofun1018(struct Cora* co) {
 Obj _35val80 = co->args[1];
 Obj _35reg81 = primSet(intern("reverse"), _35val80);
-Obj _35reg87 = primSet(intern("map-h"), makeNative(_35clofun1019, 3, 0));
-Obj _35reg88 = primSet(intern("map"), makeNative(_35clofun1021, 2, 0));
+Obj _35reg87 = primSet(intern("map-h"), makeNative(0, _35clofun1019, 3, 0));
+Obj _35reg88 = primSet(intern("map"), makeNative(0, _35clofun1021, 2, 0));
 Obj _35reg89 = primSet(intern("*macros*"), Nil);
 Obj _35reg90 = primGenSym(intern("protect"));
 Obj _35reg91 = primSet(intern("*protect-symbol*"), _35reg90);
-Obj _35reg93 = primSet(intern("cora/init.protect"), makeNative(_35clofun1022, 1, 0));
-Obj _35reg97 = primSet(intern("cora/init.add-to-*macros*"), makeNative(_35clofun1023, 2, 0));
-Obj _35reg110 = primSet(intern("cora/init.macroexpand1-h"), makeNative(_35clofun1024, 2, 0));
-Obj _35reg111 = primSet(intern("cora/init.macroexpand1"), makeNative(_35clofun1026, 1, 0));
-Obj _35reg128 = primSet(intern("cora/init.macroexpand-boot"), makeNative(_35clofun1027, 1, 0));
+Obj _35reg93 = primSet(intern("cora/init.protect"), makeNative(0, _35clofun1022, 1, 0));
+Obj _35reg97 = primSet(intern("cora/init.add-to-*macros*"), makeNative(0, _35clofun1023, 2, 0));
+Obj _35reg110 = primSet(intern("cora/init.macroexpand1-h"), makeNative(0, _35clofun1024, 2, 0));
+Obj _35reg111 = primSet(intern("cora/init.macroexpand1"), makeNative(0, _35clofun1026, 1, 0));
+Obj _35reg128 = primSet(intern("cora/init.macroexpand-boot"), makeNative(0, _35clofun1027, 1, 0));
 Obj _35reg129 = primSet(intern("macroexpand"), globalRef(intern("cora/init.macroexpand-boot")));
-Obj _35reg140 = primSet(intern("defmacro-macro"), makeNative(_35clofun1033, 1, 0));
+Obj _35reg140 = primSet(intern("defmacro-macro"), makeNative(0, _35clofun1033, 1, 0));
 pushCont(co, 0, _35clofun1037, 0);
 coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defmacro"), globalRef(intern("defmacro-macro")));
 }
@@ -251,93 +251,93 @@ coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defmacro
 void _35clofun1037(struct Cora* co) {
 Obj _35val141 = co->args[1];
 pushCont(co, 0, _35clofun1039, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list"), makeNative(_35clofun1038, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list"), makeNative(0, _35clofun1038, 1, 0));
 }
 
 void _35clofun1039(struct Cora* co) {
 Obj _35val143 = co->args[1];
 pushCont(co, 0, _35clofun1044, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defun"), makeNative(_35clofun1040, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("defun"), makeNative(0, _35clofun1040, 1, 0));
 }
 
 void _35clofun1044(struct Cora* co) {
 Obj _35val155 = co->args[1];
-Obj _35reg160 = primSet(intern("elem?"), makeNative(_35clofun1045, 2, 0));
-Obj _35reg163 = primSet(intern("atom?"), makeNative(_35clofun1046, 1, 0));
-Obj _35reg175 = primSet(intern("cora/init.rewrite-let"), makeNative(_35clofun1047, 1, 0));
+Obj _35reg160 = primSet(intern("elem?"), makeNative(0, _35clofun1045, 2, 0));
+Obj _35reg163 = primSet(intern("atom?"), makeNative(0, _35clofun1046, 1, 0));
+Obj _35reg175 = primSet(intern("cora/init.rewrite-let"), makeNative(0, _35clofun1047, 1, 0));
 pushCont(co, 0, _35clofun1053, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("let"), makeNative(_35clofun1052, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("let"), makeNative(0, _35clofun1052, 1, 0));
 }
 
 void _35clofun1053(struct Cora* co) {
 Obj _35val177 = co->args[1];
 pushCont(co, 0, _35clofun1058, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("cond"), makeNative(_35clofun1054, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("cond"), makeNative(0, _35clofun1054, 1, 0));
 }
 
 void _35clofun1058(struct Cora* co) {
 Obj _35val191 = co->args[1];
-Obj _35reg203 = primSet(intern("cora/init.rewrite-or"), makeNative(_35clofun1059, 1, 0));
+Obj _35reg203 = primSet(intern("cora/init.rewrite-or"), makeNative(0, _35clofun1059, 1, 0));
 pushCont(co, 0, _35clofun1062, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("or"), makeNative(_35clofun1061, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("or"), makeNative(0, _35clofun1061, 1, 0));
 }
 
 void _35clofun1062(struct Cora* co) {
 Obj _35val205 = co->args[1];
-Obj _35reg217 = primSet(intern("cora/init.rewrite-and"), makeNative(_35clofun1063, 1, 0));
+Obj _35reg217 = primSet(intern("cora/init.rewrite-and"), makeNative(0, _35clofun1063, 1, 0));
 pushCont(co, 0, _35clofun1066, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("and"), makeNative(_35clofun1065, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("and"), makeNative(0, _35clofun1065, 1, 0));
 }
 
 void _35clofun1066(struct Cora* co) {
 Obj _35val219 = co->args[1];
-Obj _35reg222 = primSet(intern("boolean?"), makeNative(_35clofun1067, 1, 0));
-Obj _35reg232 = primSet(intern("cora/init.rcons1"), makeNative(_35clofun1068, 1, 0));
+Obj _35reg222 = primSet(intern("boolean?"), makeNative(0, _35clofun1067, 1, 0));
+Obj _35reg232 = primSet(intern("cora/init.rcons1"), makeNative(0, _35clofun1068, 1, 0));
 pushCont(co, 0, _35clofun1072, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list-rest"), makeNative(_35clofun1071, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("list-rest"), makeNative(0, _35clofun1071, 1, 0));
 }
 
 void _35clofun1072(struct Cora* co) {
 Obj _35val234 = co->args[1];
-Obj _35reg288 = primSet(intern("cora/init.match-cons-expander"), makeNative(_35clofun1073, 4, 0));
-Obj _35reg321 = primSet(intern("cora/init.match1"), makeNative(_35clofun1091, 4, 0));
-Obj _35reg348 = primSet(intern("cora/init.extract-rule-action"), makeNative(_35clofun1097, 2, 0));
-Obj _35reg400 = primSet(intern("cora/init.match-helper"), makeNative(_35clofun1105, 2, 0));
-Obj _35reg426 = primSet(intern("cora/init.rewrite-match"), makeNative(_35clofun1121, 1, 0));
+Obj _35reg288 = primSet(intern("cora/init.match-cons-expander"), makeNative(0, _35clofun1073, 4, 0));
+Obj _35reg321 = primSet(intern("cora/init.match1"), makeNative(0, _35clofun1091, 4, 0));
+Obj _35reg348 = primSet(intern("cora/init.extract-rule-action"), makeNative(0, _35clofun1097, 2, 0));
+Obj _35reg400 = primSet(intern("cora/init.match-helper"), makeNative(0, _35clofun1105, 2, 0));
+Obj _35reg426 = primSet(intern("cora/init.rewrite-match"), makeNative(0, _35clofun1121, 1, 0));
 pushCont(co, 0, _35clofun1129, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("match"), makeNative(_35clofun1128, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("match"), makeNative(0, _35clofun1128, 1, 0));
 }
 
 void _35clofun1129(struct Cora* co) {
 Obj _35val427 = co->args[1];
-Obj _35reg479 = primSet(intern("cora/init.extract-rules1"), makeNative(_35clofun1130, 3, 0));
-Obj _35reg480 = primSet(intern("cora/init.extract-rules"), makeNative(_35clofun1137, 1, 0));
-Obj _35reg485 = primSet(intern("cora/init.rules-patterns"), makeNative(_35clofun1138, 2, 0));
-Obj _35reg489 = primSet(intern("cora/init.length-h"), makeNative(_35clofun1141, 2, 0));
-Obj _35reg490 = primSet(intern("length"), makeNative(_35clofun1142, 1, 0));
-Obj _35reg498 = primSet(intern("cora/init.filter-h"), makeNative(_35clofun1143, 3, 0));
-Obj _35reg499 = primSet(intern("filter"), makeNative(_35clofun1145, 2, 0));
-Obj _35reg505 = primSet(intern("append"), makeNative(_35clofun1146, 2, 0));
-Obj _35reg516 = primSet(intern("cora/init.rules-arg-count"), makeNative(_35clofun1148, 1, 0));
-Obj _35reg522 = primSet(intern("cora/init.gen-parameters"), makeNative(_35clofun1155, 1, 0));
+Obj _35reg479 = primSet(intern("cora/init.extract-rules1"), makeNative(0, _35clofun1130, 3, 0));
+Obj _35reg480 = primSet(intern("cora/init.extract-rules"), makeNative(0, _35clofun1137, 1, 0));
+Obj _35reg485 = primSet(intern("cora/init.rules-patterns"), makeNative(0, _35clofun1138, 2, 0));
+Obj _35reg489 = primSet(intern("cora/init.length-h"), makeNative(0, _35clofun1141, 2, 0));
+Obj _35reg490 = primSet(intern("length"), makeNative(0, _35clofun1142, 1, 0));
+Obj _35reg498 = primSet(intern("cora/init.filter-h"), makeNative(0, _35clofun1143, 3, 0));
+Obj _35reg499 = primSet(intern("filter"), makeNative(0, _35clofun1145, 2, 0));
+Obj _35reg505 = primSet(intern("append"), makeNative(0, _35clofun1146, 2, 0));
+Obj _35reg516 = primSet(intern("cora/init.rules-arg-count"), makeNative(0, _35clofun1148, 1, 0));
+Obj _35reg522 = primSet(intern("cora/init.gen-parameters"), makeNative(0, _35clofun1155, 1, 0));
 pushCont(co, 0, _35clofun1163, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("func"), makeNative(_35clofun1157, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("func"), makeNative(0, _35clofun1157, 1, 0));
 }
 
 void _35clofun1163(struct Cora* co) {
 Obj _35val535 = co->args[1];
-Obj _35reg798 = primSet(intern("cora/init.propagate-boolean0"), makeNative(_35clofun1164, 1, 0));
-Obj _35reg956 = primSet(intern("cora/init.propagate-boolean"), makeNative(_35clofun1176, 1, 0));
-Obj _35reg958 = primSet(intern("macroexpand"), makeNative(_35clofun1199, 1, 0));
-Obj _35reg982 = primSet(intern("cora/init.rewrite-begin"), makeNative(_35clofun1201, 1, 0));
+Obj _35reg798 = primSet(intern("cora/init.propagate-boolean0"), makeNative(0, _35clofun1164, 1, 0));
+Obj _35reg956 = primSet(intern("cora/init.propagate-boolean"), makeNative(0, _35clofun1176, 1, 0));
+Obj _35reg958 = primSet(intern("macroexpand"), makeNative(0, _35clofun1199, 1, 0));
+Obj _35reg982 = primSet(intern("cora/init.rewrite-begin"), makeNative(0, _35clofun1201, 1, 0));
 pushCont(co, 0, _35clofun1207, 0);
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("begin"), makeNative(_35clofun1206, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("begin"), makeNative(0, _35clofun1206, 1, 0));
 }
 
 void _35clofun1207(struct Cora* co) {
 Obj _35val984 = co->args[1];
-Obj _35reg1004 = primSet(intern("cora/init.rewrite-backquote"), makeNative(_35clofun1208, 1, 0));
-coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("backquote"), makeNative(_35clofun1214, 1, 0));
+Obj _35reg1004 = primSet(intern("cora/init.rewrite-backquote"), makeNative(0, _35clofun1208, 1, 0));
+coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("backquote"), makeNative(0, _35clofun1214, 1, 0));
 }
 
 void _35clofun1214(struct Cora* co) {
@@ -353,7 +353,7 @@ coraCall(co, 2, globalRef(intern("cora/init.rewrite-backquote")), _35val1005);
 
 void _35clofun1208(struct Cora* co) {
 Obj _35p33 = co->args[1];
-Obj _35cc34 = makeNative(_35clofun1209, 0, 1, _35p33);
+Obj _35cc34 = makeNative(0, _35clofun1209, 0, 1, _35p33);
 Obj x = _35p33;
 Obj _35reg1001 = primIsSymbol(x);
 if (True == _35reg1001) {
@@ -367,7 +367,7 @@ coraCall(co, 1, _35cc34);
 }
 
 void _35clofun1209(struct Cora* co) {
-Obj _35cc35 = makeNative(_35clofun1210, 0, 1, closureRef(co, 0));
+Obj _35cc35 = makeNative(0, _35clofun1210, 0, 1, closureRef(co, 0));
 Obj _35reg991 = primIsCons(closureRef(co, 0));
 if (True == _35reg991) {
 Obj _35reg992 = primCar(closureRef(co, 0));
@@ -400,7 +400,7 @@ coraCall(co, 1, _35cc35);
 }
 
 void _35clofun1210(struct Cora* co) {
-Obj _35cc36 = makeNative(_35clofun1211, 0, 1, closureRef(co, 0));
+Obj _35cc36 = makeNative(0, _35clofun1211, 0, 1, closureRef(co, 0));
 Obj _35reg985 = primIsCons(closureRef(co, 0));
 if (True == _35reg985) {
 Obj _35reg986 = primCar(closureRef(co, 0));
@@ -423,7 +423,7 @@ return;
 }
 
 void _35clofun1211(struct Cora* co) {
-Obj _35cc37 = makeNative(_35clofun1212, 0, 0);
+Obj _35cc37 = makeNative(0, _35clofun1212, 0, 0);
 Obj x = closureRef(co, 0);
 coraReturn(co, x);
 return;
@@ -441,7 +441,7 @@ coraCall(co, 2, globalRef(intern("cora/init.rewrite-begin")), _35reg983);
 
 void _35clofun1201(struct Cora* co) {
 Obj _35p29 = co->args[1];
-Obj _35cc30 = makeNative(_35clofun1202, 0, 1, _35p29);
+Obj _35cc30 = makeNative(0, _35clofun1202, 0, 1, _35p29);
 Obj _35reg978 = primIsCons(_35p29);
 if (True == _35reg978) {
 Obj _35reg979 = primCar(_35p29);
@@ -460,7 +460,7 @@ coraCall(co, 1, _35cc30);
 }
 
 void _35clofun1202(struct Cora* co) {
-Obj _35cc31 = makeNative(_35clofun1203, 0, 1, closureRef(co, 0));
+Obj _35cc31 = makeNative(0, _35clofun1203, 0, 1, closureRef(co, 0));
 Obj _35reg966 = primIsCons(closureRef(co, 0));
 if (True == _35reg966) {
 Obj _35reg967 = primCar(closureRef(co, 0));
@@ -492,7 +492,7 @@ coraCall(co, 1, _35cc31);
 }
 
 void _35clofun1203(struct Cora* co) {
-Obj _35cc32 = makeNative(_35clofun1204, 0, 0);
+Obj _35cc32 = makeNative(0, _35clofun1204, 0, 0);
 Obj _35reg959 = primIsCons(closureRef(co, 0));
 if (True == _35reg959) {
 Obj _35reg960 = primCar(closureRef(co, 0));
@@ -533,7 +533,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean")), _35val957);
 
 void _35clofun1176(struct Cora* co) {
 Obj _35p17 = co->args[1];
-Obj _35cc18 = makeNative(_35clofun1177, 0, 1, _35p17);
+Obj _35cc18 = makeNative(0, _35clofun1177, 0, 1, _35p17);
 Obj _35reg944 = primIsCons(_35p17);
 if (True == _35reg944) {
 Obj _35reg945 = primCar(_35p17);
@@ -568,7 +568,7 @@ coraCall(co, 1, _35cc18);
 }
 
 void _35clofun1177(struct Cora* co) {
-Obj _35cc19 = makeNative(_35clofun1178, 0, 1, closureRef(co, 0));
+Obj _35cc19 = makeNative(0, _35clofun1178, 0, 1, closureRef(co, 0));
 Obj _35reg931 = primIsCons(closureRef(co, 0));
 if (True == _35reg931) {
 Obj _35reg932 = primCar(closureRef(co, 0));
@@ -609,7 +609,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg943);
 }
 
 void _35clofun1178(struct Cora* co) {
-Obj _35cc20 = makeNative(_35clofun1179, 0, 1, closureRef(co, 0));
+Obj _35cc20 = makeNative(0, _35clofun1179, 0, 1, closureRef(co, 0));
 Obj _35reg918 = primIsCons(closureRef(co, 0));
 if (True == _35reg918) {
 Obj _35reg919 = primCar(closureRef(co, 0));
@@ -650,7 +650,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg930);
 }
 
 void _35clofun1179(struct Cora* co) {
-Obj _35cc21 = makeNative(_35clofun1180, 0, 1, closureRef(co, 0));
+Obj _35cc21 = makeNative(0, _35clofun1180, 0, 1, closureRef(co, 0));
 Obj _35reg905 = primIsCons(closureRef(co, 0));
 if (True == _35reg905) {
 Obj _35reg906 = primCar(closureRef(co, 0));
@@ -691,7 +691,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg917);
 }
 
 void _35clofun1180(struct Cora* co) {
-Obj _35cc22 = makeNative(_35clofun1181, 0, 1, closureRef(co, 0));
+Obj _35cc22 = makeNative(0, _35clofun1181, 0, 1, closureRef(co, 0));
 Obj _35reg883 = primIsCons(closureRef(co, 0));
 if (True == _35reg883) {
 Obj _35reg884 = primCar(closureRef(co, 0));
@@ -754,7 +754,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg904);
 }
 
 void _35clofun1181(struct Cora* co) {
-Obj _35cc23 = makeNative(_35clofun1182, 0, 1, closureRef(co, 0));
+Obj _35cc23 = makeNative(0, _35clofun1182, 0, 1, closureRef(co, 0));
 Obj _35reg870 = primIsCons(closureRef(co, 0));
 if (True == _35reg870) {
 Obj _35reg871 = primCar(closureRef(co, 0));
@@ -795,7 +795,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg882);
 }
 
 void _35clofun1182(struct Cora* co) {
-Obj _35cc24 = makeNative(_35clofun1183, 0, 1, closureRef(co, 0));
+Obj _35cc24 = makeNative(0, _35clofun1183, 0, 1, closureRef(co, 0));
 Obj _35reg857 = primIsCons(closureRef(co, 0));
 if (True == _35reg857) {
 Obj _35reg858 = primCar(closureRef(co, 0));
@@ -836,7 +836,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg869);
 }
 
 void _35clofun1183(struct Cora* co) {
-Obj _35cc25 = makeNative(_35clofun1184, 0, 1, closureRef(co, 0));
+Obj _35cc25 = makeNative(0, _35clofun1184, 0, 1, closureRef(co, 0));
 Obj _35reg824 = primIsCons(closureRef(co, 0));
 if (True == _35reg824) {
 Obj _35reg825 = primCar(closureRef(co, 0));
@@ -925,7 +925,7 @@ coraCall(co, 2, globalRef(intern("cora/init.propagate-boolean0")), _35reg856);
 }
 
 void _35clofun1184(struct Cora* co) {
-Obj _35cc26 = makeNative(_35clofun1185, 0, 1, closureRef(co, 0));
+Obj _35cc26 = makeNative(0, _35clofun1185, 0, 1, closureRef(co, 0));
 Obj _35reg803 = primIsCons(closureRef(co, 0));
 if (True == _35reg803) {
 Obj _35reg804 = primCar(closureRef(co, 0));
@@ -980,7 +980,7 @@ return;
 }
 
 void _35clofun1185(struct Cora* co) {
-Obj _35cc27 = makeNative(_35clofun1186, 0, 1, closureRef(co, 0));
+Obj _35cc27 = makeNative(0, _35clofun1186, 0, 1, closureRef(co, 0));
 Obj _35reg799 = primIsCons(closureRef(co, 0));
 if (True == _35reg799) {
 Obj _35reg800 = primCar(closureRef(co, 0));
@@ -995,7 +995,7 @@ coraCall(co, 1, _35cc27);
 }
 
 void _35clofun1186(struct Cora* co) {
-Obj _35cc28 = makeNative(_35clofun1187, 0, 0);
+Obj _35cc28 = makeNative(0, _35clofun1187, 0, 0);
 Obj x = closureRef(co, 0);
 coraReturn(co, x);
 return;
@@ -1007,7 +1007,7 @@ coraCall(co, 2, globalRef(intern("error")), makeString1("no match-help found!"))
 
 void _35clofun1164(struct Cora* co) {
 Obj _35p5 = co->args[1];
-Obj _35cc6 = makeNative(_35clofun1165, 0, 1, _35p5);
+Obj _35cc6 = makeNative(0, _35clofun1165, 0, 1, _35p5);
 Obj _35reg759 = primIsCons(_35p5);
 if (True == _35reg759) {
 Obj _35reg760 = primCar(_35p5);
@@ -1090,7 +1090,7 @@ coraCall(co, 1, _35cc6);
 }
 
 void _35clofun1165(struct Cora* co) {
-Obj _35cc7 = makeNative(_35clofun1166, 0, 1, closureRef(co, 0));
+Obj _35cc7 = makeNative(0, _35clofun1166, 0, 1, closureRef(co, 0));
 Obj _35reg720 = primIsCons(closureRef(co, 0));
 if (True == _35reg720) {
 Obj _35reg721 = primCar(closureRef(co, 0));
@@ -1173,7 +1173,7 @@ coraCall(co, 1, _35cc7);
 }
 
 void _35clofun1166(struct Cora* co) {
-Obj _35cc8 = makeNative(_35clofun1167, 0, 1, closureRef(co, 0));
+Obj _35cc8 = makeNative(0, _35clofun1167, 0, 1, closureRef(co, 0));
 Obj _35reg681 = primIsCons(closureRef(co, 0));
 if (True == _35reg681) {
 Obj _35reg682 = primCar(closureRef(co, 0));
@@ -1256,7 +1256,7 @@ coraCall(co, 1, _35cc8);
 }
 
 void _35clofun1167(struct Cora* co) {
-Obj _35cc9 = makeNative(_35clofun1168, 0, 1, closureRef(co, 0));
+Obj _35cc9 = makeNative(0, _35clofun1168, 0, 1, closureRef(co, 0));
 Obj _35reg662 = primIsCons(closureRef(co, 0));
 if (True == _35reg662) {
 Obj _35reg663 = primCar(closureRef(co, 0));
@@ -1309,7 +1309,7 @@ coraCall(co, 1, _35cc9);
 }
 
 void _35clofun1168(struct Cora* co) {
-Obj _35cc10 = makeNative(_35clofun1169, 0, 1, closureRef(co, 0));
+Obj _35cc10 = makeNative(0, _35clofun1169, 0, 1, closureRef(co, 0));
 Obj _35reg651 = primIsCons(closureRef(co, 0));
 if (True == _35reg651) {
 Obj _35reg652 = primCar(closureRef(co, 0));
@@ -1346,7 +1346,7 @@ coraCall(co, 1, _35cc10);
 }
 
 void _35clofun1169(struct Cora* co) {
-Obj _35cc11 = makeNative(_35clofun1170, 0, 1, closureRef(co, 0));
+Obj _35cc11 = makeNative(0, _35clofun1170, 0, 1, closureRef(co, 0));
 Obj _35reg612 = primIsCons(closureRef(co, 0));
 if (True == _35reg612) {
 Obj _35reg613 = primCar(closureRef(co, 0));
@@ -1429,7 +1429,7 @@ coraCall(co, 1, _35cc11);
 }
 
 void _35clofun1170(struct Cora* co) {
-Obj _35cc12 = makeNative(_35clofun1171, 0, 1, closureRef(co, 0));
+Obj _35cc12 = makeNative(0, _35clofun1171, 0, 1, closureRef(co, 0));
 Obj _35reg601 = primIsCons(closureRef(co, 0));
 if (True == _35reg601) {
 Obj _35reg602 = primCar(closureRef(co, 0));
@@ -1466,7 +1466,7 @@ coraCall(co, 1, _35cc12);
 }
 
 void _35clofun1171(struct Cora* co) {
-Obj _35cc13 = makeNative(_35clofun1172, 0, 1, closureRef(co, 0));
+Obj _35cc13 = makeNative(0, _35clofun1172, 0, 1, closureRef(co, 0));
 Obj _35reg590 = primIsCons(closureRef(co, 0));
 if (True == _35reg590) {
 Obj _35reg591 = primCar(closureRef(co, 0));
@@ -1503,7 +1503,7 @@ coraCall(co, 1, _35cc13);
 }
 
 void _35clofun1172(struct Cora* co) {
-Obj _35cc14 = makeNative(_35clofun1173, 0, 1, closureRef(co, 0));
+Obj _35cc14 = makeNative(0, _35clofun1173, 0, 1, closureRef(co, 0));
 Obj _35reg563 = primIsCons(closureRef(co, 0));
 if (True == _35reg563) {
 Obj _35reg564 = primCar(closureRef(co, 0));
@@ -1566,7 +1566,7 @@ coraCall(co, 1, _35cc14);
 }
 
 void _35clofun1173(struct Cora* co) {
-Obj _35cc15 = makeNative(_35clofun1174, 0, 1, closureRef(co, 0));
+Obj _35cc15 = makeNative(0, _35clofun1174, 0, 1, closureRef(co, 0));
 Obj _35reg536 = primIsCons(closureRef(co, 0));
 if (True == _35reg536) {
 Obj _35reg537 = primCar(closureRef(co, 0));
@@ -1629,7 +1629,7 @@ coraCall(co, 1, _35cc15);
 }
 
 void _35clofun1174(struct Cora* co) {
-Obj _35cc16 = makeNative(_35clofun1175, 0, 0);
+Obj _35cc16 = makeNative(0, _35clofun1175, 0, 0);
 Obj x = closureRef(co, 0);
 coraReturn(co, x);
 return;
@@ -1724,7 +1724,7 @@ coraCall(co, 3, globalRef(intern("cora/init.rules-patterns")), Nil, rules);
 void _35clofun1149(struct Cora* co) {
 Obj _35val506 = co->args[1];
 Obj pats = _35val506;
-Obj len = makeNative(_35clofun1150, 1, 0);
+Obj len = makeNative(0, _35clofun1150, 1, 0);
 pushCont(co, 0, _35clofun1151, 0);
 coraCall(co, 3, globalRef(intern("map")), len, pats);
 }
@@ -1734,7 +1734,7 @@ Obj _35val508 = co->args[1];
 Obj counts = _35val508;
 Obj _35reg509 = primCar(counts);
 Obj n = _35reg509;
-Obj dif = makeNative(_35clofun1152, 1, 1, n);
+Obj dif = makeNative(0, _35clofun1152, 1, 1, n);
 Obj _35reg512 = primCdr(counts);
 pushCont(co, 0, _35clofun1153, 1, n);
 coraCall(co, 3, globalRef(intern("filter")), dif, _35reg512);
@@ -1887,7 +1887,7 @@ void _35clofun1130(struct Cora* co) {
 Obj input = co->args[1];
 Obj current = co->args[2];
 Obj result = co->args[3];
-Obj _35cc1 = makeNative(_35clofun1131, 0, 3, input, current, result);
+Obj _35cc1 = makeNative(0, _35clofun1131, 0, 3, input, current, result);
 Obj _35reg478 = primEQ(Nil, input);
 if (True == _35reg478) {
 coraCall(co, 2, globalRef(intern("reverse")), result);
@@ -1897,7 +1897,7 @@ coraCall(co, 1, _35cc1);
 }
 
 void _35clofun1131(struct Cora* co) {
-Obj _35cc2 = makeNative(_35clofun1132, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
+Obj _35cc2 = makeNative(0, _35clofun1132, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
 Obj _35reg445 = primIsCons(closureRef(co, 0));
 if (True == _35reg445) {
 Obj _35reg446 = primCar(closureRef(co, 0));
@@ -1971,7 +1971,7 @@ coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), remain, Nil, _35r
 }
 
 void _35clofun1132(struct Cora* co) {
-Obj _35cc3 = makeNative(_35clofun1133, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
+Obj _35cc3 = makeNative(0, _35clofun1133, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
 Obj _35reg432 = primIsCons(closureRef(co, 0));
 if (True == _35reg432) {
 Obj _35reg433 = primCar(closureRef(co, 0));
@@ -2011,7 +2011,7 @@ coraCall(co, 4, globalRef(intern("cora/init.extract-rules1")), remain, Nil, _35r
 }
 
 void _35clofun1133(struct Cora* co) {
-Obj _35cc4 = makeNative(_35clofun1134, 0, 0);
+Obj _35cc4 = makeNative(0, _35clofun1134, 0, 0);
 Obj _35reg428 = primIsCons(closureRef(co, 0));
 if (True == _35reg428) {
 Obj _35reg429 = primCar(closureRef(co, 0));
@@ -2464,7 +2464,7 @@ Obj pat = co->args[1];
 Obj expr = co->args[2];
 Obj body = co->args[3];
 Obj cc = co->args[4];
-Obj literal_63 = makeNative(_35clofun1092, 1, 0);
+Obj literal_63 = makeNative(0, _35clofun1092, 1, 0);
 pushCont(co, 0, _35clofun1094, 4, expr, body, cc, pat);
 coraCall(co, 2, literal_63, pat);
 }
@@ -3205,7 +3205,7 @@ return;
 void _35clofun1031(struct Cora* co) {
 Obj _35val127 = co->args[1];
 Obj exp = co->ctx.stk.stack[co->ctx.stk.base + 0];
-coraCall(co, 2, makeNative(_35clofun1032, 1, 1, exp), _35val127);
+coraCall(co, 2, makeNative(0, _35clofun1032, 1, 1, exp), _35val127);
 }
 
 void _35clofun1032(struct Cora* co) {
@@ -3256,7 +3256,7 @@ coraReturn(co, exp);
 return;
 } else {
 Obj _35reg109 = primCar(macros);
-coraCall(co, 2, makeNative(_35clofun1025, 1, 2, exp, macros), _35reg109);
+coraCall(co, 2, makeNative(0, _35clofun1025, 1, 2, exp, macros), _35reg109);
 }
 }
 

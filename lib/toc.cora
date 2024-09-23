@@ -244,7 +244,7 @@
 			    (.generate-inst env w c)
 			    (c.generate-str w "}\n"))
       env w ['%closure label nargs . frees] => (begin
-						(c.generate-str w "makeNative(")
+						(c.generate-str w "makeNative(0, ")
 						(c.generate-sym w label)
 						(c.generate-str w ", ")
 						(c.generate-num w nargs)

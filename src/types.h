@@ -109,7 +109,7 @@ struct scmNative {
   Obj data[];
 };
 
-Obj makeNative(basicBlock fn, int required, int captured, ...);
+Obj makeNative(int label, basicBlock fn, int required, int captured, ...);
 Obj* nativeData(Obj o);
 int nativeCaptured(Obj o);
 int nativeRequired(Obj o);

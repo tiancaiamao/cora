@@ -240,11 +240,11 @@ symbolStr(Obj sym) {
 }
 
 Obj
-makeNative(/* int label,  */basicBlock fn, int required, int captured, ...) {
+makeNative(int label,basicBlock fn, int required, int captured, ...) {
   int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
   struct scmNative* clo = newObj(scmHeadNative, sz);
   clo->code.func = fn;
-  /* clo->code.label = label; */
+  clo->code.label = label;
   clo->required = required;
   clo->captured = captured;
   if (captured > 0) {
