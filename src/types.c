@@ -240,10 +240,11 @@ symbolStr(Obj sym) {
 }
 
 Obj
-makeNative(basicBlock fn, int required, int captured, ...) {
+makeNative(int label,basicBlock fn, int required, int captured, ...) {
   int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
   struct scmNative* clo = newObj(scmHeadNative, sz);
-  clo->fn = fn;
+  clo->code.func = fn;
+  clo->code.label = label;
   clo->required = required;
   clo->captured = captured;
   if (captured > 0) {
@@ -294,11 +295,11 @@ nativeCaptured(Obj o) {
   return native->captured;
 }
 
-basicBlock
+struct pcState*
 nativeFuncPtr(Obj o) {
   struct scmNative* native = ptr(o);
   assert(native->head.type == scmHeadNative);
-  return native->fn;
+  return &native->code;
 }
 
 int
@@ -418,8 +419,8 @@ void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
   for (int i=0; i<stack->len; i++) {
     struct returnAddr* addr = &stack->data[i];
-    for (int j=addr->base; j<addr->pos; j++) {
-      gcMark(gc, addr->stack[j]);
+    for (int j=addr->stk.base; j<addr->stk.pos; j++) {
+      gcMark(gc, addr->stk.stack[j]);
     }
     // Don't forget this one!
     gcMark(gc, addr->frees);

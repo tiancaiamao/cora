@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   co->args[1] = makeString1("init.so");
   co->args[2] = makeString1("cora/init");
   co->nargs = 3;
-  trampoline(co, builtinLoadSo);
+  trampoline(co, 0, builtinLoadSo);
   symbolSet(imported, cons(makeString1("cora/init"), Nil));
 
   symbolSet(imported, cons(makeString1("cora/lib/toc/internal"), symbolGet(imported)));
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   co->args[1] = makeString1("toc.so");
   co->args[2] = makeString1("");
   co->nargs = 3;
-  trampoline(co, builtinLoadSo);
+  trampoline(co, 0, builtinLoadSo);
   symbolSet(imported, cons(makeString1("cora/lib/toc"), symbolGet(imported)));
   
   struct SexpReader r = {};
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     co->args[0] = globalRef(intern("macroexpand"));
     co->args[1] = exp;
     co->nargs = 2;
-    trampoline(co, coraDispatch);
+    trampoline(co, 0, coraDispatch);
     exp = co->args[1];
 
     /* printf("after macro expand =="); */
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     co->args[0] = globalRef(intern("cora/lib/toc.eval0"));
     co->args[1] = exp;
     co->nargs = 2;
-    trampoline(co, coraDispatch);
+    trampoline(co, 0, coraDispatch);
 
     sexpWrite(stdout, co->args[1]);
     printf("\n");
