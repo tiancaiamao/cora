@@ -65,10 +65,9 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
   co->ctx.stk.base = co->ctx.stk.pos;
 }
 
-static void
+static inline void
 popStack(struct Cora *co) {
-  struct callStack *cs = &co->callstack;
-  co->ctx = cs->data[--cs->len];
+  co->ctx = co->callstack.data[--co->callstack.len];
   return;
 }
 
