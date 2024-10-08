@@ -1,9 +1,9 @@
-all: os.so string.so io.so net.so hash-h.so
+all: os.so string.so io.so net.so hash-h.so rand.so
 
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
-SRCS := string.c os.c io.c hash-h.c net.c
+SRCS := string.c os.c io.c hash-h.c net.c rand.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d

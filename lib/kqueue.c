@@ -14,15 +14,14 @@ pollCreate() {
 }
 
 static void
-pollReadAdd(int pollfd, int fd, void* udata) {
+pollReadAdd(int pollfd, int fd) {
   struct kevent ev;
-  ev.udata = udata;
   EV_SET(&ev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
   kevent(pollfd, &ev, 1, NULL, 0, NULL);
 }
 
 static void
-pollWriteAdd(int pollfd, int fd, void* udata) {
+pollWriteAdd(int pollfd, int fd) {
   struct kevent ev;
   EV_SET(&ev, pollfd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
   kevent(pollfd, &ev, 1, NULL, 0, NULL);
