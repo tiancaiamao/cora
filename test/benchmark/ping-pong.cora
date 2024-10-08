@@ -1,0 +1,42 @@
+(@import "cora/lib/cml" cml)
+(@import "cora/lib/io" io)
+
+(let s2c (cml.make-chan)
+     c2s (cml.make-chan)
+
+     (begin
+
+      (defun server ()
+	(begin
+	 (cml.perform
+	  (choice
+	   (cml.wrap (cml.recv c2s) (lambda (v)
+				      (begin
+				       (io.display "server recv:")
+				       (io.display v)
+				       (io.display "\n"))))
+	   (cml.wrap (cml.send s2c "pong") (lambda (v)
+					     (io.display "server send pong\n"))))
+	  )
+	 (server)))
+
+      (defun client ()
+	(begin
+	 (cml.perform
+	  (choice
+	   (cml.wrap (cml.send c2s "ping") (lambda (v)
+					     (io.display "client send ping\n")))
+	   (cml.wrap (cml.recv s2c) (lambda (v) (begin
+						 (io.display "client recv:")
+						 (io.display v)
+						 (io.display "\n")
+						 v)))))
+	 (client)))
+
+      (io.display "hello world\n")
+      
+      (cml.spawn server)
+      (cml.spawn client)))
+
+
+(cml.main)
