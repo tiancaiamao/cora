@@ -1,0 +1,147 @@
+(@import "cora/lib/queue" queue)
+(@import "cora/lib/rand" rand)
+;; (@import "cora/lib/io" io)
+
+(set '.task-queue (queue.make))
+
+(defun .spawn (thunk)
+  (queue.enqueue .task-queue thunk))
+
+;; schedule take a task out and execute it
+;; return false if no more tasks
+(defun .schedule ()
+  (if (queue.empty? .task-queue)
+      false
+      (let task (queue.dequeue .task-queue)
+	   (begin (task) true))))
+
+(defun .schedule-loop ()
+  (if (= false (.schedule))
+      ()
+      (.schedule-loop)))
+
+(defun .main ()
+  (try .schedule-loop
+       (lambda (v k)
+	 (v k))))
+
+;; channel is a sendq and recvq
+;; sendq represent the coroutines blocked sending msg to the channel.
+;; recvq represent the coroutines blocked recving msg from the channel.
+(defun .make-chan ()
+  [(queue.make) (queue.make)])
+
+(defun default-wrap (x) x)
+
+(func .recv-try
+      [sendq recvq] => (if (queue.empty? sendq)
+			   false
+			   (match (queue.dequeue sendq)
+				  [state resume val wrap]
+				  (if (= 'Done (value state))
+				      (.recv-try [sendq recvq]) ;; ignore stale item and continue
+				      (begin
+				       (queue.enqueue .task-queue (lambda () (resume (wrap ()))))
+				       (set state 'Done)
+				       val)))))
+
+(defun .recv-block (recvq k wrap)
+  (let state (gensym 'state)
+       (begin
+	(set state 'Wait)
+	(queue.enqueue recvq [state k wrap]))))
+
+;; recv on channel is an operation
+(defun .recv (ch)
+  (let try (lambda () (.recv-try ch))
+       block (lambda (k wrap) (.recv-block (cadr ch) k wrap))
+       [try block default-wrap]))
+
+(func .send-try
+      [sendq recvq] val => (if (queue.empty? recvq)
+			       false
+			       (match (queue.dequeue recvq)
+				      [state resume wrap]
+				      (if (= 'Done (value state))
+					  (.send-try [sendq recvq]) ;; ignore stale
+					  (begin
+					   (queue.enqueue .task-queue (lambda ()
+									(begin
+									 ;; (io.display "resume recv op\n")
+									 (resume (wrap val)))))
+					   (set state 'Done)
+					   ())))))
+
+(defun .send-block (sendq k val wrap)
+  (let state (gensym 'state)
+       (begin
+	(set state 'Wait)
+	(queue.enqueue sendq [state k val wrap]))))
+
+;; send on channel is an operation
+(defun .send (ch val)
+  (let try (lambda () (.send-try ch val))
+       block (lambda (k wrap) (.send-block (car ch) k val wrap))
+       [try block default-wrap]))
+
+;; wrap an operation to get another operation.
+;; fn receive the value of the operation.
+(func .wrap
+      [try block wrap] fn => [try block (lambda (v) (fn (wrap v)))])
+
+(func .choice-ops-try
+      [] => false
+      [[try1 block1 wrap1] . remain] => (match (try1)
+					       false (.choice-ops-try remain)
+					       v (wrap1 v)))
+
+(defun .choice-op (ops)
+  (let try (lambda () (.choice-ops-try ops))
+       block (lambda (k)
+	       (for-each (lambda (op)
+			   (match op
+				  [try1 block1 wrap1]
+				  (block1 k wrap1)))))
+       [try block default-wrap]))
+
+(func .random-split
+      [] to1 to2 => (cons to1 to2)
+      [hd . tl] to1 to2 => (if (= (rand.N 2) 0)
+			       (.random-split tl (cons hd to1) to2)
+			       (.random-split tl to1 (cons hd to2))))
+
+(func .random-merge
+      [] from to => (append from to)
+      from [] to => (append from to)
+      from1 from2 to => (if (= (rand.N 2) 0)
+			    (.random-merge (cdr from1) from2 (cons (car from1) to))
+			    (.random-merge from1 (cdr from2) (cons (car from2) to))))
+
+(func .shuffle-h
+      l 0 => l
+      l n => (let tmp (.random-split l [] [])
+		  (let res (.random-merge (car tmp) (cdr tmp) [])
+		       (.shuffle-h res (- n 1)))))
+			  
+(defun .shuffle (arr)
+  (.shuffle-h arr (/ (+ 1 (length arr)) 2)))
+
+(defmacro .choice (input)
+  ['.choice-op ['.shuffle (cons 'list (cdr input))]])
+
+;; ;; perform performs an operation.
+;; ;; an operation consistent of [try block wrap]
+;; ;; Usage example:
+;; ;; (perform (choice
+;; ;; 	  (wrap (recv ch1)
+;; ;; 		   (lambda (v) ...))
+;; ;; 	  (wrap (send ch2)
+;; ;; 		   (lambda (v) ...))))
+(func .perform
+      [try block wrap] => (match (try)
+				 false (throw (lambda (k)
+						(begin
+						 (block k wrap)
+						 (.main))))
+				 v (wrap v)))
+
