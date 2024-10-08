@@ -19,6 +19,8 @@ typedef uint8_t scmHeadType;
 
 typedef uintptr_t Obj;
 
+#define OBJ_FIELD(O, TYPE, FIELD) (((struct TYPE*)(ptr(O)))->FIELD)
+
 // XX0 fixnum
 // XX1 non-fixnum
 // 001 symbol
