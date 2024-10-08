@@ -103,11 +103,13 @@
 
 (defun .choice-op (ops)
   (let try (lambda () (.choice-ops-try ops))
-       block (lambda (k)
+       block (lambda (k wrap)
 	       (for-each (lambda (op)
 			   (match op
 				  [try1 block1 wrap1]
-				  (block1 k wrap1)))))
+				  (block1 k (lambda (v)
+					      (wrap (wrap1 v))))))
+			 ops))
        [try block default-wrap]))
 
 (func .random-split
@@ -132,7 +134,7 @@
 (defun .shuffle (arr)
   (.shuffle-h arr (/ (+ 1 (length arr)) 2)))
 
-(defmacro .choice (input)
+(defmacro choice (input)
   ['.choice-op ['.shuffle (cons 'list (cdr input))]])
 
 ;; ;; perform performs an operation.
