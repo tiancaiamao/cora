@@ -25,6 +25,12 @@
        (lambda (v k)
 	 (v k))))
 
+(defun .yield ()
+  (throw (lambda (k)
+	   (begin
+	    (queue.enqueue .task-queue (lambda () (k ())))
+	    (.main)))))
+
 ;; channel is a sendq and recvq
 ;; sendq represent the coroutines blocked sending msg to the channel.
 ;; recvq represent the coroutines blocked recving msg from the channel.
@@ -122,7 +128,7 @@
       l n => (let tmp (.random-split l [] [])
 		  (let res (.random-merge (car tmp) (cdr tmp) [])
 		       (.shuffle-h res (- n 1)))))
-			  
+
 (defun .shuffle (arr)
   (.shuffle-h arr (/ (+ 1 (length arr)) 2)))
 
