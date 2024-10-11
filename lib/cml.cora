@@ -1,3 +1,9 @@
+;; concurrent ml
+;; ref https://wingolog.org/archives/2018/05/16/lightweight-concurrency-in-lua
+;; https://wingolog.org/archives/2017/06/29/a-new-concurrent-ml
+;; "Toward a parallel implementation of Concurrent ML"    John Reppy
+;; "Parallel Concurrent ML"          John Reppy
+
 (@import "cora/lib/queue" queue)
 (@import "cora/lib/rand" rand)
 ;; (@import "cora/lib/io" io)
@@ -31,64 +37,8 @@
 	    (queue.enqueue .task-queue (lambda () (k ())))
 	    (.main)))))
 
-;; channel is a sendq and recvq
-;; sendq represent the coroutines blocked sending msg to the channel.
-;; recvq represent the coroutines blocked recving msg from the channel.
-(defun .make-chan ()
-  [(queue.make) (queue.make)])
 
 (defun default-wrap (x) x)
-
-(func .recv-try
-      [sendq recvq] => (if (queue.empty? sendq)
-			   false
-			   (match (queue.dequeue sendq)
-				  [state resume val wrap]
-				  (if (= 'Done (value state))
-				      (.recv-try [sendq recvq]) ;; ignore stale item and continue
-				      (begin
-				       (queue.enqueue .task-queue (lambda () (resume (wrap ()))))
-				       (set state 'Done)
-				       val)))))
-
-(defun .recv-block (recvq k wrap)
-  (let state (gensym 'state)
-       (begin
-	(set state 'Wait)
-	(queue.enqueue recvq [state k wrap]))))
-
-;; recv on channel is an operation
-(defun .recv (ch)
-  (let try (lambda () (.recv-try ch))
-       block (lambda (k wrap) (.recv-block (cadr ch) k wrap))
-       [try block default-wrap]))
-
-(func .send-try
-      [sendq recvq] val => (if (queue.empty? recvq)
-			       false
-			       (match (queue.dequeue recvq)
-				      [state resume wrap]
-				      (if (= 'Done (value state))
-					  (.send-try [sendq recvq]) ;; ignore stale
-					  (begin
-					   (queue.enqueue .task-queue (lambda ()
-									(begin
-									 ;; (io.display "resume recv op\n")
-									 (resume (wrap val)))))
-					   (set state 'Done)
-					   ())))))
-
-(defun .send-block (sendq k val wrap)
-  (let state (gensym 'state)
-       (begin
-	(set state 'Wait)
-	(queue.enqueue sendq [state k val wrap]))))
-
-;; send on channel is an operation
-(defun .send (ch val)
-  (let try (lambda () (.send-try ch val))
-       block (lambda (k wrap) (.send-block (car ch) k val wrap))
-       [try block default-wrap]))
 
 ;; wrap an operation to get another operation.
 ;; fn receive the value of the operation.
