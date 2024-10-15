@@ -611,6 +611,9 @@ builtinImport(struct Cora *co) {
     }
   }
 
+  // Set the *imported* variable to avlid repeated load.
+  symbolSet(sym, cons(pkg, imported));
+
   // CORA PATH
   strBuf tmp = getCoraPath();
 
@@ -635,9 +638,6 @@ builtinImport(struct Cora *co) {
   co->args[2] = pkg;
   trampoline(co, 0, coraDispatch);
   strFree(tmp);
-
-  // Set the *imported* variable to avlid repeated load.
-  symbolSet(sym, cons(pkg, imported));
 
   coraReturn(co, pkg);
 }
