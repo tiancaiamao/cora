@@ -569,7 +569,9 @@ builtinLoad(struct Cora *co) {
 
   const int BUFSIZE = 512;
   char buf[BUFSIZE];
-  snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", unique);
+  int cfileidx = unique;
+  unique++;
+  snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
   str tmpCFile = cstr(buf);
   co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
   co->args[3] = pkg;
@@ -577,12 +579,11 @@ builtinLoad(struct Cora *co) {
   Obj res = co->args[1];
   // TODO: check res?
 
-  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", unique, unique);
+  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", cfileidx, cfileidx);
   int exitCode = system(buf);
   if (exitCode == 0) {
     /* co->args[0] = globalRef(intern("load-so"));  */
-    snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", unique);
-    unique++;
+    snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
     str tmpSoFile = cstr(buf);
     co->nargs = 3;
     co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
@@ -591,7 +592,6 @@ builtinLoad(struct Cora *co) {
     return;
   }
 
-  unique++;
   coraReturn(co, makeNumber(exitCode));
 }
 
