@@ -142,7 +142,7 @@ netSend(struct Cora *ctx) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	/* printf("EAGAIN here...%d\n", pos); */
 	// ['Send fd buf pos k]
-	pollWriteAdd(pollfd, fd);
+	/* pollWriteAdd(pollfd, fd); */
 	// [block pos]
 	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
 	return;
@@ -162,7 +162,8 @@ netSend(struct Cora *ctx) {
 
 static void
 netPoll(struct Cora *ctx) {
-  Obj ret = poll(pollfd);
+  Obj timeout = coraGet(ctx, 1);
+  Obj ret = poll(pollfd, fixnum(timeout));
   coraReturn(ctx, ret);
 }
 
@@ -187,7 +188,7 @@ netRecv(struct Cora *ctx) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	// [block pos]
 	/* printf("EAGAIN here...%d\n", pos); */
-	pollReadAdd(pollfd, fd);
+	/* pollReadAdd(pollfd, fd); */
 	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
 	return;
       }
@@ -205,16 +206,7 @@ netRecv(struct Cora *ctx) {
 }
 
 static void
-netAcceptStep1(struct Cora *ctx) {
-  Obj arg1 = coraGet(ctx, 1);
-  int fd = fixnum(arg1);
-  pollReadAdd(pollfd, fd);
-  /* printf("netAcceptStep1 add fd == %d\n", fd); */
-  coraReturn(ctx, Nil);
-}
-
-static void
-netAcceptStep2(struct Cora *ctx) {
+netAccept(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   int ln = fixnum(arg1);
 
@@ -250,6 +242,20 @@ makeBuffer(struct Cora *ctx) {
 }
 
 static void
+pollAdd(struct Cora *ctx) {
+  Obj fd = coraGet(ctx, 1);
+  Obj mode = coraGet(ctx, 2);
+  if (mode == intern("read")) {
+    pollReadAdd(pollfd, fixnum(fd));
+  } else if (mode == intern("write")) {
+    pollWriteAdd(pollfd, fixnum(fd));
+  } else {
+    printf("error argument for pollAdd\n");
+  }
+  coraReturn(ctx, Nil);
+}
+
+static void
 netInit() {
   pollfd = pollCreate();
   // TOO
@@ -264,12 +270,12 @@ struct registerModule netModule = {
   {
    {"make-buffer", makeBuffer, 1},
    {"dial", netDial, 1},
-   {"poll", netPoll, 0},
+   {"poll", netPoll, 1},
+   {"poll-add", pollAdd, 2},
    {"send", netSend, 3},
    {"recv", netRecv, 3},
    {"listen", netListen, 1},
-   {"accept-1", netAcceptStep1, 1},
-   {"accept-2", netAcceptStep2, 1},
+   {"accept", netAccept, 1},
    {"close", netClose, 1},
    {NULL, NULL, 0}
   }

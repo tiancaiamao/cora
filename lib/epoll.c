@@ -21,10 +21,10 @@ pollWriteAdd(int pollfd, int fd) {
   struct epoll_event ev;
   ev.events = EPOLLOUT;
   ev.data.fd = fd;
-  printf("netSend, epoll_ctl add fd = %d\n", fd);
+  /* printf("netSend, epoll_ctl add fd = %d\n", fd); */
   if (epoll_ctl(pollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
     // TODO
-    printf("epoll ctl add write fail");
+    printf("epoll ctl add write fail\n");
   }
 }
 
@@ -34,10 +34,10 @@ pollDel(int pollfd, int fd) {
 }
 
 static Obj
-poll(int pollfd) {
+poll(int pollfd, int timeout) {
   const int MAX_EVENTS = 10;
   struct epoll_event events[MAX_EVENTS];
-  int nfds = epoll_wait(pollfd, events, MAX_EVENTS, -1);
+  int nfds = epoll_wait(pollfd, events, MAX_EVENTS, timeout);
   if (nfds < 0) {
     // TODO
     printf("netpoll fail?????\n");
