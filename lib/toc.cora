@@ -400,14 +400,26 @@
    (c.generate-str to "\n")
    (for-each (lambda (x) (.code-gen-toplevel to x)) bc)))
 
+(func .handle-import-eagerly
+      ['begin . remain] => (.handle-import-eagerly remain)
+      [['import pkg] . remain] => (begin
+				   (import pkg)
+				   ;; (io.display "import ==")
+				   ;; (io.display pkg)
+				   ;; (io.display "\n\n")
+				   (.handle-import-eagerly remain))
+      _ => ())
+
 (defun .compile-to-c (from to pkg-str)
   (let sexp (read-file-as-sexp from pkg-str)
-       (let input (macroexpand sexp)
-	    (let bc (.compile input)
-		 (let stream (io.open-output-file to)
-		      (begin
-		       (.generate-c stream bc)
-		       (io.close-output-file stream)))))))
+       (begin
+	(.handle-import-eagerly sexp)
+	(let input (macroexpand sexp)
+	     (let bc (.compile input)
+		  (let stream (io.open-output-file to)
+		       (begin
+			(.generate-c stream bc)
+			(io.close-output-file stream))))))))
 
 
 ;; ============== utilities of eval0 ==========
