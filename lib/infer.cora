@@ -1,0 +1,113 @@
+(import "cora/lib/sys")
+(@import "cora/lib/io" io)
+
+(set '*tvar* 1000)
+(defun tvar ()
+  (let ret *tvar*
+    (do (set '*tvar* (+ ret 1))
+	ret)))
+
+(defun unify (x y s)
+  (unify1 (apply-subst x s) (apply-subst y s) s))
+
+(func unify1
+      x y s => s where (= x y)
+      x y s => [[x . y] . s] where (and (number? x) (not (occur? x y)))
+      x y s => [[y . x] . s] where (and (number? y) (not (occur? y x)))
+      [a '-> b] [c '-> d] s => (let s1 (unify a c s)
+				 (unify b d s1))
+      ['list a] ['list b] s => (unify a b s))
+
+(func occur?
+      'int _ => false
+      'bool _ => false
+      'symbol _ => false
+      [a '-> b] t => (or (occur? a t) (occur? b t))
+      ['list a] t => (occure? a t)
+      v t => (= v t))
+
+(func apply-subst
+      'int s => 'int
+      'bool s => 'bool
+      'symbol _ => 'symbol
+      [a '-> b] s => [(apply-subst a s) '-> (apply-subst b s)]
+      ['list a] s => ['list (apply-subst a s)]
+      v s => (let find (assq v s)
+		  (if (null? find)
+		      v
+		      (cdr find))))
+
+(defun extend (env v x)
+  (cons (cons v x) env))
+	
+(func check-type-core
+      x t env s => (unify 'int t s) where (number? x)
+      x t env s => (unify 'bool t s) where (boolean? x)
+      ['quote s] t env s => (unify 'symbol t s)
+      x t env s => (let find (assq x env)
+			(if (null? find)
+			    (error "variable not bound")
+			    (unify (cdr find) t s))) where (symbol? x)
+      ['if e1 e2 e3] t env s => (let s1 (check-type-core e1 'bool env s)
+				     (let _ (check-type e2 t env s1)
+					  (check-type e3 t env s1)))
+      ['/. x e] [a '-> b] env s => (check-type e b (extend env x a) s)
+      [f g] b env s => (let a (tvar)
+			    (let s1 (check-type g a env s)
+				 (check-type-core f [a '-> b] env s1))))
+
+(set '*type-rule* ())
+
+(defun check-type (exp typ env subst)
+ (let handler (if (pair? typ)	
+	       (let find (assq (car typ) *type-rule*)
+		(if (null? find)
+		 check-type-core
+		 (cdr find)))
+	       check-type-core)
+  (handler exp typ env subst)))
+
+(func type-check-for-list
+ [] ['list a] env s => s
+ ['cons x y] ['list a] env s => (let s1 (check-type x a env s)
+		 (let s2 (unify t ['list a] s1)
+		  (check-type y ['list a] env s2))))
+(set '*type-rule* (cons (cons 'list type-check-for-list) *type-rule*))
+
+
+(func type-check-for-tuple
+  ['cons x y] ['tuple a b] env s => (let s1 (check-type x a env s)
+  						(check-type y b env s1)))
+(set '*type-rule* (cons (cons 'tuple type-check-for-tuple) *type-rule*))
+
+(func type-check-for-maybe
+  [] ['maybe t] env s => s
+  exp ['maybe t] env s => (check-type exp t env s))
+(set '*type-rule* (cons (cons 'maybe type-check-for-maybe) *type-rule*))
+
+
+(func type-check-for-monad
+ [retrn . x] ['monad a] env s => s
+ [bind ma f] ['monad a] env s => (let s1 (check-type ma ['monad a] env s)
+	 (check-type f (let b (tvar) [a '-> ['monad b]]) env s1)))
+(set '*type-rule* (cons (cons 'monad type-check-for-monad) *type-rule*))
+
+
+;; (func type-check-for-fruit
+;;       x ['fruit] env s => s where (elem? x ['apple 'orange 'banana]))
+;; 
+;; (func type-check-for-struct
+;;       [a b] ['struct 'int 'bool] env s => (let s1 (check-type a 'int env s)
+;;       						(check-type b 'bool env s)))
+;; 
+;; (func type-check-for-option
+;;       ['ok x] ['option a b] env s => (check-type x a env s)
+;;       ['err y] ['option a b] env s => (check-type y b env s))
+;; 	
+;; 
+;; (set '*type-rule* (cons (cons 'fruit type-check-for-fruit) *type-rule*))
+;; (set '*type-rule* (cons (cons 'option type-check-for-option) *type-rule*))
+
+
+;; (check-type 'apple '(fruit) () ())
+;; (check-type ['ok 3] '(option int a) () ())
