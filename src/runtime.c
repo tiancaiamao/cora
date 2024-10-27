@@ -559,40 +559,51 @@ static int unique = 1;
 
 void
 builtinLoad(struct Cora *co) {
-  // (load "file-path.cora" "package-path")
-  Obj filePath = co->args[1];
-  Obj pkg = co->args[2];
+		// (load "file-path.cora" "package-path")
+		Obj filePath = co->args[1];
+		Obj pkg = co->args[2];
 
-  co->nargs = 4;
-  co->args[0] = globalRef(intern("cora/lib/toc.compile-to-c"));
-  co->args[1] = filePath;
+		co->nargs = 4;
+		co->args[0] = globalRef(intern("cora/lib/toc.compile-to-c"));
+		co->args[1] = filePath;
 
-  const int BUFSIZE = 512;
-  char buf[BUFSIZE];
-  int cfileidx = unique;
-  unique++;
-  snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
-  str tmpCFile = cstr(buf);
-  co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
-  co->args[3] = pkg;
-  trampoline(co, 0, coraDispatch);
-  Obj res = co->args[1];
-  // TODO: check res?
+		const int BUFSIZE = 512;
+		char buf[BUFSIZE];
+		int cfileidx = unique;
+		unique++;
+		snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
+		str tmpCFile = cstr(buf);
+		co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
+		co->args[3] = pkg;
+		trampoline(co, 0, coraDispatch);
+		Obj res = co->args[1];
+		// TODO: check res?
 
-  snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", cfileidx, cfileidx);
-  int exitCode = system(buf);
-  if (exitCode == 0) {
-    /* co->args[0] = globalRef(intern("load-so"));  */
-    snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
-    str tmpSoFile = cstr(buf);
-    co->nargs = 3;
-    co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
-    co->args[2] = pkg;
-    co->ctx.pc.func = builtinLoadSo;
-    return;
-  }
+		snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", cfileidx, cfileidx);
+		int exitCode = system(buf);
+		if (exitCode == 0) {
+				/* co->args[0] = globalRef(intern("load-so"));  */
+				snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
+				str tmpSoFile = cstr(buf);
+				co->nargs = 3;
+				co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
+				co->args[2] = pkg;
+				co->ctx.pc.func = builtinLoadSo;
+				return;
+		}
 
-  coraReturn(co, makeNumber(exitCode));
+		// type check for it if the checker is available.
+		co->nargs = 3;
+		co->args[0] = globalRef(intern("typecheck"));
+		co->args[1] = filePath;
+		co->args[2] = pkg;
+		trampoline(co, 0, coraDispatch);
+		res = co->args[1];
+		if (!iscons(res) || car(res) != intern("succ")) {
+				printf("type check for %s error\n", toCStr(stringStr(filePath)));
+		}
+
+		coraReturn(co, makeNumber(exitCode));
 }
 
 void

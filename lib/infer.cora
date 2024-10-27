@@ -10,86 +10,126 @@
 (defun unify (x y s)
   (unify1 (apply-subst x s) (apply-subst y s) s))
 
+(func bind-s
+      ['succ s] f => (f s)
+	  ['fail . msg] f => ['fail . msg])
+
 (func unify1
-      x y s => s where (= x y)
-      x y s => [[x . y] . s] where (and (number? x) (not (occur? x y)))
-      x y s => [[y . x] . s] where (and (number? y) (not (occur? y x)))
-      [a '-> b] [c '-> d] s => (let s1 (unify a c s)
-				 (unify b d s1))
-      ['list a] ['list b] s => (unify a b s))
+      x y s => ['succ s] where (= x y)
+      x y s => ['succ [[x . y] . s]] where (and (number? x) (not (occur? x y)))
+      x y s => ['succ [[y . x] . s]] where (and (number? y) (not (occur? y x)))
+      ['-> a] ['-> b] s => (unify a b s)
+      [a '-> b] [c '-> d] s => (bind-s (unify a c s)
+								 (lambda (s1) (unify b d s1)))
+      ['list a] ['list b] s => (unify a b s)
+	  _ _ s => ['fail])
 
 (func occur?
       'int _ => false
       'bool _ => false
+	  'string _ => false
       'symbol _ => false
       [a '-> b] t => (or (occur? a t) (occur? b t))
+	  x [a '-> b] => (or (occur? x a) (occur? x b)) where (number? x)
       ['list a] t => (occure? a t)
       v t => (= v t))
 
 (func apply-subst
-      'int s => 'int
-      'bool s => 'bool
+      'int _ => 'int
+      'bool _ => 'bool
       'symbol _ => 'symbol
+	  'string _ => 'string
+      ['-> t] s => ['-> (apply-subst t s)]
       [a '-> b] s => [(apply-subst a s) '-> (apply-subst b s)]
       ['list a] s => ['list (apply-subst a s)]
       v s => (let find (assq v s)
 		  (if (null? find)
 		      v
-		      (cdr find))))
+		      (apply-subst (cdr find) s))))
 
 (defun extend (env v x)
   (cons (cons v x) env))
 	
 (func check-type-core
+      () t env s => ['succ s] where (number? t) ;; special check rule
       x t env s => (unify 'int t s) where (number? x)
       x t env s => (unify 'bool t s) where (boolean? x)
+      x t env s => (unify 'string t s) where (string? x)
       ['quote s] t env s => (unify 'symbol t s)
       x t env s => (let find (assq x env)
 			(if (null? find)
-			    (error "variable not bound")
+			    ['fail "variable not bound" x]
 			    (unify (cdr find) t s))) where (symbol? x)
-      ['if e1 e2 e3] t env s => (let s1 (check-type-core e1 'bool env s)
-				     (let _ (check-type e2 t env s1)
-					  (check-type e3 t env s1)))
-      ['/. x e] [a '-> b] env s => (check-type e b (extend env x a) s)
-      [f g] b env s => (let a (tvar)
-			    (let s1 (check-type g a env s)
-				 (check-type-core f [a '-> b] env s1))))
+	  ['if e1 e2 e3] t env s => (bind-s (check-type-core e1 'bool env s)
+			  (lambda (s1)
+			   (bind-s (check-type e2 t env s1)
+				(lambda (_)
+				 (check-type e3 t env s1)))))
+      ['lambda () e] any env s => (let a (tvar)
+										(bind-s (check-type e a env s)
+										(lambda (s1)
+												(unify any ['-> a] s1))))
+	  ['lambda [x] e] any env s => (let tx (tvar)
+									  te (tvar)
+									  (bind-s (check-type e te (extend env x tx) s)
+									   (lambda (s1)
+										(unify any [tx '-> te] s1))))
+      ['lambda [x . more] e] t env s => (check-type ['lambda [x] ['lambda more e]] t env s) where (not (= () more))
+	  ['let a b c] t env s => (let tb (tvar)
+								(bind-s (check-type b tb env s)
+										(lambda (s1)
+										(check-type c t (extend env a tb) s1))))
+      [f] b env s => (check-type-core f ['-> b] env s)
+      [f x] t env s => (let a (tvar) b (tvar)
+						(bind-s (check-type-core f [a '-> b] env s)
+						    (lambda (s1)
+							(bind-s (check-type x (apply-subst a s1) env s1)
+								(lambda (s2)
+								(bind-s (unify t b s2)
+										(lambda (s3)
+										 ['succ (filter (lambda (x)
+														 (let k (car x)
+														  (not (or (= k a) (= k b)))))
+												 s3)])))))))
+	  [f x . more] b env s => (check-type [[f x] . more] b env s)
+	  _ _ env s => ['fail])
 
 (set '*type-rule* ())
 
 (defun check-type (exp typ env subst)
- (let handler (if (pair? typ)	
-	       (let find (assq (car typ) *type-rule*)
-		(if (null? find)
-		 check-type-core
-		 (cdr find)))
-	       check-type-core)
-  (handler exp typ env subst)))
+ (if (pair? typ)	
+  (let find (assq (car typ) *type-rule*)
+   (if (null? find)
+	(check-type-core exp typ env subst)
+	(match ((cdr find) exp typ env subst)
+	 ['fail] (check-type-core exp typ env subst)
+	 succ succ)))
+  (check-type-core exp typ env subst)))
 
 (func type-check-for-list
- [] ['list a] env s => s
- ['cons x y] ['list a] env s => (let s1 (check-type x a env s)
-		 (let s2 (unify t ['list a] s1)
-		  (check-type y ['list a] env s2))))
+ [] ['list a] env s => ['succ s]
+ ['cons x y] ['list a] env s => (bind-s (check-type x a env s)
+		 (lambda (s1)
+		  (check-type y ['list a] env s1)))
+ exp typ env s => ['fail])
 (set '*type-rule* (cons (cons 'list type-check-for-list) *type-rule*))
 
-
 (func type-check-for-tuple
-  ['cons x y] ['tuple a b] env s => (let s1 (check-type x a env s)
-  						(check-type y b env s1)))
+  ['cons x y] ['tuple a b] env s => (bind-s (check-type x a env s)
+										(lambda (s1) 
+												(check-type y b env s1))))
 (set '*type-rule* (cons (cons 'tuple type-check-for-tuple) *type-rule*))
 
 (func type-check-for-maybe
-  [] ['maybe t] env s => s
+  [] ['maybe t] env s => ['succ s]
   exp ['maybe t] env s => (check-type exp t env s))
 (set '*type-rule* (cons (cons 'maybe type-check-for-maybe) *type-rule*))
 
-
 (func type-check-for-monad
- [retrn . x] ['monad a] env s => s
- [bind ma f] ['monad a] env s => (let s1 (check-type ma ['monad a] env s)
-	 (check-type f (let b (tvar) [a '-> ['monad b]]) env s1)))
+ [retrn . x] ['monad a] env s => ['succ s]
+ [bind ma f] ['monad a] env s => (bind-s (check-type ma ['monad a] env s)
+										(lambda (s1)
+										(check-type f (let b (tvar) [a '-> ['monad b]]) env s1))))
 (set '*type-rule* (cons (cons 'monad type-check-for-monad) *type-rule*))
 
 
@@ -111,3 +151,97 @@
 
 ;; (check-type 'apple '(fruit) () ())
 ;; (check-type ['ok 3] '(option int a) () ())
+
+
+;; (check-type '(if true 3 false) 12 () ())  should fail
+
+;; (check-type '(lambda (f g) (f (g 1)))
+;; 	    '((0 -> 1) -> ((int -> 0) -> 1))
+;; 	    () ())
+
+;; HM cannot infer high rank polymorphic, but it can check that with annotation.
+;; (check-type
+;;  '(lambda (f)
+;; 		 (if (f true) (f 42) false))
+;;  '((1 -> bool) -> bool)
+;;  () ())
+
+;; This case is invalid for HM to infer 
+;; x : a -> b
+;; f : b -> b -> c
+;; (check-type '(lambda (f x)
+;; 			  (f (x 1) (x true)))
+;; 		'((2 -> (2 -> 3)) -> (1 -> 2))
+;; 		() ())
+
+;; This case should fail, because x is unify with both int and bool
+;; (check-type
+;;  '(lambda (x)
+;; 		 (h (f x) (g x)))
+;;  '(6 -> 7)
+;;  [(cons 'f '(int -> 1))
+;;  (cons 'g '(bool -> 2))
+;;  (cons 'h '(3 -> (4 -> 5)))] ())
+
+
+;; (infer '(lambda (x) (if true (x 1) (x true))) () ())  => fail
+;; (check-type '(lambda (x) (if true (x 1) (x true)))
+;; 	    '((1 -> 2) -> 2)
+;; 	    () ())                                 => ok
+
+
+;; type check reverse function
+;; (check-type  '(lambda (x y)
+;; 			   (if (null? x) y
+;; 				(if (cons? x)
+;; 				 (reverse-h (tl x) (cons (hd x) y))
+;; 				 ())))
+;;  '((list 1) -> ((list 1) -> (list 1)))
+;;  (extend *type-env*
+;;   'reverse-h '((list 1) -> ((list 1) -> (list 1))))
+;;  ())
+
+(set '*type-env* ())
+
+(func check-sexp
+		['do a b] => (bind-s (check-sexp a)
+						(lambda (_)
+								(check-sexp b)))
+		['declare . _] => ['succ 'ignore]
+		['set ['quote s] v] => (let find (assq s *type-env*) ;; special for global function
+						(if (null? find)
+								(begin
+										(io.display s)
+										(io.display "check set use any\n")
+										(check-type v (tvar) *type-env* ()))
+								(check-type v (cdr find) *type-env* ())))
+		exp => (check-type exp (tvar) *type-env* ()))
+
+(defun check-file (from pkg-str)
+  (let sexp (read-file-as-sexp from pkg-str)
+		(let input (macroexpand sexp)
+				(check-sexp input))))
+
+(defun declare (sym val)
+	(set '*type-env* (cons (cons sym val) *type-env*)))
+
+(set 'hd car)
+(set 'tl cdr)
+
+(declare 'car (let a (tvar) b (tvar) [a '-> b]))
+(declare 'cons [(tvar) '-> [(tvar) '-> (tvar)]])
+(declare 'cdr [(tvar) '-> (tvar)])
+(declare 'hd (let a (tvar) [['list a] '-> a]))
+(declare 'tl (let a (tvar) [['list a] '-> ['list a]]))
+(declare '+ `(int -> (int -> int)))
+(declare '- `(int -> (int -> int)))
+(declare '* `(int -> (int -> int)))
+(declare '= (let a (tvar) b (tvar) `(,a -> (,b -> bool))))
+(declare 'set (let a (tvar) ['symbol '-> [a '-> a]]))
+(declare 'null? [(tvar) '-> 'bool])
+(declare 'cons? [(tvar) '-> 'bool])
+(declare '*type-env* ['list ['tuple 'symbol (tvar)]])
+(declare 'error [(tvar) '-> (tvar)])
+
+(set 'typecheck check-file)
+
