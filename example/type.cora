@@ -1,0 +1,43 @@
+(import "cora/lib/infer")
+(typecheck true)
+
+(declare 'member (let a (tvar) b (tvar) `(,a -> ((list ,b) -> bool))))
+(func member
+      x [] => false
+      x [y . z] => (or (= x y)
+		       (member x z)))
+
+(declare 'assq (let a (tvar) b (tvar) `(,a -> ((list (tuple ,a ,b)) -> (maybe (tuple ,a ,b))))))
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(declare 'foldl (let a (tvar) b (tvar) c (tvar) `((,a -> (,b -> ,c)) -> (,a -> ((list ,b) -> ,c)))))
+(func foldl
+      f acc [] => acc
+      f acc [x . y] => (foldl f (f acc x) y))
+
+(declare 'for-each (let a (tvar) b (tvar) c (tvar) `((,a -> ,b) -> ((list ,a) -> ,c))))
+(func for-each
+      fn [] => []
+      fn [x . y] => (begin
+                     (fn x)
+                     (for-each fn y)))
+
+(deftype 'ignore-check (lambda (exp typ env subst) ['succ 'ignore]))
+(declare 'type-check-for-fruit `(ignore-check))
+(func type-check-for-fruit
+      ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
+	  _ _ env s => ['fail])
+
+
+(deftype 'fruit type-check-for-fruit)
+(declare 'f `((fruit) -> bool))
+(defun f (x)
+       (= x 'xxx))
+
+;; (f 'asdfdsf) uncomment it and type check error!
+(f 'apple)
+
+

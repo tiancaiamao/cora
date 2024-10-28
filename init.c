@@ -345,7 +345,7 @@ coraCall(co, 3, globalRef(intern("cora/init.add-to-*macros*")), intern("backquot
 
 void _35clofun1220(struct Cora* co) {
 Obj _35val1006 = co->args[1];
-Obj _35reg1009 = primSet(intern("typecheck"), makeNative(0, _35clofun1221, 2, 0));
+Obj _35reg1009 = primSet(intern("typechecker"), makeNative(0, _35clofun1221, 2, 0));
 coraReturn(co, _35reg1009);
 return;
 }

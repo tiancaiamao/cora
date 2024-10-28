@@ -581,29 +581,36 @@ builtinLoad(struct Cora *co) {
 
 		snprintf(buf, BUFSIZE, "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora", cfileidx, cfileidx);
 		int exitCode = system(buf);
-		if (exitCode == 0) {
-				/* co->args[0] = globalRef(intern("load-so"));  */
-				snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
-				str tmpSoFile = cstr(buf);
-				co->nargs = 3;
-				co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
-				co->args[2] = pkg;
-				co->ctx.pc.func = builtinLoadSo;
+		if (exitCode != 0) {
+				coraReturn(co, makeNumber(exitCode));
 				return;
 		}
 
+		Obj defTypeChecker = globalRef(intern("typechecker"));
+
+		/* co->args[0] = globalRef(intern("load-so"));  */
+		snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
+		str tmpSoFile = cstr(buf);
+		co->nargs = 3;
+		co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
+		co->args[2] = pkg;
+		trampoline(co, 0, builtinLoadSo);
+		res = co->args[1];
+
+		// The source file may specify the typecheck.
 		// type check for it if the checker is available.
 		co->nargs = 3;
-		co->args[0] = globalRef(intern("typecheck"));
+		co->args[0] = globalRef(intern("typechecker"));
 		co->args[1] = filePath;
 		co->args[2] = pkg;
 		trampoline(co, 0, coraDispatch);
-		res = co->args[1];
-		if (!iscons(res) || car(res) != intern("succ")) {
+		Obj tmp = co->args[1];
+		if (!iscons(tmp) || car(tmp) != intern("succ")) {
 				printf("type check for %s error\n", toCStr(stringStr(filePath)));
 		}
 
-		coraReturn(co, makeNumber(exitCode));
+		primSet(intern("typechecker"), defTypeChecker);
+		coraReturn(co, res);
 }
 
 void

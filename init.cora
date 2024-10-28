@@ -374,6 +374,6 @@
   (.rewrite-backquote (cadr exp)))
 
 ;; the pseudo type checker, overloaded later.
-(defun typecheck (filename pkg)
+(defun typechecker (filename pkg)
   ['succ 'fake])
 
