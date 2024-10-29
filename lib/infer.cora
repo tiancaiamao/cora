@@ -1,6 +1,21 @@
 (import "cora/lib/sys")
 (@import "cora/lib/io" io)
 
+(defun .append-tvar (l ret)
+		(if (null? l)
+		    (reverse ret)
+			(.append-tvar (cdr l) (cons (cons 'tvar ()) (cons (car l) ret)))))
+
+(func .replace-tvlist
+		tvlist x => (if (elem? x tvlist) ['unquote x] x) where (symbol? x)
+		tvlist () => ()
+		tvlist [x . y] => [(.replace-tvlist tvlist x) . (.replace-tvlist tvlist y)])
+
+(defmacro forall (exp)
+    (let tvlist (cadr exp)
+	     body (caddr exp)
+		 (cons 'let (append (.append-tvar tvlist ()) [['backquote (.replace-tvlist tvlist body)]]))))
+
 (set '.*tvar* 1000)
 (defun tvar ()
   (let ret .*tvar*
@@ -8,6 +23,7 @@
 	ret)))
 
 (set '*type-env* ())
+
 (defun declare (sym val)
 	(set '*type-env* (cons (cons sym val) *type-env*)))
 
@@ -267,4 +283,3 @@
  (if enable
   (set 'typechecker .check-file)
   (set 'typechecker .pseudo-typechecker)))
-
