@@ -166,47 +166,35 @@
       fvs ['call exp cont] => ['call (map (.explicit-stack fvs) exp) (.explicit-stack fvs cont)]
       fvs [f . args] => (map (.explicit-stack fvs) [f . args]))
 
-
-(let v (vector 2)
- (begin
-  (vector-set! v 0 0)
-  (vector-set! v 1 (gensym 'clofun))
-
-  (defun .reset-label ()
-     (vector-set! v 0 0))
-
-  (defun .gen-label ()
-   (let curr (vector-ref v 0)
-	(if (< curr 50)
-	 (begin
-	  (vector-set! v 0 (+ curr 1))
-	  (cons (vector-ref v 1) curr))
-	 (let label (gensym 'clofun)
-	  (begin
-	   (vector-set! v 0 0)
-	   (vector-set! v 1 label)
-	   (cons label 0))))))))
-
 ;; [%closure (lambda ..) . frees] => [%closure Label . frees]
 ;; [%continuation (lambda ..) . stacks] => [%continuation Label . stacks]
+;; collect the result to v (vector idx cur final)
 (func .collect-lambda
-      res [clo-or-cont ['lambda params body] . fvs] k =>
-      (let name (.gen-label)
-	   (.collect-lambda res body
-			    (lambda (res1 body1)
-			      (if (= clo-or-cont '%closure)
-				  (k (cons [name ['lambda params () body1]] res1) [clo-or-cont name (length params) . fvs])
-				  (k (cons [name ['lambda params fvs body1]] res1) [clo-or-cont name . fvs])))))
-      where (or (= clo-or-cont '%closure)
-		(= clo-or-cont '%continuation))
-      res f-args k => (.collect-lambda-list [] res f-args k) where (cons? f-args)
-      res x k => (k res x))
+      v [clo-or-cont ['lambda params body] . fvs] => (let body1 (.collect-lambda v body)
+			 (let idx (vector-ref v 0)
+				  cur (vector-ref v 1)
+				  (let name (if (= idx 0) (gensym 'clofun) (car (caar cur)))
+						(if (= clo-or-cont '%closure)
+						  (begin
+							 (.append-result v idx cur name ['lambda params () body1])
+							 [clo-or-cont (cons name idx) (length params) . fvs])
+						  (begin
+							 (.append-result v idx cur name ['lambda params fvs body1])
+							 [clo-or-cont (cons name idx) . fvs])))))
+      where (or (= clo-or-cont '%closure) (= clo-or-cont '%continuation))
+      v f-args => (map (lambda (e)
+						(.collect-lambda v e)) f-args) where (cons? f-args)
+      v x => x)
 
-(func .collect-lambda-list
-      res init [] k => (k init (reverse res))
-      res init [x . y] k => (.collect-lambda init x
-						 (lambda (init1 x1)
-						   (.collect-lambda-list (cons x1 res) init1 y k))))
+(defun .append-result (v idx cur name val)
+      (let cur1 (cons [(cons name idx) val] cur)
+	   (if (< idx 20)
+		  (begin (vector-set! v 0 (+ idx 1))
+				 (vector-set! v 1 cur1))
+		  (begin (vector-set! v 0 0)
+		         (vector-set! v 1 ())
+				 (let res (vector-ref v 2)
+				      (vector-set! v 2 (cons (reverse cur1) res)))))))
 
 (defun .wrap-var (x k)
   (let tmp (gensym 'reg)
@@ -358,13 +346,6 @@
 (defun .generate-inst-list (env w l)
   (.generate-inst-list-h env .generate-inst w l))
 
-;; (defun .generate-params-list (env w l)
-;;   (.generate-inst-list-h env (lambda (env w x)
-;; 			       (begin
-;; 				(c.generate-str w "Obj ")
-;; 				(.generate-inst env w x)))
-;; 			 w l))
-
 (defun .code-gen-func-declare (w label)
   (begin
    (c.generate-str w "void ")
@@ -390,7 +371,10 @@
 						(.generate-call-args-reverse () w " = co->args[" 1 params)
 						(.generate-call-args-reverse () w " = co->ctx.stk.stack[co->ctx.stk.base + " 0 actives)
 						(.generate-inst params w body)
-						(c.generate-str w "}\n\n")))
+						(c.generate-str w "}\n\n"))
+      w other =>  (begin (io.display "wrong format of toplevel\n")
+						 (io.display other)
+						 (io.display "\n")))
 
 (defun .parse-pass (exp)
   (.parse [] exp))
@@ -405,10 +389,16 @@
   (.explicit-stack [] exp))
 
 (defun .collect-lambda-pass (exp)
-  (.collect-lambda [] exp
-		   (lambda (ls e1)
-		     (cons [(cons 'entry 0) ['lambda () () e1]] ls))))
-
+  (let v (vector 3)
+       (begin (vector-set! v 0 0)
+			(vector-set! v 1 ())
+			(vector-set! v 2 ())
+			(let e1 (.collect-lambda v exp)
+				cur (vector-ref v 1)
+				(let res (if (null? cur)
+							(vector-ref v 2)
+							(cons (reverse cur) (vector-ref v 2)))
+				   (cons [[(cons 'entry 0) ['lambda () () e1]]] res))))))
 
 (func .rewrite-->macro
       obj [] => obj
@@ -458,7 +448,6 @@
   (c.generate-str to "static void* jumpTable[] = {")
   (.generate-jumptable to 0 (length group))
   (c.generate-str to "};\n\n")
-
   (c.generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
 
   (for-each (lambda (x) (.code-gen-toplevel to x)) group)
@@ -472,35 +461,20 @@
 
  (c.generate-str to "\n}\n\n")))
 
-(defun .same-group (x y)
-  (let lblx (car x)
-       lbly (car y)
-	   (= (car lblx) (car lbly))))
-
-(func .group-bytecode
-  [x . xs] [] res => (.group-bytecode xs [x] res)
-  [x . xs] [y . more] res => (if (.same-group x y)
-								(.group-bytecode xs (cons x [y . more]) res)
-								(.group-bytecode [x . xs] [] (cons (reverse [y . more]) res)))
-  [] cur res => (if (null? cur) res (cons cur res)))
 
 (defun .generate-c (to bc)
  (begin
-  (.reset-label)
   (c.generate-str to "#include \"types.h\"\n")
   (c.generate-str to "#include \"runtime.h\"\n\n")
-  (let groups (.group-bytecode bc [] [])
-   (begin
-	(for-each (lambda (group)
-			   (begin
-			   (.code-gen-func-declare to (caar group))
-			   (c.generate-str to ";\n")))
-	 groups)
-	(c.generate-str to "\n\n")
-
-	(for-each (lambda (group)
-			   (.generate-toplevel-group to group))
-	 groups)))))
+  (for-each (lambda (group)
+			 (begin
+			  (.code-gen-func-declare to (caar group))
+			  (c.generate-str to ";\n")))
+   bc)
+  (c.generate-str to "\n\n")
+  (for-each (lambda (group)
+				(.generate-toplevel-group to group))
+   bc)))
 
 (func .handle-import-eagerly
       ['begin . remain] => (.handle-import-eagerly remain)
