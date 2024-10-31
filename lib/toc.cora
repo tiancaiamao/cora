@@ -166,11 +166,32 @@
       fvs ['call exp cont] => ['call (map (.explicit-stack fvs) exp) (.explicit-stack fvs cont)]
       fvs [f . args] => (map (.explicit-stack fvs) [f . args]))
 
+
+(let v (vector 2)
+ (begin
+  (vector-set! v 0 0)
+  (vector-set! v 1 (gensym 'clofun))
+
+  (defun .reset-label ()
+     (vector-set! v 0 0))
+
+  (defun .gen-label ()
+   (let curr (vector-ref v 0)
+	(if (< curr 50)
+	 (begin
+	  (vector-set! v 0 (+ curr 1))
+	  (cons (vector-ref v 1) curr))
+	 (let label (gensym 'clofun)
+	  (begin
+	   (vector-set! v 0 0)
+	   (vector-set! v 1 label)
+	   (cons label 0))))))))
+
 ;; [%closure (lambda ..) . frees] => [%closure Label . frees]
 ;; [%continuation (lambda ..) . stacks] => [%continuation Label . stacks]
 (func .collect-lambda
       res [clo-or-cont ['lambda params body] . fvs] k =>
-      (let name (gensym 'clofun)
+      (let name (.gen-label)
 	   (.collect-lambda res body
 			    (lambda (res1 body1)
 			      (if (= clo-or-cont '%closure)
@@ -191,6 +212,21 @@
   (let tmp (gensym 'reg)
        ['let tmp x
        (k tmp)]))
+
+(func .generate-call-list
+ w i [] => ()
+ w i [x . more] => (begin
+		 (if (not (> i 3))
+		  (begin (c.generate-str w "arg")
+		   (c.generate-num w i))
+		  (begin (c.generate-str w "co->arg[")
+		   (c.generate-num w i)
+		   (c.generate-str w "]")))
+		 (c.generate-str w " = ")
+		 (.generate-inst () w x)
+		 (c.generate-str w ";\n")
+		 (.generate-call-list w (+ i 1) more)))
+
 
 (func .generate-inst
       env w x => (c.generate-sym w x) where (symbol? x)
@@ -244,8 +280,10 @@
 			    (.generate-inst env w c)
 			    (c.generate-str w "}\n"))
       env w ['%closure label nargs . frees] => (begin
-						(c.generate-str w "makeNative(0, ")
-						(c.generate-sym w label)
+						(c.generate-str w "makeNative(")
+						(c.generate-num w (cdr label))
+						(c.generate-str w ", ")
+						(c.generate-sym w (car label))
 						(c.generate-str w ", ")
 						(c.generate-num w nargs)
 						(c.generate-str w ", ")
@@ -260,23 +298,27 @@
 			  (.generate-inst env w a)
 			  (c.generate-str w ";\n")
 			  (.generate-inst env w b))
-      env w ['return x] => (begin
-			    (c.generate-str w "coraReturn(co, ")
-			    (.generate-inst env w x)
-			    (c.generate-str w ");\nreturn;\n"))
+	  env w ['return x] => (begin
+					  (c.generate-str w "nargs = 2;\n")
+					  (c.generate-str w "arg1 = ")
+					  (.generate-inst env w x)
+					  (c.generate-str w ";\n")
+					  (c.generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
+					  (c.generate-str w "if (co->ctx.pc.func != entry) { goto fail; }\n")
+					  (c.generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
       env w ['tailcall exp] => (.generate-inst env w exp)
       env w ['call exp cont] => (begin
 				 (.generate-cont w cont)
 				 (.generate-inst env w exp))
-      env w [f . args] => (begin
-			   (c.generate-str w "coraCall(co, ")
-			   (c.generate-num w (+ 1 (length args)))
-			   (for-each (lambda (x)
-				       (begin
-					(c.generate-str w ", ")
-					(.generate-inst () w x)))
-				     [f . args])
-			   (c.generate-str w ");\n")))
+	  env w [f . args] => (begin
+					  (c.generate-str w "nargs = ")
+					  (c.generate-num w (+ 1 (length args)))
+					  (c.generate-str w ";\n")
+					  (.generate-call-list w 0 [f . args])
+					  (c.generate-str w "struct pcState ps = OBJ_FIELD(arg0, scmNative, code);\n")
+					  (c.generate-str w "if (OBJ_FIELD(arg0, scmNative, required)+1 != nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
+					  (c.generate-str w "if (ps.func != entry) { co->ctx.pc = ps; goto fail; };\n")
+					  (c.generate-str w "goto *jumpTable[ps.label];\n\n")))
 
 (func .generate-call-args
       env w idx [] => ()
@@ -290,8 +332,10 @@
 
 (func .generate-cont
       w ['%continuation label . stacks] => (begin
-					    (c.generate-str w "pushCont(co, 0, ")
-					    (c.generate-sym w label)
+					    (c.generate-str w "pushCont(co, ")
+						(c.generate-num w (cdr label))
+						(c.generate-str w ", ")
+					    (c.generate-sym w (car label))
 					    (c.generate-str w ", ")
 					    (c.generate-num w (length stacks))
 					    (if (not (null? stacks))
@@ -321,10 +365,10 @@
 ;; 				(.generate-inst env w x)))
 ;; 			 w l))
 
-(defun .code-gen-func-declare (w name)
+(defun .code-gen-func-declare (w label)
   (begin
    (c.generate-str w "void ")
-   (c.generate-sym w name)
+   (c.generate-sym w (car label))
    (c.generate-str w "(struct Cora* co")
    (c.generate-str w ")")))
 
@@ -339,9 +383,10 @@
 				     (.generate-call-args-reverse env w dest-str (+ idx 1) b)))
 
 (func .code-gen-toplevel
-      w [name ['lambda params actives body]] => (begin
-						(.code-gen-func-declare w name)
-						(c.generate-str w " {\n")
+      w [label ['lambda params actives body]] => (begin
+						(c.generate-str w "label")
+						(c.generate-num w (cdr label))
+						(c.generate-str w ":\n{\n")
 						(.generate-call-args-reverse () w " = co->args[" 1 params)
 						(.generate-call-args-reverse () w " = co->ctx.stk.stack[co->ctx.stk.base + " 0 actives)
 						(.generate-inst params w body)
@@ -362,7 +407,7 @@
 (defun .collect-lambda-pass (exp)
   (.collect-lambda [] exp
 		   (lambda (ls e1)
-		     (cons ['entry ['lambda () () e1]] ls))))
+		     (cons [(cons 'entry 0) ['lambda () () e1]] ls))))
 
 
 (func .rewrite-->macro
@@ -388,17 +433,74 @@
                      (fn x)
                      (for-each fn y)))
 
+(defun .generate-jumptable (to i n)
+ (cond
+  ((= i 0) (begin
+		  (c.generate-str to "&&label0")
+		  (.generate-jumptable to 1 n)))
+  ((< i n) (begin
+		  (c.generate-str to ", &&label")
+		  (c.generate-num to i)
+		  (.generate-jumptable to (+ i 1) n)))
+  (true ())))
+
+(defun .generate-toplevel-group (to group)
+ (begin
+  (.code-gen-func-declare to (caar group))
+  (c.generate-str to "{\n")
+
+  (c.generate-str to "int nargs = co->nargs;\n")
+  (c.generate-str to "Obj arg0 = co->args[0];\n")
+  (c.generate-str to "Obj arg1 = co->args[1];\n")
+  (c.generate-str to "Obj arg2 = co->args[2];\n")
+  (c.generate-str to "Obj arg3 = co->args[3];\n\n")
+
+  (c.generate-str to "static void* jumpTable[] = {")
+  (.generate-jumptable to 0 (length group))
+  (c.generate-str to "};\n\n")
+
+  (c.generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
+
+  (for-each (lambda (x) (.code-gen-toplevel to x)) group)
+
+  (c.generate-str to "fail:\n")
+  (c.generate-str to "co->nargs = nargs;\n")
+  (c.generate-str to "co->args[0] = arg0;\n")
+  (c.generate-str to "co->args[1] = arg1;\n")
+  (c.generate-str to "co->args[2] = arg2;\n")
+  (c.generate-str to "co->args[3] = arg3;\n")
+
+ (c.generate-str to "\n}\n\n")))
+
+(defun .same-group (x y)
+  (let lblx (car x)
+       lbly (car y)
+	   (= (car lblx) (car lbly))))
+
+(func .group-bytecode
+  [x . xs] [] res => (.group-bytecode xs [x] res)
+  [x . xs] [y . more] res => (if (.same-group x y)
+								(.group-bytecode xs (cons x [y . more]) res)
+								(.group-bytecode [x . xs] [] (cons (reverse [y . more]) res)))
+  [] cur res => (if (null? cur) res (cons cur res)))
+
 (defun .generate-c (to bc)
-  (begin
-   (c.generate-str to "#include \"types.h\"\n")
-   (c.generate-str to "#include \"runtime.h\"\n\n")
-   (for-each (lambda (x)
-	       ;; x is [label (lambda params active body)]
-	       (begin
-		(.code-gen-func-declare to (car x))
-		(c.generate-str to ";\n"))) bc)
-   (c.generate-str to "\n")
-   (for-each (lambda (x) (.code-gen-toplevel to x)) bc)))
+ (begin
+  (.reset-label)
+  (c.generate-str to "#include \"types.h\"\n")
+  (c.generate-str to "#include \"runtime.h\"\n\n")
+  (let groups (.group-bytecode bc [] [])
+   (begin
+	(for-each (lambda (group)
+			   (begin
+			   (.code-gen-func-declare to (caar group))
+			   (c.generate-str to ";\n")))
+	 groups)
+	(c.generate-str to "\n\n")
+
+	(for-each (lambda (group)
+			   (.generate-toplevel-group to group))
+	 groups)))))
 
 (func .handle-import-eagerly
       ['begin . remain] => (.handle-import-eagerly remain)
