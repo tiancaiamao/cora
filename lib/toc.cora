@@ -202,8 +202,8 @@
        (k tmp)]))
 
 (func .generate-call-list
- w i [] => ()
- w i [x . more] => (begin
+ self w i [] => ()
+ self w i [x . more] => (begin
 		 (if (not (> i 3))
 		  (begin (c.generate-str w "arg")
 		   (c.generate-num w i))
@@ -211,26 +211,26 @@
 		   (c.generate-num w i)
 		   (c.generate-str w "]")))
 		 (c.generate-str w " = ")
-		 (.generate-inst () w x)
+		 (.generate-inst self () w x)
 		 (c.generate-str w ";\n")
-		 (.generate-call-list w (+ i 1) more)))
+		 (.generate-call-list self w (+ i 1) more)))
 
 
 (func .generate-inst
-      env w x => (c.generate-sym w x) where (symbol? x)
-      env w ['%global x] => (begin
+      self env w x => (c.generate-sym w x) where (symbol? x)
+      self env w ['%global x] => (begin
 			     (c.generate-str w "globalRef(intern(\"")
 			     (c.generate-str w (symbol->string x))
 			     (c.generate-str w "\"))"))
-      env w ['%closure-ref idx] => (begin
+      self env w ['%closure-ref idx] => (begin
 				    (c.generate-str w "closureRef(co, ")
 				    (c.generate-num w idx)
 				    (c.generate-str w ")"))
-      env w ['%stack-ref idx] => (begin
+      self env w ['%stack-ref idx] => (begin
 				  (c.generate-str w "stackRef(co, ")
 				  (c.generate-num w idx)
 				  (c.generate-str w ")"))
-      env w ['%const x] => (cond
+      self env w ['%const x] => (cond
 			     ((symbol? x) (begin
 					   (c.generate-str w "intern(\"")
 					   (c.generate-str w (symbol->string x))
@@ -246,28 +246,28 @@
 			     ((= x ()) (c.generate-str w "Nil"))
 			     ((= x true) (c.generate-str w "True"))
 			     ((= x false) (c.generate-str w "False")))
-      env w ['let a b c] => (let idx (.index a env)
+      self env w ['let a b c] => (let idx (.index a env)
 				 (begin
 				  (if (< idx 0) (c.generate-str w "Obj ") ())
 				  (c.generate-sym w a)
 				  (c.generate-str w " = ")
-				  (.generate-inst env w b)
+				  (.generate-inst self env w b)
 				  (c.generate-str w ";\n")
-				  (.generate-inst (cons a env) w c)))
-      env w [['%builtin f] . args] => (begin
+				  (.generate-inst self (cons a env) w c)))
+      self env w [['%builtin f] . args] => (begin
 				       (c.generate-sym w (.builtin->name f))
 				       (c.generate-str w "(")
-				       (.generate-inst-list env w args)
+				       (.generate-inst-list self env w args)
 				       (c.generate-str w ")"))
-      env w ['if a b c] => (begin
+      self env w ['if a b c] => (begin
 			    (c.generate-str w "if (True == ")
-			    (.generate-inst env w a)
+			    (.generate-inst self env w a)
 			    (c.generate-str w ") {\n")
-			    (.generate-inst env w b)
+			    (.generate-inst self env w b)
 			    (c.generate-str w "} else {\n")
-			    (.generate-inst env w c)
+			    (.generate-inst self env w c)
 			    (c.generate-str w "}\n"))
-      env w ['%closure label nargs . frees] => (begin
+      self env w ['%closure label nargs . frees] => (begin
 						(c.generate-str w "makeNative(")
 						(c.generate-num w (cdr label))
 						(c.generate-str w ", ")
@@ -279,47 +279,52 @@
 						(if (not (null? frees))
 						    (begin
 						     (c.generate-str w ", ")
-						     (.generate-inst-list env w frees))
+						     (.generate-inst-list self env w frees))
 						    ())
 						(c.generate-str w ")"))
-      env w ['do a b] => (begin
-			  (.generate-inst env w a)
+      self env w ['do a b] => (begin
+			  (.generate-inst self env w a)
 			  (c.generate-str w ";\n")
-			  (.generate-inst env w b))
-	  env w ['return x] => (begin
+			  (.generate-inst self env w b))
+	  self env w ['return x] => (begin
 					  (c.generate-str w "nargs = 2;\n")
 					  (c.generate-str w "arg1 = ")
-					  (.generate-inst env w x)
+					  (.generate-inst self env w x)
 					  (c.generate-str w ";\n")
 					  (c.generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
-					  (c.generate-str w "if (co->ctx.pc.func != entry) { goto fail; }\n")
+					  (c.generate-str w "if (co->ctx.pc.func != ")
+					  (c.generate-sym w self)
+					  (c.generate-str w ") { goto fail; }\n")
 					  (c.generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
-      env w ['tailcall exp] => (.generate-inst env w exp)
-      env w ['call exp cont] => (begin
-				 (.generate-cont w cont)
-				 (.generate-inst env w exp))
-	  env w [f . args] => (begin
+      self env w ['tailcall exp] => (.generate-inst self env w exp)
+      self env w ['call exp cont] => (begin
+				 (.generate-cont self w cont)
+				 (.generate-inst self env w exp))
+	  self env w [f . args] => (begin
 					  (c.generate-str w "nargs = ")
 					  (c.generate-num w (+ 1 (length args)))
 					  (c.generate-str w ";\n")
-					  (.generate-call-list w 0 [f . args])
+					  (.generate-call-list self w 0 [f . args])
+					  (c.generate-str w "co->ctx.frees = arg0;\n")
 					  (c.generate-str w "struct pcState ps = OBJ_FIELD(arg0, scmNative, code);\n")
 					  (c.generate-str w "if (OBJ_FIELD(arg0, scmNative, required)+1 != nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
-					  (c.generate-str w "if (ps.func != entry) { co->ctx.pc = ps; goto fail; };\n")
+					  (c.generate-str w "if (ps.func != ")
+					  (c.generate-sym w self)
+					  (c.generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
 					  (c.generate-str w "goto *jumpTable[ps.label];\n\n")))
 
-(func .generate-call-args
-      env w idx [] => ()
-      env w idx [a . b] => (begin
-			    (c.generate-str w "co->args[")
-			    (c.generate-num w idx)
-			    (c.generate-str w "] = ")
-			    (.generate-inst env w a)
-			    (c.generate-str w ";\n")
-			    (.generate-call-args env w (+ idx 1) b)))
+;; (func .generate-call-args
+;;       env w idx [] => ()
+;;       env w idx [a . b] => (begin
+;; 			    (c.generate-str w "co->args[")
+;; 			    (c.generate-num w idx)
+;; 			    (c.generate-str w "] = ")
+;; 			    (.generate-inst env w a)
+;; 			    (c.generate-str w ";\n")
+;; 			    (.generate-call-args env w (+ idx 1) b)))
 
 (func .generate-cont
-      w ['%continuation label . stacks] => (begin
+      self w ['%continuation label . stacks] => (begin
 					    (c.generate-str w "pushCont(co, ")
 						(c.generate-num w (cdr label))
 						(c.generate-str w ", ")
@@ -330,21 +335,21 @@
 						(for-each (lambda (x)
 							    (begin
 							     (c.generate-str w ", ")
-							     (.generate-inst () w x)))
+							     (.generate-inst self () w x)))
 							  stacks)
 						())
 					    (c.generate-str w ");\n")))
 
 (func .generate-inst-list-h
-      env fn w [] => ()
-      env fn w [a . b] => (begin (fn env w a)
+      self env fn w [] => ()
+      self env fn w [a . b] => (begin (fn self env w a)
 				 (if (not (null? b))
 				     (c.generate-str w ", ")
 				     ())
-				 (.generate-inst-list-h env fn w b)))
+				 (.generate-inst-list-h self env fn w b)))
 
-(defun .generate-inst-list (env w l)
-  (.generate-inst-list-h env .generate-inst w l))
+(defun .generate-inst-list (self env w l)
+  (.generate-inst-list-h self env .generate-inst w l))
 
 (defun .code-gen-func-declare (w label)
   (begin
@@ -353,24 +358,40 @@
    (c.generate-str w "(struct Cora* co")
    (c.generate-str w ")")))
 
+(defun .local-from-params (w i var)
+ (begin
+  (c.generate-str w "Obj ")
+  (.generate-inst 'ignore () w var)
+  (if (< i 4)
+   (begin (c.generate-str w " = arg")
+	(c.generate-num w i)
+	(c.generate-str w ";\n"))
+   (begin (c.generate-str w " = co->args[")
+	(c.generate-num w i)
+	(c.generate-str w "];\n")))))
+
+(defun .local-from-cont (w i var)
+ (begin
+  (c.generate-str w "Obj ")
+  (.generate-inst 'ignore () w var)
+  (c.generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
+  (c.generate-num w i)
+  (c.generate-str w "];\n")))
+
 (func .generate-call-args-reverse
-      env w dest-str idx [] => ()
-      env w dest-str idx [a . b] => (begin
-				     (c.generate-str w "Obj ")
-				     (.generate-inst env w a)
-				     (c.generate-str w dest-str)
-				     (c.generate-num w idx)
-				     (c.generate-str w "];\n")
-				     (.generate-call-args-reverse env w dest-str (+ idx 1) b)))
+      fn w idx [] => ()
+      fn w idx [a . b] => (begin
+						(fn w idx a)
+				     (.generate-call-args-reverse fn w (+ idx 1) b)))
 
 (func .code-gen-toplevel
       w [label ['lambda params actives body]] => (begin
 						(c.generate-str w "label")
 						(c.generate-num w (cdr label))
 						(c.generate-str w ":\n{\n")
-						(.generate-call-args-reverse () w " = co->args[" 1 params)
-						(.generate-call-args-reverse () w " = co->ctx.stk.stack[co->ctx.stk.base + " 0 actives)
-						(.generate-inst params w body)
+						(.generate-call-args-reverse .local-from-params w 1 params)
+						(.generate-call-args-reverse .local-from-cont w 0 actives)
+						(.generate-inst (car label) params w body)
 						(c.generate-str w "}\n\n"))
       w other =>  (begin (io.display "wrong format of toplevel\n")
 						 (io.display other)
