@@ -29,7 +29,7 @@ const char* typeNameX[8] = {
 
 void*
 newObj(scmHeadType tp, int sz) {
-  /* scmHead* p = malloc(sz); */
+  // scmHead* p = malloc(sz);
   scmHead* p = gcAlloc(&gc, sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;

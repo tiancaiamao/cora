@@ -458,7 +458,7 @@ ATTRIBUTE_NO_SANITIZE_ADDRESS
 static void
 gcStack(struct GC* gc) {
   uintptr_t* stackAddr = (uintptr_t*)&stackAddr;
-  /* printf("gcStack -- start %p end %p\n", gc->baseStackAddr, stackAddr); */
+  // printf("gcStack -- start %p end %p\n", gc->baseStackAddr, stackAddr);
 
   // Dump registers onto stack and scan the stack.
   jmp_buf ctx;
@@ -469,8 +469,8 @@ gcStack(struct GC* gc) {
   assert(((uintptr_t)gc->baseStackAddr & 0x7) == 0);
 
   for (uintptr_t *p = stackAddr; p<(uintptr_t*)gc->baseStackAddr; p++) {
-    /* printf("handling -- %p\n", p); */
     uintptr_t stackValue = *p;
+    // printf("handling -- %p = %ld\n", p, stackValue);
     gcMark(gc, stackValue);
   }
 }
