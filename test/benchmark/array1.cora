@@ -1,5 +1,5 @@
 ;; port from https://github.com/ecraven/r7rs-benchmarks/blob/master/src/array1.scm
-;; (import "cora/lib/let-loop")
+(import "cora/lib/let-loop")
 
 (defun create-x (n)
   (let result (vector n)
