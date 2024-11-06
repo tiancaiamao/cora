@@ -112,6 +112,26 @@ struct scmFreeNode {
 
 static int sizeClass[] = {0, 16, 24, 32, 40, 48, 56, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, MEM_BLOCK_SIZE};
 #define sizeClassSZ (sizeof(sizeClass) / sizeof(int))
+static int smallSizeClassIdx[] = {0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10,10,10,10,10,10,10,10};
+static int largeSizeClassIdx[] = {-1, -1, 9, 10, 11, 12, 12, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18};
+
+static int
+getSlotBySize(int size) {
+		int slot;
+		if (size < 128) {
+				int sizeDiv8 = ((size + 7) / 8);
+				slot = smallSizeClassIdx[sizeDiv8];
+		} else {
+				int sizeDiv64 = ((size + 63) / 64);
+				slot = largeSizeClassIdx[sizeDiv64];
+		}
+
+//		assert(sizeClass[slot] >= size);
+//		if (slot > 0) {
+//				assert(sizeClass[slot-1] < size);
+//		}
+		return slot;
+}
 
 struct GC {
 		enum gcState state;
@@ -188,12 +208,8 @@ gcInit(struct GC *gc, uintptr_t *baseStackAddr) {
 		gc->heap = NULL;
 		gc->state = gcStateNone;
 		gc->baseStackAddr = baseStackAddr;
-		//  struct Block *b = blockNew(gc);
-		//  gc->data.head = b;
-		//  gc->data.tail = b;
-
-		//  gc->currBlock = b;
-		//  gc->currOffset = 0;
+		// the first version start from 2 so uninitialized block can be treat the same
+		// as the garbage.
 		gc->version = 2;
 
 		gc->gray.head = NULL;
@@ -208,8 +224,6 @@ gcInit(struct GC *gc, uintptr_t *baseStackAddr) {
 		for (int i=0; i<sizeClassSZ; i++) {
 				gc->sizeClass[i] = NULL;
 		}
-
-		// memset(gc->freeList, 0, sizeClassSZ*sizeof(struct FreeNode*));
 }
 
 static struct heapArena*
@@ -223,22 +237,6 @@ gcContains(struct GC *gc, void *p) {
   }
   return NULL;
 }
-
-// static scmHead*
-// moveToNextBlock(struct GC *gc) {
-//   gc->currBlock = gc->currBlock->next;
-//   // all blocks exhausted?
-//   if (gc->currBlock == NULL) {
-//     struct Block *b = blockNew(gc);
-//     b->prev = gc->data.tail;
-//     gc->data.tail->next = b;
-//     gc->data.tail = b;
-//     gc->currBlock = gc->data.tail;
-//     /* printf("all blocks exhaused, allocate a new one ---%d %d\n", gc->allocated, gc->state); */
-//   }
-//   gc->currOffset = 0;
-//   return (scmHead*)&gc->currBlock->data[gc->currOffset];
-// }
 
 static bool
 inuse(struct GC *gc, scmHead *h) {
@@ -263,34 +261,6 @@ inuse(struct GC *gc, scmHead *h) {
   return h->version == gc->version;
 }
 
-// static scmHead*
-// moveToFirstUnused(struct GC *gc) {
-//   scmHead *head = (void*)(gc->currBlock->data + gc->currOffset);
-//   while(true) {
-//     if ((char*)head >= (char*)gc->currBlock + MEM_BLOCK_SIZE) {
-//       head = moveToNextBlock(gc);
-//     }
-//     if (!inuse(gc, head)) {
-//       break;
-//     }
-//     gc->currOffset += head->size;
-//     head = (void*)&gc->currBlock->data[gc->currOffset];
-//   }
-//   return head;
-// }
-
-// static void*
-// gcAllocReturn(struct GC *gc, scmHead *head) {
-//   head->version = gc->version;
-//   gc->allocated += head->size;
-//   // should trigger the next round of GC.
-//   if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
-//     gc->state = gcStateMark;
-//   }
-//   /* printf("gcAlloc== %p size=%d version=%d\n", head, head->size, gc->version); */
-//   return head;
-// }
-
 static void gcRun(struct GC *gc);
 
 static struct Block*
@@ -306,16 +276,15 @@ getBlock(struct GC *gc, int slot) {
 
 static scmHead*
 blockAlloc(struct GC *gc, struct Block *block) {
-		scmHead *p = NULL;
 		while(block->curr + block->sizeClass <= MEM_BLOCK_SIZE) {
-				p = (scmHead*)(block->base + block->curr);
+				scmHead* p = (scmHead*)(block->base + block->curr);
 				block->curr += block->sizeClass;
 				// skip the inuse object
 				if (!inuse(gc, p)) {
-						break;	
-				}	
+						return p;
+				}
 		}
-		return p;
+		return NULL;
 }
 
 void*
@@ -328,20 +297,21 @@ gcAlloc(struct GC *gc, int size) {
 		assert(size < MEM_BLOCK_SIZE);
 
 		// calculate the size class for the allocation.
-		int slot = ((size + 7) / 8) - 1;
-		while ( slot < sizeClassSZ && sizeClass[slot] < size ) {
-				slot++;
-		}
+		int slot = getSlotBySize(size);
 
 		scmHead *ret = NULL;
 		while (true) {
 				struct Block *b = getBlock(gc, slot);
 				ret = blockAlloc(gc, b);
 				if (ret != NULL) {
+						assert(ret->version < gc->version);
 						break;
 				}
-				// Remove full block from the sizeClass list?
+				// Remove full block from the sizeClass list, wait GC to recycle them
 				gc->sizeClass[slot] = b->next;
+				b->prev = NULL;
+				b->next = NULL;
+				b->curr = 0;
 		}
 
 		ret->size = size;
@@ -508,8 +478,7 @@ extern void gcGlobal(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
-
-  printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+2);
+  // printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+2);
   gc->version+=2;
 
   gc->allocated = 0;
@@ -541,15 +510,35 @@ gcRunIncremental(struct GC *gc) {
 				curr = gcDequeue(gc);
 		}
 
-		printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+//		printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
 		gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 		if (gc->nextSize < MEM_BLOCK_SIZE) {
 				// Because a block is at least that size, GC smaller then this is meanless.
 				gc->nextSize = MEM_BLOCK_SIZE;
 		}
 		gc->state = gcStateNone;
-		//   memset(gc->freeList, 0, FREE_LIST_SLOTS*sizeof(struct FreeNode*));
-		// TODO: reset blocks for re-allocation???
+
+		// Reset blocks for re-allocation
+		for (int i=0; i<sizeClassSZ; i++) {
+				gc->sizeClass[i] = NULL;
+		}
+		for (struct heapArena* h=gc->heap; h != NULL; h = h->next) {
+				for (int i=0; i<h->idx; i++) {
+						struct Block *b = &h->blocks[i];
+						if (b->sizeClass == 0) {
+//								printf("skip %dth block, its sizeclass = 0\n", i);
+								continue;
+						}
+// 						if (b->curr == 0) {
+// 								printf("maybe inuse block %dth, skip it\n", i);
+// 								continue;
+// 						}
+						int slot = getSlotBySize(b->sizeClass);
+						assert(b->sizeClass == sizeClass[slot]);
+						b->next = gc->sizeClass[slot];
+						gc->sizeClass[slot] = b;
+				}
+		}
 }
 
 static void
