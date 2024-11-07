@@ -1,0 +1,30 @@
+(@import "cora/lib/net" net)
+(@import "cora/lib/io" io)
+(@import "cora/lib/async" async)
+(@import "cora/lib/cml" cml)
+
+(defun accept-loop (ln)
+  (let fd (async.accept ln)
+       (begin
+	(io.display "accept a new conn\n")
+	(cml.spawn (lambda ()
+			   (begin
+			    (io.display "handle conn in new coroutine\n")
+			    (handle-conn fd))))
+	(accept-loop ln))))
+
+(defun handle-conn (fd)
+  (let v (async.send fd "hello world")
+       (let buf (net.make-buffer 12)
+	    (begin
+	     (async.recv fd buf)
+	     (io.display buf)
+	     (net.close fd)
+	     (io.display "after close fd!!!\n")))))
+
+(defun server-main ()
+  (let ln (net.listen "127.0.0.1:8080")
+       (accept-loop ln)))
+
+(cml.spawn server-main)
+(cml.main)
