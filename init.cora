@@ -372,8 +372,3 @@
       
 (defmacro backquote (exp)
   (.rewrite-backquote (cadr exp)))
-
-;; the pseudo type checker, overloaded later.
-(defun typechecker (filename pkg)
-  ['succ 'fake])
-

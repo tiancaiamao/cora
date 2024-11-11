@@ -248,18 +248,10 @@
 ;;   'reverse-h '((list 1) -> ((list 1) -> (list 1))))
 ;;  ())
 
-(func .declare-or-deftype
-  ['declare . l] => true
-  ['deftype . l] => true
-  _ => false)
-
-(defun .check-file (from pkg-str)
- (let sexp (read-file-as-sexp from pkg-str)
-  (let sexp1 (match sexp
-			  ['begin . more] ['begin . (filter (lambda (x) (not (.declare-or-deftype x))) more)]
-			  x x)
-   (let input (macroexpand sexp1)
-	 (.check-type input (tvar) () ())))))
+(defun .enable (on)
+	(if on
+		(set '.*typecheck* true)
+		(set '.*typecheck* false)))
 
 (declare 'car (let a (tvar) b (tvar) [a '-> b]))
 (declare 'cons [(tvar) '-> [(tvar) '-> (tvar)]])
@@ -276,10 +268,3 @@
 (declare '*type-env* ['list ['tuple 'symbol (tvar)]])
 (declare 'error [(tvar) '-> (tvar)])
 (declare 'import `(string -> ,(tvar)))
-
-(set '.pseudo-typechecker typechecker)
-
-(defun typecheck (enable)
- (if enable
-  (set 'typechecker .check-file)
-  (set 'typechecker .pseudo-typechecker)))
