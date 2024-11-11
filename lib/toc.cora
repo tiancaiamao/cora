@@ -498,7 +498,6 @@
    bc)))
 
 (func .handle-import-eagerly
-      ['begin . remain] => (.handle-import-eagerly remain)
       [['import pkg] . remain] => (begin
 				   (import pkg)
 				   ;; (io.display "import ==")
@@ -507,16 +506,37 @@
 				   (.handle-import-eagerly remain))
       _ => ())
 
+(func .split-type-and-code
+	[] type code k => (k (reverse type) (reverse code))
+ 	[[':type . exp] . more] type code k => (.split-type-and-code more (cons ['begin . exp] type) code k)
+ 	[[':declare . exp] . more] type code k => (.split-type-and-code more (cons ['declare . exp] type) code k)
+ 	[exp . more] type code k => (.split-type-and-code more
+  				(cons ['cora/lib/infer.check-type ['macroexpand (cons 'backquote (cons exp ()))] ['tvar] () ()] type)
+  				(cons exp code) k))
+
+(set 'cora/lib/infer.*typecheck* false)
+
+(defun .preprocess (sexp)
+ (let sexp1 (if (and (pair? sexp) (= 'begin (car sexp)))
+			 (cdr sexp)
+			 (cons sexp ()))
+	(begin
+		(.handle-import-eagerly sexp1)
+		(.split-type-and-code sexp1 () ()
+			(lambda (type code)
+				(if cora/lib/infer.*typecheck*
+					(cons 'begin (append type code))
+					(cons 'begin code)))))))
+
 (defun .compile-to-c (from to pkg-str)
   (let sexp (read-file-as-sexp from pkg-str)
-       (begin
-	(.handle-import-eagerly sexp)
-	(let input (macroexpand sexp)
-	     (let bc (.compile input)
-		  (let stream (io.open-output-file to)
-		       (begin
-			(.generate-c stream bc)
-			(io.close-output-file stream))))))))
+			(let sexp1 (.preprocess sexp)
+					(let input (macroexpand sexp1)
+						 (let bc (.compile input)
+						  (let stream (io.open-output-file to)
+							   (begin
+							(.generate-c stream bc)
+							(io.close-output-file stream))))))))
 
 
 ;; ============== utilities of eval0 ==========
