@@ -586,31 +586,14 @@ builtinLoad(struct Cora *co) {
 				return;
 		}
 
-		Obj defTypeChecker = globalRef(intern("typechecker"));
-
 		/* co->args[0] = globalRef(intern("load-so"));  */
 		snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
 		str tmpSoFile = cstr(buf);
 		co->nargs = 3;
 		co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
 		co->args[2] = pkg;
-		trampoline(co, 0, builtinLoadSo);
-		res = co->args[1];
-
-		// The source file may specify the typecheck.
-		// type check for it if the checker is available.
-		co->nargs = 3;
-		co->args[0] = globalRef(intern("typechecker"));
-		co->args[1] = filePath;
-		co->args[2] = pkg;
-		trampoline(co, 0, coraDispatch);
-		Obj tmp = co->args[1];
-		if (!iscons(tmp) || car(tmp) != intern("succ")) {
-				printf("type check for %s error\n", toCStr(stringStr(filePath)));
-		}
-
-		primSet(intern("typechecker"), defTypeChecker);
-		coraReturn(co, res);
+		co->ctx.pc.func = builtinLoadSo;
+		return;
 }
 
 void
