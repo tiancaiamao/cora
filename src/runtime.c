@@ -856,7 +856,7 @@ registerAPI(struct registerModule* m, str pkg) {
 
 void
 coraInit(uintptr_t *mark) {
-  gcInit(&gc, mark);
+  gcInit(mark);
   typesInit();
   symQuote = intern("quote");
   symBackQuote = intern("backquote");

@@ -262,7 +262,7 @@
 (declare '- `(int -> (int -> int)))
 (declare '* `(int -> (int -> int)))
 (declare '= (let a (tvar) b (tvar) `(,a -> (,b -> bool))))
-(declare 'set (let a (tvar) ['symbol '-> [a '-> a]]))
+;; (declare 'set (let a (tvar) ['symbol '-> [a '-> a]]))
 (declare 'null? [(tvar) '-> 'bool])
 (declare 'cons? [(tvar) '-> 'bool])
 (declare '*type-env* ['list ['tuple 'symbol (tvar)]])

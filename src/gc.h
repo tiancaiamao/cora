@@ -37,17 +37,18 @@ typedef struct {
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define tag(x) ((x) & TAG_MASK)
 
-extern struct GC gc;
-void gcInit(struct GC* gc, uintptr_t* mark);
+struct GC;
+
+void gcInit(uintptr_t* mark);
+struct GC *getGC();
+
 void* gcAlloc(struct GC* gc, int size);
 
-void writeBarrier(uintptr_t *slot, uintptr_t val);
+void writeBarrier(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head);
 void gcInuseSizeInc(struct GC *gc, int size);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);
-
-extern struct GC gc;
 
 #endif

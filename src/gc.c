@@ -190,8 +190,11 @@ blockReset(struct Block *block) {
 		}
 }
 
+__thread struct GC* threadLocalGC;
+
 void
-gcInit(struct GC *gc, uintptr_t *baseStackAddr) {
+gcInit(uintptr_t *baseStackAddr) {
+		struct GC *gc = malloc(sizeof(struct GC));
 		gc->heap = NULL;
 		gc->state = gcStateNone;
 		gc->baseStackAddr = baseStackAddr;
@@ -211,6 +214,13 @@ gcInit(struct GC *gc, uintptr_t *baseStackAddr) {
 		for (int i=0; i<sizeClassSZ; i++) {
 				gc->sizeClass[i] = NULL;
 		}
+
+		threadLocalGC = gc;
+}
+
+struct GC*
+getGC() {
+		return threadLocalGC;
 }
 
 static struct heapArena*
@@ -323,8 +333,6 @@ gcRegistForType(uint8_t idx, gcFunc fn) {
   registry[idx] = fn;
   return true;
 }
-
-struct GC gc;
 
 static void
 gcQueueInit(struct GC *gc) {
@@ -550,11 +558,11 @@ gcInuseSizeInc(struct GC *gc, int size) {
 }
 
 void
-writeBarrier(uintptr_t *slot, uintptr_t val) {
+writeBarrier(struct GC *gc, uintptr_t *slot, uintptr_t val) {
   // Yuasa-style deletion barrier
-  if (gc.state == gcStateIncremental) {
+  if (gc->state == gcStateIncremental) {
     uintptr_t old = *slot;
-    gcMark(&gc, old);
+    gcMark(gc, old);
   }
   *slot = val;
 }

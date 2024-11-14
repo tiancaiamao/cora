@@ -30,7 +30,7 @@ const char* typeNameX[8] = {
 void*
 newObj(scmHeadType tp, int sz) {
   // scmHead* p = malloc(sz);
-  scmHead* p = gcAlloc(&gc, sz);
+  scmHead* p = gcAlloc(getGC(), sz);
   assert(((Obj)p & TAG_PTR) == 0);
   p->type = tp;
   /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -338,7 +338,7 @@ vectorSet(Obj vec, int idx, Obj val) {
   struct scmVector* v = ptr(vec);
   assert(v->head.type == scmHeadVector);
   assert(idx >= 0 && idx < v->size);
-  writeBarrier(&v->data[idx], val);
+  writeBarrier(getGC(), &v->data[idx], val);
   return vec;
 }
 
