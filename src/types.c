@@ -224,14 +224,6 @@ symbolGet(Obj sym) {
   return s->value;
 }
 
-Obj
-symbolSet(Obj sym, Obj val) {
-  assert(issymbol(sym));
-  struct trieNode* s = ptr(sym);
-  s->value = val;
-  return val;
-}
-
 char*
 symbolStr(Obj sym) {
   assert(issymbol(sym));

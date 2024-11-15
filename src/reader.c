@@ -6,12 +6,13 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+extern Obj primSet(struct Cora *co, Obj key, Obj val);
+
 static void
 addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
   Obj var = intern("*package-mapping*");
   Obj pkgMapping = symbolGet(var);
-  symbolSet(var, cons(cons(sym, path), pkgMapping));
-  /* r->pkgMapping = cons(cons(sym, path), r->pkgMapping); */
+  primSet(r->co, var, cons(cons(sym, path), pkgMapping));
 }
 
 static bool
@@ -59,44 +60,44 @@ peekFirstChar(FILE *in) {
 
 static Obj
 readCons(struct SexpReader *r, FILE *in, int *errCode) {
-  int c = getc(in);
-  if (c == ')') {
-    // read the empty list
-    return Nil;
-  }
+		int c = getc(in);
+		if (c == ')') {
+				// read the empty list
+				return Nil;
+		}
 
-  ungetc(c, in);
-  Obj hd = sexpRead(r, in, errCode);
+		ungetc(c, in);
+		Obj hd = sexpRead(r, in, errCode);
 
-  c = peekFirstChar(in);
-  ungetc(c, in);
+		c = peekFirstChar(in);
+		ungetc(c, in);
 
-  /* read list */
-  Obj tl = readCons(r, in, errCode);
+		/* read list */
+		Obj tl = readCons(r, in, errCode);
 
-  /* printf("read cdr"); */
-  /* printObj(cdr); */
-  /* printf("\n"); */
+		/* printf("read cdr"); */
+		/* printObj(cdr); */
+		/* printf("\n"); */
 
-  if (issymbol(hd) && strcmp(symbolStr(hd), "@import") == 0) {
-    // Handle the @import reader macro
-    // (@import "path/to/file" sym)
-    hd = intern("import");
-    if (iscons(tl)) {
-      Obj path = car(tl);
-      if (isstring(path)) {
-	if (iscons(cdr(tl))) {
-	  Obj sym = cadr(tl);
-	  if (issymbol(sym)) {
-	    addPkgMapping(r, sym, path);
-	    return cons(hd, cons(path, Nil));
-	  }
-	}
-      }
-    }
-  }
+		if (issymbol(hd) && strcmp(symbolStr(hd), "@import") == 0) {
+				// Handle the @import reader macro
+				// (@import "path/to/file" sym)
+				hd = intern("import");
+				if (iscons(tl)) {
+						Obj path = car(tl);
+						if (isstring(path)) {
+								if (iscons(cdr(tl))) {
+										Obj sym = cadr(tl);
+										if (issymbol(sym)) {
+												addPkgMapping(r, sym, path);
+												return cons(hd, cons(path, Nil));
+										}
+								}
+						}
+				}
+		}
 
-  return cons(hd, tl);
+		return cons(hd, tl);
 }
 
 Obj
