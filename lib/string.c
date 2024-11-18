@@ -168,7 +168,7 @@ static struct registerModule stringModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(&stringModule, toStr(stringStr(pkg)));
+  registerAPI(co, &stringModule, toStr(stringStr(pkg)));
   coraReturn(co, intern("string"));
 }
 

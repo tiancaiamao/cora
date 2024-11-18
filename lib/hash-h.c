@@ -81,6 +81,6 @@ struct registerModule hashModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(&hashModule, toStr(stringStr(pkg)));
+  registerAPI(co, &hashModule, toStr(stringStr(pkg)));
   coraReturn(co, intern("hash"));
 }

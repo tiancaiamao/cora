@@ -27,17 +27,17 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35reg39 = primSet(intern("null?"), makeNative(0, _35clofun1006, 1, 0));
-Obj _35reg42 = primSet(intern("cadr"), makeNative(1, _35clofun1006, 1, 0));
-Obj _35reg45 = primSet(intern("caar"), makeNative(2, _35clofun1006, 1, 0));
-Obj _35reg48 = primSet(intern("cdar"), makeNative(3, _35clofun1006, 1, 0));
-Obj _35reg51 = primSet(intern("cddr"), makeNative(4, _35clofun1006, 1, 0));
-Obj _35reg55 = primSet(intern("caddr"), makeNative(5, _35clofun1006, 1, 0));
-Obj _35reg60 = primSet(intern("cadddr"), makeNative(6, _35clofun1006, 1, 0));
-Obj _35reg64 = primSet(intern("cdddr"), makeNative(7, _35clofun1006, 1, 0));
-Obj _35reg72 = primSet(intern("rcons"), makeNative(9, _35clofun1006, 1, 0));
-Obj _35reg74 = primSet(intern("pair?"), makeNative(10, _35clofun1006, 1, 0));
-Obj _35reg79 = primSet(intern("cora/init.reverse-h"), makeNative(11, _35clofun1006, 2, 0));
+Obj _35reg39 = primSet(co, intern("null?"), makeNative(0, _35clofun1006, 1, 0));
+Obj _35reg42 = primSet(co, intern("cadr"), makeNative(1, _35clofun1006, 1, 0));
+Obj _35reg45 = primSet(co, intern("caar"), makeNative(2, _35clofun1006, 1, 0));
+Obj _35reg48 = primSet(co, intern("cdar"), makeNative(3, _35clofun1006, 1, 0));
+Obj _35reg51 = primSet(co, intern("cddr"), makeNative(4, _35clofun1006, 1, 0));
+Obj _35reg55 = primSet(co, intern("caddr"), makeNative(5, _35clofun1006, 1, 0));
+Obj _35reg60 = primSet(co, intern("cadddr"), makeNative(6, _35clofun1006, 1, 0));
+Obj _35reg64 = primSet(co, intern("cdddr"), makeNative(7, _35clofun1006, 1, 0));
+Obj _35reg72 = primSet(co, intern("rcons"), makeNative(9, _35clofun1006, 1, 0));
+Obj _35reg74 = primSet(co, intern("pair?"), makeNative(10, _35clofun1006, 1, 0));
+Obj _35reg79 = primSet(co, intern("cora/init.reverse-h"), makeNative(11, _35clofun1006, 2, 0));
 pushCont(co, 20, _35clofun1015, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init.reverse-h"));
@@ -264,7 +264,7 @@ goto *jumpTable[ps.label];
 label9:
 {
 Obj _35val984 = __arg1;
-Obj _35reg1004 = primSet(intern("cora/init.rewrite-backquote"), makeNative(6, _35clofun1015, 1, 0));
+Obj _35reg1004 = primSet(co, intern("cora/init.rewrite-backquote"), makeNative(6, _35clofun1015, 1, 0));
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
 __arg1 = intern("backquote");
@@ -279,10 +279,10 @@ goto *jumpTable[ps.label];
 label10:
 {
 Obj _35val535 = __arg1;
-Obj _35reg798 = primSet(intern("cora/init.propagate-boolean0"), makeNative(11, _35clofun1013, 1, 0));
-Obj _35reg956 = primSet(intern("cora/init.propagate-boolean"), makeNative(13, _35clofun1014, 1, 0));
-Obj _35reg958 = primSet(intern("macroexpand"), makeNative(15, _35clofun1014, 1, 0));
-Obj _35reg982 = primSet(intern("cora/init.rewrite-begin"), makeNative(20, _35clofun1014, 1, 0));
+Obj _35reg798 = primSet(co, intern("cora/init.propagate-boolean0"), makeNative(11, _35clofun1013, 1, 0));
+Obj _35reg956 = primSet(co, intern("cora/init.propagate-boolean"), makeNative(13, _35clofun1014, 1, 0));
+Obj _35reg958 = primSet(co, intern("macroexpand"), makeNative(15, _35clofun1014, 1, 0));
+Obj _35reg982 = primSet(co, intern("cora/init.rewrite-begin"), makeNative(20, _35clofun1014, 1, 0));
 pushCont(co, 9, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -298,16 +298,16 @@ goto *jumpTable[ps.label];
 label11:
 {
 Obj _35val427 = __arg1;
-Obj _35reg479 = primSet(intern("cora/init.extract-rules1"), makeNative(15, _35clofun1011, 3, 0));
-Obj _35reg480 = primSet(intern("cora/init.extract-rules"), makeNative(16, _35clofun1011, 1, 0));
-Obj _35reg485 = primSet(intern("cora/init.rules-patterns"), makeNative(19, _35clofun1011, 2, 0));
-Obj _35reg489 = primSet(intern("cora/init.length-h"), makeNative(20, _35clofun1011, 2, 0));
-Obj _35reg490 = primSet(intern("length"), makeNative(0, _35clofun1012, 1, 0));
-Obj _35reg498 = primSet(intern("cora/init.filter-h"), makeNative(2, _35clofun1012, 3, 0));
-Obj _35reg499 = primSet(intern("filter"), makeNative(3, _35clofun1012, 2, 0));
-Obj _35reg505 = primSet(intern("append"), makeNative(5, _35clofun1012, 2, 0));
-Obj _35reg516 = primSet(intern("cora/init.rules-arg-count"), makeNative(12, _35clofun1012, 1, 0));
-Obj _35reg522 = primSet(intern("cora/init.gen-parameters"), makeNative(14, _35clofun1012, 1, 0));
+Obj _35reg479 = primSet(co, intern("cora/init.extract-rules1"), makeNative(15, _35clofun1011, 3, 0));
+Obj _35reg480 = primSet(co, intern("cora/init.extract-rules"), makeNative(16, _35clofun1011, 1, 0));
+Obj _35reg485 = primSet(co, intern("cora/init.rules-patterns"), makeNative(19, _35clofun1011, 2, 0));
+Obj _35reg489 = primSet(co, intern("cora/init.length-h"), makeNative(20, _35clofun1011, 2, 0));
+Obj _35reg490 = primSet(co, intern("length"), makeNative(0, _35clofun1012, 1, 0));
+Obj _35reg498 = primSet(co, intern("cora/init.filter-h"), makeNative(2, _35clofun1012, 3, 0));
+Obj _35reg499 = primSet(co, intern("filter"), makeNative(3, _35clofun1012, 2, 0));
+Obj _35reg505 = primSet(co, intern("append"), makeNative(5, _35clofun1012, 2, 0));
+Obj _35reg516 = primSet(co, intern("cora/init.rules-arg-count"), makeNative(12, _35clofun1012, 1, 0));
+Obj _35reg522 = primSet(co, intern("cora/init.gen-parameters"), makeNative(14, _35clofun1012, 1, 0));
 pushCont(co, 10, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -323,11 +323,11 @@ goto *jumpTable[ps.label];
 label12:
 {
 Obj _35val234 = __arg1;
-Obj _35reg288 = primSet(intern("cora/init.match-cons-expander"), makeNative(12, _35clofun1009, 4, 0));
-Obj _35reg321 = primSet(intern("cora/init.match1"), makeNative(18, _35clofun1009, 4, 0));
-Obj _35reg348 = primSet(intern("cora/init.extract-rule-action"), makeNative(5, _35clofun1010, 2, 0));
-Obj _35reg400 = primSet(intern("cora/init.match-helper"), makeNative(0, _35clofun1011, 2, 0));
-Obj _35reg426 = primSet(intern("cora/init.rewrite-match"), makeNative(7, _35clofun1011, 1, 0));
+Obj _35reg288 = primSet(co, intern("cora/init.match-cons-expander"), makeNative(12, _35clofun1009, 4, 0));
+Obj _35reg321 = primSet(co, intern("cora/init.match1"), makeNative(18, _35clofun1009, 4, 0));
+Obj _35reg348 = primSet(co, intern("cora/init.extract-rule-action"), makeNative(5, _35clofun1010, 2, 0));
+Obj _35reg400 = primSet(co, intern("cora/init.match-helper"), makeNative(0, _35clofun1011, 2, 0));
+Obj _35reg426 = primSet(co, intern("cora/init.rewrite-match"), makeNative(7, _35clofun1011, 1, 0));
 pushCont(co, 11, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -343,8 +343,8 @@ goto *jumpTable[ps.label];
 label13:
 {
 Obj _35val219 = __arg1;
-Obj _35reg222 = primSet(intern("boolean?"), makeNative(11, _35clofun1008, 1, 0));
-Obj _35reg232 = primSet(intern("cora/init.rcons1"), makeNative(14, _35clofun1008, 1, 0));
+Obj _35reg222 = primSet(co, intern("boolean?"), makeNative(11, _35clofun1008, 1, 0));
+Obj _35reg232 = primSet(co, intern("cora/init.rcons1"), makeNative(14, _35clofun1008, 1, 0));
 pushCont(co, 12, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -360,7 +360,7 @@ goto *jumpTable[ps.label];
 label14:
 {
 Obj _35val205 = __arg1;
-Obj _35reg217 = primSet(intern("cora/init.rewrite-and"), makeNative(9, _35clofun1008, 1, 0));
+Obj _35reg217 = primSet(co, intern("cora/init.rewrite-and"), makeNative(9, _35clofun1008, 1, 0));
 pushCont(co, 13, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -376,7 +376,7 @@ goto *jumpTable[ps.label];
 label15:
 {
 Obj _35val191 = __arg1;
-Obj _35reg203 = primSet(intern("cora/init.rewrite-or"), makeNative(6, _35clofun1008, 1, 0));
+Obj _35reg203 = primSet(co, intern("cora/init.rewrite-or"), makeNative(6, _35clofun1008, 1, 0));
 pushCont(co, 14, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -407,9 +407,9 @@ goto *jumpTable[ps.label];
 label17:
 {
 Obj _35val155 = __arg1;
-Obj _35reg160 = primSet(intern("elem?"), makeNative(14, _35clofun1007, 2, 0));
-Obj _35reg163 = primSet(intern("atom?"), makeNative(15, _35clofun1007, 1, 0));
-Obj _35reg175 = primSet(intern("cora/init.rewrite-let"), makeNative(20, _35clofun1007, 1, 0));
+Obj _35reg160 = primSet(co, intern("elem?"), makeNative(14, _35clofun1007, 2, 0));
+Obj _35reg163 = primSet(co, intern("atom?"), makeNative(15, _35clofun1007, 1, 0));
+Obj _35reg175 = primSet(co, intern("cora/init.rewrite-let"), makeNative(20, _35clofun1007, 1, 0));
 pushCont(co, 16, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -455,19 +455,19 @@ goto *jumpTable[ps.label];
 label20:
 {
 Obj _35val80 = __arg1;
-Obj _35reg81 = primSet(intern("reverse"), _35val80);
-Obj _35reg87 = primSet(intern("map-h"), makeNative(13, _35clofun1006, 3, 0));
-Obj _35reg88 = primSet(intern("map"), makeNative(14, _35clofun1006, 2, 0));
-Obj _35reg89 = primSet(intern("*macros*"), Nil);
+Obj _35reg81 = primSet(co, intern("reverse"), _35val80);
+Obj _35reg87 = primSet(co, intern("map-h"), makeNative(13, _35clofun1006, 3, 0));
+Obj _35reg88 = primSet(co, intern("map"), makeNative(14, _35clofun1006, 2, 0));
+Obj _35reg89 = primSet(co, intern("*macros*"), Nil);
 Obj _35reg90 = primGenSym(intern("protect"));
-Obj _35reg91 = primSet(intern("*protect-symbol*"), _35reg90);
-Obj _35reg93 = primSet(intern("cora/init.protect"), makeNative(15, _35clofun1006, 1, 0));
-Obj _35reg97 = primSet(intern("cora/init.add-to-*macros*"), makeNative(16, _35clofun1006, 2, 0));
-Obj _35reg110 = primSet(intern("cora/init.macroexpand1-h"), makeNative(18, _35clofun1006, 2, 0));
-Obj _35reg111 = primSet(intern("cora/init.macroexpand1"), makeNative(19, _35clofun1006, 1, 0));
-Obj _35reg128 = primSet(intern("cora/init.macroexpand-boot"), makeNative(4, _35clofun1007, 1, 0));
-Obj _35reg129 = primSet(intern("macroexpand"), globalRef(intern("cora/init.macroexpand-boot")));
-Obj _35reg140 = primSet(intern("defmacro-macro"), makeNative(8, _35clofun1007, 1, 0));
+Obj _35reg91 = primSet(co, intern("*protect-symbol*"), _35reg90);
+Obj _35reg93 = primSet(co, intern("cora/init.protect"), makeNative(15, _35clofun1006, 1, 0));
+Obj _35reg97 = primSet(co, intern("cora/init.add-to-*macros*"), makeNative(16, _35clofun1006, 2, 0));
+Obj _35reg110 = primSet(co, intern("cora/init.macroexpand1-h"), makeNative(18, _35clofun1006, 2, 0));
+Obj _35reg111 = primSet(co, intern("cora/init.macroexpand1"), makeNative(19, _35clofun1006, 1, 0));
+Obj _35reg128 = primSet(co, intern("cora/init.macroexpand-boot"), makeNative(4, _35clofun1007, 1, 0));
+Obj _35reg129 = primSet(co, intern("macroexpand"), globalRef(intern("cora/init.macroexpand-boot")));
+Obj _35reg140 = primSet(co, intern("defmacro-macro"), makeNative(8, _35clofun1007, 1, 0));
 pushCont(co, 19, _35clofun1015, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
@@ -6006,7 +6006,7 @@ Obj n = __arg1;
 Obj v = __arg2;
 Obj _35reg94 = primCons(n, v);
 Obj _35reg95 = primCons(_35reg94, globalRef(intern("*macros*")));
-Obj _35reg96 = primSet(intern("*macros*"), _35reg95);
+Obj _35reg96 = primSet(co, intern("*macros*"), _35reg95);
 __nargs = 2;
 __arg1 = _35reg96;
 co->ctx = co->callstack.data[--co->callstack.len];

@@ -2,6 +2,9 @@
 #include "runtime.h"
 
 void entry(struct Cora* co);
+void _35clofun2947(struct Cora* co);
+void _35clofun2946(struct Cora* co);
+void _35clofun2945(struct Cora* co);
 void _35clofun2944(struct Cora* co);
 void _35clofun2943(struct Cora* co);
 void _35clofun2942(struct Cora* co);
@@ -23,9 +26,6 @@ void _35clofun2927(struct Cora* co);
 void _35clofun2926(struct Cora* co);
 void _35clofun2925(struct Cora* co);
 void _35clofun2924(struct Cora* co);
-void _35clofun2923(struct Cora* co);
-void _35clofun2922(struct Cora* co);
-void _35clofun2921(struct Cora* co);
 
 
 void entry(struct Cora* co){
@@ -41,7 +41,7 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-pushCont(co, 8, _35clofun2944, 0);
+pushCont(co, 10, _35clofun2947, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("import"));
 __arg1 = makeString1("cora/lib/toc/internal");
@@ -61,84 +61,116 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2944(struct Cora* co){
+void _35clofun2947(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
 Obj __arg2 = co->args[2];
 Obj __arg3 = co->args[3];
 
-static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8};
+static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10};
 
 goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2919 = __arg1;
-Obj _35val2917= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2915 = __arg1;
+Obj _35val2913= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
 __arg0 = globalRef(intern("apply"));
-__arg1 = _35val2917;
-__arg2 = _35val2919;
+__arg1 = _35val2913;
+__arg2 = _35val2915;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35val2917 = __arg1;
+Obj _35val2913 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35reg2918 = primCdr(exp);
-pushCont(co, 0, _35clofun2944, 1, _35val2917);
+Obj _35reg2914 = primCdr(exp);
+pushCont(co, 0, _35clofun2947, 1, _35val2913);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/lib/toc.eval0"));
-__arg2 = _35reg2918;
+__arg2 = _35reg2914;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label2:
 {
-Obj _35val2905 = __arg1;
+Obj _35val2922 = __arg1;
+Obj _35val2920= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("apply"));
+__arg1 = _35val2920;
+__arg2 = _35val2922;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label3:
+{
+Obj _35val2920 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-if (True == _35val2905) {
+Obj _35reg2921 = primCdr(exp);
+pushCont(co, 2, _35clofun2947, 1, _35val2920);
+__nargs = 3;
+__arg0 = globalRef(intern("map"));
+__arg1 = globalRef(intern("cora/lib/toc.eval0"));
+__arg2 = _35reg2921;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label4:
+{
+Obj _35val2908 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+if (True == _35val2908) {
 if (True == True) {
 __nargs = 2;
 __arg1 = exp;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-Obj _35reg2906 = primIsCons(exp);
-if (True == _35reg2906) {
-Obj _35reg2907 = primCar(exp);
-Obj _35reg2908 = primEQ(_35reg2907, intern("quote"));
-if (True == _35reg2908) {
+Obj _35reg2909 = primIsCons(exp);
+if (True == _35reg2909) {
+Obj _35reg2910 = primCar(exp);
+Obj _35reg2911 = primEQ(_35reg2910, intern("quote"));
+if (True == _35reg2911) {
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2909 = primCar(exp);
-pushCont(co, 20, _35clofun2943, 1, exp);
+Obj _35reg2912 = primCar(exp);
+pushCont(co, 1, _35clofun2947, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.eval0"));
-__arg1 = _35reg2909;
+__arg1 = _35reg2912;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -148,7 +180,7 @@ __arg1 = makeString1("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -157,32 +189,32 @@ if (True == False) {
 __nargs = 2;
 __arg1 = exp;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-Obj _35reg2913 = primIsCons(exp);
-if (True == _35reg2913) {
-Obj _35reg2914 = primCar(exp);
-Obj _35reg2915 = primEQ(_35reg2914, intern("quote"));
-if (True == _35reg2915) {
+Obj _35reg2916 = primIsCons(exp);
+if (True == _35reg2916) {
+Obj _35reg2917 = primCar(exp);
+Obj _35reg2918 = primEQ(_35reg2917, intern("quote"));
+if (True == _35reg2918) {
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2916 = primCar(exp);
-pushCont(co, 1, _35clofun2944, 1, exp);
+Obj _35reg2919 = primCar(exp);
+pushCont(co, 3, _35clofun2947, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.eval0"));
-__arg1 = _35reg2916;
+__arg1 = _35reg2919;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -192,253 +224,253 @@ __arg1 = makeString1("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
-}
-}
-}
-
-label3:
-{
-Obj _35val2897 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-if (True == _35val2897) {
-if (True == True) {
-__nargs = 2;
-__arg1 = exp;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-Obj _35reg2898 = primIsCons(exp);
-if (True == _35reg2898) {
-Obj _35reg2899 = primCar(exp);
-Obj _35reg2900 = primEQ(_35reg2899, intern("quote"));
-if (True == _35reg2900) {
-__nargs = 2;
-__arg0 = globalRef(intern("cadr"));
-__arg1 = exp;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2901 = primCar(exp);
-pushCont(co, 18, _35clofun2943, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.eval0"));
-__arg1 = _35reg2901;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-} else {
-pushCont(co, 2, _35clofun2944, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("null?"));
-__arg1 = exp;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label4:
-{
-Obj _35val2881 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-if (True == _35val2881) {
-if (True == True) {
-__nargs = 2;
-__arg1 = exp;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-Obj _35reg2882 = primIsCons(exp);
-if (True == _35reg2882) {
-Obj _35reg2883 = primCar(exp);
-Obj _35reg2884 = primEQ(_35reg2883, intern("quote"));
-if (True == _35reg2884) {
-__nargs = 2;
-__arg0 = globalRef(intern("cadr"));
-__arg1 = exp;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2885 = primCar(exp);
-pushCont(co, 14, _35clofun2943, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.eval0"));
-__arg1 = _35reg2885;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-} else {
-Obj _35reg2889 = primIsString(exp);
-if (True == _35reg2889) {
-if (True == True) {
-__nargs = 2;
-__arg1 = exp;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-Obj _35reg2890 = primIsCons(exp);
-if (True == _35reg2890) {
-Obj _35reg2891 = primCar(exp);
-Obj _35reg2892 = primEQ(_35reg2891, intern("quote"));
-if (True == _35reg2892) {
-__nargs = 2;
-__arg0 = globalRef(intern("cadr"));
-__arg1 = exp;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2893 = primCar(exp);
-pushCont(co, 16, _35clofun2943, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.eval0"));
-__arg1 = _35reg2893;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-} else {
-pushCont(co, 3, _35clofun2944, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("boolean?"));
-__arg1 = exp;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
 }
 }
 }
 
 label5:
 {
-Obj exp = __arg1;
-Obj _35reg2880 = primIsSymbol(exp);
-if (True == _35reg2880) {
+Obj _35val2900 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+if (True == _35val2900) {
+if (True == True) {
 __nargs = 2;
-__arg0 = globalRef(intern("value"));
+__arg1 = exp;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+} else {
+Obj _35reg2901 = primIsCons(exp);
+if (True == _35reg2901) {
+Obj _35reg2902 = primCar(exp);
+Obj _35reg2903 = primEQ(_35reg2902, intern("quote"));
+if (True == _35reg2903) {
+__nargs = 2;
+__arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-pushCont(co, 4, _35clofun2944, 1, exp);
+Obj _35reg2904 = primCar(exp);
+pushCont(co, 20, _35clofun2946, 1, exp);
 __nargs = 2;
-__arg0 = globalRef(intern("number?"));
+__arg0 = globalRef(intern("cora/lib/toc.eval0"));
+__arg1 = _35reg2904;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no cond match");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+} else {
+pushCont(co, 4, _35clofun2947, 1, exp);
+__nargs = 2;
+__arg0 = globalRef(intern("null?"));
 __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label6:
 {
-Obj _35val2699 = __arg1;
-Obj _35reg2704 = primSet(intern("cora/lib/toc.compile"), makeNative(3, _35clofun2939, 1, 0));
-Obj _35reg2710 = primSet(intern("for-each"), makeNative(7, _35clofun2939, 2, 0));
-Obj _35reg2717 = primSet(intern("cora/lib/toc.generate-jumptable"), makeNative(11, _35clofun2939, 3, 0));
-Obj _35reg2738 = primSet(intern("cora/lib/toc.generate-toplevel-group"), makeNative(12, _35clofun2940, 2, 0));
-Obj _35reg2745 = primSet(intern("cora/lib/toc.generate-c"), makeNative(0, _35clofun2941, 2, 0));
-Obj _35reg2764 = primSet(intern("cora/lib/toc.handle-import-eagerly"), makeNative(4, _35clofun2941, 1, 0));
-Obj _35reg2805 = primSet(intern("cora/lib/toc.split-type-and-code"), makeNative(11, _35clofun2941, 4, 0));
-Obj _35reg2806 = primSet(intern("cora/lib/infer.*typecheck*"), False);
-Obj _35reg2840 = primSet(intern("cora/lib/toc.preprocess"), makeNative(10, _35clofun2942, 1, 0));
-Obj _35reg2847 = primSet(intern("cora/lib/toc.compile-to-c"), makeNative(17, _35clofun2942, 3, 0));
-Obj _35reg2849 = primSet(intern("set"), makeNative(18, _35clofun2942, 2, 0));
-Obj _35reg2851 = primSet(intern("car"), makeNative(19, _35clofun2942, 1, 0));
-Obj _35reg2853 = primSet(intern("cdr"), makeNative(20, _35clofun2942, 1, 0));
-Obj _35reg2855 = primSet(intern("cons"), makeNative(0, _35clofun2943, 2, 0));
-Obj _35reg2857 = primSet(intern("cons"), makeNative(1, _35clofun2943, 2, 0));
-Obj _35reg2859 = primSet(intern("+"), makeNative(2, _35clofun2943, 2, 0));
-Obj _35reg2861 = primSet(intern("-"), makeNative(3, _35clofun2943, 2, 0));
-Obj _35reg2863 = primSet(intern("*"), makeNative(4, _35clofun2943, 2, 0));
-Obj _35reg2865 = primSet(intern("/"), makeNative(5, _35clofun2943, 2, 0));
-Obj _35reg2867 = primSet(intern("="), makeNative(6, _35clofun2943, 2, 0));
-Obj _35reg2869 = primSet(intern(">"), makeNative(7, _35clofun2943, 2, 0));
-Obj _35reg2871 = primSet(intern("<"), makeNative(8, _35clofun2943, 2, 0));
-Obj _35reg2873 = primSet(intern("gensym"), makeNative(9, _35clofun2943, 1, 0));
-Obj _35reg2875 = primSet(intern("symbol?"), makeNative(10, _35clofun2943, 1, 0));
-Obj _35reg2877 = primSet(intern("not"), makeNative(11, _35clofun2943, 1, 0));
-Obj _35reg2879 = primSet(intern("string?"), makeNative(12, _35clofun2943, 1, 0));
-Obj _35reg2920 = primSet(intern("cora/lib/toc.eval0"), makeNative(5, _35clofun2944, 1, 0));
+Obj _35val2884 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+if (True == _35val2884) {
+if (True == True) {
 __nargs = 2;
-__arg1 = _35reg2920;
+__arg1 = exp;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
+} else {
+Obj _35reg2885 = primIsCons(exp);
+if (True == _35reg2885) {
+Obj _35reg2886 = primCar(exp);
+Obj _35reg2887 = primEQ(_35reg2886, intern("quote"));
+if (True == _35reg2887) {
+__nargs = 2;
+__arg0 = globalRef(intern("cadr"));
+__arg1 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2888 = primCar(exp);
+pushCont(co, 16, _35clofun2946, 1, exp);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.eval0"));
+__arg1 = _35reg2888;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no cond match");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+} else {
+Obj _35reg2892 = primIsString(exp);
+if (True == _35reg2892) {
+if (True == True) {
+__nargs = 2;
+__arg1 = exp;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+} else {
+Obj _35reg2893 = primIsCons(exp);
+if (True == _35reg2893) {
+Obj _35reg2894 = primCar(exp);
+Obj _35reg2895 = primEQ(_35reg2894, intern("quote"));
+if (True == _35reg2895) {
+__nargs = 2;
+__arg0 = globalRef(intern("cadr"));
+__arg1 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2896 = primCar(exp);
+pushCont(co, 18, _35clofun2946, 1, exp);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.eval0"));
+__arg1 = _35reg2896;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no cond match");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+} else {
+pushCont(co, 5, _35clofun2947, 1, exp);
+__nargs = 2;
+__arg0 = globalRef(intern("boolean?"));
+__arg1 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
 }
 
 label7:
 {
+Obj exp = __arg1;
+Obj _35reg2883 = primIsSymbol(exp);
+if (True == _35reg2883) {
+__nargs = 2;
+__arg0 = globalRef(intern("value"));
+__arg1 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+pushCont(co, 6, _35clofun2947, 1, exp);
+__nargs = 2;
+__arg0 = globalRef(intern("number?"));
+__arg1 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label8:
+{
+Obj _35val2702 = __arg1;
+Obj _35reg2707 = primSet(co, intern("cora/lib/toc.compile"), makeNative(5, _35clofun2942, 1, 0));
+Obj _35reg2713 = primSet(co, intern("for-each"), makeNative(9, _35clofun2942, 2, 0));
+Obj _35reg2720 = primSet(co, intern("cora/lib/toc.generate-jumptable"), makeNative(13, _35clofun2942, 3, 0));
+Obj _35reg2741 = primSet(co, intern("cora/lib/toc.generate-toplevel-group"), makeNative(14, _35clofun2943, 2, 0));
+Obj _35reg2748 = primSet(co, intern("cora/lib/toc.generate-c"), makeNative(2, _35clofun2944, 2, 0));
+Obj _35reg2767 = primSet(co, intern("cora/lib/toc.handle-import-eagerly"), makeNative(6, _35clofun2944, 1, 0));
+Obj _35reg2808 = primSet(co, intern("cora/lib/toc.split-type-and-code"), makeNative(13, _35clofun2944, 4, 0));
+Obj _35reg2809 = primSet(co, intern("cora/lib/infer.*typecheck*"), False);
+Obj _35reg2844 = primSet(co, intern("cora/lib/toc.preprocess"), makeNative(13, _35clofun2945, 2, 0));
+Obj _35reg2850 = primSet(co, intern("cora/lib/toc.compile-to-c"), makeNative(19, _35clofun2945, 3, 0));
+Obj _35reg2852 = primSet(co, intern("set"), makeNative(20, _35clofun2945, 2, 0));
+Obj _35reg2854 = primSet(co, intern("car"), makeNative(0, _35clofun2946, 1, 0));
+Obj _35reg2856 = primSet(co, intern("cdr"), makeNative(1, _35clofun2946, 1, 0));
+Obj _35reg2858 = primSet(co, intern("cons"), makeNative(2, _35clofun2946, 2, 0));
+Obj _35reg2860 = primSet(co, intern("cons"), makeNative(3, _35clofun2946, 2, 0));
+Obj _35reg2862 = primSet(co, intern("+"), makeNative(4, _35clofun2946, 2, 0));
+Obj _35reg2864 = primSet(co, intern("-"), makeNative(5, _35clofun2946, 2, 0));
+Obj _35reg2866 = primSet(co, intern("*"), makeNative(6, _35clofun2946, 2, 0));
+Obj _35reg2868 = primSet(co, intern("/"), makeNative(7, _35clofun2946, 2, 0));
+Obj _35reg2870 = primSet(co, intern("="), makeNative(8, _35clofun2946, 2, 0));
+Obj _35reg2872 = primSet(co, intern(">"), makeNative(9, _35clofun2946, 2, 0));
+Obj _35reg2874 = primSet(co, intern("<"), makeNative(10, _35clofun2946, 2, 0));
+Obj _35reg2876 = primSet(co, intern("gensym"), makeNative(11, _35clofun2946, 1, 0));
+Obj _35reg2878 = primSet(co, intern("symbol?"), makeNative(12, _35clofun2946, 1, 0));
+Obj _35reg2880 = primSet(co, intern("not"), makeNative(13, _35clofun2946, 1, 0));
+Obj _35reg2882 = primSet(co, intern("string?"), makeNative(14, _35clofun2946, 1, 0));
+Obj _35reg2923 = primSet(co, intern("cora/lib/toc.eval0"), makeNative(7, _35clofun2947, 1, 0));
+__nargs = 2;
+__arg1 = _35reg2923;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2947) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label9:
+{
 Obj _35val1206 = __arg1;
-Obj _35reg1221 = primSet(intern("cora/lib/toc.assq"), makeNative(3, _35clofun2921, 2, 0));
-Obj _35reg1227 = primSet(intern("cora/lib/toc.foldl"), makeNative(7, _35clofun2921, 3, 0));
-Obj _35reg1237 = primSet(intern("cora/lib/toc.pos-in-list0"), makeNative(11, _35clofun2921, 3, 0));
-Obj _35reg1238 = primSet(intern("cora/lib/toc.index"), makeNative(12, _35clofun2921, 2, 0));
-Obj _35reg1245 = primSet(intern("cora/lib/toc.exist-in-env"), makeNative(16, _35clofun2921, 2, 0));
+Obj _35reg1221 = primSet(co, intern("cora/lib/toc.assq"), makeNative(3, _35clofun2924, 2, 0));
+Obj _35reg1227 = primSet(co, intern("cora/lib/toc.foldl"), makeNative(7, _35clofun2924, 3, 0));
+Obj _35reg1237 = primSet(co, intern("cora/lib/toc.pos-in-list0"), makeNative(11, _35clofun2924, 3, 0));
+Obj _35reg1238 = primSet(co, intern("cora/lib/toc.index"), makeNative(12, _35clofun2924, 2, 0));
+Obj _35reg1245 = primSet(co, intern("cora/lib/toc.exist-in-env"), makeNative(16, _35clofun2924, 2, 0));
 Obj _35reg1246 = primCons(intern("primSet"), Nil);
 Obj _35reg1247 = primCons(makeNumber(2), _35reg1246);
 Obj _35reg1248 = primCons(intern("set"), _35reg1247);
@@ -507,45 +539,1001 @@ Obj _35reg1310 = primCons(_35reg1257, _35reg1309);
 Obj _35reg1311 = primCons(_35reg1254, _35reg1310);
 Obj _35reg1312 = primCons(_35reg1251, _35reg1311);
 Obj _35reg1313 = primCons(_35reg1248, _35reg1312);
-Obj _35reg1314 = primSet(intern("cora/lib/toc.*builtin-prims*"), _35reg1313);
-Obj _35reg1318 = primSet(intern("builtin?"), makeNative(19, _35clofun2921, 1, 0));
-Obj _35reg1321 = primSet(intern("cora/lib/toc.builtin->name"), makeNative(1, _35clofun2922, 1, 0));
-Obj _35reg1324 = primSet(intern("cora/lib/toc.builtin->args"), makeNative(4, _35clofun2922, 1, 0));
-Obj _35reg1329 = primSet(intern("cora/lib/toc.temp-list"), makeNative(7, _35clofun2922, 2, 0));
-Obj _35reg1465 = primSet(intern("cora/lib/toc.parse"), makeNative(16, _35clofun2923, 2, 0));
-Obj _35reg1476 = primSet(intern("cora/lib/toc.union"), makeNative(1, _35clofun2924, 2, 0));
-Obj _35reg1487 = primSet(intern("cora/lib/toc.diff"), makeNative(7, _35clofun2924, 2, 0));
-Obj _35reg1538 = primSet(intern("cora/lib/toc.convert-protect?"), makeNative(14, _35clofun2924, 1, 0));
-Obj _35reg1713 = primSet(intern("cora/lib/toc.free-vars"), makeNative(16, _35clofun2925, 1, 0));
-Obj _35reg1786 = primSet(intern("cora/lib/toc.closure-convert"), makeNative(10, _35clofun2926, 2, 0));
-Obj _35reg1789 = primSet(intern("cora/lib/toc.id"), makeNative(11, _35clofun2926, 1, 0));
-Obj _35reg1926 = primSet(intern("cora/lib/toc.tailify"), makeNative(8, _35clofun2927, 2, 0));
-Obj _35reg1973 = primSet(intern("cora/lib/toc.tailify-list"), makeNative(18, _35clofun2927, 3, 0));
-Obj _35reg2052 = primSet(intern("cora/lib/toc.explicit-stack"), makeNative(15, _35clofun2928, 2, 0));
-Obj _35reg2228 = primSet(intern("cora/lib/toc.collect-lambda"), makeNative(8, _35clofun2930, 2, 0));
-Obj _35reg2241 = primSet(intern("cora/lib/toc.append-result"), makeNative(14, _35clofun2930, 5, 0));
-Obj _35reg2248 = primSet(intern("cora/lib/toc.wrap-var"), makeNative(16, _35clofun2930, 2, 0));
-Obj _35reg2268 = primSet(intern("cora/lib/toc.generate-call-list"), makeNative(9, _35clofun2931, 4, 0));
-Obj _35reg2535 = primSet(intern("cora/lib/toc.generate-inst"), makeNative(10, _35clofun2935, 4, 0));
-Obj _35reg2558 = primSet(intern("cora/lib/toc.generate-cont"), makeNative(2, _35clofun2936, 3, 0));
-Obj _35reg2567 = primSet(intern("cora/lib/toc.generate-inst-list-h"), makeNative(8, _35clofun2936, 5, 0));
-Obj _35reg2568 = primSet(intern("cora/lib/toc.generate-inst-list"), makeNative(9, _35clofun2936, 4, 0));
-Obj _35reg2573 = primSet(intern("cora/lib/toc.code-gen-func-declare"), makeNative(13, _35clofun2936, 2, 0));
-Obj _35reg2581 = primSet(intern("cora/lib/toc.local-from-params"), makeNative(20, _35clofun2936, 3, 0));
-Obj _35reg2586 = primSet(intern("cora/lib/toc.local-from-cont"), makeNative(4, _35clofun2937, 3, 0));
-Obj _35reg2593 = primSet(intern("cora/lib/toc.generate-call-args-reverse"), makeNative(8, _35clofun2937, 4, 0));
-Obj _35reg2655 = primSet(intern("cora/lib/toc.code-gen-toplevel"), makeNative(19, _35clofun2937, 2, 0));
-Obj _35reg2656 = primSet(intern("cora/lib/toc.parse-pass"), makeNative(20, _35clofun2937, 1, 0));
-Obj _35reg2657 = primSet(intern("cora/lib/toc.closure-convert-pass"), makeNative(0, _35clofun2938, 1, 0));
-Obj _35reg2658 = primSet(intern("cora/lib/toc.tailify-pass"), makeNative(1, _35clofun2938, 1, 0));
-Obj _35reg2659 = primSet(intern("cora/lib/toc.explicit-stack-pass"), makeNative(2, _35clofun2938, 1, 0));
-Obj _35reg2689 = primSet(intern("cora/lib/toc.collect-lambda-pass"), makeNative(13, _35clofun2938, 1, 0));
-Obj _35reg2696 = primSet(intern("cora/lib/toc.rewrite-->macro"), makeNative(16, _35clofun2938, 2, 0));
-pushCont(co, 6, _35clofun2944, 0);
+Obj _35reg1314 = primSet(co, intern("cora/lib/toc.*builtin-prims*"), _35reg1313);
+Obj _35reg1318 = primSet(co, intern("builtin?"), makeNative(19, _35clofun2924, 1, 0));
+Obj _35reg1321 = primSet(co, intern("cora/lib/toc.builtin->name"), makeNative(1, _35clofun2925, 1, 0));
+Obj _35reg1324 = primSet(co, intern("cora/lib/toc.builtin->args"), makeNative(4, _35clofun2925, 1, 0));
+Obj _35reg1329 = primSet(co, intern("cora/lib/toc.temp-list"), makeNative(7, _35clofun2925, 2, 0));
+Obj _35reg1465 = primSet(co, intern("cora/lib/toc.parse"), makeNative(16, _35clofun2926, 2, 0));
+Obj _35reg1476 = primSet(co, intern("cora/lib/toc.union"), makeNative(1, _35clofun2927, 2, 0));
+Obj _35reg1487 = primSet(co, intern("cora/lib/toc.diff"), makeNative(7, _35clofun2927, 2, 0));
+Obj _35reg1538 = primSet(co, intern("cora/lib/toc.convert-protect?"), makeNative(14, _35clofun2927, 1, 0));
+Obj _35reg1713 = primSet(co, intern("cora/lib/toc.free-vars"), makeNative(16, _35clofun2928, 1, 0));
+Obj _35reg1786 = primSet(co, intern("cora/lib/toc.closure-convert"), makeNative(10, _35clofun2929, 2, 0));
+Obj _35reg1789 = primSet(co, intern("cora/lib/toc.id"), makeNative(11, _35clofun2929, 1, 0));
+Obj _35reg1926 = primSet(co, intern("cora/lib/toc.tailify"), makeNative(8, _35clofun2930, 2, 0));
+Obj _35reg1973 = primSet(co, intern("cora/lib/toc.tailify-list"), makeNative(18, _35clofun2930, 3, 0));
+Obj _35reg2052 = primSet(co, intern("cora/lib/toc.explicit-stack"), makeNative(15, _35clofun2931, 2, 0));
+Obj _35reg2228 = primSet(co, intern("cora/lib/toc.collect-lambda"), makeNative(8, _35clofun2933, 2, 0));
+Obj _35reg2241 = primSet(co, intern("cora/lib/toc.append-result"), makeNative(14, _35clofun2933, 5, 0));
+Obj _35reg2248 = primSet(co, intern("cora/lib/toc.wrap-var"), makeNative(16, _35clofun2933, 2, 0));
+Obj _35reg2268 = primSet(co, intern("cora/lib/toc.generate-call-list"), makeNative(9, _35clofun2934, 4, 0));
+Obj _35reg2538 = primSet(co, intern("cora/lib/toc.generate-inst"), makeNative(12, _35clofun2938, 4, 0));
+Obj _35reg2561 = primSet(co, intern("cora/lib/toc.generate-cont"), makeNative(4, _35clofun2939, 3, 0));
+Obj _35reg2570 = primSet(co, intern("cora/lib/toc.generate-inst-list-h"), makeNative(10, _35clofun2939, 5, 0));
+Obj _35reg2571 = primSet(co, intern("cora/lib/toc.generate-inst-list"), makeNative(11, _35clofun2939, 4, 0));
+Obj _35reg2576 = primSet(co, intern("cora/lib/toc.code-gen-func-declare"), makeNative(15, _35clofun2939, 2, 0));
+Obj _35reg2584 = primSet(co, intern("cora/lib/toc.local-from-params"), makeNative(1, _35clofun2940, 3, 0));
+Obj _35reg2589 = primSet(co, intern("cora/lib/toc.local-from-cont"), makeNative(6, _35clofun2940, 3, 0));
+Obj _35reg2596 = primSet(co, intern("cora/lib/toc.generate-call-args-reverse"), makeNative(10, _35clofun2940, 4, 0));
+Obj _35reg2658 = primSet(co, intern("cora/lib/toc.code-gen-toplevel"), makeNative(0, _35clofun2941, 2, 0));
+Obj _35reg2659 = primSet(co, intern("cora/lib/toc.parse-pass"), makeNative(1, _35clofun2941, 1, 0));
+Obj _35reg2660 = primSet(co, intern("cora/lib/toc.closure-convert-pass"), makeNative(2, _35clofun2941, 1, 0));
+Obj _35reg2661 = primSet(co, intern("cora/lib/toc.tailify-pass"), makeNative(3, _35clofun2941, 1, 0));
+Obj _35reg2662 = primSet(co, intern("cora/lib/toc.explicit-stack-pass"), makeNative(4, _35clofun2941, 1, 0));
+Obj _35reg2692 = primSet(co, intern("cora/lib/toc.collect-lambda-pass"), makeNative(15, _35clofun2941, 1, 0));
+Obj _35reg2699 = primSet(co, intern("cora/lib/toc.rewrite-->macro"), makeNative(18, _35clofun2941, 2, 0));
+pushCont(co, 8, _35clofun2947, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init.add-to-*macros*"));
 __arg1 = intern("->");
-__arg2 = makeNative(19, _35clofun2938, 1, 0);
+__arg2 = makeNative(0, _35clofun2942, 1, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label10:
+{
+Obj _35val1205 = __arg1;
+pushCont(co, 9, _35clofun2947, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("import"));
+__arg1 = makeString1("cora/lib/io");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2947) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+fail:
+co->nargs = __nargs;
+co->args[0] = __arg0;
+co->args[1] = __arg1;
+co->args[2] = __arg2;
+co->args[3] = __arg3;
+
+}
+
+void _35clofun2946(struct Cora* co){
+int __nargs = co->nargs;
+Obj __arg0 = co->args[0];
+Obj __arg1 = co->args[1];
+Obj __arg2 = co->args[2];
+Obj __arg3 = co->args[3];
+
+static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
+
+goto *jumpTable[co->ctx.pc.label];
+
+label0:
+{
+Obj _35tmp1181 = __arg1;
+Obj _35reg2853 = primCar(_35tmp1181);
+__nargs = 2;
+__arg1 = _35reg2853;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label1:
+{
+Obj _35tmp1182 = __arg1;
+Obj _35reg2855 = primCdr(_35tmp1182);
+__nargs = 2;
+__arg1 = _35reg2855;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label2:
+{
+Obj _35tmp1184 = __arg1;
+Obj _35tmp1183 = __arg2;
+Obj _35reg2857 = primCons(_35tmp1184, _35tmp1183);
+__nargs = 2;
+__arg1 = _35reg2857;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label3:
+{
+Obj _35tmp1186 = __arg1;
+Obj _35tmp1185 = __arg2;
+Obj _35reg2859 = primCons(_35tmp1186, _35tmp1185);
+__nargs = 2;
+__arg1 = _35reg2859;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label4:
+{
+Obj _35tmp1188 = __arg1;
+Obj _35tmp1187 = __arg2;
+Obj _35reg2861 = primAdd(_35tmp1188, _35tmp1187);
+__nargs = 2;
+__arg1 = _35reg2861;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label5:
+{
+Obj _35tmp1190 = __arg1;
+Obj _35tmp1189 = __arg2;
+Obj _35reg2863 = primSub(_35tmp1190, _35tmp1189);
+__nargs = 2;
+__arg1 = _35reg2863;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label6:
+{
+Obj _35tmp1192 = __arg1;
+Obj _35tmp1191 = __arg2;
+Obj _35reg2865 = primMul(_35tmp1192, _35tmp1191);
+__nargs = 2;
+__arg1 = _35reg2865;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label7:
+{
+Obj _35tmp1194 = __arg1;
+Obj _35tmp1193 = __arg2;
+Obj _35reg2867 = primDiv(_35tmp1194, _35tmp1193);
+__nargs = 2;
+__arg1 = _35reg2867;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label8:
+{
+Obj _35tmp1196 = __arg1;
+Obj _35tmp1195 = __arg2;
+Obj _35reg2869 = primEQ(_35tmp1196, _35tmp1195);
+__nargs = 2;
+__arg1 = _35reg2869;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label9:
+{
+Obj _35tmp1198 = __arg1;
+Obj _35tmp1197 = __arg2;
+Obj _35reg2871 = primGT(_35tmp1198, _35tmp1197);
+__nargs = 2;
+__arg1 = _35reg2871;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label10:
+{
+Obj _35tmp1200 = __arg1;
+Obj _35tmp1199 = __arg2;
+Obj _35reg2873 = primLT(_35tmp1200, _35tmp1199);
+__nargs = 2;
+__arg1 = _35reg2873;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label11:
+{
+Obj _35tmp1201 = __arg1;
+Obj _35reg2875 = primGenSym(_35tmp1201);
+__nargs = 2;
+__arg1 = _35reg2875;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label12:
+{
+Obj _35tmp1202 = __arg1;
+Obj _35reg2877 = primIsSymbol(_35tmp1202);
+__nargs = 2;
+__arg1 = _35reg2877;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label13:
+{
+Obj _35tmp1203 = __arg1;
+Obj _35reg2879 = primNot(_35tmp1203);
+__nargs = 2;
+__arg1 = _35reg2879;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label14:
+{
+Obj _35tmp1204 = __arg1;
+Obj _35reg2881 = primIsString(_35tmp1204);
+__nargs = 2;
+__arg1 = _35reg2881;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2946) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label15:
+{
+Obj _35val2891 = __arg1;
+Obj _35val2889= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("apply"));
+__arg1 = _35val2889;
+__arg2 = _35val2891;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label16:
+{
+Obj _35val2889 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35reg2890 = primCdr(exp);
+pushCont(co, 15, _35clofun2946, 1, _35val2889);
+__nargs = 3;
+__arg0 = globalRef(intern("map"));
+__arg1 = globalRef(intern("cora/lib/toc.eval0"));
+__arg2 = _35reg2890;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label17:
+{
+Obj _35val2899 = __arg1;
+Obj _35val2897= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("apply"));
+__arg1 = _35val2897;
+__arg2 = _35val2899;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label18:
+{
+Obj _35val2897 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35reg2898 = primCdr(exp);
+pushCont(co, 17, _35clofun2946, 1, _35val2897);
+__nargs = 3;
+__arg0 = globalRef(intern("map"));
+__arg1 = globalRef(intern("cora/lib/toc.eval0"));
+__arg2 = _35reg2898;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label19:
+{
+Obj _35val2907 = __arg1;
+Obj _35val2905= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("apply"));
+__arg1 = _35val2905;
+__arg2 = _35val2907;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label20:
+{
+Obj _35val2905 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35reg2906 = primCdr(exp);
+pushCont(co, 19, _35clofun2946, 1, _35val2905);
+__nargs = 3;
+__arg0 = globalRef(intern("map"));
+__arg1 = globalRef(intern("cora/lib/toc.eval0"));
+__arg2 = _35reg2906;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2946) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+fail:
+co->nargs = __nargs;
+co->args[0] = __arg0;
+co->args[1] = __arg1;
+co->args[2] = __arg2;
+co->args[3] = __arg3;
+
+}
+
+void _35clofun2945(struct Cora* co){
+int __nargs = co->nargs;
+Obj __arg0 = co->args[0];
+Obj __arg1 = co->args[1];
+Obj __arg2 = co->args[2];
+Obj __arg3 = co->args[3];
+
+static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
+
+goto *jumpTable[co->ctx.pc.label];
+
+label0:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 20, _35clofun2944, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2828 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2828;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label1:
+{
+Obj _35val2825 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(0, _35clofun2945, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label2:
+{
+Obj _35val2831 = __arg1;
+Obj _35reg2832 = primCons(intern("begin"), _35val2831);
+__nargs = 2;
+__arg1 = _35reg2832;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label3:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 2, _35clofun2945, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2833 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2833;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label4:
+{
+Obj _35val2830 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(3, _35clofun2945, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label5:
+{
+Obj _35val2836 = __arg1;
+Obj _35reg2837 = primCons(intern("begin"), _35val2836);
+__nargs = 2;
+__arg1 = _35reg2837;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label6:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 5, _35clofun2945, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2838 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2838;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label7:
+{
+Obj _35val2835 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(6, _35clofun2945, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label8:
+{
+Obj _35val2841 = __arg1;
+Obj _35reg2842 = primCons(intern("begin"), _35val2841);
+__nargs = 2;
+__arg1 = _35reg2842;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label9:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 8, _35clofun2945, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2843 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2843;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label10:
+{
+Obj _35val2840 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(9, _35clofun2945, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label11:
+{
+Obj _35val2811 = __arg1;
+Obj sexp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+if (True == _35val2811) {
+Obj _35reg2812 = primCar(sexp);
+Obj _35reg2813 = primEQ(intern("begin"), _35reg2812);
+if (True == _35reg2813) {
+if (True == True) {
+Obj _35reg2814 = primCdr(sexp);
+Obj sexp1 = _35reg2814;
+pushCont(co, 16, _35clofun2944, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2819 = primCons(sexp, Nil);
+Obj sexp1 = _35reg2819;
+pushCont(co, 19, _35clofun2944, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+if (True == False) {
+Obj _35reg2824 = primCdr(sexp);
+Obj sexp1 = _35reg2824;
+pushCont(co, 1, _35clofun2945, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2829 = primCons(sexp, Nil);
+Obj sexp1 = _35reg2829;
+pushCont(co, 4, _35clofun2945, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+} else {
+if (True == False) {
+Obj _35reg2834 = primCdr(sexp);
+Obj sexp1 = _35reg2834;
+pushCont(co, 7, _35clofun2945, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2839 = primCons(sexp, Nil);
+Obj sexp1 = _35reg2839;
+pushCont(co, 10, _35clofun2945, 1, sexp1);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+}
+
+label12:
+{
+Obj _35val2810 = __arg1;
+Obj sexp = _35val2810;
+pushCont(co, 11, _35clofun2945, 1, sexp);
+__nargs = 2;
+__arg0 = globalRef(intern("pair?"));
+__arg1 = sexp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label13:
+{
+Obj file_45path = __arg1;
+Obj pkg_45str = __arg2;
+pushCont(co, 12, _35clofun2945, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("read-file-as-sexp"));
+__arg1 = file_45path;
+__arg2 = pkg_45str;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label14:
+{
+Obj _35val2849 = __arg1;
+Obj stream= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/io.close-output-file"));
+__arg1 = stream;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label15:
+{
+Obj _35val2848 = __arg1;
+Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stream = _35val2848;
+pushCont(co, 14, _35clofun2945, 1, stream);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.generate-c"));
+__arg1 = stream;
+__arg2 = bc;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label16:
+{
+Obj _35val2847 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj bc = _35val2847;
+pushCont(co, 15, _35clofun2945, 1, bc);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/io.open-output-file"));
+__arg1 = to;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label17:
+{
+Obj _35val2846 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj input = _35val2846;
+pushCont(co, 16, _35clofun2945, 1, to);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.compile"));
+__arg1 = input;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label18:
+{
+Obj _35val2845 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj sexp1 = _35val2845;
+pushCont(co, 17, _35clofun2945, 1, to);
+__nargs = 2;
+__arg0 = globalRef(intern("macroexpand"));
+__arg1 = sexp1;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label19:
+{
+Obj from = __arg1;
+Obj to = __arg2;
+Obj pkg_45str = __arg3;
+pushCont(co, 18, _35clofun2945, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.preprocess"));
+__arg1 = from;
+__arg2 = pkg_45str;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2945) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label20:
+{
+Obj _35tmp1180 = __arg1;
+Obj _35tmp1179 = __arg2;
+Obj _35reg2851 = primSet(co, _35tmp1180, _35tmp1179);
+__nargs = 2;
+__arg1 = _35reg2851;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2945) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+fail:
+co->nargs = __nargs;
+co->args[0] = __arg0;
+co->args[1] = __arg1;
+co->args[2] = __arg2;
+co->args[3] = __arg3;
+
+}
+
+void _35clofun2944(struct Cora* co){
+int __nargs = co->nargs;
+Obj __arg0 = co->args[0];
+Obj __arg1 = co->args[1];
+Obj __arg2 = co->args[2];
+Obj __arg3 = co->args[3];
+
+static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
+
+goto *jumpTable[co->ctx.pc.label];
+
+label0:
+{
+Obj _35val2743 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 20, _35clofun2943, 2, to, bc);
+__nargs = 3;
+__arg0 = globalRef(intern("for-each"));
+__arg1 = makeNative(17, _35clofun2943, 1, 1, to);
+__arg2 = bc;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label1:
+{
+Obj _35val2742 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 0, _35clofun2944, 2, to, bc);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("#include \"runtime.h\"\n\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label2:
+{
+Obj to = __arg1;
+Obj bc = __arg2;
+pushCont(co, 1, _35clofun2944, 2, to, bc);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("#include \"types.h\"\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label3:
+{
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label4:
+{
+Obj _35cc1170 = makeNative(3, _35clofun2944, 0, 0);
+Obj __ = closureRef(co, 0);
+__nargs = 2;
+__arg1 = Nil;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label5:
+{
+Obj _35val2766 = __arg1;
+Obj remain= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
+__arg1 = remain;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label6:
+{
+Obj _35p1168 = __arg1;
+Obj _35cc1169 = makeNative(4, _35clofun2944, 0, 1, _35p1168);
+Obj _35reg2749 = primIsCons(_35p1168);
+if (True == _35reg2749) {
+Obj _35reg2750 = primCar(_35p1168);
+Obj _35reg2751 = primIsCons(_35reg2750);
+if (True == _35reg2751) {
+Obj _35reg2752 = primCar(_35p1168);
+Obj _35reg2753 = primCar(_35reg2752);
+Obj _35reg2754 = primEQ(intern("import"), _35reg2753);
+if (True == _35reg2754) {
+Obj _35reg2755 = primCar(_35p1168);
+Obj _35reg2756 = primCdr(_35reg2755);
+Obj _35reg2757 = primIsCons(_35reg2756);
+if (True == _35reg2757) {
+Obj _35reg2758 = primCar(_35p1168);
+Obj _35reg2759 = primCdr(_35reg2758);
+Obj _35reg2760 = primCar(_35reg2759);
+Obj pkg = _35reg2760;
+Obj _35reg2761 = primCar(_35p1168);
+Obj _35reg2762 = primCdr(_35reg2761);
+Obj _35reg2763 = primCdr(_35reg2762);
+Obj _35reg2764 = primEQ(Nil, _35reg2763);
+if (True == _35reg2764) {
+Obj _35reg2765 = primCdr(_35p1168);
+Obj remain = _35reg2765;
+pushCont(co, 5, _35clofun2944, 1, remain);
+__nargs = 2;
+__arg0 = globalRef(intern("import"));
+__arg1 = pkg;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1169;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1169;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1169;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1169;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1169;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label7:
+{
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -555,16 +1543,353 @@ goto *jumpTable[ps.label];
 
 label8:
 {
-Obj _35val1205 = __arg1;
-pushCont(co, 7, _35clofun2944, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("import"));
-__arg1 = makeString1("cora/lib/io");
+Obj _35cc1178 = makeNative(7, _35clofun2944, 0, 0);
+Obj _35reg2768 = primIsCons(closureRef(co, 0));
+if (True == _35reg2768) {
+Obj _35reg2769 = primCar(closureRef(co, 0));
+Obj exp = _35reg2769;
+Obj _35reg2770 = primCdr(closureRef(co, 0));
+Obj more = _35reg2770;
+Obj type = closureRef(co, 1);
+Obj code = closureRef(co, 2);
+Obj k = closureRef(co, 3);
+Obj _35reg2771 = primCons(exp, Nil);
+Obj _35reg2772 = primCons(intern("backquote"), _35reg2771);
+Obj _35reg2773 = primCons(_35reg2772, Nil);
+Obj _35reg2774 = primCons(intern("macroexpand"), _35reg2773);
+Obj _35reg2775 = primCons(intern("tvar"), Nil);
+Obj _35reg2776 = primCons(Nil, Nil);
+Obj _35reg2777 = primCons(Nil, _35reg2776);
+Obj _35reg2778 = primCons(_35reg2775, _35reg2777);
+Obj _35reg2779 = primCons(_35reg2774, _35reg2778);
+Obj _35reg2780 = primCons(intern("cora/lib/infer.check-type"), _35reg2779);
+Obj _35reg2781 = primCons(_35reg2780, type);
+Obj _35reg2782 = primCons(exp, code);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = more;
+__arg2 = _35reg2781;
+__arg3 = _35reg2782;
+co->args[4] = k;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1178;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label9:
+{
+Obj _35cc1177 = makeNative(8, _35clofun2944, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35reg2783 = primIsCons(closureRef(co, 0));
+if (True == _35reg2783) {
+Obj _35reg2784 = primCar(closureRef(co, 0));
+Obj _35reg2785 = primIsCons(_35reg2784);
+if (True == _35reg2785) {
+Obj _35reg2786 = primCar(closureRef(co, 0));
+Obj _35reg2787 = primCar(_35reg2786);
+Obj _35reg2788 = primEQ(intern(":declare"), _35reg2787);
+if (True == _35reg2788) {
+Obj _35reg2789 = primCar(closureRef(co, 0));
+Obj _35reg2790 = primCdr(_35reg2789);
+Obj exp = _35reg2790;
+Obj _35reg2791 = primCdr(closureRef(co, 0));
+Obj more = _35reg2791;
+Obj type = closureRef(co, 1);
+Obj code = closureRef(co, 2);
+Obj k = closureRef(co, 3);
+Obj _35reg2792 = primCons(intern("declare"), exp);
+Obj _35reg2793 = primCons(_35reg2792, type);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = more;
+__arg2 = _35reg2793;
+__arg3 = code;
+co->args[4] = k;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1177;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1177;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1177;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label10:
+{
+Obj _35cc1176 = makeNative(9, _35clofun2944, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35reg2794 = primIsCons(closureRef(co, 0));
+if (True == _35reg2794) {
+Obj _35reg2795 = primCar(closureRef(co, 0));
+Obj _35reg2796 = primIsCons(_35reg2795);
+if (True == _35reg2796) {
+Obj _35reg2797 = primCar(closureRef(co, 0));
+Obj _35reg2798 = primCar(_35reg2797);
+Obj _35reg2799 = primEQ(intern(":type"), _35reg2798);
+if (True == _35reg2799) {
+Obj _35reg2800 = primCar(closureRef(co, 0));
+Obj _35reg2801 = primCdr(_35reg2800);
+Obj exp = _35reg2801;
+Obj _35reg2802 = primCdr(closureRef(co, 0));
+Obj more = _35reg2802;
+Obj type = closureRef(co, 1);
+Obj code = closureRef(co, 2);
+Obj k = closureRef(co, 3);
+Obj _35reg2803 = primCons(intern("begin"), exp);
+Obj _35reg2804 = primCons(_35reg2803, type);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = more;
+__arg2 = _35reg2804;
+__arg3 = code;
+co->args[4] = k;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1176;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1176;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1176;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label11:
+{
+Obj _35val2807 = __arg1;
+Obj k= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2806= co->ctx.stk.stack[co->ctx.stk.base + 1];
+__nargs = 3;
+__arg0 = k;
+__arg1 = _35val2806;
+__arg2 = _35val2807;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label12:
+{
+Obj _35val2806 = __arg1;
+Obj code= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj k= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 11, _35clofun2944, 2, k, _35val2806);
+__nargs = 2;
+__arg0 = globalRef(intern("reverse"));
+__arg1 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label13:
+{
+Obj _35p1171 = __arg1;
+Obj _35p1172 = __arg2;
+Obj _35p1173 = __arg3;
+Obj _35p1174 = co->args[4];
+Obj _35cc1175 = makeNative(10, _35clofun2944, 0, 4, _35p1171, _35p1172, _35p1173, _35p1174);
+Obj _35reg2805 = primEQ(Nil, _35p1171);
+if (True == _35reg2805) {
+Obj type = _35p1172;
+Obj code = _35p1173;
+Obj k = _35p1174;
+pushCont(co, 12, _35clofun2944, 2, code, k);
+__nargs = 2;
+__arg0 = globalRef(intern("reverse"));
+__arg1 = type;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1175;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label14:
+{
+Obj _35val2816 = __arg1;
+Obj _35reg2817 = primCons(intern("begin"), _35val2816);
+__nargs = 2;
+__arg1 = _35reg2817;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label15:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 14, _35clofun2944, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2818 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2818;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label16:
+{
+Obj _35val2815 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(15, _35clofun2944, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label17:
+{
+Obj _35val2821 = __arg1;
+Obj _35reg2822 = primCons(intern("begin"), _35val2821);
+__nargs = 2;
+__arg1 = _35reg2822;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+
+label18:
+{
+Obj type = __arg1;
+Obj code = __arg2;
+if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
+pushCont(co, 17, _35clofun2944, 0);
+__nargs = 3;
+__arg0 = globalRef(intern("append"));
+__arg1 = type;
+__arg2 = code;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2823 = primCons(intern("begin"), code);
+__nargs = 2;
+__arg1 = _35reg2823;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
+
+label19:
+{
+Obj _35val2820 = __arg1;
+Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
+__arg1 = sexp1;
+__arg2 = Nil;
+__arg3 = Nil;
+co->args[4] = makeNative(18, _35clofun2944, 2, 0);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2944) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label20:
+{
+Obj _35val2826 = __arg1;
+Obj _35reg2827 = primCons(intern("begin"), _35val2826);
+__nargs = 2;
+__arg1 = _35reg2827;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2944) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
 }
 
 fail:
@@ -589,164 +1914,234 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35tmp1184 = __arg1;
-Obj _35tmp1183 = __arg2;
-Obj _35reg2854 = primCons(_35tmp1184, _35tmp1183);
-__nargs = 2;
-__arg1 = _35reg2854;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2734 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 20, _35clofun2942, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("fail:\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35tmp1186 = __arg1;
-Obj _35tmp1185 = __arg2;
-Obj _35reg2856 = primCons(_35tmp1186, _35tmp1185);
-__nargs = 2;
-__arg1 = _35reg2856;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2733 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 0, _35clofun2943, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("for-each"));
+__arg1 = makeNative(14, _35clofun2942, 1, 1, to);
+__arg2 = group;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label2:
 {
-Obj _35tmp1188 = __arg1;
-Obj _35tmp1187 = __arg2;
-Obj _35reg2858 = primAdd(_35tmp1188, _35tmp1187);
-__nargs = 2;
-__arg1 = _35reg2858;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2732 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 1, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("goto *jumpTable[co->ctx.pc.label];\n\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label3:
 {
-Obj _35tmp1190 = __arg1;
-Obj _35tmp1189 = __arg2;
-Obj _35reg2860 = primSub(_35tmp1190, _35tmp1189);
-__nargs = 2;
-__arg1 = _35reg2860;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2731 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 2, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("};\n\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label4:
 {
-Obj _35tmp1192 = __arg1;
-Obj _35tmp1191 = __arg2;
-Obj _35reg2862 = primMul(_35tmp1192, _35tmp1191);
-__nargs = 2;
-__arg1 = _35reg2862;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2730 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 3, _35clofun2943, 2, group, to);
+__nargs = 4;
+__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
+__arg1 = to;
+__arg2 = makeNumber(0);
+__arg3 = _35val2730;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label5:
 {
-Obj _35tmp1194 = __arg1;
-Obj _35tmp1193 = __arg2;
-Obj _35reg2864 = primDiv(_35tmp1194, _35tmp1193);
+Obj _35val2729 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 4, _35clofun2943, 2, group, to);
 __nargs = 2;
-__arg1 = _35reg2864;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+__arg0 = globalRef(intern("length"));
+__arg1 = group;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label6:
 {
-Obj _35tmp1196 = __arg1;
-Obj _35tmp1195 = __arg2;
-Obj _35reg2866 = primEQ(_35tmp1196, _35tmp1195);
-__nargs = 2;
-__arg1 = _35reg2866;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2728 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 5, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("static void* jumpTable[] = {");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label7:
 {
-Obj _35tmp1198 = __arg1;
-Obj _35tmp1197 = __arg2;
-Obj _35reg2868 = primGT(_35tmp1198, _35tmp1197);
-__nargs = 2;
-__arg1 = _35reg2868;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2727 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 6, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("Obj __arg3 = co->args[3];\n\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label8:
 {
-Obj _35tmp1200 = __arg1;
-Obj _35tmp1199 = __arg2;
-Obj _35reg2870 = primLT(_35tmp1200, _35tmp1199);
-__nargs = 2;
-__arg1 = _35reg2870;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2726 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 7, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("Obj __arg2 = co->args[2];\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label9:
 {
-Obj _35tmp1201 = __arg1;
-Obj _35reg2872 = primGenSym(_35tmp1201);
-__nargs = 2;
-__arg1 = _35reg2872;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2725 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 8, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("Obj __arg1 = co->args[1];\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label10:
 {
-Obj _35tmp1202 = __arg1;
-Obj _35reg2874 = primIsSymbol(_35tmp1202);
-__nargs = 2;
-__arg1 = _35reg2874;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2724 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 9, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("Obj __arg0 = co->args[0];\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label11:
 {
-Obj _35tmp1203 = __arg1;
-Obj _35reg2876 = primNot(_35tmp1203);
-__nargs = 2;
-__arg1 = _35reg2876;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2723 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 10, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("int __nargs = co->nargs;\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label12:
 {
-Obj _35tmp1204 = __arg1;
-Obj _35reg2878 = primIsString(_35tmp1204);
-__nargs = 2;
-__arg1 = _35reg2878;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2943) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2722 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 11, _35clofun2943, 2, group, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("{\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2943) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label13:
 {
-Obj _35val2888 = __arg1;
-Obj _35val2886= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2721 = __arg1;
+Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 12, _35clofun2943, 2, group, to);
 __nargs = 3;
-__arg0 = globalRef(intern("apply"));
-__arg1 = _35val2886;
-__arg2 = _35val2888;
+__arg0 = globalRef(intern("cora/lib/toc.code-gen-func-declare"));
+__arg1 = to;
+__arg2 = _35val2721;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -756,14 +2151,12 @@ goto *jumpTable[ps.label];
 
 label14:
 {
-Obj _35val2886 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35reg2887 = primCdr(exp);
-pushCont(co, 13, _35clofun2943, 1, _35val2886);
-__nargs = 3;
-__arg0 = globalRef(intern("map"));
-__arg1 = globalRef(intern("cora/lib/toc.eval0"));
-__arg2 = _35reg2887;
+Obj to = __arg1;
+Obj group = __arg2;
+pushCont(co, 13, _35clofun2943, 2, group, to);
+__nargs = 2;
+__arg0 = globalRef(intern("caar"));
+__arg1 = group;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -773,12 +2166,11 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj _35val2896 = __arg1;
-Obj _35val2894= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2745 = __arg1;
 __nargs = 3;
-__arg0 = globalRef(intern("apply"));
-__arg1 = _35val2894;
-__arg2 = _35val2896;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = closureRef(co, 0);
+__arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -788,14 +2180,12 @@ goto *jumpTable[ps.label];
 
 label16:
 {
-Obj _35val2894 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35reg2895 = primCdr(exp);
-pushCont(co, 15, _35clofun2943, 1, _35val2894);
+Obj _35val2744 = __arg1;
+pushCont(co, 15, _35clofun2943, 0);
 __nargs = 3;
-__arg0 = globalRef(intern("map"));
-__arg1 = globalRef(intern("cora/lib/toc.eval0"));
-__arg2 = _35reg2895;
+__arg0 = globalRef(intern("cora/lib/toc.code-gen-func-declare"));
+__arg1 = closureRef(co, 0);
+__arg2 = _35val2744;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -805,12 +2195,11 @@ goto *jumpTable[ps.label];
 
 label17:
 {
-Obj _35val2904 = __arg1;
-Obj _35val2902= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("apply"));
-__arg1 = _35val2902;
-__arg2 = _35val2904;
+Obj group = __arg1;
+pushCont(co, 16, _35clofun2943, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("caar"));
+__arg1 = group;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -820,14 +2209,11 @@ goto *jumpTable[ps.label];
 
 label18:
 {
-Obj _35val2902 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35reg2903 = primCdr(exp);
-pushCont(co, 17, _35clofun2943, 1, _35val2902);
+Obj group = __arg1;
 __nargs = 3;
-__arg0 = globalRef(intern("map"));
-__arg1 = globalRef(intern("cora/lib/toc.eval0"));
-__arg2 = _35reg2903;
+__arg0 = globalRef(intern("cora/lib/toc.generate-toplevel-group"));
+__arg1 = closureRef(co, 0);
+__arg2 = group;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -837,12 +2223,13 @@ goto *jumpTable[ps.label];
 
 label19:
 {
-Obj _35val2912 = __arg1;
-Obj _35val2910= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2747 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
 __nargs = 3;
-__arg0 = globalRef(intern("apply"));
-__arg1 = _35val2910;
-__arg2 = _35val2912;
+__arg0 = globalRef(intern("for-each"));
+__arg1 = makeNative(18, _35clofun2943, 1, 1, to);
+__arg2 = bc;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -852,14 +2239,14 @@ goto *jumpTable[ps.label];
 
 label20:
 {
-Obj _35val2910 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35reg2911 = primCdr(exp);
-pushCont(co, 19, _35clofun2943, 1, _35val2910);
+Obj _35val2746 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 19, _35clofun2943, 2, to, bc);
 __nargs = 3;
-__arg0 = globalRef(intern("map"));
-__arg1 = globalRef(intern("cora/lib/toc.eval0"));
-__arg2 = _35reg2911;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("\n\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -889,50 +2276,38 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2827 = __arg1;
-Obj _35reg2828 = primCons(intern("begin"), _35val2827);
+Obj exp = __arg1;
+pushCont(co, 20, _35clofun2941, 1, exp);
 __nargs = 2;
-__arg1 = _35reg2828;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
-
-label1:
-{
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 0, _35clofun2942, 0);
-__nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+__arg0 = globalRef(intern("cadr"));
+__arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-Obj _35reg2829 = primCons(intern("begin"), code);
-__nargs = 2;
-__arg1 = _35reg2829;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
 }
+
+label1:
+{
+Obj _35val2706 = __arg1;
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.collect-lambda-pass"));
+__arg1 = _35val2706;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label2:
 {
-Obj _35val2826 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(1, _35clofun2942, 2, 0);
+Obj _35val2705 = __arg1;
+pushCont(co, 1, _35clofun2942, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.explicit-stack-pass"));
+__arg1 = _35val2705;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -942,50 +2317,39 @@ goto *jumpTable[ps.label];
 
 label3:
 {
-Obj _35val2832 = __arg1;
-Obj _35reg2833 = primCons(intern("begin"), _35val2832);
+Obj _35val2704 = __arg1;
+pushCont(co, 2, _35clofun2942, 0);
 __nargs = 2;
-__arg1 = _35reg2833;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
-
-label4:
-{
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 3, _35clofun2942, 0);
-__nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+__arg0 = globalRef(intern("cora/lib/toc.tailify-pass"));
+__arg1 = _35val2704;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-Obj _35reg2834 = primCons(intern("begin"), code);
-__nargs = 2;
-__arg1 = _35reg2834;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
 }
+
+label4:
+{
+Obj _35val2703 = __arg1;
+pushCont(co, 3, _35clofun2942, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.closure-convert-pass"));
+__arg1 = _35val2703;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label5:
 {
-Obj _35val2831 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(4, _35clofun2942, 2, 0);
+Obj exp = __arg1;
+pushCont(co, 4, _35clofun2942, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.parse-pass"));
+__arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -995,153 +2359,96 @@ goto *jumpTable[ps.label];
 
 label6:
 {
-Obj _35val2837 = __arg1;
-Obj _35reg2838 = primCons(intern("begin"), _35val2837);
 __nargs = 2;
-__arg1 = _35reg2838;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label7:
 {
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 6, _35clofun2942, 0);
+Obj _35val2711 = __arg1;
+Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj y= co->ctx.stk.stack[co->ctx.stk.base + 1];
 __nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+__arg0 = globalRef(intern("for-each"));
+__arg1 = fn;
+__arg2 = y;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-Obj _35reg2839 = primCons(intern("begin"), code);
-__nargs = 2;
-__arg1 = _35reg2839;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
 }
 
 label8:
 {
-Obj _35val2836 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(7, _35clofun2942, 2, 0);
+Obj _35cc1167 = makeNative(6, _35clofun2942, 0, 0);
+Obj fn = closureRef(co, 0);
+Obj _35reg2708 = primIsCons(closureRef(co, 1));
+if (True == _35reg2708) {
+Obj _35reg2709 = primCar(closureRef(co, 1));
+Obj x = _35reg2709;
+Obj _35reg2710 = primCdr(closureRef(co, 1));
+Obj y = _35reg2710;
+pushCont(co, 7, _35clofun2942, 2, fn, y);
+__nargs = 2;
+__arg0 = fn;
+__arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1167;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label9:
 {
-Obj _35val2807 = __arg1;
-Obj sexp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-if (True == _35val2807) {
-Obj _35reg2808 = primCar(sexp);
-Obj _35reg2809 = primEQ(intern("begin"), _35reg2808);
-if (True == _35reg2809) {
-if (True == True) {
-Obj _35reg2810 = primCdr(sexp);
-Obj sexp1 = _35reg2810;
-pushCont(co, 14, _35clofun2941, 1, sexp1);
+Obj _35p1164 = __arg1;
+Obj _35p1165 = __arg2;
+Obj _35cc1166 = makeNative(8, _35clofun2942, 0, 2, _35p1164, _35p1165);
+Obj fn = _35p1164;
+Obj _35reg2712 = primEQ(Nil, _35p1165);
+if (True == _35reg2712) {
 __nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+__arg1 = Nil;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2942) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
 } else {
-Obj _35reg2815 = primCons(sexp, Nil);
-Obj sexp1 = _35reg2815;
-pushCont(co, 17, _35clofun2941, 1, sexp1);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
+__nargs = 1;
+__arg0 = _35cc1166;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-}
-} else {
-if (True == False) {
-Obj _35reg2820 = primCdr(sexp);
-Obj sexp1 = _35reg2820;
-pushCont(co, 20, _35clofun2941, 1, sexp1);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2825 = primCons(sexp, Nil);
-Obj sexp1 = _35reg2825;
-pushCont(co, 2, _35clofun2942, 1, sexp1);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-} else {
-if (True == False) {
-Obj _35reg2830 = primCdr(sexp);
-Obj sexp1 = _35reg2830;
-pushCont(co, 5, _35clofun2942, 1, sexp1);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2835 = primCons(sexp, Nil);
-Obj sexp1 = _35reg2835;
-pushCont(co, 8, _35clofun2942, 1, sexp1);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = sexp1;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 }
 
 label10:
 {
-Obj sexp = __arg1;
-pushCont(co, 9, _35clofun2942, 1, sexp);
-__nargs = 2;
-__arg0 = globalRef(intern("pair?"));
-__arg1 = sexp;
+Obj _35val2715 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj n= co->ctx.stk.stack[co->ctx.stk.base + 1];
+__nargs = 4;
+__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
+__arg1 = to;
+__arg2 = makeNumber(1);
+__arg3 = n;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1151,11 +2458,16 @@ goto *jumpTable[ps.label];
 
 label11:
 {
-Obj _35val2846 = __arg1;
-Obj stream= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/io.close-output-file"));
-__arg1 = stream;
+Obj _35val2718 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj n= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj _35reg2719 = primAdd(i, makeNumber(1));
+__nargs = 4;
+__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
+__arg1 = to;
+__arg2 = _35reg2719;
+__arg3 = n;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1165,14 +2477,15 @@ goto *jumpTable[ps.label];
 
 label12:
 {
-Obj _35val2845 = __arg1;
-Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stream = _35val2845;
-pushCont(co, 11, _35clofun2942, 1, stream);
+Obj _35val2717 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj n= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 11, _35clofun2942, 3, i, to, n);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.generate-c"));
-__arg1 = stream;
-__arg2 = bc;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = to;
+__arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1182,29 +2495,51 @@ goto *jumpTable[ps.label];
 
 label13:
 {
-Obj _35val2844 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj bc = _35val2844;
-pushCont(co, 12, _35clofun2942, 1, bc);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/io.open-output-file"));
+Obj to = __arg1;
+Obj i = __arg2;
+Obj n = __arg3;
+Obj _35reg2714 = primEQ(i, makeNumber(0));
+if (True == _35reg2714) {
+pushCont(co, 10, _35clofun2942, 2, to, n);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = to;
+__arg2 = makeString1("&&label0");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+Obj _35reg2716 = primLT(i, n);
+if (True == _35reg2716) {
+pushCont(co, 12, _35clofun2942, 3, i, to, n);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1(", &&label");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 2;
+__arg1 = Nil;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2942) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+}
+}
 }
 
 label14:
 {
-Obj _35val2843 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj input = _35val2843;
-pushCont(co, 13, _35clofun2942, 1, to);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.compile"));
-__arg1 = input;
+Obj x = __arg1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.code-gen-toplevel"));
+__arg1 = closureRef(co, 0);
+__arg2 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1214,13 +2549,12 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj _35val2842 = __arg1;
+Obj _35val2740 = __arg1;
 Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj sexp1 = _35val2842;
-pushCont(co, 14, _35clofun2942, 1, to);
-__nargs = 2;
-__arg0 = globalRef(intern("macroexpand"));
-__arg1 = sexp1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("\n}\n\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1230,13 +2564,13 @@ goto *jumpTable[ps.label];
 
 label16:
 {
-Obj _35val2841 = __arg1;
+Obj _35val2739 = __arg1;
 Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj sexp = _35val2841;
 pushCont(co, 15, _35clofun2942, 1, to);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.preprocess"));
-__arg1 = sexp;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("co->args[3] = __arg3;\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1246,14 +2580,13 @@ goto *jumpTable[ps.label];
 
 label17:
 {
-Obj from = __arg1;
-Obj to = __arg2;
-Obj pkg_45str = __arg3;
+Obj _35val2738 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
 pushCont(co, 16, _35clofun2942, 1, to);
 __nargs = 3;
-__arg0 = globalRef(intern("read-file-as-sexp"));
-__arg1 = from;
-__arg2 = pkg_45str;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("co->args[2] = __arg2;\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1263,36 +2596,50 @@ goto *jumpTable[ps.label];
 
 label18:
 {
-Obj _35tmp1180 = __arg1;
-Obj _35tmp1179 = __arg2;
-Obj _35reg2848 = primSet(_35tmp1180, _35tmp1179);
-__nargs = 2;
-__arg1 = _35reg2848;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2737 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 17, _35clofun2942, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("co->args[1] = __arg1;\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label19:
 {
-Obj _35tmp1181 = __arg1;
-Obj _35reg2850 = primCar(_35tmp1181);
-__nargs = 2;
-__arg1 = _35reg2850;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2736 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 18, _35clofun2942, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("co->args[0] = __arg0;\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label20:
 {
-Obj _35tmp1182 = __arg1;
-Obj _35reg2852 = primCdr(_35tmp1182);
-__nargs = 2;
-__arg1 = _35reg2852;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2942) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2735 = __arg1;
+Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 19, _35clofun2942, 1, to);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = to;
+__arg2 = makeString1("co->nargs = __nargs;\n");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2942) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 fail:
@@ -1317,25 +2664,174 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj to = __arg1;
-Obj bc = __arg2;
-pushCont(co, 20, _35clofun2940, 2, to, bc);
+Obj _35p1156 = __arg1;
+Obj _35p1157 = __arg2;
+Obj _35cc1158 = makeNative(14, _35clofun2940, 0, 2, _35p1156, _35p1157);
+Obj w = _35p1156;
+Obj _35reg2599 = primIsCons(_35p1157);
+if (True == _35reg2599) {
+Obj _35reg2600 = primCar(_35p1157);
+Obj label = _35reg2600;
+Obj _35reg2601 = primCdr(_35p1157);
+Obj _35reg2602 = primIsCons(_35reg2601);
+if (True == _35reg2602) {
+Obj _35reg2603 = primCdr(_35p1157);
+Obj _35reg2604 = primCar(_35reg2603);
+Obj _35reg2605 = primIsCons(_35reg2604);
+if (True == _35reg2605) {
+Obj _35reg2606 = primCdr(_35p1157);
+Obj _35reg2607 = primCar(_35reg2606);
+Obj _35reg2608 = primCar(_35reg2607);
+Obj _35reg2609 = primEQ(intern("lambda"), _35reg2608);
+if (True == _35reg2609) {
+Obj _35reg2610 = primCdr(_35p1157);
+Obj _35reg2611 = primCar(_35reg2610);
+Obj _35reg2612 = primCdr(_35reg2611);
+Obj _35reg2613 = primIsCons(_35reg2612);
+if (True == _35reg2613) {
+Obj _35reg2614 = primCdr(_35p1157);
+Obj _35reg2615 = primCar(_35reg2614);
+Obj _35reg2616 = primCdr(_35reg2615);
+Obj _35reg2617 = primCar(_35reg2616);
+Obj params = _35reg2617;
+Obj _35reg2618 = primCdr(_35p1157);
+Obj _35reg2619 = primCar(_35reg2618);
+Obj _35reg2620 = primCdr(_35reg2619);
+Obj _35reg2621 = primCdr(_35reg2620);
+Obj _35reg2622 = primIsCons(_35reg2621);
+if (True == _35reg2622) {
+Obj _35reg2623 = primCdr(_35p1157);
+Obj _35reg2624 = primCar(_35reg2623);
+Obj _35reg2625 = primCdr(_35reg2624);
+Obj _35reg2626 = primCdr(_35reg2625);
+Obj _35reg2627 = primCar(_35reg2626);
+Obj actives = _35reg2627;
+Obj _35reg2628 = primCdr(_35p1157);
+Obj _35reg2629 = primCar(_35reg2628);
+Obj _35reg2630 = primCdr(_35reg2629);
+Obj _35reg2631 = primCdr(_35reg2630);
+Obj _35reg2632 = primCdr(_35reg2631);
+Obj _35reg2633 = primIsCons(_35reg2632);
+if (True == _35reg2633) {
+Obj _35reg2634 = primCdr(_35p1157);
+Obj _35reg2635 = primCar(_35reg2634);
+Obj _35reg2636 = primCdr(_35reg2635);
+Obj _35reg2637 = primCdr(_35reg2636);
+Obj _35reg2638 = primCdr(_35reg2637);
+Obj _35reg2639 = primCar(_35reg2638);
+Obj body = _35reg2639;
+Obj _35reg2640 = primCdr(_35p1157);
+Obj _35reg2641 = primCar(_35reg2640);
+Obj _35reg2642 = primCdr(_35reg2641);
+Obj _35reg2643 = primCdr(_35reg2642);
+Obj _35reg2644 = primCdr(_35reg2643);
+Obj _35reg2645 = primCdr(_35reg2644);
+Obj _35reg2646 = primEQ(Nil, _35reg2645);
+if (True == _35reg2646) {
+Obj _35reg2647 = primCdr(_35p1157);
+Obj _35reg2648 = primCdr(_35reg2647);
+Obj _35reg2649 = primEQ(Nil, _35reg2648);
+if (True == _35reg2649) {
+pushCont(co, 20, _35clofun2940, 5, actives, label, params, body, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("#include \"types.h\"\n");
+__arg1 = w;
+__arg2 = makeString1("label");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1158;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
 
 label1:
 {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+Obj exp = __arg1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.parse"));
+__arg1 = Nil;
+__arg2 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1345,22 +2841,25 @@ goto *jumpTable[ps.label];
 
 label2:
 {
-Obj _35cc1170 = makeNative(1, _35clofun2941, 0, 0);
-Obj __ = closureRef(co, 0);
-__nargs = 2;
+Obj exp = __arg1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = Nil;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+__arg2 = exp;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label3:
 {
-Obj _35val2763 = __arg1;
-Obj remain= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.handle-import-eagerly"));
-__arg1 = remain;
+Obj exp = __arg1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.tailify"));
+__arg1 = exp;
+__arg2 = globalRef(intern("cora/lib/toc.id"));
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1370,262 +2869,101 @@ goto *jumpTable[ps.label];
 
 label4:
 {
-Obj _35p1168 = __arg1;
-Obj _35cc1169 = makeNative(2, _35clofun2941, 0, 1, _35p1168);
-Obj _35reg2746 = primIsCons(_35p1168);
-if (True == _35reg2746) {
-Obj _35reg2747 = primCar(_35p1168);
-Obj _35reg2748 = primIsCons(_35reg2747);
-if (True == _35reg2748) {
-Obj _35reg2749 = primCar(_35p1168);
-Obj _35reg2750 = primCar(_35reg2749);
-Obj _35reg2751 = primEQ(intern("import"), _35reg2750);
-if (True == _35reg2751) {
-Obj _35reg2752 = primCar(_35p1168);
-Obj _35reg2753 = primCdr(_35reg2752);
-Obj _35reg2754 = primIsCons(_35reg2753);
-if (True == _35reg2754) {
-Obj _35reg2755 = primCar(_35p1168);
-Obj _35reg2756 = primCdr(_35reg2755);
-Obj _35reg2757 = primCar(_35reg2756);
-Obj pkg = _35reg2757;
-Obj _35reg2758 = primCar(_35p1168);
-Obj _35reg2759 = primCdr(_35reg2758);
-Obj _35reg2760 = primCdr(_35reg2759);
-Obj _35reg2761 = primEQ(Nil, _35reg2760);
-if (True == _35reg2761) {
-Obj _35reg2762 = primCdr(_35p1168);
-Obj remain = _35reg2762;
-pushCont(co, 3, _35clofun2941, 1, remain);
-__nargs = 2;
-__arg0 = globalRef(intern("import"));
-__arg1 = pkg;
+Obj exp = __arg1;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
+__arg1 = Nil;
+__arg2 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1169;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1169;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1169;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1169;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1169;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label5:
 {
+Obj _35val2670 = __arg1;
+Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj res = _35val2670;
+Obj _35reg2671 = primCons(intern("entry"), makeNumber(0));
+Obj _35reg2672 = primCons(e1, Nil);
+Obj _35reg2673 = primCons(Nil, _35reg2672);
+Obj _35reg2674 = primCons(Nil, _35reg2673);
+Obj _35reg2675 = primCons(intern("lambda"), _35reg2674);
+Obj _35reg2676 = primCons(_35reg2675, Nil);
+Obj _35reg2677 = primCons(_35reg2671, _35reg2676);
+Obj _35reg2678 = primCons(_35reg2677, Nil);
+Obj _35reg2679 = primCons(_35reg2678, res);
 __nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+__arg1 = _35reg2679;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2941) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
 }
 
 label6:
 {
-Obj _35cc1178 = makeNative(5, _35clofun2941, 0, 0);
-Obj _35reg2765 = primIsCons(closureRef(co, 0));
-if (True == _35reg2765) {
-Obj _35reg2766 = primCar(closureRef(co, 0));
-Obj exp = _35reg2766;
-Obj _35reg2767 = primCdr(closureRef(co, 0));
-Obj more = _35reg2767;
-Obj type = closureRef(co, 1);
-Obj code = closureRef(co, 2);
-Obj k = closureRef(co, 3);
-Obj _35reg2768 = primCons(exp, Nil);
-Obj _35reg2769 = primCons(intern("backquote"), _35reg2768);
-Obj _35reg2770 = primCons(_35reg2769, Nil);
-Obj _35reg2771 = primCons(intern("macroexpand"), _35reg2770);
-Obj _35reg2772 = primCons(intern("tvar"), Nil);
-Obj _35reg2773 = primCons(Nil, Nil);
-Obj _35reg2774 = primCons(Nil, _35reg2773);
-Obj _35reg2775 = primCons(_35reg2772, _35reg2774);
-Obj _35reg2776 = primCons(_35reg2771, _35reg2775);
-Obj _35reg2777 = primCons(intern("cora/lib/infer.check-type"), _35reg2776);
-Obj _35reg2778 = primCons(_35reg2777, type);
-Obj _35reg2779 = primCons(exp, code);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = more;
-__arg2 = _35reg2778;
-__arg3 = _35reg2779;
-co->args[4] = k;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1178;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
+Obj _35val2681 = __arg1;
+Obj _35val2680= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj _35reg2682 = primCons(_35val2680, _35val2681);
+Obj res = _35reg2682;
+Obj _35reg2683 = primCons(intern("entry"), makeNumber(0));
+Obj _35reg2684 = primCons(e1, Nil);
+Obj _35reg2685 = primCons(Nil, _35reg2684);
+Obj _35reg2686 = primCons(Nil, _35reg2685);
+Obj _35reg2687 = primCons(intern("lambda"), _35reg2686);
+Obj _35reg2688 = primCons(_35reg2687, Nil);
+Obj _35reg2689 = primCons(_35reg2683, _35reg2688);
+Obj _35reg2690 = primCons(_35reg2689, Nil);
+Obj _35reg2691 = primCons(_35reg2690, res);
+__nargs = 2;
+__arg1 = _35reg2691;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2941) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
 }
 
 label7:
 {
-Obj _35cc1177 = makeNative(6, _35clofun2941, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj _35reg2780 = primIsCons(closureRef(co, 0));
-if (True == _35reg2780) {
-Obj _35reg2781 = primCar(closureRef(co, 0));
-Obj _35reg2782 = primIsCons(_35reg2781);
-if (True == _35reg2782) {
-Obj _35reg2783 = primCar(closureRef(co, 0));
-Obj _35reg2784 = primCar(_35reg2783);
-Obj _35reg2785 = primEQ(intern(":declare"), _35reg2784);
-if (True == _35reg2785) {
-Obj _35reg2786 = primCar(closureRef(co, 0));
-Obj _35reg2787 = primCdr(_35reg2786);
-Obj exp = _35reg2787;
-Obj _35reg2788 = primCdr(closureRef(co, 0));
-Obj more = _35reg2788;
-Obj type = closureRef(co, 1);
-Obj code = closureRef(co, 2);
-Obj k = closureRef(co, 3);
-Obj _35reg2789 = primCons(intern("declare"), exp);
-Obj _35reg2790 = primCons(_35reg2789, type);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = more;
-__arg2 = _35reg2790;
-__arg3 = code;
-co->args[4] = k;
+Obj _35val2680 = __arg1;
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 6, _35clofun2941, 2, _35val2680, e1);
+__nargs = 3;
+__arg0 = globalRef(intern("vector-ref"));
+__arg1 = v;
+__arg2 = makeNumber(2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1177;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1177;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1177;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label8:
 {
-Obj _35cc1176 = makeNative(7, _35clofun2941, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj _35reg2791 = primIsCons(closureRef(co, 0));
-if (True == _35reg2791) {
-Obj _35reg2792 = primCar(closureRef(co, 0));
-Obj _35reg2793 = primIsCons(_35reg2792);
-if (True == _35reg2793) {
-Obj _35reg2794 = primCar(closureRef(co, 0));
-Obj _35reg2795 = primCar(_35reg2794);
-Obj _35reg2796 = primEQ(intern(":type"), _35reg2795);
-if (True == _35reg2796) {
-Obj _35reg2797 = primCar(closureRef(co, 0));
-Obj _35reg2798 = primCdr(_35reg2797);
-Obj exp = _35reg2798;
-Obj _35reg2799 = primCdr(closureRef(co, 0));
-Obj more = _35reg2799;
-Obj type = closureRef(co, 1);
-Obj code = closureRef(co, 2);
-Obj k = closureRef(co, 3);
-Obj _35reg2800 = primCons(intern("begin"), exp);
-Obj _35reg2801 = primCons(_35reg2800, type);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = more;
-__arg2 = _35reg2801;
-__arg3 = code;
-co->args[4] = k;
+Obj _35val2669 = __arg1;
+Obj cur= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 2];
+if (True == _35val2669) {
+pushCont(co, 5, _35clofun2941, 1, e1);
+__nargs = 3;
+__arg0 = globalRef(intern("vector-ref"));
+__arg1 = v;
+__arg2 = makeNumber(2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-__nargs = 1;
-__arg0 = _35cc1176;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1176;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1176;
+pushCont(co, 7, _35clofun2941, 2, v, e1);
+__nargs = 2;
+__arg0 = globalRef(intern("reverse"));
+__arg1 = cur;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1636,13 +2974,14 @@ goto *jumpTable[ps.label];
 
 label9:
 {
-Obj _35val2804 = __arg1;
-Obj k= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj _35val2803= co->ctx.stk.stack[co->ctx.stk.base + 1];
-__nargs = 3;
-__arg0 = k;
-__arg1 = _35val2803;
-__arg2 = _35val2804;
+Obj _35val2668 = __arg1;
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj cur = _35val2668;
+pushCont(co, 8, _35clofun2941, 3, cur, v, e1);
+__nargs = 2;
+__arg0 = globalRef(intern("null?"));
+__arg1 = cur;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1652,13 +2991,14 @@ goto *jumpTable[ps.label];
 
 label10:
 {
-Obj _35val2803 = __arg1;
-Obj code= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj k= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 9, _35clofun2941, 2, k, _35val2803);
-__nargs = 2;
-__arg0 = globalRef(intern("reverse"));
-__arg1 = code;
+Obj _35val2667 = __arg1;
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj e1 = _35val2667;
+pushCont(co, 9, _35clofun2941, 2, v, e1);
+__nargs = 3;
+__arg0 = globalRef(intern("vector-ref"));
+__arg1 = v;
+__arg2 = makeNumber(1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1668,82 +3008,68 @@ goto *jumpTable[ps.label];
 
 label11:
 {
-Obj _35p1171 = __arg1;
-Obj _35p1172 = __arg2;
-Obj _35p1173 = __arg3;
-Obj _35p1174 = co->args[4];
-Obj _35cc1175 = makeNative(8, _35clofun2941, 0, 4, _35p1171, _35p1172, _35p1173, _35p1174);
-Obj _35reg2802 = primEQ(Nil, _35p1171);
-if (True == _35reg2802) {
-Obj type = _35p1172;
-Obj code = _35p1173;
-Obj k = _35p1174;
-pushCont(co, 10, _35clofun2941, 2, code, k);
-__nargs = 2;
-__arg0 = globalRef(intern("reverse"));
-__arg1 = type;
+Obj _35val2666 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 10, _35clofun2941, 1, v);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.collect-lambda"));
+__arg1 = v;
+__arg2 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1175;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label12:
 {
-Obj _35val2812 = __arg1;
-Obj _35reg2813 = primCons(intern("begin"), _35val2812);
-__nargs = 2;
-__arg1 = _35reg2813;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
-
-label13:
-{
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 12, _35clofun2941, 0);
-__nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+Obj _35val2665 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 11, _35clofun2941, 2, exp, v);
+__nargs = 4;
+__arg0 = globalRef(intern("vector-set!"));
+__arg1 = v;
+__arg2 = makeNumber(2);
+__arg3 = Nil;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-Obj _35reg2814 = primCons(intern("begin"), code);
-__nargs = 2;
-__arg1 = _35reg2814;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
 }
+
+label13:
+{
+Obj _35val2664 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 12, _35clofun2941, 2, exp, v);
+__nargs = 4;
+__arg0 = globalRef(intern("vector-set!"));
+__arg1 = v;
+__arg2 = makeNumber(1);
+__arg3 = Nil;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label14:
 {
-Obj _35val2811 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(13, _35clofun2941, 2, 0);
+Obj _35val2663 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj v = _35val2663;
+pushCont(co, 13, _35clofun2941, 2, exp, v);
+__nargs = 4;
+__arg0 = globalRef(intern("vector-set!"));
+__arg1 = v;
+__arg2 = makeNumber(0);
+__arg3 = makeNumber(0);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1753,103 +3079,111 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj _35val2817 = __arg1;
-Obj _35reg2818 = primCons(intern("begin"), _35val2817);
+Obj exp = __arg1;
+pushCont(co, 14, _35clofun2941, 1, exp);
 __nargs = 2;
-__arg1 = _35reg2818;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+__arg0 = globalRef(intern("vector"));
+__arg1 = makeNumber(3);
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label16:
 {
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 15, _35clofun2941, 0);
-__nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-Obj _35reg2819 = primCons(intern("begin"), code);
-__nargs = 2;
-__arg1 = _35reg2819;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
 }
 
 label17:
 {
-Obj _35val2816 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(16, _35clofun2941, 2, 0);
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label18:
-{
-Obj _35val2822 = __arg1;
-Obj _35reg2823 = primCons(intern("begin"), _35val2822);
-__nargs = 2;
-__arg1 = _35reg2823;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2941) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-}
-
-label19:
-{
-Obj type = __arg1;
-Obj code = __arg2;
-if (True == globalRef(intern("cora/lib/infer.*typecheck*"))) {
-pushCont(co, 18, _35clofun2941, 0);
+Obj _35cc1163 = makeNative(16, _35clofun2941, 0, 0);
+Obj obj = closureRef(co, 0);
+Obj _35reg2693 = primIsCons(closureRef(co, 1));
+if (True == _35reg2693) {
+Obj _35reg2694 = primCar(closureRef(co, 1));
+Obj hd = _35reg2694;
+Obj _35reg2695 = primCdr(closureRef(co, 1));
+Obj more = _35reg2695;
+Obj _35reg2696 = primCons(obj, Nil);
+Obj _35reg2697 = primCons(hd, _35reg2696);
 __nargs = 3;
-__arg0 = globalRef(intern("append"));
-__arg1 = type;
-__arg2 = code;
+__arg0 = globalRef(intern("cora/lib/toc.rewrite-->macro"));
+__arg1 = _35reg2697;
+__arg2 = more;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2824 = primCons(intern("begin"), code);
+__nargs = 1;
+__arg0 = _35cc1163;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label18:
+{
+Obj _35p1160 = __arg1;
+Obj _35p1161 = __arg2;
+Obj _35cc1162 = makeNative(17, _35clofun2941, 0, 2, _35p1160, _35p1161);
+Obj obj = _35p1160;
+Obj _35reg2698 = primEQ(Nil, _35p1161);
+if (True == _35reg2698) {
 __nargs = 2;
-__arg1 = _35reg2824;
+__arg1 = obj;
 co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != _35clofun2941) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1162;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
+}
+
+label19:
+{
+Obj _35val2701 = __arg1;
+Obj obj= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj fns = _35val2701;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.rewrite-->macro"));
+__arg1 = obj;
+__arg2 = fns;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2941) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label20:
 {
-Obj _35val2821 = __arg1;
-Obj sexp1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.split-type-and-code"));
-__arg1 = sexp1;
-__arg2 = Nil;
-__arg3 = Nil;
-co->args[4] = makeNative(19, _35clofun2941, 2, 0);
+Obj _35val2700 = __arg1;
+Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj obj = _35val2700;
+pushCont(co, 19, _35clofun2941, 1, obj);
+__nargs = 2;
+__arg0 = globalRef(intern("cddr"));
+__arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1879,14 +3213,17 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2729 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 20, _35clofun2939, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("goto *jumpTable[co->ctx.pc.label];\n\n");
+Obj _35val2577 = __arg1;
+Obj var= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 20, _35clofun2939, 2, i, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = intern("ignore");
+__arg2 = Nil;
+__arg3 = w;
+co->args[4] = var;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1896,14 +3233,14 @@ goto *jumpTable[ps.label];
 
 label1:
 {
-Obj _35val2728 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 0, _35clofun2940, 2, group, to);
+Obj w = __arg1;
+Obj i = __arg2;
+Obj var = __arg3;
+pushCont(co, 0, _35clofun2940, 3, var, i, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("};\n\n");
+__arg1 = w;
+__arg2 = makeString1("Obj ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1913,15 +3250,12 @@ goto *jumpTable[ps.label];
 
 label2:
 {
-Obj _35val2727 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 1, _35clofun2940, 2, group, to);
-__nargs = 4;
-__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
-__arg1 = to;
-__arg2 = makeNumber(0);
-__arg3 = _35val2727;
+Obj _35val2588 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("];\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1931,13 +3265,14 @@ goto *jumpTable[ps.label];
 
 label3:
 {
-Obj _35val2726 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 2, _35clofun2940, 2, group, to);
-__nargs = 2;
-__arg0 = globalRef(intern("length"));
-__arg1 = group;
+Obj _35val2587 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 2, _35clofun2940, 1, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1947,14 +3282,14 @@ goto *jumpTable[ps.label];
 
 label4:
 {
-Obj _35val2725 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 3, _35clofun2940, 2, group, to);
+Obj _35val2586 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 3, _35clofun2940, 2, i, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("static void* jumpTable[] = {");
+__arg1 = w;
+__arg2 = makeString1("= co->ctx.stk.stack[co->ctx.stk.base + ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1964,14 +3299,17 @@ goto *jumpTable[ps.label];
 
 label5:
 {
-Obj _35val2724 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 4, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("Obj __arg3 = co->args[3];\n\n");
+Obj _35val2585 = __arg1;
+Obj var= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 4, _35clofun2940, 2, i, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = intern("ignore");
+__arg2 = Nil;
+__arg3 = w;
+co->args[4] = var;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1981,14 +3319,14 @@ goto *jumpTable[ps.label];
 
 label6:
 {
-Obj _35val2723 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 5, _35clofun2940, 2, group, to);
+Obj w = __arg1;
+Obj i = __arg2;
+Obj var = __arg3;
+pushCont(co, 5, _35clofun2940, 3, var, i, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("Obj __arg2 = co->args[2];\n");
+__arg1 = w;
+__arg2 = makeString1("Obj ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1998,14 +3336,9 @@ goto *jumpTable[ps.label];
 
 label7:
 {
-Obj _35val2722 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 6, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("Obj __arg1 = co->args[1];\n");
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2015,14 +3348,18 @@ goto *jumpTable[ps.label];
 
 label8:
 {
-Obj _35val2721 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 7, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("Obj __arg0 = co->args[0];\n");
+Obj _35val2593 = __arg1;
+Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj _35reg2594 = primAdd(idx, makeNumber(1));
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
+__arg1 = fn;
+__arg2 = w;
+__arg3 = _35reg2594;
+co->args[4] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2032,48 +3369,71 @@ goto *jumpTable[ps.label];
 
 label9:
 {
-Obj _35val2720 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 8, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("int __nargs = co->nargs;\n");
+Obj _35cc1155 = makeNative(7, _35clofun2940, 0, 0);
+Obj fn = closureRef(co, 0);
+Obj w = closureRef(co, 1);
+Obj idx = closureRef(co, 2);
+Obj _35reg2590 = primIsCons(closureRef(co, 3));
+if (True == _35reg2590) {
+Obj _35reg2591 = primCar(closureRef(co, 3));
+Obj a = _35reg2591;
+Obj _35reg2592 = primCdr(closureRef(co, 3));
+Obj b = _35reg2592;
+pushCont(co, 8, _35clofun2940, 4, idx, fn, w, b);
+__nargs = 4;
+__arg0 = fn;
+__arg1 = w;
+__arg2 = idx;
+__arg3 = a;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2940) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1155;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2940) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label10:
 {
-Obj _35val2719 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 9, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("{\n");
+Obj _35p1150 = __arg1;
+Obj _35p1151 = __arg2;
+Obj _35p1152 = __arg3;
+Obj _35p1153 = co->args[4];
+Obj _35cc1154 = makeNative(9, _35clofun2940, 0, 4, _35p1150, _35p1151, _35p1152, _35p1153);
+Obj fn = _35p1150;
+Obj w = _35p1151;
+Obj idx = _35p1152;
+Obj _35reg2595 = primEQ(Nil, _35p1153);
+if (True == _35reg2595) {
+__nargs = 2;
+__arg1 = Nil;
+co->ctx = co->callstack.data[--co->callstack.len];
+if (co->ctx.pc.func != _35clofun2940) { goto fail; }
+goto *jumpTable[co->ctx.pc.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1154;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2940) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+}
 
 label11:
 {
-Obj _35val2718 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 10, _35clofun2940, 2, group, to);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.code-gen-func-declare"));
-__arg1 = to;
-__arg2 = _35val2718;
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2083,12 +3443,10 @@ goto *jumpTable[ps.label];
 
 label12:
 {
-Obj to = __arg1;
-Obj group = __arg2;
-pushCont(co, 11, _35clofun2940, 2, group, to);
+Obj _35val2598 = __arg1;
 __nargs = 2;
-__arg0 = globalRef(intern("caar"));
-__arg1 = group;
+__arg0 = globalRef(intern("cora/lib/io.display"));
+__arg1 = makeString1("\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2098,11 +3456,12 @@ goto *jumpTable[ps.label];
 
 label13:
 {
-Obj _35val2742 = __arg1;
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = closureRef(co, 0);
-__arg2 = makeString1(";\n");
+Obj _35val2597 = __arg1;
+Obj other= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 12, _35clofun2940, 0);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/io.display"));
+__arg1 = other;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2112,12 +3471,13 @@ goto *jumpTable[ps.label];
 
 label14:
 {
-Obj _35val2741 = __arg1;
-pushCont(co, 13, _35clofun2940, 0);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.code-gen-func-declare"));
-__arg1 = closureRef(co, 0);
-__arg2 = _35val2741;
+Obj _35cc1159 = makeNative(11, _35clofun2940, 0, 0);
+Obj w = closureRef(co, 0);
+Obj other = closureRef(co, 1);
+pushCont(co, 13, _35clofun2940, 1, other);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/io.display"));
+__arg1 = makeString1("wrong format of toplevel\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2127,11 +3487,12 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj group = __arg1;
-pushCont(co, 14, _35clofun2940, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("caar"));
-__arg1 = group;
+Obj _35val2657 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("}\n\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2141,11 +3502,19 @@ goto *jumpTable[ps.label];
 
 label16:
 {
-Obj group = __arg1;
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.generate-toplevel-group"));
-__arg1 = closureRef(co, 0);
-__arg2 = group;
+Obj _35val2655 = __arg1;
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj params= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj _35reg2656 = primCar(label);
+pushCont(co, 15, _35clofun2940, 1, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = _35reg2656;
+__arg2 = params;
+__arg3 = w;
+co->args[4] = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2155,13 +3524,19 @@ goto *jumpTable[ps.label];
 
 label17:
 {
-Obj _35val2744 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-__nargs = 3;
-__arg0 = globalRef(intern("for-each"));
-__arg1 = makeNative(16, _35clofun2940, 1, 1, to);
-__arg2 = bc;
+Obj _35val2654 = __arg1;
+Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 16, _35clofun2940, 4, label, params, body, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
+__arg1 = globalRef(intern("cora/lib/toc.local-from-cont"));
+__arg2 = w;
+__arg3 = makeNumber(0);
+co->args[4] = actives;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2171,14 +3546,19 @@ goto *jumpTable[ps.label];
 
 label18:
 {
-Obj _35val2743 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 17, _35clofun2940, 2, to, bc);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("\n\n");
+Obj _35val2653 = __arg1;
+Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 17, _35clofun2940, 5, actives, label, params, body, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
+__arg1 = globalRef(intern("cora/lib/toc.local-from-params"));
+__arg2 = w;
+__arg3 = makeNumber(1);
+co->args[4] = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2188,14 +3568,17 @@ goto *jumpTable[ps.label];
 
 label19:
 {
-Obj _35val2740 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 18, _35clofun2940, 2, to, bc);
+Obj _35val2652 = __arg1;
+Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 18, _35clofun2940, 5, actives, label, params, body, w);
 __nargs = 3;
-__arg0 = globalRef(intern("for-each"));
-__arg1 = makeNative(15, _35clofun2940, 1, 1, to);
-__arg2 = bc;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(":\n{\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2205,14 +3588,18 @@ goto *jumpTable[ps.label];
 
 label20:
 {
-Obj _35val2739 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj bc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 19, _35clofun2940, 2, to, bc);
+Obj _35val2650 = __arg1;
+Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj _35reg2651 = primCdr(label);
+pushCont(co, 19, _35clofun2940, 5, actives, label, params, body, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("#include \"runtime.h\"\n\n");
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = _35reg2651;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2242,11 +3629,15 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2702 = __arg1;
-pushCont(co, 20, _35clofun2938, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.explicit-stack-pass"));
-__arg1 = _35val2702;
+Obj _35val2553 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 20, _35clofun2938, 3, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2256,11 +3647,17 @@ goto *jumpTable[ps.label];
 
 label1:
 {
-Obj _35val2701 = __arg1;
-pushCont(co, 0, _35clofun2939, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.tailify-pass"));
-__arg1 = _35val2701;
+Obj _35val2551 = __arg1;
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj _35reg2552 = primCar(label);
+pushCont(co, 0, _35clofun2939, 3, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
+__arg1 = w;
+__arg2 = _35reg2552;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2270,11 +3667,16 @@ goto *jumpTable[ps.label];
 
 label2:
 {
-Obj _35val2700 = __arg1;
-pushCont(co, 1, _35clofun2939, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.closure-convert-pass"));
-__arg1 = _35val2700;
+Obj _35val2550 = __arg1;
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+pushCont(co, 1, _35clofun2939, 4, label, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2284,11 +3686,17 @@ goto *jumpTable[ps.label];
 
 label3:
 {
-Obj exp = __arg1;
-pushCont(co, 2, _35clofun2939, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.parse-pass"));
-__arg1 = exp;
+Obj _35val2548 = __arg1;
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj _35reg2549 = primCdr(label);
+pushCont(co, 2, _35clofun2939, 4, label, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = _35reg2549;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2297,6 +3705,67 @@ goto *jumpTable[ps.label];
 }
 
 label4:
+{
+Obj _35p1139 = __arg1;
+Obj _35p1140 = __arg2;
+Obj _35p1141 = __arg3;
+Obj _35cc1142 = makeNative(13, _35clofun2938, 0, 0);
+Obj self = _35p1139;
+Obj w = _35p1140;
+Obj _35reg2539 = primIsCons(_35p1141);
+if (True == _35reg2539) {
+Obj _35reg2540 = primCar(_35p1141);
+Obj _35reg2541 = primEQ(intern("%continuation"), _35reg2540);
+if (True == _35reg2541) {
+Obj _35reg2542 = primCdr(_35p1141);
+Obj _35reg2543 = primIsCons(_35reg2542);
+if (True == _35reg2543) {
+Obj _35reg2544 = primCdr(_35p1141);
+Obj _35reg2545 = primCar(_35reg2544);
+Obj label = _35reg2545;
+Obj _35reg2546 = primCdr(_35p1141);
+Obj _35reg2547 = primCdr(_35reg2546);
+Obj stacks = _35reg2547;
+pushCont(co, 3, _35clofun2939, 4, label, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("pushCont(co, ");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1142;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1142;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1142;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+
+label5:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
@@ -2308,68 +3777,57 @@ if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
-label5:
-{
-Obj _35val2708 = __arg1;
-Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj y= co->ctx.stk.stack[co->ctx.stk.base + 1];
-__nargs = 3;
-__arg0 = globalRef(intern("for-each"));
-__arg1 = fn;
-__arg2 = y;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
 label6:
 {
-Obj _35cc1167 = makeNative(4, _35clofun2939, 0, 0);
-Obj fn = closureRef(co, 0);
-Obj _35reg2705 = primIsCons(closureRef(co, 1));
-if (True == _35reg2705) {
-Obj _35reg2706 = primCar(closureRef(co, 1));
-Obj x = _35reg2706;
-Obj _35reg2707 = primCdr(closureRef(co, 1));
-Obj y = _35reg2707;
-pushCont(co, 5, _35clofun2939, 2, fn, y);
-__nargs = 2;
-__arg0 = fn;
-__arg1 = x;
+Obj _35val2568 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
+__nargs = 6;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = fn;
+co->args[4] = w;
+co->args[5] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1167;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label7:
 {
-Obj _35p1164 = __arg1;
-Obj _35p1165 = __arg2;
-Obj _35cc1166 = makeNative(6, _35clofun2939, 0, 2, _35p1164, _35p1165);
-Obj fn = _35p1164;
-Obj _35reg2709 = primEQ(Nil, _35p1165);
-if (True == _35reg2709) {
-__nargs = 2;
-__arg1 = Nil;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2939) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2566 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj _35reg2567 = primNot(_35val2566);
+if (True == _35reg2567) {
+pushCont(co, 6, _35clofun2939, 5, self, env, fn, w, b);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(", ");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 } else {
-__nargs = 1;
-__arg0 = _35cc1166;
+Nil;
+__nargs = 6;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = fn;
+co->args[4] = w;
+co->args[5] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2380,14 +3838,16 @@ goto *jumpTable[ps.label];
 
 label8:
 {
-Obj _35val2712 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj n= co->ctx.stk.stack[co->ctx.stk.base + 1];
-__nargs = 4;
-__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
-__arg1 = to;
-__arg2 = makeNumber(1);
-__arg3 = n;
+Obj _35val2565 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 7, _35clofun2939, 5, self, env, fn, w, b);
+__nargs = 2;
+__arg0 = globalRef(intern("null?"));
+__arg1 = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2397,88 +3857,98 @@ goto *jumpTable[ps.label];
 
 label9:
 {
-Obj _35val2715 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj n= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj _35reg2716 = primAdd(i, makeNumber(1));
-__nargs = 4;
-__arg0 = globalRef(intern("cora/lib/toc.generate-jumptable"));
-__arg1 = to;
-__arg2 = _35reg2716;
-__arg3 = n;
+Obj _35cc1149 = makeNative(5, _35clofun2939, 0, 0);
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj fn = closureRef(co, 2);
+Obj w = closureRef(co, 3);
+Obj _35reg2562 = primIsCons(closureRef(co, 4));
+if (True == _35reg2562) {
+Obj _35reg2563 = primCar(closureRef(co, 4));
+Obj a = _35reg2563;
+Obj _35reg2564 = primCdr(closureRef(co, 4));
+Obj b = _35reg2564;
+pushCont(co, 8, _35clofun2939, 5, self, env, fn, w, b);
+__nargs = 5;
+__arg0 = fn;
+__arg1 = self;
+__arg2 = env;
+__arg3 = w;
+co->args[4] = a;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1149;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label10:
 {
-Obj _35val2714 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj n= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 9, _35clofun2939, 3, i, to, n);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = to;
-__arg2 = i;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label11:
-{
-Obj to = __arg1;
-Obj i = __arg2;
-Obj n = __arg3;
-Obj _35reg2711 = primEQ(i, makeNumber(0));
-if (True == _35reg2711) {
-pushCont(co, 8, _35clofun2939, 2, to, n);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("&&label0");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2713 = primLT(i, n);
-if (True == _35reg2713) {
-pushCont(co, 10, _35clofun2939, 3, i, to, n);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1(", &&label");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
+Obj _35p1143 = __arg1;
+Obj _35p1144 = __arg2;
+Obj _35p1145 = __arg3;
+Obj _35p1146 = co->args[4];
+Obj _35p1147 = co->args[5];
+Obj _35cc1148 = makeNative(9, _35clofun2939, 0, 5, _35p1143, _35p1144, _35p1145, _35p1146, _35p1147);
+Obj self = _35p1143;
+Obj env = _35p1144;
+Obj fn = _35p1145;
+Obj w = _35p1146;
+Obj _35reg2569 = primEQ(Nil, _35p1147);
+if (True == _35reg2569) {
 __nargs = 2;
 __arg1 = Nil;
 co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != _35clofun2939) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1148;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 }
+
+label11:
+{
+Obj self = __arg1;
+Obj env = __arg2;
+Obj w = __arg3;
+Obj l = co->args[4];
+__nargs = 6;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = globalRef(intern("cora/lib/toc.generate-inst"));
+co->args[4] = w;
+co->args[5] = l;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label12:
 {
-Obj x = __arg1;
+Obj _35val2575 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.code-gen-toplevel"));
-__arg1 = closureRef(co, 0);
-__arg2 = x;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2488,12 +3958,13 @@ goto *jumpTable[ps.label];
 
 label13:
 {
-Obj _35val2737 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2574 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 12, _35clofun2939, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("\n}\n\n");
+__arg1 = w;
+__arg2 = makeString1("(struct Cora* co");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2503,13 +3974,15 @@ goto *jumpTable[ps.label];
 
 label14:
 {
-Obj _35val2736 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 13, _35clofun2939, 1, to);
+Obj _35val2572 = __arg1;
+Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj _35reg2573 = primCar(label);
+pushCont(co, 13, _35clofun2939, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("co->args[3] = __arg3;\n");
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
+__arg1 = w;
+__arg2 = _35reg2573;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2519,13 +3992,13 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj _35val2735 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 14, _35clofun2939, 1, to);
+Obj w = __arg1;
+Obj label = __arg2;
+pushCont(co, 14, _35clofun2939, 2, label, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("co->args[2] = __arg2;\n");
+__arg1 = w;
+__arg2 = makeString1("void ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2535,13 +4008,12 @@ goto *jumpTable[ps.label];
 
 label16:
 {
-Obj _35val2734 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 15, _35clofun2939, 1, to);
+Obj _35val2581 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("co->args[1] = __arg1;\n");
+__arg1 = w;
+__arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2551,13 +4023,14 @@ goto *jumpTable[ps.label];
 
 label17:
 {
-Obj _35val2733 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 16, _35clofun2939, 1, to);
+Obj _35val2580 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 16, _35clofun2939, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("co->args[0] = __arg0;\n");
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2567,13 +4040,12 @@ goto *jumpTable[ps.label];
 
 label18:
 {
-Obj _35val2732 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 17, _35clofun2939, 1, to);
+Obj _35val2583 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("co->nargs = __nargs;\n");
+__arg1 = w;
+__arg2 = makeString1("];\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2583,13 +4055,14 @@ goto *jumpTable[ps.label];
 
 label19:
 {
-Obj _35val2731 = __arg1;
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 18, _35clofun2939, 1, to);
+Obj _35val2582 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 18, _35clofun2939, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = to;
-__arg2 = makeString1("fail:\n");
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2599,19 +4072,33 @@ goto *jumpTable[ps.label];
 
 label20:
 {
-Obj _35val2730 = __arg1;
-Obj group= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj to= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 19, _35clofun2939, 1, to);
+Obj _35val2578 = __arg1;
+Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj _35reg2579 = primLT(i, makeNumber(4));
+if (True == _35reg2579) {
+pushCont(co, 17, _35clofun2939, 2, i, w);
 __nargs = 3;
-__arg0 = globalRef(intern("for-each"));
-__arg1 = makeNative(12, _35clofun2939, 1, 1, to);
-__arg2 = group;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(" = __arg");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+pushCont(co, 19, _35clofun2939, 2, i, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(" = co->args[");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2939) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 fail:
@@ -2636,39 +4123,175 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj exp = __arg1;
+Obj _35val2490 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+if (True == _35val2490) {
+pushCont(co, 17, _35clofun2937, 2, x, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
-__arg1 = Nil;
-__arg2 = exp;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("makeNumber(");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+Obj _35reg2493 = primIsString(x);
+if (True == _35reg2493) {
+pushCont(co, 20, _35clofun2937, 2, x, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("makeString1(\"");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2497 = primEQ(x, Nil);
+if (True == _35reg2497) {
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("Nil");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2498 = primEQ(x, True);
+if (True == _35reg2498) {
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("True");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Obj _35reg2499 = primEQ(x, False);
+if (True == _35reg2499) {
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("False");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 2;
+__arg0 = globalRef(intern("error"));
+__arg1 = makeString1("no cond match");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
+}
+}
+}
 }
 
 label1:
 {
-Obj exp = __arg1;
+Obj _35cc1129 = makeNative(12, _35clofun2937, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2476 = primIsCons(closureRef(co, 3));
+if (True == _35reg2476) {
+Obj _35reg2477 = primCar(closureRef(co, 3));
+Obj _35reg2478 = primEQ(intern("%const"), _35reg2477);
+if (True == _35reg2478) {
+Obj _35reg2479 = primCdr(closureRef(co, 3));
+Obj _35reg2480 = primIsCons(_35reg2479);
+if (True == _35reg2480) {
+Obj _35reg2481 = primCdr(closureRef(co, 3));
+Obj _35reg2482 = primCar(_35reg2481);
+Obj x = _35reg2482;
+Obj _35reg2483 = primCdr(closureRef(co, 3));
+Obj _35reg2484 = primCdr(_35reg2483);
+Obj _35reg2485 = primEQ(Nil, _35reg2484);
+if (True == _35reg2485) {
+Obj _35reg2486 = primIsSymbol(x);
+if (True == _35reg2486) {
+pushCont(co, 15, _35clofun2937, 2, x, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.tailify"));
-__arg1 = exp;
-__arg2 = globalRef(intern("cora/lib/toc.id"));
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("intern(\"");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+pushCont(co, 0, _35clofun2938, 2, x, w);
+__nargs = 2;
+__arg0 = globalRef(intern("number?"));
+__arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+} else {
+__nargs = 1;
+__arg0 = _35cc1129;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1129;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1129;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1129;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
 
 label2:
 {
-Obj exp = __arg1;
+Obj _35val2511 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
-__arg1 = Nil;
-__arg2 = exp;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2678,58 +4301,98 @@ goto *jumpTable[ps.label];
 
 label3:
 {
-Obj _35val2667 = __arg1;
-Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj res = _35val2667;
-Obj _35reg2668 = primCons(intern("entry"), makeNumber(0));
-Obj _35reg2669 = primCons(e1, Nil);
-Obj _35reg2670 = primCons(Nil, _35reg2669);
-Obj _35reg2671 = primCons(Nil, _35reg2670);
-Obj _35reg2672 = primCons(intern("lambda"), _35reg2671);
-Obj _35reg2673 = primCons(_35reg2672, Nil);
-Obj _35reg2674 = primCons(_35reg2668, _35reg2673);
-Obj _35reg2675 = primCons(_35reg2674, Nil);
-Obj _35reg2676 = primCons(_35reg2675, res);
-__nargs = 2;
-__arg1 = _35reg2676;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2938) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35val2510 = __arg1;
+Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 2, _35clofun2938, 1, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = idx;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label4:
 {
-Obj _35val2678 = __arg1;
-Obj _35val2677= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg2679 = primCons(_35val2677, _35val2678);
-Obj res = _35reg2679;
-Obj _35reg2680 = primCons(intern("entry"), makeNumber(0));
-Obj _35reg2681 = primCons(e1, Nil);
-Obj _35reg2682 = primCons(Nil, _35reg2681);
-Obj _35reg2683 = primCons(Nil, _35reg2682);
-Obj _35reg2684 = primCons(intern("lambda"), _35reg2683);
-Obj _35reg2685 = primCons(_35reg2684, Nil);
-Obj _35reg2686 = primCons(_35reg2680, _35reg2685);
-Obj _35reg2687 = primCons(_35reg2686, Nil);
-Obj _35reg2688 = primCons(_35reg2687, res);
-__nargs = 2;
-__arg1 = _35reg2688;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2938) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
+Obj _35cc1128 = makeNative(1, _35clofun2938, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2500 = primIsCons(closureRef(co, 3));
+if (True == _35reg2500) {
+Obj _35reg2501 = primCar(closureRef(co, 3));
+Obj _35reg2502 = primEQ(intern("%stack-ref"), _35reg2501);
+if (True == _35reg2502) {
+Obj _35reg2503 = primCdr(closureRef(co, 3));
+Obj _35reg2504 = primIsCons(_35reg2503);
+if (True == _35reg2504) {
+Obj _35reg2505 = primCdr(closureRef(co, 3));
+Obj _35reg2506 = primCar(_35reg2505);
+Obj idx = _35reg2506;
+Obj _35reg2507 = primCdr(closureRef(co, 3));
+Obj _35reg2508 = primCdr(_35reg2507);
+Obj _35reg2509 = primEQ(Nil, _35reg2508);
+if (True == _35reg2509) {
+pushCont(co, 3, _35clofun2938, 2, idx, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("stackRef(co, ");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1128;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1128;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1128;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1128;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label5:
 {
-Obj _35val2677 = __arg1;
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 4, _35clofun2938, 2, _35val2677, e1);
+Obj _35val2523 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
-__arg0 = globalRef(intern("vector-ref"));
-__arg1 = v;
-__arg2 = makeNumber(2);
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2739,61 +4402,98 @@ goto *jumpTable[ps.label];
 
 label6:
 {
-Obj _35val2666 = __arg1;
-Obj cur= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 2];
-if (True == _35val2666) {
-pushCont(co, 3, _35clofun2938, 1, e1);
+Obj _35val2522 = __arg1;
+Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 5, _35clofun2938, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("vector-ref"));
-__arg1 = v;
-__arg2 = makeNumber(2);
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = idx;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label7:
+{
+Obj _35cc1127 = makeNative(4, _35clofun2938, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2512 = primIsCons(closureRef(co, 3));
+if (True == _35reg2512) {
+Obj _35reg2513 = primCar(closureRef(co, 3));
+Obj _35reg2514 = primEQ(intern("%closure-ref"), _35reg2513);
+if (True == _35reg2514) {
+Obj _35reg2515 = primCdr(closureRef(co, 3));
+Obj _35reg2516 = primIsCons(_35reg2515);
+if (True == _35reg2516) {
+Obj _35reg2517 = primCdr(closureRef(co, 3));
+Obj _35reg2518 = primCar(_35reg2517);
+Obj idx = _35reg2518;
+Obj _35reg2519 = primCdr(closureRef(co, 3));
+Obj _35reg2520 = primCdr(_35reg2519);
+Obj _35reg2521 = primEQ(Nil, _35reg2520);
+if (True == _35reg2521) {
+pushCont(co, 6, _35clofun2938, 2, idx, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("closureRef(co, ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-pushCont(co, 5, _35clofun2938, 2, v, e1);
-__nargs = 2;
-__arg0 = globalRef(intern("reverse"));
-__arg1 = cur;
+__nargs = 1;
+__arg0 = _35cc1127;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
-}
-
-label7:
-{
-Obj _35val2665 = __arg1;
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj cur = _35val2665;
-pushCont(co, 6, _35clofun2938, 3, cur, v, e1);
-__nargs = 2;
-__arg0 = globalRef(intern("null?"));
-__arg1 = cur;
+} else {
+__nargs = 1;
+__arg0 = _35cc1127;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1127;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1127;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label8:
 {
-Obj _35val2664 = __arg1;
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj e1 = _35val2664;
-pushCont(co, 7, _35clofun2938, 2, v, e1);
+Obj _35val2536 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
-__arg0 = globalRef(intern("vector-ref"));
-__arg1 = v;
-__arg2 = makeNumber(1);
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("\"))");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2803,14 +4503,13 @@ goto *jumpTable[ps.label];
 
 label9:
 {
-Obj _35val2663 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 8, _35clofun2938, 1, v);
+Obj _35val2535 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 8, _35clofun2938, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.collect-lambda"));
-__arg1 = v;
-__arg2 = exp;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = _35val2535;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2820,15 +4519,13 @@ goto *jumpTable[ps.label];
 
 label10:
 {
-Obj _35val2662 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 9, _35clofun2938, 2, exp, v);
-__nargs = 4;
-__arg0 = globalRef(intern("vector-set!"));
-__arg1 = v;
-__arg2 = makeNumber(2);
-__arg3 = Nil;
+Obj _35val2534 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 9, _35clofun2938, 1, w);
+__nargs = 2;
+__arg0 = globalRef(intern("symbol->string"));
+__arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2838,55 +4535,107 @@ goto *jumpTable[ps.label];
 
 label11:
 {
-Obj _35val2661 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 10, _35clofun2938, 2, exp, v);
-__nargs = 4;
-__arg0 = globalRef(intern("vector-set!"));
-__arg1 = v;
-__arg2 = makeNumber(1);
-__arg3 = Nil;
+Obj _35cc1126 = makeNative(7, _35clofun2938, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2524 = primIsCons(closureRef(co, 3));
+if (True == _35reg2524) {
+Obj _35reg2525 = primCar(closureRef(co, 3));
+Obj _35reg2526 = primEQ(intern("%global"), _35reg2525);
+if (True == _35reg2526) {
+Obj _35reg2527 = primCdr(closureRef(co, 3));
+Obj _35reg2528 = primIsCons(_35reg2527);
+if (True == _35reg2528) {
+Obj _35reg2529 = primCdr(closureRef(co, 3));
+Obj _35reg2530 = primCar(_35reg2529);
+Obj x = _35reg2530;
+Obj _35reg2531 = primCdr(closureRef(co, 3));
+Obj _35reg2532 = primCdr(_35reg2531);
+Obj _35reg2533 = primEQ(Nil, _35reg2532);
+if (True == _35reg2533) {
+pushCont(co, 10, _35clofun2938, 2, x, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("globalRef(intern(\"");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1126;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1126;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1126;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1126;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label12:
 {
-Obj _35val2660 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj v = _35val2660;
-pushCont(co, 11, _35clofun2938, 2, exp, v);
-__nargs = 4;
-__arg0 = globalRef(intern("vector-set!"));
-__arg1 = v;
-__arg2 = makeNumber(0);
-__arg3 = makeNumber(0);
+Obj _35p1121 = __arg1;
+Obj _35p1122 = __arg2;
+Obj _35p1123 = __arg3;
+Obj _35p1124 = co->args[4];
+Obj _35cc1125 = makeNative(11, _35clofun2938, 0, 4, _35p1121, _35p1122, _35p1123, _35p1124);
+Obj self = _35p1121;
+Obj env = _35p1122;
+Obj w = _35p1123;
+Obj x = _35p1124;
+Obj _35reg2537 = primIsSymbol(x);
+if (True == _35reg2537) {
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
+__arg1 = w;
+__arg2 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1125;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label13:
-{
-Obj exp = __arg1;
-pushCont(co, 12, _35clofun2938, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("vector"));
-__arg1 = makeNumber(3);
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label14:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
@@ -2898,87 +4647,95 @@ if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
-label15:
+label14:
 {
-Obj _35cc1163 = makeNative(14, _35clofun2938, 0, 0);
-Obj obj = closureRef(co, 0);
-Obj _35reg2690 = primIsCons(closureRef(co, 1));
-if (True == _35reg2690) {
-Obj _35reg2691 = primCar(closureRef(co, 1));
-Obj hd = _35reg2691;
-Obj _35reg2692 = primCdr(closureRef(co, 1));
-Obj more = _35reg2692;
-Obj _35reg2693 = primCons(obj, Nil);
-Obj _35reg2694 = primCons(hd, _35reg2693);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.rewrite-->macro"));
-__arg1 = _35reg2694;
-__arg2 = more;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1163;
+Obj _35val2559 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = closureRef(co, 0);
+__arg2 = Nil;
+__arg3 = closureRef(co, 1);
+co->args[4] = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+
+label15:
+{
+Obj x = __arg1;
+pushCont(co, 14, _35clofun2938, 1, x);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = closureRef(co, 1);
+__arg2 = makeString1(", ");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
 }
 
 label16:
 {
-Obj _35p1160 = __arg1;
-Obj _35p1161 = __arg2;
-Obj _35cc1162 = makeNative(15, _35clofun2938, 0, 2, _35p1160, _35p1161);
-Obj obj = _35p1160;
-Obj _35reg2695 = primEQ(Nil, _35p1161);
-if (True == _35reg2695) {
-__nargs = 2;
-__arg1 = obj;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2938) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1162;
+Obj _35val2560 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(");\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-}
 }
 
 label17:
 {
-Obj _35val2698 = __arg1;
-Obj obj= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj fns = _35val2698;
+Obj _35val2557 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj _35reg2558 = primNot(_35val2557);
+if (True == _35reg2558) {
+pushCont(co, 16, _35clofun2938, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.rewrite-->macro"));
-__arg1 = obj;
-__arg2 = fns;
+__arg0 = globalRef(intern("for-each"));
+__arg1 = makeNative(15, _35clofun2938, 1, 2, self, w);
+__arg2 = stacks;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+Nil;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(");\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2938) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+}
 
 label18:
 {
-Obj _35val2697 = __arg1;
-Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj obj = _35val2697;
-pushCont(co, 17, _35clofun2938, 1, obj);
+Obj _35val2556 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 17, _35clofun2938, 3, self, stacks, w);
 __nargs = 2;
-__arg0 = globalRef(intern("cddr"));
-__arg1 = exp;
+__arg0 = globalRef(intern("null?"));
+__arg1 = stacks;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2988,11 +4745,15 @@ goto *jumpTable[ps.label];
 
 label19:
 {
-Obj exp = __arg1;
-pushCont(co, 18, _35clofun2938, 1, exp);
-__nargs = 2;
-__arg0 = globalRef(intern("cadr"));
-__arg1 = exp;
+Obj _35val2555 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 18, _35clofun2938, 3, self, stacks, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg1 = w;
+__arg2 = _35val2555;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3002,10 +4763,14 @@ goto *jumpTable[ps.label];
 
 label20:
 {
-Obj _35val2703 = __arg1;
+Obj _35val2554 = __arg1;
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
+pushCont(co, 19, _35clofun2938, 3, self, stacks, w);
 __nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.collect-lambda-pass"));
-__arg1 = _35val2703;
+__arg0 = globalRef(intern("length"));
+__arg1 = stacks;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3035,12 +4800,17 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2585 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj _35val2430 = __arg1;
+Obj f= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj args= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 20, _35clofun2936, 5, f, self, env, args, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
 __arg1 = w;
-__arg2 = makeString1("];\n");
+__arg2 = _35val2430;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3050,31 +4820,105 @@ goto *jumpTable[ps.label];
 
 label1:
 {
-Obj _35val2584 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 0, _35clofun2937, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = i;
+Obj _35cc1131 = makeNative(15, _35clofun2936, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2413 = primIsCons(closureRef(co, 3));
+if (True == _35reg2413) {
+Obj _35reg2414 = primCar(closureRef(co, 3));
+Obj _35reg2415 = primIsCons(_35reg2414);
+if (True == _35reg2415) {
+Obj _35reg2416 = primCar(closureRef(co, 3));
+Obj _35reg2417 = primCar(_35reg2416);
+Obj _35reg2418 = primEQ(intern("%builtin"), _35reg2417);
+if (True == _35reg2418) {
+Obj _35reg2419 = primCar(closureRef(co, 3));
+Obj _35reg2420 = primCdr(_35reg2419);
+Obj _35reg2421 = primIsCons(_35reg2420);
+if (True == _35reg2421) {
+Obj _35reg2422 = primCar(closureRef(co, 3));
+Obj _35reg2423 = primCdr(_35reg2422);
+Obj _35reg2424 = primCar(_35reg2423);
+Obj f = _35reg2424;
+Obj _35reg2425 = primCar(closureRef(co, 3));
+Obj _35reg2426 = primCdr(_35reg2425);
+Obj _35reg2427 = primCdr(_35reg2426);
+Obj _35reg2428 = primEQ(Nil, _35reg2427);
+if (True == _35reg2428) {
+Obj _35reg2429 = primCdr(closureRef(co, 3));
+Obj args = _35reg2429;
+pushCont(co, 0, _35clofun2937, 5, f, self, env, args, w);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc.builtin->name"));
+__arg1 = f;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1131;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+} else {
+__nargs = 1;
+__arg0 = _35cc1131;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1131;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1131;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1131;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
 
 label2:
 {
-Obj _35val2583 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 1, _35clofun2937, 2, i, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("= co->ctx.stk.stack[co->ctx.stk.base + ");
+Obj _35val2469 = __arg1;
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj _35reg2470 = primCons(a, env);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = self;
+__arg2 = _35reg2470;
+__arg3 = w;
+co->args[4] = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3084,17 +4928,17 @@ goto *jumpTable[ps.label];
 
 label3:
 {
-Obj _35val2582 = __arg1;
-Obj var= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 2, _35clofun2937, 2, i, w);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = intern("ignore");
-__arg2 = Nil;
-__arg3 = w;
-co->args[4] = var;
+Obj _35val2468 = __arg1;
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 2, _35clofun2937, 5, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3104,14 +4948,20 @@ goto *jumpTable[ps.label];
 
 label4:
 {
-Obj w = __arg1;
-Obj i = __arg2;
-Obj var = __arg3;
-pushCont(co, 3, _35clofun2937, 3, var, i, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("Obj ");
+Obj _35val2467 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+pushCont(co, 3, _35clofun2937, 5, a, env, self, w, c);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = w;
+co->args[4] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3121,9 +4971,18 @@ goto *jumpTable[ps.label];
 
 label5:
 {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+Obj _35val2466 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+pushCont(co, 4, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(" = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3133,18 +4992,18 @@ goto *jumpTable[ps.label];
 
 label6:
 {
-Obj _35val2590 = __arg1;
-Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj _35reg2591 = primAdd(idx, makeNumber(1));
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
-__arg1 = fn;
-__arg2 = w;
-__arg3 = _35reg2591;
-co->args[4] = b;
+Obj _35val2465 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+pushCont(co, 5, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
+__arg1 = w;
+__arg2 = a;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3154,71 +5013,62 @@ goto *jumpTable[ps.label];
 
 label7:
 {
-Obj _35cc1155 = makeNative(5, _35clofun2937, 0, 0);
-Obj fn = closureRef(co, 0);
-Obj w = closureRef(co, 1);
-Obj idx = closureRef(co, 2);
-Obj _35reg2587 = primIsCons(closureRef(co, 3));
-if (True == _35reg2587) {
-Obj _35reg2588 = primCar(closureRef(co, 3));
-Obj a = _35reg2588;
-Obj _35reg2589 = primCdr(closureRef(co, 3));
-Obj b = _35reg2589;
-pushCont(co, 6, _35clofun2937, 4, idx, fn, w, b);
-__nargs = 4;
-__arg0 = fn;
-__arg1 = w;
-__arg2 = idx;
-__arg3 = a;
+Obj _35val2474 = __arg1;
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj _35reg2475 = primCons(a, env);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = self;
+__arg2 = _35reg2475;
+__arg3 = w;
+co->args[4] = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1155;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label8:
 {
-Obj _35p1150 = __arg1;
-Obj _35p1151 = __arg2;
-Obj _35p1152 = __arg3;
-Obj _35p1153 = co->args[4];
-Obj _35cc1154 = makeNative(7, _35clofun2937, 0, 4, _35p1150, _35p1151, _35p1152, _35p1153);
-Obj fn = _35p1150;
-Obj w = _35p1151;
-Obj idx = _35p1152;
-Obj _35reg2592 = primEQ(Nil, _35p1153);
-if (True == _35reg2592) {
-__nargs = 2;
-__arg1 = Nil;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2937) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1154;
+Obj _35val2473 = __arg1;
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
+pushCont(co, 7, _35clofun2937, 5, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
-}
 
 label9:
 {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+Obj _35val2472 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+pushCont(co, 8, _35clofun2937, 5, a, env, self, w, c);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = w;
+co->args[4] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3228,10 +5078,18 @@ goto *jumpTable[ps.label];
 
 label10:
 {
-Obj _35val2595 = __arg1;
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/io.display"));
-__arg1 = makeString1("\n");
+Obj _35val2471 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+pushCont(co, 9, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(" = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3241,43 +5099,156 @@ goto *jumpTable[ps.label];
 
 label11:
 {
-Obj _35val2594 = __arg1;
-Obj other= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 10, _35clofun2937, 0);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/io.display"));
-__arg1 = other;
+Obj _35val2463 = __arg1;
+Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
+Obj idx = _35val2463;
+Obj _35reg2464 = primLT(idx, makeNumber(0));
+if (True == _35reg2464) {
+pushCont(co, 6, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("Obj ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
+} else {
+Nil;
+pushCont(co, 10, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
+__arg1 = w;
+__arg2 = a;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
 }
 
 label12:
 {
-Obj _35cc1159 = makeNative(9, _35clofun2937, 0, 0);
-Obj w = closureRef(co, 0);
-Obj other = closureRef(co, 1);
-pushCont(co, 11, _35clofun2937, 1, other);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/io.display"));
-__arg1 = makeString1("wrong format of toplevel\n");
+Obj _35cc1130 = makeNative(1, _35clofun2937, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj self = closureRef(co, 0);
+Obj env = closureRef(co, 1);
+Obj w = closureRef(co, 2);
+Obj _35reg2437 = primIsCons(closureRef(co, 3));
+if (True == _35reg2437) {
+Obj _35reg2438 = primCar(closureRef(co, 3));
+Obj _35reg2439 = primEQ(intern("let"), _35reg2438);
+if (True == _35reg2439) {
+Obj _35reg2440 = primCdr(closureRef(co, 3));
+Obj _35reg2441 = primIsCons(_35reg2440);
+if (True == _35reg2441) {
+Obj _35reg2442 = primCdr(closureRef(co, 3));
+Obj _35reg2443 = primCar(_35reg2442);
+Obj a = _35reg2443;
+Obj _35reg2444 = primCdr(closureRef(co, 3));
+Obj _35reg2445 = primCdr(_35reg2444);
+Obj _35reg2446 = primIsCons(_35reg2445);
+if (True == _35reg2446) {
+Obj _35reg2447 = primCdr(closureRef(co, 3));
+Obj _35reg2448 = primCdr(_35reg2447);
+Obj _35reg2449 = primCar(_35reg2448);
+Obj b = _35reg2449;
+Obj _35reg2450 = primCdr(closureRef(co, 3));
+Obj _35reg2451 = primCdr(_35reg2450);
+Obj _35reg2452 = primCdr(_35reg2451);
+Obj _35reg2453 = primIsCons(_35reg2452);
+if (True == _35reg2453) {
+Obj _35reg2454 = primCdr(closureRef(co, 3));
+Obj _35reg2455 = primCdr(_35reg2454);
+Obj _35reg2456 = primCdr(_35reg2455);
+Obj _35reg2457 = primCar(_35reg2456);
+Obj c = _35reg2457;
+Obj _35reg2458 = primCdr(closureRef(co, 3));
+Obj _35reg2459 = primCdr(_35reg2458);
+Obj _35reg2460 = primCdr(_35reg2459);
+Obj _35reg2461 = primCdr(_35reg2460);
+Obj _35reg2462 = primEQ(Nil, _35reg2461);
+if (True == _35reg2462) {
+pushCont(co, 11, _35clofun2937, 6, b, a, env, self, w, c);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc.index"));
+__arg1 = a;
+__arg2 = env;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1130;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+}
 
 label13:
 {
-Obj _35val2654 = __arg1;
+Obj _35val2489 = __arg1;
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
-__arg2 = makeString1("}\n\n");
+__arg2 = makeString1("\")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3287,19 +5258,13 @@ goto *jumpTable[ps.label];
 
 label14:
 {
-Obj _35val2652 = __arg1;
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj params= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj _35reg2653 = primCar(label);
+Obj _35val2488 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 pushCont(co, 13, _35clofun2937, 1, w);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = _35reg2653;
-__arg2 = params;
-__arg3 = w;
-co->args[4] = body;
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = _35val2488;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3309,19 +5274,13 @@ goto *jumpTable[ps.label];
 
 label15:
 {
-Obj _35val2651 = __arg1;
-Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 14, _35clofun2937, 4, label, params, body, w);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
-__arg1 = globalRef(intern("cora/lib/toc.local-from-cont"));
-__arg2 = w;
-__arg3 = makeNumber(0);
-co->args[4] = actives;
+Obj _35val2487 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 14, _35clofun2937, 1, w);
+__nargs = 2;
+__arg0 = globalRef(intern("symbol->string"));
+__arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3331,19 +5290,12 @@ goto *jumpTable[ps.label];
 
 label16:
 {
-Obj _35val2650 = __arg1;
-Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 15, _35clofun2937, 5, actives, label, params, body, w);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-call-args-reverse"));
-__arg1 = globalRef(intern("cora/lib/toc.local-from-params"));
-__arg2 = w;
-__arg3 = makeNumber(1);
-co->args[4] = params;
+Obj _35val2492 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3353,17 +5305,14 @@ goto *jumpTable[ps.label];
 
 label17:
 {
-Obj _35val2649 = __arg1;
-Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 16, _35clofun2937, 5, actives, label, params, body, w);
+Obj _35val2491 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 16, _35clofun2937, 1, w);
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
-__arg2 = makeString1(":\n{\n");
+__arg2 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3373,18 +5322,12 @@ goto *jumpTable[ps.label];
 
 label18:
 {
-Obj _35val2647 = __arg1;
-Obj actives= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj body= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj _35reg2648 = primCdr(label);
-pushCont(co, 17, _35clofun2937, 5, actives, label, params, body, w);
+Obj _35val2496 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
-__arg2 = _35reg2648;
+__arg2 = makeString1("\")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3394,174 +5337,29 @@ goto *jumpTable[ps.label];
 
 label19:
 {
-Obj _35p1156 = __arg1;
-Obj _35p1157 = __arg2;
-Obj _35cc1158 = makeNative(12, _35clofun2937, 0, 2, _35p1156, _35p1157);
-Obj w = _35p1156;
-Obj _35reg2596 = primIsCons(_35p1157);
-if (True == _35reg2596) {
-Obj _35reg2597 = primCar(_35p1157);
-Obj label = _35reg2597;
-Obj _35reg2598 = primCdr(_35p1157);
-Obj _35reg2599 = primIsCons(_35reg2598);
-if (True == _35reg2599) {
-Obj _35reg2600 = primCdr(_35p1157);
-Obj _35reg2601 = primCar(_35reg2600);
-Obj _35reg2602 = primIsCons(_35reg2601);
-if (True == _35reg2602) {
-Obj _35reg2603 = primCdr(_35p1157);
-Obj _35reg2604 = primCar(_35reg2603);
-Obj _35reg2605 = primCar(_35reg2604);
-Obj _35reg2606 = primEQ(intern("lambda"), _35reg2605);
-if (True == _35reg2606) {
-Obj _35reg2607 = primCdr(_35p1157);
-Obj _35reg2608 = primCar(_35reg2607);
-Obj _35reg2609 = primCdr(_35reg2608);
-Obj _35reg2610 = primIsCons(_35reg2609);
-if (True == _35reg2610) {
-Obj _35reg2611 = primCdr(_35p1157);
-Obj _35reg2612 = primCar(_35reg2611);
-Obj _35reg2613 = primCdr(_35reg2612);
-Obj _35reg2614 = primCar(_35reg2613);
-Obj params = _35reg2614;
-Obj _35reg2615 = primCdr(_35p1157);
-Obj _35reg2616 = primCar(_35reg2615);
-Obj _35reg2617 = primCdr(_35reg2616);
-Obj _35reg2618 = primCdr(_35reg2617);
-Obj _35reg2619 = primIsCons(_35reg2618);
-if (True == _35reg2619) {
-Obj _35reg2620 = primCdr(_35p1157);
-Obj _35reg2621 = primCar(_35reg2620);
-Obj _35reg2622 = primCdr(_35reg2621);
-Obj _35reg2623 = primCdr(_35reg2622);
-Obj _35reg2624 = primCar(_35reg2623);
-Obj actives = _35reg2624;
-Obj _35reg2625 = primCdr(_35p1157);
-Obj _35reg2626 = primCar(_35reg2625);
-Obj _35reg2627 = primCdr(_35reg2626);
-Obj _35reg2628 = primCdr(_35reg2627);
-Obj _35reg2629 = primCdr(_35reg2628);
-Obj _35reg2630 = primIsCons(_35reg2629);
-if (True == _35reg2630) {
-Obj _35reg2631 = primCdr(_35p1157);
-Obj _35reg2632 = primCar(_35reg2631);
-Obj _35reg2633 = primCdr(_35reg2632);
-Obj _35reg2634 = primCdr(_35reg2633);
-Obj _35reg2635 = primCdr(_35reg2634);
-Obj _35reg2636 = primCar(_35reg2635);
-Obj body = _35reg2636;
-Obj _35reg2637 = primCdr(_35p1157);
-Obj _35reg2638 = primCar(_35reg2637);
-Obj _35reg2639 = primCdr(_35reg2638);
-Obj _35reg2640 = primCdr(_35reg2639);
-Obj _35reg2641 = primCdr(_35reg2640);
-Obj _35reg2642 = primCdr(_35reg2641);
-Obj _35reg2643 = primEQ(Nil, _35reg2642);
-if (True == _35reg2643) {
-Obj _35reg2644 = primCdr(_35p1157);
-Obj _35reg2645 = primCdr(_35reg2644);
-Obj _35reg2646 = primEQ(Nil, _35reg2645);
-if (True == _35reg2646) {
-pushCont(co, 18, _35clofun2937, 5, actives, label, params, body, w);
+Obj _35val2495 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+pushCont(co, 18, _35clofun2937, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
-__arg2 = makeString1("label");
+__arg2 = _35val2495;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1158;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2937) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
 }
 
 label20:
 {
-Obj exp = __arg1;
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.parse"));
-__arg1 = Nil;
-__arg2 = exp;
+Obj _35val2494 = __arg1;
+Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
+pushCont(co, 19, _35clofun2937, 1, w);
+__nargs = 2;
+__arg0 = globalRef(intern("cora/lib/toc/internal.escape-str"));
+__arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3591,1703 +5389,12 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35val2547 = __arg1;
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 20, _35clofun2935, 4, label, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(", ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label1:
-{
-Obj _35val2545 = __arg1;
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj _35reg2546 = primCdr(label);
-pushCont(co, 0, _35clofun2936, 4, label, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = _35reg2546;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label2:
-{
-Obj _35p1139 = __arg1;
-Obj _35p1140 = __arg2;
-Obj _35p1141 = __arg3;
-Obj _35cc1142 = makeNative(11, _35clofun2935, 0, 0);
-Obj self = _35p1139;
-Obj w = _35p1140;
-Obj _35reg2536 = primIsCons(_35p1141);
-if (True == _35reg2536) {
-Obj _35reg2537 = primCar(_35p1141);
-Obj _35reg2538 = primEQ(intern("%continuation"), _35reg2537);
-if (True == _35reg2538) {
-Obj _35reg2539 = primCdr(_35p1141);
-Obj _35reg2540 = primIsCons(_35reg2539);
-if (True == _35reg2540) {
-Obj _35reg2541 = primCdr(_35p1141);
-Obj _35reg2542 = primCar(_35reg2541);
-Obj label = _35reg2542;
-Obj _35reg2543 = primCdr(_35p1141);
-Obj _35reg2544 = primCdr(_35reg2543);
-Obj stacks = _35reg2544;
-pushCont(co, 1, _35clofun2936, 4, label, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("pushCont(co, ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1142;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1142;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1142;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label3:
-{
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label4:
-{
-Obj _35val2565 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
-__nargs = 6;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
-__arg1 = self;
-__arg2 = env;
-__arg3 = fn;
-co->args[4] = w;
-co->args[5] = b;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label5:
-{
-Obj _35val2563 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj _35reg2564 = primNot(_35val2563);
-if (True == _35reg2564) {
-pushCont(co, 4, _35clofun2936, 5, self, env, fn, w, b);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(", ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Nil;
-__nargs = 6;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
-__arg1 = self;
-__arg2 = env;
-__arg3 = fn;
-co->args[4] = w;
-co->args[5] = b;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label6:
-{
-Obj _35val2562 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj fn= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 5, _35clofun2936, 5, self, env, fn, w, b);
-__nargs = 2;
-__arg0 = globalRef(intern("null?"));
-__arg1 = b;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label7:
-{
-Obj _35cc1149 = makeNative(3, _35clofun2936, 0, 0);
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj fn = closureRef(co, 2);
-Obj w = closureRef(co, 3);
-Obj _35reg2559 = primIsCons(closureRef(co, 4));
-if (True == _35reg2559) {
-Obj _35reg2560 = primCar(closureRef(co, 4));
-Obj a = _35reg2560;
-Obj _35reg2561 = primCdr(closureRef(co, 4));
-Obj b = _35reg2561;
-pushCont(co, 6, _35clofun2936, 5, self, env, fn, w, b);
-__nargs = 5;
-__arg0 = fn;
-__arg1 = self;
-__arg2 = env;
-__arg3 = w;
-co->args[4] = a;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1149;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label8:
-{
-Obj _35p1143 = __arg1;
-Obj _35p1144 = __arg2;
-Obj _35p1145 = __arg3;
-Obj _35p1146 = co->args[4];
-Obj _35p1147 = co->args[5];
-Obj _35cc1148 = makeNative(7, _35clofun2936, 0, 5, _35p1143, _35p1144, _35p1145, _35p1146, _35p1147);
-Obj self = _35p1143;
-Obj env = _35p1144;
-Obj fn = _35p1145;
-Obj w = _35p1146;
-Obj _35reg2566 = primEQ(Nil, _35p1147);
-if (True == _35reg2566) {
-__nargs = 2;
-__arg1 = Nil;
-co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2936) { goto fail; }
-goto *jumpTable[co->ctx.pc.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1148;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label9:
-{
-Obj self = __arg1;
-Obj env = __arg2;
-Obj w = __arg3;
-Obj l = co->args[4];
-__nargs = 6;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list-h"));
-__arg1 = self;
-__arg2 = env;
-__arg3 = globalRef(intern("cora/lib/toc.generate-inst"));
-co->args[4] = w;
-co->args[5] = l;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label10:
-{
-Obj _35val2572 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label11:
-{
-Obj _35val2571 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 10, _35clofun2936, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("(struct Cora* co");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label12:
-{
-Obj _35val2569 = __arg1;
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg2570 = primCar(label);
-pushCont(co, 11, _35clofun2936, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = _35reg2570;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label13:
-{
-Obj w = __arg1;
-Obj label = __arg2;
-pushCont(co, 12, _35clofun2936, 2, label, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("void ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label14:
-{
-Obj _35val2578 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(";\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label15:
-{
-Obj _35val2577 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 14, _35clofun2936, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = i;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label16:
-{
-Obj _35val2580 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("];\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label17:
-{
-Obj _35val2579 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 16, _35clofun2936, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = i;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label18:
-{
-Obj _35val2575 = __arg1;
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg2576 = primLT(i, makeNumber(4));
-if (True == _35reg2576) {
-pushCont(co, 15, _35clofun2936, 2, i, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(" = __arg");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-pushCont(co, 17, _35clofun2936, 2, i, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(" = co->args[");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label19:
-{
-Obj _35val2574 = __arg1;
-Obj var= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 18, _35clofun2936, 2, i, w);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = intern("ignore");
-__arg2 = Nil;
-__arg3 = w;
-co->args[4] = var;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label20:
-{
-Obj w = __arg1;
-Obj i = __arg2;
-Obj var = __arg3;
-pushCont(co, 19, _35clofun2936, 3, var, i, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("Obj ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-fail:
-co->nargs = __nargs;
-co->args[0] = __arg0;
-co->args[1] = __arg1;
-co->args[2] = __arg2;
-co->args[3] = __arg3;
-
-}
-
-void _35clofun2935(struct Cora* co){
-int __nargs = co->nargs;
-Obj __arg0 = co->args[0];
-Obj __arg1 = co->args[1];
-Obj __arg2 = co->args[2];
-Obj __arg3 = co->args[3];
-
-static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
-
-goto *jumpTable[co->ctx.pc.label];
-
-label0:
-{
-Obj _35val2508 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label1:
-{
-Obj _35val2507 = __arg1;
-Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 0, _35clofun2935, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = idx;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label2:
-{
-Obj _35cc1128 = makeNative(20, _35clofun2934, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2497 = primIsCons(closureRef(co, 3));
-if (True == _35reg2497) {
-Obj _35reg2498 = primCar(closureRef(co, 3));
-Obj _35reg2499 = primEQ(intern("%stack-ref"), _35reg2498);
-if (True == _35reg2499) {
-Obj _35reg2500 = primCdr(closureRef(co, 3));
-Obj _35reg2501 = primIsCons(_35reg2500);
-if (True == _35reg2501) {
-Obj _35reg2502 = primCdr(closureRef(co, 3));
-Obj _35reg2503 = primCar(_35reg2502);
-Obj idx = _35reg2503;
-Obj _35reg2504 = primCdr(closureRef(co, 3));
-Obj _35reg2505 = primCdr(_35reg2504);
-Obj _35reg2506 = primEQ(Nil, _35reg2505);
-if (True == _35reg2506) {
-pushCont(co, 1, _35clofun2935, 2, idx, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("stackRef(co, ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1128;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1128;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1128;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1128;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label3:
-{
-Obj _35val2520 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label4:
-{
-Obj _35val2519 = __arg1;
-Obj idx= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 3, _35clofun2935, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = idx;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label5:
-{
-Obj _35cc1127 = makeNative(2, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2509 = primIsCons(closureRef(co, 3));
-if (True == _35reg2509) {
-Obj _35reg2510 = primCar(closureRef(co, 3));
-Obj _35reg2511 = primEQ(intern("%closure-ref"), _35reg2510);
-if (True == _35reg2511) {
-Obj _35reg2512 = primCdr(closureRef(co, 3));
-Obj _35reg2513 = primIsCons(_35reg2512);
-if (True == _35reg2513) {
-Obj _35reg2514 = primCdr(closureRef(co, 3));
-Obj _35reg2515 = primCar(_35reg2514);
-Obj idx = _35reg2515;
-Obj _35reg2516 = primCdr(closureRef(co, 3));
-Obj _35reg2517 = primCdr(_35reg2516);
-Obj _35reg2518 = primEQ(Nil, _35reg2517);
-if (True == _35reg2518) {
-pushCont(co, 4, _35clofun2935, 2, idx, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("closureRef(co, ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1127;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1127;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1127;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1127;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label6:
-{
-Obj _35val2533 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("\"))");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label7:
-{
-Obj _35val2532 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 6, _35clofun2935, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = _35val2532;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label8:
-{
-Obj _35val2531 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 7, _35clofun2935, 1, w);
-__nargs = 2;
-__arg0 = globalRef(intern("symbol->string"));
-__arg1 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label9:
-{
-Obj _35cc1126 = makeNative(5, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2521 = primIsCons(closureRef(co, 3));
-if (True == _35reg2521) {
-Obj _35reg2522 = primCar(closureRef(co, 3));
-Obj _35reg2523 = primEQ(intern("%global"), _35reg2522);
-if (True == _35reg2523) {
-Obj _35reg2524 = primCdr(closureRef(co, 3));
-Obj _35reg2525 = primIsCons(_35reg2524);
-if (True == _35reg2525) {
-Obj _35reg2526 = primCdr(closureRef(co, 3));
-Obj _35reg2527 = primCar(_35reg2526);
-Obj x = _35reg2527;
-Obj _35reg2528 = primCdr(closureRef(co, 3));
-Obj _35reg2529 = primCdr(_35reg2528);
-Obj _35reg2530 = primEQ(Nil, _35reg2529);
-if (True == _35reg2530) {
-pushCont(co, 8, _35clofun2935, 2, x, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("globalRef(intern(\"");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1126;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1126;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1126;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1126;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label10:
-{
-Obj _35p1121 = __arg1;
-Obj _35p1122 = __arg2;
-Obj _35p1123 = __arg3;
-Obj _35p1124 = co->args[4];
-Obj _35cc1125 = makeNative(9, _35clofun2935, 0, 4, _35p1121, _35p1122, _35p1123, _35p1124);
-Obj self = _35p1121;
-Obj env = _35p1122;
-Obj w = _35p1123;
-Obj x = _35p1124;
-Obj _35reg2534 = primIsSymbol(x);
-if (True == _35reg2534) {
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1125;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label11:
-{
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label12:
-{
-Obj _35val2556 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = closureRef(co, 0);
-__arg2 = Nil;
-__arg3 = closureRef(co, 1);
-co->args[4] = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label13:
-{
-Obj x = __arg1;
-pushCont(co, 12, _35clofun2935, 1, x);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = closureRef(co, 1);
-__arg2 = makeString1(", ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label14:
-{
-Obj _35val2557 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(");\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label15:
-{
-Obj _35val2554 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj _35reg2555 = primNot(_35val2554);
-if (True == _35reg2555) {
-pushCont(co, 14, _35clofun2935, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("for-each"));
-__arg1 = makeNative(13, _35clofun2935, 1, 2, self, w);
-__arg2 = stacks;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Nil;
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(");\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label16:
-{
-Obj _35val2553 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 15, _35clofun2935, 3, self, stacks, w);
-__nargs = 2;
-__arg0 = globalRef(intern("null?"));
-__arg1 = stacks;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label17:
-{
-Obj _35val2552 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 16, _35clofun2935, 3, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = _35val2552;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label18:
-{
-Obj _35val2551 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 17, _35clofun2935, 3, self, stacks, w);
-__nargs = 2;
-__arg0 = globalRef(intern("length"));
-__arg1 = stacks;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label19:
-{
-Obj _35val2550 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 18, _35clofun2935, 3, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(", ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label20:
-{
-Obj _35val2548 = __arg1;
-Obj label= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj stacks= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj _35reg2549 = primCar(label);
-pushCont(co, 19, _35clofun2935, 3, self, stacks, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = _35reg2549;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-fail:
-co->nargs = __nargs;
-co->args[0] = __arg0;
-co->args[1] = __arg1;
-co->args[2] = __arg2;
-co->args[3] = __arg3;
-
-}
-
-void _35clofun2934(struct Cora* co){
-int __nargs = co->nargs;
-Obj __arg0 = co->args[0];
-Obj __arg1 = co->args[1];
-Obj __arg2 = co->args[2];
-Obj __arg3 = co->args[3];
-
-static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
-
-goto *jumpTable[co->ctx.pc.label];
-
-label0:
-{
-Obj _35val2466 = __arg1;
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj _35reg2467 = primCons(a, env);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = self;
-__arg2 = _35reg2467;
-__arg3 = w;
-co->args[4] = c;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label1:
-{
-Obj _35val2465 = __arg1;
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 0, _35clofun2934, 5, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(";\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label2:
-{
-Obj _35val2464 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 1, _35clofun2934, 5, a, env, self, w, c);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = self;
-__arg2 = env;
-__arg3 = w;
-co->args[4] = b;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label3:
-{
-Obj _35val2463 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 2, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(" = ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label4:
-{
-Obj _35val2462 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 3, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = a;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label5:
-{
-Obj _35val2471 = __arg1;
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj _35reg2472 = primCons(a, env);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = self;
-__arg2 = _35reg2472;
-__arg3 = w;
-co->args[4] = c;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label6:
-{
-Obj _35val2470 = __arg1;
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 5, _35clofun2934, 5, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(";\n");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label7:
-{
-Obj _35val2469 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 6, _35clofun2934, 5, a, env, self, w, c);
-__nargs = 5;
-__arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
-__arg1 = self;
-__arg2 = env;
-__arg3 = w;
-co->args[4] = b;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label8:
-{
-Obj _35val2468 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 7, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(" = ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label9:
-{
-Obj _35val2460 = __arg1;
-Obj b= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
-Obj idx = _35val2460;
-Obj _35reg2461 = primLT(idx, makeNumber(0));
-if (True == _35reg2461) {
-pushCont(co, 4, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("Obj ");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Nil;
-pushCont(co, 8, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = a;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label10:
-{
-Obj _35cc1130 = makeNative(20, _35clofun2933, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2434 = primIsCons(closureRef(co, 3));
-if (True == _35reg2434) {
-Obj _35reg2435 = primCar(closureRef(co, 3));
-Obj _35reg2436 = primEQ(intern("let"), _35reg2435);
-if (True == _35reg2436) {
-Obj _35reg2437 = primCdr(closureRef(co, 3));
-Obj _35reg2438 = primIsCons(_35reg2437);
-if (True == _35reg2438) {
-Obj _35reg2439 = primCdr(closureRef(co, 3));
-Obj _35reg2440 = primCar(_35reg2439);
-Obj a = _35reg2440;
-Obj _35reg2441 = primCdr(closureRef(co, 3));
-Obj _35reg2442 = primCdr(_35reg2441);
-Obj _35reg2443 = primIsCons(_35reg2442);
-if (True == _35reg2443) {
-Obj _35reg2444 = primCdr(closureRef(co, 3));
-Obj _35reg2445 = primCdr(_35reg2444);
-Obj _35reg2446 = primCar(_35reg2445);
-Obj b = _35reg2446;
-Obj _35reg2447 = primCdr(closureRef(co, 3));
-Obj _35reg2448 = primCdr(_35reg2447);
-Obj _35reg2449 = primCdr(_35reg2448);
-Obj _35reg2450 = primIsCons(_35reg2449);
-if (True == _35reg2450) {
-Obj _35reg2451 = primCdr(closureRef(co, 3));
-Obj _35reg2452 = primCdr(_35reg2451);
-Obj _35reg2453 = primCdr(_35reg2452);
-Obj _35reg2454 = primCar(_35reg2453);
-Obj c = _35reg2454;
-Obj _35reg2455 = primCdr(closureRef(co, 3));
-Obj _35reg2456 = primCdr(_35reg2455);
-Obj _35reg2457 = primCdr(_35reg2456);
-Obj _35reg2458 = primCdr(_35reg2457);
-Obj _35reg2459 = primEQ(Nil, _35reg2458);
-if (True == _35reg2459) {
-pushCont(co, 9, _35clofun2934, 6, b, a, env, self, w, c);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc.index"));
-__arg1 = a;
-__arg2 = env;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1130;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-label11:
-{
-Obj _35val2486 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("\")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label12:
-{
-Obj _35val2485 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 11, _35clofun2934, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = _35val2485;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label13:
-{
-Obj _35val2484 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 12, _35clofun2934, 1, w);
-__nargs = 2;
-__arg0 = globalRef(intern("symbol->string"));
-__arg1 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label14:
-{
-Obj _35val2489 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1(")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label15:
-{
-Obj _35val2488 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 14, _35clofun2934, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
-__arg1 = w;
-__arg2 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label16:
-{
-Obj _35val2493 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("\")");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label17:
-{
-Obj _35val2492 = __arg1;
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 16, _35clofun2934, 1, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = _35val2492;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label18:
-{
-Obj _35val2491 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 17, _35clofun2934, 1, w);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc/internal.escape-str"));
-__arg1 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label19:
-{
-Obj _35val2487 = __arg1;
-Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-if (True == _35val2487) {
-pushCont(co, 15, _35clofun2934, 2, x, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("makeNumber(");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2490 = primIsString(x);
-if (True == _35reg2490) {
-pushCont(co, 18, _35clofun2934, 2, x, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("makeString1(\"");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2494 = primEQ(x, Nil);
-if (True == _35reg2494) {
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("Nil");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2495 = primEQ(x, True);
-if (True == _35reg2495) {
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("True");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-Obj _35reg2496 = primEQ(x, False);
-if (True == _35reg2496) {
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("False");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 2;
-__arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-}
-}
-}
-}
-
-label20:
-{
-Obj _35cc1129 = makeNative(10, _35clofun2934, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2473 = primIsCons(closureRef(co, 3));
-if (True == _35reg2473) {
-Obj _35reg2474 = primCar(closureRef(co, 3));
-Obj _35reg2475 = primEQ(intern("%const"), _35reg2474);
-if (True == _35reg2475) {
-Obj _35reg2476 = primCdr(closureRef(co, 3));
-Obj _35reg2477 = primIsCons(_35reg2476);
-if (True == _35reg2477) {
-Obj _35reg2478 = primCdr(closureRef(co, 3));
-Obj _35reg2479 = primCar(_35reg2478);
-Obj x = _35reg2479;
-Obj _35reg2480 = primCdr(closureRef(co, 3));
-Obj _35reg2481 = primCdr(_35reg2480);
-Obj _35reg2482 = primEQ(Nil, _35reg2481);
-if (True == _35reg2482) {
-Obj _35reg2483 = primIsSymbol(x);
-if (True == _35reg2483) {
-pushCont(co, 13, _35clofun2934, 2, x, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
-__arg1 = w;
-__arg2 = makeString1("intern(\"");
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-pushCont(co, 19, _35clofun2934, 2, x, w);
-__nargs = 2;
-__arg0 = globalRef(intern("number?"));
-__arg1 = x;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1129;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1129;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1129;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1129;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-}
-
-fail:
-co->nargs = __nargs;
-co->args[0] = __arg0;
-co->args[1] = __arg1;
-co->args[2] = __arg2;
-co->args[3] = __arg3;
-
-}
-
-void _35clofun2933(struct Cora* co){
-int __nargs = co->nargs;
-Obj __arg0 = co->args[0];
-Obj __arg1 = co->args[1];
-Obj __arg2 = co->args[2];
-Obj __arg3 = co->args[3];
-
-static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
-
-goto *jumpTable[co->ctx.pc.label];
-
-label0:
-{
 Obj _35val2375 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 20, _35clofun2932, 4, self, env, frees, w);
+pushCont(co, 20, _35clofun2935, 4, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -5295,7 +5402,7 @@ __arg2 = _35val2375;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5306,14 +5413,14 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 0, _35clofun2933, 4, self, env, frees, w);
+pushCont(co, 0, _35clofun2936, 4, self, env, frees, w);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = frees;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5324,7 +5431,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 1, _35clofun2933, 4, self, env, frees, w);
+pushCont(co, 1, _35clofun2936, 4, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5332,7 +5439,7 @@ __arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5344,7 +5451,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 2, _35clofun2933, 4, self, env, frees, w);
+pushCont(co, 2, _35clofun2936, 4, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -5352,7 +5459,7 @@ __arg2 = nargs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5364,7 +5471,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 3, _35clofun2933, 5, nargs, self, env, frees, w);
+pushCont(co, 3, _35clofun2936, 5, nargs, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5372,7 +5479,7 @@ __arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5386,7 +5493,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 5];
 Obj _35reg2370 = primCar(label);
-pushCont(co, 4, _35clofun2933, 5, nargs, self, env, frees, w);
+pushCont(co, 4, _35clofun2936, 5, nargs, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
 __arg1 = w;
@@ -5394,7 +5501,7 @@ __arg2 = _35reg2370;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5407,7 +5514,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 5, _35clofun2933, 6, label, nargs, self, env, frees, w);
+pushCont(co, 5, _35clofun2936, 6, label, nargs, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5415,7 +5522,7 @@ __arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5429,7 +5536,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 5];
 Obj _35reg2367 = primCdr(label);
-pushCont(co, 6, _35clofun2933, 6, label, nargs, self, env, frees, w);
+pushCont(co, 6, _35clofun2936, 6, label, nargs, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -5437,13 +5544,13 @@ __arg2 = _35reg2367;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label8:
 {
-Obj _35cc1133 = makeNative(16, _35clofun2932, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1133 = makeNative(16, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -5470,7 +5577,7 @@ Obj _35reg2363 = primCdr(closureRef(co, 3));
 Obj _35reg2364 = primCdr(_35reg2363);
 Obj _35reg2365 = primCdr(_35reg2364);
 Obj frees = _35reg2365;
-pushCont(co, 7, _35clofun2933, 6, label, nargs, self, env, frees, w);
+pushCont(co, 7, _35clofun2936, 6, label, nargs, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5478,7 +5585,7 @@ __arg2 = makeString1("makeNative(");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -5486,16 +5593,7 @@ __arg0 = _35cc1133;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1133;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5504,7 +5602,7 @@ __arg0 = _35cc1133;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5513,7 +5611,16 @@ __arg0 = _35cc1133;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1133;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -5529,7 +5636,7 @@ __arg2 = makeString1("}\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5540,7 +5647,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 9, _35clofun2933, 1, w);
+pushCont(co, 9, _35clofun2936, 1, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -5550,7 +5657,7 @@ co->args[4] = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5561,7 +5668,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 10, _35clofun2933, 4, self, env, c, w);
+pushCont(co, 10, _35clofun2936, 4, self, env, c, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5569,7 +5676,7 @@ __arg2 = makeString1("} else {\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5581,7 +5688,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 11, _35clofun2933, 4, self, env, c, w);
+pushCont(co, 11, _35clofun2936, 4, self, env, c, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -5591,7 +5698,7 @@ co->args[4] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5603,7 +5710,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 12, _35clofun2933, 5, b, self, env, c, w);
+pushCont(co, 12, _35clofun2936, 5, b, self, env, c, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5611,7 +5718,7 @@ __arg2 = makeString1(") {\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -5624,7 +5731,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 5];
-pushCont(co, 13, _35clofun2933, 5, b, self, env, c, w);
+pushCont(co, 13, _35clofun2936, 5, b, self, env, c, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -5634,13 +5741,13 @@ co->args[4] = a;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label15:
 {
-Obj _35cc1132 = makeNative(8, _35clofun2933, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1132 = makeNative(8, _35clofun2936, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -5679,7 +5786,7 @@ Obj _35reg2404 = primCdr(_35reg2403);
 Obj _35reg2405 = primCdr(_35reg2404);
 Obj _35reg2406 = primEQ(Nil, _35reg2405);
 if (True == _35reg2406) {
-pushCont(co, 14, _35clofun2933, 6, a, b, self, env, c, w);
+pushCont(co, 14, _35clofun2936, 6, a, b, self, env, c, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5687,7 +5794,7 @@ __arg2 = makeString1("if (True == ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -5695,16 +5802,7 @@ __arg0 = _35cc1132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1132;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5713,7 +5811,7 @@ __arg0 = _35cc1132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5722,7 +5820,7 @@ __arg0 = _35cc1132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5731,7 +5829,7 @@ __arg0 = _35cc1132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -5740,14 +5838,23 @@ __arg0 = _35cc1132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1132;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label16:
 {
-Obj _35val2433 = __arg1;
+Obj _35val2434 = __arg1;
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
@@ -5756,18 +5863,18 @@ __arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label17:
 {
-Obj _35val2432 = __arg1;
+Obj _35val2433 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 16, _35clofun2933, 1, w);
+pushCont(co, 16, _35clofun2936, 1, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst-list"));
 __arg1 = self;
@@ -5777,18 +5884,68 @@ co->args[4] = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label18:
 {
-Obj _35val2431 = __arg1;
+Obj _35val2436 = __arg1;
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1(")");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label19:
+{
+Obj _35val2435 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 17, _35clofun2933, 4, self, env, args, w);
+pushCont(co, 18, _35clofun2936, 1, w);
+__nargs = 5;
+__arg0 = globalRef(intern("cora/lib/toc.generate-inst-list"));
+__arg1 = self;
+__arg2 = env;
+__arg3 = w;
+co->args[4] = args;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+
+label20:
+{
+Obj _35val2431 = __arg1;
+Obj f= co->ctx.stk.stack[co->ctx.stk.base + 0];
+Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
+Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
+Obj args= co->ctx.stk.stack[co->ctx.stk.base + 3];
+Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
+Obj _35reg2432 = primEQ(f, intern("set"));
+if (True == _35reg2432) {
+pushCont(co, 17, _35clofun2936, 4, self, env, args, w);
+__nargs = 3;
+__arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
+__arg1 = w;
+__arg2 = makeString1("(co, ");
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+} else {
+pushCont(co, 19, _35clofun2936, 4, self, env, args, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5796,111 +5953,7 @@ __arg2 = makeString1("(");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label19:
-{
-Obj _35val2430 = __arg1;
-Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj args= co->ctx.stk.stack[co->ctx.stk.base + 2];
-Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 18, _35clofun2933, 4, self, env, args, w);
-__nargs = 3;
-__arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
-__arg1 = w;
-__arg2 = _35val2430;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-
-label20:
-{
-Obj _35cc1131 = makeNative(15, _35clofun2933, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
-Obj self = closureRef(co, 0);
-Obj env = closureRef(co, 1);
-Obj w = closureRef(co, 2);
-Obj _35reg2413 = primIsCons(closureRef(co, 3));
-if (True == _35reg2413) {
-Obj _35reg2414 = primCar(closureRef(co, 3));
-Obj _35reg2415 = primIsCons(_35reg2414);
-if (True == _35reg2415) {
-Obj _35reg2416 = primCar(closureRef(co, 3));
-Obj _35reg2417 = primCar(_35reg2416);
-Obj _35reg2418 = primEQ(intern("%builtin"), _35reg2417);
-if (True == _35reg2418) {
-Obj _35reg2419 = primCar(closureRef(co, 3));
-Obj _35reg2420 = primCdr(_35reg2419);
-Obj _35reg2421 = primIsCons(_35reg2420);
-if (True == _35reg2421) {
-Obj _35reg2422 = primCar(closureRef(co, 3));
-Obj _35reg2423 = primCdr(_35reg2422);
-Obj _35reg2424 = primCar(_35reg2423);
-Obj f = _35reg2424;
-Obj _35reg2425 = primCar(closureRef(co, 3));
-Obj _35reg2426 = primCdr(_35reg2425);
-Obj _35reg2427 = primCdr(_35reg2426);
-Obj _35reg2428 = primEQ(Nil, _35reg2427);
-if (True == _35reg2428) {
-Obj _35reg2429 = primCdr(closureRef(co, 3));
-Obj args = _35reg2429;
-pushCont(co, 19, _35clofun2933, 4, self, env, args, w);
-__nargs = 2;
-__arg0 = globalRef(intern("cora/lib/toc.builtin->name"));
-__arg1 = f;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-} else {
-__nargs = 1;
-__arg0 = _35cc1131;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1131;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1131;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1131;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1131;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2936) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -5914,7 +5967,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2932(struct Cora* co){
+void _35clofun2935(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -5932,20 +5985,20 @@ Obj f= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 20, _35clofun2931, 4, f, args, self, w);
+pushCont(co, 20, _35clofun2934, 4, f, args, self, w);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35cc1138 = makeNative(10, _35clofun2931, 0, 0);
+Obj _35cc1138 = makeNative(10, _35clofun2934, 0, 0);
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -5955,7 +6008,7 @@ Obj _35reg2270 = primCar(closureRef(co, 3));
 Obj f = _35reg2270;
 Obj _35reg2271 = primCdr(closureRef(co, 3));
 Obj args = _35reg2271;
-pushCont(co, 0, _35clofun2932, 4, f, args, self, w);
+pushCont(co, 0, _35clofun2935, 4, f, args, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -5963,7 +6016,7 @@ __arg2 = makeString1("__nargs = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -5971,7 +6024,7 @@ __arg0 = _35cc1138;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -5992,13 +6045,13 @@ co->args[4] = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label3:
 {
-Obj _35cc1137 = makeNative(1, _35clofun2932, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1137 = makeNative(1, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -6026,7 +6079,7 @@ Obj _35reg2299 = primCdr(_35reg2298);
 Obj _35reg2300 = primCdr(_35reg2299);
 Obj _35reg2301 = primEQ(Nil, _35reg2300);
 if (True == _35reg2301) {
-pushCont(co, 2, _35clofun2932, 4, self, env, w, exp);
+pushCont(co, 2, _35clofun2935, 4, self, env, w, exp);
 __nargs = 4;
 __arg0 = globalRef(intern("cora/lib/toc.generate-cont"));
 __arg1 = self;
@@ -6035,7 +6088,7 @@ __arg3 = cont;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -6043,16 +6096,7 @@ __arg0 = _35cc1137;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1137;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6061,7 +6105,7 @@ __arg0 = _35cc1137;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6070,7 +6114,7 @@ __arg0 = _35cc1137;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6079,14 +6123,23 @@ __arg0 = _35cc1137;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1137;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label4:
 {
-Obj _35cc1136 = makeNative(3, _35clofun2932, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1136 = makeNative(3, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -6114,7 +6167,7 @@ co->args[4] = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -6122,16 +6175,7 @@ __arg0 = _35cc1136;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1136;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6140,7 +6184,7 @@ __arg0 = _35cc1136;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6149,7 +6193,16 @@ __arg0 = _35cc1136;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1136;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6165,7 +6218,7 @@ __arg2 = makeString1("goto *jumpTable[co->ctx.pc.label];\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6173,7 +6226,7 @@ label6:
 {
 Obj _35val2329 = __arg1;
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 5, _35clofun2932, 1, w);
+pushCont(co, 5, _35clofun2935, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6181,7 +6234,7 @@ __arg2 = makeString1(") { goto fail; }\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6190,7 +6243,7 @@ label7:
 Obj _35val2328 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 6, _35clofun2932, 1, w);
+pushCont(co, 6, _35clofun2935, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
 __arg1 = w;
@@ -6198,7 +6251,7 @@ __arg2 = self;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6207,7 +6260,7 @@ label8:
 Obj _35val2327 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 7, _35clofun2932, 2, self, w);
+pushCont(co, 7, _35clofun2935, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6215,7 +6268,7 @@ __arg2 = makeString1("if (co->ctx.pc.func != ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6224,7 +6277,7 @@ label9:
 Obj _35val2326 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 8, _35clofun2932, 2, self, w);
+pushCont(co, 8, _35clofun2935, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6232,7 +6285,7 @@ __arg2 = makeString1("co->ctx = co->callstack.data[--co->callstack.len];\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6241,7 +6294,7 @@ label10:
 Obj _35val2325 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 9, _35clofun2932, 2, self, w);
+pushCont(co, 9, _35clofun2935, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6249,7 +6302,7 @@ __arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6260,7 +6313,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 10, _35clofun2932, 2, self, w);
+pushCont(co, 10, _35clofun2935, 2, self, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -6270,7 +6323,7 @@ co->args[4] = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6281,7 +6334,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 11, _35clofun2932, 4, env, x, self, w);
+pushCont(co, 11, _35clofun2935, 4, env, x, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6289,13 +6342,13 @@ __arg2 = makeString1("__arg1 = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label13:
 {
-Obj _35cc1135 = makeNative(4, _35clofun2932, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1135 = makeNative(4, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -6314,7 +6367,7 @@ Obj _35reg2320 = primCdr(closureRef(co, 3));
 Obj _35reg2321 = primCdr(_35reg2320);
 Obj _35reg2322 = primEQ(Nil, _35reg2321);
 if (True == _35reg2322) {
-pushCont(co, 12, _35clofun2932, 4, env, x, self, w);
+pushCont(co, 12, _35clofun2935, 4, env, x, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6322,7 +6375,7 @@ __arg2 = makeString1("__nargs = 2;\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -6330,16 +6383,7 @@ __arg0 = _35cc1135;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1135;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6348,7 +6392,7 @@ __arg0 = _35cc1135;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6357,7 +6401,16 @@ __arg0 = _35cc1135;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1135;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6378,7 +6431,7 @@ co->args[4] = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6389,7 +6442,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj b= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 14, _35clofun2932, 4, self, env, w, b);
+pushCont(co, 14, _35clofun2935, 4, self, env, w, b);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6397,13 +6450,13 @@ __arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label16:
 {
-Obj _35cc1134 = makeNative(13, _35clofun2932, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
+Obj _35cc1134 = makeNative(13, _35clofun2935, 0, 4, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2), closureRef(co, 3));
 Obj self = closureRef(co, 0);
 Obj env = closureRef(co, 1);
 Obj w = closureRef(co, 2);
@@ -6431,7 +6484,7 @@ Obj _35reg2345 = primCdr(_35reg2344);
 Obj _35reg2346 = primCdr(_35reg2345);
 Obj _35reg2347 = primEQ(Nil, _35reg2346);
 if (True == _35reg2347) {
-pushCont(co, 15, _35clofun2932, 4, self, env, w, b);
+pushCont(co, 15, _35clofun2935, 4, self, env, w, b);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -6441,7 +6494,7 @@ co->args[4] = a;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -6449,16 +6502,7 @@ __arg0 = _35cc1134;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1134;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6467,7 +6511,7 @@ __arg0 = _35cc1134;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6476,7 +6520,7 @@ __arg0 = _35cc1134;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6485,7 +6529,16 @@ __arg0 = _35cc1134;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1134;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6501,7 +6554,7 @@ __arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6512,7 +6565,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 17, _35clofun2932, 1, w);
+pushCont(co, 17, _35clofun2935, 1, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst-list"));
 __arg1 = self;
@@ -6522,7 +6575,7 @@ co->args[4] = frees;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6535,7 +6588,7 @@ Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj _35reg2378 = primNot(_35val2377);
 if (True == _35reg2378) {
-pushCont(co, 18, _35clofun2932, 4, self, env, frees, w);
+pushCont(co, 18, _35clofun2935, 4, self, env, frees, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6543,7 +6596,7 @@ __arg2 = makeString1(", ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Nil;
@@ -6554,7 +6607,7 @@ __arg2 = makeString1(")");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6566,14 +6619,14 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj frees= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 19, _35clofun2932, 4, self, env, frees, w);
+pushCont(co, 19, _35clofun2935, 4, self, env, frees, w);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = frees;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2935) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6586,7 +6639,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2931(struct Cora* co){
+void _35clofun2934(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -6605,7 +6658,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 20, _35clofun2930, 5, x, i, self, w, more);
+pushCont(co, 20, _35clofun2933, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6613,7 +6666,7 @@ __arg2 = makeString1(" = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6625,7 +6678,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 0, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 0, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -6633,7 +6686,7 @@ __arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6654,7 +6707,7 @@ co->args[4] = more;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6665,7 +6718,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 2, _35clofun2931, 4, i, self, w, more);
+pushCont(co, 2, _35clofun2934, 4, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6673,7 +6726,7 @@ __arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6685,7 +6738,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 3, _35clofun2931, 4, i, self, w, more);
+pushCont(co, 3, _35clofun2934, 4, i, self, w, more);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -6695,7 +6748,7 @@ co->args[4] = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6707,7 +6760,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 4, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 4, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6715,7 +6768,7 @@ __arg2 = makeString1(" = ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6727,7 +6780,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 5, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 5, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6735,7 +6788,7 @@ __arg2 = makeString1("]");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6747,7 +6800,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 6, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 6, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -6755,13 +6808,13 @@ __arg2 = i;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label8:
 {
-Obj _35cc1120 = makeNative(17, _35clofun2930, 0, 0);
+Obj _35cc1120 = makeNative(17, _35clofun2933, 0, 0);
 Obj self = closureRef(co, 0);
 Obj w = closureRef(co, 1);
 Obj i = closureRef(co, 2);
@@ -6774,7 +6827,7 @@ Obj more = _35reg2251;
 Obj _35reg2252 = primGT(i, makeNumber(3));
 Obj _35reg2253 = primNot(_35reg2252);
 if (True == _35reg2253) {
-pushCont(co, 1, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 1, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6782,10 +6835,10 @@ __arg2 = makeString1("__arg");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-pushCont(co, 7, _35clofun2931, 5, x, i, self, w, more);
+pushCont(co, 7, _35clofun2934, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6793,7 +6846,7 @@ __arg2 = makeString1("co->args[");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -6802,7 +6855,7 @@ __arg0 = _35cc1120;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6813,7 +6866,7 @@ Obj _35p1115 = __arg1;
 Obj _35p1116 = __arg2;
 Obj _35p1117 = __arg3;
 Obj _35p1118 = co->args[4];
-Obj _35cc1119 = makeNative(8, _35clofun2931, 0, 4, _35p1115, _35p1116, _35p1117, _35p1118);
+Obj _35cc1119 = makeNative(8, _35clofun2934, 0, 4, _35p1115, _35p1116, _35p1117, _35p1118);
 Obj self = _35p1115;
 Obj w = _35p1116;
 Obj i = _35p1117;
@@ -6822,7 +6875,7 @@ if (True == _35reg2267) {
 __nargs = 2;
 __arg1 = Nil;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2931) { goto fail; }
+if (co->ctx.pc.func != _35clofun2934) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -6830,7 +6883,7 @@ __arg0 = _35cc1119;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -6843,7 +6896,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6858,7 +6911,7 @@ __arg2 = makeString1("goto *jumpTable[ps.label];\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6866,7 +6919,7 @@ label12:
 {
 Obj _35val2283 = __arg1;
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 11, _35clofun2931, 1, w);
+pushCont(co, 11, _35clofun2934, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6874,7 +6927,7 @@ __arg2 = makeString1(") { co->ctx.pc = ps; goto fail; };\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6883,7 +6936,7 @@ label13:
 Obj _35val2282 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 12, _35clofun2931, 1, w);
+pushCont(co, 12, _35clofun2934, 1, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-sym"));
 __arg1 = w;
@@ -6891,7 +6944,7 @@ __arg2 = self;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6900,7 +6953,7 @@ label14:
 Obj _35val2281 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 13, _35clofun2931, 2, self, w);
+pushCont(co, 13, _35clofun2934, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6908,7 +6961,7 @@ __arg2 = makeString1("if (ps.func != ");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6917,7 +6970,7 @@ label15:
 Obj _35val2280 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 14, _35clofun2931, 2, self, w);
+pushCont(co, 14, _35clofun2934, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6925,7 +6978,7 @@ __arg2 = makeString1("if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) {
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6934,7 +6987,7 @@ label16:
 Obj _35val2279 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 15, _35clofun2931, 2, self, w);
+pushCont(co, 15, _35clofun2934, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6942,7 +6995,7 @@ __arg2 = makeString1("struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n"
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6951,7 +7004,7 @@ label17:
 Obj _35val2278 = __arg1;
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 16, _35clofun2931, 2, self, w);
+pushCont(co, 16, _35clofun2934, 2, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -6959,7 +7012,7 @@ __arg2 = makeString1("co->ctx.frees = __arg0;\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6971,7 +7024,7 @@ Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj _35reg2277 = primCons(f, args);
-pushCont(co, 17, _35clofun2931, 2, self, w);
+pushCont(co, 17, _35clofun2934, 2, self, w);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-call-list"));
 __arg1 = self;
@@ -6981,7 +7034,7 @@ co->args[4] = _35reg2277;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -6992,7 +7045,7 @@ Obj f= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 18, _35clofun2931, 4, f, args, self, w);
+pushCont(co, 18, _35clofun2934, 4, f, args, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -7000,7 +7053,7 @@ __arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7012,7 +7065,7 @@ Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj _35reg2274 = primAdd(makeNumber(1), _35val2273);
-pushCont(co, 19, _35clofun2931, 4, f, args, self, w);
+pushCont(co, 19, _35clofun2934, 4, f, args, self, w);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-num"));
 __arg1 = w;
@@ -7020,7 +7073,7 @@ __arg2 = _35reg2274;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2934) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7033,7 +7086,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2930(struct Cora* co){
+void _35clofun2933(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -7057,7 +7110,7 @@ Obj _35reg2206 = primCons(clo_45or_45cont, _35reg2205);
 __nargs = 2;
 __arg1 = _35reg2206;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2930) { goto fail; }
+if (co->ctx.pc.func != _35clofun2933) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7073,7 +7126,7 @@ Obj _35reg2219 = primCons(clo_45or_45cont, _35reg2218);
 __nargs = 2;
 __arg1 = _35reg2219;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2930) { goto fail; }
+if (co->ctx.pc.func != _35clofun2933) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7086,14 +7139,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2215 = primCons(name, idx);
-pushCont(co, 1, _35clofun2930, 3, fvs, _35reg2215, clo_45or_45cont);
+pushCont(co, 1, _35clofun2933, 3, fvs, _35reg2215, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7110,7 +7163,7 @@ Obj _35reg2227 = primCons(clo_45or_45cont, _35reg2226);
 __nargs = 2;
 __arg1 = _35reg2227;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2930) { goto fail; }
+if (co->ctx.pc.func != _35clofun2933) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7132,7 +7185,7 @@ Obj _35reg2210 = primCons(body1, Nil);
 Obj _35reg2211 = primCons(Nil, _35reg2210);
 Obj _35reg2212 = primCons(params, _35reg2211);
 Obj _35reg2213 = primCons(intern("lambda"), _35reg2212);
-pushCont(co, 2, _35clofun2930, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 2, _35clofun2933, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7143,14 +7196,14 @@ co->args[5] = _35reg2213;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2220 = primCons(body1, Nil);
 Obj _35reg2221 = primCons(fvs, _35reg2220);
 Obj _35reg2222 = primCons(params, _35reg2221);
 Obj _35reg2223 = primCons(intern("lambda"), _35reg2222);
-pushCont(co, 3, _35clofun2930, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 3, _35clofun2933, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7161,7 +7214,7 @@ co->args[5] = _35reg2223;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7186,7 +7239,7 @@ Obj _35reg2189 = primCons(body1, Nil);
 Obj _35reg2190 = primCons(Nil, _35reg2189);
 Obj _35reg2191 = primCons(params, _35reg2190);
 Obj _35reg2192 = primCons(intern("lambda"), _35reg2191);
-pushCont(co, 20, _35clofun2929, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 20, _35clofun2932, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7197,14 +7250,14 @@ co->args[5] = _35reg2192;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2199 = primCons(body1, Nil);
 Obj _35reg2200 = primCons(fvs, _35reg2199);
 Obj _35reg2201 = primCons(params, _35reg2200);
 Obj _35reg2202 = primCons(intern("lambda"), _35reg2201);
-pushCont(co, 0, _35clofun2930, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 0, _35clofun2933, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7215,18 +7268,18 @@ co->args[5] = _35reg2202;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 4, _35clofun2930, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
+pushCont(co, 4, _35clofun2933, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("caar"));
 __arg1 = cur;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7240,7 +7293,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj idx = _35val2184;
-pushCont(co, 5, _35clofun2930, 6, body1, params, v, idx, fvs, clo_45or_45cont);
+pushCont(co, 5, _35clofun2933, 6, body1, params, v, idx, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -7248,7 +7301,7 @@ __arg2 = makeNumber(1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7260,7 +7313,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj body1 = _35val2183;
-pushCont(co, 6, _35clofun2930, 5, body1, params, v, fvs, clo_45or_45cont);
+pushCont(co, 6, _35clofun2933, 5, body1, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -7268,7 +7321,7 @@ __arg2 = makeNumber(0);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7276,7 +7329,7 @@ label8:
 {
 Obj _35p1110 = __arg1;
 Obj _35p1111 = __arg2;
-Obj _35cc1112 = makeNative(19, _35clofun2928, 0, 2, _35p1110, _35p1111);
+Obj _35cc1112 = makeNative(19, _35clofun2931, 0, 2, _35p1110, _35p1111);
 Obj v = _35p1110;
 Obj _35reg2054 = primIsCons(_35p1111);
 if (True == _35reg2054) {
@@ -7329,7 +7382,7 @@ Obj fvs = _35reg2090;
 Obj _35reg2091 = primEQ(clo_45or_45cont, intern("%closure"));
 if (True == _35reg2091) {
 if (True == True) {
-pushCont(co, 8, _35clofun2929, 4, params, v, fvs, clo_45or_45cont);
+pushCont(co, 8, _35clofun2932, 4, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.collect-lambda"));
 __arg1 = v;
@@ -7337,7 +7390,7 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -7345,14 +7398,14 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
 Obj _35reg2137 = primEQ(clo_45or_45cont, intern("%continuation"));
 if (True == _35reg2137) {
 if (True == True) {
-pushCont(co, 18, _35clofun2929, 4, params, v, fvs, clo_45or_45cont);
+pushCont(co, 18, _35clofun2932, 4, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.collect-lambda"));
 __arg1 = v;
@@ -7360,7 +7413,7 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -7368,12 +7421,12 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
 if (True == False) {
-pushCont(co, 7, _35clofun2930, 4, params, v, fvs, clo_45or_45cont);
+pushCont(co, 7, _35clofun2933, 4, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.collect-lambda"));
 __arg1 = v;
@@ -7381,7 +7434,7 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -7389,7 +7442,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7400,16 +7453,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1112;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -7418,7 +7462,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -7427,7 +7471,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -7436,7 +7480,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -7445,7 +7489,7 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -7454,7 +7498,16 @@ __arg0 = _35cc1112;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1112;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7472,7 +7525,7 @@ __arg3 = cur1;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7490,7 +7543,7 @@ __arg3 = _35reg2240;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7500,14 +7553,14 @@ Obj _35val2238 = __arg1;
 Obj cur1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj res = _35val2238;
-pushCont(co, 10, _35clofun2930, 2, res, v);
+pushCont(co, 10, _35clofun2933, 2, res, v);
 __nargs = 2;
 __arg0 = globalRef(intern("reverse"));
 __arg1 = cur1;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7516,7 +7569,7 @@ label12:
 Obj _35val2237 = __arg1;
 Obj cur1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 11, _35clofun2930, 2, cur1, v);
+pushCont(co, 11, _35clofun2933, 2, cur1, v);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -7524,7 +7577,7 @@ __arg2 = makeNumber(2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7533,7 +7586,7 @@ label13:
 Obj _35val2236 = __arg1;
 Obj cur1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 12, _35clofun2930, 2, cur1, v);
+pushCont(co, 12, _35clofun2933, 2, cur1, v);
 __nargs = 4;
 __arg0 = globalRef(intern("vector-set!"));
 __arg1 = v;
@@ -7542,7 +7595,7 @@ __arg3 = Nil;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7561,7 +7614,7 @@ Obj cur1 = _35reg2232;
 Obj _35reg2233 = primLT(idx, makeNumber(20));
 if (True == _35reg2233) {
 Obj _35reg2234 = primAdd(idx, makeNumber(1));
-pushCont(co, 9, _35clofun2930, 2, v, cur1);
+pushCont(co, 9, _35clofun2933, 2, v, cur1);
 __nargs = 4;
 __arg0 = globalRef(intern("vector-set!"));
 __arg1 = v;
@@ -7570,10 +7623,10 @@ __arg3 = _35reg2234;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-pushCont(co, 13, _35clofun2930, 2, cur1, v);
+pushCont(co, 13, _35clofun2933, 2, cur1, v);
 __nargs = 4;
 __arg0 = globalRef(intern("vector-set!"));
 __arg1 = v;
@@ -7582,7 +7635,7 @@ __arg3 = makeNumber(0);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7599,7 +7652,7 @@ Obj _35reg2247 = primCons(intern("let"), _35reg2246);
 __nargs = 2;
 __arg1 = _35reg2247;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2930) { goto fail; }
+if (co->ctx.pc.func != _35clofun2933) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7609,14 +7662,14 @@ Obj x = __arg1;
 Obj k = __arg2;
 Obj _35reg2242 = primGenSym(intern("reg"));
 Obj tmp = _35reg2242;
-pushCont(co, 15, _35clofun2930, 2, x, tmp);
+pushCont(co, 15, _35clofun2933, 2, x, tmp);
 __nargs = 2;
 __arg0 = k;
 __arg1 = tmp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7628,7 +7681,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7649,7 +7702,7 @@ co->args[4] = more;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7660,7 +7713,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 18, _35clofun2930, 4, i, self, w, more);
+pushCont(co, 18, _35clofun2933, 4, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal.generate-str"));
 __arg1 = w;
@@ -7668,7 +7721,7 @@ __arg2 = makeString1(";\n");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7680,7 +7733,7 @@ Obj i= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj self= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj more= co->ctx.stk.stack[co->ctx.stk.base + 4];
-pushCont(co, 19, _35clofun2930, 4, i, self, w, more);
+pushCont(co, 19, _35clofun2933, 4, i, self, w, more);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc.generate-inst"));
 __arg1 = self;
@@ -7690,7 +7743,7 @@ co->args[4] = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2933) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7703,7 +7756,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2929(struct Cora* co){
+void _35clofun2932(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -7723,14 +7776,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2103 = primCons(name, idx);
-pushCont(co, 20, _35clofun2928, 3, fvs, _35reg2103, clo_45or_45cont);
+pushCont(co, 20, _35clofun2931, 3, fvs, _35reg2103, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7747,7 +7800,7 @@ Obj _35reg2115 = primCons(clo_45or_45cont, _35reg2114);
 __nargs = 2;
 __arg1 = _35reg2115;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7763,7 +7816,7 @@ Obj _35reg2128 = primCons(clo_45or_45cont, _35reg2127);
 __nargs = 2;
 __arg1 = _35reg2128;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7776,14 +7829,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2124 = primCons(name, idx);
-pushCont(co, 2, _35clofun2929, 3, fvs, _35reg2124, clo_45or_45cont);
+pushCont(co, 2, _35clofun2932, 3, fvs, _35reg2124, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7800,7 +7853,7 @@ Obj _35reg2136 = primCons(clo_45or_45cont, _35reg2135);
 __nargs = 2;
 __arg1 = _35reg2136;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7822,7 +7875,7 @@ Obj _35reg2119 = primCons(body1, Nil);
 Obj _35reg2120 = primCons(Nil, _35reg2119);
 Obj _35reg2121 = primCons(params, _35reg2120);
 Obj _35reg2122 = primCons(intern("lambda"), _35reg2121);
-pushCont(co, 3, _35clofun2929, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 3, _35clofun2932, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7833,14 +7886,14 @@ co->args[5] = _35reg2122;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2129 = primCons(body1, Nil);
 Obj _35reg2130 = primCons(fvs, _35reg2129);
 Obj _35reg2131 = primCons(params, _35reg2130);
 Obj _35reg2132 = primCons(intern("lambda"), _35reg2131);
-pushCont(co, 4, _35clofun2929, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 4, _35clofun2932, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7851,7 +7904,7 @@ co->args[5] = _35reg2132;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7876,7 +7929,7 @@ Obj _35reg2098 = primCons(body1, Nil);
 Obj _35reg2099 = primCons(Nil, _35reg2098);
 Obj _35reg2100 = primCons(params, _35reg2099);
 Obj _35reg2101 = primCons(intern("lambda"), _35reg2100);
-pushCont(co, 0, _35clofun2929, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 0, _35clofun2932, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7887,14 +7940,14 @@ co->args[5] = _35reg2101;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2108 = primCons(body1, Nil);
 Obj _35reg2109 = primCons(fvs, _35reg2108);
 Obj _35reg2110 = primCons(params, _35reg2109);
 Obj _35reg2111 = primCons(intern("lambda"), _35reg2110);
-pushCont(co, 1, _35clofun2929, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 1, _35clofun2932, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -7905,18 +7958,18 @@ co->args[5] = _35reg2111;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 5, _35clofun2929, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
+pushCont(co, 5, _35clofun2932, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("caar"));
 __arg1 = cur;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -7930,7 +7983,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj idx = _35val2093;
-pushCont(co, 6, _35clofun2929, 6, body1, params, v, idx, fvs, clo_45or_45cont);
+pushCont(co, 6, _35clofun2932, 6, body1, params, v, idx, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -7938,7 +7991,7 @@ __arg2 = makeNumber(1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7950,7 +8003,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj body1 = _35val2092;
-pushCont(co, 7, _35clofun2929, 5, body1, params, v, fvs, clo_45or_45cont);
+pushCont(co, 7, _35clofun2932, 5, body1, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -7958,7 +8011,7 @@ __arg2 = makeNumber(0);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -7974,7 +8027,7 @@ Obj _35reg2153 = primCons(clo_45or_45cont, _35reg2152);
 __nargs = 2;
 __arg1 = _35reg2153;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -7987,14 +8040,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2149 = primCons(name, idx);
-pushCont(co, 9, _35clofun2929, 3, fvs, _35reg2149, clo_45or_45cont);
+pushCont(co, 9, _35clofun2932, 3, fvs, _35reg2149, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8011,7 +8064,7 @@ Obj _35reg2161 = primCons(clo_45or_45cont, _35reg2160);
 __nargs = 2;
 __arg1 = _35reg2161;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8027,7 +8080,7 @@ Obj _35reg2174 = primCons(clo_45or_45cont, _35reg2173);
 __nargs = 2;
 __arg1 = _35reg2174;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8040,14 +8093,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2170 = primCons(name, idx);
-pushCont(co, 12, _35clofun2929, 3, fvs, _35reg2170, clo_45or_45cont);
+pushCont(co, 12, _35clofun2932, 3, fvs, _35reg2170, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8064,7 +8117,7 @@ Obj _35reg2182 = primCons(clo_45or_45cont, _35reg2181);
 __nargs = 2;
 __arg1 = _35reg2182;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8086,7 +8139,7 @@ Obj _35reg2165 = primCons(body1, Nil);
 Obj _35reg2166 = primCons(Nil, _35reg2165);
 Obj _35reg2167 = primCons(params, _35reg2166);
 Obj _35reg2168 = primCons(intern("lambda"), _35reg2167);
-pushCont(co, 13, _35clofun2929, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 13, _35clofun2932, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -8097,14 +8150,14 @@ co->args[5] = _35reg2168;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2175 = primCons(body1, Nil);
 Obj _35reg2176 = primCons(fvs, _35reg2175);
 Obj _35reg2177 = primCons(params, _35reg2176);
 Obj _35reg2178 = primCons(intern("lambda"), _35reg2177);
-pushCont(co, 14, _35clofun2929, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 14, _35clofun2932, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -8115,7 +8168,7 @@ co->args[5] = _35reg2178;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8140,7 +8193,7 @@ Obj _35reg2144 = primCons(body1, Nil);
 Obj _35reg2145 = primCons(Nil, _35reg2144);
 Obj _35reg2146 = primCons(params, _35reg2145);
 Obj _35reg2147 = primCons(intern("lambda"), _35reg2146);
-pushCont(co, 10, _35clofun2929, 5, name, idx, params, fvs, clo_45or_45cont);
+pushCont(co, 10, _35clofun2932, 5, name, idx, params, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -8151,14 +8204,14 @@ co->args[5] = _35reg2147;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg2154 = primCons(body1, Nil);
 Obj _35reg2155 = primCons(fvs, _35reg2154);
 Obj _35reg2156 = primCons(params, _35reg2155);
 Obj _35reg2157 = primCons(intern("lambda"), _35reg2156);
-pushCont(co, 11, _35clofun2929, 4, name, idx, fvs, clo_45or_45cont);
+pushCont(co, 11, _35clofun2932, 4, name, idx, fvs, clo_45or_45cont);
 __nargs = 6;
 __arg0 = globalRef(intern("cora/lib/toc.append-result"));
 __arg1 = v;
@@ -8169,18 +8222,18 @@ co->args[5] = _35reg2157;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 15, _35clofun2929, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
+pushCont(co, 15, _35clofun2932, 7, body1, params, v, cur, idx, fvs, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("caar"));
 __arg1 = cur;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8194,7 +8247,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj idx = _35val2139;
-pushCont(co, 16, _35clofun2929, 6, body1, params, v, idx, fvs, clo_45or_45cont);
+pushCont(co, 16, _35clofun2932, 6, body1, params, v, idx, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -8202,7 +8255,7 @@ __arg2 = makeNumber(1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8214,7 +8267,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj body1 = _35val2138;
-pushCont(co, 17, _35clofun2929, 5, body1, params, v, fvs, clo_45or_45cont);
+pushCont(co, 17, _35clofun2932, 5, body1, params, v, fvs, clo_45or_45cont);
 __nargs = 3;
 __arg0 = globalRef(intern("vector-ref"));
 __arg1 = v;
@@ -8222,7 +8275,7 @@ __arg2 = makeNumber(0);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8238,7 +8291,7 @@ Obj _35reg2198 = primCons(clo_45or_45cont, _35reg2197);
 __nargs = 2;
 __arg1 = _35reg2198;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2929) { goto fail; }
+if (co->ctx.pc.func != _35clofun2932) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8251,14 +8304,14 @@ Obj params= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj _35reg2194 = primCons(name, idx);
-pushCont(co, 19, _35clofun2929, 3, fvs, _35reg2194, clo_45or_45cont);
+pushCont(co, 19, _35clofun2932, 3, fvs, _35reg2194, clo_45or_45cont);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = params;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2932) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8271,7 +8324,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2928(struct Cora* co){
+void _35clofun2931(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -8284,7 +8337,7 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35cc1109 = makeNative(19, _35clofun2927, 0, 0);
+Obj _35cc1109 = makeNative(19, _35clofun2930, 0, 0);
 Obj fvs = closureRef(co, 0);
 Obj _35reg1974 = primIsCons(closureRef(co, 1));
 if (True == _35reg1974) {
@@ -8292,14 +8345,14 @@ Obj _35reg1975 = primCar(closureRef(co, 1));
 Obj f = _35reg1975;
 Obj _35reg1976 = primCdr(closureRef(co, 1));
 Obj args = _35reg1976;
-pushCont(co, 20, _35clofun2927, 2, f, args);
+pushCont(co, 20, _35clofun2930, 2, f, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8307,7 +8360,7 @@ __arg0 = _35cc1109;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8322,7 +8375,7 @@ Obj _35reg2001 = primCons(intern("call"), _35reg2000);
 __nargs = 2;
 __arg1 = _35reg2001;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8331,7 +8384,7 @@ label2:
 Obj _35val1997 = __arg1;
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj cont= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 1, _35clofun2928, 1, _35val1997);
+pushCont(co, 1, _35clofun2931, 1, _35val1997);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs;
@@ -8339,7 +8392,7 @@ __arg2 = cont;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8349,7 +8402,7 @@ Obj _35val1996 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj cont= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 2, _35clofun2928, 2, fvs, cont);
+pushCont(co, 2, _35clofun2931, 2, fvs, cont);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = _35val1996;
@@ -8357,13 +8410,13 @@ __arg2 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label4:
 {
-Obj _35cc1108 = makeNative(0, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1108 = makeNative(0, _35clofun2931, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj _35reg1979 = primIsCons(closureRef(co, 1));
 if (True == _35reg1979) {
@@ -8389,14 +8442,14 @@ Obj _35reg1993 = primCdr(_35reg1992);
 Obj _35reg1994 = primCdr(_35reg1993);
 Obj _35reg1995 = primEQ(Nil, _35reg1994);
 if (True == _35reg1995) {
-pushCont(co, 3, _35clofun2928, 3, exp, fvs, cont);
+pushCont(co, 3, _35clofun2931, 3, exp, fvs, cont);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8404,16 +8457,7 @@ __arg0 = _35cc1108;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1108;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8422,7 +8466,7 @@ __arg0 = _35cc1108;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8431,7 +8475,7 @@ __arg0 = _35cc1108;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8440,7 +8484,16 @@ __arg0 = _35cc1108;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1108;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8458,7 +8511,7 @@ Obj _35reg2028 = primCons(intern("%continuation"), _35reg2027);
 __nargs = 2;
 __arg1 = _35reg2028;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8469,7 +8522,7 @@ Obj fvs1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj val= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs2 = _35val2022;
-pushCont(co, 5, _35clofun2928, 2, val, fvs2);
+pushCont(co, 5, _35clofun2931, 2, val, fvs2);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs1;
@@ -8477,7 +8530,7 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8487,7 +8540,7 @@ Obj _35val2021 = __arg1;
 Obj fvs1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj val= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 6, _35clofun2928, 3, fvs1, body, val);
+pushCont(co, 6, _35clofun2931, 3, fvs1, body, val);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = _35val2021;
@@ -8495,7 +8548,7 @@ __arg2 = fvs1;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8506,14 +8559,14 @@ Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj val= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs1 = _35val2020;
-pushCont(co, 7, _35clofun2928, 3, fvs1, body, val);
+pushCont(co, 7, _35clofun2931, 3, fvs1, body, val);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8523,7 +8576,7 @@ Obj _35val2019 = __arg1;
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj val= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 8, _35clofun2928, 3, fvs, body, val);
+pushCont(co, 8, _35clofun2931, 3, fvs, body, val);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.diff"));
 __arg1 = _35val2019;
@@ -8531,13 +8584,13 @@ __arg2 = val;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label10:
 {
-Obj _35cc1107 = makeNative(4, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1107 = makeNative(4, _35clofun2931, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj _35reg2002 = primIsCons(closureRef(co, 1));
 if (True == _35reg2002) {
@@ -8563,14 +8616,14 @@ Obj _35reg2016 = primCdr(_35reg2015);
 Obj _35reg2017 = primCdr(_35reg2016);
 Obj _35reg2018 = primEQ(Nil, _35reg2017);
 if (True == _35reg2018) {
-pushCont(co, 9, _35clofun2928, 3, fvs, body, val);
+pushCont(co, 9, _35clofun2931, 3, fvs, body, val);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8578,16 +8631,7 @@ __arg0 = _35cc1107;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1107;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8596,7 +8640,7 @@ __arg0 = _35cc1107;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8605,7 +8649,7 @@ __arg0 = _35cc1107;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8614,7 +8658,16 @@ __arg0 = _35cc1107;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1107;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8629,13 +8682,13 @@ Obj _35reg2049 = primCons(intern("lambda"), _35reg2048);
 __nargs = 2;
 __arg1 = _35reg2049;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label12:
 {
-Obj _35cc1106 = makeNative(10, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1106 = makeNative(10, _35clofun2931, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj _35reg2029 = primIsCons(closureRef(co, 1));
 if (True == _35reg2029) {
@@ -8661,7 +8714,7 @@ Obj _35reg2043 = primCdr(_35reg2042);
 Obj _35reg2044 = primCdr(_35reg2043);
 Obj _35reg2045 = primEQ(Nil, _35reg2044);
 if (True == _35reg2045) {
-pushCont(co, 11, _35clofun2928, 1, args);
+pushCont(co, 11, _35clofun2931, 1, args);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.explicit-stack"));
 __arg1 = fvs;
@@ -8669,7 +8722,7 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8677,16 +8730,7 @@ __arg0 = _35cc1106;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1106;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8695,7 +8739,7 @@ __arg0 = _35cc1106;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8704,7 +8748,7 @@ __arg0 = _35cc1106;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8713,14 +8757,23 @@ __arg0 = _35cc1106;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1106;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label13:
 {
-Obj _35cc1105 = makeNative(12, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1105 = makeNative(12, _35clofun2931, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj var = closureRef(co, 1);
 Obj _35reg2050 = primIsSymbol(var);
@@ -8728,7 +8781,7 @@ if (True == _35reg2050) {
 __nargs = 2;
 __arg1 = var;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -8736,7 +8789,7 @@ __arg0 = _35cc1105;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8750,7 +8803,7 @@ if (True == _35val2051) {
 __nargs = 2;
 __arg1 = x;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -8758,7 +8811,7 @@ __arg0 = _35cc1104;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8767,17 +8820,17 @@ label15:
 {
 Obj _35p1102 = __arg1;
 Obj _35p1103 = __arg2;
-Obj _35cc1104 = makeNative(13, _35clofun2928, 0, 2, _35p1102, _35p1103);
+Obj _35cc1104 = makeNative(13, _35clofun2931, 0, 2, _35p1102, _35p1103);
 Obj __ = _35p1102;
 Obj x = _35p1103;
-pushCont(co, 14, _35clofun2928, 2, x, _35cc1104);
+pushCont(co, 14, _35clofun2931, 2, x, _35cc1104);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.convert-protect?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -8789,19 +8842,19 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label17:
 {
-Obj _35cc1114 = makeNative(16, _35clofun2928, 0, 0);
+Obj _35cc1114 = makeNative(16, _35clofun2931, 0, 0);
 Obj v = closureRef(co, 0);
 Obj x = closureRef(co, 1);
 __nargs = 2;
 __arg1 = x;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8815,25 +8868,25 @@ __arg2 = e;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label19:
 {
-Obj _35cc1113 = makeNative(17, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1113 = makeNative(17, _35clofun2931, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj v = closureRef(co, 0);
 Obj f_45args = closureRef(co, 1);
 Obj _35reg2053 = primIsCons(f_45args);
 if (True == _35reg2053) {
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
-__arg1 = makeNative(18, _35clofun2928, 1, 1, v);
+__arg1 = makeNative(18, _35clofun2931, 1, 1, v);
 __arg2 = f_45args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8841,7 +8894,7 @@ __arg0 = _35cc1113;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2931) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8858,7 +8911,7 @@ Obj _35reg2107 = primCons(clo_45or_45cont, _35reg2106);
 __nargs = 2;
 __arg1 = _35reg2107;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2928) { goto fail; }
+if (co->ctx.pc.func != _35clofun2931) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8871,7 +8924,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2927(struct Cora* co){
+void _35clofun2930(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -8884,7 +8937,7 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35cc1093 = makeNative(18, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1093 = makeNative(18, _35clofun2929, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1869 = primIsCons(closureRef(co, 0));
 if (True == _35reg1869) {
 Obj _35reg1870 = primCar(closureRef(co, 0));
@@ -8913,11 +8966,11 @@ Obj next = closureRef(co, 1);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = a;
-__arg2 = makeNative(20, _35clofun2926, 1, 2, b, next);
+__arg2 = makeNative(20, _35clofun2929, 1, 2, b, next);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -8925,16 +8978,7 @@ __arg0 = _35cc1093;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1093;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8943,7 +8987,7 @@ __arg0 = _35cc1093;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8952,7 +8996,7 @@ __arg0 = _35cc1093;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -8961,7 +9005,16 @@ __arg0 = _35cc1093;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1093;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -8978,7 +9031,7 @@ Obj _35reg1922 = primCons(intern("if"), _35reg1921);
 __nargs = 2;
 __arg1 = _35reg1922;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -8986,7 +9039,7 @@ label2:
 {
 Obj _35val1917 = __arg1;
 Obj ra= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 1, _35clofun2927, 2, _35val1917, ra);
+pushCont(co, 1, _35clofun2930, 2, _35val1917, ra);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = closureRef(co, 1);
@@ -8994,14 +9047,14 @@ __arg2 = closureRef(co, 2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label3:
 {
 Obj ra = __arg1;
-pushCont(co, 2, _35clofun2927, 1, ra);
+pushCont(co, 2, _35clofun2930, 1, ra);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = closureRef(co, 0);
@@ -9009,13 +9062,13 @@ __arg2 = closureRef(co, 2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label4:
 {
-Obj _35cc1092 = makeNative(0, _35clofun2927, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1092 = makeNative(0, _35clofun2930, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1891 = primIsCons(closureRef(co, 0));
 if (True == _35reg1891) {
 Obj _35reg1892 = primCar(closureRef(co, 0));
@@ -9055,11 +9108,11 @@ Obj next = closureRef(co, 1);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = a;
-__arg2 = makeNative(3, _35clofun2927, 1, 3, b, c, next);
+__arg2 = makeNative(3, _35clofun2930, 1, 3, b, c, next);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9067,16 +9120,7 @@ __arg0 = _35cc1092;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1092;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9085,7 +9129,7 @@ __arg0 = _35cc1092;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9094,7 +9138,7 @@ __arg0 = _35cc1092;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9103,7 +9147,7 @@ __arg0 = _35cc1092;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9112,7 +9156,16 @@ __arg0 = _35cc1092;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1092;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9126,7 +9179,7 @@ if (True == _35val1923) {
 __nargs = 2;
 __arg1 = x;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -9134,24 +9187,24 @@ __arg0 = _35cc1091;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label6:
 {
-Obj _35cc1091 = makeNative(4, _35clofun2927, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1091 = makeNative(4, _35clofun2930, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj x = closureRef(co, 0);
 Obj __ = closureRef(co, 1);
-pushCont(co, 5, _35clofun2927, 2, x, _35cc1091);
+pushCont(co, 5, _35clofun2930, 2, x, _35cc1091);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.convert-protect?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9169,7 +9222,7 @@ __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9177,7 +9230,7 @@ __arg0 = _35cc1090;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9188,7 +9241,7 @@ __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9196,7 +9249,7 @@ __arg0 = _35cc1090;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9206,7 +9259,7 @@ label8:
 {
 Obj _35p1088 = __arg1;
 Obj _35p1089 = __arg2;
-Obj _35cc1090 = makeNative(6, _35clofun2927, 0, 2, _35p1088, _35p1089);
+Obj _35cc1090 = makeNative(6, _35clofun2930, 0, 2, _35p1088, _35p1089);
 Obj x = _35p1088;
 Obj next = _35p1089;
 Obj _35reg1924 = primIsSymbol(x);
@@ -9218,7 +9271,7 @@ __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9226,18 +9279,18 @@ __arg0 = _35cc1090;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 7, _35clofun2927, 3, next, x, _35cc1090);
+pushCont(co, 7, _35clofun2930, 3, next, x, _35cc1090);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.convert-protect?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9250,7 +9303,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9266,13 +9319,13 @@ __arg3 = closureRef(co, 2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label11:
 {
-Obj _35cc1101 = makeNative(9, _35clofun2927, 0, 0);
+Obj _35cc1101 = makeNative(9, _35clofun2930, 0, 0);
 Obj _35reg1927 = primIsCons(closureRef(co, 0));
 if (True == _35reg1927) {
 Obj _35reg1928 = primCar(closureRef(co, 0));
@@ -9284,11 +9337,11 @@ Obj next = closureRef(co, 2);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = hd;
-__arg2 = makeNative(10, _35clofun2927, 1, 3, tl, ls, next);
+__arg2 = makeNative(10, _35clofun2930, 1, 3, tl, ls, next);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9296,7 +9349,7 @@ __arg0 = _35cc1101;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9315,7 +9368,7 @@ Obj _35reg1948 = primCons(intern("call"), _35reg1947);
 __nargs = 2;
 __arg1 = _35reg1948;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -9333,7 +9386,7 @@ Obj _35reg1960 = primCons(intern("call"), _35reg1959);
 __nargs = 2;
 __arg1 = _35reg1960;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -9352,7 +9405,7 @@ __arg2 = next;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg1937 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
@@ -9362,20 +9415,20 @@ Obj _35reg1939 = primCons(intern("tailcall"), _35reg1938);
 __nargs = 2;
 __arg1 = _35reg1939;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg1940 = primGenSym(intern("val"));
 Obj val = _35reg1940;
 Obj _35reg1941 = primCons(val, Nil);
-pushCont(co, 12, _35clofun2927, 2, _35reg1941, exp);
+pushCont(co, 12, _35clofun2930, 2, _35reg1941, exp);
 __nargs = 2;
 __arg0 = next;
 __arg1 = val;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9388,7 +9441,7 @@ __arg2 = next;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg1949 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
@@ -9398,20 +9451,20 @@ Obj _35reg1951 = primCons(intern("tailcall"), _35reg1950);
 __nargs = 2;
 __arg1 = _35reg1951;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg1952 = primGenSym(intern("val"));
 Obj val = _35reg1952;
 Obj _35reg1953 = primCons(val, Nil);
-pushCont(co, 13, _35clofun2927, 2, _35reg1953, exp);
+pushCont(co, 13, _35clofun2930, 2, _35reg1953, exp);
 __nargs = 2;
 __arg0 = next;
 __arg1 = val;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9432,7 +9485,7 @@ Obj _35reg1972 = primCons(intern("call"), _35reg1971);
 __nargs = 2;
 __arg1 = _35reg1972;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -9442,14 +9495,14 @@ Obj _35val1934 = __arg1;
 Obj next= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 1];
 if (True == _35val1934) {
-pushCont(co, 14, _35clofun2927, 2, next, exp);
+pushCont(co, 14, _35clofun2930, 2, next, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("caar"));
 __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 if (True == False) {
@@ -9460,7 +9513,7 @@ __arg2 = next;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg1961 = primEQ(next, globalRef(intern("cora/lib/toc.id")));
@@ -9470,20 +9523,20 @@ Obj _35reg1963 = primCons(intern("tailcall"), _35reg1962);
 __nargs = 2;
 __arg1 = _35reg1963;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2927) { goto fail; }
+if (co->ctx.pc.func != _35clofun2930) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg1964 = primGenSym(intern("val"));
 Obj val = _35reg1964;
 Obj _35reg1965 = primCons(val, Nil);
-pushCont(co, 15, _35clofun2927, 2, _35reg1965, exp);
+pushCont(co, 15, _35clofun2930, 2, _35reg1965, exp);
 __nargs = 2;
 __arg0 = next;
 __arg1 = val;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9496,14 +9549,14 @@ Obj _35val1932 = __arg1;
 Obj next= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj exp = _35val1932;
 Obj _35reg1933 = primCar(exp);
-pushCont(co, 16, _35clofun2927, 2, next, exp);
+pushCont(co, 16, _35clofun2930, 2, next, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("pair?"));
 __arg1 = _35reg1933;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9512,19 +9565,19 @@ label18:
 Obj _35p1097 = __arg1;
 Obj _35p1098 = __arg2;
 Obj _35p1099 = __arg3;
-Obj _35cc1100 = makeNative(11, _35clofun2927, 0, 3, _35p1097, _35p1098, _35p1099);
+Obj _35cc1100 = makeNative(11, _35clofun2930, 0, 3, _35p1097, _35p1098, _35p1099);
 Obj _35reg1931 = primEQ(Nil, _35p1097);
 if (True == _35reg1931) {
 Obj ls = _35p1098;
 Obj next = _35p1099;
-pushCont(co, 17, _35clofun2927, 1, next);
+pushCont(co, 17, _35clofun2930, 1, next);
 __nargs = 2;
 __arg0 = globalRef(intern("reverse"));
 __arg1 = ls;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9532,7 +9585,7 @@ __arg0 = _35cc1100;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9545,7 +9598,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9562,7 +9615,7 @@ __arg2 = _35reg1978;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2930) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9575,7 +9628,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2926(struct Cora* co){
+void _35clofun2929(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -9592,7 +9645,7 @@ Obj _35val1745 = __arg1;
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj a= co->ctx.stk.stack[co->ctx.stk.base + 2];
-pushCont(co, 20, _35clofun2925, 2, _35val1745, a);
+pushCont(co, 20, _35clofun2928, 2, _35val1745, a);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = fvs;
@@ -9600,13 +9653,13 @@ __arg2 = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35cc1086 = makeNative(19, _35clofun2925, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1086 = makeNative(19, _35clofun2928, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj _35reg1719 = primIsCons(closureRef(co, 1));
 if (True == _35reg1719) {
@@ -9643,7 +9696,7 @@ Obj _35reg1742 = primCdr(_35reg1741);
 Obj _35reg1743 = primCdr(_35reg1742);
 Obj _35reg1744 = primEQ(Nil, _35reg1743);
 if (True == _35reg1744) {
-pushCont(co, 0, _35clofun2926, 3, fvs, c, a);
+pushCont(co, 0, _35clofun2929, 3, fvs, c, a);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = fvs;
@@ -9651,7 +9704,7 @@ __arg2 = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9659,16 +9712,7 @@ __arg0 = _35cc1086;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1086;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9677,7 +9721,7 @@ __arg0 = _35cc1086;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9686,7 +9730,7 @@ __arg0 = _35cc1086;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9695,7 +9739,7 @@ __arg0 = _35cc1086;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9704,7 +9748,16 @@ __arg0 = _35cc1086;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1086;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9718,7 +9771,7 @@ Obj _35reg1779 = primCons(intern("%closure"), _35reg1778);
 __nargs = 2;
 __arg1 = _35reg1779;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -9727,7 +9780,7 @@ label3:
 Obj _35val1776 = __arg1;
 Obj fvs1= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg1775= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 2, _35clofun2926, 1, _35reg1775);
+pushCont(co, 2, _35clofun2929, 1, _35reg1775);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = _35val1776;
@@ -9735,7 +9788,7 @@ __arg2 = fvs1;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9748,14 +9801,14 @@ Obj fvs1= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35reg1773 = primCons(_35val1772, Nil);
 Obj _35reg1774 = primCons(args, _35reg1773);
 Obj _35reg1775 = primCons(intern("lambda"), _35reg1774);
-pushCont(co, 3, _35clofun2926, 2, fvs1, _35reg1775);
+pushCont(co, 3, _35clofun2929, 2, fvs1, _35reg1775);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9766,7 +9819,7 @@ Obj body= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs1 = _35val1771;
-pushCont(co, 4, _35clofun2926, 3, args, fvs, fvs1);
+pushCont(co, 4, _35clofun2929, 3, args, fvs, fvs1);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = fvs1;
@@ -9774,13 +9827,13 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label6:
 {
-Obj _35cc1085 = makeNative(1, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1085 = makeNative(1, _35clofun2929, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj _35reg1751 = primIsCons(closureRef(co, 1));
 if (True == _35reg1751) {
@@ -9809,14 +9862,14 @@ if (True == _35reg1767) {
 Obj _35reg1768 = primCons(body, Nil);
 Obj _35reg1769 = primCons(args, _35reg1768);
 Obj _35reg1770 = primCons(intern("lambda"), _35reg1769);
-pushCont(co, 5, _35clofun2926, 3, body, args, fvs);
+pushCont(co, 5, _35clofun2929, 3, body, args, fvs);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = _35reg1770;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9824,16 +9877,7 @@ __arg0 = _35cc1085;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1085;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9842,7 +9886,7 @@ __arg0 = _35cc1085;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9851,7 +9895,7 @@ __arg0 = _35cc1085;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -9860,7 +9904,16 @@ __arg0 = _35cc1085;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1085;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9875,7 +9928,7 @@ if (True == _35reg1782) {
 __nargs = 2;
 __arg1 = var;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg1783 = primCons(pos, Nil);
@@ -9883,19 +9936,19 @@ Obj _35reg1784 = primCons(intern("%closure-ref"), _35reg1783);
 __nargs = 2;
 __arg1 = _35reg1784;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 }
 
 label8:
 {
-Obj _35cc1084 = makeNative(6, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1084 = makeNative(6, _35clofun2929, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj var = closureRef(co, 1);
 Obj _35reg1780 = primIsSymbol(var);
 if (True == _35reg1780) {
-pushCont(co, 7, _35clofun2926, 1, var);
+pushCont(co, 7, _35clofun2929, 1, var);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.index"));
 __arg1 = var;
@@ -9903,7 +9956,7 @@ __arg2 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -9911,7 +9964,7 @@ __arg0 = _35cc1084;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9925,7 +9978,7 @@ if (True == _35val1785) {
 __nargs = 2;
 __arg1 = x;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -9933,7 +9986,7 @@ __arg0 = _35cc1083;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -9942,17 +9995,17 @@ label10:
 {
 Obj _35p1081 = __arg1;
 Obj _35p1082 = __arg2;
-Obj _35cc1083 = makeNative(8, _35clofun2926, 0, 2, _35p1081, _35p1082);
+Obj _35cc1083 = makeNative(8, _35clofun2929, 0, 2, _35p1081, _35p1082);
 Obj __ = _35p1081;
 Obj x = _35p1082;
-pushCont(co, 9, _35clofun2926, 2, x, _35cc1083);
+pushCont(co, 9, _35clofun2929, 2, x, _35cc1083);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.convert-protect?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -9964,7 +10017,7 @@ Obj _35reg1788 = primCons(intern("return"), _35reg1787);
 __nargs = 2;
 __arg1 = _35reg1788;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -9976,13 +10029,13 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label13:
 {
-Obj _35cc1096 = makeNative(12, _35clofun2926, 0, 0);
+Obj _35cc1096 = makeNative(12, _35clofun2929, 0, 0);
 Obj _35reg1790 = primIsCons(closureRef(co, 0));
 if (True == _35reg1790) {
 Obj _35reg1791 = primCar(closureRef(co, 0));
@@ -9999,7 +10052,7 @@ __arg3 = next;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10007,7 +10060,7 @@ __arg0 = _35cc1096;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10029,13 +10082,13 @@ __arg1 = _35reg1837;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label15:
 {
-Obj _35cc1095 = makeNative(13, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1095 = makeNative(13, _35clofun2929, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1794 = primIsCons(closureRef(co, 0));
 if (True == _35reg1794) {
 Obj _35reg1795 = primCar(closureRef(co, 0));
@@ -10086,7 +10139,7 @@ Obj _35reg1830 = primCdr(closureRef(co, 0));
 Obj _35reg1831 = primCdr(_35reg1830);
 Obj frees = _35reg1831;
 Obj next = closureRef(co, 1);
-pushCont(co, 14, _35clofun2926, 3, args, frees, next);
+pushCont(co, 14, _35clofun2929, 3, args, frees, next);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = body;
@@ -10094,7 +10147,7 @@ __arg2 = globalRef(intern("cora/lib/toc.id"));
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10102,16 +10155,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1095;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10120,7 +10164,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10129,7 +10173,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10138,7 +10182,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10147,7 +10191,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10156,7 +10200,7 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10165,7 +10209,16 @@ __arg0 = _35cc1095;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1095;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10181,14 +10234,14 @@ Obj _35reg1868 = primCons(intern("let"), _35reg1867);
 __nargs = 2;
 __arg1 = _35reg1868;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label17:
 {
 Obj rb = __arg1;
-pushCont(co, 16, _35clofun2926, 1, rb);
+pushCont(co, 16, _35clofun2929, 1, rb);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = closureRef(co, 1);
@@ -10196,13 +10249,13 @@ __arg2 = closureRef(co, 2);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label18:
 {
-Obj _35cc1094 = makeNative(15, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1094 = makeNative(15, _35clofun2929, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1838 = primIsCons(closureRef(co, 0));
 if (True == _35reg1838) {
 Obj _35reg1839 = primCar(closureRef(co, 0));
@@ -10242,11 +10295,11 @@ Obj next = closureRef(co, 1);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = b;
-__arg2 = makeNative(17, _35clofun2926, 1, 3, a, c, next);
+__arg2 = makeNative(17, _35clofun2929, 1, 3, a, c, next);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10254,16 +10307,7 @@ __arg0 = _35cc1094;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1094;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10272,7 +10316,7 @@ __arg0 = _35cc1094;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10281,7 +10325,7 @@ __arg0 = _35cc1094;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10290,7 +10334,7 @@ __arg0 = _35cc1094;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10299,7 +10343,16 @@ __arg0 = _35cc1094;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1094;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10314,7 +10367,7 @@ Obj _35reg1890 = primCons(intern("do"), _35reg1889);
 __nargs = 2;
 __arg1 = _35reg1890;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2926) { goto fail; }
+if (co->ctx.pc.func != _35clofun2929) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -10330,10 +10383,10 @@ __arg2 = closureRef(co, 1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-pushCont(co, 19, _35clofun2926, 1, ra);
+pushCont(co, 19, _35clofun2929, 1, ra);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.tailify"));
 __arg1 = closureRef(co, 0);
@@ -10341,7 +10394,7 @@ __arg2 = closureRef(co, 1);
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2929) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10355,7 +10408,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2925(struct Cora* co){
+void _35clofun2928(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -10377,13 +10430,13 @@ __arg3 = _35val1591;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35cc1077 = makeNative(20, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1077 = makeNative(20, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1572 = primIsCons(closureRef(co, 0));
 if (True == _35reg1572) {
 Obj _35reg1573 = primCar(closureRef(co, 0));
@@ -10410,7 +10463,7 @@ Obj _35reg1588 = primEQ(Nil, _35reg1587);
 if (True == _35reg1588) {
 Obj _35reg1589 = primCons(cont, Nil);
 Obj _35reg1590 = primCons(exp, _35reg1589);
-pushCont(co, 0, _35clofun2925, 0);
+pushCont(co, 0, _35clofun2928, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/lib/toc.free-vars"));
@@ -10418,7 +10471,7 @@ __arg2 = _35reg1590;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10426,16 +10479,7 @@ __arg0 = _35cc1077;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1077;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10444,7 +10488,7 @@ __arg0 = _35cc1077;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10453,7 +10497,7 @@ __arg0 = _35cc1077;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10462,14 +10506,23 @@ __arg0 = _35cc1077;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1077;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label2:
 {
-Obj _35cc1076 = makeNative(1, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1076 = makeNative(1, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1592 = primIsCons(closureRef(co, 0));
 if (True == _35reg1592) {
 Obj _35reg1593 = primCar(closureRef(co, 0));
@@ -10491,7 +10544,7 @@ __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10499,16 +10552,7 @@ __arg0 = _35cc1076;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1076;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10517,7 +10561,7 @@ __arg0 = _35cc1076;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10526,14 +10570,23 @@ __arg0 = _35cc1076;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1076;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label3:
 {
-Obj _35cc1075 = makeNative(2, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1075 = makeNative(2, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1602 = primIsCons(closureRef(co, 0));
 if (True == _35reg1602) {
 Obj _35reg1603 = primCar(closureRef(co, 0));
@@ -10555,7 +10608,7 @@ __arg1 = _35reg1611;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10563,16 +10616,7 @@ __arg0 = _35cc1075;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1075;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10581,7 +10625,16 @@ __arg0 = _35cc1075;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1075;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10597,7 +10650,7 @@ __arg2 = _35val1641;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -10607,7 +10660,7 @@ Obj _35val1639 = __arg1;
 Obj a= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35val1638= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj _35reg1640 = primCons(a, Nil);
-pushCont(co, 4, _35clofun2925, 1, _35val1638);
+pushCont(co, 4, _35clofun2928, 1, _35val1638);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.diff"));
 __arg1 = _35val1639;
@@ -10615,7 +10668,7 @@ __arg2 = _35reg1640;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -10624,20 +10677,20 @@ label6:
 Obj _35val1638 = __arg1;
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj a= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 5, _35clofun2925, 2, a, _35val1638);
+pushCont(co, 5, _35clofun2928, 2, a, _35val1638);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label7:
 {
-Obj _35cc1074 = makeNative(3, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1074 = makeNative(3, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1612 = primIsCons(closureRef(co, 0));
 if (True == _35reg1612) {
 Obj _35reg1613 = primCar(closureRef(co, 0));
@@ -10673,14 +10726,14 @@ Obj _35reg1635 = primCdr(_35reg1634);
 Obj _35reg1636 = primCdr(_35reg1635);
 Obj _35reg1637 = primEQ(Nil, _35reg1636);
 if (True == _35reg1637) {
-pushCont(co, 6, _35clofun2925, 2, c, a);
+pushCont(co, 6, _35clofun2928, 2, c, a);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10688,16 +10741,7 @@ __arg0 = _35cc1074;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1074;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10706,7 +10750,7 @@ __arg0 = _35cc1074;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10715,7 +10759,7 @@ __arg0 = _35cc1074;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10724,7 +10768,7 @@ __arg0 = _35cc1074;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10733,7 +10777,16 @@ __arg0 = _35cc1074;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1074;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10749,13 +10802,13 @@ __arg3 = _35val1661;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label9:
 {
-Obj _35cc1073 = makeNative(7, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1073 = makeNative(7, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1642 = primIsCons(closureRef(co, 0));
 if (True == _35reg1642) {
 Obj _35reg1643 = primCar(closureRef(co, 0));
@@ -10782,7 +10835,7 @@ Obj _35reg1658 = primEQ(Nil, _35reg1657);
 if (True == _35reg1658) {
 Obj _35reg1659 = primCons(y, Nil);
 Obj _35reg1660 = primCons(x, _35reg1659);
-pushCont(co, 8, _35clofun2925, 0);
+pushCont(co, 8, _35clofun2928, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/lib/toc.free-vars"));
@@ -10790,7 +10843,7 @@ __arg2 = _35reg1660;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10798,16 +10851,7 @@ __arg0 = _35cc1073;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1073;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10816,7 +10860,7 @@ __arg0 = _35cc1073;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10825,7 +10869,7 @@ __arg0 = _35cc1073;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10834,7 +10878,16 @@ __arg0 = _35cc1073;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1073;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10850,13 +10903,13 @@ __arg3 = _35val1691;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label11:
 {
-Obj _35cc1072 = makeNative(9, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1072 = makeNative(9, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1662 = primIsCons(closureRef(co, 0));
 if (True == _35reg1662) {
 Obj _35reg1663 = primCar(closureRef(co, 0));
@@ -10895,7 +10948,7 @@ if (True == _35reg1687) {
 Obj _35reg1688 = primCons(z, Nil);
 Obj _35reg1689 = primCons(y, _35reg1688);
 Obj _35reg1690 = primCons(x, _35reg1689);
-pushCont(co, 10, _35clofun2925, 0);
+pushCont(co, 10, _35clofun2928, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/lib/toc.free-vars"));
@@ -10903,7 +10956,7 @@ __arg2 = _35reg1690;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -10911,16 +10964,7 @@ __arg0 = _35cc1072;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1072;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10929,7 +10973,7 @@ __arg0 = _35cc1072;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10938,7 +10982,7 @@ __arg0 = _35cc1072;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10947,7 +10991,7 @@ __arg0 = _35cc1072;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -10956,7 +11000,16 @@ __arg0 = _35cc1072;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1072;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -10972,13 +11025,13 @@ __arg2 = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label13:
 {
-Obj _35cc1071 = makeNative(11, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1071 = makeNative(11, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj _35reg1692 = primIsCons(closureRef(co, 0));
 if (True == _35reg1692) {
 Obj _35reg1693 = primCar(closureRef(co, 0));
@@ -11003,14 +11056,14 @@ Obj _35reg1706 = primCdr(_35reg1705);
 Obj _35reg1707 = primCdr(_35reg1706);
 Obj _35reg1708 = primEQ(Nil, _35reg1707);
 if (True == _35reg1708) {
-pushCont(co, 12, _35clofun2925, 1, args);
+pushCont(co, 12, _35clofun2928, 1, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11018,16 +11071,7 @@ __arg0 = _35cc1071;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1071;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11036,7 +11080,7 @@ __arg0 = _35cc1071;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11045,7 +11089,7 @@ __arg0 = _35cc1071;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11054,14 +11098,23 @@ __arg0 = _35cc1071;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1071;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label14:
 {
-Obj _35cc1070 = makeNative(13, _35clofun2925, 0, 1, closureRef(co, 0));
+Obj _35cc1070 = makeNative(13, _35clofun2928, 0, 1, closureRef(co, 0));
 Obj x = closureRef(co, 0);
 Obj _35reg1710 = primIsSymbol(x);
 if (True == _35reg1710) {
@@ -11069,7 +11122,7 @@ Obj _35reg1711 = primCons(x, Nil);
 __nargs = 2;
 __arg1 = _35reg1711;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2925) { goto fail; }
+if (co->ctx.pc.func != _35clofun2928) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11077,7 +11130,7 @@ __arg0 = _35cc1070;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11090,7 +11143,7 @@ if (True == _35val1712) {
 __nargs = 2;
 __arg1 = Nil;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2925) { goto fail; }
+if (co->ctx.pc.func != _35clofun2928) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11098,7 +11151,7 @@ __arg0 = _35cc1069;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11106,16 +11159,16 @@ goto *jumpTable[ps.label];
 label16:
 {
 Obj _35p1068 = __arg1;
-Obj _35cc1069 = makeNative(14, _35clofun2925, 0, 1, _35p1068);
+Obj _35cc1069 = makeNative(14, _35clofun2928, 0, 1, _35p1068);
 Obj x = _35p1068;
-pushCont(co, 15, _35clofun2925, 1, _35cc1069);
+pushCont(co, 15, _35clofun2928, 1, _35cc1069);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.convert-protect?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -11127,7 +11180,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -11144,13 +11197,13 @@ __arg2 = _35reg1718;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label19:
 {
-Obj _35cc1087 = makeNative(17, _35clofun2925, 0, 0);
+Obj _35cc1087 = makeNative(17, _35clofun2928, 0, 0);
 Obj fvs = closureRef(co, 0);
 Obj _35reg1714 = primIsCons(closureRef(co, 1));
 if (True == _35reg1714) {
@@ -11158,14 +11211,14 @@ Obj _35reg1715 = primCar(closureRef(co, 1));
 Obj f = _35reg1715;
 Obj _35reg1716 = primCdr(closureRef(co, 1));
 Obj args = _35reg1716;
-pushCont(co, 18, _35clofun2925, 2, f, args);
+pushCont(co, 18, _35clofun2928, 2, f, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.closure-convert"));
 __arg1 = fvs;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11173,7 +11226,7 @@ __arg0 = _35cc1087;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2928) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11190,7 +11243,7 @@ Obj _35reg1750 = primCons(intern("let"), _35reg1749);
 __nargs = 2;
 __arg1 = _35reg1750;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2925) { goto fail; }
+if (co->ctx.pc.func != _35clofun2928) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -11203,7 +11256,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2924(struct Cora* co){
+void _35clofun2927(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -11216,7 +11269,7 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35cc1054 = makeNative(19, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1054 = makeNative(19, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1471 = primIsCons(closureRef(co, 0));
 if (True == _35reg1471) {
 Obj _35reg1472 = primCar(closureRef(co, 0));
@@ -11224,7 +11277,7 @@ Obj x = _35reg1472;
 Obj _35reg1473 = primCdr(closureRef(co, 0));
 Obj y = _35reg1473;
 Obj s2 = closureRef(co, 1);
-pushCont(co, 20, _35clofun2923, 3, y, s2, _35cc1054);
+pushCont(co, 20, _35clofun2926, 3, y, s2, _35cc1054);
 __nargs = 3;
 __arg0 = globalRef(intern("elem?"));
 __arg1 = x;
@@ -11232,7 +11285,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11240,7 +11293,7 @@ __arg0 = _35cc1054;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11249,14 +11302,14 @@ label1:
 {
 Obj _35p1051 = __arg1;
 Obj _35p1052 = __arg2;
-Obj _35cc1053 = makeNative(0, _35clofun2924, 0, 2, _35p1051, _35p1052);
+Obj _35cc1053 = makeNative(0, _35clofun2927, 0, 2, _35p1051, _35p1052);
 Obj _35reg1475 = primEQ(Nil, _35p1051);
 if (True == _35reg1475) {
 Obj s2 = _35p1052;
 __nargs = 2;
 __arg1 = s2;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11264,7 +11317,7 @@ __arg0 = _35cc1053;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11277,7 +11330,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -11289,13 +11342,13 @@ Obj _35reg1481 = primCons(x, _35val1480);
 __nargs = 2;
 __arg1 = _35reg1481;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label4:
 {
-Obj _35cc1060 = makeNative(2, _35clofun2924, 0, 0);
+Obj _35cc1060 = makeNative(2, _35clofun2927, 0, 0);
 Obj _35reg1477 = primIsCons(closureRef(co, 0));
 if (True == _35reg1477) {
 Obj _35reg1478 = primCar(closureRef(co, 0));
@@ -11303,7 +11356,7 @@ Obj x = _35reg1478;
 Obj _35reg1479 = primCdr(closureRef(co, 0));
 Obj y = _35reg1479;
 Obj s2 = closureRef(co, 1);
-pushCont(co, 3, _35clofun2924, 1, x);
+pushCont(co, 3, _35clofun2927, 1, x);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.diff"));
 __arg1 = y;
@@ -11311,7 +11364,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11319,7 +11372,7 @@ __arg0 = _35cc1060;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11338,7 +11391,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11346,14 +11399,14 @@ __arg0 = _35cc1059;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label6:
 {
-Obj _35cc1059 = makeNative(4, _35clofun2924, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1059 = makeNative(4, _35clofun2927, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj _35reg1482 = primIsCons(closureRef(co, 0));
 if (True == _35reg1482) {
 Obj _35reg1483 = primCar(closureRef(co, 0));
@@ -11361,7 +11414,7 @@ Obj x = _35reg1483;
 Obj _35reg1484 = primCdr(closureRef(co, 0));
 Obj y = _35reg1484;
 Obj s2 = closureRef(co, 1);
-pushCont(co, 5, _35clofun2924, 3, y, s2, _35cc1059);
+pushCont(co, 5, _35clofun2927, 3, y, s2, _35cc1059);
 __nargs = 3;
 __arg0 = globalRef(intern("elem?"));
 __arg1 = x;
@@ -11369,7 +11422,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11377,7 +11430,7 @@ __arg0 = _35cc1059;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11386,14 +11439,14 @@ label7:
 {
 Obj _35p1056 = __arg1;
 Obj _35p1057 = __arg2;
-Obj _35cc1058 = makeNative(6, _35clofun2924, 0, 2, _35p1056, _35p1057);
+Obj _35cc1058 = makeNative(6, _35clofun2927, 0, 2, _35p1056, _35p1057);
 Obj _35reg1486 = primEQ(Nil, _35p1056);
 if (True == _35reg1486) {
 Obj __ = _35p1057;
 __nargs = 2;
 __arg1 = Nil;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11401,7 +11454,7 @@ __arg0 = _35cc1058;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11414,24 +11467,24 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label9:
 {
-Obj _35cc1067 = makeNative(8, _35clofun2924, 0, 0);
+Obj _35cc1067 = makeNative(8, _35clofun2927, 0, 0);
 Obj x = closureRef(co, 0);
 __nargs = 2;
 __arg1 = False;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label10:
 {
-Obj _35cc1066 = makeNative(9, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1066 = makeNative(9, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1488 = primIsCons(closureRef(co, 0));
 if (True == _35reg1488) {
 Obj _35reg1489 = primCar(closureRef(co, 0));
@@ -11450,7 +11503,7 @@ if (True == _35reg1497) {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11458,7 +11511,7 @@ __arg0 = _35cc1066;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11467,7 +11520,7 @@ __arg0 = _35cc1066;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11476,7 +11529,7 @@ __arg0 = _35cc1066;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11485,14 +11538,14 @@ __arg0 = _35cc1066;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label11:
 {
-Obj _35cc1065 = makeNative(10, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1065 = makeNative(10, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1498 = primIsCons(closureRef(co, 0));
 if (True == _35reg1498) {
 Obj _35reg1499 = primCar(closureRef(co, 0));
@@ -11511,7 +11564,7 @@ if (True == _35reg1507) {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11519,7 +11572,7 @@ __arg0 = _35cc1065;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11528,7 +11581,7 @@ __arg0 = _35cc1065;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11537,7 +11590,7 @@ __arg0 = _35cc1065;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11546,14 +11599,14 @@ __arg0 = _35cc1065;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label12:
 {
-Obj _35cc1064 = makeNative(11, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1064 = makeNative(11, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1508 = primIsCons(closureRef(co, 0));
 if (True == _35reg1508) {
 Obj _35reg1509 = primCar(closureRef(co, 0));
@@ -11572,7 +11625,7 @@ if (True == _35reg1517) {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11580,7 +11633,7 @@ __arg0 = _35cc1064;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11589,7 +11642,7 @@ __arg0 = _35cc1064;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11598,7 +11651,7 @@ __arg0 = _35cc1064;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11607,14 +11660,14 @@ __arg0 = _35cc1064;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label13:
 {
-Obj _35cc1063 = makeNative(12, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1063 = makeNative(12, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1518 = primIsCons(closureRef(co, 0));
 if (True == _35reg1518) {
 Obj _35reg1519 = primCar(closureRef(co, 0));
@@ -11633,7 +11686,7 @@ if (True == _35reg1527) {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11641,7 +11694,7 @@ __arg0 = _35cc1063;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11650,7 +11703,7 @@ __arg0 = _35cc1063;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11659,7 +11712,7 @@ __arg0 = _35cc1063;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11668,7 +11721,7 @@ __arg0 = _35cc1063;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11676,7 +11729,7 @@ goto *jumpTable[ps.label];
 label14:
 {
 Obj _35p1061 = __arg1;
-Obj _35cc1062 = makeNative(13, _35clofun2924, 0, 1, _35p1061);
+Obj _35cc1062 = makeNative(13, _35clofun2927, 0, 1, _35p1061);
 Obj _35reg1528 = primIsCons(_35p1061);
 if (True == _35reg1528) {
 Obj _35reg1529 = primCar(_35p1061);
@@ -11695,7 +11748,7 @@ if (True == _35reg1537) {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2924) { goto fail; }
+if (co->ctx.pc.func != _35clofun2927) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -11703,7 +11756,7 @@ __arg0 = _35cc1062;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11712,7 +11765,7 @@ __arg0 = _35cc1062;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11721,7 +11774,7 @@ __arg0 = _35cc1062;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11730,7 +11783,7 @@ __arg0 = _35cc1062;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11743,7 +11796,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -11758,13 +11811,13 @@ __arg3 = _35val1543;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label17:
 {
-Obj _35cc1080 = makeNative(15, _35clofun2924, 0, 0);
+Obj _35cc1080 = makeNative(15, _35clofun2927, 0, 0);
 Obj _35reg1539 = primIsCons(closureRef(co, 0));
 if (True == _35reg1539) {
 Obj _35reg1540 = primCar(closureRef(co, 0));
@@ -11772,7 +11825,7 @@ Obj f = _35reg1540;
 Obj _35reg1541 = primCdr(closureRef(co, 0));
 Obj args = _35reg1541;
 Obj _35reg1542 = primCons(f, args);
-pushCont(co, 16, _35clofun2924, 0);
+pushCont(co, 16, _35clofun2927, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/lib/toc.free-vars"));
@@ -11780,7 +11833,7 @@ __arg2 = _35reg1542;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11788,7 +11841,7 @@ __arg0 = _35cc1080;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11804,13 +11857,13 @@ __arg2 = arg;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label19:
 {
-Obj _35cc1079 = makeNative(17, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1079 = makeNative(17, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1544 = primIsCons(closureRef(co, 0));
 if (True == _35reg1544) {
 Obj _35reg1545 = primCar(closureRef(co, 0));
@@ -11835,14 +11888,14 @@ Obj _35reg1558 = primCdr(_35reg1557);
 Obj _35reg1559 = primCdr(_35reg1558);
 Obj _35reg1560 = primEQ(Nil, _35reg1559);
 if (True == _35reg1560) {
-pushCont(co, 18, _35clofun2924, 1, arg);
+pushCont(co, 18, _35clofun2927, 1, arg);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.free-vars"));
 __arg1 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11850,16 +11903,7 @@ __arg0 = _35cc1079;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1079;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11868,7 +11912,7 @@ __arg0 = _35cc1079;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11877,7 +11921,7 @@ __arg0 = _35cc1079;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11886,14 +11930,23 @@ __arg0 = _35cc1079;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1079;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label20:
 {
-Obj _35cc1078 = makeNative(19, _35clofun2924, 0, 1, closureRef(co, 0));
+Obj _35cc1078 = makeNative(19, _35clofun2927, 0, 1, closureRef(co, 0));
 Obj _35reg1562 = primIsCons(closureRef(co, 0));
 if (True == _35reg1562) {
 Obj _35reg1563 = primCar(closureRef(co, 0));
@@ -11915,7 +11968,7 @@ __arg1 = exp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -11923,16 +11976,7 @@ __arg0 = _35cc1078;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1078;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11941,7 +11985,7 @@ __arg0 = _35cc1078;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -11950,7 +11994,16 @@ __arg0 = _35cc1078;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1078;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2927) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -11964,7 +12017,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2923(struct Cora* co){
+void _35clofun2926(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -11977,7 +12030,7 @@ goto *jumpTable[co->ctx.pc.label];
 
 label0:
 {
-Obj _35cc1048 = makeNative(18, _35clofun2922, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1048 = makeNative(18, _35clofun2925, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj _35reg1351 = primIsCons(closureRef(co, 1));
 if (True == _35reg1351) {
@@ -12014,7 +12067,7 @@ Obj _35reg1374 = primCdr(_35reg1373);
 Obj _35reg1375 = primCdr(_35reg1374);
 Obj _35reg1376 = primEQ(Nil, _35reg1375);
 if (True == _35reg1376) {
-pushCont(co, 20, _35clofun2922, 3, env, c, a);
+pushCont(co, 20, _35clofun2925, 3, env, c, a);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
@@ -12022,7 +12075,7 @@ __arg2 = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12030,16 +12083,7 @@ __arg0 = _35cc1048;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1048;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12048,7 +12092,7 @@ __arg0 = _35cc1048;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12057,7 +12101,7 @@ __arg0 = _35cc1048;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12066,7 +12110,7 @@ __arg0 = _35cc1048;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12075,7 +12119,16 @@ __arg0 = _35cc1048;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1048;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12090,7 +12143,7 @@ Obj _35reg1405 = primCons(intern("do"), _35reg1404);
 __nargs = 2;
 __arg1 = _35reg1405;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -12099,7 +12152,7 @@ label2:
 Obj _35val1401 = __arg1;
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj y= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 1, _35clofun2923, 1, _35val1401);
+pushCont(co, 1, _35clofun2926, 1, _35val1401);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
@@ -12107,13 +12160,13 @@ __arg2 = y;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label3:
 {
-Obj _35cc1047 = makeNative(0, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1047 = makeNative(0, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj _35reg1384 = primIsCons(closureRef(co, 1));
 if (True == _35reg1384) {
@@ -12139,7 +12192,7 @@ Obj _35reg1398 = primCdr(_35reg1397);
 Obj _35reg1399 = primCdr(_35reg1398);
 Obj _35reg1400 = primEQ(Nil, _35reg1399);
 if (True == _35reg1400) {
-pushCont(co, 2, _35clofun2923, 2, env, y);
+pushCont(co, 2, _35clofun2926, 2, env, y);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
@@ -12147,7 +12200,7 @@ __arg2 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12155,16 +12208,7 @@ __arg0 = _35cc1047;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1047;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12173,7 +12217,7 @@ __arg0 = _35cc1047;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12182,7 +12226,7 @@ __arg0 = _35cc1047;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12191,7 +12235,16 @@ __arg0 = _35cc1047;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1047;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12203,7 +12256,7 @@ Obj _35reg1412 = primCons(intern("if"), _35val1411);
 __nargs = 2;
 __arg1 = _35reg1412;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -12211,7 +12264,7 @@ label5:
 {
 Obj _35val1410 = __arg1;
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 4, _35clofun2923, 0);
+pushCont(co, 4, _35clofun2926, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = _35val1410;
@@ -12219,13 +12272,13 @@ __arg2 = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label6:
 {
-Obj _35cc1046 = makeNative(3, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1046 = makeNative(3, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj _35reg1406 = primIsCons(closureRef(co, 1));
 if (True == _35reg1406) {
@@ -12234,14 +12287,14 @@ Obj _35reg1408 = primEQ(intern("if"), _35reg1407);
 if (True == _35reg1408) {
 Obj _35reg1409 = primCdr(closureRef(co, 1));
 Obj args = _35reg1409;
-pushCont(co, 5, _35clofun2923, 1, args);
+pushCont(co, 5, _35clofun2926, 1, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12249,7 +12302,7 @@ __arg0 = _35cc1046;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12258,7 +12311,7 @@ __arg0 = _35cc1046;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12273,7 +12326,7 @@ Obj _35reg1434 = primCons(intern("lambda"), _35reg1433);
 __nargs = 2;
 __arg1 = _35reg1434;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -12282,7 +12335,7 @@ label8:
 Obj _35val1430 = __arg1;
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 7, _35clofun2923, 1, args);
+pushCont(co, 7, _35clofun2926, 1, args);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = _35val1430;
@@ -12290,13 +12343,13 @@ __arg2 = body;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label9:
 {
-Obj _35cc1045 = makeNative(6, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1045 = makeNative(6, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj _35reg1413 = primIsCons(closureRef(co, 1));
 if (True == _35reg1413) {
@@ -12322,7 +12375,7 @@ Obj _35reg1427 = primCdr(_35reg1426);
 Obj _35reg1428 = primCdr(_35reg1427);
 Obj _35reg1429 = primEQ(Nil, _35reg1428);
 if (True == _35reg1429) {
-pushCont(co, 8, _35clofun2923, 2, body, args);
+pushCont(co, 8, _35clofun2926, 2, body, args);
 __nargs = 3;
 __arg0 = globalRef(intern("append"));
 __arg1 = args;
@@ -12330,7 +12383,7 @@ __arg2 = env;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12338,16 +12391,7 @@ __arg0 = _35cc1045;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
-}
-} else {
-__nargs = 1;
-__arg0 = _35cc1045;
-co->ctx.frees = __arg0;
-struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
-if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12356,7 +12400,7 @@ __arg0 = _35cc1045;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12365,7 +12409,7 @@ __arg0 = _35cc1045;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12374,7 +12418,16 @@ __arg0 = _35cc1045;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
+goto *jumpTable[ps.label];
+}
+} else {
+__nargs = 1;
+__arg0 = _35cc1045;
+co->ctx.frees = __arg0;
+struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
+if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12387,7 +12440,7 @@ if (True == _35val1436) {
 __nargs = 2;
 __arg1 = x;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg1437 = primCons(x, Nil);
@@ -12395,19 +12448,19 @@ Obj _35reg1438 = primCons(intern("%global"), _35reg1437);
 __nargs = 2;
 __arg1 = _35reg1438;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 }
 
 label11:
 {
-Obj _35cc1044 = makeNative(9, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1044 = makeNative(9, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj x = closureRef(co, 1);
 Obj _35reg1435 = primIsSymbol(x);
 if (True == _35reg1435) {
-pushCont(co, 10, _35clofun2923, 1, x);
+pushCont(co, 10, _35clofun2926, 1, x);
 __nargs = 3;
 __arg0 = globalRef(intern("elem?"));
 __arg1 = x;
@@ -12415,7 +12468,7 @@ __arg2 = env;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12423,14 +12476,14 @@ __arg0 = _35cc1044;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label12:
 {
-Obj _35cc1043 = makeNative(11, _35clofun2923, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1043 = makeNative(11, _35clofun2926, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj __ = closureRef(co, 0);
 Obj _35reg1439 = primIsCons(closureRef(co, 1));
 if (True == _35reg1439) {
@@ -12452,7 +12505,7 @@ Obj _35reg1450 = primCons(intern("%const"), _35reg1449);
 __nargs = 2;
 __arg1 = _35reg1450;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12460,7 +12513,7 @@ __arg0 = _35cc1043;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12469,7 +12522,7 @@ __arg0 = _35cc1043;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12478,7 +12531,7 @@ __arg0 = _35cc1043;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12487,7 +12540,7 @@ __arg0 = _35cc1043;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12504,7 +12557,7 @@ Obj _35reg1462 = primCons(intern("%const"), _35reg1461);
 __nargs = 2;
 __arg1 = _35reg1462;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12512,7 +12565,7 @@ __arg0 = _35cc1042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12522,7 +12575,7 @@ Obj _35reg1464 = primCons(intern("%const"), _35reg1463);
 __nargs = 2;
 __arg1 = _35reg1464;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12530,7 +12583,7 @@ __arg0 = _35cc1042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12548,7 +12601,7 @@ Obj _35reg1459 = primCons(intern("%const"), _35reg1458);
 __nargs = 2;
 __arg1 = _35reg1459;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12556,18 +12609,18 @@ __arg0 = _35cc1042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 13, _35clofun2923, 2, x, _35cc1042);
+pushCont(co, 13, _35clofun2926, 2, x, _35cc1042);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12584,7 +12637,7 @@ Obj _35reg1453 = primCons(intern("%const"), _35reg1452);
 __nargs = 2;
 __arg1 = _35reg1453;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12592,7 +12645,7 @@ __arg0 = _35cc1042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -12604,7 +12657,7 @@ Obj _35reg1456 = primCons(intern("%const"), _35reg1455);
 __nargs = 2;
 __arg1 = _35reg1456;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12612,18 +12665,18 @@ __arg0 = _35cc1042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-pushCont(co, 14, _35clofun2923, 2, x, _35cc1042);
+pushCont(co, 14, _35clofun2926, 2, x, _35cc1042);
 __nargs = 2;
 __arg0 = globalRef(intern("boolean?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12633,17 +12686,17 @@ label16:
 {
 Obj _35p1040 = __arg1;
 Obj _35p1041 = __arg2;
-Obj _35cc1042 = makeNative(12, _35clofun2923, 0, 2, _35p1040, _35p1041);
+Obj _35cc1042 = makeNative(12, _35clofun2926, 0, 2, _35p1040, _35p1041);
 Obj __ = _35p1040;
 Obj x = _35p1041;
-pushCont(co, 15, _35clofun2923, 2, x, _35cc1042);
+pushCont(co, 15, _35clofun2926, 2, x, _35cc1042);
 __nargs = 2;
 __arg0 = globalRef(intern("number?"));
 __arg1 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12655,7 +12708,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12667,13 +12720,13 @@ Obj _35reg1470 = primCons(x, _35val1469);
 __nargs = 2;
 __arg1 = _35reg1470;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2923) { goto fail; }
+if (co->ctx.pc.func != _35clofun2926) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label19:
 {
-Obj _35cc1055 = makeNative(17, _35clofun2923, 0, 0);
+Obj _35cc1055 = makeNative(17, _35clofun2926, 0, 0);
 Obj _35reg1466 = primIsCons(closureRef(co, 0));
 if (True == _35reg1466) {
 Obj _35reg1467 = primCar(closureRef(co, 0));
@@ -12681,7 +12734,7 @@ Obj x = _35reg1467;
 Obj _35reg1468 = primCdr(closureRef(co, 0));
 Obj y = _35reg1468;
 Obj s2 = closureRef(co, 1);
-pushCont(co, 18, _35clofun2923, 1, x);
+pushCont(co, 18, _35clofun2926, 1, x);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.union"));
 __arg1 = y;
@@ -12689,7 +12742,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12697,7 +12750,7 @@ __arg0 = _35cc1055;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12716,7 +12769,7 @@ __arg2 = s2;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -12724,7 +12777,7 @@ __arg0 = _35cc1054;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2923) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2926) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12738,7 +12791,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2922(struct Cora* co){
+void _35clofun2925(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -12753,21 +12806,21 @@ label0:
 {
 Obj _35val1319 = __arg1;
 Obj find = _35val1319;
-pushCont(co, 20, _35clofun2921, 1, find);
+pushCont(co, 20, _35clofun2924, 1, find);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = find;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
 Obj x = __arg1;
-pushCont(co, 0, _35clofun2922, 0);
+pushCont(co, 0, _35clofun2925, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.assq"));
 __arg1 = x;
@@ -12775,7 +12828,7 @@ __arg2 = globalRef(intern("cora/lib/toc.*builtin-prims*"));
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12787,7 +12840,7 @@ if (True == _35val1323) {
 __nargs = 2;
 __arg1 = makeString1("ERROR");
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2922) { goto fail; }
+if (co->ctx.pc.func != _35clofun2925) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 2;
@@ -12796,7 +12849,7 @@ __arg1 = find;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12805,21 +12858,21 @@ label3:
 {
 Obj _35val1322 = __arg1;
 Obj find = _35val1322;
-pushCont(co, 2, _35clofun2922, 1, find);
+pushCont(co, 2, _35clofun2925, 1, find);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = find;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label4:
 {
 Obj x = __arg1;
-pushCont(co, 3, _35clofun2922, 0);
+pushCont(co, 3, _35clofun2925, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.assq"));
 __arg1 = x;
@@ -12827,7 +12880,7 @@ __arg2 = globalRef(intern("cora/lib/toc.*builtin-prims*"));
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12839,13 +12892,13 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label6:
 {
-Obj _35cc1039 = makeNative(5, _35clofun2922, 0, 0);
+Obj _35cc1039 = makeNative(5, _35clofun2925, 0, 0);
 Obj n = closureRef(co, 0);
 Obj res = closureRef(co, 1);
 Obj _35reg1325 = primSub(n, makeNumber(1));
@@ -12858,7 +12911,7 @@ __arg2 = _35reg1327;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12866,14 +12919,14 @@ label7:
 {
 Obj _35p1036 = __arg1;
 Obj _35p1037 = __arg2;
-Obj _35cc1038 = makeNative(6, _35clofun2922, 0, 2, _35p1036, _35p1037);
+Obj _35cc1038 = makeNative(6, _35clofun2925, 0, 2, _35p1036, _35p1037);
 Obj _35reg1328 = primEQ(makeNumber(0), _35p1036);
 if (True == _35reg1328) {
 Obj res = _35p1037;
 __nargs = 2;
 __arg1 = res;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2922) { goto fail; }
+if (co->ctx.pc.func != _35clofun2925) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -12881,7 +12934,7 @@ __arg0 = _35cc1038;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -12894,7 +12947,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12909,23 +12962,23 @@ __arg2 = ls;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label10:
 {
-Obj _35cc1050 = makeNative(8, _35clofun2922, 0, 0);
+Obj _35cc1050 = makeNative(8, _35clofun2925, 0, 0);
 Obj env = closureRef(co, 0);
 Obj ls = closureRef(co, 1);
-pushCont(co, 9, _35clofun2922, 1, ls);
+pushCont(co, 9, _35clofun2925, 1, ls);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12937,7 +12990,7 @@ Obj _35reg1342 = primCons(_35reg1339, _35val1341);
 __nargs = 2;
 __arg1 = _35reg1342;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2922) { goto fail; }
+if (co->ctx.pc.func != _35clofun2925) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -12946,7 +12999,7 @@ label12:
 Obj _35val1340 = __arg1;
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg1339= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 11, _35clofun2922, 1, _35reg1339);
+pushCont(co, 11, _35clofun2925, 1, _35reg1339);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = _35val1340;
@@ -12954,7 +13007,7 @@ __arg2 = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12973,7 +13026,7 @@ __arg2 = _35reg1350;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -12985,7 +13038,7 @@ Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj tmp = _35val1345;
 Obj _35reg1346 = primCons(op, args);
-pushCont(co, 13, _35clofun2922, 2, tmp, env);
+pushCont(co, 13, _35clofun2925, 2, tmp, env);
 __nargs = 3;
 __arg0 = globalRef(intern("append"));
 __arg1 = _35reg1346;
@@ -12993,7 +13046,7 @@ __arg2 = tmp;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13009,20 +13062,20 @@ Obj _35reg1337 = primEQ(required, provided);
 if (True == _35reg1337) {
 Obj _35reg1338 = primCons(op, Nil);
 Obj _35reg1339 = primCons(intern("%builtin"), _35reg1338);
-pushCont(co, 12, _35clofun2922, 2, args, _35reg1339);
+pushCont(co, 12, _35clofun2925, 2, args, _35reg1339);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = env;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 Obj _35reg1343 = primGT(required, provided);
 if (True == _35reg1343) {
 Obj _35reg1344 = primSub(required, provided);
-pushCont(co, 14, _35clofun2922, 3, op, args, env);
+pushCont(co, 14, _35clofun2925, 3, op, args, env);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.temp-list"));
 __arg1 = _35reg1344;
@@ -13030,7 +13083,7 @@ __arg2 = Nil;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
@@ -13039,7 +13092,7 @@ __arg1 = makeString1("primitive call mismatch");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13052,14 +13105,14 @@ Obj op= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj required = _35val1335;
-pushCont(co, 15, _35clofun2922, 4, required, op, args, env);
+pushCont(co, 15, _35clofun2925, 4, required, op, args, env);
 __nargs = 2;
 __arg0 = globalRef(intern("length"));
 __arg1 = args;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13071,14 +13124,14 @@ Obj args= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35cc1049= co->ctx.stk.stack[co->ctx.stk.base + 3];
 if (True == _35val1334) {
-pushCont(co, 16, _35clofun2922, 3, op, args, env);
+pushCont(co, 16, _35clofun2925, 3, op, args, env);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc.builtin->args"));
 __arg1 = op;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13086,14 +13139,14 @@ __arg0 = _35cc1049;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label18:
 {
-Obj _35cc1049 = makeNative(10, _35clofun2922, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1049 = makeNative(10, _35clofun2925, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj env = closureRef(co, 0);
 Obj _35reg1331 = primIsCons(closureRef(co, 1));
 if (True == _35reg1331) {
@@ -13101,14 +13154,14 @@ Obj _35reg1332 = primCar(closureRef(co, 1));
 Obj op = _35reg1332;
 Obj _35reg1333 = primCdr(closureRef(co, 1));
 Obj args = _35reg1333;
-pushCont(co, 17, _35clofun2922, 4, op, args, env, _35cc1049);
+pushCont(co, 17, _35clofun2925, 4, op, args, env, _35cc1049);
 __nargs = 2;
 __arg0 = globalRef(intern("builtin?"));
 __arg1 = op;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13116,7 +13169,7 @@ __arg0 = _35cc1049;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13133,7 +13186,7 @@ Obj _35reg1383 = primCons(intern("let"), _35reg1382);
 __nargs = 2;
 __arg1 = _35reg1383;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2922) { goto fail; }
+if (co->ctx.pc.func != _35clofun2925) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
@@ -13144,7 +13197,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj a= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35reg1378 = primCons(a, env);
-pushCont(co, 19, _35clofun2922, 2, _35val1377, a);
+pushCont(co, 19, _35clofun2925, 2, _35val1377, a);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.parse"));
 __arg1 = _35reg1378;
@@ -13152,7 +13205,7 @@ __arg2 = c;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2922) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2925) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13165,7 +13218,7 @@ co->args[3] = __arg3;
 
 }
 
-void _35clofun2921(struct Cora* co){
+void _35clofun2924(struct Cora* co){
 int __nargs = co->nargs;
 Obj __arg0 = co->args[0];
 Obj __arg1 = co->args[1];
@@ -13184,13 +13237,13 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label1:
 {
-Obj _35cc1020 = makeNative(0, _35clofun2921, 0, 0);
+Obj _35cc1020 = makeNative(0, _35clofun2924, 0, 0);
 Obj var = closureRef(co, 0);
 Obj _35reg1207 = primIsCons(closureRef(co, 1));
 if (True == _35reg1207) {
@@ -13205,7 +13258,7 @@ __arg2 = y;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13213,14 +13266,14 @@ __arg0 = _35cc1020;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label2:
 {
-Obj _35cc1019 = makeNative(1, _35clofun2921, 0, 2, closureRef(co, 0), closureRef(co, 1));
+Obj _35cc1019 = makeNative(1, _35clofun2924, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj var = closureRef(co, 0);
 Obj _35reg1210 = primIsCons(closureRef(co, 1));
 if (True == _35reg1210) {
@@ -13241,7 +13294,7 @@ Obj _35reg1219 = primCons(x, y);
 __nargs = 2;
 __arg1 = _35reg1219;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13249,7 +13302,7 @@ __arg0 = _35cc1019;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -13258,7 +13311,7 @@ __arg0 = _35cc1019;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -13267,7 +13320,7 @@ __arg0 = _35cc1019;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13276,14 +13329,14 @@ label3:
 {
 Obj _35p1016 = __arg1;
 Obj _35p1017 = __arg2;
-Obj _35cc1018 = makeNative(2, _35clofun2921, 0, 2, _35p1016, _35p1017);
+Obj _35cc1018 = makeNative(2, _35clofun2924, 0, 2, _35p1016, _35p1017);
 Obj var = _35p1016;
 Obj _35reg1220 = primEQ(Nil, _35p1017);
 if (True == _35reg1220) {
 __nargs = 2;
 __arg1 = Nil;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13291,7 +13344,7 @@ __arg0 = _35cc1018;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13304,7 +13357,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13321,13 +13374,13 @@ __arg3 = y;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label6:
 {
-Obj _35cc1025 = makeNative(4, _35clofun2921, 0, 0);
+Obj _35cc1025 = makeNative(4, _35clofun2924, 0, 0);
 Obj f = closureRef(co, 0);
 Obj acc = closureRef(co, 1);
 Obj _35reg1222 = primIsCons(closureRef(co, 2));
@@ -13336,7 +13389,7 @@ Obj _35reg1223 = primCar(closureRef(co, 2));
 Obj x = _35reg1223;
 Obj _35reg1224 = primCdr(closureRef(co, 2));
 Obj y = _35reg1224;
-pushCont(co, 5, _35clofun2921, 2, f, y);
+pushCont(co, 5, _35clofun2924, 2, f, y);
 __nargs = 3;
 __arg0 = f;
 __arg1 = acc;
@@ -13344,7 +13397,7 @@ __arg2 = x;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13352,7 +13405,7 @@ __arg0 = _35cc1025;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13362,7 +13415,7 @@ label7:
 Obj _35p1021 = __arg1;
 Obj _35p1022 = __arg2;
 Obj _35p1023 = __arg3;
-Obj _35cc1024 = makeNative(6, _35clofun2921, 0, 3, _35p1021, _35p1022, _35p1023);
+Obj _35cc1024 = makeNative(6, _35clofun2924, 0, 3, _35p1021, _35p1022, _35p1023);
 Obj f = _35p1021;
 Obj acc = _35p1022;
 Obj _35reg1226 = primEQ(Nil, _35p1023);
@@ -13370,7 +13423,7 @@ if (True == _35reg1226) {
 __nargs = 2;
 __arg1 = acc;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13378,7 +13431,7 @@ __arg0 = _35cc1024;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13391,13 +13444,13 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label9:
 {
-Obj _35cc1031 = makeNative(8, _35clofun2921, 0, 0);
+Obj _35cc1031 = makeNative(8, _35clofun2924, 0, 0);
 Obj pos = closureRef(co, 0);
 Obj x = closureRef(co, 1);
 Obj _35reg1228 = primIsCons(closureRef(co, 2));
@@ -13415,7 +13468,7 @@ __arg3 = b;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13423,14 +13476,14 @@ __arg0 = _35cc1031;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
 
 label10:
 {
-Obj _35cc1030 = makeNative(9, _35clofun2921, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
+Obj _35cc1030 = makeNative(9, _35clofun2924, 0, 3, closureRef(co, 0), closureRef(co, 1), closureRef(co, 2));
 Obj pos = closureRef(co, 0);
 Obj x = closureRef(co, 1);
 Obj _35reg1232 = primIsCons(closureRef(co, 2));
@@ -13444,7 +13497,7 @@ if (True == _35reg1235) {
 __nargs = 2;
 __arg1 = pos;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13452,7 +13505,7 @@ __arg0 = _35cc1030;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
@@ -13461,7 +13514,7 @@ __arg0 = _35cc1030;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13471,7 +13524,7 @@ label11:
 Obj _35p1026 = __arg1;
 Obj _35p1027 = __arg2;
 Obj _35p1028 = __arg3;
-Obj _35cc1029 = makeNative(10, _35clofun2921, 0, 3, _35p1026, _35p1027, _35p1028);
+Obj _35cc1029 = makeNative(10, _35clofun2924, 0, 3, _35p1026, _35p1027, _35p1028);
 Obj __ = _35p1026;
 Obj x = _35p1027;
 Obj _35reg1236 = primEQ(Nil, _35p1028);
@@ -13479,7 +13532,7 @@ if (True == _35reg1236) {
 __nargs = 2;
 __arg1 = makeNumber(-1);
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13487,7 +13540,7 @@ __arg0 = _35cc1029;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13504,7 +13557,7 @@ __arg3 = l;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13516,7 +13569,7 @@ __arg1 = makeString1("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13534,20 +13587,20 @@ __arg2 = tl;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
 __arg1 = True;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 }
 
 label15:
 {
-Obj _35cc1035 = makeNative(13, _35clofun2921, 0, 0);
+Obj _35cc1035 = makeNative(13, _35clofun2924, 0, 0);
 Obj x = closureRef(co, 0);
 Obj _35reg1239 = primIsCons(closureRef(co, 1));
 if (True == _35reg1239) {
@@ -13555,7 +13608,7 @@ Obj _35reg1240 = primCar(closureRef(co, 1));
 Obj hd = _35reg1240;
 Obj _35reg1241 = primCdr(closureRef(co, 1));
 Obj tl = _35reg1241;
-pushCont(co, 14, _35clofun2921, 2, x, tl);
+pushCont(co, 14, _35clofun2924, 2, x, tl);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.index"));
 __arg1 = x;
@@ -13563,7 +13616,7 @@ __arg2 = hd;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
 __nargs = 1;
@@ -13571,7 +13624,7 @@ __arg0 = _35cc1035;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13580,14 +13633,14 @@ label16:
 {
 Obj _35p1032 = __arg1;
 Obj _35p1033 = __arg2;
-Obj _35cc1034 = makeNative(15, _35clofun2921, 0, 2, _35p1032, _35p1033);
+Obj _35cc1034 = makeNative(15, _35clofun2924, 0, 2, _35p1032, _35p1033);
 Obj x = _35p1032;
 Obj _35reg1244 = primEQ(Nil, _35p1033);
 if (True == _35reg1244) {
 __nargs = 2;
 __arg1 = False;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 1;
@@ -13595,7 +13648,7 @@ __arg0 = _35cc1034;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }
@@ -13607,28 +13660,28 @@ Obj _35reg1317 = primNot(_35val1316);
 __nargs = 2;
 __arg1 = _35reg1317;
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 }
 
 label18:
 {
 Obj _35val1315 = __arg1;
-pushCont(co, 17, _35clofun2921, 0);
+pushCont(co, 17, _35clofun2924, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = _35val1315;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
 label19:
 {
 Obj x = __arg1;
-pushCont(co, 18, _35clofun2921, 0);
+pushCont(co, 18, _35clofun2924, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc.assq"));
 __arg1 = x;
@@ -13636,7 +13689,7 @@ __arg2 = globalRef(intern("cora/lib/toc.*builtin-prims*"));
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 
@@ -13648,7 +13701,7 @@ if (True == _35val1320) {
 __nargs = 2;
 __arg1 = makeString1("ERROR");
 co->ctx = co->callstack.data[--co->callstack.len];
-if (co->ctx.pc.func != _35clofun2921) { goto fail; }
+if (co->ctx.pc.func != _35clofun2924) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 __nargs = 2;
@@ -13657,7 +13710,7 @@ __arg1 = find;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
-if (ps.func != _35clofun2921) { co->ctx.pc = ps; goto fail; };
+if (ps.func != _35clofun2924) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 }

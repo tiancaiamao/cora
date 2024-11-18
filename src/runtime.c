@@ -153,6 +153,8 @@ coraNew() {
   co->callstack.len = 0;
   co->callstack.cap = 64;
 
+		co->globals = &gRoot;
+
   gCo = co;
 
   return co;
@@ -160,25 +162,30 @@ coraNew() {
 
 static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
-  // The stack.
-  for (int i=0; i<co->ctx.stk.pos; i++) {
-    gcMark(gc, co->ctx.stk.stack[i]);
-  }
-  // The args.
-  for (int i=0; i<co->nargs; i++) {
-    gcMark(gc, co->args[i]);
-  }
-  // Closure register.
-  /* Obj save = co->frees; */
-  gcMark(gc, co->ctx.frees);
-  /* printf("coraGC frees = %p -> %p\n", save, co->frees); */
-  // Return addr
-  gcMarkCallStack(gc, &co->callstack);
+		// The globals
+		for (struct trieNode* p = co->globals; p != &gRoot; p = p->next) {
+// 				printf("gc global symbol %s\n", p->sym);
+				gcMark(gc, p->value);
+		}
+		// The stack.
+		for (int i=0; i<co->ctx.stk.pos; i++) {
+				gcMark(gc, co->ctx.stk.stack[i]);
+		}
+		// The args.
+		for (int i=0; i<co->nargs; i++) {
+				gcMark(gc, co->args[i]);
+		}
+
+		// Closure register.
+		gcMark(gc, co->ctx.frees);
+		/* printf("coraGC frees = %p -> %p\n", save, co->frees); */
+
+		// Return addr
+		gcMarkCallStack(gc, &co->callstack);
 }
 
 void
 gcGlobal(struct GC *gc) {
-  trieNodeGCFunc(gc, &gRoot);
   coraGCFunc(gc, gCo);
 }
 
@@ -273,10 +280,18 @@ Obj primIsCons(Obj x) {
   }
 }
 
-Obj primSet(Obj key, Obj val) {
-  struct trieNode* s = ptr(key);
-  s->value = val;
-  return key;
+Obj primSet(struct Cora *co, Obj key, Obj val) {
+		assert(issymbol(key));
+		struct trieNode* s = ptr(key);
+		writeBarrier(getGC(), &s->value, val); // s->value = val;
+		if (s->next == NULL) {
+				s->next = co->globals;
+				s->owner = co;
+				co->globals = s;
+		} else {
+				assert(s->owner == co);
+		}
+		return val;
 }
 
 Obj primSub(Obj x, Obj y) {
@@ -613,7 +628,7 @@ builtinImport(struct Cora *co) {
   }
 
   // Set the *imported* variable to avlid repeated load.
-  symbolSet(sym, cons(pkg, imported));
+  primSet(co, sym, cons(pkg, imported));
 
   // CORA PATH
   strBuf tmp = getCoraPath();
@@ -782,7 +797,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 
   Obj pkg = co->args[2];
   char *selfPath = toCStr(stringStr(pkg));
-  struct SexpReader r = {.selfPath = selfPath};
+  struct SexpReader r = {.selfPath = selfPath, .co = co};
   int err = 0;
   int count = 0;
   while(true) {
@@ -827,7 +842,7 @@ builtinOSExec(struct Cora *co) {
 }
 
 void
-registerAPI(struct registerModule* m, str pkg) {
+registerAPI(struct Cora *co, struct registerModule* m, str pkg) {
   if (m->init != NULL) {
     m->init();
   }
@@ -848,48 +863,44 @@ registerAPI(struct registerModule* m, str pkg) {
     } else {
       sym = intern(entry.name);
     }
-    symbolSet(sym, makeNative(0, entry.func, entry.args, 0));
+    primSet(co, sym, makeNative(0, entry.func, entry.args, 0));
   }
 }
 
 // ============ end utilities for toc =================
 
 void
-coraInit(uintptr_t *mark) {
+coraInit(struct Cora *co, uintptr_t *mark) {
   gcInit(mark);
   typesInit();
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
-  primSet(intern("*imported*"), Nil);
-  primSet(intern("*package-mapping*"), Nil);
-  primSet(intern("symbol->string"), makeNative(0, symbolToString, 1, 0));
-  primSet(intern("string-append"), makeNative(0, stringAppend, 2, 0));
-  primSet(intern("intern"), makeNative(0, builtinIntern, 1, 0));
-  primSet(intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
-  primSet(intern("read-file-as-sexp"), makeNative(0, builtinReadFileAsSexp, 2, 0));
-  primSet(intern("value"), makeNative(0, builtinValue, 1, 0));
-  primSet(intern("apply"), makeNative(0, builtinApply, 2, 0));
-  primSet(intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
-  primSet(intern("import"), makeNative(0, builtinImport, 1, 0));
-  primSet(intern("load"), makeNative(0, builtinLoad, 2, 0));
-
-  primSet(intern("vector"), makeNative(0, builtinVector, 1, 0));
-  primSet(intern("vector-set!"), makeNative(0, builtinVectorSet, 3, 0));
-  primSet(intern("vector-ref"), makeNative(0, builtinVectorRef, 2, 0));
-  primSet(intern("vector-length"), makeNative(0, builtinVectorLength, 1, 0));
-  primSet(intern("try"), makeNative(0, builtinTryCatch, 2, 0));
-  primSet(intern("throw"), makeNative(0, builtinThrow, 1, 0));
-
-  primSet(intern("cora/lib/toc/internal.generate-str"), makeNative(0, builtinGenerateStr, 2, 0));
-  primSet(intern("cora/lib/toc/internal.generate-sym"), makeNative(0, builtinGenerateSym, 2, 0));
-  primSet(intern("cora/lib/toc/internal.generate-num"), makeNative(0, builtinGenerateNum, 2, 0));
-  primSet(intern("cora/lib/toc/internal.escape-str"), makeNative(0, builtinEscapeStr, 1, 0));
-
-  primSet(intern("cora/lib/io.open-output-file"), makeNative(0, builtinOpenOutputFile, 1, 0));
-  primSet(intern("cora/lib/io.close-output-file"), makeNative(0, builtinCloseOutputFile, 1, 0));
-
-  primSet(intern("cora/lib/os.exec"), makeNative(0, builtinOSExec, 1, 0));
+  primSet(co, intern("*imported*"), Nil);
+  primSet(co, intern("*package-mapping*"), Nil);
+  primSet(co, intern("symbol->string"), makeNative(0, symbolToString, 1, 0));
+  primSet(co, intern("string-append"), makeNative(0, stringAppend, 2, 0));
+  primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
+  primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
+  primSet(co, intern("read-file-as-sexp"), makeNative(0, builtinReadFileAsSexp, 2, 0));
+  primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
+  primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
+  primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
+  primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
+  primSet(co, intern("load"), makeNative(0, builtinLoad, 2, 0));
+  primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
+  primSet(co, intern("vector-set!"), makeNative(0, builtinVectorSet, 3, 0));
+  primSet(co, intern("vector-ref"), makeNative(0, builtinVectorRef, 2, 0));
+  primSet(co, intern("vector-length"), makeNative(0, builtinVectorLength, 1, 0));
+  primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
+  primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
+  primSet(co, intern("cora/lib/toc/internal.generate-str"), makeNative(0, builtinGenerateStr, 2, 0));
+  primSet(co, intern("cora/lib/toc/internal.generate-sym"), makeNative(0, builtinGenerateSym, 2, 0));
+  primSet(co, intern("cora/lib/toc/internal.generate-num"), makeNative(0, builtinGenerateNum, 2, 0));
+  primSet(co, intern("cora/lib/toc/internal.escape-str"), makeNative(0, builtinEscapeStr, 1, 0));
+  primSet(co, intern("cora/lib/io.open-output-file"), makeNative(0, builtinOpenOutputFile, 1, 0));
+  primSet(co, intern("cora/lib/io.close-output-file"), makeNative(0, builtinCloseOutputFile, 1, 0));
+  primSet(co, intern("cora/lib/os.exec"), makeNative(0, builtinOSExec, 1, 0));
 }
 
 #ifdef ForTest
@@ -898,8 +909,8 @@ extern void entry(struct Cora* co);
 
 int main(int argc, char *argv[]) {
   uintptr_t dummy;
-  coraInit(&dummy);
   struct Cora* co = coraNew();
+  coraInit(co, &dummy);
   trampoline(co, 0, entry);
   printObj(stdout, co->args[1]);
   return 0;

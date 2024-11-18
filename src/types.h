@@ -47,7 +47,7 @@ extern const Obj Undef;
 
 void typesInit();
 
-struct VM;
+struct Cora;
 
 void* newObj(scmHeadType tp, int sz);
 
@@ -67,7 +67,6 @@ void* mustCObj(Obj o);
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(char *s);
 Obj symbolGet(Obj sym);
-Obj symbolSet(Obj sym, Obj val);
 char* symbolStr(Obj sym);
 
 #define cons(x, y) makeCons(x, y)
@@ -149,9 +148,12 @@ bool isvector(Obj o);
 int vectorLength(Obj vec);
 
 struct trieNode {
-  Obj value;
-  char *sym;
-  struct trieNode* child[256];
+		Obj value;
+		char *sym;
+		struct trieNode* child[256];
+
+		struct trieNode *next;
+		struct Cora *owner;
 };
 
 

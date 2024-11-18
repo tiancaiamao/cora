@@ -9,11 +9,12 @@
 #include "reader.h"
 
 struct Cora {
-  struct returnAddr ctx;
-  struct callStack callstack;
+		struct returnAddr ctx;
+		struct callStack callstack;
+		struct trieNode *globals;
 
-  Obj args[32];
-  int nargs;
+		Obj args[32];
+		int nargs;
 };
 
 void trampoline(struct Cora *co, int label, basicBlock pc);
@@ -35,7 +36,7 @@ Obj primNot(Obj x);
 Obj primCar(Obj x);
 Obj primCdr(Obj x);
 Obj primIsCons(Obj x);
-Obj primSet(Obj key, Obj val);
+Obj primSet(struct Cora *co, Obj key, Obj val);
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
 Obj primDiv(Obj x, Obj y);
@@ -55,10 +56,10 @@ struct registerModule {
   struct registerEntry entries[];
 };
 
-void registerAPI(struct registerModule* m, str pkg);
+void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 
 
 struct Cora* coraNew();
-void coraInit(uintptr_t *mark);
+void coraInit(struct Cora *co, uintptr_t *mark);
 
 #endif

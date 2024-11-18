@@ -35,7 +35,7 @@ pollDel(int pollfd, int fd) {
 }
 
 static Obj
-poll(int pollfd) {
+poll(int pollfd, int timeout) {
   const int MAX_EVENTS = 10;
   struct kevent events[MAX_EVENTS];
   int nfds = kevent(pollfd, NULL, 0, events, MAX_EVENTS, NULL);

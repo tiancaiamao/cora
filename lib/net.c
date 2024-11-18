@@ -284,6 +284,6 @@ struct registerModule netModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(&netModule, toStr(stringStr(pkg)));
+  registerAPI(co, &netModule, toStr(stringStr(pkg)));
   coraReturn(co, intern("net"));
 }

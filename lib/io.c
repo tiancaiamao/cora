@@ -79,6 +79,6 @@ struct registerModule ioModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(&ioModule, toStr(stringStr(pkg)));
+  registerAPI(co, &ioModule, toStr(stringStr(pkg)));
   coraReturn(co, intern("io"));
 }

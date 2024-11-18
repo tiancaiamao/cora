@@ -256,7 +256,9 @@
 				  (.generate-inst self (cons a env) w c)))
       self env w [['%builtin f] . args] => (begin
 				       (c.generate-sym w (.builtin->name f))
-				       (c.generate-str w "(")
+					   (if (= f 'set)
+						(c.generate-str w "(co, ")
+						(c.generate-str w "("))
 				       (.generate-inst-list self env w args)
 				       (c.generate-str w ")"))
       self env w ['if a b c] => (begin

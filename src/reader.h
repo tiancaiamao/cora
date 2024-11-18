@@ -5,9 +5,8 @@
 #include <stdio.h>
 
 struct SexpReader {
-  // associate list ((pkg . path1) (pkg2 . path2) ...)
-  /* Obj pkgMapping; */
-  char *selfPath;
+		char *selfPath;
+		struct Cora *co;
 };
 
 struct VM;

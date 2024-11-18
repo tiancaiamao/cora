@@ -345,8 +345,6 @@ gcQueueInit(struct GC *gc) {
 
 static void
 gcEnqueue(struct GC *gc, scmHead* p) {
-  assert(p->version +2 == gc->version);
-
   struct Block *b = gc->gray.tail;
   if (gc->end + sizeof(scmHead*) > MEM_BLOCK_SIZE) {
     b = blockNew(gc);
@@ -423,6 +421,10 @@ checkPointer(struct GC *gc, uintptr_t p) {
 		if (from->version == gc->version || from->version+1 == gc->version) {
 				return false;
 		}
+		// stale object? it should have been sweeped, but we defer the sweep lazily
+		if (from->version+2 < gc->version) {
+				return false;
+		}
 
 		if (from->type > scmHeadUnused && from->type < scmHeadMax) {
 				return true;
@@ -480,8 +482,8 @@ gcRunMark(struct GC *gc) {
   gc->inuseSize = 0;
   gcQueueInit(gc);
   // enqueue the root.
-  gcStack(gc);
   gcGlobal(gc);
+  gcStack(gc);
 
   gc->state = gcStateIncremental;
 }

@@ -183,16 +183,6 @@ stringGCFunc(struct GC *gc, void* f) {
 
 struct trieNode gRoot = {};
 
-void
-trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  gcMark(gc, node->value);
-  for (int i=0; i<256; i++) {
-    if (node->child[i] != NULL) {
-      trieNodeGCFunc(gc, node->child[i]);
-    }
-  }
-}
-
 Obj
 makeSymbol(char *s) {
   char *old = s;
@@ -222,14 +212,6 @@ symbolGet(Obj sym) {
   assert(issymbol(sym));
   struct trieNode* s = ptr(sym);
   return s->value;
-}
-
-Obj
-symbolSet(Obj sym, Obj val) {
-  assert(issymbol(sym));
-  struct trieNode* s = ptr(sym);
-  s->value = val;
-  return val;
 }
 
 char*
