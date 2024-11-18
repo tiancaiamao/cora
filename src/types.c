@@ -183,12 +183,6 @@ stringGCFunc(struct GC *gc, void* f) {
 
 struct trieNode gRoot = {};
 
-// void
-// trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-// 		char tmp[2048];
-// 		memset(tmp, 0, 2048);
-// }
-
 Obj
 makeSymbol(char *s) {
   char *old = s;

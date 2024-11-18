@@ -75,10 +75,6 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
 		/* read list */
 		Obj tl = readCons(r, in, errCode);
 
-		/* printf("read cdr"); */
-		/* printObj(cdr); */
-		/* printf("\n"); */
-
 		if (issymbol(hd) && strcmp(symbolStr(hd), "@import") == 0) {
 				// Handle the @import reader macro
 				// (@import "path/to/file" sym)

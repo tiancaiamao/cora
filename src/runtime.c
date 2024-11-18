@@ -166,7 +166,6 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 		for (struct trieNode* p = co->globals; p != &gRoot; p = p->next) {
 // 				printf("gc global symbol %s\n", p->sym);
 				gcMark(gc, p->value);
-				p->counter++;
 		}
 		// The stack.
 		for (int i=0; i<co->ctx.stk.pos; i++) {
@@ -188,7 +187,6 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 void
 gcGlobal(struct GC *gc) {
   coraGCFunc(gc, gCo);
-  // trieNodeGCFunc(gc, &gRoot);
 }
 
 void
@@ -287,12 +285,10 @@ Obj primSet(struct Cora *co, Obj key, Obj val) {
 		struct trieNode* s = ptr(key);
 		writeBarrier(getGC(), &s->value, val); // s->value = val;
 		if (s->next == NULL) {
-//				printf("primSet for == %s\n", s->sym);
 				s->next = co->globals;
 				s->owner = co;
 				co->globals = s;
 		} else {
-//				printf("primSet skip == %s\n", s->sym);
 				assert(s->owner == co);
 		}
 		return val;

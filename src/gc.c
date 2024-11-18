@@ -345,8 +345,6 @@ gcQueueInit(struct GC *gc) {
 
 static void
 gcEnqueue(struct GC *gc, scmHead* p) {
-  // assert(p->version +2 == gc->version);
-
   struct Block *b = gc->gray.tail;
   if (gc->end + sizeof(scmHead*) > MEM_BLOCK_SIZE) {
     b = blockNew(gc);
