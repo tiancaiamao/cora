@@ -163,7 +163,7 @@ netSend(struct Cora *ctx) {
 static void
 netPoll(struct Cora *ctx) {
   Obj timeout = coraGet(ctx, 1);
-  Obj ret = poll(pollfd);
+  Obj ret = poll(pollfd, fixnum(timeout));
   coraReturn(ctx, ret);
 }
 

@@ -154,6 +154,8 @@ struct trieNode {
 
 		struct trieNode *next;
 		struct Cora *owner;
+
+		int counter;
 };
 
 
