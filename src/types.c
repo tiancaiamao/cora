@@ -185,7 +185,10 @@ struct trieNode gRoot = {};
 
 void
 trieNodeGCFunc(struct GC* gc, struct trieNode *node) {
-  gcMark(gc, node->value);
+  if (node->next != NULL) {
+    gcMark(gc, node->value);
+   // printf("shoul mark but ignored symbol=%s\n", node->sym);
+  }
   for (int i=0; i<256; i++) {
     if (node->child[i] != NULL) {
       trieNodeGCFunc(gc, node->child[i]);

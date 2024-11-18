@@ -163,11 +163,10 @@ coraNew() {
 static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 		// The globals
-		for (struct trieNode* p = co->globals; p != &gRoot; p = p->next) {
-				printf("gc global symbol %s\n", p->sym);
-				gcMark(gc, p->value);
-		}
-
+//		for (struct trieNode* p = co->globals; p != &gRoot; p = p->next) {
+//				printf("gc global symbol %s\n", p->sym);
+//				gcMark(gc, p->value);
+//		}
 		// The stack.
 		for (int i=0; i<co->ctx.stk.pos; i++) {
 				gcMark(gc, co->ctx.stk.stack[i]);
@@ -187,8 +186,8 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 
 void
 gcGlobal(struct GC *gc) {
-  // trieNodeGCFunc(gc, &gRoot);
   coraGCFunc(gc, gCo);
+  trieNodeGCFunc(gc, &gRoot);
 }
 
 void
