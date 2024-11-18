@@ -188,7 +188,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 void
 gcGlobal(struct GC *gc) {
   coraGCFunc(gc, gCo);
-  trieNodeGCFunc(gc, &gRoot);
+  // trieNodeGCFunc(gc, &gRoot);
 }
 
 void
