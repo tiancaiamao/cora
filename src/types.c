@@ -184,7 +184,7 @@ stringGCFunc(struct GC *gc, void* f) {
 struct trieNode gRoot = {};
 
 Obj
-makeSymbol(char *s) {
+makeSymbol(const char *s) {
   char *old = s;
   struct trieNode* p = &gRoot;
   for(; *s; s++) {

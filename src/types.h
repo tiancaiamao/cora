@@ -65,7 +65,7 @@ scmHead *getScmHead(Obj);
 void* mustCObj(Obj o);
 
 #define intern(x) makeSymbol(x)
-Obj makeSymbol(char *s);
+Obj makeSymbol(const char *s);
 Obj symbolGet(Obj sym);
 char* symbolStr(Obj sym);
 
