@@ -6,9 +6,9 @@
 #include "types.h"
 #include "gc.h"
 
-const Obj True = ((1 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
-const Obj False = ((2 << (TAG_SHIFT+1)) | TAG_BOOLEAN);
-const Obj Nil = ((666 << (TAG_SHIFT+1)) | TAG_IMMEDIATE_CONST);
+const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
+const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
+const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
 struct scmString {
@@ -16,7 +16,7 @@ struct scmString {
   strBuf str;
 };
 
-const char* typeNameX[8] = {
+const char *typeNameX[8] = {
   "unused",
   "boolean",
   "null",
@@ -27,17 +27,17 @@ const char* typeNameX[8] = {
   "native",
 };
 
-void*
+void *
 newObj(scmHeadType tp, int sz) {
   // scmHead* p = malloc(sz);
-  scmHead* p = gcAlloc(getGC(), sz);
-  assert(((Obj)p & TAG_PTR) == 0);
+  scmHead *p = gcAlloc(getGC(), sz);
+  assert(((Obj) p & TAG_PTR) == 0);
   p->type = tp;
   /* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
-  return (void*)p;
+  return (void *) p;
 }
 
-scmHead*
+scmHead *
 getScmHead(Obj o) {
   if (tag(o) == TAG_PTR) {
     return ptr(o);
@@ -45,13 +45,14 @@ getScmHead(Obj o) {
   return NULL;
 }
 
-Obj makeCObj(void *ptr) {
+Obj
+makeCObj(void *ptr) {
   // The pointer must be aligned to be used as c object.
-  assert(((Obj)ptr & TAG_PTR) == 0);
-  return ((Obj)(ptr) | TAG_COBJ);
+  assert(((Obj) ptr & TAG_PTR) == 0);
+  return ((Obj) (ptr) | TAG_COBJ);
 }
 
-void*
+void *
 mustCObj(Obj o) {
   assert(tag(o) == TAG_COBJ);
   return ptr(o);
@@ -59,13 +60,14 @@ mustCObj(Obj o) {
 
 Obj
 makeCons(Obj car, Obj cdr) {
-  struct scmCons* p = newObj(scmHeadCons, sizeof(struct scmCons));
+  struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons));
   p->car = car;
   p->cdr = cdr;
-  return ((Obj)(&p->head) | TAG_PTR);
+  return ((Obj) (&p->head) | TAG_PTR);
 }
 
-bool iscons(Obj o) {
+bool
+iscons(Obj o) {
   if ((o & TAG_MASK) != TAG_PTR) {
     return false;
   }
@@ -74,7 +76,7 @@ bool iscons(Obj o) {
 }
 
 static void
-consGCFunc(struct GC *gc, void* f) {
+consGCFunc(struct GC *gc, void *f) {
   struct scmCons *from = f;
   gcMark(gc, from->car);
   gcMark(gc, from->cdr);
@@ -110,12 +112,12 @@ makeNumber(int v) {
   if (v < 99999999) {
     // The type of a fixnum is actually intptr_t, although stored as uintptr.
     // Be careful with the sign digit.
-    Obj res = (Obj)(((intptr_t)(v)<<1));
+    Obj res = (Obj) (((intptr_t) (v) << 1));
     assert((res & 1) == 0);
     return res;
   }
   // TODO
-  return (Obj)(99999999);
+  return (Obj) (99999999);
 }
 
 bool
@@ -124,7 +126,7 @@ isNumber(Obj o) {
     return true;
   }
   if (tag(o) == TAG_PTR) {
-    if (((scmHead*)ptr(o))->type == scmHeadNumber) {
+    if (((scmHead *) ptr(o))->type == scmHeadNumber) {
       return true;
     }
   }
@@ -135,12 +137,13 @@ Obj
 makeString(const char *s, int len) {
   // sz is the actural length but we malloc a extra byte to be compatible with C.
   int alloc = len + sizeof(struct scmString) + 1;
-  struct scmString* str = newObj(scmHeadString, alloc);
+  struct scmString *str = newObj(scmHeadString, alloc);
   str->str = fromBlk(s, len);
-  return ((Obj)(&str->head) | TAG_PTR);
+  return ((Obj) (&str->head) | TAG_PTR);
 }
 
-Obj makeString1(char *x) {
+Obj
+makeString1(char *x) {
   return makeString(x, strlen(x));
 }
 
@@ -151,14 +154,14 @@ makeCString(const char *s) {
 
 strBuf
 stringStr(Obj o) {
-  struct scmString* s = ptr(o);
+  struct scmString *s = ptr(o);
   assert(s->head.type == scmHeadString);
   return s->str;
 }
 
 int
 stringLen(Obj o) {
-  struct scmString* s = ptr(o);
+  struct scmString *s = ptr(o);
   assert(s->head.type == scmHeadString);
   return strLen(toStr(s->str));
 }
@@ -166,7 +169,7 @@ stringLen(Obj o) {
 bool
 isstring(Obj o) {
   if (tag(o) == TAG_PTR) {
-    if (((scmHead*)ptr(o))->type == scmHeadString) {
+    if (((scmHead *) ptr(o))->type == scmHeadString) {
       return true;
     }
   }
@@ -174,20 +177,20 @@ isstring(Obj o) {
 }
 
 static void
-stringGCFunc(struct GC *gc, void* f) {
+stringGCFunc(struct GC *gc, void *f) {
   // TODO:
   struct scmString *from = f;
   from->head.version++;
 }
 
 
-struct trieNode gRoot = {};
+struct trieNode gRoot = { };
 
 Obj
 makeSymbol(const char *s) {
   char *old = s;
-  struct trieNode* p = &gRoot;
-  for(; *s; s++) {
+  struct trieNode *p = &gRoot;
+  for (; *s; s++) {
     int offset = *s;
     if (p->child[offset] == NULL) {
       struct trieNode *n = malloc(sizeof(struct trieNode));
@@ -198,23 +201,23 @@ makeSymbol(const char *s) {
   }
   /* printf("making symbol ...%p\n", p); */
   if (p->sym == NULL) {
-    char* tmp = malloc(strlen(old) + 1);
+    char *tmp = malloc(strlen(old) + 1);
     strcpy(tmp, old);
     p->sym = tmp;
     p->value = Undef;
   }
 
-  return (Obj)(p) | TAG_SYMBOL;
+  return (Obj) (p) | TAG_SYMBOL;
 }
 
 Obj
 symbolGet(Obj sym) {
   assert(issymbol(sym));
-  struct trieNode* s = ptr(sym);
+  struct trieNode *s = ptr(sym);
   return s->value;
 }
 
-char*
+char *
 symbolStr(Obj sym) {
   assert(issymbol(sym));
   struct trieNode *s = ptr(sym);
@@ -222,9 +225,9 @@ symbolStr(Obj sym) {
 }
 
 Obj
-makeNative(int label,basicBlock fn, int required, int captured, ...) {
-  int sz = sizeof(struct scmNative) + captured*sizeof(Obj);
-  struct scmNative* clo = newObj(scmHeadNative, sz);
+makeNative(int label, basicBlock fn, int required, int captured, ...) {
+  int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
+  struct scmNative *clo = newObj(scmHeadNative, sz);
   clo->code.func = fn;
   clo->code.label = label;
   clo->required = required;
@@ -232,19 +235,19 @@ makeNative(int label,basicBlock fn, int required, int captured, ...) {
   if (captured > 0) {
     va_list ap;
     va_start(ap, captured);
-    for (int i=0; i<captured; i++) {
+    for (int i = 0; i < captured; i++) {
       clo->data[i] = va_arg(ap, Obj);
     }
     va_end(ap);
   }
 
-  return ((Obj)(&clo->head) | TAG_PTR);
+  return ((Obj) (&clo->head) | TAG_PTR);
 }
 
 static void
-nativeGCFunc(struct GC *gc, void* f) {
+nativeGCFunc(struct GC *gc, void *f) {
   struct scmNative *from = f;
-  for (int i=0; i<from->captured; i++) {
+  for (int i = 0; i < from->captured; i++) {
     gcMark(gc, from->data[i]);
   }
   from->head.version++;
@@ -260,9 +263,9 @@ isNative(Obj c) {
   return h->type == scmHeadNative;
 }
 
-Obj*
+Obj *
 nativeData(Obj o) {
-  struct scmNative* native = ptr(o);
+  struct scmNative *native = ptr(o);
   assert(native->head.type == scmHeadNative);
   if (native->captured == 0) {
     return NULL;
@@ -272,21 +275,21 @@ nativeData(Obj o) {
 
 int
 nativeCaptured(Obj o) {
-  struct scmNative* native = ptr(o);
+  struct scmNative *native = ptr(o);
   assert(native->head.type == scmHeadNative);
   return native->captured;
 }
 
-struct pcState*
+struct pcState *
 nativeFuncPtr(Obj o) {
-  struct scmNative* native = ptr(o);
+  struct scmNative *native = ptr(o);
   assert(native->head.type == scmHeadNative);
   return &native->code;
 }
 
 int
 nativeRequired(Obj o) {
-  struct scmNative* native = ptr(o);
+  struct scmNative *native = ptr(o);
   assert(native->head.type == scmHeadNative);
   return native->required;
 }
@@ -299,17 +302,18 @@ struct scmVector {
 
 Obj
 makeVector(int size) {
-  struct scmVector* vec = newObj(scmHeadVector, sizeof(struct scmVector)+sizeof(Obj)*size);
+  struct scmVector *vec =
+    newObj(scmHeadVector, sizeof(struct scmVector) + sizeof(Obj) * size);
   vec->size = size;
-  for (int i=0; i<vec->size; i++) {
+  for (int i = 0; i < vec->size; i++) {
     vec->data[i] = Undef;
   }
-  return ((Obj)(&vec->head) | TAG_PTR);
+  return ((Obj) (&vec->head) | TAG_PTR);
 }
 
 Obj
 vectorRef(Obj v, int idx) {
-  struct scmVector* vec = ptr(v);
+  struct scmVector *vec = ptr(v);
   assert(vec->head.type == scmHeadVector);
   assert(idx >= 0 && idx < vec->size);
   return vec->data[idx];
@@ -317,7 +321,7 @@ vectorRef(Obj v, int idx) {
 
 Obj
 vectorSet(Obj vec, int idx, Obj val) {
-  struct scmVector* v = ptr(vec);
+  struct scmVector *v = ptr(vec);
   assert(v->head.type == scmHeadVector);
   assert(idx >= 0 && idx < v->size);
   writeBarrier(getGC(), &v->data[idx], val);
@@ -334,7 +338,7 @@ vectorLength(Obj vec) {
 bool
 isvector(Obj o) {
   if (tag(o) == TAG_PTR) {
-    if (((scmHead*)ptr(o))->type == scmHeadVector) {
+    if (((scmHead *) ptr(o))->type == scmHeadVector) {
       return true;
     }
   }
@@ -343,9 +347,9 @@ isvector(Obj o) {
 
 
 static void
-vectorGCFunc(struct GC *gc, void* f) {
+vectorGCFunc(struct GC *gc, void *f) {
   struct scmVector *from = f;
-  for (int i=0; i<from->size; i++) {
+  for (int i = 0; i < from->size; i++) {
     gcMark(gc, from->data[i]);
   }
   from->head.version++;
@@ -365,8 +369,8 @@ eq(Obj x, Obj y) {
   }
 
   if (isstring(x) && isstring(y)) {
-    struct scmString* x1 = ptr(x);
-    struct scmString* y1 = ptr(y);
+    struct scmString *x1 = ptr(x);
+    struct scmString *y1 = ptr(y);
     return strCmp(toStr(x1->str), toStr(y1->str)) == 0;
   }
 
@@ -381,27 +385,28 @@ struct scmContinuation {
 
 Obj
 makeContinuation(int pos) {
-  struct scmContinuation* cont = newObj(scmHeadContinuation, sizeof(struct scmContinuation));
+  struct scmContinuation *cont =
+    newObj(scmHeadContinuation, sizeof(struct scmContinuation));
   cont->pos = pos;
-  struct callStack* stack = &cont->cs;
-  stack->data = malloc(64*sizeof(struct returnAddr));
+  struct callStack *stack = &cont->cs;
+  stack->data = malloc(64 * sizeof(struct returnAddr));
   stack->len = 0;
   stack->cap = 64;
-  return ((Obj)(&cont->head) | TAG_PTR);
+  return ((Obj) (&cont->head) | TAG_PTR);
 }
 
-struct callStack*
+struct callStack *
 contCallStack(Obj cont) {
-  struct scmContinuation* v = ptr(cont);
+  struct scmContinuation *v = ptr(cont);
   assert(v->head.type == scmHeadContinuation);
   return &v->cs;
 }
 
 void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
-  for (int i=0; i<stack->len; i++) {
-    struct returnAddr* addr = &stack->data[i];
-    for (int j=addr->stk.base; j<addr->stk.pos; j++) {
+  for (int i = 0; i < stack->len; i++) {
+    struct returnAddr *addr = &stack->data[i];
+    for (int j = addr->stk.base; j < addr->stk.pos; j++) {
       gcMark(gc, addr->stk.stack[j]);
     }
     // Don't forget this one!
@@ -410,7 +415,7 @@ gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 }
 
 static void
-continuationGCFunc(struct GC *gc, void* f) {
+continuationGCFunc(struct GC *gc, void *f) {
   struct scmContinuation *from = f;
   gcMarkCallStack(gc, &from->cs);
   from->head.version++;
