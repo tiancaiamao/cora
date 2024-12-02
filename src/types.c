@@ -185,7 +185,7 @@ struct trieNode gRoot = {};
 
 Obj
 makeSymbol(const char *s) {
-  char *old = s;
+  const char *old = s;
   struct trieNode* p = &gRoot;
   for(; *s; s++) {
     int offset = *s;
