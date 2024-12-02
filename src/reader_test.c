@@ -10,7 +10,7 @@ TestReadSexp() {
   /* char buffer[] = "(a)"; */
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  struct SexpReader reader = {};
+  struct SexpReader reader = { };
   int errCode;
   Obj o = sexpRead(&reader, stream, &errCode);
 
@@ -37,7 +37,7 @@ TestImport() {
   char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
   FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-  struct SexpReader r = {};
+  struct SexpReader r = { };
   int errCode;
   Obj o = sexpRead(&r, stream, &errCode);
   Obj pathStr = makeString("std/cora/basic", 14);
@@ -66,18 +66,18 @@ struct readerMacroTest {
 static void
 TestReaderMacro() {
   struct readerMacroTest cases[] = {
-    {"'a",   "(quote a)"},
-    {"'(a b c)",   "(quote (a b c))"},
-    {"[1 2 3]",  "(list 1 2 3)"},
+    {"'a", "(quote a)"},
+    {"'(a b c)", "(quote (a b c))"},
+    {"[1 2 3]", "(list 1 2 3)"},
     {"[1 2 . 3]", "(list-rest 1 2 3)"},
-    {"(@import \"package/path\")",  "(import \"package/path\")"},
-    {"(@import \"package/path\" xxx)",  "(import \"package/path\")"},
-    {"`(1 ,a 2 ,(a b) c)",  "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
+    {"(@import \"package/path\")", "(import \"package/path\")"},
+    {"(@import \"package/path\" xxx)", "(import \"package/path\")"},
+    {"`(1 ,a 2 ,(a b) c)", "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
   };
 
-  struct SexpReader r = {};
+  struct SexpReader r = { };
   int errCode = 0;
-  for (int i=0; i<sizeof(cases) / sizeof(struct readerMacroTest); i++) {
+  for (int i = 0; i < sizeof(cases) / sizeof(struct readerMacroTest); i++) {
     struct readerMacroTest *c = &cases[i];
     FILE *stream = fmemopen(c->input, strlen(c->input), "r");
     Obj x = sexpRead(&r, stream, &errCode);
@@ -96,7 +96,8 @@ TestReaderMacro() {
   }
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
   uintptr_t dummy;
   coraInit(&dummy);
   TestReadSexp();

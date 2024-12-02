@@ -1,4 +1,4 @@
-.PHONY: libcora lib
+.PHONY: libcora lib fmt
 
 CC = gcc
 CFLAGS = -g -Wall -fPIC
@@ -37,3 +37,5 @@ toc.so: toc.c libcora
 init.so: init.c libcora
 	gcc -shared -o init.so -g -fPIC init.c -Isrc -I. -Lsrc -lcora
 
+fmt:
+	cd src; indent -npcs -bap -br -ce -brf -ut *.c

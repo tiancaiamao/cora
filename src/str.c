@@ -21,12 +21,14 @@ growCap(int oldLen) {
 
 str
 cstr(const char *s) {
-  return (str){.str=s, .len=strlen(s)};
+  return (str) {
+  .str = s,.len = strlen(s)};
 }
 
 str
 toStr(strBuf s) {
-  return (str){.str=s->data, .len=s->len};
+  return (str) {
+  .str = s->data,.len = s->len};
 }
 
 int
@@ -38,9 +40,9 @@ int
 strStr(str haystack, str needle) {
   // TODO: Use Boyer Moore Algorithm maybe?
   int pos = 0;
-  while(pos + needle.len <= haystack.len) {
+  while (pos + needle.len <= haystack.len) {
     int i;
-    for (i=0; i<needle.len; i++) {
+    for (i = 0; i < needle.len; i++) {
       if (pos + i >= haystack.len) {
 	return -1;
       }
@@ -59,7 +61,7 @@ strStr(str haystack, str needle) {
 int
 strChr(str s, char c) {
   int pos = 0;
-  for(int i=pos; i<strLen(s); i++) {
+  for (int i = pos; i < strLen(s); i++) {
     if (s.str[i] == c) {
       return i;
     }
@@ -69,7 +71,7 @@ strChr(str s, char c) {
 
 int
 strCmp(str s1, str s2) {
-  for(int i=0; i<s1.len && i<s2.len; i++) {
+  for (int i = 0; i < s1.len && i < s2.len; i++) {
     if (s1.str[i] > s2.str[i]) {
       return 1;
     }
@@ -80,11 +82,11 @@ strCmp(str s1, str s2) {
   return s1.len - s2.len;
 }
 
-static const char*
-ptrByIdx(const char* p, int len, int idx) {
+static const char *
+ptrByIdx(const char *p, int len, int idx) {
   if (idx >= 0) {
-    if(idx <= len) {
-      return p+idx;
+    if (idx <= len) {
+      return p + idx;
     }
     return NULL;
   }
@@ -98,27 +100,31 @@ str
 strSub(str s, int start, int end) {
   const char *p1 = ptrByIdx(s.str, s.len, start);
   if (p1 == NULL) {
-    return (str){.len=0};
+    return (str) {
+    .len = 0};
   }
   const char *p2 = ptrByIdx(s.str, s.len, end);
   if (p2 == NULL) {
-    return (str){.len=0};
+    return (str) {
+    .len = 0};
   }
   if (p1 >= p2) {
-    return (str){.len=0};
+    return (str) {
+    .len = 0};
   }
-  return (str){.str=p1, .len=p2-p1};
+  return (str) {
+  .str = p1,.len = p2 - p1};
 }
 
-char*
+char *
 toCStr(strBuf s) {
   return s->data;
 }
 
 strBuf
 fromBlk(const void *ptr, int len) {
-  strBuf ret = (strBuf)malloc(sizeof(struct _strBuf) + len + 1);
-  if(ptr != NULL) {
+  strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + len + 1);
+  if (ptr != NULL) {
     memcpy(&ret->data, ptr, len);
   }
   ret->data[len] = '\0';
@@ -130,12 +136,12 @@ fromBlk(const void *ptr, int len) {
 strBuf
 fromCStr(const char *s) {
   int len = strlen(s);
-  return fromBlk((void*)s, len);
+  return fromBlk((void *) s, len);
 }
 
 strBuf
 strNew(int cap) {
-  strBuf ret = (strBuf)malloc(sizeof(struct _strBuf) + cap);
+  strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + cap);
   ret->cap = cap;
   ret->len = 0;
   ret->data[0] = '\0';
