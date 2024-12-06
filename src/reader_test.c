@@ -33,11 +33,11 @@ TestReadSexp() {
 }
 
 static void
-TestImport() {
+TestImport(struct Cora *co) {
 	char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
 	FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-	struct SexpReader r = { };
+		struct SexpReader r = {co: co };
 	int errCode;
 	Obj o = sexpRead(&r, stream, &errCode);
 	Obj pathStr = makeString("std/cora/basic", 14);
@@ -64,7 +64,7 @@ struct readerMacroTest {
 };
 
 static void
-TestReaderMacro() {
+TestReaderMacro(struct Cora *co) {
 	struct readerMacroTest cases[] = {
 		{"'a", "(quote a)"},
 		{"'(a b c)", "(quote (a b c))"},
@@ -77,7 +77,7 @@ TestReaderMacro() {
 		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};
 
-	struct SexpReader r = { };
+		struct SexpReader r = {co: co };
 	int errCode = 0;
 	for (int i = 0; i < sizeof(cases) / sizeof(struct readerMacroTest);
 	     i++) {
@@ -103,8 +103,9 @@ TestReaderMacro() {
 int
 main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	coraInit(&dummy);
+		struct Cora* co = coraNew();
+	coraInit(co, &dummy);
 	TestReadSexp();
-	TestImport();
-	TestReaderMacro();
+	TestImport(co);
+	TestReaderMacro(co);
 }

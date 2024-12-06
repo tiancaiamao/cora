@@ -30,9 +30,9 @@ struct Block {
 	// The base address of this Block can be calculated from ha->ptr[block_idx]
 	char *base;
 
-	// Link the block into sizeClass freelist.
+	// Link the block into sizeClass or freelist.
+// Or point to the scmHead for large objects.
 	struct Block *next;
-	struct Block *prev;
 };
 
 // each heapArena maintains 64MB virtual memory (mmap from OS)
@@ -41,15 +41,20 @@ struct heapArena {
 	char *ptr;		// The start address of this virtual memory
 	struct heapArena *next;
 
+	// idx record the current (max) position of the allocated blocks.
+	// when idx == (HEAP_ARENA_SIZE / MEM_BLOCK_SIZE) and freelist is empty,
+	// this heapArena is full.
+	int idx;
+
 	struct Block blocks[BLOCKS_PER_HEAP];
 
 	// freelist is used for recycling and fast allocation.
 	struct Block *freelist;
 
-	// idx record the current (max) position of the allocated blocks.
-	// when idx == (HEAP_ARENA_SIZE / MEM_BLOCK_SIZE) and freelist is empty,
-	// this heapArena is full.
-	int idx;
+	bool forLargeObjects;
+	// curr is used when this heapArena is for large objects.
+	int curr;
+
 };
 
 static struct heapArena *
@@ -62,13 +67,15 @@ heapArenaNew() {
 	/* printf("mmap return ptr ====== %p\n", ha->ptr); */
 	ha->freelist = NULL;
 	ha->idx = 0;
+	ha->curr = 0;
+	ha->forLargeObjects = false;
 	return ha;
 }
 
 static bool
 heapArenaFull(struct heapArena *ha) {
 	return ha->freelist == NULL
-		&& ha->idx == (HEAP_ARENA_SIZE / MEM_BLOCK_SIZE);
+		&& ha->idx >= BLOCKS_PER_HEAP;
 }
 
 static struct Block *
@@ -86,7 +93,6 @@ heapArenaAlloc(struct heapArena *h) {
 	b->sizeClass = 0;
 	b->curr = 0;
 	b->next = NULL;
-	b->prev = NULL;
 	h->idx++;
 
 	/* printf("allocate new block, current idx==%d\n", h->idx); */
@@ -105,9 +111,11 @@ struct doubleLinkList {
 };
 
 // The type of scmFreeNode should be scmHeadUnused.
+// It is used by large object allocation.
 struct scmFreeNode {
-	scmHead head;
-	struct scmFreeNode *next;
+		scmHead head;
+		int slots;
+		struct scmFreeNode *next;
 };
 
 static int sizeClass[] =
@@ -123,7 +131,7 @@ static int smallSizeClassIdx[] =
 	10, 10
 };
 
-static int largeSizeClassIdx[] =
+static int mediumSizeClassIdx[] =
 	{ -1, -1, 9, 10, 11, 12, 12, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15,
 	16, 16,
 	16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18,
@@ -142,23 +150,28 @@ getSlotBySize(int size) {
 		slot = smallSizeClassIdx[sizeDiv8];
 	} else {
 		int sizeDiv64 = ((size + 63) / 64);
-		slot = largeSizeClassIdx[sizeDiv64];
+		slot = mediumSizeClassIdx[sizeDiv64];
 	}
-//              assert(sizeClass[slot] >= size);
-//              if (slot > 0) {
-//                              assert(sizeClass[slot-1] < size);
-//              }
+// assert(sizeClass[slot] >= size);
+// if (slot > 0) {
+// 			 assert(sizeClass[slot-1] < size);
+// }
 	return slot;
 }
 
 struct GC {
 	enum gcState state;
 	uintptr_t *baseStackAddr;
-	struct heapArena *heap;
 
+	// Small objects are allocated from sizeClass blocks.
 	// Each Block can be belongs to one size class. After Block initialization,
 	// all objects allocated from that specific Block are with the same size.
 	struct Block *sizeClass[sizeClassSZ];
+	struct heapArena *heap;
+
+	// Large objects are allocated directly from heapArena;
+	// This is a list of heapArena and if one heapArena is full, it's moved to heap.
+	struct heapArena *large;
 
 	// Initially, allocate objects version=0
 	// For every round of GC, the version+=2
@@ -204,7 +217,6 @@ blockReset(struct Block *block) {
 	struct heapArena *ha = block->ha;
 	memset(block->base, 0, MEM_BLOCK_SIZE);
 	block->next = NULL;
-	block->prev = NULL;
 	if (ha->freelist == NULL) {
 		ha->freelist = block;
 	} else {
@@ -219,6 +231,7 @@ void
 gcInit(uintptr_t * baseStackAddr) {
 	struct GC *gc = malloc(sizeof(struct GC));
 	gc->heap = NULL;
+	gc->large = NULL;
 	gc->state = gcStateNone;
 	gc->baseStackAddr = baseStackAddr;
 	// the first version start from 2 so uninitialized block can be treat the same
@@ -249,6 +262,14 @@ getGC() {
 static struct heapArena *
 gcContains(struct GC *gc, void *p) {
 	struct heapArena *h = gc->heap;
+	while (h != NULL) {
+		if (heapArenaContains(h, p)) {
+			return h;
+		}
+		h = h->next;
+	}
+
+	h = gc->large;
 	while (h != NULL) {
 		if (heapArenaContains(h, p)) {
 			return h;
@@ -293,6 +314,98 @@ getBlock(struct GC *gc, int slot) {
 	return block;
 }
 
+static void
+allocDone(struct GC *gc, int size, scmHead * ret) {
+	ret->size = size;
+	ret->version = gc->version;
+	gc->allocated += size;
+	// should trigger the next round of GC.
+	if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
+		gc->state = gcStateMark;
+	}
+}
+
+scmHead*
+heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
+		while(ha->curr + slots < BLOCKS_PER_HEAP) {
+				// Find enough slots for this allocation.
+				int i;
+				for (i=0; i<slots; i++) {
+						int curr = ha->curr + i;
+						if (curr >= ha->idx) {
+								continue;
+						}
+						struct Block *b = &ha->blocks[curr];
+						if (b->next == NULL) {
+								continue;
+						}
+						b = b->next;
+						scmHead *h = (scmHead*)b->base;
+						if (inuse(gc, h)) {
+								assert(h->size >= MEM_BLOCK_SIZE);
+								// skip this object and move num blocks forward.
+								int num = (h->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+								ha->curr += num;
+								break;
+						}
+				}
+				if (i == slots) {
+						struct Block *b = &ha->blocks[ha->curr];
+						scmHead *p = (scmHead *) (ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
+						// Reset the blocks
+						ha->blocks[ha->curr].next = NULL;
+						for (int x=1; x<slots; x++) {
+								ha->blocks[ha->curr + x].next = &ha->blocks[ha->curr];
+						}
+						int num = (p->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+						for (int x = slots; x < num && x < BLOCKS_PER_HEAP; x++) {
+								struct Block *p = &ha->blocks[ha->curr + x];
+								assert(p->next == b);
+								p->next = NULL;
+						}
+
+						ha->curr += slots;
+						if (ha->curr > ha->idx) {
+								ha->idx = ha->curr;
+						}
+						return p;
+				}
+		}
+		return NULL;
+}
+
+static void *
+gcAllocLargeObject(struct GC *gc, int size) {
+		assert(size < HEAP_ARENA_SIZE);
+		scmHead *p;
+		while (true) {
+				struct heapArena *ha = gc->large;
+				if (ha == NULL) {
+						ha = heapArenaNew();
+						for (int i=0; i<BLOCKS_PER_HEAP; i++) {
+								ha->blocks[i].base = ha->ptr + (i * MEM_BLOCK_SIZE);
+						}
+						ha->forLargeObjects = true;
+						gc->large = ha;
+				}
+
+				int slots = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+				p = heapArenaAllocLarge(ha, gc, slots);
+				if (p == NULL) {
+						// This one is full, remove it from large list.
+						gc->large = ha->next;
+						// Link it to heap list, wait GC to recycle them.
+						struct heapArena *heapHead = gcGetHeapArena(gc);
+						ha->next = heapHead->next;
+						heapHead->next = ha;
+						continue;
+				}
+				allocDone(gc, size, p);
+				break;
+		}
+		return p;
+}
+
 static scmHead *
 blockAlloc(struct GC *gc, struct Block *block) {
 	while (block->curr + block->sizeClass <= MEM_BLOCK_SIZE) {
@@ -308,13 +421,13 @@ blockAlloc(struct GC *gc, struct Block *block) {
 
 void *
 gcAlloc(struct GC *gc, int size) {
+	assert(size > sizeof(scmHead));
 	if (gc->state != gcStateNone) {
 		gcRun(gc);
 	}
-
-	assert(size > sizeof(scmHead));
-	assert(size < MEM_BLOCK_SIZE);
-
+	if (size >= MEM_BLOCK_SIZE) {
+		return gcAllocLargeObject(gc, size);
+	}
 	// calculate the size class for the allocation.
 	int slot = getSlotBySize(size);
 
@@ -328,18 +441,11 @@ gcAlloc(struct GC *gc, int size) {
 		}
 		// Remove full block from the sizeClass list, wait GC to recycle them
 		gc->sizeClass[slot] = b->next;
-		b->prev = NULL;
 		b->next = NULL;
 		b->curr = 0;
 	}
+	allocDone(gc, size, ret);
 
-	ret->size = size;
-	ret->version = gc->version;
-	gc->allocated += size;
-	// should trigger the next round of GC.
-	if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
-		gc->state = gcStateMark;
-	}
 	/* printf("gcAlloc== %p size=%d version=%d\n", head, head->size, gc->version); */
 	return ret;
 }
@@ -352,6 +458,7 @@ gcRegistForType(uint8_t idx, gcFunc fn) {
 	if (registry[idx] != NULL) {
 		return false;
 	}
+
 	registry[idx] = fn;
 	return true;
 }
@@ -370,7 +477,6 @@ gcEnqueue(struct GC *gc, scmHead * p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
 		b = blockNew(gc);
-		b->prev = gc->gray.tail;
 		gc->gray.tail->next = b;
 		gc->gray.tail = b;
 		gc->end = 0;
@@ -424,17 +530,28 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	int idx = ((char *) addr - h->ptr) / MEM_BLOCK_SIZE;
 	struct Block *b = &h->blocks[idx];
 
-	// Special block?
-	if (b->sizeClass == 0) {
-		return false;
+	scmHead *from;
+	// Large object?
+	if (h->forLargeObjects) {
+		if (b->next == NULL) {
+			b = b->next;
+		}
+		from = (scmHead *) b->base;
+	} else {
+
+		// Special block?
+		if (b->sizeClass == 0) {
+			return false;
+		}
+
+		int pos = ((char *) addr - b->base) / b->sizeClass;
+		assert(pos >= 0);
+		from = (scmHead *) (b->base + (pos * b->sizeClass));
+		if (from != addr) {
+			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
+		}
 	}
 
-	int pos = ((char *) addr - b->base) / b->sizeClass;
-	assert(pos >= 0);
-	scmHead *from = (scmHead *) (b->base + (pos * b->sizeClass));
-	if (from != addr) {
-		printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
-	}
 	// black or gray object
 	if (from->version == gc->version || from->version + 1 == gc->version) {
 		return false;
@@ -506,29 +623,51 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcDoneAndReset(struct GC *gc) {
-	// Reset blocks for re-allocation
-	for (int i = 0; i < sizeClassSZ; i++) {
-		struct Block *b = gc->sizeClass[i];
-		gc->sizeClass[i] = NULL;
-		if (b != NULL) {
-			b->curr = 0;
-			b->prev = NULL;
-			b->next = NULL;
+		// Reset the current large list and sizeClass list.
+		for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
+				p->curr = 0;
 		}
-	}
-	for (struct heapArena * h = gc->heap; h != NULL; h = h->next) {
-		for (int i = 0; i < h->idx; i++) {
-			struct Block *b = &h->blocks[i];
-			if (b->sizeClass == 0) {
-				// Skip the freelist blocks which is generated by GC gray queue.
-				continue;
-			}
-			int slot = getSlotBySize(b->sizeClass);
-			assert(b->sizeClass == sizeClass[slot]);
-			b->next = gc->sizeClass[slot];
-			gc->sizeClass[slot] = b;
+		for (int i = 0; i < sizeClassSZ; i++) {
+				gc->sizeClass[i] = NULL;
 		}
-	}
+
+		// Put back the heap blocks to sizeClass list or large objects list.
+		struct heapArena *prev = NULL;
+		struct heapArena *h = gc->heap;
+		while (h != NULL) {
+				if (h->forLargeObjects) {
+						// unlink p from heap list.
+						struct heapArena *p = h;	
+						h = p->next;
+
+						if (prev == NULL) {
+								gc->heap = p->next;
+						} else {
+								prev->next = p->next;
+								p->next = NULL;
+						}
+						// reset p and link it to large list.
+						p->curr = 0;
+						p->next = gc->large;
+						gc->large = p;
+						continue;
+				}
+
+				for (int i = 0; i < h->idx; i++) {
+						struct Block *b = &h->blocks[i];
+						if (b->sizeClass == 0) {
+								// Skip the freelist blocks which is generated by GC gray queue.
+								continue;
+						}
+						int slot = getSlotBySize(b->sizeClass);
+						assert(b->sizeClass == sizeClass[slot]);
+						b->curr = 0;
+						b->next = gc->sizeClass[slot];
+						gc->sizeClass[slot] = b;
+				}
+				prev = h;
+				h = h->next;
+		}
 }
 
 static void

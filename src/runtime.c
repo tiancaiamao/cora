@@ -106,9 +106,8 @@ coraDispatch(struct Cora *co) {
 		co->ctx.pc = *nativeFuncPtr(fn);
 		co->ctx.frees = fn;
 	} else if (co->nargs < required + 1) {
-		Obj ret =
-			makeCurry1(required + 1 - co->nargs, co->nargs,
-				   co->args);
+		Obj ret = makeCurry1(required + 1 - co->nargs, co->nargs,
+				     co->args);
 		coraReturn(co, ret);
 	} else {
 		// save the extra args.
@@ -623,8 +622,8 @@ builtinLoad(struct Cora *co) {
 	co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
 	co->args[3] = pkg;
 	trampoline(co, 0, coraDispatch);
-	Obj res = co->args[1];
 	// TODO: check res?
+	// Obj res = co->args[1];
 
 	snprintf(buf, BUFSIZE,
 		 "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora",
