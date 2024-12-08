@@ -188,7 +188,7 @@ struct trieNode gRoot = { };
 
 Obj
 makeSymbol(const char *s) {
-	char *old = s;
+	const char *old = s;
 	struct trieNode *p = &gRoot;
 	for (; *s; s++) {
 		int offset = *s;
@@ -302,9 +302,9 @@ struct scmVector {
 
 Obj
 makeVector(int size) {
-	struct scmVector *vec =
-		newObj(scmHeadVector,
-		       sizeof(struct scmVector) + sizeof(Obj) * size);
+	struct scmVector *vec = newObj(scmHeadVector,
+				       sizeof(struct scmVector) +
+				       sizeof(Obj) * size);
 	vec->size = size;
 	for (int i = 0; i < vec->size; i++) {
 		vec->data[i] = Undef;

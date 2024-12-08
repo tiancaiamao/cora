@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c gc.c types.c reader.c runtime.c reader_test.c eval_test.c bootstrap_test.c
+SRCS = str.c gc.c types.c reader.c runtime.c reader_test.c eval_test.c bootstrap_test.c gc_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
@@ -13,13 +13,19 @@ endif
 all: libcora.so
 
 # test: reader_test bootstrap_test
-test: reader_test
+test: reader_test gc_test
 
 reader.test: reader_test.o libcora.a
 	$(CC) -o reader.test $^ -ldl
 
 reader_test: reader.test
 	./reader.test
+
+gc.test: gc_test.o libcora.a
+	$(CC) -o gc.test $^ -ldl
+
+gc_test: gc.test
+	./gc.test
 
 # eval_test: eval.test
 # 	./eval.test

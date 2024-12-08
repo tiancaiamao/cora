@@ -26,7 +26,7 @@ enum {
 
 typedef struct {
   scmHeadType type;
-  uint16_t size;
+  uint32_t size;
   int version;
 } scmHead;
 
