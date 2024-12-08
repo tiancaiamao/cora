@@ -49,8 +49,8 @@ struct heapArena {
 	struct Block blocks[BLOCKS_PER_HEAP];
 
 	// freelist is used for recycling and fast allocation.
-		// For large objects, the type is scmFreeNode, otherwise the type is blocks.
-		void *freelist;
+	// For large objects, the type is scmFreeNode, otherwise the type is blocks.
+	void *freelist;
 
 	bool forLargeObjects;
 	// curr is used when this heapArena is for large objects.
@@ -75,8 +75,7 @@ heapArenaNew() {
 
 static bool
 heapArenaFull(struct heapArena *ha) {
-	return ha->freelist == NULL
-		&& ha->idx >= BLOCKS_PER_HEAP;
+	return ha->freelist == NULL && ha->idx >= BLOCKS_PER_HEAP;
 }
 
 static struct Block *
@@ -114,9 +113,9 @@ struct doubleLinkList {
 // The type of scmFreeNode should be scmHeadUnused.
 // It is used by large object allocation.
 struct scmFreeNode {
-		scmHead head;
-		int slots;
-		struct scmFreeNode *next;
+	scmHead head;
+	int slots;
+	struct scmFreeNode *next;
 };
 
 static int sizeClass[] =
@@ -155,7 +154,7 @@ getSlotBySize(int size) {
 	}
 // assert(sizeClass[slot] >= size);
 // if (slot > 0) {
-// 			 assert(sizeClass[slot-1] < size);
+//                       assert(sizeClass[slot-1] < size);
 // }
 	return slot;
 }
@@ -221,8 +220,8 @@ blockReset(struct Block *block) {
 	if (ha->freelist == NULL) {
 		ha->freelist = block;
 	} else {
-		block->next = ((struct Block*)ha->freelist)->next;
-		((struct Block*)ha->freelist)->next = block;
+		block->next = ((struct Block *) ha->freelist)->next;
+		((struct Block *) ha->freelist)->next = block;
 	}
 }
 
@@ -327,131 +326,143 @@ allocDone(struct GC *gc, int size, scmHead * ret) {
 }
 
 static int
-getLargeObjSlots(scmHead *n) {
-		if (n->type == scmHeadUnused) {
-				return ((struct scmFreeNode*)n)->slots;
-		}
-		return (n->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+getLargeObjSlots(scmHead * n) {
+	if (n->type == scmHeadUnused) {
+		return ((struct scmFreeNode *) n)->slots;
+	}
+	return (n->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead* h) {
-		for (int i=0; i<slots; i++) {
-				struct Block *b = &ha->blocks[start+i];
-				b->base = (char*)h;
-		}
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead * h) {
+	for (int i = 0; i < slots; i++) {
+		struct Block *b = &ha->blocks[start + i];
+		b->base = (char *) h;
+	}
 }
 
-scmHead*
+scmHead *
 heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
-		while(ha->curr + slots <= BLOCKS_PER_HEAP) {
-				// printf("allocate from %p, curr=%d, slots=%d\n", ha, ha->curr, slots);
-				// The simple case.
-				if (ha->curr == ha->idx) {
-						if (ha->curr + slots >= BLOCKS_PER_HEAP) {
-								return NULL;
-						}
-						// printf("allocate from uninitialized ==%d\n", ha->curr);
-						struct scmFreeNode *n = (struct scmFreeNode *)(ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
-						n->head.type = scmHeadUnused;
-						n->slots = slots;
-						updateLargeObjectMeta(ha, ha->curr, slots, &n->head);
-						ha->curr += slots;
-						ha->idx += slots;
-						return &n->head;
-				}
-
-				// Find the first available object
-				scmHead *n = (scmHead*)(ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
-				if (inuse(gc, n)) {
-						// skip this object and move num blocks forward.
-						int skip = (n->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
-						ha->curr += skip;
-						continue;
-				}
-
-				int slots1 = getLargeObjSlots(n);
-				// printf("first available object at == %d slots=%d\n", ha->curr, slots1);
-				assert(slots1 > 0);
-				while (slots1 < slots) {
-						// Grow the unused space.
-						if (ha->curr + slots1 == ha->idx) {
-								ha->idx = ha->curr + slots;
-								n->type = scmHeadUnused;
-								((struct scmFreeNode*)n)->slots = slots;
-								updateLargeObjectMeta(ha, ha->curr + slots1, slots-slots1, n);
-								slots1 = slots;
-								break;
-						}
-
-						// Try to merge n with the adjacent one 
-						scmHead *next = (scmHead*)(ha->ptr + ((ha->curr + slots1) * MEM_BLOCK_SIZE));
-						if (inuse(gc, next)) {
-								break;
-						}
-						int slots2 = getLargeObjSlots(next);
-						// printf("merge with next, slots ==%d\n", slots2);
-						assert(slots2 > 0);
-						for (int i=0; i<slots2; i++) {
-								struct Block *b = &ha->blocks[ha->curr + slots1 + i];
-								assert(b->base == (char*)next);
-						}
-
-						n->type = scmHeadUnused;
-						updateLargeObjectMeta(ha, ha->curr + slots1, slots2, n);
-						slots1 += slots2;
-						((struct scmFreeNode*)n)->slots = slots1;
-				}
-				if (slots1 < slots) {
-						ha->curr += slots1;
-						continue;
-				}
-
-				// Now alloc from this one
-				for (int i=0; i<slots; i++) {
-						struct Block *b = &ha->blocks[ha->curr+i];
-						// b->base = (char*)n;
-						assert(b->base == (char*)n);
-				}
-				if (slots1 > slots) {
-						scmHead *next = (scmHead*)(ha->ptr + ((ha->curr + slots) * MEM_BLOCK_SIZE));
-						next->type = scmHeadUnused;
-						((struct scmFreeNode*)next)->slots = slots1 - slots;
-						updateLargeObjectMeta(ha, ha->curr + slots, slots1 - slots, next);
-				}
-				ha->curr += slots;
-				return n;
+	while (ha->curr + slots <= BLOCKS_PER_HEAP) {
+		// printf("allocate from %p, curr=%d, slots=%d\n", ha, ha->curr, slots);
+		// The simple case.
+		if (ha->curr == ha->idx) {
+			if (ha->curr + slots >= BLOCKS_PER_HEAP) {
+				return NULL;
+			}
+			// printf("allocate from uninitialized ==%d\n", ha->curr);
+			struct scmFreeNode *n =
+				(struct scmFreeNode *) (ha->ptr +
+							(ha->curr *
+							 MEM_BLOCK_SIZE));
+			n->head.type = scmHeadUnused;
+			n->slots = slots;
+			updateLargeObjectMeta(ha, ha->curr, slots, &n->head);
+			ha->curr += slots;
+			ha->idx += slots;
+			return &n->head;
 		}
-		return NULL;
+		// Find the first available object
+		scmHead *n =
+			(scmHead *) (ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
+		if (inuse(gc, n)) {
+			// skip this object and move num blocks forward.
+			int skip =
+				(n->size + MEM_BLOCK_SIZE -
+				 1) / MEM_BLOCK_SIZE;
+			ha->curr += skip;
+			continue;
+		}
+
+		int slots1 = getLargeObjSlots(n);
+		// printf("first available object at == %d slots=%d\n", ha->curr, slots1);
+		assert(slots1 > 0);
+		while (slots1 < slots) {
+			// Grow the unused space.
+			if (ha->curr + slots1 == ha->idx) {
+				ha->idx = ha->curr + slots;
+				n->type = scmHeadUnused;
+				((struct scmFreeNode *) n)->slots = slots;
+				updateLargeObjectMeta(ha, ha->curr + slots1,
+						      slots - slots1, n);
+				slots1 = slots;
+				break;
+			}
+			// Try to merge n with the adjacent one 
+			scmHead *next =
+				(scmHead *) (ha->ptr +
+					     ((ha->curr +
+					       slots1) * MEM_BLOCK_SIZE));
+			if (inuse(gc, next)) {
+				break;
+			}
+			int slots2 = getLargeObjSlots(next);
+			// printf("merge with next, slots ==%d\n", slots2);
+			assert(slots2 > 0);
+			for (int i = 0; i < slots2; i++) {
+				struct Block *b =
+					&ha->blocks[ha->curr + slots1 + i];
+				assert(b->base == (char *) next);
+			}
+
+			n->type = scmHeadUnused;
+			updateLargeObjectMeta(ha, ha->curr + slots1, slots2,
+					      n);
+			slots1 += slots2;
+			((struct scmFreeNode *) n)->slots = slots1;
+		}
+		if (slots1 < slots) {
+			ha->curr += slots1;
+			continue;
+		}
+		// Now alloc from this one
+		for (int i = 0; i < slots; i++) {
+			struct Block *b = &ha->blocks[ha->curr + i];
+			// b->base = (char*)n;
+			assert(b->base == (char *) n);
+		}
+		if (slots1 > slots) {
+			scmHead *next =
+				(scmHead *) (ha->ptr +
+					     ((ha->curr +
+					       slots) * MEM_BLOCK_SIZE));
+			next->type = scmHeadUnused;
+			((struct scmFreeNode *) next)->slots = slots1 - slots;
+			updateLargeObjectMeta(ha, ha->curr + slots,
+					      slots1 - slots, next);
+		}
+		ha->curr += slots;
+		return n;
+	}
+	return NULL;
 }
 
 static void *
 gcAllocLargeObject(struct GC *gc, int size) {
-		assert(size < HEAP_ARENA_SIZE);
-		scmHead *p;
-		while (true) {
-				struct heapArena *ha = gc->large;
-				if (ha == NULL) {
-						ha = heapArenaNew();
-						ha->forLargeObjects = true;
-						gc->large = ha;
-				}
-
-				int slots = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
-				p = heapArenaAllocLarge(ha, gc, slots);
-				if (p != NULL) {
-						break;
-				}
-
-				// This one is full, remove it from large list.
-				gc->large = ha->next;
-				// Link it to heap list, wait GC to recycle them.
-				struct heapArena *heapHead = gcGetHeapArena(gc);
-				ha->next = heapHead->next;
-				heapHead->next = ha;
+	assert(size < HEAP_ARENA_SIZE);
+	scmHead *p;
+	while (true) {
+		struct heapArena *ha = gc->large;
+		if (ha == NULL) {
+			ha = heapArenaNew();
+			ha->forLargeObjects = true;
+			gc->large = ha;
 		}
-		allocDone(gc, size, p);
-		return p;
+
+		int slots = (size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+		p = heapArenaAllocLarge(ha, gc, slots);
+		if (p != NULL) {
+			break;
+		}
+		// This one is full, remove it from large list.
+		gc->large = ha->next;
+		// Link it to heap list, wait GC to recycle them.
+		struct heapArena *heapHead = gcGetHeapArena(gc);
+		ha->next = heapHead->next;
+		heapHead->next = ha;
+	}
+	allocDone(gc, size, p);
+	return p;
 }
 
 static scmHead *
@@ -580,23 +591,23 @@ checkPointer(struct GC *gc, uintptr_t p) {
 
 	scmHead *from;
 	// Large object?
-		if (h->forLargeObjects) {
-				from = (scmHead *)b->base;
-				assert(from != NULL);
-		} else {
+	if (h->forLargeObjects) {
+		from = (scmHead *) b->base;
+		assert(from != NULL);
+	} else {
 
-				// Special block?
-				if (b->sizeClass == 0) {
-						return false;
-				}
-
-				int pos = ((char *) addr - b->base) / b->sizeClass;
-				assert(pos >= 0);
-				from = (scmHead *) (b->base + (pos * b->sizeClass));
-				if (from != addr) {
-						printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
-				}
+		// Special block?
+		if (b->sizeClass == 0) {
+			return false;
 		}
+
+		int pos = ((char *) addr - b->base) / b->sizeClass;
+		assert(pos >= 0);
+		from = (scmHead *) (b->base + (pos * b->sizeClass));
+		if (from != addr) {
+			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
+		}
+	}
 
 	// black or gray object
 	if (from->version == gc->version || from->version + 1 == gc->version) {
@@ -669,51 +680,51 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcDoneAndReset(struct GC *gc) {
-		// Reset the current large list and sizeClass list.
-		for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
-				p->curr = 0;
-		}
-		for (int i = 0; i < sizeClassSZ; i++) {
-				gc->sizeClass[i] = NULL;
+	// Reset the current large list and sizeClass list.
+	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
+		p->curr = 0;
+	}
+	for (int i = 0; i < sizeClassSZ; i++) {
+		gc->sizeClass[i] = NULL;
+	}
+
+	// Put back the heap blocks to sizeClass list or large objects list.
+	struct heapArena *prev = NULL;
+	struct heapArena *h = gc->heap;
+	while (h != NULL) {
+		if (h->forLargeObjects) {
+			// unlink p from heap list.
+			struct heapArena *p = h;
+			h = p->next;
+
+			if (prev == NULL) {
+				gc->heap = p->next;
+			} else {
+				prev->next = p->next;
+				p->next = NULL;
+			}
+			// reset p and link it to large list.
+			p->curr = 0;
+			p->next = gc->large;
+			gc->large = p;
+			continue;
 		}
 
-		// Put back the heap blocks to sizeClass list or large objects list.
-		struct heapArena *prev = NULL;
-		struct heapArena *h = gc->heap;
-		while (h != NULL) {
-				if (h->forLargeObjects) {
-						// unlink p from heap list.
-						struct heapArena *p = h;	
-						h = p->next;
-
-						if (prev == NULL) {
-								gc->heap = p->next;
-						} else {
-								prev->next = p->next;
-								p->next = NULL;
-						}
-						// reset p and link it to large list.
-						p->curr = 0;
-						p->next = gc->large;
-						gc->large = p;
-						continue;
-				}
-
-				for (int i = 0; i < h->idx; i++) {
-						struct Block *b = &h->blocks[i];
-						if (b->sizeClass == 0) {
-								// Skip the freelist blocks which is generated by GC gray queue.
-								continue;
-						}
-						int slot = getSlotBySize(b->sizeClass);
-						assert(b->sizeClass == sizeClass[slot]);
-						b->curr = 0;
-						b->next = gc->sizeClass[slot];
-						gc->sizeClass[slot] = b;
-				}
-				prev = h;
-				h = h->next;
+		for (int i = 0; i < h->idx; i++) {
+			struct Block *b = &h->blocks[i];
+			if (b->sizeClass == 0) {
+				// Skip the freelist blocks which is generated by GC gray queue.
+				continue;
+			}
+			int slot = getSlotBySize(b->sizeClass);
+			assert(b->sizeClass == sizeClass[slot]);
+			b->curr = 0;
+			b->next = gc->sizeClass[slot];
+			gc->sizeClass[slot] = b;
 		}
+		prev = h;
+		h = h->next;
+	}
 }
 
 static void
