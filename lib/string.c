@@ -112,6 +112,23 @@ stringReplace(struct Cora *co) {
 }
 
 static void
+stringContain(struct Cora *co) {
+		Obj arg1 = co->args[1];
+		Obj arg2 = co->args[2];
+
+		strBuf raw = stringStr(arg1);
+		strBuf from = stringStr(arg2);
+
+		int pos = strStr(toStr(raw), toStr(from));
+		if (pos < 0) {
+				coraReturn(co, False);
+				return;
+		}
+		coraReturn(co, True);
+		return;
+}
+
+static void
 stringSplit(struct Cora *co) {
   Obj arg1 = co->args[1];
   Obj arg2 = co->args[2];
@@ -161,6 +178,7 @@ static struct registerModule stringModule = {
     {"number->string", numberToString, 1},
     {"replace", stringReplace, 3},
     {"split", stringSplit, 2},
+				{"contain?", stringContain, 2},
     /* {NULL, NULL, 0} */
   }
 };
