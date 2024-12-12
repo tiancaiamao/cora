@@ -81,14 +81,15 @@ Obj cdddr(Obj v);
 
 Obj makeCObj(void *ptr);
 
-Obj makeString1(char *x);
+Obj makeBytes(int len);
+char *bytesData(Obj o);
+int bytesLen(Obj o);
 
 Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
-strBuf stringStr(Obj o);
-int stringLen(Obj o);
+str stringStr(Obj o);
 Obj makeNumber(int v);
-bool isstring(Obj o);
+bool isBytes(Obj o);
 bool isNumber(Obj o);
 
 struct Cora;

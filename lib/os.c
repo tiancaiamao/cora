@@ -9,8 +9,8 @@ cmdListStr(Obj args) {
   strBuf cmd = strNew(64);
   while(args != Nil) {
     Obj tmp = car(args);
-    strBuf s = stringStr(tmp);
-    cmd = strCat(cmd, toStr(s));
+    str s = stringStr(tmp);
+    cmd = strCat(cmd, s);
     cmd = strCat(cmd, cstr(" "));
     args = cdr(args);
   }
@@ -58,6 +58,6 @@ static struct registerModule osModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(co, &osModule, toStr(stringStr(pkg)));
+  registerAPI(co, &osModule, stringStr(pkg));
   coraReturn(co, intern("os"));
 }

@@ -19,18 +19,18 @@ static int pollfd = -1;
 #endif
 
 static bool
-splitHostAndPort(Obj str, Obj *host, Obj *port) {
-  strBuf s = stringStr(str);
-  int sz = stringLen(str);
+splitHostAndPort(Obj str1, Obj *host, Obj *port) {
+  char* s = bytesData(str1);
+  int sz = bytesLen(str1);
   int i = 0;
-  char *p = toCStr(s);
+  char *p = s;
   while(i < sz && p[i] != ':') { i++; }
   if (i == sz) {
     return false;
   }
 
-  *host = makeString(toCStr(s), i);
-  *port = makeString(toCStr(s)+i+1, sz-i-1);
+  *host = makeString(s, i);
+  *port = makeString(s+i+1, sz-i-1);
   return true;
 }
 
@@ -50,9 +50,9 @@ netListen(struct Cora *ctx) {
     coraReturn(ctx, Nil);
     return;
   }
-  strBuf host = stringStr(ret1);
-  strBuf portStr = stringStr(ret2);
-  int port = atoi(toCStr(portStr));
+  char* host = bytesData(ret1);
+  char* portStr = bytesData(ret2);
+  int port = atoi(portStr);
   /* printf("host = %s, port = %d\n", host, port); */
 
   int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -89,8 +89,8 @@ netDial(struct Cora *ctx) {
     coraReturn(ctx, Nil);
     return;
   }
-  strBuf host = stringStr(ret1);
-  strBuf port = stringStr(ret2);
+  char* host = bytesData(ret1);
+  char* port = bytesData(ret2);
   /* printf("host = %s, port = %s\n", host, port); */
 
   struct addrinfo hint;
@@ -98,7 +98,7 @@ netDial(struct Cora *ctx) {
   hint.ai_family = AF_INET;
   hint.ai_socktype = SOCK_STREAM;
   struct addrinfo *result, *rp;
-  int s = getaddrinfo(toCStr(host), toCStr(port), &hint, &result);
+  int s = getaddrinfo(host, port, &hint, &result);
   if (s != 0) {
     fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
     coraReturn(ctx, Nil);
@@ -130,14 +130,14 @@ netSend(struct Cora *ctx) {
   Obj arg2 = coraGet(ctx, 2);
   Obj arg3 = coraGet(ctx, 3);
   int fd = fixnum(arg1);
-  strBuf buf = stringStr(arg2);
-  int len = stringLen(arg2);
+  char* buf = bytesData(arg2);
+  int len = bytesLen(arg2);
   int pos = fixnum(arg3);
 
   /* printf("call net send fd ===%d\n", fd); */
 
   while(pos < len) {
-    int ret = send(fd, toCStr(buf)+pos, len-pos, 0);
+    int ret = send(fd, buf+pos, len-pos, 0);
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	/* printf("EAGAIN here...%d\n", pos); */
@@ -176,14 +176,14 @@ netRecv(struct Cora *ctx) {
   Obj arg2 = coraGet(ctx, 2);
   Obj arg3 = coraGet(ctx, 3);
   int fd = fixnum(arg1);
-  strBuf buf = stringStr(arg2);
-  int len = stringLen(arg2);
+  char* buf = bytesData(arg2);
+  int len = bytesLen(arg2);
   int pos = fixnum(arg3);
 
   /* printf("in netRecv... fd=%d, len=%d, pos=%d\n", fd, len, pos); */
 
   while(pos < len) {
-    int ret = recv(fd, toCStr(buf)+pos, len-pos, 0);
+    int ret = recv(fd, buf+pos, len-pos, 0);
     if (ret < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	// [block pos]
@@ -238,7 +238,7 @@ static void
 makeBuffer(struct Cora *ctx) {
   Obj arg1 = coraGet(ctx, 1);
   int size = fixnum(arg1);
-  coraReturn(ctx, makeString(NULL, size));
+  coraReturn(ctx, makeBytes(size));
 }
 
 static void
@@ -284,6 +284,6 @@ struct registerModule netModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(co, &netModule, toStr(stringStr(pkg)));
+  registerAPI(co, &netModule, stringStr(pkg));
   coraReturn(co, intern("net"));
 }

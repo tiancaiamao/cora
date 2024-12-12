@@ -87,7 +87,7 @@ label1:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+__arg1 = makeCString("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1117,7 +1117,7 @@ label16:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+__arg1 = makeCString("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1282,7 +1282,7 @@ label0:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+__arg1 = makeCString("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2400,7 +2400,7 @@ label12:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+__arg1 = makeCString("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -2890,7 +2890,7 @@ Obj _35reg515 = primNot(_35val514);
 if (True == _35reg515) {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("inconsistent func rule args count");
+__arg1 = makeCString("inconsistent func rule args count");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -3341,7 +3341,7 @@ label9:
 {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no match-help found!");
+__arg1 = makeCString("no match-help found!");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -4067,7 +4067,7 @@ goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
+__arg1 = makeCString("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -4093,7 +4093,7 @@ goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
+__arg1 = makeCString("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -4219,7 +4219,7 @@ goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
+__arg1 = makeCString("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -4235,7 +4235,7 @@ Obj _35val349 = __arg1;
 Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 1];
 if (True == _35val349) {
-Obj _35reg350 = primCons(makeString1("no match-help found!"), Nil);
+Obj _35reg350 = primCons(makeCString("no match-help found!"), Nil);
 Obj _35reg351 = primCons(intern("error"), _35reg350);
 __nargs = 2;
 __arg1 = _35reg351;
@@ -4718,7 +4718,7 @@ goto *jumpTable[ps.label];
 } else {
 __nargs = 2;
 __arg0 = globalRef(intern("error"));
-__arg1 = makeString1("no cond match");
+__arg1 = makeCString("no cond match");
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -4730,7 +4730,7 @@ goto *jumpTable[ps.label];
 pushCont(co, 15, _35clofun1009, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("str"));
-__arg1 = makeString1("match fail ");
+__arg1 = makeCString("match fail ");
 __arg2 = pat;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
@@ -4937,7 +4937,7 @@ Obj exp = __arg1;
 Obj _35reg178 = primCdr(exp);
 Obj _35reg179 = primEQ(Nil, _35reg178);
 if (True == _35reg179) {
-Obj _35reg180 = primCons(makeString1("no cond match"), Nil);
+Obj _35reg180 = primCons(makeCString("no cond match"), Nil);
 Obj _35reg181 = primCons(intern("error"), _35reg180);
 __nargs = 2;
 __arg1 = _35reg181;

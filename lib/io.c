@@ -12,8 +12,8 @@ builtinDisplay(struct Cora *co) {
 static void
 builtinOpenOutputFile(struct Cora *co) {
   Obj arg1 = co->args[1];
-  strBuf filePath = stringStr(arg1);
-  FILE* f = fopen(toCStr(filePath), "w");
+  str filePath = stringStr(arg1);
+  FILE* f = fopen(filePath.str, "w");
   coraReturn(co, makeCObj(f));
 }
 
@@ -79,6 +79,6 @@ struct registerModule ioModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(co, &ioModule, toStr(stringStr(pkg)));
+  registerAPI(co, &ioModule, stringStr(pkg));
   coraReturn(co, intern("io"));
 }

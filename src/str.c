@@ -20,7 +20,7 @@ growCap(int oldLen) {
 }
 
 str
-cstr(const char *s) {
+cstr(char *s) {
 	return (str) {
 	.str = s,.len = strlen(s)};
 }
@@ -82,8 +82,8 @@ strCmp(str s1, str s2) {
 	return s1.len - s2.len;
 }
 
-static const char *
-ptrByIdx(const char *p, int len, int idx) {
+static char *
+ptrByIdx(char *p, int len, int idx) {
 	if (idx >= 0) {
 		if (idx <= len) {
 			return p + idx;
@@ -98,12 +98,12 @@ ptrByIdx(const char *p, int len, int idx) {
 
 str
 strSub(str s, int start, int end) {
-	const char *p1 = ptrByIdx(s.str, s.len, start);
+	char *p1 = ptrByIdx(s.str, s.len, start);
 	if (p1 == NULL) {
 		return (str) {
 		.len = 0};
 	}
-	const char *p2 = ptrByIdx(s.str, s.len, end);
+	char *p2 = ptrByIdx(s.str, s.len, end);
 	if (p2 == NULL) {
 		return (str) {
 		.len = 0};
@@ -122,7 +122,7 @@ toCStr(strBuf s) {
 }
 
 strBuf
-fromBlk(const void *ptr, int len) {
+fromBlk(void *ptr, int len) {
 	strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + len + 1);
 	if (ptr != NULL) {
 		memcpy(&ret->data, ptr, len);
@@ -134,7 +134,7 @@ fromBlk(const void *ptr, int len) {
 }
 
 strBuf
-fromCStr(const char *s) {
+fromCStr(char *s) {
 	int len = strlen(s);
 	return fromBlk((void *) s, len);
 }

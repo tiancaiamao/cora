@@ -8,35 +8,32 @@
 
 static void
 stringSlice(struct Cora *co) {
-  Obj str = co->args[1];
+  Obj str1 = co->args[1];
   Obj pos = fixnum(co->args[2]);
   Obj ret;
-  int len = stringLen(str);
+  int len = bytesLen(str1);
   if (pos >= len) {
     ret = makeString("", 0);
   } else {
-    strBuf s = stringStr(str);
-    ret = makeString(toCStr(s)+pos, len-pos);
+    str s = stringStr(str1);
+    ret = makeString(s.str+pos, len-pos);
   }
   coraReturn(co, ret);
 }
 
 static void
 stringHasPrefix(struct Cora *co) {
-  Obj str = co->args[1];
-  Obj prefix = co->args[2];
+  char* str1 = bytesData(co->args[1]);
+  char* prefix1 = bytesData(co->args[2]);
 
-  strBuf str1 = stringStr(str);
-  strBuf prefix1 = stringStr(prefix);
-
-  int lPrefix = stringLen(prefix);
-  if (lPrefix > stringLen(str)) {
+  int lPrefix = bytesLen(co->args[2]);
+  if (lPrefix > bytesLen(co->args[1])) {
     coraReturn(co, False);
     return;
   }
 
   for(int i=0; i<lPrefix; i++) {
-    if (toCStr(prefix1)[i] != toCStr(str1)[i]) {
+    if (prefix1[i] != str1[i]) {
       coraReturn(co, False);
       return;
     }
@@ -46,9 +43,9 @@ stringHasPrefix(struct Cora *co) {
 }
 
 static void
-stringLength(struct Cora *co) {
+bytesLength(struct Cora *co) {
   Obj o = co->args[1];
-  int l = stringLen(o);
+  int l = bytesLen(o);
 
   coraReturn(co, makeNumber(l));
 }
@@ -58,9 +55,9 @@ stringIndex(struct Cora *co) {
   Obj x = co->args[1];
   Obj y = co->args[2];
 
-  strBuf str = stringStr(x);
+  char* str = bytesData(x);
   int idx = fixnum(y);
-  Obj ret =  makeString(toCStr(str)+idx, 1);
+  Obj ret =  makeString(str+idx, 1);
   coraReturn(co, ret);
 }
 
@@ -69,9 +66,9 @@ stringCompare(struct Cora *co) {
   Obj x = co->args[1];
   Obj y = co->args[2];
 
-  strBuf x1 = stringStr(x);
-  strBuf y1 = stringStr(y);
-  int ret = strCmp(toStr(x1), toStr(y1));
+  str x1 = stringStr(x);
+  str y1 = stringStr(y);
+  int ret = strCmp(x1, y1);
   coraReturn(co, makeNumber(ret));
 }
 
@@ -91,21 +88,21 @@ stringReplace(struct Cora *co) {
   Obj arg2 = co->args[2];
   Obj arg3 = co->args[3];
 
-  strBuf raw = stringStr(arg1);
-  strBuf from = stringStr(arg2);
-  strBuf to = stringStr(arg3);
+  str raw = stringStr(arg1);
+  str from = stringStr(arg2);
+  str to = stringStr(arg3);
 
-  int pos = strStr(toStr(raw), toStr(from));
+  int pos = strStr(raw, from);
   if (pos < 0) {
     coraReturn(co, arg1);
     return;
   }
 
-  int cap = strLen(toStr(raw)) + strLen(toStr(to)) - strLen(toStr(from)) + 1;
+  int cap = strLen(raw) + strLen(to) - strLen(from) + 1;
   strBuf buf = strNew(cap);
-  buf = strCpy(buf, strSub(toStr(raw), 0, pos));
-  buf = strCat(buf, toStr(to));
-  buf = strCat(buf, strSub(toStr(raw), pos+strLen(toStr(from)), strLen(toStr(raw))));
+  buf = strCpy(buf, strSub(raw, 0, pos));
+  buf = strCat(buf, to);
+  buf = strCat(buf, strSub(raw, pos+strLen(from), strLen(raw)));
   str s = toStr(buf);
   Obj res = makeString(s.str, s.len);
   coraReturn(co, res);
@@ -116,10 +113,10 @@ stringContain(struct Cora *co) {
 		Obj arg1 = co->args[1];
 		Obj arg2 = co->args[2];
 
-		strBuf raw = stringStr(arg1);
-		strBuf from = stringStr(arg2);
+		str raw = stringStr(arg1);
+		str from = stringStr(arg2);
 
-		int pos = strStr(toStr(raw), toStr(from));
+		int pos = strStr(raw, from);
 		if (pos < 0) {
 				coraReturn(co, False);
 				return;
@@ -132,12 +129,11 @@ static void
 stringSplit(struct Cora *co) {
   Obj arg1 = co->args[1];
   Obj arg2 = co->args[2];
-  strBuf from = stringStr(arg1);
-  strBuf tmp = stringStr(arg2);
+  str from = stringStr(arg1);
+  str split = stringStr(arg2);
 
   Obj res = Nil;
-  str s = toStr(from);
-  str split = toStr(tmp);
+  str s = from;
   while (1) {
     int pos = strStr(s, split);
     if (pos > 0) {
@@ -152,32 +148,32 @@ stringSplit(struct Cora *co) {
   coraReturn(co, reverse(res));
 }
 
-/* void */
-/* builtinStringAppend(struct VM *ctx) { */
-/* 	Obj x = vmGet(ctx, 1); */
-/* 	Obj y = vmGet(ctx, 2); */
-/* 	assert(isstring(x)); */
-/* 	assert(isstring(y)); */
-/* 	char *x1 = stringStr(x); */
-/* 	char *y1 = stringStr(y); */
-/* 	int len = strlen(x1) + strlen(y1); */
-/* 	char *dest = alloca(len + 1); */
-/* 	strcpy(dest, x1); */
-/* 	strcat(dest, y1); */
-/* 	ctxReturn(ctx, makeString(dest, len)); */
-/* } */
+void
+stringAppend(struct Cora *co) {
+	Obj str1 = co->args[1];
+	Obj str2 = co->args[2];
+	str x = stringStr(str1);
+	str y = stringStr(str2);
+	strBuf tmp = strNew(x.len + y.len);
+	tmp = strCpy(tmp, x);
+	tmp = strCat(tmp, y);
+    str s = toStr(tmp);
+	Obj val = makeString(s.str, s.len);
+	coraReturn(co, val);
+}
 
 static struct registerModule stringModule = {
   NULL,
   {
     {"slice", stringSlice, 2},
     {"has-prefix?", stringHasPrefix, 2},
-    {"length", stringLength, 1},
+    {"length", bytesLength, 1},
     {"index", stringIndex, 2},
     {"compare", stringCompare, 2},
     {"number->string", numberToString, 1},
     {"replace", stringReplace, 3},
     {"split", stringSplit, 2},
+				{"append", stringAppend, 2},
 				{"contain?", stringContain, 2},
     /* {NULL, NULL, 0} */
   }
@@ -186,7 +182,7 @@ static struct registerModule stringModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(co, &stringModule, toStr(stringStr(pkg)));
+  registerAPI(co, &stringModule, stringStr(pkg));
   coraReturn(co, intern("string"));
 }
 

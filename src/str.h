@@ -2,14 +2,14 @@
 #define _STR_H_
 
 typedef struct _str {
-  const char *str;
+  char *str;
   unsigned int len;
 } str;
 
 struct _strBuf;
 typedef struct _strBuf* strBuf;
 
-str cstr(const char* str);
+str cstr(char* str);
 str toStr(strBuf s);
 int strLen(str s);
 int strStr(str haystack, str needle);
@@ -19,8 +19,8 @@ str strSub(str s, int start, int end);
 str strCut(str *s, str split);
 
 char* toCStr(strBuf s);
-strBuf fromCStr(const char *s);
-strBuf fromBlk(const void *ptr, int len);
+strBuf fromCStr(char *s);
+strBuf fromBlk(void *ptr, int len);
 strBuf strNew(int cap);
 void strFree(strBuf buf);
 strBuf strDup(str s);

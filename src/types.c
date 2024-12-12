@@ -11,9 +11,11 @@ const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
-struct scmString {
-	scmHead head;
-	strBuf str;
+struct scmBytes {
+		scmHead head;
+		int len;
+		char data[];
+		// strBuf str;
 };
 
 const char *typeNameX[8] = {
@@ -134,17 +136,46 @@ isNumber(Obj o) {
 }
 
 Obj
-makeString(const char *s, int len) {
-	// sz is the actural length but we malloc a extra byte to be compatible with C.
-	int alloc = len + sizeof(struct scmString) + 1;
-	struct scmString *str = newObj(scmHeadString, alloc);
-	str->str = fromBlk(s, len);
-	return ((Obj) (&str->head) | TAG_PTR);
+makeBytes(int len) {
+		// sz is the actural length but we malloc a extra byte to be compatible with C.
+		int alloc = len + sizeof(struct scmBytes) + 1;
+		struct scmBytes *str = newObj(scmHeadBytes, alloc);
+		str->len = len;
+		return ((Obj) (&str->head) | TAG_PTR);
+}
+
+char *
+bytesData(Obj o) {
+		struct scmBytes *s = ptr(o);
+		assert(s->head.type == scmHeadBytes);
+		return s->data;
+}
+
+int
+bytesLen(Obj o) {
+		struct scmBytes *s = ptr(o);
+		assert(s->head.type == scmHeadBytes);
+		return s->len;
+		// return strLen(toStr(s->str));
+}
+
+bool
+isBytes(Obj o) {
+	if (tag(o) == TAG_PTR) {
+		if (((scmHead *) ptr(o))->type == scmHeadBytes) {
+			return true;
+		}
+	}
+	return false;
 }
 
 Obj
-makeString1(char *x) {
-	return makeString(x, strlen(x));
+makeString(const char *s, int len) {
+		Obj ret = makeBytes(len);
+		char *data = bytesData(ret);
+		memcpy(data, s, len);
+		data[len] = 0;
+		return ret;
 }
 
 Obj
@@ -152,34 +183,20 @@ makeCString(const char *s) {
 	return makeString(s, strlen(s));
 }
 
-strBuf
+str
 stringStr(Obj o) {
-	struct scmString *s = ptr(o);
-	assert(s->head.type == scmHeadString);
-	return s->str;
-}
-
-int
-stringLen(Obj o) {
-	struct scmString *s = ptr(o);
-	assert(s->head.type == scmHeadString);
-	return strLen(toStr(s->str));
-}
-
-bool
-isstring(Obj o) {
-	if (tag(o) == TAG_PTR) {
-		if (((scmHead *) ptr(o))->type == scmHeadString) {
-			return true;
-		}
-	}
-	return false;
+	struct scmBytes *s = ptr(o);
+	assert(s->head.type == scmHeadBytes);
+		str ret;
+		ret.str = s->data;
+		ret.len = s->len;
+	return ret;
 }
 
 static void
-stringGCFunc(struct GC *gc, void *f) {
+bytesGCFunc(struct GC *gc, void *f) {
 	// TODO:
-	struct scmString *from = f;
+	struct scmBytes *from = f;
 	from->head.version++;
 }
 
@@ -369,10 +386,12 @@ eq(Obj x, Obj y) {
 		return eq(cdr(x), cdr(y));
 	}
 
-	if (isstring(x) && isstring(y)) {
-		struct scmString *x1 = ptr(x);
-		struct scmString *y1 = ptr(y);
-		return strCmp(toStr(x1->str), toStr(y1->str)) == 0;
+	if (isBytes(x) && isBytes(y)) {
+		struct scmBytes *x1 = ptr(x);
+		struct scmBytes *y1 = ptr(y);
+				str s1 = {x1->data, x1->len};
+				str s2 = {y1->data, y1->len};
+		return strCmp(s1, s2) == 0;
 	}
 
 	return false;
@@ -426,7 +445,7 @@ continuationGCFunc(struct GC *gc, void *f) {
 void
 typesInit() {
 	gcRegistForType(scmHeadCons, consGCFunc);
-	gcRegistForType(scmHeadString, stringGCFunc);
+	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);
 	gcRegistForType(scmHeadNative, nativeGCFunc);
 	gcRegistForType(scmHeadContinuation, continuationGCFunc);

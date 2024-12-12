@@ -37,9 +37,9 @@ hashToNumberHelp(Obj key) {
   case TAG_PTR:
     if (isNumber(key)) {
       return key;
-    } else if (isstring(key)) {
-      strBuf s = stringStr(key);
-      int sum = 7671 + hashForString(toCStr(s));
+    } else if (isBytes(key)) {
+      char* s = bytesData(key);
+      int sum = 7671 + hashForString(s);
       return makeNumber(sum);
     } else if (isvector(key)) {
     } else if (iscons(key)) {
@@ -81,6 +81,6 @@ struct registerModule hashModule = {
 void
 entry(struct Cora *co) {
   Obj pkg = co->args[2];
-  registerAPI(co, &hashModule, toStr(stringStr(pkg)));
+  registerAPI(co, &hashModule, stringStr(pkg));
   coraReturn(co, intern("hash"));
 }
