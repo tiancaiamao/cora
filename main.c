@@ -9,18 +9,18 @@ int main(int argc, char *argv[]) {
   coraInit(co, &dummy);
   Obj imported = intern("*imported*");
 
-  co->args[1] = makeString1("init.so");
-  co->args[2] = makeString1("cora/init");
+  co->args[1] = makeCString("init.so");
+  co->args[2] = makeCString("cora/init");
   co->nargs = 3;
   trampoline(co, 0, builtinLoadSo);
-  primSet(co, imported, cons(makeString1("cora/init"), Nil));
-  primSet(co, imported, cons(makeString1("cora/lib/toc/internal"), symbolGet(imported)));
+  primSet(co, imported, cons(makeCString("cora/init"), Nil));
+  primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported)));
   
-  co->args[1] = makeString1("toc.so");
-  co->args[2] = makeString1("");
+  co->args[1] = makeCString("toc.so");
+  co->args[2] = makeCString("");
   co->nargs = 3;
   trampoline(co, 0, builtinLoadSo);
-  primSet(co, imported, cons(makeString1("cora/lib/toc"), symbolGet(imported)));
+  primSet(co, imported, cons(makeCString("cora/lib/toc"), symbolGet(imported)));
   
 		struct SexpReader r = {co: co};
   int errCode = 0;

@@ -81,7 +81,7 @@ readCons(struct SexpReader *r, FILE * in, int *errCode) {
 		hd = intern("import");
 		if (iscons(tl)) {
 			Obj path = car(tl);
-			if (isstring(path)) {
+			if (isBytes(path)) {
 				if (iscons(cdr(tl))) {
 					Obj sym = cadr(tl);
 					if (issymbol(sym)) {
@@ -257,9 +257,7 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 				for (; p != Nil; p = cdr(p)) {
 					Obj item = car(p);
 					if (car(item) == pkg) {
-						pkgPath =
-							toCStr(stringStr
-							       (cdr(item)));
+						pkgPath =stringStr(cdr(item)).str;
 						break;
 					}
 				}
@@ -351,8 +349,8 @@ printObj(FILE * to, Obj o) {
 		case scmHeadNull:
 			fprintf(to, "null");
 			break;
-		case scmHeadString:
-			fprintf(to, "\"%s\"", toCStr(stringStr(o)));
+		case scmHeadBytes:
+			fprintf(to, "\"%s\"", stringStr(o).str);
 			break;
 		case scmHeadBoolean:
 			fprintf(to, "boolean");

@@ -240,7 +240,7 @@
 					   (c.generate-num w x)
 					   (c.generate-str w ")")))
 			     ((string? x) (begin
-					   (c.generate-str w "makeString1(\"")
+					   (c.generate-str w "makeCString(\"")
 					   (c.generate-str w (c.escape-str x))
 					   (c.generate-str w "\")")))
 			     ((= x ()) (c.generate-str w "Nil"))

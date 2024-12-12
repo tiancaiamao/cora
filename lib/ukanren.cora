@@ -1,5 +1,7 @@
 ;; blog link: https://www.zenlife.tk/micro-kanren.md
 
+(@import "cora/lib/string" string)
+
 (defun procedure? (x)
     (and (cons? x)
          (= (car x) 'lambda)))
@@ -174,7 +176,7 @@
 
 (defun reify-name (n)
     (intern
-        (string-append "_." (number->string n))))
+        (string.append "_." (number->string n))))
 
 (set 'empty-state (cons () 0))
 (defun call/empty-state (g)

@@ -366,7 +366,7 @@ primIsNumber(Obj x) {
 
 Obj
 primIsString(Obj x) {
-	if (isstring(x)) {
+	if (isBytes(x)) {
 		return True;
 	} else {
 		return False;
@@ -377,23 +377,9 @@ void
 symbolToString(struct Cora *co) {
 	Obj sym = co->args[1];
 	char *str = symbolStr(sym);
-	Obj val = makeString1(str);
+	Obj val = makeCString(str);
 	coraReturn(co, val);
 }
-
-void
-stringAppend(struct Cora *co) {
-	Obj str1 = co->args[1];
-	Obj str2 = co->args[2];
-	strBuf x = stringStr(str1);
-	strBuf y = stringStr(str2);
-	strBuf tmp = strNew(strLen(toStr(x)) + strLen(toStr(y)));
-	tmp = strCpy(tmp, toStr(x));
-	tmp = strCat(tmp, toStr(y));
-	Obj val = makeString1(toCStr(tmp));
-	coraReturn(co, val);
-}
-
 
 static void
 tryStackMark(struct Cora *co) {
@@ -504,8 +490,8 @@ builtinThrow(struct Cora *co) {
 void
 builtinIntern(struct Cora *co) {
 	Obj x = co->args[1];
-	assert(isstring(x));
-	Obj val = intern(toCStr(stringStr(x)));
+	assert(isBytes(x));
+	Obj val = intern(stringStr(x).str);
 	coraReturn(co, val);
 }
 
@@ -560,7 +546,7 @@ getCoraPath() {
 	char *coraPath = getenv("CORAPATH");
 	if (coraPath == NULL) {
 		struct passwd *pw = getpwuid(getuid());
-		const char *homeDir = pw->pw_dir;
+		char *homeDir = pw->pw_dir;
 		tmp = strCpy(tmp, cstr(homeDir));
 		tmp = strCat(tmp, cstr("/.corapath/"));
 	} else {
@@ -576,8 +562,8 @@ void
 builtinLoadSo(struct Cora *co) {
 	// (load-so "file-path.so" "package-path")
 	Obj filePath = co->args[1];
-	strBuf str = stringStr(filePath);
-	char *path = toCStr(str);
+	str str = stringStr(filePath);
+	char *path = str.str;
 	void *handle = dlopen(path, RTLD_LAZY);
 	if (!handle) {
 		fprintf(stderr, "%s\n", dlerror());
@@ -647,7 +633,7 @@ builtinLoad(struct Cora *co) {
 void
 builtinImport(struct Cora *co) {
 	Obj pkg = co->args[1];
-	str pkgStr = toStr(stringStr(pkg));
+	str pkgStr = stringStr(pkg);
 	Obj sym = intern("*imported*");
 	Obj imported = symbolGet(sym);
 
@@ -683,7 +669,8 @@ builtinImport(struct Cora *co) {
 	tmp = strCat(tmp, cstr(".cora"));
 	co->nargs = 3;
 	co->args[0] = makeNative(0, builtinLoad, 2, 0);
-	co->args[1] = makeString1(toCStr(tmp));
+	str tmp1 = toStr(tmp);
+	co->args[1] = makeString(tmp1.str, tmp1.len);
 	co->args[2] = pkg;
 	trampoline(co, 0, coraDispatch);
 	strFree(tmp);
@@ -698,8 +685,8 @@ builtinGenerateStr(struct Cora *co) {
 	Obj to = co->args[1];
 	FILE *out = mustCObj(to);
 	Obj exp = co->args[2];
-	strBuf s = stringStr(exp);
-	fprintf(out, "%s", toCStr(s));
+	str s = stringStr(exp);
+	fprintf(out, "%s", s.str);
 	coraReturn(co, Nil);
 }
 
@@ -773,8 +760,7 @@ builtinGenerateNum(struct Cora *co) {
 static void
 builtinEscapeStr(struct Cora *co) {
 	Obj s = co->args[1];
-	strBuf buf = stringStr(s);
-	str str = toStr(buf);
+	str str = stringStr(s);
 	strBuf dst = strNew(strLen(str));
 
 	for (int i = 0; i < strLen(str); i++) {
@@ -802,8 +788,8 @@ builtinEscapeStr(struct Cora *co) {
 static void
 builtinOpenOutputFile(struct Cora *co) {
 	Obj arg1 = co->args[1];
-	strBuf filePath = stringStr(arg1);
-	FILE *f = fopen(toCStr(filePath), "w");
+	str filePath = stringStr(arg1);
+	FILE *f = fopen(filePath.str, "w");
 	coraReturn(co, makeCObj(f));
 }
 
@@ -818,9 +804,9 @@ builtinCloseOutputFile(struct Cora *co) {
 void
 builtinReadFileAsSexp(struct Cora *co) {
 	Obj arg = co->args[1];
-	assert(isstring(arg));
+	assert(isBytes(arg));
 	Obj result = Nil;
-	char *fileName = toCStr(stringStr(arg));
+	char *fileName = stringStr(arg).str;
 	FILE *f = fopen(fileName, "r");
 	if (f == NULL) {
 		printf("open file fail %s\n", fileName);
@@ -828,7 +814,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 	}
 
 	Obj pkg = co->args[2];
-	char *selfPath = toCStr(stringStr(pkg));
+	char *selfPath = stringStr(pkg).str;
 	struct SexpReader r = {.selfPath = selfPath,.co = co };
 	int err = 0;
 	int count = 0;
@@ -857,8 +843,8 @@ cmdListStr(Obj args) {
 	strBuf cmd = strNew(64);
 	while (args != Nil) {
 		Obj tmp = car(args);
-		strBuf s = stringStr(tmp);
-		cmd = strCat(cmd, toStr(s));
+		str s = stringStr(tmp);
+		cmd = strCat(cmd, s);
 		cmd = strCat(cmd, cstr(" "));
 		args = cdr(args);
 	}
@@ -912,8 +898,6 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("*package-mapping*"), Nil);
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
-	primSet(co, intern("string-append"),
-		makeNative(0, stringAppend, 2, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
 	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
