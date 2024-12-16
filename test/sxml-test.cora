@@ -1,0 +1,30 @@
+(@import "cora/lib/sys")
+(@import "cora/lib/toc" toc)
+(@import "cora/lib/os" os)
+(@import "cora/lib/io" io)
+(@import "cora/lib/string" string)
+(@import "cora/lib/md4c/include" md4c)
+(@import "cora/lib/sxml" sxml)
+
+	     (io.display "!!!!!!!!!!!!")
+	     (io.display "\n")
+
+(let output (os.popen ["ls" "../go.blog/content/*.md"] 'r)
+     data (io.read-all output)
+     (begin
+      (set '*cases* (filter (lambda (s) (and 
+					 (> (string.length s) 0)
+					 (not (string.contain? s "resume"))
+					 (not (string.contain? s "sql-in-cockroachdb"))))
+			    (string.split data "\n")))
+      (os.pclose output)))
+
+(for-each (lambda (path)
+	    (begin
+	     (io.display "processing")
+	     (io.display path)
+	     (io.display "\n")
+	     ;; (md4c.process-file path)))
+	     (let sx (md4c.process-file path)
+		  (map sxml->xml sx))))
+	  *cases*)

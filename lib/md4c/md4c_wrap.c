@@ -95,24 +95,20 @@ static void
 render_open_li_block(MD_HTML * r, const MD_BLOCK_LI_DETAIL * det) {
 	if (det->is_task) {
 		md_html_push(r);
-		Obj tmp = cons(intern("class"),
-			       cons(makeCString("task-list-item"), Nil));
+		Obj tmp = cons(intern("class"), cons(makeCString("task-list-item"), Nil));
 		Obj attrs = cons(intern("@"), cons(tmp, Nil));
 		primSet(r->co, r->curr, cons(attrs, cons(intern("li"), Nil)));
 
-		Obj tmp1 = cons(intern("type"),
-				cons(makeCString("checkbox"), Nil));
-		Obj tmp2 = cons(intern("class"),
-				cons(makeCString("task-list-item-checkbox"),
-				     Nil));
-		attrs = cons(intern("@"), cons(tmp1, cons(tmp2, Nil)));
-
+		Obj tmp1 = cons(intern("type"), cons(makeCString("checkbox"), Nil));
+		Obj tmp2 = cons(intern("class"), cons(makeCString("task-list-item-checkbox"), Nil));
 		Obj tail = Nil;
 		if (det->task_mark == 'x' || det->task_mark == 'X') {
 			tail = cons(intern("checked"), tail);
 		}
-		Obj input = cons(intern("input"),
-				 cons(attrs, cons(intern("disabled"), tail)));
+		tail = cons(intern("disabled"), tail);
+		attrs = cons(intern("@"), cons(tmp1, cons(tmp2, tail)));
+		Obj input = cons(intern("input"), cons(attrs, Nil));
+
 		append_curr(r, input);
 
 		// RENDER_VERBATIM(r, "<li class=\"task-list-item\">"
@@ -483,7 +479,8 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
 		break;
 		/* case MD_TEXT_SOFTBR:    RENDER_VERBATIM(r, (r->image_nesting_level == 0 ? "\n" : " ")); break; */
 	case MD_TEXT_HTML:
-		render_verbatim_enter(r, text);
+	  // ignore html parsing currently, it conflicts with sxml
+	  // render_verbatim_enter(r, text);
 		break;
 		/* case MD_TEXT_ENTITY:    render_entity(r, text, size, render_html_escaped); break; */
 	default:
