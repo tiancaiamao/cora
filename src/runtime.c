@@ -381,6 +381,20 @@ symbolToString(struct Cora *co) {
 	coraReturn(co, val);
 }
 
+void
+builtinBytes(struct Cora *co) {
+		int n = fixnum(co->args[1]);
+		Obj val = makeBytes(n);
+		coraReturn(co, val);
+}
+
+static void
+builtinBytesLength(struct Cora *co) {
+		Obj o = co->args[1];
+		int res = bytesLen(o);
+		coraReturn(co, makeNumber(res));
+}
+
 static void
 tryStackMark(struct Cora *co) {
 	popStack(co);
@@ -714,9 +728,7 @@ builtinVector(struct Cora *co) {
 	Obj o = co->args[1];
 	int n = fixnum(o);
 	Obj res = makeVector(n);
-	co->nargs = 2;
-	co->args[1] = res;
-	popStack(co);
+		coraReturn(co, res);
 }
 
 static void
@@ -914,6 +926,8 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinVectorRef, 2, 0));
 	primSet(co, intern("vector-length"),
 		makeNative(0, builtinVectorLength, 1, 0));
+	primSet(co, intern("bytes"), makeNative(0, builtinBytes, 1, 0));
+	primSet(co, intern("bytes-length"), makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/lib/toc/internal.generate-str"),

@@ -7,15 +7,17 @@
 #include <string.h>
 
 typedef struct _MD_HTML {
-	Obj curr;
-	Obj *stack;
+	struct Cora *co;
+	Obj curr;		// symbol
+	Obj stack;		// symbol
 	int size;
 	int cap;
 	char escape_map[256];
 } MD_HTML;
 
 static void
-md_html_push(MD_HTML * r, Obj x) {
+md_html_push(MD_HTML * r) {
+	Obj x = symbolGet(r->curr);
 	if (r->size >= r->cap) {
 		if (r->cap == 0) {
 			r->cap = 16;
@@ -23,43 +25,49 @@ md_html_push(MD_HTML * r, Obj x) {
 			r->cap = r->cap * 2;
 		}
 
-		Obj *stack = calloc(r->cap, sizeof(Obj));
-		memcpy(stack, r->stack, sizeof(Obj) * r->size);
-		if (r->stack != NULL) {
-			free(r->stack);
+		Obj stack = makeVector(r->cap);
+		for (int i = 0; i < r->size; i++) {
+			Obj oldStack = symbolGet(r->stack);
+			vectorSet(stack, i, vectorRef(oldStack, i));
 		}
-		r->stack = stack;
+		primSet(r->co, r->stack, stack);
 	}
 
-	r->stack[r->size] = x;
+	vectorSet(symbolGet(r->stack), r->size, x);
 	r->size++;
 }
 
 static Obj
 md_html_pop(MD_HTML * r) {
 	r->size--;
-	return r->stack[r->size];
+	return vectorRef(symbolGet(r->stack), r->size);
+}
+
+static void
+append_curr(MD_HTML * r, Obj x) {
+	Obj v = cons(x, symbolGet(r->curr));
+	primSet(r->co, r->curr, v);
 }
 
 static inline void
 render_verbatim_enter(MD_HTML * r, const MD_CHAR * text) {
-	md_html_push(r, r->curr);
-	r->curr = cons(intern(text), Nil);
+	md_html_push(r);
+	primSet(r->co, r->curr, cons(intern(text), Nil));
 }
 
 static inline void
 render_verbatim_leave(MD_HTML * r) {
-	Obj tmp = reverse(r->curr);
-	r->curr = md_html_pop(r);
-	r->curr = cons(tmp, r->curr);
+	Obj tmp = reverse(symbolGet(r->curr));
+	Obj old = md_html_pop(r);
+	primSet(r->co, r->curr, cons(tmp, old));
 }
 
 static void
 render_append_text1(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
 	strBuf s = fromCStr("language-");
-	strBuf lang = fromBlk(data, size);
+	strBuf lang = fromBlk((char *) data, size);
 	s = strCat(s, toStr(lang));
-	r->curr = cons(makeString(toCStr(s), strLen(toStr(s))), r->curr);
+	append_curr(r, makeString(toCStr(s), strLen(toStr(s))));
 }
 
 static void
@@ -86,17 +94,16 @@ render_attribute(MD_HTML * r, const MD_ATTRIBUTE * attr,
 static void
 render_open_li_block(MD_HTML * r, const MD_BLOCK_LI_DETAIL * det) {
 	if (det->is_task) {
+		md_html_push(r);
 		Obj tmp = cons(intern("class"),
-			       cons(makeString1("task-list-item"), Nil));
+			       cons(makeCString("task-list-item"), Nil));
 		Obj attrs = cons(intern("@"), cons(tmp, Nil));
-		md_html_push(r, r->curr);
-		r->curr = cons(intern("li"), Nil);
-		r->curr = cons(attrs, r->curr);
+		primSet(r->co, r->curr, cons(attrs, cons(intern("li"), Nil)));
 
 		Obj tmp1 = cons(intern("type"),
-				cons(makeString1("checkbox"), Nil));
+				cons(makeCString("checkbox"), Nil));
 		Obj tmp2 = cons(intern("class"),
-				cons(makeString1("task-list-item-checkbox"),
+				cons(makeCString("task-list-item-checkbox"),
 				     Nil));
 		attrs = cons(intern("@"), cons(tmp1, cons(tmp2, Nil)));
 
@@ -106,7 +113,7 @@ render_open_li_block(MD_HTML * r, const MD_BLOCK_LI_DETAIL * det) {
 		}
 		Obj input = cons(intern("input"),
 				 cons(attrs, cons(intern("disabled"), tail)));
-		r->curr = cons(input, r->curr);
+		append_curr(r, input);
 
 		// RENDER_VERBATIM(r, "<li class=\"task-list-item\">"
 		//                   "<input type=\"checkbox\" class=\"task-list-item-checkbox\" disabled");
@@ -129,30 +136,30 @@ render_open_ol_block(MD_HTML * r, const MD_BLOCK_OL_DETAIL * det) {
 
 	Obj tmp = cons(intern("start"), cons(makeNumber(det->start), Nil));
 	Obj attrs = cons(intern("@"), cons(tmp, Nil));
-	r->curr = cons(attrs, r->curr);
+	append_curr(r, attrs);
 	// snprintf(buf, sizeof(buf), "<ol start=\"%u\">\n", det->start);
 	// RENDER_VERBATIM(r, buf);
 }
 
 static void
 render_open_code_block(MD_HTML * r, const MD_BLOCK_CODE_DETAIL * det) {
-	md_html_push(r, r->curr);
-	r->curr = cons(intern("pre"), Nil);
-	md_html_push(r, r->curr);
+	md_html_push(r);
+	primSet(r->co, r->curr, cons(intern("pre"), Nil));
+	md_html_push(r);
 
 	/* If known, output the HTML 5 attribute class="language-LANGNAME". */
 	Obj attrs = Nil;
 	if (det->lang.text != NULL) {
 		attrs = cons(intern("@"), attrs);
-		r->curr = cons(intern("class"), Nil);
+		primSet(r->co, r->curr, cons(intern("class"), Nil));
 		render_attribute(r, &det->lang, render_append_text1);
-		Obj tmp = reverse(r->curr);
+		Obj tmp = reverse(symbolGet(r->curr));
 		attrs = cons(tmp, attrs);
 	}
 
-	r->curr = cons(intern("code"), Nil);
+	primSet(r->co, r->curr, cons(intern("code"), Nil));
 	if (attrs != Nil) {
-		r->curr = cons(attrs, r->curr);
+		append_curr(r, attrs);
 	}
 }
 
@@ -178,12 +185,11 @@ enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 		render_open_li_block(r, (const MD_BLOCK_LI_DETAIL *) detail);
 		break;
 	case MD_BLOCK_HR:
-		r->curr = cons(cons(intern("hr"), Nil), r->curr);
+		append_curr(r, cons(intern("hr"), Nil));
 		break;
 	case MD_BLOCK_H:
-		render_verbatim_enter(r,
-				      head[((MD_BLOCK_H_DETAIL *)
-					    detail)->level - 1]);
+		render_verbatim_enter(r, head[((MD_BLOCK_H_DETAIL *)
+					       detail)->level - 1]);
 		break;
 	case MD_BLOCK_CODE:
 		render_open_code_block(r,
@@ -277,7 +283,7 @@ leave_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 
 static void
 render_url_escaped1(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
-	r->curr = cons(makeString(data, size), r->curr);
+	append_curr(r, makeString(data, size));
 }
 
 static void
@@ -322,40 +328,36 @@ render_url_escaped(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
 
 static void
 render_open_a_span(MD_HTML * r, const MD_SPAN_A_DETAIL * det) {
-	md_html_push(r, r->curr);
+	md_html_push(r);
 
 	Obj attrs = cons(intern("@"), Nil);
 
-	r->curr = cons(intern("href"), Nil);
+	primSet(r->co, r->curr, cons(intern("href"), Nil));
 	render_attribute(r, &det->href, render_url_escaped1);
-	Obj tmp = reverse(r->curr);
+	Obj tmp = reverse(symbolGet(r->curr));
 	attrs = cons(tmp, attrs);
 
 	if (det->title.text != NULL) {
-		r->curr = cons(intern("title"), Nil);
+		primSet(r->co, r->curr, cons(intern("title"), Nil));
 		render_attribute(r, &det->title, render_url_escaped1);
-		Obj tmp1 = reverse(r->curr);
+		Obj tmp1 = reverse(symbolGet(r->curr));
 		attrs = cons(tmp1, attrs);
 		// curr = cons(intern("title"), curr);
 		// render_attribute(r, &det->title, render_html_escaped);
 	}
 	attrs = reverse(attrs);
-
-	r->curr = cons(intern("a"), Nil);
-	r->curr = cons(attrs, r->curr);
+	primSet(r->co, r->curr, cons(attrs, cons(intern("a"), Nil)));
 }
 
 static void
 render_open_img_span(MD_HTML * r, const MD_SPAN_IMG_DETAIL * det) {
-	md_html_push(r, r->curr);
+	md_html_push(r);
 
-	r->curr = cons(intern("src"), Nil);
+	primSet(r->co, r->curr, cons(intern("src"), Nil));
 	render_attribute(r, &det->src, render_url_escaped1);
-	Obj tmp = reverse(r->curr);
+	Obj tmp = reverse(symbolGet(r->curr));
 	Obj attrs = cons(intern("@"), cons(tmp, Nil));
-
-	r->curr = cons(intern("img"), Nil);
-	r->curr = cons(attrs, r->curr);
+	primSet(r->co, r->curr, cons(attrs, cons(intern("img"), Nil)));
 }
 
 static void
@@ -477,7 +479,7 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
 	switch (type) {
 		/* case MD_TEXT_NULLCHAR:  render_utf8_codepoint(r, 0x0000, render_verbatim); break; */
 	case MD_TEXT_BR:
-		r->curr = cons(cons(intern("br"), Nil), r->curr);
+		append_curr(r, cons(intern("br"), Nil));
 		break;
 		/* case MD_TEXT_SOFTBR:    RENDER_VERBATIM(r, (r->image_nesting_level == 0 ? "\n" : " ")); break; */
 	case MD_TEXT_HTML:
@@ -485,7 +487,7 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
 		break;
 		/* case MD_TEXT_ENTITY:    render_entity(r, text, size, render_html_escaped); break; */
 	default:
-		r->curr = cons(makeString(text, size), r->curr);
+		append_curr(r, makeString(text, size));
 		break;
 	}
 
@@ -500,9 +502,16 @@ debug_log_callback(const char *msg, void *userdata) {
 }
 
 int
-md_sxml(const MD_CHAR * input, MD_SIZE input_size, unsigned parser_flags,
-	Obj * res) {
-	MD_HTML render = {.curr = Nil };
+md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
+	unsigned parser_flags, Obj * res) {
+	MD_HTML render;
+	render.co = co;
+	render.curr = primGenSym(intern("curr"));
+	primSet(co, render.curr, Nil);
+	render.stack = primGenSym(intern("stack"));
+	render.size = 0;
+	render.cap = 0;
+
 	MD_PARSER parser = {
 		0,
 		parser_flags,
@@ -527,7 +536,8 @@ md_sxml(const MD_CHAR * input, MD_SIZE input_size, unsigned parser_flags,
 	}
 
 	int succ = md_parse(input, input_size, &parser, (void *) &render);
-	*res = reverse(render.curr);
+	Obj curr = symbolGet(render.curr);
+	*res = reverse(curr);
 	return succ;
 }
 
@@ -574,7 +584,7 @@ membuf_append(struct membuffer *buf, const char *data, MD_SIZE size) {
 
 
 static int
-process_file(FILE * in, Obj * sxml) {
+process_file(struct Cora *co, FILE * in, Obj * sxml) {
 	size_t n;
 	struct membuffer buf_in = { 0 };
 	/* struct membuffer buf_out = {0}; */
@@ -633,7 +643,8 @@ process_file(FILE * in, Obj * sxml) {
 	parser_flags |= MD_FLAG_STRIKETHROUGH;
 	parser_flags |= MD_FLAG_TASKLISTS;
 
-	ret = md_sxml(buf_in.data, (MD_SIZE) buf_in.size, parser_flags, sxml);
+	ret = md_sxml(co, buf_in.data, (MD_SIZE) buf_in.size, parser_flags,
+		      sxml);
 
 	// t1 = clock();
 	if (ret != 0) {
@@ -695,15 +706,15 @@ process_file(FILE * in, Obj * sxml) {
 static void
 md2sxml(struct Cora *co) {
 	Obj tmp = co->args[1];
-	char *filePath = toCStr(stringStr(tmp));
+	char *filePath = stringStr(tmp).str;
 	FILE *in = fopen(filePath, "rb");
 	if (in == NULL) {
 		fprintf(stderr, "Cannot open file %s\n", filePath);
 		coraReturn(co, Nil);
 		return;
 	}
-	Obj sxml;
-	int succ = process_file(in, &sxml);
+	Obj sxml = Nil;
+	int succ = process_file(co, in, &sxml);
 	if (succ != 0) {
 		fprintf(stderr, "process file fail%s\n", filePath);
 		coraReturn(co, Nil);
@@ -723,7 +734,7 @@ struct registerModule md4cModule = {
 void
 entry(struct Cora *co) {
 	Obj pkg = co->args[2];
-	registerAPI(co, &md4cModule, toStr(stringStr(pkg)));
+	registerAPI(co, &md4cModule, stringStr(pkg));
 	coraReturn(co, intern("md4c"));
 }
 
@@ -742,6 +753,6 @@ main(int argc, char *argv[]) {
 		exit(1);
 	}
 	Obj sxml;
-	process_file(in, &sxml);
+	process_file(co, in, &sxml);
 }
 #endif
