@@ -51,4 +51,6 @@ void gcInuseSizeInc(struct GC *gc, int size);
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);
 
+void debugCheck();
+
 #endif

@@ -784,3 +784,10 @@ writeBarrier(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	}
 	*slot = val;
 }
+
+void
+debugCheck() {
+  if (getGC()->state == gcStateNone) {
+    printf("something is wrong\n");
+  }
+}

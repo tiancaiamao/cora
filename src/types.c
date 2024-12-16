@@ -65,6 +65,16 @@ makeCons(Obj car, Obj cdr) {
 	struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons));
 	p->car = car;
 	p->cdr = cdr;
+
+	scmHead* h1 = getScmHead(car);
+	if (h1 != NULL && h1->version +1 < p->head.version) {
+	  debugCheck();
+	}
+	h1 = getScmHead(cdr);
+	if (h1 != NULL && h1->version +1 < p->head.version ) {
+	  debugCheck();
+	}
+
 	return ((Obj) (&p->head) | TAG_PTR);
 }
 

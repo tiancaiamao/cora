@@ -148,7 +148,7 @@ stringSplit(struct Cora *co) {
   coraReturn(co, reverse(res));
 }
 
-void
+static void
 stringAppend(struct Cora *co) {
 	Obj str1 = co->args[1];
 	Obj str2 = co->args[2];
@@ -160,6 +160,29 @@ stringAppend(struct Cora *co) {
     str s = toStr(tmp);
 	Obj val = makeString(s.str, s.len);
 	coraReturn(co, val);
+}
+
+static void
+bytesMemCpy(struct Cora *co) {
+		Obj to = co->args[1];
+		Obj off1 = co->args[2];
+		Obj from = co->args[3];
+		Obj off2 = co->args[4];
+		Obj size = co->args[5];
+
+		char *dst = bytesData(to) + fixnum(off1);
+		char *src = bytesData(from) + fixnum(off2);
+		memcpy(dst, src, fixnum(size));
+		coraReturn(co, Nil);
+}
+
+static void
+bytesRef(struct Cora *co) {
+  Obj str = co->args[1];
+  Obj idx = fixnum(co->args[2]);
+  assert(idx < bytesLen(str));
+  Obj ret = makeNumber(bytesData(str)[idx]);
+  coraReturn(co, ret);
 }
 
 static struct registerModule stringModule = {
@@ -175,6 +198,8 @@ static struct registerModule stringModule = {
     {"split", stringSplit, 2},
 				{"append", stringAppend, 2},
 				{"contain?", stringContain, 2},
+				{"memcpy", bytesMemCpy, 5},
+				{"byte-ref", bytesRef, 2},
     /* {NULL, NULL, 0} */
   }
 };

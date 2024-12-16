@@ -99,10 +99,20 @@ readCons(struct SexpReader *r, FILE * in, int *errCode) {
 
 Obj
 reverse(Obj o) {
+  scmHead* h = getScmHead(o);
+
 	Obj ret = Nil;
 	while (o != Nil) {
 		ret = cons(car(o), ret);
+		Obj prev = o;
 		o = cdr(o);
+
+		scmHead* h1 = getScmHead(o);
+		if (h1 != NULL) {
+		  if ((h->version > h1->version +1) || (h1->version > h->version+1)) {
+		    printf("WTF!!!!!!!!!!!!!!!!!!!, prev=%ld\n", prev);
+		  }
+		}
 	}
 	return ret;
 }
