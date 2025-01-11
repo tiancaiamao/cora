@@ -257,7 +257,9 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 				for (; p != Nil; p = cdr(p)) {
 					Obj item = car(p);
 					if (car(item) == pkg) {
-						pkgPath =stringStr(cdr(item)).str;
+						pkgPath =
+							stringStr(cdr
+								  (item)).str;
 						break;
 					}
 				}

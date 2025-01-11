@@ -101,8 +101,8 @@ heapArenaAlloc(struct heapArena *h) {
 
 static bool
 heapArenaContains(struct heapArena *h, void *p) {
-	return p >= (void *) h->ptr
-		&& p < (void *) h->ptr + (h->idx * MEM_BLOCK_SIZE);
+	return p >= (void *) h->ptr &&
+		p < (void *) h->ptr + (h->idx * MEM_BLOCK_SIZE);
 }
 
 struct doubleLinkList {

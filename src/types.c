@@ -12,10 +12,10 @@ const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
 struct scmBytes {
-		scmHead head;
-		int len;
-		char data[];
-		// strBuf str;
+	scmHead head;
+	int len;
+	char data[];
+	// strBuf str;
 };
 
 const char *typeNameX[8] = {
@@ -31,7 +31,7 @@ const char *typeNameX[8] = {
 
 void *
 newObj(scmHeadType tp, int sz) {
-	// scmHead* p = malloc(sz);
+	/* scmHead* p = malloc(sz); */
 	scmHead *p = gcAlloc(getGC(), sz);
 	assert(((Obj) p & TAG_PTR) == 0);
 	p->type = tp;
@@ -137,26 +137,25 @@ isNumber(Obj o) {
 
 Obj
 makeBytes(int len) {
-		// sz is the actural length but we malloc a extra byte to be compatible with C.
-		int alloc = len + sizeof(struct scmBytes) + 1;
-		struct scmBytes *str = newObj(scmHeadBytes, alloc);
-		str->len = len;
-		return ((Obj) (&str->head) | TAG_PTR);
+	// sz is the actural length but we malloc a extra byte to be compatible with C.
+	int alloc = len + sizeof(struct scmBytes) + 1;
+	struct scmBytes *str = newObj(scmHeadBytes, alloc);
+	str->len = len;
+	return ((Obj) (&str->head) | TAG_PTR);
 }
 
 char *
 bytesData(Obj o) {
-		struct scmBytes *s = ptr(o);
-		assert(s->head.type == scmHeadBytes);
-		return s->data;
+	struct scmBytes *s = ptr(o);
+	assert(s->head.type == scmHeadBytes);
+	return s->data;
 }
 
 int
 bytesLen(Obj o) {
-		struct scmBytes *s = ptr(o);
-		assert(s->head.type == scmHeadBytes);
-		return s->len;
-		// return strLen(toStr(s->str));
+	struct scmBytes *s = ptr(o);
+	assert(s->head.type == scmHeadBytes);
+	return s->len;
 }
 
 bool
@@ -171,11 +170,11 @@ isBytes(Obj o) {
 
 Obj
 makeString(const char *s, int len) {
-		Obj ret = makeBytes(len);
-		char *data = bytesData(ret);
-		memcpy(data, s, len);
-		data[len] = 0;
-		return ret;
+	Obj ret = makeBytes(len);
+	char *data = bytesData(ret);
+	memcpy(data, s, len);
+	data[len] = 0;
+	return ret;
 }
 
 Obj
@@ -187,9 +186,9 @@ str
 stringStr(Obj o) {
 	struct scmBytes *s = ptr(o);
 	assert(s->head.type == scmHeadBytes);
-		str ret;
-		ret.str = s->data;
-		ret.len = s->len;
+	str ret;
+	ret.str = s->data;
+	ret.len = s->len;
 	return ret;
 }
 
@@ -389,8 +388,8 @@ eq(Obj x, Obj y) {
 	if (isBytes(x) && isBytes(y)) {
 		struct scmBytes *x1 = ptr(x);
 		struct scmBytes *y1 = ptr(y);
-				str s1 = {x1->data, x1->len};
-				str s2 = {y1->data, y1->len};
+		str s1 = { x1->data, x1->len };
+		str s2 = { y1->data, y1->len };
 		return strCmp(s1, s2) == 0;
 	}
 
@@ -426,7 +425,8 @@ void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 	for (int i = 0; i < stack->len; i++) {
 		struct returnAddr *addr = &stack->data[i];
-		for (int j = addr->stk.base; j < addr->stk.pos; j++) {
+		// TODO: duplicated operation
+		for (int j = 0; j < addr->stk.base; j++) {
 			gcMark(gc, addr->stk.stack[j]);
 		}
 		// Don't forget this one!
