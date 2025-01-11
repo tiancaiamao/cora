@@ -1,8 +1,5 @@
 (@import "cora/lib/string" string)
 
-(defun fake-import (path)
-  `(foo bar bax))
-
 (func assq
       var [] => ()
       var [(cons x y) . _] => (cons x y) where (= var x)
@@ -14,7 +11,7 @@
 
 (defun global-syntax? (s)
   (cond
-    ((elem? s ['if 'do 'lambda 'let]) true)
+    ((elem? s ['quote 'if 'do 'lambda 'let]) true)
     ((elem? s cora/init#*default-ns*) true)
     (true (let find (assq s *macros*)
 	       (if (null? find)
@@ -42,20 +39,6 @@
 	   (let ns (if (string? pkg) pkg self)
 		(intern (string.append ns (string.append "#" (symbol->string s))))))))
 
-;; (defmacro define-library (sexp)
-;;   (let self (cadr sexp)
-;;        remain (cddr sexp)
-;;        ((parse-define-library remain)
-;; 	(lambda (imports exports body)
-;; 	  (let libexports (map (lambda (path)
-;; 				 (cons (fake-import path) path))
-;; 			       imports)
-;; 	       (let body1 (walk (lambda (s)
-;; 				  (if (symbol? s)
-;; 				      (rewrite-syntax self libexports s)
-;; 				      s)) body)
-;; 		    (append body1 (cons ['backquote exports] ()))))))))
-
 (defmacro define-library (sexp)
   (let self (cadr sexp)
        remain (cddr sexp)
@@ -68,7 +51,9 @@
    (set '*ns-export* (cdr sexp))
    ()))
 
+(set '*ns-self* "")
 (set '*ns-import* ())
+(set '*ns-export* ())
 
 (defmacro import (sexp)
   (let save-import *ns-import*
@@ -76,8 +61,19 @@
        save-self *ns-self*
        path (cadr sexp)
        (begin
-	(import (cadr sexp))
+	(import path)
 	(set '*ns-import* (cons (cons *ns-export* path) save-import))
 	(set '*ns-export* save-export)
 	(set '*ns-self* save-self)
 	())))
+
+(let macroexpand-raw macroexpand
+     (set 'macroexpand (lambda (exp)
+			 (let exp1 (macroexpand-raw exp)
+			      (if (not (= *ns-self* ""))
+				  (walk (lambda (s)
+					  (if (symbol? s)
+					      (rewrite-syntax *ns-self* *ns-import* s)
+					      s))
+					exp1)
+				  exp1)))))
