@@ -309,10 +309,6 @@
               (cons 'match (cons (cons 'list args)
                                  body)))))))
 
-;; (func cora:walk
-;;       f [x . y] => (f (map (cora:walk f) [x . y]))
-;;       f x => (f x))
-
 (func .propagate-boolean0
       ['car ['cons x _]] => x
       ['cdr ['cons _ x]] => x

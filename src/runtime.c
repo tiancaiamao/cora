@@ -298,6 +298,14 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	} else {
 		assert(s->owner == co);
 	}
+
+	if ((strChr(cstr(symbolStr(key)), '#') < 0) &&
+	    (strChr(cstr(symbolStr(key)), '.') < 0)) {
+	  // global variable without namespace
+	  primSet(co, intern("cora/init#*default-ns*"),
+		  cons(key, symbolGet(intern("cora/init#*default-ns*"))));
+	}
+
 	return val;
 }
 
@@ -887,6 +895,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
+	primSet(co, intern("cora/init#*default-ns*"), Nil);
 	primSet(co, intern("*imported*"), Nil);
 	primSet(co, intern("*package-mapping*"), Nil);
 	primSet(co, intern("symbol->string"),
