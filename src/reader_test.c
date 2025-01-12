@@ -53,7 +53,7 @@ TestImport(struct Cora *co) {
 	Obj x = sexpRead(&r, stream, &errCode);
 	/* printObj(stdout, x); */
 	/* printf("\n"); */
-	assert(eq(car(x), intern("std/cora/basic.yyy")));
+	assert(eq(car(x), intern("std/cora/basic#yyy")));
 
 	fclose(stream);
 }

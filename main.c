@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     /* printf(" --- %d %d\n", co->base, co->pos); */
     /* printf("\n"); */
 
-    co->args[0] = globalRef(intern("cora/lib/toc.eval0"));
+    co->args[0] = globalRef(intern("cora/lib/toc#eval0"));
     co->args[1] = exp;
     co->nargs = 2;
     trampoline(co, 0, coraDispatch);

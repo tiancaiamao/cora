@@ -258,8 +258,8 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 					Obj item = car(p);
 					if (car(item) == pkg) {
 						pkgPath =
-							stringStr(cdr
-								  (item)).str;
+							stringStr(cdr(item)).
+							str;
 						break;
 					}
 				}
@@ -272,7 +272,7 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 				char tmp[512];
 				int len1 = strlen(pkgPath);
 				memcpy(tmp, pkgPath, len1);
-				tmp[len1] = '.';
+				tmp[len1] = '#';
 				int len2 = strlen(buffer + firstDot + 1);
 				memcpy(tmp + len1 + 1, buffer + firstDot + 1,
 				       len2);
@@ -281,10 +281,6 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 			}
 		}
 		return makeSymbol(buffer);
-		/* } */
-		/* fprintf(stderr, "symbol not followed by delimiter. " */
-		/*         "Found '%c'\n", c); */
-		/* exit(1); */
 	}
 
 	if (c == EOF) {
@@ -360,9 +356,6 @@ printObj(FILE * to, Obj o) {
 		case scmHeadNative:
 			fprintf(to, "native");
 			break;
-			/* case scmHeadContinuation: */
-			/*   fprintf(to, "continuation"); */
-			/*   break; */
 		default:
 			fprintf(to, "ptr unknown type = %d\n", h->type);
 		};

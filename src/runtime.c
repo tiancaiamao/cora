@@ -301,9 +301,10 @@ primSet(struct Cora *co, Obj key, Obj val) {
 
 	if ((strChr(cstr(symbolStr(key)), '#') < 0) &&
 	    (strChr(cstr(symbolStr(key)), '.') < 0)) {
-	  // global variable without namespace
-	  primSet(co, intern("cora/init#*default-ns*"),
-		  cons(key, symbolGet(intern("cora/init#*default-ns*"))));
+		// global variable without namespace
+		primSet(co, intern("cora/init#*default-ns*"),
+			cons(key,
+			     symbolGet(intern("cora/init#*default-ns*"))));
 	}
 
 	return val;
@@ -599,7 +600,7 @@ builtinLoad(struct Cora *co) {
 	Obj pkg = co->args[2];
 
 	co->nargs = 4;
-	co->args[0] = globalRef(intern("cora/lib/toc.compile-to-c"));
+	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
 	co->args[1] = filePath;
 
 	const int BUFSIZE = 512;
@@ -875,7 +876,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		Obj sym;
 		if (strLen(pkg) > 0) {
 			strBuf tmp = strDup(pkg);
-			tmp = strAppend(tmp, '.');
+			tmp = strAppend(tmp, '#');
 			tmp = strCat(tmp, cstr(entry.name));
 			sym = intern(toCStr(tmp));
 			strFree(tmp);
@@ -921,19 +922,19 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-str"),
+	primSet(co, intern("cora/lib/toc/internal#generate-str"),
 		makeNative(0, builtinGenerateStr, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-sym"),
+	primSet(co, intern("cora/lib/toc/internal#generate-sym"),
 		makeNative(0, builtinGenerateSym, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-num"),
+	primSet(co, intern("cora/lib/toc/internal#generate-num"),
 		makeNative(0, builtinGenerateNum, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.escape-str"),
+	primSet(co, intern("cora/lib/toc/internal#escape-str"),
 		makeNative(0, builtinEscapeStr, 1, 0));
-	primSet(co, intern("cora/lib/io.open-output-file"),
+	primSet(co, intern("cora/lib/io#open-output-file"),
 		makeNative(0, builtinOpenOutputFile, 1, 0));
-	primSet(co, intern("cora/lib/io.close-output-file"),
+	primSet(co, intern("cora/lib/io#close-output-file"),
 		makeNative(0, builtinCloseOutputFile, 1, 0));
-	primSet(co, intern("cora/lib/os.exec"),
+	primSet(co, intern("cora/lib/os#exec"),
 		makeNative(0, builtinOSExec, 1, 0));
 }
 
