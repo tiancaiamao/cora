@@ -635,7 +635,7 @@ builtinLoad(struct Cora *co) {
 }
 
 void
-builtinImport(struct Cora *co) {
+static builtinImport1(struct Cora *co) {
 	Obj pkg = co->args[1];
 	str pkgStr = stringStr(pkg);
 	Obj sym = intern("*imported*");
@@ -662,9 +662,11 @@ builtinImport(struct Cora *co) {
 		// primLoadSo is a bit special, it requires the current stack of VM is
 		// (load-so "file-path.so" "package-path")
 		co->nargs = 3;
+		co->args[0] = makeNative(0, builtinLoadSo, 2, 0);
 		co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
 		co->args[2] = pkg;
-		co->ctx.pc.func = builtinLoadSo;
+		trampoline(co, 0, coraDispatch);
+		/* co->ctx.pc.func = builtinLoadSo; */
 		strFree(tmp);
 		return;
 	}
@@ -680,6 +682,26 @@ builtinImport(struct Cora *co) {
 	strFree(tmp);
 
 	coraReturn(co, pkg);
+}
+
+// import do more things than load:
+// 1. avoid repeated import for imported libraries
+// 2. convert from library path to .cora or .so file
+// 3. call load or load-so for the actual work
+// 4. handle save and recovery of *ns-xxx*
+void
+builtinImport(struct Cora *co) {
+  Obj path = co->args[1];
+  Obj saveImport = symbolGet(intern("*ns-import*"));
+  Obj saveExport = symbolGet(intern("*ns-export*"));
+  Obj saveSelf = symbolGet(intern("*ns-self*"));
+  builtinImport1(co);
+  Obj export = symbolGet(intern("*ns-export*"));
+  if (iscons(export)) {
+    primSet(co, intern("*ns-import*"), cons(cons(export, path), saveImport));
+  }
+  primSet(co, intern("*ns-export*"), saveExport);
+  primSet(co, intern("*ns-self*"), saveSelf);
 }
 
 // ================ utilities for toc ==================
@@ -787,21 +809,21 @@ builtinEscapeStr(struct Cora *co) {
 	coraReturn(co, makeString(toCStr(dst), strLen(toStr(dst))));
 }
 
-static void
-builtinOpenOutputFile(struct Cora *co) {
-	Obj arg1 = co->args[1];
-	str filePath = stringStr(arg1);
-	FILE *f = fopen(filePath.str, "w");
-	coraReturn(co, makeCObj(f));
-}
+/* static void */
+/* builtinOpenOutputFile(struct Cora *co) { */
+/* 	Obj arg1 = co->args[1]; */
+/* 	str filePath = stringStr(arg1); */
+/* 	FILE *f = fopen(filePath.str, "w"); */
+/* 	coraReturn(co, makeCObj(f)); */
+/* } */
 
-static void
-builtinCloseOutputFile(struct Cora *co) {
-	Obj arg1 = co->args[1];
-	FILE *f = mustCObj(arg1);
-	int errno = fclose(f);
-	coraReturn(co, makeNumber(errno));
-}
+/* static void */
+/* builtinCloseOutputFile(struct Cora *co) { */
+/* 	Obj arg1 = co->args[1]; */
+/* 	FILE *f = mustCObj(arg1); */
+/* 	int errno = fclose(f); */
+/* 	coraReturn(co, makeNumber(errno)); */
+/* } */
 
 void
 builtinReadFileAsSexp(struct Cora *co) {
@@ -867,6 +889,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		m->init();
 	}
 
+	Obj exports = Nil;
 	for (int i = 0;; i++) {
 		struct registerEntry entry = m->entries[i];
 		if (entry.func == NULL) {
@@ -884,7 +907,9 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 			sym = intern(entry.name);
 		}
 		primSet(co, sym, makeNative(0, entry.func, entry.args, 0));
+		exports = cons(intern(entry.name), exports);
 	}
+	primSet(co, intern("*ns-export*"), exports);
 }
 
 // ============ end utilities for toc =================
@@ -899,6 +924,9 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("cora/init#*default-ns*"), Nil);
 	primSet(co, intern("*imported*"), Nil);
 	primSet(co, intern("*package-mapping*"), Nil);
+	primSet(co, intern("*ns-self*"), makeCString(""));
+	primSet(co, intern("*ns-import*"), Nil);
+	primSet(co, intern("*ns-export*"), Nil);
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
@@ -930,10 +958,6 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinGenerateNum, 2, 0));
 	primSet(co, intern("cora/lib/toc/internal#escape-str"),
 		makeNative(0, builtinEscapeStr, 1, 0));
-	primSet(co, intern("cora/lib/io#open-output-file"),
-		makeNative(0, builtinOpenOutputFile, 1, 0));
-	primSet(co, intern("cora/lib/io#close-output-file"),
-		makeNative(0, builtinCloseOutputFile, 1, 0));
 	primSet(co, intern("cora/lib/os#exec"),
 		makeNative(0, builtinOSExec, 1, 0));
 }

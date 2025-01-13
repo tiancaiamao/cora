@@ -20,7 +20,7 @@ lib:
 
 main.o: main.c
 
-cora.bin: libcora main.o init.so toc.so
+cora.bin: libcora main.o init.so
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
 	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
@@ -30,9 +30,6 @@ clean:
 	rm -f *.o *.so *.bin
 	make clean -C src
 	make clean -C lib
-
-toc.so: toc.c libcora
-	gcc -shared -o toc.so -g -fPIC toc.c -Isrc -I. -Lsrc -lcora
 
 init.so: init.c libcora
 	gcc -shared -o init.so -g -fPIC init.c -Isrc -I. -Lsrc -lcora

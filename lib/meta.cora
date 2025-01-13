@@ -55,17 +55,17 @@
 (set '*ns-import* ())
 (set '*ns-export* ())
 
-(defmacro import (sexp)
-  (let save-import *ns-import*
-       save-export *ns-export*
-       save-self *ns-self*
-       path (cadr sexp)
-       (begin
-	(import path)
-	(set '*ns-import* (cons (cons *ns-export* path) save-import))
-	(set '*ns-export* save-export)
-	(set '*ns-self* save-self)
-	())))
+;; (defmacro import (sexp)
+;;   (let save-import *ns-import*
+;;        save-export *ns-export*
+;;        save-self *ns-self*
+;;        path (cadr sexp)
+;;        (begin
+;; 	(import path)
+;; 	(set '*ns-import* (cons (cons *ns-export* path) save-import))
+;; 	(set '*ns-export* save-export)
+;; 	(set '*ns-self* save-self)
+;; 	())))
 
 (let macroexpand-raw macroexpand
      (set 'macroexpand (lambda (exp)
