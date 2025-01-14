@@ -701,37 +701,6 @@ builtinImport(struct Cora *co) {
 	coraReturn(co, pkg);
 }
 
-// ================ utilities for toc ==================
-
-static void
-builtinGenerateStr(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	str s = stringStr(exp);
-	fprintf(out, "%s", s.str);
-	coraReturn(co, Nil);
-}
-
-static void
-builtinGenerateSym(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	const char *s = symbolStr(exp);
-	for (const char *p = s; *p != 0; p++) {
-		if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
-		    (*p >= '0' && *p <= '9')) {
-			fprintf(out, "%c", *p);
-		} else if (*p == '_') {
-			fprintf(out, "__");
-		} else {
-			fprintf(out, "_%d", *p);
-		}
-	}
-	coraReturn(co, Nil);
-}
-
 static void
 builtinVector(struct Cora *co) {
 	Obj o = co->args[1];
@@ -768,59 +737,6 @@ builtinVectorLength(struct Cora *co) {
 	co->args[1] = makeNumber(res);
 	popStack(co);
 }
-
-static void
-builtinGenerateNum(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	fprintf(out, "%ld", fixnum(exp));
-	coraReturn(co, Nil);
-}
-
-static void
-builtinEscapeStr(struct Cora *co) {
-	Obj s = co->args[1];
-	str str = stringStr(s);
-	strBuf dst = strNew(strLen(str));
-
-	for (int i = 0; i < strLen(str); i++) {
-		char c = str.str[i];
-		switch (c) {
-		case '"':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, '"');
-			break;
-		case '\n':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, 'n');
-			break;
-		case '\t':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, 't');
-			break;
-		default:
-			dst = strAppend(dst, c);
-		};
-	}
-	coraReturn(co, makeString(toCStr(dst), strLen(toStr(dst))));
-}
-
-/* static void */
-/* builtinOpenOutputFile(struct Cora *co) { */
-/* 	Obj arg1 = co->args[1]; */
-/* 	str filePath = stringStr(arg1); */
-/* 	FILE *f = fopen(filePath.str, "w"); */
-/* 	coraReturn(co, makeCObj(f)); */
-/* } */
-
-/* static void */
-/* builtinCloseOutputFile(struct Cora *co) { */
-/* 	Obj arg1 = co->args[1]; */
-/* 	FILE *f = mustCObj(arg1); */
-/* 	int errno = fclose(f); */
-/* 	coraReturn(co, makeNumber(errno)); */
-/* } */
 
 void
 builtinReadFileAsSexp(struct Cora *co) {
@@ -920,7 +836,13 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		primSet(co, sym, makeNative(0, entry.func, entry.args, 0));
 		exports = cons(intern(entry.name), exports);
 	}
-	/* primSet(co, intern("*ns-export*"), exports); */
+	if (strLen(pkg) > 0) {
+	  strBuf tmp = strDup(pkg);
+	  tmp = strCat(tmp, cstr("#*ns-export*"));
+	  Obj sym = intern(toCStr(tmp));
+	  strFree(tmp);
+	  primSet(co, sym, exports);
+	}
 }
 
 // ============ end utilities for toc =================
@@ -963,14 +885,6 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	primSet(co, intern("cora/lib/toc/internal#generate-str"),
-		makeNative(0, builtinGenerateStr, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal#generate-sym"),
-		makeNative(0, builtinGenerateSym, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal#generate-num"),
-		makeNative(0, builtinGenerateNum, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal#escape-str"),
-		makeNative(0, builtinEscapeStr, 1, 0));
 	primSet(co, intern("cora/lib/os#exec"),
 		makeNative(0, builtinOSExec, 1, 0));
 }

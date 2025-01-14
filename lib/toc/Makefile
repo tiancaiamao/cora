@@ -1,9 +1,9 @@
-all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so
+all: internal.so
 
 CC = gcc
-CFLAGS := -I../src -fPIC -g
+CFLAGS := -I../../src -fPIC -g
 DEPDIR = .deps
-SRCS := toc.c string.c os.c io.c hash-h.c net.c rand.c
+SRCS := internal.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
@@ -13,7 +13,7 @@ clean:
 	rm -rf *.o *.so
 
 %.so : %.o
-	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
+	gcc -shared -o $@ $^ -fPIC -I../../src -L../../src -lcora
 
 %.o : %.c
 %.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
@@ -23,6 +23,3 @@ $(DEPDIR): ; @mkdir -p $@
 
 $(DEPS):
 include $(wildcard $(DEPS))
-
-internal.so:
-	make -C toc

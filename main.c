@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   co->nargs = 3;
   trampoline(co, 0, builtinLoadSo);
   primSet(co, imported, cons(makeCString("cora/init"), Nil));
-  primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported)));
+  /* primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported))); */
   
   co->args[1] = makeCString("cora/lib/toc");
   /* co->args[2] = makeCString(""); */
