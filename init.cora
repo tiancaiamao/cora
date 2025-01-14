@@ -368,3 +368,91 @@
       
 (defmacro backquote (exp)
   (.rewrite-backquote (cadr exp)))
+
+(func assq
+      var [] => ()
+      var [(cons x y) . _] => (cons x y) where (= var x)
+      var [_ . y] => (assq var y))
+
+(func walk
+      f [x . y] => (map (walk f) [x . y])
+      f x => (f x))
+
+;; =============== define-library utilities ======
+
+(defun global-syntax? (s)
+  (cond
+    ((elem? s ['quote 'if 'do 'lambda 'let]) true)
+    ((elem? s cora/init#*default-ns*) true)
+    (true (let find (assq s *macros*)
+	       (if (null? find)
+		   false
+		   true)))))
+
+(func imported-syntax?
+      [] s => false
+      [(cons symbols path) . more] s => (if (elem? s symbols)
+					    path
+					    (imported-syntax? more s)))
+
+(func parse-define-library-h
+      [['import lib] . rest] imports exports k => (parse-define-library-h rest (cons lib imports) exports k)
+      [['export . more] . rest]  imports exports k => (parse-define-library-h rest imports more k)
+      body imports exports k => (k (reverse imports) exports (cons 'begin body)))
+
+(defun parse-define-library (data k)
+  (parse-define-library-h data () () k))
+
+(defun rewrite-syntax (self imports s)
+  (if (global-syntax? s)
+      s
+      (let pkg (imported-syntax? imports s)
+	   (cond
+	     ((string? pkg) (intern (string-append pkg (string-append "#" (symbol->string s)))))
+	     ((not (= self "")) (intern (string-append self (string-append "#" (symbol->string s)))))
+	     (true s)))))
+
+(defmacro define-library (sexp)
+  (let self (cadr sexp)
+       remain (cddr sexp)
+       (begin
+	(set '*ns-self* self)
+	['begin . remain])))
+
+(defun ns-import-symbol (ns)
+  (intern (string-append ns "#*ns-import*")))
+
+(defun ns-export-symbol (ns)
+  (intern (string-append ns "#*ns-export*")))
+
+(defmacro export (sexp)
+  (begin
+   (set (ns-export-symbol *ns-self*) (cdr sexp))
+   ()))
+
+(defmacro import (sexp)
+  (let path (cadr sexp)
+       save-ns *ns-self*
+       (begin
+	(import path)
+	(let export (value-or (ns-export-symbol path) ())
+	     (if (cons? export)
+		 (let s-ns-import (ns-import-symbol save-ns)
+		      *ns-import*  (value-or s-ns-import ())
+		      (set s-ns-import (cons (cons export path) *ns-import*)))
+		 ()))
+	(set '*ns-self* save-ns)
+	())))
+
+(let macroexpand-raw macroexpand
+     (set 'macroexpand (lambda (exp)
+			 (let  save-ns *ns-self*
+			       exp1 (macroexpand-raw exp)
+			       exp2 (walk (lambda (s)
+					    (if (symbol? s)
+						(rewrite-syntax *ns-self* (value-or (ns-import-symbol *ns-self*) ()) s)
+						s))
+					  exp1)
+			       (begin
+				;; (set '*ns-self* save-ns)
+				exp2)))))

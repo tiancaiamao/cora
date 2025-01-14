@@ -1,5 +1,3 @@
-(@import "cora/lib/string" string)
-
 (func assq
       var [] => ()
       var [(cons x y) . _] => (cons x y) where (= var x)
@@ -36,8 +34,10 @@
   (if (global-syntax? s)
       s
       (let pkg (imported-syntax? imports s)
-	   (let ns (if (string? pkg) pkg self)
-		(intern (string.append ns (string.append "#" (symbol->string s))))))))
+	   (cond
+	     ((string? pkg) (intern (string-append pkg (string-append "#" (symbol->string s)))))
+	     ((not (= self "")) (intern (string-append self (string-append "#" (symbol->string s)))))
+	     (true s)))))
 
 (defmacro define-library (sexp)
   (let self (cadr sexp)
@@ -70,10 +70,8 @@
 (let macroexpand-raw macroexpand
      (set 'macroexpand (lambda (exp)
 			 (let exp1 (macroexpand-raw exp)
-			      (if (not (= *ns-self* ""))
-				  (walk (lambda (s)
-					  (if (symbol? s)
-					      (rewrite-syntax *ns-self* *ns-import* s)
-					      s))
-					exp1)
-				  exp1)))))
+			      (walk (lambda (s)
+				      (if (symbol? s)
+					  (rewrite-syntax *ns-self* *ns-import* s)
+					  s))
+				    exp1)))))

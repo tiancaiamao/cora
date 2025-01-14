@@ -529,6 +529,18 @@ builtinValue(struct Cora *co) {
 }
 
 void
+builtinValueOr(struct Cora *co) {
+	Obj sym = co->args[1];
+	struct trieNode *s = ptr(sym);
+	Obj ret = s->value;
+	if (ret == Undef) {
+		coraReturn(co, co->args[2]);
+		return;
+	}
+	coraReturn(co, ret);
+}
+
+void
 builtinApply(struct Cora *co) {
 	Obj fn = co->args[1];
 	Obj args = co->args[2];
@@ -634,8 +646,12 @@ builtinLoad(struct Cora *co) {
 	return;
 }
 
+// import do more things than load:
+// 1. avoid repeated import for imported libraries
+// 2. convert from library path to .cora or .so file
+// 3. call load or load-so for the actual work
 void
-static builtinImport1(struct Cora *co) {
+builtinImport(struct Cora *co) {
 	Obj pkg = co->args[1];
 	str pkgStr = stringStr(pkg);
 	Obj sym = intern("*imported*");
@@ -668,6 +684,7 @@ static builtinImport1(struct Cora *co) {
 		trampoline(co, 0, coraDispatch);
 		/* co->ctx.pc.func = builtinLoadSo; */
 		strFree(tmp);
+		coraReturn(co, pkg);
 		return;
 	}
 
@@ -682,26 +699,6 @@ static builtinImport1(struct Cora *co) {
 	strFree(tmp);
 
 	coraReturn(co, pkg);
-}
-
-// import do more things than load:
-// 1. avoid repeated import for imported libraries
-// 2. convert from library path to .cora or .so file
-// 3. call load or load-so for the actual work
-// 4. handle save and recovery of *ns-xxx*
-void
-builtinImport(struct Cora *co) {
-  Obj path = co->args[1];
-  Obj saveImport = symbolGet(intern("*ns-import*"));
-  Obj saveExport = symbolGet(intern("*ns-export*"));
-  Obj saveSelf = symbolGet(intern("*ns-self*"));
-  builtinImport1(co);
-  Obj export = symbolGet(intern("*ns-export*"));
-  if (iscons(export)) {
-    primSet(co, intern("*ns-import*"), cons(cons(export, path), saveImport));
-  }
-  primSet(co, intern("*ns-export*"), saveExport);
-  primSet(co, intern("*ns-self*"), saveSelf);
 }
 
 // ================ utilities for toc ==================
@@ -862,6 +859,20 @@ builtinReadFileAsSexp(struct Cora *co) {
 	coraReturn(co, result);
 }
 
+static void
+builtinStringAppend(struct Cora *co) {
+	Obj str1 = co->args[1];
+	Obj str2 = co->args[2];
+	str x = stringStr(str1);
+	str y = stringStr(str2);
+	strBuf tmp = strNew(x.len + y.len);
+	tmp = strCpy(tmp, x);
+	tmp = strCat(tmp, y);
+    str s = toStr(tmp);
+	Obj val = makeString(s.str, s.len);
+	coraReturn(co, val);
+}
+
 static strBuf
 cmdListStr(Obj args) {
 	strBuf cmd = strNew(64);
@@ -909,7 +920,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		primSet(co, sym, makeNative(0, entry.func, entry.args, 0));
 		exports = cons(intern(entry.name), exports);
 	}
-	primSet(co, intern("*ns-export*"), exports);
+	/* primSet(co, intern("*ns-export*"), exports); */
 }
 
 // ============ end utilities for toc =================
@@ -925,15 +936,17 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("*imported*"), Nil);
 	primSet(co, intern("*package-mapping*"), Nil);
 	primSet(co, intern("*ns-self*"), makeCString(""));
-	primSet(co, intern("*ns-import*"), Nil);
-	primSet(co, intern("*ns-export*"), Nil);
+	primSet(co, intern("#*ns-import*"), Nil);
+	primSet(co, intern("#*ns-export*"), Nil);
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
 	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
 		makeNative(0, builtinReadFileAsSexp, 2, 0));
+	primSet(co, intern("string-append"), makeNative(0, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
+	primSet(co, intern("value-or"), makeNative(0, builtinValueOr, 2, 0));
 	primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
 	primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
