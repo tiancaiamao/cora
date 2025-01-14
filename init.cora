@@ -430,29 +430,29 @@
    (set (ns-export-symbol *ns-self*) (cdr sexp))
    ()))
 
-;; (defmacro import (sexp)
-;;   (let path (cadr sexp)
-;;        save-ns *ns-self*
-;;        (begin
-;; 	(import path)
-;; 	(let export (value-or (ns-export-symbol path) ())
-;; 	     (if (cons? export)
-;; 		 (let s-ns-import (ns-import-symbol save-ns)
-;; 		      *ns-import*  (value-or s-ns-import ())
-;; 		      (set s-ns-import (cons (cons export path) *ns-import*)))
-;; 		 ()))
-;; 	(set '*ns-self* save-ns)
-;; 	())))
+(defmacro import1 (sexp)
+  (let path (cadr sexp)
+       save-ns *ns-self*
+       (begin
+	(import path)
+	(let export (value-or (ns-export-symbol path) ())
+	     (if (cons? export)
+		 (let s-ns-import (ns-import-symbol save-ns)
+		      *ns-import*  (value-or s-ns-import ())
+		      (set s-ns-import (cons (cons export path) *ns-import*)))
+		 ()))
+	(set '*ns-self* save-ns)
+	())))
 
-;; (let macroexpand-raw macroexpand
-;;      (set 'macroexpand (lambda (exp)
-;; 			 (let  save-ns *ns-self*
-;; 			       exp1 (macroexpand-raw exp)
-;; 			       exp2 (walk (lambda (s)
-;; 					    (if (symbol? s)
-;; 						(rewrite-syntax *ns-self* (value-or (ns-import-symbol *ns-self*) ()) s)
-;; 						s))
-;; 					  exp1)
-;; 			       (begin
-;; 				;; (set '*ns-self* save-ns)
-;; 				exp2)))))
+(let macroexpand-raw macroexpand
+     (set 'macroexpand (lambda (exp)
+			 (let  save-ns *ns-self*
+			       exp1 (macroexpand-raw exp)
+			       exp2 (walk (lambda (s)
+					    (if (symbol? s)
+						(rewrite-syntax *ns-self* (value-or (ns-import-symbol *ns-self*) ()) s)
+						s))
+					  exp1)
+			       (begin
+				;; (set '*ns-self* save-ns)
+				exp2)))))
