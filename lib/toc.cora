@@ -532,16 +532,19 @@
 
 (defun .preprocess (file-path pkg-str)
   (let sexp (read-file-as-sexp file-path pkg-str)
-	(let sexp1 (if (and (pair? sexp) (= 'begin (car sexp)))
-					 (cdr sexp)
-					 (cons sexp ()))
-			(begin
-				(.handle-import-eagerly sexp1)
-				(.split-type-and-code sexp1 () ()
-					(lambda (type code)
-						(if cora/lib/infer.*typecheck*
-							(cons 'begin (append type code))
-							(cons 'begin code))))))))
+       (let sexp1 (if (pair? sexp)
+		      (cond
+			((= 'begin (car sexp)) (cdr sexp))
+			((= 'define-library (car sexp)) (cddr sexp))
+			(true (cons sexp ())))
+		      sexp)
+	    (begin
+	     (.handle-import-eagerly sexp1)
+	     (.split-type-and-code sexp1 () ()
+				   (lambda (type code)
+				     (if cora/lib/infer.*typecheck*
+					 (cons 'begin (append type code))
+					 (cons 'begin code))))))))
 
 (defun .compile-to-c (from to pkg-str)
 	(let sexp1 (.preprocess from pkg-str)

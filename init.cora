@@ -99,13 +99,8 @@
 (.add-to-*macros* 'defmacro defmacro-macro)
 (.add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
 
-;; (defmacro defun (exp)
-;;   (list 'def (cadr)
-;; 	(list 'lambda (caddr exp)
-;; 	      (cadddr exp))))
-
 (defmacro defun (exp)
-  (list 'set (list 'quote (cadr exp))
+  (list 'def (cadr exp)
 	(list 'lambda (caddr exp)
 	      (cadddr exp))))
 
@@ -363,3 +358,22 @@
 (defmacro backquote (exp)
   (.rewrite-backquote (cadr exp)))
 
+;; ============= define-library ============
+
+(func parse-define-library-h
+      [['import lib] . rest] imports exports k => (parse-define-library-h rest (cons lib imports) exports k)
+      [['export . more] . rest]  imports exports k => (parse-define-library-h rest imports more k)
+      body imports exports k => (k (reverse imports) exports body))
+
+(defun parse-define-library (data k)
+  (parse-define-library-h data () () k))
+
+(defmacro define-library (sexp)
+  (let path (cadr sexp)
+       ((parse-define-library (cddr sexp))
+	(lambda (import export body)
+	  (let ns-body ['ns path import
+	       ['begin ['def '*ns-export* ['backquote export]] . body]]
+	       (if (null? import)
+		   ns-body
+		   (cons 'begin (append (map (lambda (lib) ['import lib]) import) [ns-body]))))))))
