@@ -1,14 +1,14 @@
 (@import "cora/lib/toc/internal" c)
 (@import "cora/lib/io" io)
 
-(func .assq
+(func assq
       var [] => ()
       var [(cons x y) . _] => (cons x y) where (= var x)
-      var [_ . y] => (.assq var y))
+      var [_ . y] => (assq var y))
 
-(func .foldl
+(func foldl
       f acc [] => acc
-      f acc [x . y] => (.foldl f (f acc x) y))
+      f acc [x . y] => (foldl f (f acc x) y))
 
 (func .pos-in-list0
       _ x [] => -1
@@ -31,16 +31,16 @@
      ['not 1 'primNot] ['integer? 1 'primIsNumber] ['string? 1 'primIsString]])
 
 (defun builtin? (x)
-  (not (null? (.assq x .*builtin-prims*))))
+  (not (null? (assq x .*builtin-prims*))))
 
 (defun .builtin->name (x)
-  (let find (.assq x .*builtin-prims*)
+  (let find (assq x .*builtin-prims*)
        (if (null? find)
 	   "ERROR"
 	   (caddr find))))
 
 (defun .builtin->args (x)
-  (let find (.assq x .*builtin-prims*)
+  (let find (assq x .*builtin-prims*)
        (if (null? find)
 	   "ERROR"
 	   (cadr find))))
@@ -50,11 +50,14 @@
       n res => (.temp-list (- n 1) (cons (gensym 'tmp) res)))
 
 (func .lookup-var-h
-      s ns [] => (if (= ns "") ['%global s] ['%global (intern (string-append ns (string-append "#" (symbol->string s))))])
+      s ns [] => (cond
+		   ((= ns "") ['%global s])
+		   ((symbol-cooked? s) ['%global s])
+		   (true ['%global (intern (string-append ns (string-append "#" (symbol->string s))))]))
       s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
-			    (if (elem? s export)
-				['%global (intern (string-append import (string-append "#" (symbol->string s))))]
-				(.lookup-var-h s ns more))))
+				   (if (elem? s export)
+				       ['%global (intern (string-append import (string-append "#" (symbol->string s))))]
+				       (.lookup-var-h s ns more))))
 
 (func .parse
       _ _ _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
@@ -66,9 +69,11 @@
       env ns import ['do x y] => ['do (.parse env ns import x) (.parse env ns import y)]
       env ns import ['let a b c] => ['let a (.parse env ns import b) (.parse (cons a env) ns import c)]
       env _ _ ['ns path import body] => (.parse env path import body)
-      env ns import ['def var val] => (let var1 (if (= ns "") var
-						   (intern (string-append ns (string-append "#" (symbol->string var)))))
-					[['%builtin 'set] ['%const var1] (.parse env ns import val)])
+      env ns import ['def var val] => (let var1 (cond
+						  ((= ns "") var)
+						  ((symbol-cooked? var) var)
+						  (true (intern (string-append ns (string-append "#" (symbol->string var))))))
+					   [['%builtin 'set] ['%const var1] (.parse env ns import val)])
       env ns import [op . args] => (let required (.builtin->args op)
 					provided (length args)
 					(cond
@@ -104,18 +109,18 @@
       x => [] where (.convert-protect? x)
       x => [x] where (symbol? x)
       ['lambda args body] => (.diff (.free-vars body) args)
-      ['if x y z] => (.foldl .union [] (map .free-vars [x y z]))
-      ['do x y] => (.foldl .union [] (map .free-vars [x y]))
+      ['if x y z] => (foldl .union [] (map .free-vars [x y z]))
+      ['do x y] => (foldl .union [] (map .free-vars [x y]))
       ['let a b c] => (.union (.free-vars b) (.diff (.free-vars c) [a]))
 
       ;; the following three rules are used by .explicit-stack, not by .convert
       ['%closure lam . more] => (.free-vars [lam . more])
       ['return x] => (.free-vars x)
-      ['call exp cont] => (.foldl .union [] (map .free-vars [exp cont]))
+      ['call exp cont] => (foldl .union [] (map .free-vars [exp cont]))
       ['tailcall exp] => (.free-vars exp)
       ['continuation arg body] => (.diff (.free-vars body) arg)
 
-      [f . args] => (.foldl .union [] (map .free-vars [f . args])))
+      [f . args] => (foldl .union [] (map .free-vars [f . args])))
 
 (func .closure-convert
       _ x => x where (.convert-protect? x)
@@ -183,30 +188,30 @@
 ;; collect the result to v (vector idx cur final)
 (func .collect-lambda
       v [clo-or-cont ['lambda params body] . fvs] => (let body1 (.collect-lambda v body)
-			 (let idx (vector-ref v 0)
-				  cur (vector-ref v 1)
-				  (let name (if (= idx 0) (gensym 'clofun) (car (caar cur)))
-						(if (= clo-or-cont '%closure)
-						  (begin
-							 (.append-result v idx cur name ['lambda params () body1])
-							 [clo-or-cont (cons name idx) (length params) . fvs])
-						  (begin
-							 (.append-result v idx cur name ['lambda params fvs body1])
-							 [clo-or-cont (cons name idx) . fvs])))))
+							  (let idx (vector-ref v 0)
+							       cur (vector-ref v 1)
+							       (let name (if (= idx 0) (gensym 'clofun) (car (caar cur)))
+								    (if (= clo-or-cont '%closure)
+									(begin
+									 (.append-result v idx cur name ['lambda params () body1])
+									 [clo-or-cont (cons name idx) (length params) . fvs])
+									(begin
+									 (.append-result v idx cur name ['lambda params fvs body1])
+									 [clo-or-cont (cons name idx) . fvs])))))
       where (or (= clo-or-cont '%closure) (= clo-or-cont '%continuation))
       v f-args => (map (lambda (e)
-						(.collect-lambda v e)) f-args) where (cons? f-args)
+			 (.collect-lambda v e)) f-args) where (cons? f-args)
       v x => x)
 
 (defun .append-result (v idx cur name val)
-      (let cur1 (cons [(cons name idx) val] cur)
-	   (if (< idx 20)
-		  (begin (vector-set! v 0 (+ idx 1))
-				 (vector-set! v 1 cur1))
-		  (begin (vector-set! v 0 0)
-		         (vector-set! v 1 ())
-				 (let res (vector-ref v 2)
-				      (vector-set! v 2 (cons (reverse cur1) res)))))))
+  (let cur1 (cons [(cons name idx) val] cur)
+       (if (< idx 20)
+	   (begin (vector-set! v 0 (+ idx 1))
+		  (vector-set! v 1 cur1))
+	   (begin (vector-set! v 0 0)
+		  (vector-set! v 1 ())
+		  (let res (vector-ref v 2)
+		       (vector-set! v 2 (cons (reverse cur1) res)))))))
 
 (defun .wrap-var (x k)
   (let tmp (gensym 'reg)
@@ -214,118 +219,118 @@
        (k tmp)]))
 
 (func .generate-call-list
- self w i [] => ()
- self w i [x . more] => (begin
-		 (if (not (> i 3))
-		  (begin (c.generate-str w "__arg")
-		   (c.generate-num w i))
-		  (begin (c.generate-str w "co->args[")
-		   (c.generate-num w i)
-		   (c.generate-str w "]")))
-		 (c.generate-str w " = ")
-		 (.generate-inst self () w x)
-		 (c.generate-str w ";\n")
-		 (.generate-call-list self w (+ i 1) more)))
+      self w i [] => ()
+      self w i [x . more] => (begin
+			      (if (not (> i 3))
+				  (begin (c.generate-str w "__arg")
+					 (c.generate-num w i))
+				  (begin (c.generate-str w "co->args[")
+					 (c.generate-num w i)
+					 (c.generate-str w "]")))
+			      (c.generate-str w " = ")
+			      (.generate-inst self () w x)
+			      (c.generate-str w ";\n")
+			      (.generate-call-list self w (+ i 1) more)))
 
 
 (func .generate-inst
       self env w x => (c.generate-sym w x) where (symbol? x)
       self env w ['%global x] => (begin
-			     (c.generate-str w "globalRef(intern(\"")
-			     (c.generate-str w (symbol->string x))
-			     (c.generate-str w "\"))"))
+				  (c.generate-str w "globalRef(intern(\"")
+				  (c.generate-str w (symbol->string x))
+				  (c.generate-str w "\"))"))
       self env w ['%closure-ref idx] => (begin
-				    (c.generate-str w "closureRef(co, ")
-				    (c.generate-num w idx)
-				    (c.generate-str w ")"))
+					 (c.generate-str w "closureRef(co, ")
+					 (c.generate-num w idx)
+					 (c.generate-str w ")"))
       self env w ['%stack-ref idx] => (begin
-				  (c.generate-str w "stackRef(co, ")
-				  (c.generate-num w idx)
-				  (c.generate-str w ")"))
+				       (c.generate-str w "stackRef(co, ")
+				       (c.generate-num w idx)
+				       (c.generate-str w ")"))
       self env w ['%const x] => (cond
-			     ((symbol? x) (begin
-					   (c.generate-str w "intern(\"")
-					   (c.generate-str w (symbol->string x))
-					   (c.generate-str w "\")")))
-			     ((number? x) (begin
-					   (c.generate-str w "makeNumber(")
-					   (c.generate-num w x)
-					   (c.generate-str w ")")))
-			     ((string? x) (begin
-					   (c.generate-str w "makeCString(\"")
-					   (c.generate-str w (c.escape-str x))
-					   (c.generate-str w "\")")))
-			     ((= x ()) (c.generate-str w "Nil"))
-			     ((= x true) (c.generate-str w "True"))
-			     ((= x false) (c.generate-str w "False")))
+				  ((symbol? x) (begin
+						(c.generate-str w "intern(\"")
+						(c.generate-str w (symbol->string x))
+						(c.generate-str w "\")")))
+				  ((number? x) (begin
+						(c.generate-str w "makeNumber(")
+						(c.generate-num w x)
+						(c.generate-str w ")")))
+				  ((string? x) (begin
+						(c.generate-str w "makeCString(\"")
+						(c.generate-str w (c.escape-str x))
+						(c.generate-str w "\")")))
+				  ((= x ()) (c.generate-str w "Nil"))
+				  ((= x true) (c.generate-str w "True"))
+				  ((= x false) (c.generate-str w "False")))
       self env w ['let a b c] => (let idx (.index a env)
-				 (begin
-				  (if (< idx 0) (c.generate-str w "Obj ") ())
-				  (c.generate-sym w a)
-				  (c.generate-str w " = ")
-				  (.generate-inst self env w b)
-				  (c.generate-str w ";\n")
-				  (.generate-inst self (cons a env) w c)))
+				      (begin
+				       (if (< idx 0) (c.generate-str w "Obj ") ())
+				       (c.generate-sym w a)
+				       (c.generate-str w " = ")
+				       (.generate-inst self env w b)
+				       (c.generate-str w ";\n")
+				       (.generate-inst self (cons a env) w c)))
       self env w [['%builtin f] . args] => (begin
-				       (c.generate-sym w (.builtin->name f))
-					   (if (= f 'set)
+					    (c.generate-sym w (.builtin->name f))
+					    (if (= f 'set)
 						(c.generate-str w "(co, ")
 						(c.generate-str w "("))
-				       (.generate-inst-list self env w args)
-				       (c.generate-str w ")"))
+					    (.generate-inst-list self env w args)
+					    (c.generate-str w ")"))
       self env w ['if a b c] => (begin
-			    (c.generate-str w "if (True == ")
-			    (.generate-inst self env w a)
-			    (c.generate-str w ") {\n")
-			    (.generate-inst self env w b)
-			    (c.generate-str w "} else {\n")
-			    (.generate-inst self env w c)
-			    (c.generate-str w "}\n"))
+				 (c.generate-str w "if (True == ")
+				 (.generate-inst self env w a)
+				 (c.generate-str w ") {\n")
+				 (.generate-inst self env w b)
+				 (c.generate-str w "} else {\n")
+				 (.generate-inst self env w c)
+				 (c.generate-str w "}\n"))
       self env w ['%closure label nargs . frees] => (begin
-						(c.generate-str w "makeNative(")
-						(c.generate-num w (cdr label))
-						(c.generate-str w ", ")
-						(c.generate-sym w (car label))
-						(c.generate-str w ", ")
-						(c.generate-num w nargs)
-						(c.generate-str w ", ")
-						(c.generate-num w (length frees))
-						(if (not (null? frees))
-						    (begin
+						     (c.generate-str w "makeNative(")
+						     (c.generate-num w (cdr label))
 						     (c.generate-str w ", ")
-						     (.generate-inst-list self env w frees))
-						    ())
-						(c.generate-str w ")"))
+						     (c.generate-sym w (car label))
+						     (c.generate-str w ", ")
+						     (c.generate-num w nargs)
+						     (c.generate-str w ", ")
+						     (c.generate-num w (length frees))
+						     (if (not (null? frees))
+							 (begin
+							  (c.generate-str w ", ")
+							  (.generate-inst-list self env w frees))
+							 ())
+						     (c.generate-str w ")"))
       self env w ['do a b] => (begin
-			  (.generate-inst self env w a)
-			  (c.generate-str w ";\n")
-			  (.generate-inst self env w b))
-	  self env w ['return x] => (begin
-					  (c.generate-str w "__nargs = 2;\n")
-					  (c.generate-str w "__arg1 = ")
-					  (.generate-inst self env w x)
-					  (c.generate-str w ";\n")
-					  (c.generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
-					  (c.generate-str w "if (co->ctx.pc.func != ")
-					  (c.generate-sym w self)
-					  (c.generate-str w ") { goto fail; }\n")
-					  (c.generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
+			       (.generate-inst self env w a)
+			       (c.generate-str w ";\n")
+			       (.generate-inst self env w b))
+      self env w ['return x] => (begin
+				 (c.generate-str w "__nargs = 2;\n")
+				 (c.generate-str w "__arg1 = ")
+				 (.generate-inst self env w x)
+				 (c.generate-str w ";\n")
+				 (c.generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
+				 (c.generate-str w "if (co->ctx.pc.func != ")
+				 (c.generate-sym w self)
+				 (c.generate-str w ") { goto fail; }\n")
+				 (c.generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
       self env w ['tailcall exp] => (.generate-inst self env w exp)
       self env w ['call exp cont] => (begin
-				 (.generate-cont self w cont)
-				 (.generate-inst self env w exp))
-	  self env w [f . args] => (begin
-					  (c.generate-str w "__nargs = ")
-					  (c.generate-num w (+ 1 (length args)))
-					  (c.generate-str w ";\n")
-					  (.generate-call-list self w 0 [f . args])
-					  (c.generate-str w "co->ctx.frees = __arg0;\n")
-					  (c.generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
-					  (c.generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
-					  (c.generate-str w "if (ps.func != ")
-					  (c.generate-sym w self)
-					  (c.generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
-					  (c.generate-str w "goto *jumpTable[ps.label];\n")))
+				      (.generate-cont self w cont)
+				      (.generate-inst self env w exp))
+      self env w [f . args] => (begin
+				(c.generate-str w "__nargs = ")
+				(c.generate-num w (+ 1 (length args)))
+				(c.generate-str w ";\n")
+				(.generate-call-list self w 0 [f . args])
+				(c.generate-str w "co->ctx.frees = __arg0;\n")
+				(c.generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
+				(c.generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
+				(c.generate-str w "if (ps.func != ")
+				(c.generate-sym w self)
+				(c.generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
+				(c.generate-str w "goto *jumpTable[ps.label];\n")))
 
 ;; (func .generate-call-args
 ;;       env w idx [] => ()
@@ -339,28 +344,28 @@
 
 (func .generate-cont
       self w ['%continuation label . stacks] => (begin
-					    (c.generate-str w "pushCont(co, ")
-						(c.generate-num w (cdr label))
-						(c.generate-str w ", ")
-					    (c.generate-sym w (car label))
-					    (c.generate-str w ", ")
-					    (c.generate-num w (length stacks))
-					    (if (not (null? stacks))
-						(for-each (lambda (x)
-							    (begin
-							     (c.generate-str w ", ")
-							     (.generate-inst self () w x)))
-							  stacks)
-						())
-					    (c.generate-str w ");\n")))
+						 (c.generate-str w "pushCont(co, ")
+						 (c.generate-num w (cdr label))
+						 (c.generate-str w ", ")
+						 (c.generate-sym w (car label))
+						 (c.generate-str w ", ")
+						 (c.generate-num w (length stacks))
+						 (if (not (null? stacks))
+						     (for-each (lambda (x)
+								 (begin
+								  (c.generate-str w ", ")
+								  (.generate-inst self () w x)))
+							       stacks)
+						     ())
+						 (c.generate-str w ");\n")))
 
 (func .generate-inst-list-h
       self env fn w [] => ()
       self env fn w [a . b] => (begin (fn self env w a)
-				 (if (not (null? b))
-				     (c.generate-str w ", ")
-				     ())
-				 (.generate-inst-list-h self env fn w b)))
+				      (if (not (null? b))
+					  (c.generate-str w ", ")
+					  ())
+				      (.generate-inst-list-h self env fn w b)))
 
 (defun .generate-inst-list (self env w l)
   (.generate-inst-list-h self env .generate-inst w l))
@@ -373,43 +378,43 @@
    (c.generate-str w ")")))
 
 (defun .local-from-params (w i var)
- (begin
-  (c.generate-str w "Obj ")
-  (.generate-inst 'ignore () w var)
-  (if (< i 4)
-   (begin (c.generate-str w " = __arg")
-	(c.generate-num w i)
-	(c.generate-str w ";\n"))
-   (begin (c.generate-str w " = co->args[")
-	(c.generate-num w i)
-	(c.generate-str w "];\n")))))
+  (begin
+   (c.generate-str w "Obj ")
+   (.generate-inst 'ignore () w var)
+   (if (< i 4)
+       (begin (c.generate-str w " = __arg")
+	      (c.generate-num w i)
+	      (c.generate-str w ";\n"))
+       (begin (c.generate-str w " = co->args[")
+	      (c.generate-num w i)
+	      (c.generate-str w "];\n")))))
 
 (defun .local-from-cont (w i var)
- (begin
-  (c.generate-str w "Obj ")
-  (.generate-inst 'ignore () w var)
-  (c.generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
-  (c.generate-num w i)
-  (c.generate-str w "];\n")))
+  (begin
+   (c.generate-str w "Obj ")
+   (.generate-inst 'ignore () w var)
+   (c.generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
+   (c.generate-num w i)
+   (c.generate-str w "];\n")))
 
 (func .generate-call-args-reverse
       fn w idx [] => ()
       fn w idx [a . b] => (begin
-						(fn w idx a)
-				     (.generate-call-args-reverse fn w (+ idx 1) b)))
+			   (fn w idx a)
+			   (.generate-call-args-reverse fn w (+ idx 1) b)))
 
 (func .code-gen-toplevel
       w [label ['lambda params actives body]] => (begin
-						(c.generate-str w "label")
-						(c.generate-num w (cdr label))
-						(c.generate-str w ":\n{\n")
-						(.generate-call-args-reverse .local-from-params w 1 params)
-						(.generate-call-args-reverse .local-from-cont w 0 actives)
-						(.generate-inst (car label) params w body)
-						(c.generate-str w "}\n\n"))
+						  (c.generate-str w "label")
+						  (c.generate-num w (cdr label))
+						  (c.generate-str w ":\n{\n")
+						  (.generate-call-args-reverse .local-from-params w 1 params)
+						  (.generate-call-args-reverse .local-from-cont w 0 actives)
+						  (.generate-inst (car label) params w body)
+						  (c.generate-str w "}\n\n"))
       w other =>  (begin (io.display "wrong format of toplevel\n")
-						 (io.display other)
-						 (io.display "\n")))
+			 (io.display other)
+			 (io.display "\n")))
 
 (defun .parse-pass (exp)
   (.parse [] "" [] exp))
@@ -426,14 +431,14 @@
 (defun .collect-lambda-pass (exp)
   (let v (vector 3)
        (begin (vector-set! v 0 0)
-			(vector-set! v 1 ())
-			(vector-set! v 2 ())
-			(let e1 (.collect-lambda v exp)
-				cur (vector-ref v 1)
-				(let res (if (null? cur)
-							(vector-ref v 2)
-							(cons (reverse cur) (vector-ref v 2)))
-				   (cons [[(cons 'entry 0) ['lambda () () e1]]] res))))))
+	      (vector-set! v 1 ())
+	      (vector-set! v 2 ())
+	      (let e1 (.collect-lambda v exp)
+		   cur (vector-ref v 1)
+		   (let res (if (null? cur)
+				(vector-ref v 2)
+				(cons (reverse cur) (vector-ref v 2)))
+			(cons [[(cons 'entry 0) ['lambda () () e1]]] res))))))
 
 (func .rewrite-->macro
       obj [] => obj
@@ -455,61 +460,61 @@
 (func for-each
       fn [] => []
       fn [x . y] => (begin
-                     (fn x)
-                     (for-each fn y)))
+		     (fn x)
+		     (for-each fn y)))
 
 (defun .generate-jumptable (to i n)
- (cond
-  ((= i 0) (begin
-		  (c.generate-str to "&&label0")
-		  (.generate-jumptable to 1 n)))
-  ((< i n) (begin
-		  (c.generate-str to ", &&label")
-		  (c.generate-num to i)
-		  (.generate-jumptable to (+ i 1) n)))
-  (true ())))
+  (cond
+    ((= i 0) (begin
+	      (c.generate-str to "&&label0")
+	      (.generate-jumptable to 1 n)))
+    ((< i n) (begin
+	      (c.generate-str to ", &&label")
+	      (c.generate-num to i)
+	      (.generate-jumptable to (+ i 1) n)))
+    (true ())))
 
 (defun .generate-toplevel-group (to group)
- (begin
-  (.code-gen-func-declare to (caar group))
-  (c.generate-str to "{\n")
+  (begin
+   (.code-gen-func-declare to (caar group))
+   (c.generate-str to "{\n")
 
-  (c.generate-str to "int __nargs = co->nargs;\n")
-  (c.generate-str to "Obj __arg0 = co->args[0];\n")
-  (c.generate-str to "Obj __arg1 = co->args[1];\n")
-  (c.generate-str to "Obj __arg2 = co->args[2];\n")
-  (c.generate-str to "Obj __arg3 = co->args[3];\n\n")
+   (c.generate-str to "int __nargs = co->nargs;\n")
+   (c.generate-str to "Obj __arg0 = co->args[0];\n")
+   (c.generate-str to "Obj __arg1 = co->args[1];\n")
+   (c.generate-str to "Obj __arg2 = co->args[2];\n")
+   (c.generate-str to "Obj __arg3 = co->args[3];\n\n")
 
-  (c.generate-str to "static void* jumpTable[] = {")
-  (.generate-jumptable to 0 (length group))
-  (c.generate-str to "};\n\n")
-  (c.generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
+   (c.generate-str to "static void* jumpTable[] = {")
+   (.generate-jumptable to 0 (length group))
+   (c.generate-str to "};\n\n")
+   (c.generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
 
-  (for-each (lambda (x) (.code-gen-toplevel to x)) group)
+   (for-each (lambda (x) (.code-gen-toplevel to x)) group)
 
-  (c.generate-str to "fail:\n")
-  (c.generate-str to "co->nargs = __nargs;\n")
-  (c.generate-str to "co->args[0] = __arg0;\n")
-  (c.generate-str to "co->args[1] = __arg1;\n")
-  (c.generate-str to "co->args[2] = __arg2;\n")
-  (c.generate-str to "co->args[3] = __arg3;\n")
+   (c.generate-str to "fail:\n")
+   (c.generate-str to "co->nargs = __nargs;\n")
+   (c.generate-str to "co->args[0] = __arg0;\n")
+   (c.generate-str to "co->args[1] = __arg1;\n")
+   (c.generate-str to "co->args[2] = __arg2;\n")
+   (c.generate-str to "co->args[3] = __arg3;\n")
 
- (c.generate-str to "\n}\n\n")))
+   (c.generate-str to "\n}\n\n")))
 
 
 (defun .generate-c (to bc)
- (begin
-  (c.generate-str to "#include \"types.h\"\n")
-  (c.generate-str to "#include \"runtime.h\"\n\n")
-  (for-each (lambda (group)
-			 (begin
-			  (.code-gen-func-declare to (caar group))
-			  (c.generate-str to ";\n")))
-   bc)
-  (c.generate-str to "\n\n")
-  (for-each (lambda (group)
-				(.generate-toplevel-group to group))
-   bc)))
+  (begin
+   (c.generate-str to "#include \"types.h\"\n")
+   (c.generate-str to "#include \"runtime.h\"\n\n")
+   (for-each (lambda (group)
+	       (begin
+		(.code-gen-func-declare to (caar group))
+		(c.generate-str to ";\n")))
+	     bc)
+   (c.generate-str to "\n\n")
+   (for-each (lambda (group)
+	       (.generate-toplevel-group to group))
+	     bc)))
 
 (func .handle-import-eagerly
       ['define-library _ . remain] => (.handle-import-eagerly remain)
@@ -523,12 +528,12 @@
       _ => ())
 
 (func .split-type-and-code
-	[] type code k => (k (reverse type) (reverse code))
- 	[[':type . exp] . more] type code k => (.split-type-and-code more (cons ['begin . exp] type) code k)
- 	[[':declare . exp] . more] type code k => (.split-type-and-code more (cons ['declare . exp] type) code k)
- 	[exp . more] type code k => (.split-type-and-code more
-  				(cons ['cora/lib/infer.check-type ['macroexpand (cons 'backquote (cons exp ()))] ['tvar] () ()] type)
-  				(cons exp code) k))
+      [] type code k => (k (reverse type) (reverse code))
+      [[':type . exp] . more] type code k => (.split-type-and-code more (cons ['begin . exp] type) code k)
+      [[':declare . exp] . more] type code k => (.split-type-and-code more (cons ['declare . exp] type) code k)
+      [exp . more] type code k => (.split-type-and-code more
+							(cons ['cora/lib/infer.check-type ['macroexpand (cons 'backquote (cons exp ()))] ['tvar] () ()] type)
+							(cons exp code) k))
 
 (set 'cora/lib/infer.*typecheck* false)
 
@@ -537,20 +542,20 @@
        (begin
 	(.handle-import-eagerly sexp)
 	sexp)))
-	;; (.split-type-and-code sexp () ()
-	;; 		      (lambda (type code)
-	;; 			(if cora/lib/infer.*typecheck*
-	;; 			    (cons 'begin (append type code))
-	;; 			    (cons 'begin code)))))))
+;; (.split-type-and-code sexp () ()
+;; 		      (lambda (type code)
+;; 			(if cora/lib/infer.*typecheck*
+;; 			    (cons 'begin (append type code))
+;; 			    (cons 'begin code)))))))
 
 (defun .compile-to-c (from to pkg-str)
-	(let sexp1 (.preprocess from pkg-str)
-	 (let input (macroexpand sexp1)
-	  (let bc (.compile input)
-	   (let stream (io.open-output-file to)
-		(begin
-		 (.generate-c stream bc)
-		 (io.close-output-file stream)))))))
+  (let sexp1 (.preprocess from pkg-str)
+       (let input (macroexpand sexp1)
+	    (let bc (.compile input)
+		 (let stream (io.open-output-file to)
+		      (begin
+		       (.generate-c stream bc)
+		       (io.close-output-file stream)))))))
 
 
 ;; ============== utilities of eval0 ==========

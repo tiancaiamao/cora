@@ -88,7 +88,7 @@
 (set 'macroexpand cora/init#macroexpand-boot)
 
 ;; (func defmacro-macro
-;;       ['defmacro name arg body] => ['cora/init#add-to-*macros* ['quote name] ['lambda arg body]])
+;;       ['defmacro name arg body] => ['add-to-*macros* ['quote name] ['lambda arg body]])
 
 (set 'defmacro-macro
      (lambda (exp)
@@ -372,5 +372,28 @@
   (let path (cadr sexp)
        ((cora/init#parse-define-library (cddr sexp))
 	(lambda (import export body)
-	  ['ns path import
+	  ['ns path (cons "cora/init" import)
 	       ['begin ['def '*ns-export* ['backquote export]] . body]]))))
+
+(set 'cora/init#*ns-export* `(null? cadr caar cdar cddr caddr cadddr cdddr pair? atom? boolean?
+				    reverse map macroexpand elem?  length filter append))
+
+;; todo, cleanup later
+(set 'cora/init#null? null?)
+(set 'cora/init#cadr cadr)
+(set 'cora/init#caar caar)
+(set 'cora/init#cdar cdar)
+(set 'cora/init#cddr cddr)
+(set 'cora/init#caddr caddr)
+(set 'cora/init#cadddr cadddr)
+(set 'cora/init#cdddr cdddr)
+(set 'cora/init#pair? pair?)
+(set 'cora/init#atom? atom?)
+(set 'cora/init#boolean? boolean?)
+(set 'cora/init#reverse reverse)
+(set 'cora/init#map map)
+(set 'cora/init#macroexpand macroexpand)
+(set 'cora/init#elem? elem?)
+(set 'cora/init#length length)
+(set 'cora/init#filter filter)
+(set 'cora/init#append append)
