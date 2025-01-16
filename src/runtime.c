@@ -298,15 +298,6 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	} else {
 		assert(s->owner == co);
 	}
-
-	if ((strChr(cstr(symbolStr(key)), '#') < 0) &&
-	    (strChr(cstr(symbolStr(key)), '.') < 0)) {
-		// global variable without namespace
-		primSet(co, intern("cora/init#*default-ns*"),
-			cons(key,
-			     symbolGet(intern("cora/init#*default-ns*"))));
-	}
-
 	return val;
 }
 
@@ -810,6 +801,20 @@ builtinOSExec(struct Cora *co) {
 	coraReturn(co, makeNumber(exitCode));
 }
 
+// TODO: remove this after refactoring finish
+static void
+builtinSymbolCooked(struct Cora *co) {
+  Obj sym = co->args[1];
+  char *s = symbolStr(sym);
+  for (; *s != 0; s++) {
+    if (*s == '#') {
+      coraReturn(co, True);
+      return;
+    }
+  }
+  coraReturn(co, False);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -854,12 +859,6 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
-	primSet(co, intern("cora/init#*default-ns*"), Nil);
-	primSet(co, intern("*imported*"), Nil);
-	primSet(co, intern("*package-mapping*"), Nil);
-	primSet(co, intern("*ns-self*"), makeCString(""));
-	primSet(co, intern("#*ns-import*"), Nil);
-	primSet(co, intern("#*ns-export*"), Nil);
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
@@ -887,6 +886,12 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/lib/os#exec"),
 		makeNative(0, builtinOSExec, 1, 0));
+	primSet(co, intern("*imported*"), Nil);
+	primSet(co, intern("*package-mapping*"), Nil);
+	primSet(co, intern("#*ns-export*"), Nil);
+	primSet(co, intern("*ns-self*"), makeCString(""));
+	primSet(co, intern("cora/init#*default-ns*"), Nil);
+	primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
 }
 
 #ifdef ForTest
