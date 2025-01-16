@@ -49,26 +49,38 @@
       0 res => res
       n res => (.temp-list (- n 1) (cons (gensym 'tmp) res)))
 
+(func .lookup-var-h
+      s ns [] => (if (= ns "") ['%global s] ['%global (intern (string-append ns (string-append "#" (symbol->string s))))])
+      s ns [import . more] => (let export (value-or (intern (string-append import (string-append "#*ns-export*"))))
+			    (if (elem? s export)
+				['%global (intern (string-append import (string-append "#" (symbol->string s))))]
+				(.lookup-var-h s ns more))))
+
 (func .parse
-      _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
-      _ ['quote x] => ['%const x]
-      env x => (if (elem? x env) x ['%global x]) where (symbol? x)
-      env ['lambda args body] => ['lambda args (.parse (append args env) body)]
-      env ['if . args] => ['if . (map (.parse env) args)]
-      env ['do x y] => ['do (.parse env x) (.parse env y)]
-      env ['let a b c] => ['let a (.parse env b) (.parse (cons a env) c)]
-      env [op . args] => (let required (.builtin->args op)
-			      provided (length args)
-			      (cond
-				((= required provided)  [['%builtin op] . (map (.parse env) args)])
-				((> required provided)
-				 ;; rewrite partial apply of primitives
-				 ;; (+ x) => (lambda (tmp) (+ x tmp))
-				 (let tmp (.temp-list (- required provided) ())
-				      (.parse env ['lambda tmp (append [op . args] tmp)])))
-				(true (error "primitive call mismatch"))))
+      _ _ _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
+      _ _ _ ['quote x] => ['%const x]
+      env ns import x => (if (elem? x env) x
+			     (.lookup-var-h x ns import)) where (symbol? x)
+      env ns import ['lambda args body] => ['lambda args (.parse (append args env) ns import body)]
+      env ns import  ['if . args] => ['if . (map (.parse env ns import) args)]
+      env ns import ['do x y] => ['do (.parse env ns import x) (.parse env ns import y)]
+      env ns import ['let a b c] => ['let a (.parse env ns import b) (.parse (cons a env) ns import c)]
+      env _ _ ['ns path import body] => (.parse env path import body)
+      env ns import ['def var val] => (let var1 (if (= ns "") var
+						   (intern (string-append ns (string-append "#" (symbol->string var)))))
+					[['%builtin 'set] ['%const var1] (.parse env ns import val)])
+      env ns import [op . args] => (let required (.builtin->args op)
+					provided (length args)
+					(cond
+					  ((= required provided)  [['%builtin op] . (map (.parse env ns import) args)])
+					  ((> required provided)
+					   ;; rewrite partial apply of primitives
+					   ;; (+ x) => (lambda (tmp) (+ x tmp))
+					   (let tmp (.temp-list (- required provided) ())
+						(.parse env ns import ['lambda tmp (append [op . args] tmp)])))
+					  (true (error "primitive call mismatch"))))
       where (builtin? op)
-      env ls => (map (.parse env) ls))
+      env ns import ls => (map (.parse env ns import) ls))
 
 (func .union
       [] s2 => s2
@@ -400,7 +412,7 @@
 						 (io.display "\n")))
 
 (defun .parse-pass (exp)
-  (.parse [] exp))
+  (.parse [] "" [] exp))
 
 (defun .closure-convert-pass (exp)
   (.closure-convert [] exp))
@@ -547,7 +559,7 @@
 (set 'car (car))
 (set 'cdr (cdr))
 (set 'cons (cons))
-(set 'cons (cons))
+(set 'cons? (cons?))
 (set '+ (+))
 (set '- (-))
 (set '* (*))
