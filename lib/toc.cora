@@ -51,7 +51,7 @@
 
 (func .lookup-var-h
       s ns [] => (if (= ns "") ['%global s] ['%global (intern (string-append ns (string-append "#" (symbol->string s))))])
-      s ns [import . more] => (let export (value-or (intern (string-append import (string-append "#*ns-export*"))))
+      s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
 			    (if (elem? s export)
 				['%global (intern (string-append import (string-append "#" (symbol->string s))))]
 				(.lookup-var-h s ns more))))
@@ -512,6 +512,8 @@
    bc)))
 
 (func .handle-import-eagerly
+      ['define-library _ . remain] => (.handle-import-eagerly remain)
+      ['begin . remain] => (.handle-import-eagerly remain)
       [['import pkg] . remain] => (begin
 				   (import pkg)
 				   ;; (io.display "import ==")
@@ -532,19 +534,14 @@
 
 (defun .preprocess (file-path pkg-str)
   (let sexp (read-file-as-sexp file-path pkg-str)
-       (let sexp1 (if (pair? sexp)
-		      (cond
-			((= 'begin (car sexp)) (cdr sexp))
-			((= 'define-library (car sexp)) (cddr sexp))
-			(true (cons sexp ())))
-		      sexp)
-	    (begin
-	     (.handle-import-eagerly sexp1)
-	     (.split-type-and-code sexp1 () ()
-				   (lambda (type code)
-				     (if cora/lib/infer.*typecheck*
-					 (cons 'begin (append type code))
-					 (cons 'begin code))))))))
+       (begin
+	(.handle-import-eagerly sexp)
+	sexp)))
+	;; (.split-type-and-code sexp () ()
+	;; 		      (lambda (type code)
+	;; 			(if cora/lib/infer.*typecheck*
+	;; 			    (cons 'begin (append type code))
+	;; 			    (cons 'begin code)))))))
 
 (defun .compile-to-c (from to pkg-str)
 	(let sexp1 (.preprocess from pkg-str)

@@ -372,8 +372,8 @@
   (let path (cadr sexp)
        ((parse-define-library (cddr sexp))
 	(lambda (import export body)
-	  (let ns-body ['ns path import
-	       ['begin ['def '*ns-export* ['backquote export]] . body]]
-	       (if (null? import)
-		   ns-body
-		   (cons 'begin (append (map (lambda (lib) ['import lib]) import) [ns-body]))))))))
+	  ['ns path import
+	       ['begin ['def '*ns-export* ['backquote export]] . body]]))))
+	       ;; (if (null? import)
+	       ;; 	   ns-body
+	       ;; 	   (cons 'begin (append (map (lambda (lib) ['import lib]) import) [ns-body]))))))))
