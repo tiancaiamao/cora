@@ -375,11 +375,20 @@
 	  ['ns path (cons "cora/init" import)
 	       ['begin ['def '*ns-export* ['backquote export]] . body]]))))
 
-(set 'cora/init#*ns-export* `(null? cadr caar cdar cddr caddr cadddr cdddr pair? atom? boolean?
-				    reverse map macroexpand elem?  length filter append))
+(set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
+				   boolean? number? null?
+				   string-append
+				   intern symbol->string
+				   vector vector-set! vector-ref vector-length
+				   bytes bytes-length
+				   read-file-as-sexp
+				   value value-or
+				   apply load-so import load
+				   try throw
+				   symbol-cooked?
+				   reverse map macroexpand elem?  length filter append))
 
 ;; todo, cleanup later
-(set 'cora/init#null? null?)
 (set 'cora/init#cadr cadr)
 (set 'cora/init#caar caar)
 (set 'cora/init#cdar cdar)
@@ -390,6 +399,28 @@
 (set 'cora/init#pair? pair?)
 (set 'cora/init#atom? atom?)
 (set 'cora/init#boolean? boolean?)
+(set 'cora/init#null? null?)
+(set 'cora/init#number? number?)
+(set 'cora/init#string-append string-append)
+(set 'cora/init#intern intern)
+(set 'cora/init#symbol->string symbol->string)
+(set 'cora/init#vector vector)
+(set 'cora/init#vector-set! vector-set!)
+(set 'cora/init#vector-ref vector-ref)
+(set 'cora/init#vector-length vector-length)
+(set 'cora/init#bytes bytes)
+(set 'cora/init#bytes-length bytes-length)
+(set 'cora/init#value value)
+(set 'cora/init#value-or value-or)
+(set 'cora/init#read-file-as-sexp read-file-as-sexp)
+(set 'cora/init#apply apply)
+(set 'cora/init#load load)
+(set 'cora/init#load-so load-so)
+(set 'cora/init#import import)
+(set 'cora/init#try try)
+(set 'cora/init#throw throw)
+(set 'cora/init#symbol-cooked? symbol-cooked?)
+
 (set 'cora/init#reverse reverse)
 (set 'cora/init#map map)
 (set 'cora/init#macroexpand macroexpand)
