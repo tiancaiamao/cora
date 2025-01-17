@@ -373,7 +373,8 @@
        ((cora/init#parse-define-library (cddr sexp))
 	(lambda (import export body)
 	  ['ns path (cons "cora/init" import)
-	       ['begin ['def '*ns-export* ['backquote export]] . body]]))))
+	  (cons 'begin (append (map (lambda (imp) ['import imp]) import)
+			  [['def '*ns-export* ['backquote export]] . body]))]))))
 
 (set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
 				   boolean? number? null?
