@@ -1,52 +1,56 @@
-(@import "cora/lib/sys")
-(@import "cora/lib/toc" toc)
-(@import "cora/lib/os" os)
-(@import "cora/lib/io" io)
-(@import "cora/lib/string" string)
+(define-library "cora/test/run-all-test"
 
-(let output (os.popen ["ls" "test/t/*.cora"] 'r)
-     data (io.read-all output)
-     (begin
-      (set '*cases* (filter (lambda (s) (> (string.length s) 0))
-			    (string.split data "\n")))
-      (os.pclose output)))
+  (import "cora/lib/sys")
+  (import "cora/lib/toc")
+  (import "cora/lib/os")
+  (import "cora/lib/io")
+  (import "cora/lib/string")
 
-(defun get-c-file (cora-file-path)
-  (string.replace cora-file-path ".cora" ".c"))
+  (let output (popen ["ls" "test/t/*.cora"] 'r)
+    data (read-all output)
+    (begin
+      (def *cases* (filter (lambda (s) (> ( string-length s) 0))
+			    (string-split data "\n")))
+      (pclose output)))
 
-(defun get-exec-file (cora-file-path)
-  (string.replace cora-file-path ".cora" ".bin"))
+  (defun get-c-file (cora-file-path)
+    (string-replace cora-file-path ".cora" ".c"))
 
-(defun get-result-file (cora-file-path)
-  (let tmp1 (string.replace cora-file-path "test/t/" "test/r/")
-       (string.replace tmp1 ".cora" ".result")))
+  (defun get-exec-file (cora-file-path)
+    (string-replace cora-file-path ".cora" ".bin"))
 
-(defun compile-cora (file-path)
-  (let c-file-path (get-c-file file-path)
-       outfile-path (get-exec-file file-path)
-       (begin
-	(toc.compile-to-c file-path c-file-path "")
-	(os.exec ["gcc" "-g" "-DForTest -Isrc src/runtime.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" c-file-path
-		 "-o" outfile-path "-ldl"]))))
+  (defun get-result-file (cora-file-path)
+    (let tmp1 (string-replace cora-file-path "test/t/" "test/r/")
+      (string-replace tmp1 ".cora" ".result")))
 
-(defun run (file-path)
-  (let exec-path (get-exec-file file-path)
-       result-path (get-result-file file-path)
-       (let from (os.popen [exec-path] 'r)
-	    to (io.open-output-file result-path)
-	    (begin
-	     (io.copy from to)
-	     (os.pclose from)
-	     (io.close-output-file to)))))
+  (defun compile-cora (file-path)
+    (let c-file-path (get-c-file file-path)
+      outfile-path (get-exec-file file-path)
+      (begin
+	(cora/lib/toc#compile-to-c file-path c-file-path "")
+	(exec ["gcc" "-g" "-DForTest -Isrc src/runtime.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" c-file-path
+		  "-o" outfile-path "-ldl"]))))
 
-(for-each (lambda (c)
-	    (begin
-	     (io.display "compile cora file -- ")
-	     (io.display c)
-	     (io.display "\n")
-	     (compile-cora c)))
-	  *cases*)
+  (defun run (file-path)
+    (let exec-path (get-exec-file file-path)
+      result-path (get-result-file file-path)
+      (let from (popen [exec-path] 'r)
+	to (open-output-file result-path)
+	(begin
+	  (copy from to)
+	  (pclose from)
+	  (close-output-file to)))))
 
-(io.display "BUILD FINISH\n")
+  (for-each (lambda (c)
+	      (begin
+		(display "compile cora file -- ")
+		(display c)
+		(display "\n")
+		(compile-cora c)))
+	    *cases*)
 
-(for-each run *cases*)
+  (display "BUILD FINISH\n")
+
+  (for-each run *cases*)
+
+  )

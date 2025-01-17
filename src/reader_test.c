@@ -32,31 +32,31 @@ TestReadSexp() {
 	fclose(stream);
 }
 
-static void
-TestImport(struct Cora *co) {
-	char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)";
-	FILE *stream = fmemopen(buffer, strlen(buffer), "r");
+/* static void */
+/* TestImport(struct Cora *co) { */
+/* 	char buffer[] = "(@import \"std/cora/basic\" xxx)\n(xxx.yyy 42)"; */
+/* 	FILE *stream = fmemopen(buffer, strlen(buffer), "r"); */
 
-      struct SexpReader r = { co:co };
-	int errCode;
-	Obj o = sexpRead(&r, stream, &errCode);
-	Obj pathStr = makeString("std/cora/basic", 14);
-	Obj s = cons(intern("import"), cons(pathStr, Nil));
-	assert(eq(o, s));
-	/* printObj(stdout, r.pkgMapping); */
-	/* printf("\n"); */
+/*       struct SexpReader r = { co:co }; */
+/* 	int errCode; */
+/* 	Obj o = sexpRead(&r, stream, &errCode); */
+/* 	Obj pathStr = makeString("std/cora/basic", 14); */
+/* 	Obj s = cons(intern("import"), cons(pathStr, Nil)); */
+/* 	assert(eq(o, s)); */
+/* 	/\* printObj(stdout, r.pkgMapping); *\/ */
+/* 	/\* printf("\n"); *\/ */
 
-	Obj var = intern("*package-mapping*");
-	Obj pkgMapping = symbolGet(var);
-	assert(eq(pkgMapping, cons(cons(intern("xxx"), pathStr), Nil)));
+/* 	/\* Obj var = intern("*package-mapping*"); *\/ */
+/* 	/\* Obj pkgMapping = symbolGet(var); *\/ */
+/* 	/\* assert(eq(pkgMapping, cons(cons(intern("xxx"), pathStr), Nil))); *\/ */
 
-	Obj x = sexpRead(&r, stream, &errCode);
-	/* printObj(stdout, x); */
-	/* printf("\n"); */
-	assert(eq(car(x), intern("std/cora/basic#yyy")));
+/* 	Obj x = sexpRead(&r, stream, &errCode); */
+/* 	/\* printObj(stdout, x); *\/ */
+/* 	/\* printf("\n"); *\/ */
+/* 	assert(eq(car(x), intern("std/cora/basic#yyy"))); */
 
-	fclose(stream);
-}
+/* 	fclose(stream); */
+/* } */
 
 struct readerMacroTest {
 	char *input;
@@ -70,9 +70,9 @@ TestReaderMacro(struct Cora *co) {
 		{"'(a b c)", "(quote (a b c))"},
 		{"[1 2 3]", "(list 1 2 3)"},
 		{"[1 2 . 3]", "(list-rest 1 2 3)"},
-		{"(@import \"package/path\")", "(import \"package/path\")"},
-		{"(@import \"package/path\" xxx)",
-		 "(import \"package/path\")"},
+		/* {"(@import \"package/path\")", "(import \"package/path\")"}, */
+		/* {"(@import \"package/path\" xxx)", */
+		/*  "(import \"package/path\")"}, */
 		{"`(1 ,a 2 ,(a b) c)",
 		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};
@@ -106,6 +106,6 @@ main(int argc, char *argv[]) {
 	struct Cora *co = coraNew();
 	coraInit(co, &dummy);
 	TestReadSexp();
-	TestImport(co);
+	/* TestImport(co); */
 	TestReaderMacro(co);
 }

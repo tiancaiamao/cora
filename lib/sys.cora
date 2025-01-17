@@ -1,19 +1,25 @@
-(func assq
-      var [] => ()
-      var [(cons x y) . _] => (cons x y) where (= var x)
-      var [_ . y] => (assq var y))
+(define-library "cora/lib/sys"
 
-(func foldl
-      f acc [] => acc
-      f acc [x . y] => (foldl f (f acc x) y))
+  (export assq foldl for-each member)
 
-(func for-each
-      fn [] => []
-      fn [x . y] => (begin
-                     (fn x)
-                     (for-each fn y)))
+  (func assq
+	var [] => ()
+	var [(cons x y) . _] => (cons x y) where (= var x)
+	var [_ . y] => (assq var y))
 
-(func member
-      x [] => false
-      x [y . z] => (or (= x y)
-		       (member x z)))
+  (func foldl
+	f acc [] => acc
+	f acc [x . y] => (foldl f (f acc x) y))
+
+  (func for-each
+	fn [] => []
+	fn [x . y] => (begin
+			(fn x)
+			(for-each fn y)))
+
+  (func member
+	x [] => false
+	x [y . z] => (or (= x y)
+			 (member x z)))
+
+  )
