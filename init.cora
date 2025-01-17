@@ -14,12 +14,12 @@
                        (cons (rcons (cdr exp)) ())))
            ())))
 (set 'pair? (lambda (x) (cons? x)))
-(set '.reverse-h
+(set 'cora/init#reverse-h
      (lambda (res l)
        (if (cons? l)
-           (.reverse-h (cons (car l) res) (cdr l))
+           (cora/init#reverse-h (cons (car l) res) (cdr l))
            res)))
-(set 'reverse (.reverse-h ()))
+(set 'reverse (cora/init#reverse-h ()))
 (set 'map-h
      (lambda (res f l)
        (if (cons? l)
@@ -30,9 +30,9 @@
 ;; =============== The macro utilities ============
 (set '*macros* ())
 (set '*protect-symbol* (gensym 'protect))
-(set '.protect (lambda (x)
-                (cons *protect-symbol* x)))
-(set '.add-to-*macros*
+;; (set '.protect (lambda (x)
+;;                 (cons *protect-symbol* x)))
+(set 'cora/init#add-to-*macros*
      (lambda (n v)
        (set '*macros* (cons (cons n v) *macros*))))
 
@@ -41,7 +41,7 @@
 ;;       input [_ . macros] => (macroexpand1-h input macros)
 ;;       input [] => input)
 
-(set '.macroexpand1-h
+(set 'cora/init#macroexpand1-h
      (lambda (exp macros)
        (if (= () macros)
            exp
@@ -52,57 +52,57 @@
                         false)
                     false)
                   ((cdr item) exp)
-                  (.macroexpand1-h exp (cdr macros))))
+                  (cora/init#macroexpand1-h exp (cdr macros))))
             (car macros)))))
 
-(set '.macroexpand1
+(set 'cora/init#macroexpand1
      (lambda (exp)
-       (.macroexpand1-h exp *macros*)))
+       (cora/init#macroexpand1-h exp *macros*)))
 
 ;; (func macroexpand
 ;;       ['lambda args body] => ['lambda args (macroexpand body)]
 ;;       ['quote xx] => xx
 ;;       (cons x y) => y where (= x *protect-symbol*)
-;;       (cons x y) => (let exp1 (.macroexpand1 (cons x y))
+;;       (cons x y) => (let exp1 (cora/init#macroexpand1 (cons x y))
 ;;                       (if (= exp1 (cons x y))
 ;;                           (map macroexpand exp1)
 ;;                           (macroexpand exp1)))
 ;;       x => x)
 
-(set '.macroexpand-boot
+(set 'cora/init#macroexpand-boot
      (lambda (exp)
        (if (cons? exp)
            (if (= (car exp) *protect-symbol*)
                (cdr exp)
              (if (= (car exp) (quote lambda))
-                 (cons (quote lambda) (cons (cadr exp) (cons (.macroexpand-boot (caddr exp)) ())))
+                 (cons (quote lambda) (cons (cadr exp) (cons (cora/init#macroexpand-boot (caddr exp)) ())))
                (if (= (car exp) (quote quote))
                    exp
                  ((lambda (exp1)
                     (if (= exp1 exp)
-                        (map .macroexpand-boot exp1)
-                      (.macroexpand-boot exp1)))
-                  (.macroexpand1 exp)))))
+                        (map cora/init#macroexpand-boot exp1)
+                      (cora/init#macroexpand-boot exp1)))
+                  (cora/init#macroexpand1 exp)))))
          exp)))
 
-(set 'macroexpand .macroexpand-boot)
+(set 'macroexpand cora/init#macroexpand-boot)
 
 ;; (func defmacro-macro
-;;       ['defmacro name arg body] => ['.add-to-*macros* ['quote name] ['lambda arg body]])
+;;       ['defmacro name arg body] => ['add-to-*macros* ['quote name] ['lambda arg body]])
 
 (set 'defmacro-macro
      (lambda (exp)
-       (cons '.add-to-*macros*
+       (cons 'cora/init#add-to-*macros*
              (cons (cons 'quote (cons (cadr exp) ()))
                    (cons (cons 'lambda (cons (caddr exp) (cdddr exp))) ())))))
 
-(.add-to-*macros* 'defmacro defmacro-macro)
-(.add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
+(cora/init#add-to-*macros* 'defmacro defmacro-macro)
+(cora/init#add-to-*macros* 'list (lambda (exp) (rcons (cdr exp))))
 
 (defmacro defun (exp)
-  (list 'set (list 'quote (cadr exp))
-        (list 'lambda (caddr exp)
-              (cadddr exp))))
+  (list 'def (cadr exp)
+	(list 'lambda (caddr exp)
+	      (cadddr exp))))
 
 (defun elem? (x l)
   (if (cons? l)
@@ -113,27 +113,16 @@
 
 (defun atom? (x) (not (cons? x)))
 
-;; (defun .rewrite-let (params args exp)
-;;   (if (null? (cdr exp))
-;;       (cons (list 'lambda params (car exp)) args)
-;;       (.rewrite-let
-;;        (cons (car exp) params)
-;;        (cons (cadr exp) args)
-;;        (cddr exp))))
-
-;; (defmacro let (exp)
-;;   (.rewrite-let () () (cdr exp)))
-
-(defun .rewrite-let (exp)
+(defun cora/init#rewrite-let (exp)
   (if (null? (cdr exp))
       (car exp)
       (cons 'let
 	    (cons (car exp)
 		  (cons (cadr exp)
-			(cons (.rewrite-let (cddr exp)) ()))))))
+			(cons (cora/init#rewrite-let (cddr exp)) ()))))))
 
 (defmacro let (exp)
-  (.rewrite-let (cdr exp)))
+  (cora/init#rewrite-let (cdr exp)))
 
 (defmacro cond (exp)
   (if (= () (cdr exp))
@@ -143,62 +132,62 @@
                (cadr curr)
                (cons 'cond (cddr exp))))))
 
-(defun .rewrite-or (l)
+(defun cora/init#rewrite-or (l)
   (if (= l ())
       false
     (if (= (car l) true)
         true
-      (let more (.rewrite-or (cdr l))
+      (let more (cora/init#rewrite-or (cdr l))
            (if (= more true)
                true
              (list 'if (car l) true more))))))
 
 (defmacro or (exp)
-  (.rewrite-or (cdr exp)))
+  (cora/init#rewrite-or (cdr exp)))
 
-(defun .rewrite-and (l)
+(defun cora/init#rewrite-and (l)
   (if (= () l)
       true
     (if (= (car l) false)
         false
-      (let more (.rewrite-and (cdr l))
+      (let more (cora/init#rewrite-and (cdr l))
            (if (= more false)
                false
              (list 'if (car l) more false))))))
 
 (defmacro and (exp)
-  (.rewrite-and (cdr exp)))
+  (cora/init#rewrite-and (cdr exp)))
 
 (defun boolean? (x) (or (= x true) (= x false)))
 
-(defun .rcons1 (pat)
+(defun cora/init#rcons1 (pat)
   (if (null? (cdr pat))
       (car pat)
-      (list 'cons (car pat) (.rcons1 (cdr pat)))))
+      (list 'cons (car pat) (cora/init#rcons1 (cdr pat)))))
 
 (defmacro list-rest (exp)
-  (.rcons1 (cdr exp)))
+  (cora/init#rcons1 (cdr exp)))
 
 ;; =============== pattern match utilities =================
 
-(defun .match-cons-expander (pat expr body cc)
+(defun cora/init#match-cons-expander (pat expr body cc)
   (let x (cadr pat)
        y (caddr pat)
        (if (and (cons? expr)
 		(= (car expr) 'cons))
 	   (let e1 (cadr expr)
 		e2 (caddr expr)
-		(.match1 x e1
-			 (.match1 y e2 body cc) cc))
+		(cora/init#match1 x e1
+			 (cora/init#match1 y e2 body cc) cc))
 	   (list 'if (list 'cons? expr)
-		 (.match1 x (list 'car expr)
-			  (.match1 y (list 'cdr expr)
+		 (cora/init#match1 x (list 'car expr)
+			  (cora/init#match1 y (list 'cdr expr)
 				   body
 				   cc)
 			  cc)
 		 (cons cc ())))))
 
-(defun .match1 (pat expr body cc)
+(defun cora/init#match1 (pat expr body cc)
   (let literal? (lambda (x) (and (atom? x) (not (symbol? x))))
        (cond
 	 ((literal? pat) (if (= pat expr) body
@@ -206,10 +195,10 @@
 	 ((symbol? pat) (list 'let pat expr body))
 	 ((pair? pat) (cond
 			((= (car pat) 'quote) (list 'if (list '= pat expr) body (list cc)))
-			((= (car pat) 'cons) (.match-cons-expander pat expr body cc))))
+			((= (car pat) 'cons) (cora/init#match-cons-expander pat expr body cc))))
 	 (true (error (str "match fail " pat))))))
 
-(defun .extract-rule-action (rules cc)
+(defun cora/init#extract-rule-action (rules cc)
   (let action (car (cdr rules))
     (if (and (pair? action)
              (= (car action) 'where))
@@ -218,76 +207,76 @@
               (list cc))
         action)))
 
-(defun .match-helper (value rules)
+(defun cora/init#match-helper (value rules)
   (cond
     ((null? rules) (list 'error "no match-help found!"))
     ((and (pair? rules) (pair? (cdr rules)))
      (let pat (car rules)
 	  cc (gensym 'cc)
-	  (let action (.extract-rule-action rules cc)
-	       (let curr (.match1 (macroexpand pat) value action cc)
-		    rest (.match-helper value (cdr (cdr rules)))
+	  (let action (cora/init#extract-rule-action rules cc)
+	       (let curr (cora/init#match1 (macroexpand pat) value action cc)
+		    rest (cora/init#match-helper value (cdr (cdr rules)))
 		    (list 'let cc (list 'lambda () rest)
 			  curr)))))))
 
-(defun .rewrite-match (exp)
+(defun cora/init#rewrite-match (exp)
   (let value (macroexpand (cadr exp))
        rules (cddr exp)
        (if (and (cons? value)
 		(not (= 'cons (car value))))
 	   (let val (gensym 'val)
-		(list 'let val value (.match-helper val rules)))
-	   (.match-helper value rules))))
+		(list 'let val value (cora/init#match-helper val rules)))
+	   (cora/init#match-helper value rules))))
 
 
 (defmacro match (exp)
-  (.rewrite-match exp))
+  (cora/init#rewrite-match exp))
 
 ;; ================ the func macro ======================
-(defun .extract-rules1 (input current result)
+(defun cora/init#extract-rules1 (input current result)
   (match input
     ()	(reverse result)
     (list-rest '=> act 'where pred remain)
     (let pat (cons 'list (reverse current))
-      (.extract-rules1 remain () (cons (list 'where pred act) (cons pat result))))
+      (cora/init#extract-rules1 remain () (cons (list 'where pred act) (cons pat result))))
     (list-rest '=> act remain)
     (let pat (cons 'list (reverse current))
-      (.extract-rules1 remain () (cons act (cons pat result))))
-    (cons x y)	(.extract-rules1 y (cons x current) result)))
+      (cora/init#extract-rules1 remain () (cons act (cons pat result))))
+    (cons x y)	(cora/init#extract-rules1 y (cons x current) result)))
 
-(defun .extract-rules (input)
-  (.extract-rules1 input () ()))
+(defun cora/init#extract-rules (input)
+  (cora/init#extract-rules1 input () ()))
 
-(defun .rules-patterns (res rules)
+(defun cora/init#rules-patterns (res rules)
   (if (null? rules)
       (reverse res)
-      (.rules-patterns (cons (car rules) res) (cddr rules))))
+      (cora/init#rules-patterns (cons (car rules) res) (cddr rules))))
 
-(defun .length-h (i l)
+(defun cora/init#length-h (i l)
   (if (= l ())
       i
-      (.length-h (+ i 1) (cdr l))))
+      (cora/init#length-h (+ i 1) (cdr l))))
 
 (defun length (l)
-  (.length-h 0 l))
+  (cora/init#length-h 0 l))
 
-(defun .filter-h (res fn l)
+(defun cora/init#filter-h (res fn l)
   (if (cons? l)
       (if (fn (car l))
-          (.filter-h (cons (car l) res) fn (cdr l))
-          (.filter-h res fn (cdr l)))
+          (cora/init#filter-h (cons (car l) res) fn (cdr l))
+          (cora/init#filter-h res fn (cdr l)))
       (reverse res)))
 
 (defun filter (fn l)
-  (.filter-h () fn l))
+  (cora/init#filter-h () fn l))
 
 (defun append (l1 l2)
        (if (= l1 ())
            l2
            (cons (car l1) (append (cdr l1) l2))))
 
-(defun .rules-arg-count (rules)
-  (let pats (.rules-patterns () rules)
+(defun cora/init#rules-arg-count (rules)
+  (let pats (cora/init#rules-patterns () rules)
     len (lambda (x) (length (cdr x)))
     (let counts (map len pats)
       (let n (car counts)
@@ -296,20 +285,20 @@
               (error "inconsistent func rule args count")
               n))))))
 
-(defun .gen-parameters (n)
+(defun cora/init#gen-paramenters (n)
   (if (= n 0)
       ()
-      (cons (gensym 'p) (.gen-parameters (- n 1)))))
+      (cons (gensym 'p) (cora/init#gen-paramenters (- n 1)))))
 
 (defmacro func (exp)
-  (let body (.extract-rules (cddr exp))
-    (let nargs (.rules-arg-count body)
-      (let args (.gen-parameters nargs)
+  (let body (cora/init#extract-rules (cddr exp))
+    (let nargs (cora/init#rules-arg-count body)
+      (let args (cora/init#gen-paramenters nargs)
         (list 'defun (cadr exp) args
               (cons 'match (cons (cons 'list args)
                                  body)))))))
 
-(func .propagate-boolean0
+(func cora/init#propagate-boolean0
       ['car ['cons x _]] => x
       ['cdr ['cons _ x]] => x
       ['cons? ['cons _ _]] => true
@@ -322,49 +311,121 @@
       ['if false y z] => z
       x => x)
 
-(func .propagate-boolean
+(func cora/init#propagate-boolean
       ['quote x] => ['quote x]
-      ['cons? x] => (let x1 (.propagate-boolean x)
-		       (.propagate-boolean0 ['cons? x1]))
-      ['car x] => (let x1 (.propagate-boolean x)
-		       (.propagate-boolean0 ['car x1]))
-      ['cdr x] => (let x1 (.propagate-boolean x)
-		       (.propagate-boolean0 ['cdr x1]))
-      ['and x y] => (let x1 (.propagate-boolean x)
-			 y1 (.propagate-boolean y)
-			 (.propagate-boolean0 ['and x1 y1]))
-      ['null? x] => (let x1 (.propagate-boolean x)
-			 (.propagate-boolean0 ['null? x1]))
-      ['not x] => (let x1 (.propagate-boolean x)
-		       (.propagate-boolean0 ['not x1]))
-      ['if x y z] => (let x1 (.propagate-boolean x)
-			  y1 (.propagate-boolean y)
-			  z1 (.propagate-boolean z)
-			  (.propagate-boolean0 ['if x1 y1 z1]))
-      ['lambda args body] => ['lambda args (.propagate-boolean body)]
-      [f . args] => (map .propagate-boolean [f . args])
+      ['cons? x] => (let x1 (cora/init#propagate-boolean x)
+		       (cora/init#propagate-boolean0 ['cons? x1]))
+      ['car x] => (let x1 (cora/init#propagate-boolean x)
+		       (cora/init#propagate-boolean0 ['car x1]))
+      ['cdr x] => (let x1 (cora/init#propagate-boolean x)
+		       (cora/init#propagate-boolean0 ['cdr x1]))
+      ['and x y] => (let x1 (cora/init#propagate-boolean x)
+			 y1 (cora/init#propagate-boolean y)
+			 (cora/init#propagate-boolean0 ['and x1 y1]))
+      ['null? x] => (let x1 (cora/init#propagate-boolean x)
+			 (cora/init#propagate-boolean0 ['null? x1]))
+      ['not x] => (let x1 (cora/init#propagate-boolean x)
+		       (cora/init#propagate-boolean0 ['not x1]))
+      ['if x y z] => (let x1 (cora/init#propagate-boolean x)
+			  y1 (cora/init#propagate-boolean y)
+			  z1 (cora/init#propagate-boolean z)
+			  (cora/init#propagate-boolean0 ['if x1 y1 z1]))
+      ['lambda args body] => ['lambda args (cora/init#propagate-boolean body)]
+      [f . args] => (map cora/init#propagate-boolean [f . args])
       x => x)
 
 (defun macroexpand (exp)
-  (.propagate-boolean (.macroexpand-boot exp)))
+  (cora/init#propagate-boolean (cora/init#macroexpand-boot exp)))
 
 ;; ===============
 
 ;; begin x y z ...
 ;; (do x (do y z))
-(func .rewrite-begin
+(func cora/init#rewrite-begin
       [x] => x
       [x y] => ['do x y]
-      [x . y] => ['do x (.rewrite-begin y)])
+      [x . y] => ['do x (cora/init#rewrite-begin y)])
 
 (defmacro begin (exp)
-  (.rewrite-begin (cdr exp)))
+  (cora/init#rewrite-begin (cdr exp)))
 
-(func .rewrite-backquote
+(func cora/init#rewrite-backquote
       x => ['quote x] where (symbol? x)
       ['unquote x] => x
-      [x . more] => ['list . (map .rewrite-backquote [x . more])]
+      [x . more] => ['list . (map cora/init#rewrite-backquote [x . more])]
       x => x)
       
 (defmacro backquote (exp)
-  (.rewrite-backquote (cadr exp)))
+  (cora/init#rewrite-backquote (cadr exp)))
+
+;; ============= define-library ============
+
+(func cora/init#parse-define-library-h
+      [['import lib] . rest] imports exports k => (cora/init#parse-define-library-h rest (cons lib imports) exports k)
+      [['export . more] . rest]  imports exports k => (cora/init#parse-define-library-h rest imports more k)
+      body imports exports k => (k (reverse imports) exports body))
+
+(defun cora/init#parse-define-library (data k)
+  (cora/init#parse-define-library-h data () () k))
+
+(defmacro define-library (sexp)
+  (let path (cadr sexp)
+       ((cora/init#parse-define-library (cddr sexp))
+	(lambda (import export body)
+	  ['ns path (cons "cora/init" import)
+	  (cons 'begin (append (map (lambda (imp) ['import imp]) import)
+			  [['def '*ns-export* ['backquote export]] . body]))]))))
+
+(set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
+				   boolean? number? null?
+				   string-append
+				   intern symbol->string
+				   vector vector-set! vector-ref vector-length
+				   bytes bytes-length
+				   read-file-as-sexp
+				   value value-or
+				   apply load-so import load
+				   try throw
+				   symbol-cooked?
+				   reverse map macroexpand elem?  length filter append))
+
+;; todo, cleanup later
+(set 'cora/init#cadr cadr)
+(set 'cora/init#caar caar)
+(set 'cora/init#cdar cdar)
+(set 'cora/init#cddr cddr)
+(set 'cora/init#caddr caddr)
+(set 'cora/init#cadddr cadddr)
+(set 'cora/init#cdddr cdddr)
+(set 'cora/init#pair? pair?)
+(set 'cora/init#atom? atom?)
+(set 'cora/init#boolean? boolean?)
+(set 'cora/init#null? null?)
+(set 'cora/init#number? number?)
+(set 'cora/init#string-append string-append)
+(set 'cora/init#intern intern)
+(set 'cora/init#symbol->string symbol->string)
+(set 'cora/init#vector vector)
+(set 'cora/init#vector-set! vector-set!)
+(set 'cora/init#vector-ref vector-ref)
+(set 'cora/init#vector-length vector-length)
+(set 'cora/init#bytes bytes)
+(set 'cora/init#bytes-length bytes-length)
+(set 'cora/init#value value)
+(set 'cora/init#value-or value-or)
+(set 'cora/init#read-file-as-sexp read-file-as-sexp)
+(set 'cora/init#apply apply)
+(set 'cora/init#load load)
+(set 'cora/init#load-so load-so)
+(set 'cora/init#import import)
+(set 'cora/init#try try)
+(set 'cora/init#throw throw)
+(set 'cora/init#symbol-cooked? symbol-cooked?)
+
+(set 'cora/init#reverse reverse)
+(set 'cora/init#map map)
+(set 'cora/init#macroexpand macroexpand)
+(set 'cora/init#elem? elem?)
+(set 'cora/init#length length)
+(set 'cora/init#filter filter)
+(set 'cora/init#append append)

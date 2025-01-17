@@ -2,6 +2,7 @@
 
 
 extern void builtinLoadSo(struct Cora *co);
+extern void builtinImport(struct Cora *co);
 
 int main(int argc, char *argv[]) {
   uintptr_t dummy;
@@ -14,13 +15,14 @@ int main(int argc, char *argv[]) {
   co->nargs = 3;
   trampoline(co, 0, builtinLoadSo);
   primSet(co, imported, cons(makeCString("cora/init"), Nil));
-  primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported)));
+  /* primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported))); */
   
-  co->args[1] = makeCString("toc.so");
-  co->args[2] = makeCString("");
-  co->nargs = 3;
-  trampoline(co, 0, builtinLoadSo);
-  primSet(co, imported, cons(makeCString("cora/lib/toc"), symbolGet(imported)));
+  co->args[1] = makeCString("cora/lib/toc");
+  /* co->args[2] = makeCString(""); */
+  /* co->nargs = 3; */
+  co->nargs = 2;
+  trampoline(co, 0, builtinImport);
+  /* primSet(co, imported, cons(makeCString("cora/lib/toc"), symbolGet(imported))); */
   
 		struct SexpReader r = {co: co};
   int errCode = 0;
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
     /* printf(" --- %d %d\n", co->base, co->pos); */
     /* printf("\n"); */
 
-    co->args[0] = globalRef(intern("cora/lib/toc.eval0"));
+    co->args[0] = globalRef(intern("cora/lib/toc#eval0"));
     co->args[1] = exp;
     co->nargs = 2;
     trampoline(co, 0, coraDispatch);

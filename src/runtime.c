@@ -298,14 +298,6 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	} else {
 		assert(s->owner == co);
 	}
-
-	if ((strChr(cstr(symbolStr(key)), '#') < 0) &&
-	    (strChr(cstr(symbolStr(key)), '.') < 0)) {
-	  // global variable without namespace
-	  primSet(co, intern("cora/init#*default-ns*"),
-		  cons(key, symbolGet(intern("cora/init#*default-ns*"))));
-	}
-
 	return val;
 }
 
@@ -528,6 +520,18 @@ builtinValue(struct Cora *co) {
 }
 
 void
+builtinValueOr(struct Cora *co) {
+	Obj sym = co->args[1];
+	struct trieNode *s = ptr(sym);
+	Obj ret = s->value;
+	if (ret == Undef) {
+		coraReturn(co, co->args[2]);
+		return;
+	}
+	coraReturn(co, ret);
+}
+
+void
 builtinApply(struct Cora *co) {
 	Obj fn = co->args[1];
 	Obj args = co->args[2];
@@ -599,7 +603,7 @@ builtinLoad(struct Cora *co) {
 	Obj pkg = co->args[2];
 
 	co->nargs = 4;
-	co->args[0] = globalRef(intern("cora/lib/toc.compile-to-c"));
+	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
 	co->args[1] = filePath;
 
 	const int BUFSIZE = 512;
@@ -633,6 +637,10 @@ builtinLoad(struct Cora *co) {
 	return;
 }
 
+// import do more things than load:
+// 1. avoid repeated import for imported libraries
+// 2. convert from library path to .cora or .so file
+// 3. call load or load-so for the actual work
 void
 builtinImport(struct Cora *co) {
 	Obj pkg = co->args[1];
@@ -661,10 +669,13 @@ builtinImport(struct Cora *co) {
 		// primLoadSo is a bit special, it requires the current stack of VM is
 		// (load-so "file-path.so" "package-path")
 		co->nargs = 3;
+		co->args[0] = makeNative(0, builtinLoadSo, 2, 0);
 		co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
 		co->args[2] = pkg;
-		co->ctx.pc.func = builtinLoadSo;
+		trampoline(co, 0, coraDispatch);
+		/* co->ctx.pc.func = builtinLoadSo; */
 		strFree(tmp);
+		coraReturn(co, pkg);
 		return;
 	}
 
@@ -679,37 +690,6 @@ builtinImport(struct Cora *co) {
 	strFree(tmp);
 
 	coraReturn(co, pkg);
-}
-
-// ================ utilities for toc ==================
-
-static void
-builtinGenerateStr(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	str s = stringStr(exp);
-	fprintf(out, "%s", s.str);
-	coraReturn(co, Nil);
-}
-
-static void
-builtinGenerateSym(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	const char *s = symbolStr(exp);
-	for (const char *p = s; *p != 0; p++) {
-		if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
-		    (*p >= '0' && *p <= '9')) {
-			fprintf(out, "%c", *p);
-		} else if (*p == '_') {
-			fprintf(out, "__");
-		} else {
-			fprintf(out, "_%d", *p);
-		}
-	}
-	coraReturn(co, Nil);
 }
 
 static void
@@ -749,59 +729,6 @@ builtinVectorLength(struct Cora *co) {
 	popStack(co);
 }
 
-static void
-builtinGenerateNum(struct Cora *co) {
-	Obj to = co->args[1];
-	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
-	fprintf(out, "%ld", fixnum(exp));
-	coraReturn(co, Nil);
-}
-
-static void
-builtinEscapeStr(struct Cora *co) {
-	Obj s = co->args[1];
-	str str = stringStr(s);
-	strBuf dst = strNew(strLen(str));
-
-	for (int i = 0; i < strLen(str); i++) {
-		char c = str.str[i];
-		switch (c) {
-		case '"':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, '"');
-			break;
-		case '\n':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, 'n');
-			break;
-		case '\t':
-			dst = strAppend(dst, '\\');
-			dst = strAppend(dst, 't');
-			break;
-		default:
-			dst = strAppend(dst, c);
-		};
-	}
-	coraReturn(co, makeString(toCStr(dst), strLen(toStr(dst))));
-}
-
-static void
-builtinOpenOutputFile(struct Cora *co) {
-	Obj arg1 = co->args[1];
-	str filePath = stringStr(arg1);
-	FILE *f = fopen(filePath.str, "w");
-	coraReturn(co, makeCObj(f));
-}
-
-static void
-builtinCloseOutputFile(struct Cora *co) {
-	Obj arg1 = co->args[1];
-	FILE *f = mustCObj(arg1);
-	int errno = fclose(f);
-	coraReturn(co, makeNumber(errno));
-}
-
 void
 builtinReadFileAsSexp(struct Cora *co) {
 	Obj arg = co->args[1];
@@ -839,6 +766,20 @@ builtinReadFileAsSexp(struct Cora *co) {
 	coraReturn(co, result);
 }
 
+static void
+builtinStringAppend(struct Cora *co) {
+	Obj str1 = co->args[1];
+	Obj str2 = co->args[2];
+	str x = stringStr(str1);
+	str y = stringStr(str2);
+	strBuf tmp = strNew(x.len + y.len);
+	tmp = strCpy(tmp, x);
+	tmp = strCat(tmp, y);
+    str s = toStr(tmp);
+	Obj val = makeString(s.str, s.len);
+	coraReturn(co, val);
+}
+
 static strBuf
 cmdListStr(Obj args) {
 	strBuf cmd = strNew(64);
@@ -860,12 +801,27 @@ builtinOSExec(struct Cora *co) {
 	coraReturn(co, makeNumber(exitCode));
 }
 
+// TODO: remove this after refactoring finish
+static void
+builtinSymbolCooked(struct Cora *co) {
+  Obj sym = co->args[1];
+  char *s = symbolStr(sym);
+  for (; *s != 0; s++) {
+    if (*s == '#') {
+      coraReturn(co, True);
+      return;
+    }
+  }
+  coraReturn(co, False);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
 		m->init();
 	}
 
+	Obj exports = Nil;
 	for (int i = 0;; i++) {
 		struct registerEntry entry = m->entries[i];
 		if (entry.func == NULL) {
@@ -875,7 +831,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		Obj sym;
 		if (strLen(pkg) > 0) {
 			strBuf tmp = strDup(pkg);
-			tmp = strAppend(tmp, '.');
+			tmp = strAppend(tmp, '#');
 			tmp = strCat(tmp, cstr(entry.name));
 			sym = intern(toCStr(tmp));
 			strFree(tmp);
@@ -883,6 +839,14 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 			sym = intern(entry.name);
 		}
 		primSet(co, sym, makeNative(0, entry.func, entry.args, 0));
+		exports = cons(intern(entry.name), exports);
+	}
+	if (strLen(pkg) > 0) {
+	  strBuf tmp = strDup(pkg);
+	  tmp = strCat(tmp, cstr("#*ns-export*"));
+	  Obj sym = intern(toCStr(tmp));
+	  strFree(tmp);
+	  primSet(co, sym, exports);
 	}
 }
 
@@ -895,16 +859,15 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
-	primSet(co, intern("cora/init#*default-ns*"), Nil);
-	primSet(co, intern("*imported*"), Nil);
-	primSet(co, intern("*package-mapping*"), Nil);
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
 	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
 		makeNative(0, builtinReadFileAsSexp, 2, 0));
+	primSet(co, intern("string-append"), makeNative(0, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
+	primSet(co, intern("value-or"), makeNative(0, builtinValueOr, 2, 0));
 	primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
 	primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
@@ -921,20 +884,14 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-str"),
-		makeNative(0, builtinGenerateStr, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-sym"),
-		makeNative(0, builtinGenerateSym, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.generate-num"),
-		makeNative(0, builtinGenerateNum, 2, 0));
-	primSet(co, intern("cora/lib/toc/internal.escape-str"),
-		makeNative(0, builtinEscapeStr, 1, 0));
-	primSet(co, intern("cora/lib/io.open-output-file"),
-		makeNative(0, builtinOpenOutputFile, 1, 0));
-	primSet(co, intern("cora/lib/io.close-output-file"),
-		makeNative(0, builtinCloseOutputFile, 1, 0));
-	primSet(co, intern("cora/lib/os.exec"),
+	primSet(co, intern("cora/lib/os#exec"),
 		makeNative(0, builtinOSExec, 1, 0));
+	primSet(co, intern("*imported*"), Nil);
+	primSet(co, intern("*package-mapping*"), Nil);
+	primSet(co, intern("#*ns-export*"), Nil);
+	primSet(co, intern("*ns-self*"), makeCString(""));
+	primSet(co, intern("cora/init#*default-ns*"), Nil);
+	primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
 }
 
 #ifdef ForTest

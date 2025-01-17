@@ -149,20 +149,6 @@ stringSplit(struct Cora *co) {
 }
 
 static void
-stringAppend(struct Cora *co) {
-	Obj str1 = co->args[1];
-	Obj str2 = co->args[2];
-	str x = stringStr(str1);
-	str y = stringStr(str2);
-	strBuf tmp = strNew(x.len + y.len);
-	tmp = strCpy(tmp, x);
-	tmp = strCat(tmp, y);
-    str s = toStr(tmp);
-	Obj val = makeString(s.str, s.len);
-	coraReturn(co, val);
-}
-
-static void
 bytesMemCpy(struct Cora *co) {
 		Obj to = co->args[1];
 		Obj off1 = co->args[2];
@@ -196,10 +182,9 @@ static struct registerModule stringModule = {
     {"number->string", numberToString, 1},
     {"replace", stringReplace, 3},
     {"split", stringSplit, 2},
-				{"append", stringAppend, 2},
-				{"contain?", stringContain, 2},
-				{"memcpy", bytesMemCpy, 5},
-				{"byte-ref", bytesRef, 2},
+    {"contain?", stringContain, 2},
+    {"memcpy", bytesMemCpy, 5},
+    {"byte-ref", bytesRef, 2},
     /* {NULL, NULL, 0} */
   }
 };
