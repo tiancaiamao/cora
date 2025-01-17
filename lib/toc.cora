@@ -51,11 +51,14 @@
 	0 res => res
 	n res => (temp-list (- n 1) (cons (gensym 'tmp) res)))
 
+  (defun var-with-ns (var ns)
+    (cond
+     ((= ns "") var)
+     ((symbol-cooked? var) var)
+     (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
+
   (func lookup-var-h
-	s ns [] => (cond
-		    ((= ns "") ['%global s])
-		    ((symbol-cooked? s) ['%global s])
-		    (true ['%global (intern (string-append ns (string-append "#" (symbol->string s))))]))
+	s ns [] => ['%global (var-with-ns s ns)]
 	s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
 				  (if (elem? s export)
 				      ['%global (intern (string-append import (string-append "#" (symbol->string s))))]
@@ -71,10 +74,7 @@
 			       env ns import ['do x y] => ['do (parse env ns import x) (parse env ns import y)]
 			       env ns import ['let a b c] => ['let a (parse env ns import b) (parse (cons a env) ns import c)]
 			       env _ _ ['ns path import body] => (parse env path import body)
-			       env ns import ['def var val] => (let var1 (cond
-									  ((= ns "") var)
-									  ((symbol-cooked? var) var)
-									  (true (intern (string-append ns (string-append "#" (symbol->string var))))))
+			       env ns import ['def var val] => (let var1 (var-with-ns var ns)
 								 [['%builtin 'set] ['%const var1] (parse env ns import val)])
 			       env ns import [op . args] => (let required (builtin->args op)
 							      provided (length args)
