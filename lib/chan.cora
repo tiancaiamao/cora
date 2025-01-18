@@ -1,59 +1,65 @@
-(@import "cora/lib/cml" cml)
-(@import "cora/lib/queue" queue)
+(define-library "cora/lib/chan"
+  (export chan-make chan-send chan-recv)
+  (import "cora/lib/cml")
+  (import "cora/lib/queue")
 
-;; channel is a sendq and recvq
-;; sendq represent the coroutines blocked sending msg to the channel.
-;; recvq represent the coroutines blocked recving msg from the channel.
-(defun .make ()
-  [(queue.make) (queue.make)])
+  ;; channel is a sendq and recvq
+  ;; sendq represent the coroutines blocked sending msg to the channel.
+  ;; recvq represent the coroutines blocked recving msg from the channel.
+  (defun chan-make ()
+    [(queue-make) (queue-make)])
 
-(func .recv-try
-      [sendq recvq] => (if (queue.empty? sendq)
-			   false
-			   (match (queue.dequeue sendq)
-				  [state resume val wrap]
-				  (if (= 'Done (value state))
-				      (.recv-try [sendq recvq]) ;; ignore stale item and continue
-				      (begin
-				       (cml.spawn (lambda () (resume (wrap ()))))
-				       (set state 'Done)
-				       val)))))
+  (func recv-try
+	[sendq recvq] => (if (queue-empty? sendq)
+			     false
+			     (match (dequeue sendq)
+			       [state resume val wrap]
+			       (if (= 'Done (value state))
+				   (recv-try [sendq recvq]) ;; ignore stale item and continue
+				   (begin
+				     (spawn (lambda () (resume (wrap ()))))
+				     (set state 'Done)
+				     val)))))
 
-(defun .recv-block (recvq k wrap)
-  (let state (gensym 'state)
-       (begin
+  (defun recv-block (recvq k wrap)
+    (let state (gensym 'state)
+      (begin
 	(set state 'Wait)
-	(queue.enqueue recvq [state k wrap]))))
+	(enqueue recvq [state k wrap]))))
 
-;; recv on channel is an operation
-(defun .recv (ch)
-  (let try (lambda () (.recv-try ch))
-       block (lambda (k wrap) (.recv-block (cadr ch) k wrap))
-       [try block default-wrap]))
+  (defun default-wrap (x) x)
 
-(func .send-try
-      [sendq recvq] val => (if (queue.empty? recvq)
-			       false
-			       (match (queue.dequeue recvq)
-				      [state resume wrap]
-				      (if (= 'Done (value state))
-					  (.send-try [sendq recvq]) ;; ignore stale
-					  (begin
-					   (cml.spawn (lambda ()
-							(begin
-							 ;; (io.display "resume recv op\n")
-							 (resume (wrap val)))))
-					   (set state 'Done)
-					   ())))))
+  ;; recv on channel is an operation
+  (defun chan-recv (ch)
+    (let try (lambda () (recv-try ch))
+      block (lambda (k wrap) (recv-block (cadr ch) k wrap))
+      [try block default-wrap]))
 
-(defun .send-block (sendq k val wrap)
-  (let state (gensym 'state)
-       (begin
+  (func send-try
+	[sendq recvq] val => (if (queue-empty? recvq)
+				 false
+				 (match (dequeue recvq)
+				   [state resume wrap]
+				   (if (= 'Done (value state))
+				       (send-try [sendq recvq]) ;; ignore stale
+				       (begin
+					 (spawn (lambda ()
+						      (begin
+							;; (io.display "resume recv op\n")
+							(resume (wrap val)))))
+					 (set state 'Done)
+					 ())))))
+
+  (defun send-block (sendq k val wrap)
+    (let state (gensym 'state)
+      (begin
 	(set state 'Wait)
-	(queue.enqueue sendq [state k val wrap]))))
+	(enqueue sendq [state k val wrap]))))
 
-;; send on channel is an operation
-(defun .send (ch val)
-  (let try (lambda () (.send-try ch val))
-       block (lambda (k wrap) (.send-block (car ch) k val wrap))
-       [try block default-wrap]))
+  ;; send on channel is an operation
+  (defun chan-send (ch val)
+    (let try (lambda () (send-try ch val))
+      block (lambda (k wrap) (send-block (car ch) k val wrap))
+      [try block default-wrap]))
+
+  )

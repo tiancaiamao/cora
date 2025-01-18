@@ -780,27 +780,6 @@ builtinStringAppend(struct Cora *co) {
 	coraReturn(co, val);
 }
 
-/* static strBuf */
-/* cmdListStr(Obj args) { */
-/* 	strBuf cmd = strNew(64); */
-/* 	while (args != Nil) { */
-/* 		Obj tmp = car(args); */
-/* 		str s = stringStr(tmp); */
-/* 		cmd = strCat(cmd, s); */
-/* 		cmd = strCat(cmd, cstr(" ")); */
-/* 		args = cdr(args); */
-/* 	} */
-/* 	return cmd; */
-/* } */
-
-/* static void */
-/* builtinOSExec(struct Cora *co) { */
-/* 	Obj args = co->args[1]; */
-/* 	strBuf cmd = cmdListStr(args); */
-/* 	int exitCode = system(toCStr(cmd)); */
-/* 	coraReturn(co, makeNumber(exitCode)); */
-/* } */
-
 // TODO: remove this after refactoring finish
 static void
 builtinSymbolCooked(struct Cora *co) {
@@ -850,8 +829,6 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 }
 
-// ============ end utilities for toc =================
-
 void
 coraInit(struct Cora *co, uintptr_t * mark) {
 	gcInit(mark);
@@ -885,13 +862,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	/* primSet(co, intern("cora/lib/os#exec"), */
-	/* 	makeNative(0, builtinOSExec, 1, 0)); */
 	primSet(co, intern("*imported*"), Nil);
-	/* primSet(co, intern("*package-mapping*"), Nil); */
-	/* primSet(co, intern("#*ns-export*"), Nil); */
-	primSet(co, intern("*ns-self*"), makeCString(""));
-	/* primSet(co, intern("cora/init#*default-ns*"), Nil); */
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(0, builtinSymbolCooked, 1, 0));
 }

@@ -4,122 +4,125 @@
 ;; "Toward a parallel implementation of Concurrent ML"    John Reppy
 ;; "Parallel Concurrent ML"          John Reppy
 
-(@import "cora/lib/queue" queue)
-(@import "cora/lib/rand" rand)
-(import "cora/lib/sys")
-;; (@import "cora/lib/io" io)
+(define-library "cora/lib/cml"
+  (import "cora/lib/queue")
+  (import "cora/lib/rand")
+  (import "cora/lib/sys")
+  ;; (import "cora/lib/io")
+  (export spawn yield main wrap perform schedule register-scheduler)
 
-(set '.task-queue (queue.make))
+  (def task-queue (queue-make))
 
-(defun .spawn (thunk)
-  (queue.enqueue .task-queue thunk))
+  (defun spawn (thunk)
+    (enqueue task-queue thunk))
 
 
-(set '.external-schedulers ())
-(defun .register-scheduler (fn)
-  (set '.external-schedulers (cons fn .external-schedulers)))
+  (def external-schedulers ())
+  (defun register-scheduler (fn)
+    (set 'cora/lib/cml#external-schedulers (cons fn external-schedulers)))
 
-(defun .run-external-schedulers (timeout)
-  (foldl (lambda (succ sched)
-	   (let res (sched timeout)
-		(and succ res)))
-	 true
-	 .external-schedulers))
+  (defun run-external-schedulers (timeout)
+    (foldl (lambda (succ sched)
+	     (let res (sched timeout)
+	       (and succ res)))
+	   true
+	   external-schedulers))
 
-;; schedule take a task out and execute it
-;; return false if no more tasks
-(defun .schedule ()
-  (begin
-   ;; (io.display ".schedule()\n")
-   (let more-work (.run-external-schedulers 0)
-	(if (queue.empty? .task-queue)
+  ;; schedule take a task out and execute it
+  ;; return false if no more tasks
+  (defun schedule ()
+    (begin
+      ;; (io.display ".schedule()\n")
+      (let more-work (run-external-schedulers 0)
+	(if (queue-empty? task-queue)
 	    (if more-work
 		(begin
-		 ;; (io.display "schedule 2()\n")
-		 (.run-external-schedulers -1))
+		  ;; (io.display "schedule 2()\n")
+		  (run-external-schedulers -1))
 		false)
-	    (let task (queue.dequeue .task-queue)
-		 (begin (task) true))))))
+	    (let task (dequeue task-queue)
+	      (begin (task) true))))))
 
-(defun .schedule-loop ()
-  (if (= false (.schedule))
-      ()
-      (.schedule-loop)))
+  (defun schedule-loop ()
+    (if (= false (schedule))
+	()
+	(schedule-loop)))
 
-(defun .main ()
-  (try .schedule-loop
-       (lambda (v k)
-	 (v k))))
+  (defun main ()
+    (try schedule-loop
+	 (lambda (v k)
+	   (v k))))
 
-(defun .yield ()
-  (throw (lambda (k)
-	   (begin
-	    (queue.enqueue .task-queue (lambda () (k ())))
-	    (.main)))))
+  (defun yield ()
+    (throw (lambda (k)
+	     (begin
+	       (enqueue task-queue (lambda () (k ())))
+	       (main)))))
 
 
-(defun default-wrap (x) x)
+  (defun default-wrap (x) x)
 
-;; wrap an operation to get another operation.
-;; fn receive the value of the operation.
-(func .wrap
-      [try block wrap] fn => [try block (lambda (v) (fn (wrap v)))])
+  ;; wrap an operation to get another operation.
+  ;; fn receive the value of the operation.
+  (func wrap
+	[try block wrap] fn => [try block (lambda (v) (fn (wrap v)))])
 
-(func .choice-ops-try
-      [] => false
-      [[try1 block1 wrap1] . remain] => (match (try1)
-					       false (.choice-ops-try remain)
-					       v (wrap1 v)))
+  (func choice-ops-try
+	[] => false
+	[[try1 block1 wrap1] . remain] => (match (try1)
+					    false (choice-ops-try remain)
+					    v (wrap1 v)))
 
-(defun .choice-op (ops)
-  (let try (lambda () (.choice-ops-try ops))
-       block (lambda (k wrap)
-	       (for-each (lambda (op)
-			   (match op
-				  [try1 block1 wrap1]
-				  (block1 k (lambda (v)
-					      (wrap (wrap1 v))))))
-			 ops))
-       [try block default-wrap]))
+  (defun choice-op (ops)
+    (let try (lambda () (choice-ops-try ops))
+      block (lambda (k wrap)
+	      (for-each (lambda (op)
+			  (match op
+			    [try1 block1 wrap1]
+			    (block1 k (lambda (v)
+					(wrap (wrap1 v))))))
+			ops))
+      [try block default-wrap]))
 
-(func .random-split
-      [] to1 to2 => (cons to1 to2)
-      [hd . tl] to1 to2 => (if (= (rand.N 2) 0)
-			       (.random-split tl (cons hd to1) to2)
-			       (.random-split tl to1 (cons hd to2))))
+  (func random-split
+	[] to1 to2 => (cons to1 to2)
+	[hd . tl] to1 to2 => (if (= (randN 2) 0)
+				 (random-split tl (cons hd to1) to2)
+				 (random-split tl to1 (cons hd to2))))
 
-(func .random-merge
-      [] from to => (append from to)
-      from [] to => (append from to)
-      from1 from2 to => (if (= (rand.N 2) 0)
-			    (.random-merge (cdr from1) from2 (cons (car from1) to))
-			    (.random-merge from1 (cdr from2) (cons (car from2) to))))
+  (func random-merge
+	[] from to => (append from to)
+	from [] to => (append from to)
+	from1 from2 to => (if (= (randN 2) 0)
+			      (random-merge (cdr from1) from2 (cons (car from1) to))
+			      (random-merge from1 (cdr from2) (cons (car from2) to))))
 
-(func .shuffle-h
-      l 0 => l
-      l n => (let tmp (.random-split l [] [])
-		  (let res (.random-merge (car tmp) (cdr tmp) [])
-		       (.shuffle-h res (- n 1)))))
+  (func shuffle-h
+	l 0 => l
+	l n => (let tmp (random-split l [] [])
+		 (let res (random-merge (car tmp) (cdr tmp) [])
+		   (shuffle-h res (- n 1)))))
 
-(defun .shuffle (arr)
-  (.shuffle-h arr (/ (+ 1 (length arr)) 2)))
+  (defun shuffle (arr)
+    (shuffle-h arr (/ (+ 1 (length arr)) 2)))
 
-(defmacro choice (input)
-  ['.choice-op ['.shuffle (cons 'list (cdr input))]])
+  (defmacro choice (input)
+    ['cora/lib/cml#choice-op ['cora/lib/cml#shuffle (cons 'list (cdr input))]])
 
-;; ;; perform performs an operation.
-;; ;; an operation consistent of [try block wrap]
-;; ;; Usage example:
-;; ;; (perform (choice
-;; ;; 	  (wrap (recv ch1)
-;; ;; 		   (lambda (v) ...))
-;; ;; 	  (wrap (send ch2)
-;; ;; 		   (lambda (v) ...))))
-(func .perform
-      [try block wrap] => (match (try)
-				 false (throw (lambda (k)
-						(begin
-						 (block k wrap)
-						 (.main))))
-				 v (wrap v)))
+  ;; ;; perform performs an operation.
+  ;; ;; an operation consistent of [try block wrap]
+  ;; ;; Usage example:
+  ;; ;; (perform (choice
+  ;; ;; 	  (wrap (recv ch1)
+  ;; ;; 		   (lambda (v) ...))
+  ;; ;; 	  (wrap (send ch2)
+  ;; ;; 		   (lambda (v) ...))))
+  (func perform
+	[try block wrap] => (match (try)
+			      false (throw (lambda (k)
+					     (begin
+					       (block k wrap)
+					       (main))))
+			      v (wrap v)))
+  )
 

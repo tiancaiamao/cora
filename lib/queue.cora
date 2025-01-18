@@ -1,25 +1,30 @@
 ;; use two stack to implement a list
-(defun .make ()
-  (let q (vector 2)
-       (begin
+(define-library "cora/lib/queue"
+
+  (export queue-make enqueue dequeue queue-empty?)
+
+  (defun queue-make ()
+    (let q (vector 2)
+      (begin
 	(vector-set! q 0 ())
 	(vector-set! q 1 ())
 	q)))
 
-(defun .enqueue (q x)
-  (vector-set! q 0 (cons x (vector-ref q 0))))
+  (defun enqueue (q x)
+    (vector-set! q 0 (cons x (vector-ref q 0))))
 
-(defun .dequeue (q)
-  (begin
-   (if (null? (vector-ref q 1))
-       (begin
-	(vector-set! q 1 (reverse (vector-ref q 0)))
-	(vector-set! q 0 ()))
-       ())
-   (let ret (car (vector-ref q 1))
+  (defun dequeue (q)
+    (begin
+      (if (null? (vector-ref q 1))
+	  (begin
+	    (vector-set! q 1 (reverse (vector-ref q 0)))
+	    (vector-set! q 0 ()))
+	  ())
+      (let ret (car (vector-ref q 1))
 	(begin
-	 (vector-set! q 1 (cdr (vector-ref q 1)))
-	 ret))))
+	  (vector-set! q 1 (cdr (vector-ref q 1)))
+	  ret))))
 
-(defun .empty? (q)
+  (defun queue-empty? (q)
     (and (null? (vector-ref q 0)) (null? (vector-ref q 1))))
+  )
