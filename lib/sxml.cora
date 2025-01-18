@@ -1,106 +1,110 @@
-(import "cora/lib/let-loop")
-(@import "cora/lib/string" string)
+(define-library "cora/lib/sxml"
 
-(defun make-buffer ()
- (let v (vector 2)
-  cap 16
-  (begin
-   (vector-set! v 0 (bytes cap))
-   (vector-set! v 1 0)
-   v)))
+  (import "cora/lib/let-loop")
+  (import "cora/lib/string")
 
-(defun .buffer-bytes (buf)
-   (vector-ref buf 0))
+  (defun make-buffer ()
+    (let v (vector 2)
+      cap 16
+      (begin
+	(vector-set! v 0 (bytes cap))
+	(vector-set! v 1 0)
+	v)))
 
-(defun .buffer-size (buf)
-   (vector-ref buf 1))
+  (defun .buffer-bytes (buf)
+    (vector-ref buf 0))
 
-(defun .buffer-cap (buf)
-   (bytes-length (.buffer-bytes buf)))
+  (defun .buffer-size (buf)
+    (vector-ref buf 1))
 
-(defun buffer->string (buf)
- (vector-ref buf 0))
+  (defun .buffer-cap (buf)
+    (bytes-length (.buffer-bytes buf)))
 
-(defun .next-size (size)
- (if (< size 1024)
-  (* size 2)
-  (+ size (/ size 2))))
+  (defun buffer->string (buf)
+    (vector-ref buf 0))
 
-(defun buffer-append (buf str)
- (let new-size (+ (.buffer-size buf) (bytes-length str))
-  (begin
-   (if (> new-size (.buffer-cap buf))
-	(let new-data (bytes (.next-size new-size))
-	 (begin
+  (defun .next-size (size)
+    (if (< size 1024)
+	(* size 2)
+	(+ size (/ size 2))))
+
+  (defun buffer-append (buf str)
+    (let new-size (+ (.buffer-size buf) (bytes-length str))
+      (begin
+	(if (> new-size (.buffer-cap buf))
+	    (let new-data (bytes (.next-size new-size))
+	      (begin
 		(string.memcpy new-data 0 (.buffer-bytes buf) 0 (.buffer-size buf))
 		(vector-set! buf 0 new-data)
 		(vector-set! buf 1 (.buffer-size buf))))
-	())
-   (string.memcpy (.buffer-bytes buf) (.buffer-size buf) str 0 (bytes-length str))
-   (vector-set! buf 1 new-size))))
-				
-(defun output (buf data)
- (cond
-  ((string? data) (buffer-append buf data))
-  ((number? data) (buffer-append buf (string.number->string data)))))
+	    ())
+	(string.memcpy (.buffer-bytes buf) (.buffer-size buf) str 0 (bytes-length str))
+	(vector-set! buf 1 new-size))))
+  
+  (defun output (buf data)
+    (cond
+     ((string? data) (buffer-append buf data))
+     ((number? data) (buffer-append buf (string.number->string data)))))
 
-(defun .string->escaped-xml (str buf)
-  (let len (string.length str)
-       (let-loop recur (i 0)
-		 (if (< i len)
-		     (begin
+  (defun .string->escaped-xml (str buf)
+    (let len (string.length str)
+      (let-loop recur (i 0)
+		(if (< i len)
+		    (begin
 		      (let c (string.byte-ref str i)
-			   (cond
-			     ((= c 34) (buffer-append buf "&quot;"))  ;; "
-			     ((= c 38) (buffer-append buf "&amp;"))  ;; &
-			     ((= c 92) (buffer-append buf "&apos;"))  ;; \
-			     ((= c 60) (buffer-append buf "&lt;"))  ;; <
-			     ((= c 62) (buffer-append buf "&gt;"))  ;; >
-			     (true (buffer-append buf (string.index str i)))))
+			(cond
+			 ((= c 34) (buffer-append buf "&quot;"))  ;; "
+			 ((= c 38) (buffer-append buf "&amp;"))  ;; &
+			 ((= c 92) (buffer-append buf "&apos;"))  ;; \
+			 ((= c 60) (buffer-append buf "&lt;"))  ;; <
+			 ((= c 62) (buffer-append buf "&gt;"))  ;; >
+			 (true (buffer-append buf (string.index str i)))))
 		      (recur (+ i 1)))
-		     ()))))
+		    ()))))
 
-(defun .attribute-value->xml (val buf)
-  (cond
-    ((string? val) (.string->escaped-xml val buf))
-    ((number? val) (buffer-append buf (string.number->string val)))))
+  (defun .attribute-value->xml (val buf)
+    (cond
+     ((string? val) (.string->escaped-xml val buf))
+     ((number? val) (buffer-append buf (string.number->string val)))))
 
-(defun .attribute->xml (attrs buf)
-  (for-each (lambda (attr)
-	      (if (symbol? attr) ;; attr key no value equate to value is 'false'
-		  (begin
-		   (output buf " ")
-		   (output buf (symbol->string attr)))
-		  (begin
-		   (output buf " ")
-		   (output buf (symbol->string (car attr)))
-		   (output buf "=\"")
-		   (.attribute-value->xml (cadr attr) buf)
-		   (output buf "\"")))) attrs))
+  (defun .attribute->xml (attrs buf)
+    (for-each (lambda (attr)
+		(if (symbol? attr) ;; attr key no value equate to value is 'false'
+		    (begin
+		      (output buf " ")
+		      (output buf (symbol->string attr)))
+		    (begin
+		      (output buf " ")
+		      (output buf (symbol->string (car attr)))
+		      (output buf "=\"")
+		      (.attribute-value->xml (cadr attr) buf)
+		      (output buf "\"")))) attrs))
 
-(defun .element->xml (tag attrs body buf)
- (begin
-  (output buf "<")
-  (output buf (symbol->string tag))
-  (.attribute->xml attrs buf)
-  (if (null? body)
-   (output buf " />")
-   (begin
-	(output buf ">")
-	(for-each (lambda (v) (.sxml->xml-h buf v)) body)
-	(output buf "</")
-	(output buf (symbol->string tag))
-	(output buf ">")))))
+  (defun .element->xml (tag attrs body buf)
+    (begin
+      (output buf "<")
+      (output buf (symbol->string tag))
+      (.attribute->xml attrs buf)
+      (if (null? body)
+	  (output buf " />")
+	  (begin
+	    (output buf ">")
+	    (for-each (lambda (v) (.sxml->xml-h buf v)) body)
+	    (output buf "</")
+	    (output buf (symbol->string tag))
+	    (output buf ">")))))
 
-(func .sxml->xml-h
-		buf [sym ['@ . attrs] . body] => (.element->xml sym attrs body buf) where (symbol? sym)
-		buf [sym . body] => (.element->xml sym () body buf) where (symbol? sym)
-		;; buf [sym . body] => 42 where (symbol? sym)
-		buf str => (.string->escaped-xml str buf) where (string? str)
-		buf [c . more] => (begin (.sxml->xml-h buf c) (.sxml->xml-h buf more)))
+  (func .sxml->xml-h
+	buf [sym ['@ . attrs] . body] => (.element->xml sym attrs body buf) where (symbol? sym)
+	buf [sym . body] => (.element->xml sym () body buf) where (symbol? sym)
+	;; buf [sym . body] => 42 where (symbol? sym)
+	buf str => (.string->escaped-xml str buf) where (string? str)
+	buf [c . more] => (begin (.sxml->xml-h buf c) (.sxml->xml-h buf more)))
 
-(defun sxml->xml (sx)
-  (let buf (make-buffer)
-       (begin
+  (defun sxml->xml (sx)
+    (let buf (make-buffer)
+      (begin
 	(.sxml->xml-h buf sx)
 	(.buffer-bytes buf))))
+
+  )

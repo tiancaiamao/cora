@@ -1,17 +1,20 @@
-(@import "cora/lib/net" net)
-(@import "cora/lib/io" io)
-(@import "cora/lib/async" async)
-(@import "cora/lib/cml" cml)
+(define-library "cora/example/async/client"
 
-(defun client-main ()
-  (let fd (net.dial "127.0.0.1:8080")
-       buf (net.make-buffer 11)
-       (begin
-	(async.recv fd buf)
-	(io.display buf)
-	(io.display "\n")
-	(async.send fd "hello arthur")
-	(net.close fd))))
+  (import "cora/lib/net")
+  (import "cora/lib/io")
+  (import "cora/lib/async")
+  (import "cora/lib/cml")
 
-(cml.spawn client-main)
-(cml.main)
+  (defun client-main ()
+    (let fd (dial "127.0.0.1:8080")
+      buf (make-buffer 11)
+      (begin
+	(recv fd buf)
+	(display buf)
+	(display "\n")
+	(send fd "hello arthur")
+	(net-close fd))))
+
+  (spawn client-main)
+  (main)
+  )

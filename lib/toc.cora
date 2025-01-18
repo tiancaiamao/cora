@@ -1,5 +1,4 @@
 (define-library "cora/lib/toc"
-
   (import "cora/lib/toc/internal")
   (import "cora/lib/io")
 

@@ -1,72 +1,76 @@
 ;; this is a dead simple hash, it doesn't support resize, and handle hash collision with seperate chaining
 ;; then seperate chaining is simply a assoc list
-(@import "cora/lib/hash-h" internal)
+(define-library "cora/lib/hash"
+  (import "cora/lib/hash-h")
+  (export hash-make hash-get hash-count hash-set! hash-del!)
 
-(func .assoc
-      key [] => []
-      key [[x . y] . more] => [x . y] where (= key x)
-      key [_ . more] => (.assoc key more))
+  (func assoc
+	key [] => []
+	key [[x . y] . more] => [x . y] where (= key x)
+	key [_ . more] => (assoc key more))
 
-(func .assoc-set
-      key value [] => [[key . value]]
-      key value [[k1 . _] . more] => [[key . value] . more] where (= key k1)
-      key value [x . more] => [x . (.assoc-set key value more)])
+  (func assoc-set
+	key value [] => [[key . value]]
+	key value [[k1 . _] . more] => [[key . value] . more] where (= key k1)
+	key value [x . more] => [x . (assoc-set key value more)])
 
-(func .assoc-rm
-      key [] => []
-      key [[key . _] . more] => more
-      key [x . more] => [x . (.assoc-rm key x more)])
+  (func assoc-rm
+	key [] => []
+	key [[key . _] . more] => more
+	key [x . more] => [x . (assoc-rm key x more)])
 
-(defun .make (n)
-  (let h (vector (+ 3 n))
-       (begin
+  (defun hash-make (n)
+    (let h (vector (+ 3 n))
+      (begin
 	(vector-set! h 0 'hash) ;; tag
 	(vector-set! h 1 0) ;; size
 	(vector-set! h 2 n) ;; cap
 	h)))
 
-(defun .hash? (h)
-  (and (vector? h)
-       (= (vector-ref h 0) 'hash)))
-       
-(defun .count (h)
-  (vector-ref h 1))
-    
-(defun .capacity (h)
-  (vector-ref h 2))
+  (defun hash? (h)
+    (and (vector? h)
+	 (= (vector-ref h 0) 'hash)))
+  
+  (defun hash-count (h)
+    (vector-ref h 1))
+  
+  (defun capacity (h)
+    (vector-ref h 2))
 
-(defun .list? (x)
-  (or (null? x) (cons? x)))
+  (defun list? (x)
+    (or (null? x) (cons? x)))
 
-(defun .hash-bucket-get (h idx)
-  (let ret (vector-ref h (+ idx 3))
-       (if (.list? ret) ret ()))) ;; the slot data maybe not initialized.
+  (defun hash-bucket-get (h idx)
+    (let ret (vector-ref h (+ idx 3))
+      (if (list? ret) ret ()))) ;; the slot data maybe not initialized.
 
-(defun .hash-bucket-set! (h idx)
-  (vector-set! h (+ idx 3)))
+  (defun hash-bucket-set! (h idx)
+    (vector-set! h (+ idx 3)))
 
-(defun .get (h key)
-  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
-       (let bucket (.hash-bucket-get h idx)
-	    (.assoc key bucket))))
+  (defun hash-get (h key)
+    (let idx (mod (hash-to-number key) (capacity h))
+      (let bucket (hash-bucket-get h idx)
+	(assoc key bucket))))
 
-(defun .set! (h key value)
-  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
-       (let old-bucket (.hash-bucket-get h idx)
+  (defun hash-set! (h key value)
+    (let idx (mod (hash-to-number key) (capacity h))
+      (let old-bucket (hash-bucket-get h idx)
+	(begin
+	  (let exist (assoc key old-bucket)
+	    (if (null? exist)
+		(vector-set! h 1 (+ (hash-count h) 1))
+		()))
+	  (let new-bucket (assoc-set key value old-bucket)
+	    (hash-bucket-set! h idx new-bucket))))))
+
+  (defun hash-del! (h key)
+    (let idx (mod (hash-to-number key) (capacity h))
+      (let old-bucket (hash-bucket-get h idx)
+	(if (null? (assoc key old-bucket))
+	    ()
 	    (begin
-	     (let exist (.assoc key old-bucket)
-		  (if (null? exist)
-		      (vector-set! h 1 (+ (.count h) 1))
-		      ()))
-	     (let new-bucket (.assoc-set key value old-bucket)
-		  (.hash-bucket-set! h idx new-bucket))))))
+	      (let new-bucket (assoc-rm key old-bucket)
+		(hash-bucket-set! h idx new-bucket))
+	      (vector-set! h 1 (- (hash-count h) 1)))))))
 
-(defun .del! (h key)
-  (let idx (internal.mod (internal.hash-to-number key) (.capacity h))
-       (let old-bucket (.hash-bucket-get h idx)
-	    (if (null? (.assoc key old-bucket))
-		()
-		(begin
-		 (let new-bucket (.assoc-rm key old-bucket)
-		      (.hash-bucket-set! h idx new-bucket))
-		 (vector-set! h 1 (- (.count h) 1)))))))
+  )

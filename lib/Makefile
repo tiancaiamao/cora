@@ -10,7 +10,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 clean:
-	rm -rf *.o *.so
+	rm -rf *.o *.so toc/internal.so
 
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora

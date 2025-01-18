@@ -1,159 +1,121 @@
-(import "cora/lib/sys")
-(@import "cora/lib/io" io)
-(@import "cora/lib/net" net)
-(@import "cora/lib/queue" queue)
-(@import "cora/lib/hash" hash)
-(@import "cora/lib/cml" cml)
+(define-library "cora/lib/async"
 
-(set '.block-queue (hash.make 64))
-(defun .add-blocked-queue (fd val)
-  (hash.set! .block-queue fd val))
-(defun .remove-blocked-queue (fd)
-  (hash.del! .block-queue fd))
-(defun .blocked-queue-empty? ()
-  (= 0 (hash.count .block-queue)))
-(defun .find-blocked-by-fd (fd)
-  (cdr (hash.get .block-queue fd)))
+  (import "cora/lib/sys")
+  (import "cora/lib/io")
+  (import "cora/lib/net")
+  (import "cora/lib/queue")
+  (import "cora/lib/hash")
+  (import "cora/lib/cml")
 
-(func .recv-handler
-      [fd buf pos] k => (begin
-			 ;; (io.display "run in recv-handler\n")
-			 (match (net.recv fd buf pos)
-				[block pos] (begin
-					     (.add-blocked-queue fd ['Recv fd buf pos k])
-					     (net.poll-add fd 'read)
-					     ;; (io.display "recv-handler block and go to scheduler\n")
-					     (cml.schedule)
-					     ;; (io.display "finish schedule in recv-handler")
-					     )
-				res (begin
-				     ;; (io.display "before recv handler direct return\n")
-				     (cml.spawn (lambda () (k res)))
-				     ;; (io.display "after recv handler direct return\n")
-				     ))))
+  (export recv send accept)
 
-(defun .recv-op (fd buf pos)
-  (let try (lambda () false)
-       block (lambda (k wrap)
-	       (begin
-		(.add-blocked-queue fd ['Recv fd buf pos k])
-		(net.poll-add fd 'read)))
-       [try block default-wrap]))
+  (def block-queue (hash-make 64))
+  (defun add-blocked-queue (fd val)
+    (hash-set! block-queue fd val))
+  (defun remove-blocked-queue (fd)
+    (hash-del! block-queue fd))
+  (defun blocked-queue-empty? ()
+    (= 0 (hash-count block-queue)))
+  (defun find-blocked-by-fd (fd)
+    (cdr (hash-get block-queue fd)))
 
-(defun .recv (fd buf)
-  (begin
-   ;; (io.display "in recv ---\n")
-   (cml.perform (.recv-op fd buf 0))))
-
-(func .send-handler
-      [fd buf pos] k => (match (net.send fd buf pos)
-			       [block pos] (begin
-					    (.add-blocked-queue fd ['Send fd buf pos k])
-					    (net.poll-add fd 'write)
-					    ;; (io.display "send-handler block and go to schedule\n")
-					    (cml.schedule)
-					    ;; (io.display "finish send-handler\n")
+  (func recv-handler
+	[fd buf pos] k => (begin
+			    ;; (display "run in recv-handler\n")
+			    (match (net-recv fd buf pos)
+			      [block pos] (begin
+					    (add-blocked-queue fd ['Recv fd buf pos k])
+					    (net-poll-add fd 'read)
+					    ;; (display "recv-handler block and go to scheduler\n")
+					    (schedule)
+					    ;; (display "finish schedule in recv-handler")
 					    )
-			       res (cml.spawn (lambda () (k res))))
-      _ k => (io.display "wrong argument for send-handler\n"))
+			      res (begin
+				    ;; (display "before recv handler direct return\n")
+				    (spawn (lambda () (k res)))
+				    ;; (display "after recv handler direct return\n")
+				    ))))
 
-(defun .send-op (fd buf pos)
-  (let try (lambda () false)
-       block (lambda (k wrap)
-	       (begin
-		(.add-blocked-queue fd ['Send fd buf pos k])
-		(net.poll-add fd 'write)))
-       [try block default-wrap]))
+  (defun default-wrap (x) x)
 
-(defun .send (fd buf)
-  (begin
-   (cml.perform (.send-op fd buf 0))
-   ;; (io.display buf)
-   ;; (io.display "send success!\n")
-   ))
+  (defun recv-op (fd buf pos)
+    (let try (lambda () false)
+      block (lambda (k wrap)
+	      (begin
+		(add-blocked-queue fd ['Recv fd buf pos k])
+		(net-poll-add fd 'read)))
+      [try block default-wrap]))
 
-(defun .accept-op (ln)
-  (let try (lambda () false)
-       block (lambda (k wrap)
-	       (begin
-		(.add-blocked-queue ln ['Accept ln k])
-		(net.poll-add ln 'read)))
-       [try block default-wrap]))
-  
-(defun .accept (ln)
-  (cml.perform (.accept-op ln)))
+  (defun recv (fd buf)
+    (begin
+      ;; (display "in recv ---\n")
+      (perform (recv-op fd buf 0))))
 
-(defun .scheduler (timeout)
-  (if (.blocked-queue-empty?)
-      (begin
-       ;; (io.display "block queue empty!!\n")
-       false) ;; no more task
-      (let ready-fds (net.poll timeout)
-	   (or (null? ready-fds)
-	       (begin
-		;; (io.display ready-fds)
-		;; (io.display "ready-blocks\n")
+  (func send-handler
+	[fd buf pos] k => (match (net-send fd buf pos)
+			    [block pos] (begin
+					  (add-blocked-queue fd ['Send fd buf pos k])
+					  (net-poll-add fd 'write)
+					  ;; (display "send-handler block and go to schedule\n")
+					  (schedule)
+					  ;; (display "finish send-handler\n")
+					  )
+			    res (spawn (lambda () (k res))))
+	_ k => (display "wrong argument for send-handler\n"))
+
+
+  (defun send-op (fd buf pos)
+    (let try (lambda () false)
+      block (lambda (k wrap)
+	      (begin
+		(add-blocked-queue fd ['Send fd buf pos k])
+		(net-poll-add fd 'write)))
+      [try block default-wrap]))
+
+  (defun send (fd buf)
+    (begin
+      (perform (send-op fd buf 0))
+      ;; (display buf)
+      ;; (display "send success!\n")
+      ))
+
+  (defun accept-op (ln)
+    (let try (lambda () false)
+      block (lambda (k wrap)
+	      (begin
+		(add-blocked-queue ln ['Accept ln k])
+		(net-poll-add ln 'read)))
+      [try block default-wrap]))
+
+  (defun accept (ln)
+    (perform (accept-op ln)))
+
+  (defun scheduler (timeout)
+    (if (blocked-queue-empty?)
+	(begin
+	  ;; (display "block queue empty!!\n")
+	  false) ;; no more task
+	(let ready-fds (net-poll timeout)
+	  (or (null? ready-fds)
+	      (begin
+		;; (display ready-fds)
+		;; (display "ready-blocks\n")
 		(for-each (lambda (fd)
-			    (let msg (.find-blocked-by-fd fd)
-				 (begin
-				  ;; (io.display "poll find blocked fd")
-				  ;; (io.display msg)
-				  ;; (io.display "\n")
-				  (match msg
-					 ['Send fd buf pos k] (.send-handler [fd buf pos] k)
-					 ['Recv fd buf pos k] (.recv-handler [fd buf pos] k)
-					 ['Accept fd k] (cml.spawn (lambda () (k (net.accept fd))))
-					 _ (error "don't know how to handle task?"))
-				  ;; (io.display fd)
-				  ;; (io.display "remove blocked queue\n")
-				  (.remove-blocked-queue fd))))
+			    (let msg (find-blocked-by-fd fd)
+			      (begin
+				;; (display "poll find blocked fd")
+				;; (display msg)
+				;; (display "\n")
+				(match msg
+				  ['Send fd buf pos k] (send-handler [fd buf pos] k)
+				  ['Recv fd buf pos k] (recv-handler [fd buf pos] k)
+				  ['Accept fd k] (spawn (lambda () (k (net-accept fd))))
+				  _ (error "don't know how to handle task?"))
+				;; (display fd)
+				;; (display "remove blocked queue\n")
+				(remove-blocked-queue fd))))
 			  ready-fds)
 		true)))))
 
-(cml.register-scheduler .scheduler)
-
-
-;; (@import "cora/lib/net" net)
-;; (@import "cora/lib/io" io)
-;; (@import "cora/lib/async" async)
-;; (@import "cora/lib/cml" cml)
-
-;; (defun accept-loop (ln)
-;;   (let fd (async.accept ln)
-;;        (begin
-;; 	(io.display "accept a new conn\n")
-;; 	(cml.spawn (lambda ()
-;; 			   (begin
-;; 			    (io.display "handle conn in new coroutine\n")
-;; 			    (handle-conn fd))))
-;; 	(accept-loop ln))))
-
-;; (defun handle-conn (fd)
-;;   (let v (async.send fd "hello world")
-;;        (let buf (net.make-buffer 12)
-;; 	    (begin
-;; 	     (async.recv fd buf)
-;; 	     (io.display buf)
-;; 	     (net.close fd)
-;; 	     (io.display "after close fd!!!\n")))))
-
-;; (defun server-main ()
-;;   (let ln (net.listen "127.0.0.1:8080")
-;;        (accept-loop ln)))
-
-;; (cml.spawn server-main)
-;; (cml.main)
-
-
-;; (defun client-main ()
-;;   (let fd (net.dial "127.0.0.1:8080")
-;;        buf (net.make-buffer 11)
-;;        (begin
-;; 	(async.recv fd buf)
-;; 	(io.display buf)
-;; 	(io.display "\n")
-;; 	(async.send fd "hello arthur")
-;; 	(net.close fd))))
-
-;; (cml.spawn client-main)
-;; (cml.main)
+  (register-scheduler scheduler)
+  )

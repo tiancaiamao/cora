@@ -11,7 +11,7 @@ builtinN(struct Cora *co) {
 struct registerModule ioModule = {
   NULL,
   {
-    {"N", builtinN, 1},
+    {"randN", builtinN, 1},
     /* {NULL, NULL, 0} */
   }
 };

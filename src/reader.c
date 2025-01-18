@@ -8,13 +8,6 @@
 
 extern Obj primSet(struct Cora *co, Obj key, Obj val);
 
-static void
-addPkgMapping(struct SexpReader *r, Obj sym, Obj path) {
-	Obj var = intern("*package-mapping*");
-	Obj pkgMapping = symbolGet(var);
-	primSet(r->co, var, cons(cons(sym, path), pkgMapping));
-}
-
 static bool
 isIdentifierChar(int c) {
 	switch (c) {
@@ -74,26 +67,6 @@ readCons(struct SexpReader *r, FILE * in, int *errCode) {
 
 	/* read list */
 	Obj tl = readCons(r, in, errCode);
-
-	if (issymbol(hd) && strcmp(symbolStr(hd), "@import") == 0) {
-		// Handle the @import reader macro
-		// (@import "path/to/file" sym)
-		hd = intern("import");
-		if (iscons(tl)) {
-			Obj path = car(tl);
-			if (isBytes(path)) {
-				if (iscons(cdr(tl))) {
-					Obj sym = cadr(tl);
-					if (issymbol(sym)) {
-						addPkgMapping(r, sym, path);
-						return cons(hd,
-							    cons(path, Nil));
-					}
-				}
-			}
-		}
-	}
-
 	return cons(hd, tl);
 }
 
@@ -211,12 +184,12 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 	}
 	// read a symbol
 	if (isIdentifierChar(c)) {
-		int firstDot = -1;
+		/* int firstDot = -1; */
 		i = 0;
 		while (isIdentifierChar(c)) {
 			buffer[i] = c;
 			if (c == '.') {
-				firstDot = i;
+				/* firstDot = i; */
 			}
 			i++;
 			c = getc(in);
@@ -240,44 +213,6 @@ sexpRead(struct SexpReader *r, FILE * in, int *errCode) {
 			if (allDigit) {
 				Obj num = makeNumber(atoi(buffer));
 				return num;
-			}
-		}
-		if (firstDot >= 0) {
-			char *pkgPath = NULL;
-			if (firstDot == 0) {
-				pkgPath = r->selfPath;
-			} else if (firstDot > 0) {
-				char saveByte = buffer[firstDot];
-				buffer[firstDot] = 0;
-				Obj pkg = makeSymbol(buffer);
-
-				Obj p = symbolGet(intern
-						  ("*package-mapping*"));
-				/* Obj p = r->pkgMapping; */
-				for (; p != Nil; p = cdr(p)) {
-					Obj item = car(p);
-					if (car(item) == pkg) {
-						pkgPath =
-							stringStr(cdr(item)).
-							str;
-						break;
-					}
-				}
-				if (p == Nil) {
-					buffer[firstDot] = saveByte;
-				}
-			}
-
-			if (pkgPath != NULL) {
-				char tmp[512];
-				int len1 = strlen(pkgPath);
-				memcpy(tmp, pkgPath, len1);
-				tmp[len1] = '#';
-				int len2 = strlen(buffer + firstDot + 1);
-				memcpy(tmp + len1 + 1, buffer + firstDot + 1,
-				       len2);
-				tmp[len1 + 1 + len2] = '\0';
-				return makeSymbol(tmp);
 			}
 		}
 		return makeSymbol(buffer);

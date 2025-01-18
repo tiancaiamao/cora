@@ -12,26 +12,31 @@
 ;; 		 (recur (+ n 1) (+ sum n)))))
 ;;      (f f))
 
-(func extract-params-h
-      res [] => (reverse res)
-      res [x y . l] => (extract-params-h [x . res] l))
+(define-library "cora/lib/let-loop"
+  
 
-(func extract-init-h
-      res [] => (reverse res)
-      res [x y . l] => (extract-init-h [y . res] l))
+  (func extract-params-h
+	res [] => (reverse res)
+	res [x y . l] => (extract-params-h [x . res] l))
 
-(func rewrite-let-loop-macro
-      [recur param-init body] => (let params (extract-params-h [] param-init)
-                                    inits (extract-init-h [] param-init)
-				    meta (gensym 'meta)
-				    f (gensym 'f)
-				    [['let f ['lambda [meta . params]
-				    	      	  ['let recur [meta meta]
-				    	     	    body]]
+  (func extract-init-h
+	res [] => (reverse res)
+	res [x y . l] => (extract-init-h [y . res] l))
+
+  (func rewrite-let-loop-macro
+	[recur param-init body] => (let params (extract-params-h [] param-init)
+				     inits (extract-init-h [] param-init)
+				     meta (gensym 'meta)
+				     f (gensym 'f)
+				     [['let f ['lambda [meta . params]
+						['let recur [meta meta]
+						  body]]
 					[f f]] . inits]))
 
-(defmacro let-loop (exp)
-  (rewrite-let-loop-macro (cdr exp)))
+  (defmacro let-loop (exp)
+    (rewrite-let-loop-macro (cdr exp)))
+
+  )
 
 ;; (func fold
 ;;       acc fn [] => acc

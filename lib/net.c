@@ -270,13 +270,13 @@ struct registerModule netModule = {
   {
    {"make-buffer", makeBuffer, 1},
    {"dial", netDial, 1},
-   {"poll", netPoll, 1},
-   {"poll-add", pollAdd, 2},
-   {"send", netSend, 3},
-   {"recv", netRecv, 3},
+   {"net-poll", netPoll, 1},
+   {"net-poll-add", pollAdd, 2},
+   {"net-send", netSend, 3},
+   {"net-recv", netRecv, 3},
    {"listen", netListen, 1},
-   {"accept", netAccept, 1},
-   {"close", netClose, 1},
+   {"net-accept", netAccept, 1},
+   {"net-close", netClose, 1},
    {NULL, NULL, 0}
   }
 };

@@ -30,8 +30,6 @@
 ;; =============== The macro utilities ============
 (set '*macros* ())
 (set '*protect-symbol* (gensym 'protect))
-;; (set '.protect (lambda (x)
-;;                 (cons *protect-symbol* x)))
 (set 'cora/init#add-to-*macros*
      (lambda (n v)
        (set '*macros* (cons (cons n v) *macros*))))
