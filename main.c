@@ -1,30 +1,21 @@
 #include "runtime.h"
 
 
-extern void builtinLoadSo(struct Cora *co);
 extern void builtinImport(struct Cora *co);
 
 int main(int argc, char *argv[]) {
   uintptr_t dummy;
   struct Cora* co = coraNew();
   coraInit(co, &dummy);
-  Obj imported = intern("*imported*");
-
-  co->args[1] = makeCString("init.so");
-  co->args[2] = makeCString("cora/init");
-  co->nargs = 3;
-  trampoline(co, 0, builtinLoadSo);
-  primSet(co, imported, cons(makeCString("cora/init"), Nil));
-  /* primSet(co, imported, cons(makeCString("cora/lib/toc/internal"), symbolGet(imported))); */
-  
-  co->args[1] = makeCString("cora/lib/toc");
-  /* co->args[2] = makeCString(""); */
-  /* co->nargs = 3; */
+  co->args[1] = makeCString("cora/init");
   co->nargs = 2;
   trampoline(co, 0, builtinImport);
-  /* primSet(co, imported, cons(makeCString("cora/lib/toc"), symbolGet(imported))); */
   
-		struct SexpReader r = {co: co};
+  co->args[1] = makeCString("cora/lib/toc");
+  co->nargs = 2;
+  trampoline(co, 0, builtinImport);
+  
+  struct SexpReader r = {co: co};
   int errCode = 0;
 
   for (int i=0; ; i++) {

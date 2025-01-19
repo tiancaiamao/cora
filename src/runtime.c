@@ -643,7 +643,7 @@ void
 builtinImport(struct Cora *co) {
 	Obj pkg = co->args[1];
 	str pkgStr = stringStr(pkg);
-	Obj sym = intern("*imported*");
+	Obj sym = intern("cora/init#*imported*");
 	Obj imported = symbolGet(sym);
 
 	// Avoid repeated load.
@@ -858,7 +858,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	primSet(co, intern("*imported*"), Nil);
+	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(0, builtinSymbolCooked, 1, 0));
 }
