@@ -600,7 +600,6 @@ void
 builtinLoad(struct Cora *co) {
 	// (load "file-path.cora" "package-path")
 	Obj filePath = co->args[1];
-	Obj pkg = co->args[2];
 
 	co->nargs = 3;
 	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
@@ -631,7 +630,7 @@ builtinLoad(struct Cora *co) {
 	str tmpSoFile = cstr(buf);
 	co->nargs = 3;
 	co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
-	co->args[2] = pkg;
+	co->args[2] = makeCString("");
 	co->ctx.pc.func = builtinLoadSo;
 	return;
 }
@@ -846,7 +845,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
 	primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
-	primSet(co, intern("load"), makeNative(0, builtinLoad, 2, 0));
+	primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
 	primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
 	primSet(co, intern("vector-set!"),
 		makeNative(0, builtinVectorSet, 3, 0));
