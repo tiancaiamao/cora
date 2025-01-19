@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 struct SexpReader {
-		char *selfPath;
 		struct Cora *co;
 };
 

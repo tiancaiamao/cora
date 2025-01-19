@@ -741,9 +741,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 		goto exit0;
 	}
 
-	Obj pkg = co->args[2];
-	char *selfPath = stringStr(pkg).str;
-	struct SexpReader r = {.selfPath = selfPath,.co = co };
+	struct SexpReader r = {.co = co };
 	int err = 0;
 	int count = 0;
 	while (true) {
@@ -841,7 +839,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
 	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
-		makeNative(0, builtinReadFileAsSexp, 2, 0));
+		makeNative(0, builtinReadFileAsSexp, 1, 0));
 	primSet(co, intern("string-append"),
 		makeNative(0, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));

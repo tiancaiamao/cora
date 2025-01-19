@@ -539,7 +539,7 @@
   (set 'cora/lib/infer#*typecheck* false)
 
   (defun preprocess (file-path pkg-str)
-    (let sexp (read-file-as-sexp file-path pkg-str)
+    (let sexp (read-file-as-sexp file-path)
       (begin
 	(handle-import-eagerly sexp)
 	sexp)))

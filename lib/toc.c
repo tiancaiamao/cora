@@ -1516,10 +1516,9 @@ label18:
 Obj file_45path = __arg1;
 Obj pkg_45str = __arg2;
 pushCont(co, 17, _35clofun3140, 0);
-__nargs = 3;
+__nargs = 2;
 __arg0 = globalRef(intern("cora/init#read-file-as-sexp"));
 __arg1 = file_45path;
-__arg2 = pkg_45str;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
