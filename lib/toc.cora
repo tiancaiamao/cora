@@ -538,26 +538,21 @@
 
   (set 'cora/lib/infer#*typecheck* false)
 
-  (defun preprocess (file-path pkg-str)
+  (defun preprocess (file-path)
     (let sexp (read-file-as-sexp file-path)
       (begin
 	(handle-import-eagerly sexp)
 	sexp)))
-  ;; (split-type-and-code sexp () ()
-  ;; 		      (lambda (type code)
-  ;; 			(if cora/lib/infer#*typecheck*
-  ;; 			    (cons 'begin (append type code))
-  ;; 			    (cons 'begin code)))))))
 
-  (defun compile-to-c (from to pkg-str)
-    (let sexp1 (preprocess from pkg-str)
-      (let input (macroexpand sexp1)
-	(let bc (compile input)
-	  (let stream (open-output-file to)
-	    (begin
-	      (generate-c stream bc)
-	      (close-output-file stream)))))))
-
+  (defun compile-to-c (from to)
+    (let bc (-> from
+		preprocess
+		macroexpand
+		compile)
+      (let stream (open-output-file to)
+	(begin
+	  (generate-c stream bc)
+	  (close-output-file stream)))))
 
   ;; ============== utilities of eval0 ==========
 

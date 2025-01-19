@@ -602,7 +602,7 @@ builtinLoad(struct Cora *co) {
 	Obj filePath = co->args[1];
 	Obj pkg = co->args[2];
 
-	co->nargs = 4;
+	co->nargs = 3;
 	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
 	co->args[1] = filePath;
 
@@ -613,7 +613,6 @@ builtinLoad(struct Cora *co) {
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
-	co->args[3] = pkg;
 	trampoline(co, 0, coraDispatch);
 	// TODO: check res?
 	// Obj res = co->args[1];
