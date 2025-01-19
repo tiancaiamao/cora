@@ -56,18 +56,18 @@
      ((symbol-cooked? var) var)
      (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
 
-  (func lookup-var-h
-	s ns [] => ['%global (var-with-ns s ns)]
+  (func lookup-var
+	s ns [] => (var-with-ns s ns)
 	s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
 				  (if (elem? s export)
-				      ['%global (intern (string-append import (string-append "#" (symbol->string s))))]
-				      (lookup-var-h s ns more))))
+				      (intern (string-append import (string-append "#" (symbol->string s))))
+				      (lookup-var s ns more))))
 
   (func parse
 	_ _ _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
 	_ _ _ ['quote x] => ['%const x]
 	env ns import x => (if (elem? x env) x
-			       (lookup-var-h x ns import)) where (symbol? x)
+			       ['%global (lookup-var x ns import)]) where (symbol? x)
 			       env ns import ['lambda args body] => ['lambda args (parse (append args env) ns import body)]
 			       env ns import  ['if . args] => ['if . (map (parse env ns import) args)]
 			       env ns import ['do x y] => ['do (parse env ns import x) (parse env ns import y)]
@@ -575,12 +575,9 @@
 
   (defun eval0 (exp)
     (cond
-     ((symbol? exp) (value exp))
+     ((symbol? exp) (value (lookup-var exp "" *imported*)))
      ((or (number? exp) (string? exp) (boolean? exp) (null? exp))
       exp)
-     ((cons? exp)
-      (if (= (car exp) 'quote)
-	  (cadr exp)
-	  (apply (eval0 (car exp)) (map eval0 (cdr exp)))))))
-
+     (if (= (car exp) 'quote) (cadr exp)
+	 (apply (eval0 (car exp)) (map eval0 (cdr exp))))))
   )
