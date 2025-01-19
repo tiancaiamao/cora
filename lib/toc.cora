@@ -575,9 +575,12 @@
 
   (defun eval0 (exp)
     (cond
-     ((symbol? exp) (value (lookup-var exp "" *imported*)))
+     ((symbol? exp) (value exp))
      ((or (number? exp) (string? exp) (boolean? exp) (null? exp))
       exp)
-     (if (= (car exp) 'quote) (cadr exp)
-	 (apply (eval0 (car exp)) (map eval0 (cdr exp))))))
+     ((cons? exp)
+      (if (= (car exp) 'quote)
+	  (cadr exp)
+	  (apply (eval0 (car exp)) (map eval0 (cdr exp)))))))
+
   )
