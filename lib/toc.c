@@ -501,8 +501,8 @@ Obj _35reg2964 = primSet(co, intern("cora/lib/toc#generate-c"), makeNative(2, _3
 Obj _35reg2996 = primSet(co, intern("cora/lib/toc#handle-import-eagerly"), makeNative(8, _35clofun3140, 1, 0));
 Obj _35reg3037 = primSet(co, intern("cora/lib/toc#split-type-and-code"), makeNative(15, _35clofun3140, 4, 0));
 Obj _35reg3038 = primSet(co, intern("cora/lib/infer#*typecheck*"), False);
-Obj _35reg3041 = primSet(co, intern("cora/lib/toc#preprocess"), makeNative(18, _35clofun3140, 2, 0));
-Obj _35reg3047 = primSet(co, intern("cora/lib/toc#compile-to-c"), makeNative(3, _35clofun3141, 3, 0));
+Obj _35reg3041 = primSet(co, intern("cora/lib/toc#preprocess"), makeNative(18, _35clofun3140, 1, 0));
+Obj _35reg3047 = primSet(co, intern("cora/lib/toc#compile-to-c"), makeNative(3, _35clofun3141, 2, 0));
 Obj _35reg3049 = primSet(co, intern("set"), makeNative(4, _35clofun3141, 2, 0));
 Obj _35reg3051 = primSet(co, intern("car"), makeNative(5, _35clofun3141, 1, 0));
 Obj _35reg3053 = primSet(co, intern("cdr"), makeNative(6, _35clofun3141, 1, 0));
@@ -705,11 +705,10 @@ label1:
 {
 Obj _35val3043 = __arg1;
 Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj input = _35val3043;
 pushCont(co, 0, _35clofun3141, 1, to);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc#compile"));
-__arg1 = input;
+__arg1 = _35val3043;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -721,11 +720,10 @@ label2:
 {
 Obj _35val3042 = __arg1;
 Obj to= co->ctx.stk.stack[co->ctx.stk.base + 0];
-Obj sexp1 = _35val3042;
 pushCont(co, 1, _35clofun3141, 1, to);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#macroexpand"));
-__arg1 = sexp1;
+__arg1 = _35val3042;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -737,12 +735,10 @@ label3:
 {
 Obj from = __arg1;
 Obj to = __arg2;
-Obj pkg_45str = __arg3;
 pushCont(co, 2, _35clofun3141, 1, to);
-__nargs = 3;
+__nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc#preprocess"));
 __arg1 = from;
-__arg2 = pkg_45str;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -1514,12 +1510,10 @@ goto *jumpTable[ps.label];
 label18:
 {
 Obj file_45path = __arg1;
-Obj pkg_45str = __arg2;
 pushCont(co, 17, _35clofun3140, 0);
-__nargs = 3;
+__nargs = 2;
 __arg0 = globalRef(intern("cora/init#read-file-as-sexp"));
 __arg1 = file_45path;
-__arg2 = pkg_45str;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };

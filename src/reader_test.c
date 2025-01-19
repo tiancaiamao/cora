@@ -45,7 +45,6 @@ TestReaderMacro(struct Cora *co) {
 		{"'(a b c)", "(quote (a b c))"},
 		{"[1 2 3]", "(list 1 2 3)"},
 		{"[1 2 . 3]", "(list-rest 1 2 3)"},
-		"(import \"package/path\")"},
 		{"`(1 ,a 2 ,(a b) c)",
 		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};

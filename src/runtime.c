@@ -600,9 +600,8 @@ void
 builtinLoad(struct Cora *co) {
 	// (load "file-path.cora" "package-path")
 	Obj filePath = co->args[1];
-	Obj pkg = co->args[2];
 
-	co->nargs = 4;
+	co->nargs = 3;
 	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
 	co->args[1] = filePath;
 
@@ -613,7 +612,6 @@ builtinLoad(struct Cora *co) {
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
-	co->args[3] = pkg;
 	trampoline(co, 0, coraDispatch);
 	// TODO: check res?
 	// Obj res = co->args[1];
@@ -632,7 +630,7 @@ builtinLoad(struct Cora *co) {
 	str tmpSoFile = cstr(buf);
 	co->nargs = 3;
 	co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
-	co->args[2] = pkg;
+	co->args[2] = makeCString("");
 	co->ctx.pc.func = builtinLoadSo;
 	return;
 }
@@ -741,9 +739,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 		goto exit0;
 	}
 
-	Obj pkg = co->args[2];
-	char *selfPath = stringStr(pkg).str;
-	struct SexpReader r = {.selfPath = selfPath,.co = co };
+	struct SexpReader r = {.co = co };
 	int err = 0;
 	int count = 0;
 	while (true) {
@@ -841,7 +837,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
 	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
-		makeNative(0, builtinReadFileAsSexp, 2, 0));
+		makeNative(0, builtinReadFileAsSexp, 1, 0));
 	primSet(co, intern("string-append"),
 		makeNative(0, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
@@ -849,7 +845,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
 	primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
-	primSet(co, intern("load"), makeNative(0, builtinLoad, 2, 0));
+	primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
 	primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
 	primSet(co, intern("vector-set!"),
 		makeNative(0, builtinVectorSet, 3, 0));
