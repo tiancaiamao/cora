@@ -1,3 +1,7 @@
+;; this file does not use define-library deliberately
+;; if we use it, we need to either append cora/init#cora in C or write car as (value 'car) here
+;; if we do not use it, there are some duplicated definitions, both cadr and cora/init#cadr exist
+
 (set 'null? (lambda (x) (= x ())))
 (set 'cadr (lambda (x) (car (cdr x))))
 (set 'caar (lambda (x) (car (car x))))
@@ -387,7 +391,6 @@
 				   symbol-cooked?
 				   reverse map macroexpand elem?  length filter append))
 
-;; todo, cleanup later
 (set 'cora/init#cadr cadr)
 (set 'cora/init#caar caar)
 (set 'cora/init#cdar cdar)
