@@ -171,8 +171,8 @@ TestEvalBasic() {
 	};
 
 	struct VM *vm = newVM();
-	loadByteCode(vm, cstr("../init.bc"));
-	loadByteCode(vm, cstr("../compile.bc"));
+	loadByteCode(vm, S("../init.bc"));
+	loadByteCode(vm, S("../compile.bc"));
 	for (int i = 0; i < sizeof(cases) / sizeof(struct testCase); i++) {
 		struct testCase *c = &cases[i];
 
@@ -317,8 +317,8 @@ TestTryCatch() {
 	};
 
 	struct VM *vm = newVM();
-	loadByteCode(vm, cstr("../init.bc"));
-	loadByteCode(vm, cstr("../compile.bc"));
+	loadByteCode(vm, S("../init.bc"));
+	loadByteCode(vm, S("../compile.bc"));
 
 	/* char *pkgName = "cora/init"; */
 	/* eval(vm, cons(intern("import"), cons(makeString(pkgName, strlen(pkgName)), Nil))); */

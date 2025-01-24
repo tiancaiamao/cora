@@ -11,6 +11,7 @@ enum gcState {
 	gcStateNone = 0,
 	gcStateMark,
 	gcStateIncremental,
+	gcStateDone,
 };
 
 #define MEM_BLOCK_SIZE (4 * 1024)
@@ -174,8 +175,7 @@ struct GC {
 	struct heapArena *large;
 
 	// Initially, allocate objects version=0
-	// For every round of GC, the version+=2
-	// gc mark white->gray version+1, gray->black version+1
+	// For every round of GC, the version++,
 	// while dead object version keep unchanged
 	// If an object's version < gc version, it's garbage and sweeped lazily
 	int version;
@@ -236,7 +236,7 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->baseStackAddr = baseStackAddr;
 	// the first version start from 2 so uninitialized block can be treat the same
 	// as the garbage.
-	gc->version = 2;
+	gc->version = 1;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -285,20 +285,7 @@ inuse(struct GC *gc, scmHead * h) {
 	if (h->type == 0) {
 		return false;
 	}
-	if (gc->state == gcStateIncremental) {
-		// gc.version +2 already, and object.version is laggy
-		// when h is in this round of mark phase, it should not be recycled.
-		// for example:
-		//    gc.version == 6
-		//    object.version == 4 white
-		//    object.version == 5 gray
-		//    object.version == 6 black
-		return (h->version + 2) >= gc->version;
-	}
-	// gcStateNone or gcStateMark
-	// only white should exist.
-	assert((h->version & 1) == 0);
-	return h->version == gc->version;
+	return h->version >= gc->version;
 }
 
 static void gcRun(struct GC *gc);
@@ -317,7 +304,11 @@ getBlock(struct GC *gc, int slot) {
 static void
 allocDone(struct GC *gc, int size, scmHead * ret) {
 	ret->size = size;
-	ret->version = gc->version;
+	if (gc->state == gcStateNone) {
+		ret->version = gc->version;
+	} else {
+		ret->version = gc->version + 1;
+	}
 	gc->allocated += size;
 	// should trigger the next round of GC.
 	if (gc->allocated > gc->nextSize && gc->state == gcStateNone) {
@@ -485,6 +476,7 @@ gcAlloc(struct GC *gc, int size) {
 		gcRun(gc);
 	}
 	if (size >= MEM_BLOCK_SIZE) {
+		assert(false);
 		return gcAllocLargeObject(gc, size);
 	}
 	// calculate the size class for the allocation.
@@ -495,7 +487,8 @@ gcAlloc(struct GC *gc, int size) {
 		struct Block *b = getBlock(gc, slot);
 		ret = blockAlloc(gc, b);
 		if (ret != NULL) {
-			assert(ret->version < gc->version);
+			assert(ret->version == gc->version - 1 ||
+			       ret->type == 0);
 			break;
 		}
 		// Remove full block from the sizeClass list, wait GC to recycle them
@@ -541,7 +534,7 @@ gcEnqueue(struct GC *gc, scmHead * p) {
 		gc->end = 0;
 	}
 	// printf("gcEnqueue --%p %d %d %d\n", p, p->size, p->type, p->version);
-	p->version++;
+	p->version += 2;
 	*((scmHead **) (b->base + gc->end)) = p;
 	gc->end += sizeof(scmHead *);
 }
@@ -595,7 +588,6 @@ checkPointer(struct GC *gc, uintptr_t p) {
 		from = (scmHead *) b->base;
 		assert(from != NULL);
 	} else {
-
 		// Special block?
 		if (b->sizeClass == 0) {
 			return false;
@@ -609,12 +601,14 @@ checkPointer(struct GC *gc, uintptr_t p) {
 		}
 	}
 
-	// black or gray object
-	if (from->version == gc->version || from->version + 1 == gc->version) {
+	// black or gray object? avoid handle it repeatly
+	if (from->version > gc->version) {
 		return false;
 	}
 	// stale object? it should have been sweeped, but we defer the sweep lazily
-	if (from->version + 2 < gc->version) {
+	if (from->version < gc->version) {
+		// This could happen, for example, stack expand and shrink, the 'dead' object leave in the stack is not reset.
+		printf("WARNING: checkPointer meet stale object? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version);
 		return false;
 	}
 
@@ -666,8 +660,6 @@ extern void gcGlobal(struct GC *gc);
 static void
 gcRunMark(struct GC *gc) {
 	// printf("gcRun called ====, before and after:%d %d\n", gc->version, gc->version+2);
-	gc->version += 2;
-
 	gc->allocated = 0;
 	gc->inuseSize = 0;
 	gcQueueInit(gc);
@@ -679,7 +671,32 @@ gcRunMark(struct GC *gc) {
 }
 
 static void
-gcDoneAndReset(struct GC *gc) {
+gcRunIncremental(struct GC *gc) {
+	int N = 20;
+	// breadth first.
+	scmHead *curr = gcDequeue(gc);
+	while (curr != NULL) {
+		gcFunc fn = registry[curr->type];
+		if (fn != NULL) {
+			assert(curr->version == gc->version + 2);
+			fn(gc, curr);
+			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+		}
+		N--;
+		if (N == 0) {
+			return;
+		}
+		curr = gcDequeue(gc);
+	}
+
+	// printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	/* gc->version++; */
+	gc->state = gcStateDone;
+	return;
+}
+
+static void
+gcFlip(struct GC *gc) {
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -725,39 +742,66 @@ gcDoneAndReset(struct GC *gc) {
 		prev = h;
 		h = h->next;
 	}
+	gc->version++;
+	gc->state = gcStateNone;
 }
 
 static void
-gcRunIncremental(struct GC *gc) {
-	int N = 20;
-	// breadth first.
-	scmHead *curr = gcDequeue(gc);
-	while (curr != NULL) {
-		gcFunc fn = registry[curr->type];
-		if (fn != NULL) {
-			assert(curr->version + 1 == gc->version);
-			fn(gc, curr);
-			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+gcRunDone(struct GC *gc) {
+	// TODO: break the loop into small steps
+	for (int i = 0; i < sizeClassSZ; i++) {
+		struct Block *b = gc->sizeClass[i];
+		while (b != NULL) {
+			for (int j = 0; j < b->curr; j += b->sizeClass) {
+				scmHead *p = (scmHead *) (b->base + j);
+				assert(p->version >= gc->version);
+			}
+			for (int j = b->curr; j < MEM_BLOCK_SIZE;
+			     j += b->sizeClass) {
+				scmHead *p = (scmHead *) (b->base + j);
+				if (p->version == gc->version - 1) {
+					p->type = scmHeadUnused;
+				}
+			}
+			b = b->next;
 		}
-		N--;
-		if (N == 0) {
-			return;
-		}
-		curr = gcDequeue(gc);
 	}
 
-//              printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	for (struct heapArena * h = gc->large; h != NULL; h = h->next) {
+		for (int j = h->curr; j < h->idx; j++) {
+			scmHead *p = (scmHead *) (h->blocks[j].base);
+			if (p->version == gc->version - 1) {
+				p->type = scmHeadUnused;
+			}
+		}
+	}
+
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
 		gc->nextSize = MEM_BLOCK_SIZE;
 	}
-	gc->state = gcStateNone;
-	gcDoneAndReset(gc);
+	gcFlip(gc);
 }
 
 static void
 gcRun(struct GC *gc) {
+	// The object color is inspired by the Treadmill GC, HG Baker 1992
+	// The difference is that here version is used instead of colors
+	// ecru is gc->version, which is the color of currently inuse objects
+
+	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateDone | gcFlip  |
+	// | ---         | --          | --                 | --          | --      |
+	// | white       | white       | white              | white       |         |
+	// | ecru  <-    | ecru <-     | ecru <-            | ecru  <-    | white   |
+	// |             |             | black              | black       | ecru <- |
+	// |             |             | gray               |             |         |
+
+	// gcStateNone -> gcStateMark: start a new round of GC, mark root
+	// gcStateMark -> gcStateIncremental: mark root done, start incremental GC
+	// gcStateIncremental -> gcStateDone: incremental GC done, wait for white to be exhausted
+	// gcStateDone -> gcFlip: now only ecru and black, flip
+
 	switch (gc->state) {
 	case gcStateNone:
 		assert(false);
@@ -766,6 +810,9 @@ gcRun(struct GC *gc) {
 		break;
 	case gcStateIncremental:
 		gcRunIncremental(gc);
+		break;
+	case gcStateDone:
+		gcRunDone(gc);
 		break;
 	}
 }
