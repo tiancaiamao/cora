@@ -327,7 +327,7 @@ Obj
 primGenSym(Obj arg) {
 	assert(issymbol(arg));
 	char tmp[200];
-	snprintf(tmp, 100, "#%s%lu", symbolStr(arg), genIdx);
+	snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
 	genIdx++;
 	return makeSymbol(tmp);
 }

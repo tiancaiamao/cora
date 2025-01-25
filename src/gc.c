@@ -607,7 +607,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	// stale object? it should have been sweeped, but we defer the sweep lazily
 	if (from->version < gc->version) {
 		// This could happen, for example, stack expand and shrink, the 'dead' object leave in the stack is not reset.
-		printf("WARNING: checkPointer meet stale object? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version);
+		/* printf("WARNING: checkPointer meet stale object? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version); */
 		assert(from->type == 0 || from->version == gc->version - 1);
 		return false;
 	}
