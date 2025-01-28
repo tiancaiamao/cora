@@ -160,6 +160,12 @@ getSlotBySize(int size) {
 	return slot;
 }
 
+struct runDoneProgress {
+  int sizeClassPos;
+  struct Block *b;
+  struct heapArena *ha;
+};
+
 struct GC {
 	enum gcState state;
 	uintptr_t *baseStackAddr;
@@ -184,6 +190,9 @@ struct GC {
 	struct doubleLinkList gray;
 	int start;
 	int end;
+
+  // Save the current progress of gcRunDone state.
+  struct runDoneProgress progress;
 
 	int allocated;
 	int nextSize;
@@ -447,6 +456,13 @@ gcAllocLargeObject(struct GC *gc, int size) {
 		}
 		// This one is full, remove it from large list.
 		gc->large = ha->next;
+		if (gc->state == gcStateDone) {
+		  if (gc->progress.ha == ha) {
+		    gc->progress.ha = gc->large;
+		    printf("update gc progress in alloc large object");
+		  }
+		}
+
 		// Link it to heap list, wait GC to recycle them.
 		struct heapArena *heapHead = gcGetHeapArena(gc);
 		ha->next = heapHead->next;
@@ -490,10 +506,19 @@ gcAlloc(struct GC *gc, int size) {
 			       ret->type == 0);
 			break;
 		}
+
 		// Remove full block from the sizeClass list, wait GC to recycle them
 		gc->sizeClass[slot] = b->next;
 		b->next = NULL;
 		b->curr = 0;
+
+		// Help to update the progress.
+		if (gc->state == gcStateDone) {
+		  if (gc->progress.b == b) {
+		    gc->progress.b = gc->sizeClass[slot];
+		    printf("update gc progress in alloc object\n");
+		  }
+		}
 	}
 	allocDone(gc, size, ret);
 
@@ -689,14 +714,22 @@ gcRunIncremental(struct GC *gc) {
 		curr = gcDequeue(gc);
 	}
 
-	// printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
-	/* gc->version++; */
 	gc->state = gcStateDone;
+	gc->progress.sizeClassPos = 0;
+	gc->progress.b = NULL;
+	gc->progress.ha = gc->large;
 	return;
 }
 
 static void
 gcFlip(struct GC *gc) {
+	// printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
+	if (gc->nextSize < MEM_BLOCK_SIZE) {
+		// Because a block is at least that size, GC smaller then this is meanless.
+		gc->nextSize = MEM_BLOCK_SIZE;
+	}
+
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -755,56 +788,55 @@ gcFlip(struct GC *gc) {
 
 static void
 gcRunDone(struct GC *gc) {
-	// TODO: break the loop into small steps
-	for (int i = 0; i < sizeClassSZ; i++) {
-		struct Block *b = gc->sizeClass[i];
-		while (b != NULL) {
-			for (int j = 0; j < b->curr; j += b->sizeClass) {
-				scmHead *p = (scmHead *) (b->base + j);
-				assert(p->version >= gc->version);
-			}
-			for (int j = b->curr; j < MEM_BLOCK_SIZE;
-			     j += b->sizeClass) {
-				scmHead *p = (scmHead *) (b->base + j);
-				if (p->version == gc->version - 1) {
-					p->type = scmHeadUnused;
-				}
-			}
-			b = b->next;
-		}
-	}
+  struct runDoneProgress *pg = &gc->progress;
+  while (pg->sizeClassPos < sizeClassSZ) {
+    if (pg->b == NULL) {
+      pg->b = gc->sizeClass[pg->sizeClassPos];
+    }
+    if (pg->b == NULL) {
+      pg->sizeClassPos++;
+      continue;
+    }
 
-	for (struct heapArena * h = gc->large; h != NULL; h = h->next) {
-		int j = h->curr;
-		while (j < h->idx) {
-			scmHead *p =
-				(scmHead *) (h->ptr + j * MEM_BLOCK_SIZE);
-			int slots;
-			if (p->type == scmHeadUnused) {
-				slots = ((struct scmFreeNode *) p)->slots;
-			} else {
-				slots = (p->size + MEM_BLOCK_SIZE -
-					 1) / MEM_BLOCK_SIZE;
-				if (p->version == gc->version - 1) {
-					struct scmFreeNode *n =
-						(struct scmFreeNode *) p;
-					n->head.type = scmHeadUnused;
-					n->slots = slots;
-					updateLargeObjectMeta(h, j, slots,
-							      &n->head);
-				}
-			}
-			assert(slots > 0);
-			j += slots;
-		}
-	}
+    // Small step to finish one block in size class.
+    for (int j = pg->b->curr; j < MEM_BLOCK_SIZE; j += pg->b->sizeClass) {
+      scmHead *p = (scmHead *) (pg->b->base + j);
+      if (p->version == gc->version - 1) {
+	p->type = scmHeadUnused;
+      }
+    }
 
-	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
-	if (gc->nextSize < MEM_BLOCK_SIZE) {
-		// Because a block is at least that size, GC smaller then this is meanless.
-		gc->nextSize = MEM_BLOCK_SIZE;
+    pg->b = pg->b->next;
+    return;
+  }
+
+  while(pg->ha != NULL) {
+    int j = pg->ha->curr;
+    while (j < pg->ha->idx) {
+      scmHead *p = (scmHead *) (pg->ha->ptr + j * MEM_BLOCK_SIZE);
+      int slots;
+      if (p->type == scmHeadUnused) {
+	slots = ((struct scmFreeNode *) p)->slots;
+      } else {
+	slots = (p->size + MEM_BLOCK_SIZE -
+		 1) / MEM_BLOCK_SIZE;
+	if (p->version == gc->version - 1) {
+	  struct scmFreeNode *n =
+	    (struct scmFreeNode *) p;
+	  n->head.type = scmHeadUnused;
+	  n->slots = slots;
+	  updateLargeObjectMeta(pg->ha, j, slots,
+				&n->head);
 	}
-	gcFlip(gc);
+      }
+      assert(slots > 0);
+      j += slots;
+    }
+    pg->ha = pg->ha->next;
+    return;
+  }
+
+  gcFlip(gc);
 }
 
 static void
