@@ -1,5 +1,6 @@
 #include <sys/mman.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
@@ -184,7 +185,7 @@ struct GC {
 	// For every round of GC, the version++,
 	// while dead object version keep unchanged
 	// If an object's version < gc version, it's garbage and sweeped lazily
-	int version;
+	version_t version;
 
 	// the GC queue, all objects in this queue are gray.
 	struct doubleLinkList gray;
@@ -245,7 +246,7 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->baseStackAddr = baseStackAddr;
 	// the first version start from 2 so uninitialized block can be treat the same
 	// as the garbage.
-	gc->version = 1;
+	gc->version.val = 1;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -294,7 +295,7 @@ inuse(struct GC *gc, scmHead * h) {
 	if (h->type == 0) {
 		return false;
 	}
-	return h->version >= gc->version;
+	return !versionEQ(h->version, versionSub(gc->version, 1));
 }
 
 static void gcRun(struct GC *gc);
@@ -316,7 +317,7 @@ allocDone(struct GC *gc, int size, scmHead * ret) {
 	if (gc->state == gcStateNone) {
 		ret->version = gc->version;
 	} else {
-		ret->version = gc->version + 1;
+	  ret->version = versionAdd(gc->version, 1);
 	}
 	gc->allocated += size;
 	// should trigger the next round of GC.
@@ -502,7 +503,7 @@ gcAlloc(struct GC *gc, int size) {
 		struct Block *b = getBlock(gc, slot);
 		ret = blockAlloc(gc, b);
 		if (ret != NULL) {
-			assert(ret->version == gc->version - 1 ||
+		  assert(versionEQ(ret->version, versionSub(gc->version, 1)) ||
 			       ret->type == 0);
 			break;
 		}
@@ -558,7 +559,7 @@ gcEnqueue(struct GC *gc, scmHead * p) {
 		gc->end = 0;
 	}
 	// printf("gcEnqueue --%p %d %d %d\n", p, p->size, p->type, p->version);
-	p->version += 2;
+	p->version = versionAdd(p->version, 2);
 	*((scmHead **) (b->base + gc->end)) = p;
 	gc->end += sizeof(scmHead *);
 }
@@ -621,27 +622,26 @@ checkPointer(struct GC *gc, uintptr_t p) {
 		assert(pos >= 0);
 		from = (scmHead *) (b->base + (pos * b->sizeClass));
 		if (from != addr) {
-			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
+			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version.val);
 		}
 	}
 
 	// black or gray object? avoid handle it repeatly
-	if (from->version > gc->version) {
-		return false;
+	if ((versionEQ(versionSub(from->version, 1), gc->version)) ||
+	    (versionEQ(versionSub(from->version, 2), gc->version))) {
+	  return false;
 	}
 	// stale object? it should have been sweeped, but we defer the sweep lazily
-	if (from->version < gc->version) {
+	if (from->type == scmHeadUnused || versionEQ(versionSub(gc->version, 1), from->version)) {
 		// This could happen, for example, stack expand and shrink, the 'dead' object leave in the stack is not reset.
-		/* printf("WARNING: checkPointer meet stale object? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version); */
-		assert(from->type == 0 || from->version == gc->version - 1);
-		return false;
-	}
+	  return false;
+	} 
 
 	if (from->type > scmHeadUnused && from->type < scmHeadMax) {
 		return true;
 	}
 	// Not a cora Object?
-	printf("WARNING: some thing is wrong when checkPointer? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version);
+	printf("WARNING: some thing is wrong when checkPointer? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version.val);
 	return false;
 }
 
@@ -703,9 +703,9 @@ gcRunIncremental(struct GC *gc) {
 	while (curr != NULL) {
 		gcFunc fn = registry[curr->type];
 		if (fn != NULL) {
-			assert(curr->version == gc->version + 2);
-			fn(gc, curr);
-			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+		  assert(versionEQ(curr->version, versionAdd(gc->version, 2)));
+		  fn(gc, curr);
+		  /* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
 		}
 		N--;
 		if (N == 0) {
@@ -782,7 +782,7 @@ gcFlip(struct GC *gc) {
 		prev = h;
 		h = h->next;
 	}
-	gc->version++;
+	gc->version = versionAdd(gc->version, 1);
 	gc->state = gcStateNone;
 }
 
@@ -801,7 +801,7 @@ gcRunDone(struct GC *gc) {
     // Small step to finish one block in size class.
     for (int j = pg->b->curr; j < MEM_BLOCK_SIZE; j += pg->b->sizeClass) {
       scmHead *p = (scmHead *) (pg->b->base + j);
-      if (p->version == gc->version - 1) {
+      if (versionEQ(p->version, versionSub(gc->version, 1))) {
 	p->type = scmHeadUnused;
       }
     }
@@ -820,7 +820,7 @@ gcRunDone(struct GC *gc) {
       } else {
 	slots = (p->size + MEM_BLOCK_SIZE -
 		 1) / MEM_BLOCK_SIZE;
-	if (p->version == gc->version - 1) {
+	if (versionEQ(p->version, versionSub(gc->version, 1))) {
 	  struct scmFreeNode *n =
 	    (struct scmFreeNode *) p;
 	  n->head.type = scmHeadUnused;

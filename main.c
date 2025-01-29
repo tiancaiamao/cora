@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   co->nargs = 2;
   trampoline(co, 0, builtinImport);
   
-  struct SexpReader r = {co: co};
+  struct SexpReader r = { .co= co};
   int errCode = 0;
 
   for (int i=0; ; i++) {

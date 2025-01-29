@@ -49,7 +49,7 @@ TestReaderMacro(struct Cora *co) {
 		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};
 
-      struct SexpReader r = { co:co };
+      struct SexpReader r = { .co = co };
 	int errCode = 0;
 	for (int i = 0; i < sizeof(cases) / sizeof(struct readerMacroTest);
 	     i++) {
