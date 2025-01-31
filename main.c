@@ -14,8 +14,12 @@ int main(int argc, char *argv[]) {
   co->args[1] = makeCString("cora/lib/toc");
   co->nargs = 2;
   trampoline(co, 0, builtinImport);
+
+  co->args[1] = makeCString("cora/lib/eval");
+  co->nargs = 2;
+  trampoline(co, 0, builtinImport);
   
-  struct SexpReader r = {co: co};
+  struct SexpReader r = { .co = co};
   int errCode = 0;
 
   for (int i=0; ; i++) {
@@ -41,9 +45,10 @@ int main(int argc, char *argv[]) {
     /* printf(" --- %d %d\n", co->base, co->pos); */
     /* printf("\n"); */
 
-    co->args[0] = globalRef(intern("cora/lib/toc#eval0"));
+    co->args[0] = globalRef(intern("cora/lib/eval#eval"));
     co->args[1] = exp;
-    co->nargs = 2;
+    co->args[2] = Nil;
+    co->nargs = 3;
     trampoline(co, 0, coraDispatch);
 
     sexpWrite(stdout, co->args[1]);

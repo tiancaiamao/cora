@@ -1,0 +1,50 @@
+(define-library "cora/lib/eval"
+  (export eval)
+
+  (defun var-with-ns (var ns)
+    (cond
+     ((= ns "") var)
+     ((symbol-cooked? var) var)
+     (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
+
+  (func lookup-var
+	s ns [] => (var-with-ns s ns)
+	s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
+				  (if (elem? s export)
+				      (intern (string-append import (string-append "#" (symbol->string s))))
+				      (lookup-var s ns more))))
+
+  (func lookup-h
+	s [] _ => ()
+	s [var . more1] [val . more2] => (if (= s var)
+					     (cons var val)
+					     (lookup-h s more1 more2)))
+
+  (func lookup
+	s [] => ['fail]
+	s [(cons params args) . more] => (let find (lookup-h s params args)
+					   (if (pair? find)
+					       ['ok (cdr find)]
+					       (lookup s more))))
+
+  (defun extend (params args env)
+    (cons (cons params args) env))
+
+  (func eval
+	exp env => exp where (or (string? exp) (number? exp) (boolean? exp) (null? exp))
+	exp env => (match (lookup exp env)
+		     ['ok val] val
+		     ['fail] (value (lookup-var exp "" cora/init#*imported*)))
+	where (symbol? exp)
+	['quote more] env => more
+	['if a b c] env => (if (eval a env) (eval b env) (eval c env))
+	['do a b] env => (do (eval a env) (eval b env))
+	['def var val] env => (set var (eval val env))
+	['lambda params body] env => ['lambda params body . env]
+	[f . args] env => (let f1 (eval f env)
+			    args1 (map (lambda (x) (eval x env)) args)
+			    (match f1
+			      ['lambda params body . env1]
+			      (eval body (extend params args1 env1))
+			      _ (apply f1 args1))))
+  )

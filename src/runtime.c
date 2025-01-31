@@ -327,7 +327,7 @@ Obj
 primGenSym(Obj arg) {
 	assert(issymbol(arg));
 	char tmp[200];
-	snprintf(tmp, 100, "#%s%lu", symbolStr(arg), genIdx);
+	snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
 	genIdx++;
 	return makeSymbol(tmp);
 }
@@ -776,20 +776,6 @@ builtinStringAppend(struct Cora *co) {
 	coraReturn(co, val);
 }
 
-// TODO: remove this after refactoring finish
-static void
-builtinSymbolCooked(struct Cora *co) {
-	Obj sym = co->args[1];
-	char *s = symbolStr(sym);
-	for (; *s != 0; s++) {
-		if (*s == '#') {
-			coraReturn(co, True);
-			return;
-		}
-	}
-	coraReturn(co, False);
-}
-
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -859,8 +845,6 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
-	primSet(co, intern("symbol-cooked?"),
-		makeNative(0, builtinSymbolCooked, 1, 0));
 }
 
 #ifdef ForTest

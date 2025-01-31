@@ -388,7 +388,6 @@
 				   value value-or
 				   apply load-so import load
 				   try throw
-				   symbol-cooked?
 				   reverse map macroexpand elem?  length filter append))
 
 (set 'cora/init#cadr cadr)
@@ -421,7 +420,6 @@
 (set 'cora/init#import import)
 (set 'cora/init#try try)
 (set 'cora/init#throw throw)
-(set 'cora/init#symbol-cooked? symbol-cooked?)
 
 (set 'cora/init#reverse reverse)
 (set 'cora/init#map map)
