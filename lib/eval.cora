@@ -1,6 +1,23 @@
 (define-library "cora/lib/eval"
   (export eval)
 
+  (set 'set (set))
+  (set 'car (car))
+  (set 'cdr (cdr))
+  (set 'cons (cons))
+  (set 'cons? (cons?))
+  (set '+ (+))
+  (set '- (-))
+  (set '* (*))
+  (set '/ (/))
+  (set '= (=))
+  (set '> (>))
+  (set '< (<))
+  (set 'gensym (gensym))
+  (set 'symbol? (symbol?))
+  (set 'not (not))
+  (set 'string? (string?))
+
   (defun var-with-ns (var ns)
     (cond
      ((= ns "") var)
@@ -14,21 +31,25 @@
 				      (intern (string-append import (string-append "#" (symbol->string s))))
 				      (lookup-var s ns more))))
 
-  (func lookup-h
-	s [] _ => ()
-	s [var . more1] [val . more2] => (if (= s var)
-					     (cons var val)
-					     (lookup-h s more1 more2)))
-
   (func lookup
 	s [] => ['fail]
-	s [(cons params args) . more] => (let find (lookup-h s params args)
-					   (if (pair? find)
-					       ['ok (cdr find)]
-					       (lookup s more))))
+	s [[a . b] . more] => (if (= s a) ['ok b] (lookup s more)))
 
-  (defun extend (params args env)
-    (cons (cons params args) env))
+  (func extend
+	params [] env k => (k params [] env)
+	[] args env k => (k [] args env)
+	[a . params] [b . args] env k => (extend params args (cons (cons a b) env) k))
+
+  (func apply-h 
+	['lambda params body . env1] args =>
+	(extend params args env1
+		(lambda (p a env2)
+		  (cond
+		   ((and (null? p) (null? a)) (eval body env2))
+		   ((null? a) ['lambda p body . env2])
+		   ((null? p) (let f2 (eval body env2)
+				(apply-h f2 a))))))
+	f args => (apply f args))
 
   (func eval
 	exp env => exp where (or (string? exp) (number? exp) (boolean? exp) (null? exp))
@@ -40,11 +61,7 @@
 	['if a b c] env => (if (eval a env) (eval b env) (eval c env))
 	['do a b] env => (do (eval a env) (eval b env))
 	['def var val] env => (set var (eval val env))
+	['let a b c] env => (eval c (cons (cons a (eval b env)) env))
 	['lambda params body] env => ['lambda params body . env]
-	[f . args] env => (let f1 (eval f env)
-			    args1 (map (lambda (x) (eval x env)) args)
-			    (match f1
-			      ['lambda params body . env1]
-			      (eval body (extend params args1 env1))
-			      _ (apply f1 args1))))
+	[f . args] env => (apply-h (eval f env) (map (lambda (x) (eval x env)) args)))
   )
