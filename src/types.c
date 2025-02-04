@@ -82,8 +82,6 @@ consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
 	gcMark(gc, from->car);
 	gcMark(gc, from->cdr);
-	from->head.version++;
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 Obj
@@ -195,8 +193,6 @@ stringStr(Obj o) {
 static void
 bytesGCFunc(struct GC *gc, void *f) {
 	// TODO:
-	struct scmBytes *from = f;
-	from->head.version++;
 }
 
 
@@ -266,8 +262,6 @@ nativeGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->captured; i++) {
 		gcMark(gc, from->data[i]);
 	}
-	from->head.version++;
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 bool
@@ -369,7 +363,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->size; i++) {
 		gcMark(gc, from->data[i]);
 	}
-	from->head.version++;
 }
 
 bool
@@ -439,8 +432,6 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	gcMarkCallStack(gc, &from->cs);
-	from->head.version++;
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 void

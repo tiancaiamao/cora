@@ -9,6 +9,7 @@ typedef struct _str {
 struct _strBuf;
 typedef struct _strBuf* strBuf;
 
+#define S(s) (str){s, sizeof(s)-1}
 str cstr(char* str);
 str toStr(strBuf s);
 int strLen(str s);

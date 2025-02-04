@@ -24,10 +24,14 @@ enum {
   scmHeadMax,
 };
 
+typedef struct _version {
+  uint8_t val;
+}version_t;
+
 typedef struct {
-  scmHeadType type;
   uint32_t size;
-  int version;
+  scmHeadType type;
+  version_t version;
 } scmHead;
 
 #define TAG_SHIFT 3
@@ -37,8 +41,6 @@ typedef struct {
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define tag(x) ((x) & TAG_MASK)
 
-struct GC;
-
 void gcInit(uintptr_t* mark);
 struct GC *getGC();
 
@@ -46,7 +48,6 @@ void* gcAlloc(struct GC* gc, int size);
 
 void writeBarrier(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head);
-void gcInuseSizeInc(struct GC *gc, int size);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);

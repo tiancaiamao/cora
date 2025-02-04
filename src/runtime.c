@@ -3,6 +3,7 @@
 #include <pwd.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include "runtime.h"
 #include "str.h"
 #include "gc.h"
@@ -159,7 +160,6 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 	// The globals
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
-//                              printf("gc global symbol %s\n", p->sym);
 		gcMark(gc, p->value);
 	}
 	// The stack.
@@ -173,7 +173,6 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 
 	// Closure register.
 	gcMark(gc, co->ctx.frees);
-	/* printf("coraGC frees = %p -> %p\n", save, co->frees); */
 
 	// Return addr
 	gcMarkCallStack(gc, &co->callstack);
@@ -327,7 +326,7 @@ Obj
 primGenSym(Obj arg) {
 	assert(issymbol(arg));
 	char tmp[200];
-	snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
+	snprintf(tmp, 100, "#%s%" PRIu64, symbolStr(arg), genIdx);
 	genIdx++;
 	return makeSymbol(tmp);
 }
@@ -555,11 +554,11 @@ getCoraPath() {
 		struct passwd *pw = getpwuid(getuid());
 		char *homeDir = pw->pw_dir;
 		tmp = strCpy(tmp, cstr(homeDir));
-		tmp = strCat(tmp, cstr("/.corapath/"));
+		tmp = strCat(tmp, S("/.corapath/"));
 	} else {
 		tmp = strCpy(tmp, cstr(coraPath));
 		if (toCStr(tmp)[strLen(toStr(tmp)) - 1] != '/') {
-			tmp = strCat(tmp, cstr("/"));
+			tmp = strCat(tmp, S("/"));
 		}
 	}
 	return tmp;
@@ -662,7 +661,7 @@ builtinImport(struct Cora *co) {
 	strBuf tmp = getCoraPath();
 
 	tmp = strCat(tmp, pkgStr);
-	tmp = strCat(tmp, cstr(".so"));
+	tmp = strCat(tmp, S(".so"));
 	if (0 == access(toCStr(tmp), R_OK)) {
 		// primLoadSo is a bit special, it requires the current stack of VM is
 		// (load-so "file-path.so" "package-path")
@@ -678,7 +677,7 @@ builtinImport(struct Cora *co) {
 	}
 
 	tmp = strShrink(tmp, 3);
-	tmp = strCat(tmp, cstr(".cora"));
+	tmp = strCat(tmp, S(".cora"));
 	co->nargs = 3;
 	co->args[0] = makeNative(0, builtinLoad, 2, 0);
 	str tmp1 = toStr(tmp);
@@ -804,7 +803,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 	if (strLen(pkg) > 0) {
 		strBuf tmp = strDup(pkg);
-		tmp = strCat(tmp, cstr("#*ns-export*"));
+		tmp = strCat(tmp, S("#*ns-export*"));
 		Obj sym = intern(toCStr(tmp));
 		strFree(tmp);
 		primSet(co, sym, exports);
