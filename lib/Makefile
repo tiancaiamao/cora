@@ -24,5 +24,5 @@ $(DEPDIR): ; @mkdir -p $@
 $(DEPS):
 include $(wildcard $(DEPS))
 
-internal.so:
+toc/internal.so:
 	make -C toc

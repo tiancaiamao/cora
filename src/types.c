@@ -77,6 +77,13 @@ iscons(Obj o) {
 	return h->type == scmHeadCons;
 }
 
+static version_t
+versionSub(version_t ver, int val) {
+	int tmp = ((int) (ver.val) + 4 - val) % 4;
+	version_t ret = {.val = (uint8_t) tmp };
+	return ret;
+}
+
 static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;

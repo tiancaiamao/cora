@@ -3,6 +3,7 @@
 #include <pwd.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include "runtime.h"
 #include "str.h"
 #include "gc.h"
@@ -327,7 +328,7 @@ Obj
 primGenSym(Obj arg) {
 	assert(issymbol(arg));
 	char tmp[200];
-	snprintf(tmp, 100, "#%s%llu", symbolStr(arg), genIdx);
+	snprintf(tmp, 100, "#%s%" PRIu64, symbolStr(arg), genIdx);
 	genIdx++;
 	return makeSymbol(tmp);
 }

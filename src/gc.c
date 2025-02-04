@@ -162,10 +162,29 @@ getSlotBySize(int size) {
 }
 
 struct runDoneProgress {
-  int sizeClassPos;
-  struct Block *b;
-  struct heapArena *ha;
+	int sizeClassPos;
+	struct Block *b;
+	struct heapArena *ha;
 };
+
+static bool
+versionEQ(version_t v1, version_t v2) {
+	return v1.val == v2.val;
+}
+
+static version_t
+versionAdd(version_t ver, int val) {
+	int tmp = ((int) (ver.val) + val) % 4;
+	version_t ret = {.val = (uint8_t) tmp };
+	return ret;
+}
+
+static version_t
+versionSub(version_t ver, int val) {
+	int tmp = ((int) (ver.val) + 4 - val) % 4;
+	version_t ret = {.val = (uint8_t) tmp };
+	return ret;
+}
 
 struct GC {
 	enum gcState state;
@@ -192,8 +211,8 @@ struct GC {
 	int start;
 	int end;
 
-  // Save the current progress of gcRunDone state.
-  struct runDoneProgress progress;
+	// Save the current progress of gcRunDone state.
+	struct runDoneProgress progress;
 
 	int allocated;
 	int nextSize;
@@ -317,7 +336,7 @@ allocDone(struct GC *gc, int size, scmHead * ret) {
 	if (gc->state == gcStateNone) {
 		ret->version = gc->version;
 	} else {
-	  ret->version = versionAdd(gc->version, 1);
+		ret->version = versionAdd(gc->version, 1);
 	}
 	gc->allocated += size;
 	// should trigger the next round of GC.
@@ -458,12 +477,11 @@ gcAllocLargeObject(struct GC *gc, int size) {
 		// This one is full, remove it from large list.
 		gc->large = ha->next;
 		if (gc->state == gcStateDone) {
-		  if (gc->progress.ha == ha) {
-		    gc->progress.ha = gc->large;
-		    printf("update gc progress in alloc large object");
-		  }
+			if (gc->progress.ha == ha) {
+				gc->progress.ha = gc->large;
+				printf("update gc progress in alloc large object");
+			}
 		}
-
 		// Link it to heap list, wait GC to recycle them.
 		struct heapArena *heapHead = gcGetHeapArena(gc);
 		ha->next = heapHead->next;
@@ -503,11 +521,11 @@ gcAlloc(struct GC *gc, int size) {
 		struct Block *b = getBlock(gc, slot);
 		ret = blockAlloc(gc, b);
 		if (ret != NULL) {
-		  assert(versionEQ(ret->version, versionSub(gc->version, 1)) ||
+			assert(versionEQ
+			       (ret->version, versionSub(gc->version, 1)) ||
 			       ret->type == 0);
 			break;
 		}
-
 		// Remove full block from the sizeClass list, wait GC to recycle them
 		gc->sizeClass[slot] = b->next;
 		b->next = NULL;
@@ -515,10 +533,10 @@ gcAlloc(struct GC *gc, int size) {
 
 		// Help to update the progress.
 		if (gc->state == gcStateDone) {
-		  if (gc->progress.b == b) {
-		    gc->progress.b = gc->sizeClass[slot];
-		    printf("update gc progress in alloc object\n");
-		  }
+			if (gc->progress.b == b) {
+				gc->progress.b = gc->sizeClass[slot];
+				printf("update gc progress in alloc object\n");
+			}
 		}
 	}
 	allocDone(gc, size, ret);
@@ -629,13 +647,14 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	// black or gray object? avoid handle it repeatly
 	if ((versionEQ(versionSub(from->version, 1), gc->version)) ||
 	    (versionEQ(versionSub(from->version, 2), gc->version))) {
-	  return false;
+		return false;
 	}
 	// stale object? it should have been sweeped, but we defer the sweep lazily
-	if (from->type == scmHeadUnused || versionEQ(versionSub(gc->version, 1), from->version)) {
+	if (from->type == scmHeadUnused ||
+	    versionEQ(versionSub(gc->version, 1), from->version)) {
 		// This could happen, for example, stack expand and shrink, the 'dead' object leave in the stack is not reset.
-	  return false;
-	} 
+		return false;
+	}
 
 	if (from->type > scmHeadUnused && from->type < scmHeadMax) {
 		return true;
@@ -703,9 +722,10 @@ gcRunIncremental(struct GC *gc) {
 	while (curr != NULL) {
 		gcFunc fn = registry[curr->type];
 		if (fn != NULL) {
-		  assert(versionEQ(curr->version, versionAdd(gc->version, 2)));
-		  fn(gc, curr);
-		  /* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+			assert(versionEQ
+			       (curr->version, versionAdd(gc->version, 2)));
+			fn(gc, curr);
+			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
 		}
 		N--;
 		if (N == 0) {
@@ -729,7 +749,6 @@ gcFlip(struct GC *gc) {
 		// Because a block is at least that size, GC smaller then this is meanless.
 		gc->nextSize = MEM_BLOCK_SIZE;
 	}
-
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -788,55 +807,60 @@ gcFlip(struct GC *gc) {
 
 static void
 gcRunDone(struct GC *gc) {
-  struct runDoneProgress *pg = &gc->progress;
-  while (pg->sizeClassPos < sizeClassSZ) {
-    if (pg->b == NULL) {
-      pg->b = gc->sizeClass[pg->sizeClassPos];
-    }
-    if (pg->b == NULL) {
-      pg->sizeClassPos++;
-      continue;
-    }
+	struct runDoneProgress *pg = &gc->progress;
+	while (pg->sizeClassPos < sizeClassSZ) {
+		if (pg->b == NULL) {
+			pg->b = gc->sizeClass[pg->sizeClassPos];
+		}
+		if (pg->b == NULL) {
+			pg->sizeClassPos++;
+			continue;
+		}
+		// Small step to finish one block in size class.
+		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
+		     j += pg->b->sizeClass) {
+			scmHead *p = (scmHead *) (pg->b->base + j);
+			if (versionEQ(p->version, versionSub(gc->version, 1))) {
+				p->type = scmHeadUnused;
+			}
+		}
 
-    // Small step to finish one block in size class.
-    for (int j = pg->b->curr; j < MEM_BLOCK_SIZE; j += pg->b->sizeClass) {
-      scmHead *p = (scmHead *) (pg->b->base + j);
-      if (versionEQ(p->version, versionSub(gc->version, 1))) {
-	p->type = scmHeadUnused;
-      }
-    }
-
-    pg->b = pg->b->next;
-    return;
-  }
-
-  while(pg->ha != NULL) {
-    int j = pg->ha->curr;
-    while (j < pg->ha->idx) {
-      scmHead *p = (scmHead *) (pg->ha->ptr + j * MEM_BLOCK_SIZE);
-      int slots;
-      if (p->type == scmHeadUnused) {
-	slots = ((struct scmFreeNode *) p)->slots;
-      } else {
-	slots = (p->size + MEM_BLOCK_SIZE -
-		 1) / MEM_BLOCK_SIZE;
-	if (versionEQ(p->version, versionSub(gc->version, 1))) {
-	  struct scmFreeNode *n =
-	    (struct scmFreeNode *) p;
-	  n->head.type = scmHeadUnused;
-	  n->slots = slots;
-	  updateLargeObjectMeta(pg->ha, j, slots,
-				&n->head);
+		pg->b = pg->b->next;
+		return;
 	}
-      }
-      assert(slots > 0);
-      j += slots;
-    }
-    pg->ha = pg->ha->next;
-    return;
-  }
 
-  gcFlip(gc);
+	while (pg->ha != NULL) {
+		int j = pg->ha->curr;
+		while (j < pg->ha->idx) {
+			scmHead *p =
+				(scmHead *) (pg->ha->ptr +
+					     j * MEM_BLOCK_SIZE);
+			int slots;
+			if (p->type == scmHeadUnused) {
+				slots = ((struct scmFreeNode *) p)->slots;
+			} else {
+				slots = (p->size + MEM_BLOCK_SIZE -
+					 1) / MEM_BLOCK_SIZE;
+				if (versionEQ
+				    (p->version,
+				     versionSub(gc->version, 1))) {
+					struct scmFreeNode *n =
+						(struct scmFreeNode *) p;
+					n->head.type = scmHeadUnused;
+					n->slots = slots;
+					updateLargeObjectMeta(pg->ha, j,
+							      slots,
+							      &n->head);
+				}
+			}
+			assert(slots > 0);
+			j += slots;
+		}
+		pg->ha = pg->ha->next;
+		return;
+	}
+
+	gcFlip(gc);
 }
 
 static void

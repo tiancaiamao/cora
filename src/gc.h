@@ -34,25 +34,6 @@ typedef struct {
   version_t version;
 } scmHead;
 
-static version_t
-versionAdd(version_t ver, int val) {
-  int tmp = ((int)(ver.val) + val) % 4;
-  version_t ret = { .val = (uint8_t)tmp};
-  return ret;
-}
-
-static version_t
-versionSub(version_t ver, int val) {
-  int tmp = ((int)(ver.val) + 4 - val) % 4;
-  version_t ret = { .val = (uint8_t)tmp};
-  return ret;
-}
-
-static bool
-versionEQ(version_t v1, version_t v2) {
-  return v1.val == v2.val;
-}
-
 #define TAG_SHIFT 3
 #define TAG_MASK 0x7
 #define TAG_PTR 0x7
