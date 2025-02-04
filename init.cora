@@ -1,5 +1,5 @@
 ;; this file does not use define-library deliberately
-;; if we use it, we need to either append cora/init#cora in C or write car as (value 'car) here
+;; if we use it, we need to either append cora/init# prefix in C or write car as (value 'car) here
 ;; if we do not use it, there are some duplicated definitions, both cadr and cora/init#cadr exist
 
 (set 'null? (lambda (x) (= x ())))
@@ -388,7 +388,6 @@
 				   value value-or
 				   apply load-so import load
 				   try throw
-				   symbol-cooked?
 				   reverse map macroexpand elem?  length filter append))
 
 (set 'cora/init#cadr cadr)
@@ -421,8 +420,6 @@
 (set 'cora/init#import import)
 (set 'cora/init#try try)
 (set 'cora/init#throw throw)
-(set 'cora/init#symbol-cooked? symbol-cooked?)
-
 (set 'cora/init#reverse reverse)
 (set 'cora/init#map map)
 (set 'cora/init#macroexpand macroexpand)
