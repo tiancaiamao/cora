@@ -77,20 +77,11 @@ iscons(Obj o) {
 	return h->type == scmHeadCons;
 }
 
-static version_t
-versionSub(version_t ver, int val) {
-	int tmp = ((int) (ver.val) + 4 - val) % 4;
-	version_t ret = {.val = (uint8_t) tmp };
-	return ret;
-}
-
 static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
 	gcMark(gc, from->car);
 	gcMark(gc, from->cdr);
-	from->head.version = versionSub(from->head.version, 1);
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 Obj
@@ -202,8 +193,6 @@ stringStr(Obj o) {
 static void
 bytesGCFunc(struct GC *gc, void *f) {
 	// TODO:
-	struct scmBytes *from = f;
-	from->head.version = versionSub(from->head.version, 1);
 }
 
 
@@ -273,8 +262,6 @@ nativeGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->captured; i++) {
 		gcMark(gc, from->data[i]);
 	}
-	from->head.version = versionSub(from->head.version, 1);
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 bool
@@ -376,7 +363,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->size; i++) {
 		gcMark(gc, from->data[i]);
 	}
-	from->head.version = versionSub(from->head.version, 1);
 }
 
 bool
@@ -446,8 +432,6 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	gcMarkCallStack(gc, &from->cs);
-	from->head.version = versionSub(from->head.version, 1);
-	gcInuseSizeInc(gc, from->head.size);
 }
 
 void

@@ -160,7 +160,6 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 	// The globals
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
-//                              printf("gc global symbol %s\n", p->sym);
 		gcMark(gc, p->value);
 	}
 	// The stack.
@@ -174,7 +173,6 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 
 	// Closure register.
 	gcMark(gc, co->ctx.frees);
-	/* printf("coraGC frees = %p -> %p\n", save, co->frees); */
 
 	// Return addr
 	gcMarkCallStack(gc, &co->callstack);

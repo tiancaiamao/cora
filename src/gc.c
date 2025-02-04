@@ -220,6 +220,11 @@ struct GC {
 	int inuseSize;
 };
 
+static void
+gcInuseSizeInc(struct GC *gc, int size) {
+	gc->inuseSize += size;
+}
+
 static struct heapArena *
 gcGetHeapArena(struct GC *gc) {
 	if (gc->heap == NULL || heapArenaFull(gc->heap)) {
@@ -726,6 +731,8 @@ gcRunIncremental(struct GC *gc) {
 			       (curr->version, versionAdd(gc->version, 2)));
 			fn(gc, curr);
 			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+			curr->version = versionSub(curr->version, 1);
+			gcInuseSizeInc(gc, curr->size);
 		}
 		N--;
 		if (N == 0) {
@@ -894,11 +901,6 @@ gcRun(struct GC *gc) {
 		gcRunDone(gc);
 		break;
 	}
-}
-
-void
-gcInuseSizeInc(struct GC *gc, int size) {
-	gc->inuseSize += size;
 }
 
 void
