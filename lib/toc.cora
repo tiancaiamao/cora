@@ -1,6 +1,7 @@
 (define-library "cora/lib/toc"
   (import "cora/lib/toc/internal")
   (import "cora/lib/io")
+  (import "cora/lib/hash-h")
 
   (func assq
 	var [] => ()
@@ -189,30 +190,26 @@
   ;; collect the result to v (vector idx cur final)
   (func collect-lambda
 	v [clo-or-cont ['lambda params body] . fvs] => (let body1 (collect-lambda v body)
-							 (let idx (vector-ref v 0)
-							   cur (vector-ref v 1)
-							   (let name (if (= idx 0) (gensym 'clofun) (car (caar cur)))
-							     (if (= clo-or-cont '%closure)
-								 (begin
-								   (append-result v idx cur name ['lambda params () body1])
-								   [clo-or-cont (cons name idx) (length params) . fvs])
-								 (begin
-								   (append-result v idx cur name ['lambda params fvs body1])
-								   [clo-or-cont (cons name idx) . fvs])))))
+							 cur (vector-ref v 0)
+							 (if (= clo-or-cont '%closure)
+							     (begin
+							       (append-result v ['lambda params () body1])
+							       [clo-or-cont cur (length params) . fvs])
+							     (begin
+							       (append-result v ['lambda params fvs body1])
+							       [clo-or-cont cur . fvs])))
 	where (or (= clo-or-cont '%closure) (= clo-or-cont '%continuation))
 	v f-args => (map (lambda (e)
 			   (collect-lambda v e)) f-args) where (cons? f-args)
 			   v x => x)
 
-  (defun append-result (v idx cur name val)
-    (let cur1 (cons [(cons name idx) val] cur)
-      (if (< idx 20)
-	  (begin (vector-set! v 0 (+ idx 1))
-		 (vector-set! v 1 cur1))
-	  (begin (vector-set! v 0 0)
-		 (vector-set! v 1 ())
-		 (let res (vector-ref v 2)
-		   (vector-set! v 2 (cons (reverse cur1) res)))))))
+  (defun append-result (v val)
+    (let idx (vector-ref v 0)
+      cur (vector-ref v 1)
+      (let cur1 (cons [idx val] cur)
+	(begin
+	  (vector-set! v 0 (+ idx 1))
+	  (vector-set! v 1 cur1)))))
 
   (defun wrap-var(x k)
     (let tmp (gensym 'reg)
@@ -289,9 +286,9 @@
 				    (generate-str w "}\n"))
 	self env w ['%closure label nargs . frees] => (begin
 							(generate-str w "makeNative(")
-							(generate-num w (cdr label))
+							(generate-num w (mod (- (car self) label) *mod-num*))
 							(generate-str w ", ")
-							(generate-sym w (car label))
+							(generate-group-name w label (car self))
 							(generate-str w ", ")
 							(generate-num w nargs)
 							(generate-str w ", ")
@@ -313,7 +310,7 @@
 				    (generate-str w ";\n")
 				    (generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
 				    (generate-str w "if (co->ctx.pc.func != ")
-				    (generate-sym w self)
+				    (generate-group-name w (cdr self) (car self))
 				    (generate-str w ") { goto fail; }\n")
 				    (generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
 	self env w ['tailcall exp] => (generate-inst self env w exp)
@@ -329,7 +326,7 @@
 				   (generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
 				   (generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
 				   (generate-str w "if (ps.func != ")
-				   (generate-sym w self)
+				   (generate-group-name w (cdr self) (car self))
 				   (generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
 				   (generate-str w "goto *jumpTable[ps.label];\n")))
 
@@ -346,9 +343,9 @@
   (func generate-cont
 	self w ['%continuation label . stacks] => (begin
 						    (generate-str w "pushCont(co, ")
-						    (generate-num w (cdr label))
+						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
-						    (generate-sym w (car label))
+						    (generate-group-name w label (car self))
 						    (generate-str w ", ")
 						    (generate-num w (length stacks))
 						    (if (not (null? stacks))
@@ -371,10 +368,20 @@
   (defun generate-inst-list (self env w l)
     (generate-inst-list-h self env generate-inst w l))
 
-  (defun code-gen-func-declare (w label)
+  (def *mod-num* 6)
+
+  (defun generate-group-name (w label maxid)
+    (let gid (/ (- maxid label) *mod-num*)
+      (if (= gid 0)
+	  (generate-str w "entry")
+	  (begin
+	    (generate-str w "clofun")
+	    (generate-num w gid)))))
+
+  (defun code-gen-func-declare (w label maxid)
     (begin
       (generate-str w "void ")
-      (generate-sym w (car label))
+      (generate-group-name w label maxid)
       (generate-str w "(struct Cora* co")
       (generate-str w ")")))
 
@@ -405,15 +412,15 @@
 			      (generate-call-args-reverse fn w (+ idx 1) b)))
 
   (func code-gen-toplevel
-	w [label ['lambda params actives body]] => (begin
+	w [label ['lambda params actives body]] maxid => (begin
 						     (generate-str w "label")
-						     (generate-num w (cdr label))
+						     (generate-num w (mod (- maxid label) *mod-num*))
 						     (generate-str w ":\n{\n")
 						     (generate-call-args-reverse local-from-params w 1 params)
 						     (generate-call-args-reverse local-from-cont w 0 actives)
-						     (generate-inst (car label) params w body)
+						     (generate-inst (cons maxid label) params w body)
 						     (generate-str w "}\n\n"))
-	w other =>  (begin (display "wrong format of toplevel\n")
+	w other maxid =>  (begin (display "wrong format of toplevel\n")
 			   (display other)
 			   (display "\n")))
 
@@ -430,16 +437,13 @@
     (explicit-stack [] exp))
 
   (defun collect-lambda-pass (exp)
-    (let v (vector 3)
+    (let v (vector 2)
       (begin (vector-set! v 0 0)
 	     (vector-set! v 1 ())
-	     (vector-set! v 2 ())
 	     (let e1 (collect-lambda v exp)
-	       cur (vector-ref v 1)
-	       (let res (if (null? cur)
-			    (vector-ref v 2)
-			    (cons (reverse cur) (vector-ref v 2)))
-		 (cons [[(cons 'entry 0) ['lambda () () e1]]] res))))))
+	       (begin
+		 (append-result v ['lambda () () e1])
+		 (vector-ref v 1))))))
 
   (func rewrite-->macro
 	obj [] => obj
@@ -475,9 +479,9 @@
 		(generate-jumptable to (+ i 1) n)))
      (true ())))
 
-  (defun generate-toplevel-group (to group)
+  (defun generate-toplevel-group (to group maxid)
     (begin
-      (code-gen-func-declare to (caar group))
+      (code-gen-func-declare to (caar group) maxid)
       (generate-str to "{\n")
 
       (generate-str to "int __nargs = co->nargs;\n")
@@ -491,7 +495,7 @@
       (generate-str to "};\n\n")
       (generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
 
-      (for-each (lambda (x) (code-gen-toplevel to x)) group)
+      (for-each (lambda (x) (code-gen-toplevel to x maxid)) group)
 
       (generate-str to "fail:\n")
       (generate-str to "co->nargs = __nargs;\n")
@@ -502,20 +506,29 @@
 
       (generate-str to "\n}\n\n")))
 
+  (func group-by-mod-h
+	res idx acc [] => (reverse (if (not (null? acc))
+				       (cons (reverse acc) res)
+				       res))
+	res idx acc [bc . more] => (if (= idx *mod-num*)
+				       (group-by-mod-h (cons (reverse acc) res) 0 [] [bc . more])
+				       (group-by-mod-h res (+ idx 1) (cons bc acc) more)))
 
   (defun generate-c (to bc)
-    (begin
-      (generate-str to "#include \"types.h\"\n")
-      (generate-str to "#include \"runtime.h\"\n\n")
-      (for-each (lambda (group)
-		  (begin
-		    (code-gen-func-declare to (caar group))
-		    (generate-str to ";\n")))
-		bc)
-      (generate-str to "\n\n")
-      (for-each (lambda (group)
-		  (generate-toplevel-group to group))
-		bc)))
+    (let groups (group-by-mod-h [] 0 [] bc)
+      maxid (caar bc)
+      (begin
+	(generate-str to "#include \"types.h\"\n")
+	(generate-str to "#include \"runtime.h\"\n\n")
+	(for-each (lambda (group)
+		    (begin
+		      (code-gen-func-declare to (caar group) maxid)
+		      (generate-str to ";\n")))
+		  groups)
+	(generate-str to "\n\n")
+	(for-each (lambda (group)
+		    (generate-toplevel-group to group maxid))
+		  groups))))
 
   (func handle-import-eagerly
 	['define-library _ . remain] => (handle-import-eagerly remain)
