@@ -392,15 +392,12 @@ eq(Obj x, Obj y) {
 struct scmContinuation {
 	scmHead head;
 	struct callStack cs;
-	/* int pos; */
 };
 
 Obj
-/* makeContinuation(int pos) { */
 makeContinuation() {
 	struct scmContinuation *cont =
 		newObj(scmHeadContinuation, sizeof(struct scmContinuation));
-	/* cont->pos = pos; */
 	struct callStack *stack = &cont->cs;
 	stack->data = malloc(64 * sizeof(struct returnAddr));
 	stack->len = 0;

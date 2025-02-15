@@ -24,9 +24,7 @@ enum {
   scmHeadMax,
 };
 
-typedef struct _version {
-  uint8_t val;
-}version_t;
+typedef uint8_t version_t;
 
 typedef struct {
   uint32_t size;

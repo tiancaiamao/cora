@@ -167,23 +167,22 @@ struct runDoneProgress {
 	struct heapArena *ha;
 };
 
-static bool
-versionEQ(version_t v1, version_t v2) {
-	return v1.val == v2.val;
-}
-
-static version_t
-versionAdd(version_t ver, int val) {
-	int tmp = ((int) (ver.val) + val) % 4;
-	version_t ret = {.val = (uint8_t) tmp };
-	return ret;
-}
-
-static version_t
-versionSub(version_t ver, int val) {
-	int tmp = ((int) (ver.val) + 4 - val) % 4;
-	version_t ret = {.val = (uint8_t) tmp };
-	return ret;
+static int
+versionCmp(uint64_t curr, version_t v2) {
+  int v1 = curr % 64;
+  if (v1 == v2) {
+    return 0;
+  }
+  if (v1 < 32) {
+    if (v2 > v1 && v2 - v1 < 32) {
+      return -1;
+    }
+    return 1;
+  }
+  if (v2 < v1 && v1 - v2 < 32) {
+    return 1;
+  }
+  return -1;
 }
 
 struct GC {
@@ -204,7 +203,7 @@ struct GC {
 	// For every round of GC, the version++,
 	// while dead object version keep unchanged
 	// If an object's version < gc version, it's garbage and sweeped lazily
-	version_t version;
+	uint64_t version;
 
 	// the GC queue, all objects in this queue are gray.
 	struct doubleLinkList gray;
@@ -270,7 +269,7 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->baseStackAddr = baseStackAddr;
 	// the first version start from 2 so uninitialized block can be treat the same
 	// as the garbage.
-	gc->version.val = 1;
+	gc->version = 2;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -315,12 +314,12 @@ gcContains(struct GC *gc, void *p) {
 
 static bool
 inuse(struct GC *gc, scmHead * h) {
-	// h is an unused obj
-	if (h->type == 0) {
+	if (h->type == scmHeadUnused) {
 		return false;
 	}
-	return !versionEQ(h->version, versionSub(gc->version, 1));
+	return versionCmp(gc->version, h->version) >= 0;
 }
+
 
 static void gcRun(struct GC *gc);
 
@@ -339,9 +338,9 @@ static void
 allocDone(struct GC *gc, int size, scmHead * ret) {
 	ret->size = size;
 	if (gc->state == gcStateNone) {
-		ret->version = gc->version;
+	  ret->version = gc->version % 64;
 	} else {
-		ret->version = versionAdd(gc->version, 1);
+	  ret->version = (gc->version + 2) % 64;
 	}
 	gc->allocated += size;
 	// should trigger the next round of GC.
@@ -526,9 +525,6 @@ gcAlloc(struct GC *gc, int size) {
 		struct Block *b = getBlock(gc, slot);
 		ret = blockAlloc(gc, b);
 		if (ret != NULL) {
-			assert(versionEQ
-			       (ret->version, versionSub(gc->version, 1)) ||
-			       ret->type == 0);
 			break;
 		}
 		// Remove full block from the sizeClass list, wait GC to recycle them
@@ -582,7 +578,7 @@ gcEnqueue(struct GC *gc, scmHead * p) {
 		gc->end = 0;
 	}
 	// printf("gcEnqueue --%p %d %d %d\n", p, p->size, p->type, p->version);
-	p->version = versionAdd(p->version, 2);
+	p->version = (p->version + 1) % 64;
 	*((scmHead **) (b->base + gc->end)) = p;
 	gc->end += sizeof(scmHead *);
 }
@@ -612,7 +608,7 @@ gcDequeue(struct GC *gc) {
 	return ret;
 }
 
-bool
+static bool
 checkPointer(struct GC *gc, uintptr_t p) {
 	// p is not gc alloced, skip it.
 	// This magic number kinda dirty, see types.h
@@ -629,7 +625,6 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	// The ptr address might not be aligned.
 	int idx = ((char *) addr - h->ptr) / MEM_BLOCK_SIZE;
 	struct Block *b = &h->blocks[idx];
-
 	scmHead *from;
 	// Large object?
 	if (h->forLargeObjects) {
@@ -645,27 +640,14 @@ checkPointer(struct GC *gc, uintptr_t p) {
 		assert(pos >= 0);
 		from = (scmHead *) (b->base + (pos * b->sizeClass));
 		if (from != addr) {
-			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version.val);
+			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
 		}
 	}
 
-	// black or gray object? avoid handle it repeatly
-	if ((versionEQ(versionSub(from->version, 1), gc->version)) ||
-	    (versionEQ(versionSub(from->version, 2), gc->version))) {
-		return false;
+	// The only case we care!
+	if (from->version == (gc->version % 64) && (from->type > scmHeadUnused && from->type < scmHeadMax)) {
+	  return true;
 	}
-	// stale object? it should have been sweeped, but we defer the sweep lazily
-	if (from->type == scmHeadUnused ||
-	    versionEQ(versionSub(gc->version, 1), from->version)) {
-		// This could happen, for example, stack expand and shrink, the 'dead' object leave in the stack is not reset.
-		return false;
-	}
-
-	if (from->type > scmHeadUnused && from->type < scmHeadMax) {
-		return true;
-	}
-	// Not a cora Object?
-	printf("WARNING: some thing is wrong when checkPointer? %p {type=%d, size=%d, version=%d}\n", from, from->type, from->size, from->version.val);
 	return false;
 }
 
@@ -727,11 +709,10 @@ gcRunIncremental(struct GC *gc) {
 	while (curr != NULL) {
 		gcFunc fn = registry[curr->type];
 		if (fn != NULL) {
-			assert(versionEQ
-			       (curr->version, versionAdd(gc->version, 2)));
+		  assert(curr->version % 64 == ((gc->version +1) % 64));
 			fn(gc, curr);
 			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
-			curr->version = versionSub(curr->version, 1);
+			curr->version = (curr->version+ 1) %64;
 			gcInuseSizeInc(gc, curr->size);
 		}
 		N--;
@@ -808,7 +789,7 @@ gcFlip(struct GC *gc) {
 		prev = h;
 		h = h->next;
 	}
-	gc->version = versionAdd(gc->version, 1);
+	gc->version = gc->version+ 2;
 	gc->state = gcStateNone;
 }
 
@@ -827,7 +808,7 @@ gcRunDone(struct GC *gc) {
 		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
 		     j += pg->b->sizeClass) {
 			scmHead *p = (scmHead *) (pg->b->base + j);
-			if (versionEQ(p->version, versionSub(gc->version, 1))) {
+			if (p->version == (gc->version- 2) % 64) {
 				p->type = scmHeadUnused;
 			}
 		}
@@ -848,9 +829,7 @@ gcRunDone(struct GC *gc) {
 			} else {
 				slots = (p->size + MEM_BLOCK_SIZE -
 					 1) / MEM_BLOCK_SIZE;
-				if (versionEQ
-				    (p->version,
-				     versionSub(gc->version, 1))) {
+				if (p->version == (gc->version- 2) % 64) {
 					struct scmFreeNode *n =
 						(struct scmFreeNode *) p;
 					n->head.type = scmHeadUnused;
@@ -872,16 +851,11 @@ gcRunDone(struct GC *gc) {
 
 static void
 gcRun(struct GC *gc) {
-	// The object color is inspired by the Treadmill GC, HG Baker 1992
-	// The difference is that here version is used instead of colors
-	// ecru is gc->version, which is the color of currently inuse objects
-
-	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateDone | gcFlip  |
-	// | ---         | --          | --                 | --          | --      |
-	// | white       | white       | white              | white       |         |
-	// | ecru  <-    | ecru <-     | ecru <-            | ecru  <-    | white   |
-	// |             |             | black              | black       | ecru <- |
-	// |             |             | gray               |             |         |
+	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateDone | gcFlip     |
+	// | ---         | --          | --                 | --          | --         |
+	// | version  <- | version <-  | version            | version     | stale      |
+	// |             |             | gray               |             |            |
+	// |             |             | black  <-          | black <-    | version <- |
 
 	// gcStateNone -> gcStateMark: start a new round of GC, mark root
 	// gcStateMark -> gcStateIncremental: mark root done, start incremental GC

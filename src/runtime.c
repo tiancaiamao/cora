@@ -82,7 +82,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry1(int required, int captured, Obj * data) {
+makeCurry(int required, int captured, Obj * data) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = callCurry;
@@ -100,7 +100,7 @@ coraDispatch(struct Cora *co) {
 		co->ctx.pc = *nativeFuncPtr(fn);
 		co->ctx.frees = fn;
 	} else if (co->nargs < required + 1) {
-		Obj ret = makeCurry1(required + 1 - co->nargs, co->nargs,
+		Obj ret = makeCurry(required + 1 - co->nargs, co->nargs,
 				     co->args);
 		coraReturn(co, ret);
 	} else {
