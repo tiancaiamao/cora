@@ -317,7 +317,7 @@ inuse(struct GC *gc, scmHead * h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
-	return versionCmp(gc->version, h->version) >= 0;
+	return versionCmp(gc->version, h->version) <= 0;
 }
 
 
@@ -702,34 +702,6 @@ gcRunMark(struct GC *gc) {
 }
 
 static void
-gcRunIncremental(struct GC *gc) {
-	int N = 20;
-	// breadth first.
-	scmHead *curr = gcDequeue(gc);
-	while (curr != NULL) {
-		gcFunc fn = registry[curr->type];
-		if (fn != NULL) {
-		  assert(curr->version % 64 == ((gc->version +1) % 64));
-			fn(gc, curr);
-			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
-			curr->version = (curr->version+ 1) %64;
-			gcInuseSizeInc(gc, curr->size);
-		}
-		N--;
-		if (N == 0) {
-			return;
-		}
-		curr = gcDequeue(gc);
-	}
-
-	gc->state = gcStateDone;
-	gc->progress.sizeClassPos = 0;
-	gc->progress.b = NULL;
-	gc->progress.ha = gc->large;
-	return;
-}
-
-static void
 gcFlip(struct GC *gc) {
 	// printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
@@ -791,6 +763,40 @@ gcFlip(struct GC *gc) {
 	}
 	gc->version = gc->version+ 2;
 	gc->state = gcStateNone;
+}
+
+static void
+gcRunIncremental(struct GC *gc) {
+	int N = 20;
+	// breadth first.
+	scmHead *curr = gcDequeue(gc);
+	while (curr != NULL) {
+		gcFunc fn = registry[curr->type];
+		if (fn != NULL) {
+		  assert(curr->version % 64 == ((gc->version +1) % 64));
+			fn(gc, curr);
+			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
+			curr->version = (curr->version+ 1) %64;
+			gcInuseSizeInc(gc, curr->size);
+		}
+		N--;
+		if (N == 0) {
+			return;
+		}
+		curr = gcDequeue(gc);
+	}
+
+	// Run gcRunDone state every once in a while to avoid version overflow.
+	if (gc->version % 30 == 0) {
+	  gc->state = gcStateDone;
+	  gc->progress.sizeClassPos = 0;
+	  gc->progress.b = NULL;
+	  gc->progress.ha = gc->large;
+	  return;
+	}
+
+	// Or run flip directly otherwise.
+	gcFlip(gc);
 }
 
 static void
