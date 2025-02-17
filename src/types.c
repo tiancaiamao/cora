@@ -249,10 +249,6 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 		va_start(ap, captured);
 		for (int i = 0; i < captured; i++) {
 			clo->data[i] = va_arg(ap, Obj);
-			scmHead *h = getScmHead(clo->data[i]);
-			if (h != NULL) {
-				/* assert(versionCmp(clo->head.version, h->version) >=0); */
-			}
 		}
 		va_end(ap);
 	}
@@ -437,7 +433,7 @@ gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 	}
 }
 
-void
+static void
 gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
 	for (int i = 0; i < stack->len; i++) {
 		struct returnAddr *addr = &stack->data[i];

@@ -652,6 +652,11 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	return NULL;
 }
 
+// A smart generational GC stratage
+// Here 2bits are for generation mark and 6bits are for version,
+// Instead of next version = version + 1, using next version = version + N
+// +N can make the object be skipped in next several rounds of GC.
+// i.e. using a lower GC frequency for older generation.
 static version_t
 nextVersion(version_t ver) {
 	switch (ver >> 6) {
@@ -671,37 +676,37 @@ nextVersion(version_t ver) {
 	return ver;
 }
 
-scmHead *
+void
 gcMark(struct GC *gc, uintptr_t p) {
 	scmHead *from = checkPointer(gc, p);
 	if (from == NULL) {
-		return NULL;
+		return;
 	}
 	// gray object, avoid handling it repeatedly
 	if ((from->version & 1) == 1) {
-		return from;
+		return;
 	}
 	assert(from->type > scmHeadUnused && from->type < scmHeadMax);
 
 	// The only case we care!
-	if (from->version == (gc->version % 64)) {
+	if ((from->version % 64) == (gc->version % 64)) {
 		from->version = nextVersion(from->version);
 		gcEnqueue(gc, ptr(p));
-		return from;
+		return;
 	}
-	return from;
+	return;
 }
 
-scmHead *
+void
 gcMarkAndEnsure(struct GC *gc, uintptr_t p, version_t minv) {
 	assert((minv & 1) == 1);
 	scmHead *from = checkPointer(gc, p);
 	if (from == NULL) {
-		return NULL;
+		return;
 	}
 	// gray object, avoid handling it repeatedly
 	if ((from->version & 1) == 1) {
-		return from;
+		return;
 	}
 	assert(from->type > scmHeadUnused && from->type < scmHeadMax);
 
@@ -710,15 +715,15 @@ gcMarkAndEnsure(struct GC *gc, uintptr_t p, version_t minv) {
 	if (versionCmp(minv % 64, from->version % 64) > 0) {
 		from->version = minv;
 		gcEnqueue(gc, from);
-		return from;
+		return;
 	}
 
 	if (from->version == (gc->version % 64)) {
 		from->version = nextVersion(from->version);
 		gcEnqueue(gc, ptr(p));
-		return from;
+		return;
 	}
-	return from;
+	return;
 }
 
 #if defined(__clang__) || defined (__GNUC__)
@@ -836,7 +841,6 @@ gcRunIncremental(struct GC *gc) {
 	while (curr != NULL) {
 		gcFunc fn = registry[curr->type];
 		if (fn != NULL) {
-			/* assert(curr->version % 64 == ((gc->version +1) % 64)); */
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
@@ -850,7 +854,7 @@ gcRunIncremental(struct GC *gc) {
 		curr = gcDequeue(gc);
 	}
 
-	// Run gcRunDone state every once in a while to avoid version overflow.
+	// Run gcRunDone state every once in a while to avoid version_t overflow.
 	if (gc->version % 30 == 0) {
 		gc->state = gcStateDone;
 		gc->progress.sizeClassPos = 0;
@@ -877,7 +881,7 @@ gcRunDone(struct GC *gc) {
 		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
 		     j += pg->b->sizeClass) {
 			scmHead *p = (scmHead *) (pg->b->base + j);
-			if (p->version == (gc->version - 2) % 64) {
+			if ((p->version % 64) == (gc->version - 2) % 64) {
 				p->type = scmHeadUnused;
 			}
 		}
