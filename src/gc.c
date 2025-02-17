@@ -167,9 +167,10 @@ struct runDoneProgress {
 	struct heapArena *ha;
 };
 
-static int
-versionCmp(uint64_t curr, version_t v2) {
-  int v1 = curr % 64;
+int
+versionCmp(int v1, int v2) {
+  assert(v1 < 64);
+  assert(v2 < 64);
   if (v1 == v2) {
     return 0;
   }
@@ -317,7 +318,7 @@ inuse(struct GC *gc, scmHead * h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
-	return versionCmp(gc->version, h->version) <= 0;
+	return versionCmp(gc->version % 64, h->version) <= 0;
 }
 
 
@@ -578,7 +579,7 @@ gcEnqueue(struct GC *gc, scmHead * p) {
 		gc->end = 0;
 	}
 	// printf("gcEnqueue --%p %d %d %d\n", p, p->size, p->type, p->version);
-	p->version = (p->version + 1) % 64;
+	/* p->version = (p->version + 1) % 64; */
 	*((scmHead **) (b->base + gc->end)) = p;
 	gc->end += sizeof(scmHead *);
 }
@@ -608,18 +609,21 @@ gcDequeue(struct GC *gc) {
 	return ret;
 }
 
-static bool
+// checkPointer checks whether an arbitrary pointer p is
+// 1. allocated from heap
+// 2. and point to an in use cora object
+static scmHead*
 checkPointer(struct GC *gc, uintptr_t p) {
 	// p is not gc alloced, skip it.
 	// This magic number kinda dirty, see types.h
 	if ((p & 0x7) != 0x7) {
-		return false;
+		return NULL;
 	}
 	// not gc allocated
 	void *addr = ptr(p);
 	struct heapArena *h = gcContains(gc, addr);
 	if (h == NULL) {
-		return false;
+		return NULL;
 	}
 	// get the block by the address.
 	// The ptr address might not be aligned.
@@ -633,7 +637,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	} else {
 		// Special block?
 		if (b->sizeClass == 0) {
-			return false;
+			return NULL;
 		}
 
 		int pos = ((char *) addr - b->base) / b->sizeClass;
@@ -643,19 +647,58 @@ checkPointer(struct GC *gc, uintptr_t p) {
 			printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
 		}
 	}
-
-	// The only case we care!
-	if (from->version == (gc->version % 64) && (from->type > scmHeadUnused && from->type < scmHeadMax)) {
-	  return true;
-	}
-	return false;
+	if (inuse(gc, from)) {
+	  return from;
+	};
+	return NULL;
 }
 
-void
+scmHead*
 gcMark(struct GC *gc, uintptr_t p) {
-	if (checkPointer(gc, p)) {
-		gcEnqueue(gc, ptr(p));
-	}
+  scmHead *from = checkPointer(gc, p);
+  if (from == NULL) {
+    return NULL;
+  }
+  // gray object, avoid handling it repeatedly
+  if ((from->version & 1) == 1) {
+    return from;
+  }
+  assert(from->type > scmHeadUnused && from->type < scmHeadMax);
+
+  // The only case we care!
+  if (from->version == (gc->version % 64) ) {
+    from->version = (from->version + 3) % 64;
+    gcEnqueue(gc, ptr(p));
+    return from;
+  }
+  return from;
+}
+
+scmHead*
+gcMarkAndEnsure(struct GC *gc, uintptr_t p, int minv) {
+  scmHead *from = checkPointer(gc, p);
+  if (from == NULL) {
+    return NULL;
+  }
+  // gray object, avoid handling it repeatedly
+  if ((from->version & 1) == 1) {
+    return from;
+  }
+  assert(from->type > scmHeadUnused && from->type < scmHeadMax);
+
+  // write barrior for generational gc
+  if (versionCmp(minv, from->version) > 0) {
+    from->version = minv;
+    gcEnqueue(gc, from);
+    return from;
+  }
+
+  if (from->version == (gc->version % 64) ) {
+    from->version = (from->version + 3) % 64;
+    gcEnqueue(gc, ptr(p));
+    return from;
+  }
+  return from;
 }
 
 #if defined(__clang__) || defined (__GNUC__)
@@ -773,10 +816,11 @@ gcRunIncremental(struct GC *gc) {
 	while (curr != NULL) {
 		gcFunc fn = registry[curr->type];
 		if (fn != NULL) {
-		  assert(curr->version % 64 == ((gc->version +1) % 64));
+		  /* assert(curr->version % 64 == ((gc->version +1) % 64)); */
+		  assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
-			curr->version = (curr->version+ 1) %64;
+			/* curr->version = (curr->version+ 1) %64; */
 			gcInuseSizeInc(gc, curr->size);
 		}
 		N--;

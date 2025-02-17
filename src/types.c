@@ -80,8 +80,10 @@ iscons(Obj o) {
 static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
-	gcMark(gc, from->car);
-	gcMark(gc, from->cdr);
+	int minv = from->head.version;
+	gcMarkAndEnsure(gc, from->car, minv);
+	gcMarkAndEnsure(gc, from->cdr, minv);
+	from->head.version = (from->head.version+ 1) %64;
 }
 
 Obj
@@ -192,7 +194,8 @@ stringStr(Obj o) {
 
 static void
 bytesGCFunc(struct GC *gc, void *f) {
-	// TODO:
+  scmHead* from = f;
+	from->version = (from->version+ 1) %64;
 }
 
 
@@ -249,6 +252,10 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 		va_start(ap, captured);
 		for (int i = 0; i < captured; i++) {
 			clo->data[i] = va_arg(ap, Obj);
+			scmHead* h = getScmHead(clo->data[i]);
+			if (h != NULL) {
+			  /* assert(versionCmp(clo->head.version, h->version) >=0); */
+			}
 		}
 		va_end(ap);
 	}
@@ -259,9 +266,11 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 static void
 nativeGCFunc(struct GC *gc, void *f) {
 	struct scmNative *from = f;
+	int minv = from->head.version;
 	for (int i = 0; i < from->captured; i++) {
-		gcMark(gc, from->data[i]);
+	  gcMarkAndEnsure(gc, from->data[i], minv);
 	}
+	from->head.version = (from->head.version+ 1) %64;
 }
 
 bool
@@ -336,6 +345,11 @@ vectorSet(Obj vec, int idx, Obj val) {
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrier(getGC(), &v->data[idx], val);
+	// barrier for generational GC
+	scmHead *h = getScmHead(val);
+	if (h != NULL && versionCmp(v->head.version, h->version) > 0) {
+	  h->version = v->head.version;
+	}
 	return vec;
 }
 
@@ -360,9 +374,11 @@ isvector(Obj o) {
 static void
 vectorGCFunc(struct GC *gc, void *f) {
 	struct scmVector *from = f;
+	int minv = from->head.version;
 	for (int i = 0; i < from->size; i++) {
-		gcMark(gc, from->data[i]);
+	  gcMarkAndEnsure(gc, from->data[i], minv);
 	}
+	from->head.version = (from->head.version+ 1) %64;
 }
 
 bool
@@ -425,10 +441,25 @@ gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 	}
 }
 
+void
+gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
+	for (int i = 0; i < stack->len; i++) {
+		struct returnAddr *addr = &stack->data[i];
+		// TODO: duplicated operation
+		for (int j = 0; j < addr->stk.base; j++) {
+		  gcMarkAndEnsure(gc, addr->stk.stack[j], minv);
+		}
+		// Don't forget this one!
+		gcMarkAndEnsure(gc, addr->frees, minv);
+	}
+}
+
 static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
-	gcMarkCallStack(gc, &from->cs);
+	int minv = from->head.version;
+	gcMarkCallStackAndEnsure(gc, &from->cs, minv);
+	from->head.version = (from->head.version+ 1) %64;
 }
 
 void
