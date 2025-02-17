@@ -289,7 +289,7 @@ Obj
 primSet(struct Cora *co, Obj key, Obj val) {
 	assert(issymbol(key));
 	struct trieNode *s = ptr(key);
-	writeBarrier(getGC(), &s->value, val);	// s->value = val;
+	writeBarrierForIncremental(getGC(), &s->value, val);	// s->value = val;
 	if (s->next == NULL) {
 		s->next = co->globals;
 		s->owner = co;

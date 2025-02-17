@@ -24,6 +24,7 @@ enum {
   scmHeadMax,
 };
 
+// 2bits generation and 6bits version
 typedef uint8_t version_t;
 
 typedef struct {
@@ -44,8 +45,8 @@ struct GC *getGC();
 
 void* gcAlloc(struct GC* gc, int size);
 
-int versionCmp(int v1, int v2);
-void writeBarrier(struct GC *gc, uintptr_t *slot, uintptr_t val);
+void writeBarrierForGeneration(scmHead* from, uintptr_t val);
+void writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head);
 void gcMarkAndEnsure(struct GC *gc, uintptr_t head, version_t minv);
 

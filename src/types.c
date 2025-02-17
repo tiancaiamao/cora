@@ -336,13 +336,8 @@ vectorSet(Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
-	writeBarrier(getGC(), &v->data[idx], val);
-	// barrier for generational GC
-	scmHead *h = getScmHead(val);
-	if (h != NULL &&
-	    versionCmp(v->head.version % 64, h->version % 64) > 0) {
-		h->version = v->head.version;
-	}
+	writeBarrierForIncremental(getGC(), &v->data[idx], val);
+	writeBarrierForGeneration(&v->head, val);
 	return vec;
 }
 

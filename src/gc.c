@@ -167,7 +167,7 @@ struct runDoneProgress {
 	struct heapArena *ha;
 };
 
-int
+static int
 versionCmp(int v1, int v2) {
 	assert(v1 < 64);
 	assert(v2 < 64);
@@ -902,7 +902,8 @@ gcRunDone(struct GC *gc) {
 			} else {
 				slots = (p->size + MEM_BLOCK_SIZE -
 					 1) / MEM_BLOCK_SIZE;
-				if (p->version == (gc->version - 2) % 64) {
+				if ((p->version % 64) ==
+				    (gc->version - 2) % 64) {
 					struct scmFreeNode *n =
 						(struct scmFreeNode *) p;
 					n->head.type = scmHeadUnused;
@@ -951,11 +952,22 @@ gcRun(struct GC *gc) {
 }
 
 void
-writeBarrier(struct GC *gc, uintptr_t * slot, uintptr_t val) {
+writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	// Yuasa-style deletion barrier
 	if (gc->state == gcStateIncremental) {
 		uintptr_t old = *slot;
 		gcMark(gc, old);
 	}
 	*slot = val;
+}
+
+void
+writeBarrierForGeneration(scmHead * v, uintptr_t val) {
+	if (tag(val) != TAG_PTR) {
+		return;
+	}
+	scmHead *h = ptr(val);
+	if (versionCmp(v->version % 64, h->version % 64) > 0) {
+		h->version = v->version;
+	}
 }
