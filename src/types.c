@@ -83,7 +83,6 @@ consGCFunc(struct GC *gc, void *f) {
 	int minv = from->head.version;
 	gcMarkAndEnsure(gc, from->car, minv);
 	gcMarkAndEnsure(gc, from->cdr, minv);
-	from->head.version = (from->head.version+ 1) %64;
 }
 
 Obj
@@ -194,8 +193,6 @@ stringStr(Obj o) {
 
 static void
 bytesGCFunc(struct GC *gc, void *f) {
-  scmHead* from = f;
-	from->version = (from->version+ 1) %64;
 }
 
 
@@ -270,7 +267,6 @@ nativeGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->captured; i++) {
 	  gcMarkAndEnsure(gc, from->data[i], minv);
 	}
-	from->head.version = (from->head.version+ 1) %64;
 }
 
 bool
@@ -378,7 +374,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->size; i++) {
 	  gcMarkAndEnsure(gc, from->data[i], minv);
 	}
-	from->head.version = (from->head.version+ 1) %64;
 }
 
 bool
@@ -459,7 +454,6 @@ continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	int minv = from->head.version;
 	gcMarkCallStackAndEnsure(gc, &from->cs, minv);
-	from->head.version = (from->head.version+ 1) %64;
 }
 
 void

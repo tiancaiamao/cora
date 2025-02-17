@@ -686,7 +686,8 @@ gcMarkAndEnsure(struct GC *gc, uintptr_t p, int minv) {
   }
   assert(from->type > scmHeadUnused && from->type < scmHeadMax);
 
-  // write barrior for generational gc
+  // barrior for generational gc
+  // That is, old generation to young generation is forbidden.
   if (versionCmp(minv, from->version) > 0) {
     from->version = minv;
     gcEnqueue(gc, from);
@@ -820,7 +821,7 @@ gcRunIncremental(struct GC *gc) {
 		  assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			/* printf("gcMark handle %p ==%ld, sz=%d tp=%d version=%d\n", curr, curr, curr->size, curr->type, curr->version); */
-			/* curr->version = (curr->version+ 1) %64; */
+			curr->version = (curr->version+ 1) %64;
 			gcInuseSizeInc(gc, curr->size);
 		}
 		N--;

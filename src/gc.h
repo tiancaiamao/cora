@@ -44,8 +44,10 @@ struct GC *getGC();
 
 void* gcAlloc(struct GC* gc, int size);
 
+int versionCmp(int v1, int v2);
 void writeBarrier(struct GC *gc, uintptr_t *slot, uintptr_t val);
 scmHead* gcMark(struct GC *gc, uintptr_t head);
+scmHead* gcMarkAndEnsure(struct GC *gc, uintptr_t head, int minv);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);
