@@ -101,7 +101,7 @@ coraDispatch(struct Cora *co) {
 		co->ctx.frees = fn;
 	} else if (co->nargs < required + 1) {
 		Obj ret = makeCurry(required + 1 - co->nargs, co->nargs,
-				     co->args);
+				    co->args);
 		coraReturn(co, ret);
 	} else {
 		// save the extra args.

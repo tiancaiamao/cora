@@ -80,7 +80,7 @@ iscons(Obj o) {
 static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
-	int minv = from->head.version;
+	version_t minv = from->head.version;
 	gcMarkAndEnsure(gc, from->car, minv);
 	gcMarkAndEnsure(gc, from->cdr, minv);
 }
@@ -249,9 +249,9 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 		va_start(ap, captured);
 		for (int i = 0; i < captured; i++) {
 			clo->data[i] = va_arg(ap, Obj);
-			scmHead* h = getScmHead(clo->data[i]);
+			scmHead *h = getScmHead(clo->data[i]);
 			if (h != NULL) {
-			  /* assert(versionCmp(clo->head.version, h->version) >=0); */
+				/* assert(versionCmp(clo->head.version, h->version) >=0); */
 			}
 		}
 		va_end(ap);
@@ -263,9 +263,9 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 static void
 nativeGCFunc(struct GC *gc, void *f) {
 	struct scmNative *from = f;
-	int minv = from->head.version;
+	version_t minv = from->head.version;
 	for (int i = 0; i < from->captured; i++) {
-	  gcMarkAndEnsure(gc, from->data[i], minv);
+		gcMarkAndEnsure(gc, from->data[i], minv);
 	}
 }
 
@@ -343,8 +343,9 @@ vectorSet(Obj vec, int idx, Obj val) {
 	writeBarrier(getGC(), &v->data[idx], val);
 	// barrier for generational GC
 	scmHead *h = getScmHead(val);
-	if (h != NULL && versionCmp(v->head.version, h->version) > 0) {
-	  h->version = v->head.version;
+	if (h != NULL &&
+	    versionCmp(v->head.version % 64, h->version % 64) > 0) {
+		h->version = v->head.version;
 	}
 	return vec;
 }
@@ -370,9 +371,9 @@ isvector(Obj o) {
 static void
 vectorGCFunc(struct GC *gc, void *f) {
 	struct scmVector *from = f;
-	int minv = from->head.version;
+	version_t minv = from->head.version;
 	for (int i = 0; i < from->size; i++) {
-	  gcMarkAndEnsure(gc, from->data[i], minv);
+		gcMarkAndEnsure(gc, from->data[i], minv);
 	}
 }
 
@@ -442,7 +443,7 @@ gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
 		struct returnAddr *addr = &stack->data[i];
 		// TODO: duplicated operation
 		for (int j = 0; j < addr->stk.base; j++) {
-		  gcMarkAndEnsure(gc, addr->stk.stack[j], minv);
+			gcMarkAndEnsure(gc, addr->stk.stack[j], minv);
 		}
 		// Don't forget this one!
 		gcMarkAndEnsure(gc, addr->frees, minv);
@@ -452,7 +453,7 @@ gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
 static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
-	int minv = from->head.version;
+	version_t minv = from->head.version;
 	gcMarkCallStackAndEnsure(gc, &from->cs, minv);
 }
 
