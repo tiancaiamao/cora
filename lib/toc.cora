@@ -251,7 +251,7 @@
 						  (generate-str w (symbol->string x))
 						  (generate-str w "\")")))
 				   ((number? x) (begin
-						  (generate-str w "makeNumber(")
+						  (generate-str w "MAKE_NUMBER(")
 						  (generate-num w x)
 						  (generate-str w ")")))
 				   ((string? x) (begin

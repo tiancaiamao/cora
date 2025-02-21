@@ -3500,7 +3500,7 @@ goto *jumpTable[co->ctx.pc.label];
 label2:
 {
 Obj n = __arg1;
-Obj _35reg844 = primEQ(n, makeNumber(0));
+Obj _35reg844 = primEQ(n, MAKE_NUMBER(0));
 if (True == _35reg844) {
 __nargs = 2;
 __arg1 = Nil;
@@ -3509,7 +3509,7 @@ if (co->ctx.pc.func != clofun14) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg845 = primGenSym(intern("p"));
-Obj _35reg846 = PRIM_SUB(n, makeNumber(1));
+Obj _35reg846 = PRIM_SUB(n, MAKE_NUMBER(1));
 PUSH_CONT(co, 3, clofun14, 1, _35reg845);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#gen-paramenters"));
@@ -3814,7 +3814,7 @@ label4:
 Obj l = __arg1;
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#length-h"));
-__arg1 = makeNumber(0);
+__arg1 = MAKE_NUMBER(0);
 __arg2 = l;
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
@@ -3835,7 +3835,7 @@ co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != clofun16) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-Obj _35reg814 = PRIM_ADD(i, makeNumber(1));
+Obj _35reg814 = PRIM_ADD(i, MAKE_NUMBER(1));
 Obj _35reg815 = PRIM_CDR(l);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#length-h"));
