@@ -128,12 +128,7 @@ growCallStack(struct callStack *cs) {
 
 #define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
 #define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
-#define PRIM_CONS(hd, tl) ({ \
-    struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons)); \
-    p->car = (Obj)(hd);						     \
-    p->cdr = (Obj)(tl);						     \
-    ((Obj)(&p->head) | TAG_PTR); \
-})
+#define PRIM_ISCONS(obj) (iscons(obj)? True: False)
 
 #define PRIM_EQ(x, y) (eq(x, y) ? True : False)
 #define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
