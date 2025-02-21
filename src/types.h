@@ -58,7 +58,6 @@ struct scmCons {
 };
 
 #define fixnum(x) ((intptr_t)(x)>>1)
-bool eq(Obj x, Obj y);
 
 scmHead *getScmHead(Obj);
 
@@ -70,7 +69,8 @@ Obj symbolGet(Obj sym);
 char* symbolStr(Obj sym);
 
 #define cons(x, y) makeCons(x, y)
-bool iscons(Obj o);
+#define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
+
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
@@ -89,8 +89,34 @@ Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
 str stringStr(Obj o);
 Obj makeNumber(int v);
-bool isBytes(Obj o);
+#define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
 bool isNumber(Obj o);
+
+struct scmBytes {
+	scmHead head;
+	int len;
+	char data[];
+};
+
+static inline bool
+eq(Obj x, Obj y) {
+    if (x == y) return true;
+
+    if (iscons(x) && iscons(y)) {
+        if (!eq(car(x), car(y))) return false;
+        return eq(cdr(x), cdr(y));
+    }
+
+    if (isBytes(x) && isBytes(y)) {
+        struct scmBytes *x1 = ptr(x);
+        struct scmBytes *y1 = ptr(y);
+        str s1 = { x1->data, x1->len };
+        str s2 = { y1->data, y1->len };
+        return strCmp(s1, s2) == 0;
+    }
+
+    return false;
+}
 
 struct Cora;
 
@@ -156,6 +182,15 @@ struct trieNode {
 		struct Cora *owner;
 };
 
+#define globalRef(symbol) ({ \
+    struct trieNode *s = ptr(symbol); \
+    Obj val = s->value; \
+    if (val == Undef) { \
+        printf("undefined global symbol: %s\n", s->sym); \
+        assert(false); \
+    } \
+    val; \
+})
 
 void trieNodeGCFunc(struct GC* gc, struct trieNode *node);
 

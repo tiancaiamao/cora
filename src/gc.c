@@ -82,22 +82,21 @@ heapArenaFull(struct heapArena *ha) {
 
 static struct Block *
 heapArenaAlloc(struct heapArena *h) {
-	struct Block *b = h->freelist;
 	if (h->freelist != NULL) {
+		struct Block *b = h->freelist;
 		h->freelist = b->next;
 		b->next = NULL;
 		b->ha = h;
 		return b;
 	}
-	b = &h->blocks[h->idx];
+
+	struct Block *b = &h->blocks[h->idx];
 	b->ha = h;
-	b->base = (h->ptr + h->idx * MEM_BLOCK_SIZE);
+	b->base = h->ptr + h->idx * MEM_BLOCK_SIZE;
 	b->sizeClass = 0;
 	b->curr = 0;
 	b->next = NULL;
 	h->idx++;
-
-	/* printf("allocate new block, current idx==%d\n", h->idx); */
 	return b;
 }
 
@@ -146,19 +145,9 @@ static int mediumSizeClassIdx[] =
 
 static int
 getSlotBySize(int size) {
-	int slot;
-	if (size < 128) {
-		int sizeDiv8 = ((size + 7) / 8);
-		slot = smallSizeClassIdx[sizeDiv8];
-	} else {
-		int sizeDiv64 = ((size + 63) / 64);
-		slot = mediumSizeClassIdx[sizeDiv64];
-	}
-// assert(sizeClass[slot] >= size);
-// if (slot > 0) {
-//                       assert(sizeClass[slot-1] < size);
-// }
-	return slot;
+	int *idxArray = (size < 128) ? smallSizeClassIdx : mediumSizeClassIdx;
+	int sizeDiv = (size < 128) ? (size + 7) / 8 : (size + 63) / 64;
+	return idxArray[sizeDiv];
 }
 
 struct runDoneProgress {
@@ -176,17 +165,15 @@ versionCmp(int v1, int v2) {
 	assert(v1 < (1 << VERSION_BITS));
 	assert(v2 < (1 << VERSION_BITS));
 
-	if (v1 == v2)
+	int diff = v2 - v1;
+	if (diff == 0)
 		return 0;
 
-	int diff = v2 - v1;
-	// If the difference is within half version space, maintain normal order
-	// Otherwise consider it as a wrap-around case and reverse the comparison result
-	return (diff > -HALF_VERSION &&
-		diff < HALF_VERSION) ? (diff > 0 ? -1 : 1) : (diff >
-							      0 ? 1 : -1);
+	if (diff > -HALF_VERSION && diff < HALF_VERSION) {
+		return (diff > 0) ? -1 : 1;
+	}
+	return (diff > 0) ? 1 : -1;
 }
-
 
 struct GC {
 	enum gcState state;

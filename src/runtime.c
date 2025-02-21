@@ -12,12 +12,7 @@ static void
 saveToStack(struct callStack *cs, int label, basicBlock cb, int base,
 	    Obj frees, Obj * stack) {
 	if (cs->len + 1 >= cs->cap) {
-		cs->cap = cs->cap * 2;
-		void *newData = malloc(cs->cap * sizeof(struct returnAddr));
-		memcpy(newData, cs->data,
-		       cs->len * sizeof(struct returnAddr));
-		free(cs->data);
-		cs->data = newData;
+	  growCallStack(cs);
 	}
 
 	struct returnAddr *addr = &cs->data[cs->len];
@@ -197,17 +192,6 @@ Obj
 closureRef(struct Cora *co, int idx) {
 	Obj *frees = nativeData(co->ctx.frees);
 	return frees[idx];
-}
-
-Obj
-globalRef(Obj sym) {
-	struct trieNode *s = ptr(sym);
-	Obj val = s->value;
-	if (val == Undef) {
-		printf("undefined global symbol: %s\n", s->sym);
-		assert(false);
-	}
-	return val;
 }
 
 Obj
@@ -597,7 +581,7 @@ static int unique = 1;
 
 void
 builtinLoad(struct Cora *co) {
-	// (load "file-path.cora" "package-path")
+	// (load "file-path.cora")
 	Obj filePath = co->args[1];
 
 	co->nargs = 3;

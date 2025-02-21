@@ -11,13 +11,6 @@ const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
 const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
 const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
-struct scmBytes {
-	scmHead head;
-	int len;
-	char data[];
-	// strBuf str;
-};
-
 const char *typeNameX[8] = {
 	"unused",
 	"boolean",
@@ -66,15 +59,6 @@ makeCons(Obj car, Obj cdr) {
 	p->car = car;
 	p->cdr = cdr;
 	return ((Obj) (&p->head) | TAG_PTR);
-}
-
-bool
-iscons(Obj o) {
-	if ((o & TAG_MASK) != TAG_PTR) {
-		return false;
-	}
-	scmHead *h = ptr(o);
-	return h->type == scmHeadCons;
 }
 
 static void
@@ -157,15 +141,15 @@ bytesLen(Obj o) {
 	return s->len;
 }
 
-bool
-isBytes(Obj o) {
-	if (tag(o) == TAG_PTR) {
-		if (((scmHead *) ptr(o))->type == scmHeadBytes) {
-			return true;
-		}
-	}
-	return false;
-}
+/* bool */
+/* isBytes(Obj o) { */
+/* 	if (tag(o) == TAG_PTR) { */
+/* 		if (((scmHead *) ptr(o))->type == scmHeadBytes) { */
+/* 			return true; */
+/* 		} */
+/* 	} */
+/* 	return false; */
+/* } */
 
 Obj
 makeString(const char *s, int len) {
@@ -366,30 +350,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->size; i++) {
 		gcMarkAndEnsure(gc, from->data[i], minv);
 	}
-}
-
-bool
-eq(Obj x, Obj y) {
-	if (x == y) {
-		return true;
-	}
-
-	if (iscons(x) && iscons(y)) {
-		if (!eq(car(x), car(y))) {
-			return false;
-		}
-		return eq(cdr(x), cdr(y));
-	}
-
-	if (isBytes(x) && isBytes(y)) {
-		struct scmBytes *x1 = ptr(x);
-		struct scmBytes *y1 = ptr(y);
-		str s1 = { x1->data, x1->len };
-		str s2 = { y1->data, y1->len };
-		return strCmp(s1, s2) == 0;
-	}
-
-	return false;
 }
 
 struct scmContinuation {
