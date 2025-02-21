@@ -27,10 +27,10 @@
 			   true))
 
   (def *builtin-prims*
-       [['set 2 "primSet"] ['car 1 "PRIM_CAR"] ['cdr 1 "PRIM_CDR"] ['cons 2 "PRIM_CONS"] ['cons? 1 "primIsCons"]
-	['+ 2 "PRIM_ADD"] ['- 2 "PRIM_SUB"] ['* 2 "PRIM_MUL"] ['/ 2 "primDiv"]
-	['= 2 "PRIM_EQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 1 "primGenSym"] ['symbol? 1 "primIsSymbol"]
-	['not 1 "primNot"] ['integer? 1 "primIsNumber"] ['string? 1 "primIsString"]])
+       [['set 2 'primSet] ['car 1 'primCar] ['cdr 1 'primCdr] ['cons 2 'primCons] ['cons? 1 'primIsCons]
+	['+ 2 'primAdd] ['- 2 'primSub] ['* 2 'primMul] ['/ 2 'primDiv]
+	['= 2 'primEQ] ['> 2 'primGT] ['< 2 'primLT] ['gensym 1 'primGenSym] ['symbol? 1 'primIsSymbol]
+	['not 1 'primNot] ['integer? 1 'primIsNumber] ['string? 1 'primIsString]])
 
   (defun builtin? (x)
     (not (null? (assq x *builtin-prims*))))
@@ -251,7 +251,7 @@
 						  (generate-str w (symbol->string x))
 						  (generate-str w "\")")))
 				   ((number? x) (begin
-						  (generate-str w "MAKE_NUMBER(")
+						  (generate-str w "makeNumber(")
 						  (generate-num w x)
 						  (generate-str w ")")))
 				   ((string? x) (begin
@@ -270,7 +270,7 @@
 				       (generate-str w ";\n")
 				       (generate-inst self (cons a env) w c)))
 	self env w [['%builtin f] . args] => (begin
-					       (generate-str w (builtin->name f))
+					       (generate-sym w (builtin->name f))
 					       (if (= f 'set)
 						   (generate-str w "(co, ")
 						   (generate-str w "("))
@@ -342,7 +342,7 @@
 
   (func generate-cont
 	self w ['%continuation label . stacks] => (begin
-						    (generate-str w "PUSH_CONT(co, ")
+						    (generate-str w "pushCont(co, ")
 						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
 						    (generate-group-name w label (car self))
