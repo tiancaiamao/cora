@@ -217,8 +217,8 @@
 	(k tmp)]))
 
   (func generate-call-list
-	self w i [] => ()
-	self w i [x . more] => (begin
+	globals self w i [] => ()
+	globals self w i [x . more] => (begin
 				 (if (not (> i 3))
 				     (begin (generate-str w "__arg")
 					    (generate-num w i))
@@ -226,11 +226,11 @@
 					    (generate-num w i)
 					    (generate-str w "]")))
 				 (generate-str w " = ")
-				 (generate-inst self () w x)
+				 (generate-inst globals self () w x)
 				 (generate-str w ";\n")
-				 (generate-call-list self w (+ i 1) more)))
+				 (generate-call-list globals self w (+ i 1) more)))
 
-  (defun generate-inst (self env w x1)
+  (defun generate-inst (globals self env w x1)
     (if (symbol? x1)
 	(generate-sym w x1)
 	(match x1
@@ -267,23 +267,23 @@
 			   (if (< idx 0) (generate-str w "Obj ") ())
 			   (generate-sym w a)
 			   (generate-str w " = ")
-			   (generate-inst self env w b)
+			   (generate-inst globals self env w b)
 			   (generate-str w ";\n")
-			   (generate-inst self (cons a env) w c)))
+			   (generate-inst globals self (cons a env) w c)))
 	  [['%builtin f] . args] (begin
 				   (generate-str w (builtin->name f))
 				   (if (= f 'set)
 				       (generate-str w "(co, ")
 				       (generate-str w "("))
-				   (generate-inst-list self env w args)
+				   (generate-inst-list globals self env w args)
 				   (generate-str w ")"))
 	  ['if a b c] (begin
 			(generate-str w "if (True == ")
-			(generate-inst self env w a)
+			(generate-inst globals self env w a)
 			(generate-str w ") {\n")
-			(generate-inst self env w b)
+			(generate-inst globals self env w b)
 			(generate-str w "} else {\n")
-			(generate-inst self env w c)
+			(generate-inst globals self env w c)
 			(generate-str w "}\n"))
 	  ['%closure label nargs . frees] (begin
 					    (generate-str w "makeNative(")
@@ -297,32 +297,32 @@
 					    (if (not (null? frees))
 						(begin
 						  (generate-str w ", ")
-						  (generate-inst-list self env w frees))
+						  (generate-inst-list globals self env w frees))
 						())
 					    (generate-str w ")"))
 	  ['do a b] (begin
-		      (generate-inst self env w a)
+		      (generate-inst globals self env w a)
 		      (generate-str w ";\n")
-		      (generate-inst self env w b))
+		      (generate-inst globals self env w b))
 	  ['return x] (begin
 			(generate-str w "__nargs = 2;\n")
 			(generate-str w "__arg1 = ")
-			(generate-inst self env w x)
+			(generate-inst globals self env w x)
 			(generate-str w ";\n")
 			(generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
 			(generate-str w "if (co->ctx.pc.func != ")
 			(generate-group-name w (cdr self) (car self))
 			(generate-str w ") { goto fail; }\n")
 			(generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
-	  ['tailcall exp] (generate-inst self env w exp)
+	  ['tailcall exp] (generate-inst globals self env w exp)
 	  ['call exp cont] (begin
-			     (generate-cont self w cont)
-			     (generate-inst self env w exp))
+			     (generate-cont globals self w cont)
+			     (generate-inst globals self env w exp))
 	  [f . args] (begin
 		       (generate-str w "__nargs = ")
 		       (generate-num w (+ 1 (length args)))
 		       (generate-str w ";\n")
-		       (generate-call-list self w 0 [f . args])
+		       (generate-call-list globals self w 0 [f . args])
 		       (generate-str w "co->ctx.frees = __arg0;\n")
 		       (generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
 		       (generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
@@ -342,7 +342,7 @@
   ;; 			    (.generate-call-args env w (+ idx 1) b)))
 
   (func generate-cont
-	self w ['%continuation label . stacks] => (begin
+	globals self w ['%continuation label . stacks] => (begin
 						    (generate-str w "PUSH_CONT(co, ")
 						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
@@ -353,21 +353,21 @@
 							(for-each (lambda (x)
 								    (begin
 								      (generate-str w ", ")
-								      (generate-inst self () w x)))
+								      (generate-inst globals self () w x)))
 								  stacks)
 							())
 						    (generate-str w ");\n")))
 
   (func generate-inst-list-h
-	self env fn w [] => ()
-	self env fn w [a . b] => (begin (fn self env w a)
+	globals self env fn w [] => ()
+	globals self env fn w [a . b] => (begin (fn globals self env w a)
 					(if (not (null? b))
 					    (generate-str w ", ")
 					    ())
-					(generate-inst-list-h self env fn w b)))
+					(generate-inst-list-h globals self env fn w b)))
 
-  (defun generate-inst-list (self env w l)
-    (generate-inst-list-h self env generate-inst w l))
+  (defun generate-inst-list (globals self env w l)
+    (generate-inst-list-h globals self env generate-inst w l))
 
   (def *mod-num* 50)
 
@@ -389,7 +389,7 @@
   (defun local-from-params (w i var)
     (begin
       (generate-str w "Obj ")
-      (generate-inst 'ignore () w var)
+      (generate-inst 'ignore 'ignore () w var)
       (if (< i 4)
 	  (begin (generate-str w " = __arg")
 		 (generate-num w i)
@@ -401,7 +401,7 @@
   (defun local-from-cont (w i var)
     (begin
       (generate-str w "Obj ")
-      (generate-inst 'ignore () w var)
+      (generate-inst 'ignore 'ignore () w var)
       (generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
       (generate-num w i)
       (generate-str w "];\n")))
@@ -413,15 +413,15 @@
 			      (generate-call-args-reverse fn w (+ idx 1) b)))
 
   (func code-gen-toplevel
-	w [label ['lambda params actives body]] maxid => (begin
+	w [label ['lambda params actives body]] maxid globals => (begin
 						     (generate-str w "label")
 						     (generate-num w (mod (- maxid label) *mod-num*))
 						     (generate-str w ":\n{\n")
 						     (generate-call-args-reverse local-from-params w 1 params)
 						     (generate-call-args-reverse local-from-cont w 0 actives)
-						     (generate-inst (cons maxid label) params w body)
+						     (generate-inst globals (cons maxid label) params w body)
 						     (generate-str w "}\n\n"))
-	w other maxid =>  (begin (display "wrong format of toplevel\n")
+	w other maxid globals =>  (begin (display "wrong format of toplevel\n")
 			   (display other)
 			   (display "\n")))
 
@@ -480,7 +480,7 @@
 		(generate-jumptable to (+ i 1) n)))
      (true ())))
 
-  (defun generate-toplevel-group (to group maxid)
+  (defun generate-toplevel-group (to group maxid globals)
     (begin
       (code-gen-func-declare to (caar group) maxid)
       (generate-str to "{\n")
@@ -496,7 +496,7 @@
       (generate-str to "};\n\n")
       (generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
 
-      (for-each (lambda (x) (code-gen-toplevel to x maxid)) group)
+      (for-each (lambda (x) (code-gen-toplevel to x maxid globals)) group)
 
       (generate-str to "fail:\n")
       (generate-str to "co->nargs = __nargs;\n")
@@ -518,6 +518,7 @@
   (defun generate-c (to bc)
     (let groups (group-by-mod-h [] 0 [] bc)
       maxid (caar bc)
+      globals (gensym 'collect)
       (begin
 	(generate-str to "#include \"types.h\"\n")
 	(generate-str to "#include \"runtime.h\"\n\n")
@@ -528,7 +529,7 @@
 		  groups)
 	(generate-str to "\n\n")
 	(for-each (lambda (group)
-		    (generate-toplevel-group to group maxid))
+		    (generate-toplevel-group to group maxid globals))
 		  groups))))
 
   (func handle-import-eagerly
