@@ -58,7 +58,6 @@ struct scmCons {
 };
 
 #define fixnum(x) ((intptr_t)(x)>>1)
-/* bool eq(Obj x, Obj y); */
 
 scmHead *getScmHead(Obj);
 
@@ -71,7 +70,6 @@ char* symbolStr(Obj sym);
 
 #define cons(x, y) makeCons(x, y)
 #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
-/* bool iscons(Obj o); */
 
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
@@ -91,7 +89,6 @@ Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
 str stringStr(Obj o);
 Obj makeNumber(int v);
-/* bool isBytes(Obj o); */
 #define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
 bool isNumber(Obj o);
 

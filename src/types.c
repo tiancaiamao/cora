@@ -61,15 +61,6 @@ makeCons(Obj car, Obj cdr) {
 	return ((Obj) (&p->head) | TAG_PTR);
 }
 
-/* bool */
-/* iscons(Obj o) { */
-/* 	if ((o & TAG_MASK) != TAG_PTR) { */
-/* 		return false; */
-/* 	} */
-/* 	scmHead *h = ptr(o); */
-/* 	return h->type == scmHeadCons; */
-/* } */
-
 static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
@@ -360,30 +351,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 		gcMarkAndEnsure(gc, from->data[i], minv);
 	}
 }
-
-/* bool */
-/* eq(Obj x, Obj y) { */
-/* 	if (x == y) { */
-/* 		return true; */
-/* 	} */
-
-/* 	if (iscons(x) && iscons(y)) { */
-/* 		if (!eq(car(x), car(y))) { */
-/* 			return false; */
-/* 		} */
-/* 		return eq(cdr(x), cdr(y)); */
-/* 	} */
-
-/* 	if (isBytes(x) && isBytes(y)) { */
-/* 		struct scmBytes *x1 = ptr(x); */
-/* 		struct scmBytes *y1 = ptr(y); */
-/* 		str s1 = { x1->data, x1->len }; */
-/* 		str s2 = { y1->data, y1->len }; */
-/* 		return strCmp(s1, s2) == 0; */
-/* 	} */
-
-/* 	return false; */
-/* } */
 
 struct scmContinuation {
 	scmHead head;

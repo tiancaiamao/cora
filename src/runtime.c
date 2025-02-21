@@ -194,17 +194,6 @@ closureRef(struct Cora *co, int idx) {
 	return frees[idx];
 }
 
-/* Obj */
-/* globalRef(Obj sym) { */
-/* 	struct trieNode *s = ptr(sym); */
-/* 	Obj val = s->value; */
-/* 	if (val == Undef) { */
-/* 		printf("undefined global symbol: %s\n", s->sym); */
-/* 		assert(false); */
-/* 	} */
-/* 	return val; */
-/* } */
-
 Obj
 primEQ(Obj x, Obj y) {
 	return eq(x, y) ? True : False;
