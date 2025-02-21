@@ -107,8 +107,17 @@ growCallStack(struct callStack *cs) {
     (co)->ctx.stk.base += 1; \
 } while (0)
 
-#define PUSH_CONT(co, label, func, nstack, ...) do { \
-    PUSH_CONT_0(co, label, func); \
+#define PUSH_CONT(co, lbl, bb, nstack, ...) do { \
+    struct callStack *__cs = &(co)->callstack; \
+    if (unlikely(__cs->len >= __cs->cap)) { \
+        growCallStack(__cs); \
+    } \
+    struct returnAddr *__addr = &__cs->data[__cs->len++]; \
+    __addr->pc.func = (bb); \
+    __addr->pc.label = (lbl); \
+    __addr->stk.stack = (co)->ctx.stk.stack; \
+    __addr->stk.base = (co)->ctx.stk.base; \
+    __addr->frees = (co)->ctx.frees; \
     if ((nstack) > 0) { \
         Obj __tmp[] = { __VA_ARGS__ }; \
         memcpy((co)->ctx.stk.stack + (co)->ctx.stk.base, __tmp, \
@@ -117,20 +126,24 @@ growCallStack(struct callStack *cs) {
     (co)->ctx.stk.base += (nstack); \
 } while (0)
 
-#define PRIM_CAR(obj) (((struct scmCons*)(ptr(obj)))->car)
-#define PRIM_CDR(obj) (((struct scmCons*)(ptr(obj)))->cdr)
-#define PRIM_CONS(car, cdr) ({ \
+#define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
+#define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
+#define PRIM_CONS(hd, tl) ({ \
     struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons)); \
-    p->car = (car); \
-    p->cdr = (cdr); \
+    p->car = (Obj)(hd);						     \
+    p->cdr = (Obj)(tl);						     \
     ((Obj)(&p->head) | TAG_PTR); \
 })
 
 #define PRIM_EQ(x, y) (eq(x, y) ? True : False)
+#define PRIM_GT(x, y) ((x) > (y) ? True : False)
+#define PRIM_LT(x, y) ((x) < (y) ? True : False)
+
+#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
 
 // assuming x and y are both fixnum
 #define PRIM_ADD(x, y)    ((x) + (y))
 #define PRIM_SUB(x, y)    ((x) - (y))
-#define PRIM_MUL(x, y)    makeNumber(fixnum(x) * fixnum(y))
+#define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
 
 #endif
