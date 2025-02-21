@@ -168,7 +168,7 @@ Obj _35reg1706 = primCons(intern("*"), _35reg1705);
 Obj _35reg1707 = primCons(makeCString("primDiv"), Nil);
 Obj _35reg1708 = primCons(MAKE_NUMBER(2), _35reg1707);
 Obj _35reg1709 = primCons(intern("/"), _35reg1708);
-Obj _35reg1710 = primCons(makeCString("primEQ"), Nil);
+Obj _35reg1710 = primCons(makeCString("PRIM_EQ"), Nil);
 Obj _35reg1711 = primCons(MAKE_NUMBER(2), _35reg1710);
 Obj _35reg1712 = primCons(intern("="), _35reg1711);
 Obj _35reg1713 = primCons(makeCString("PRIM_GT"), Nil);
@@ -459,7 +459,7 @@ Obj _35p1633 = __arg2;
 Obj _35p1634 = __arg3;
 Obj _35p1635 = co->args[4];
 Obj _35cc1636 = makeNative(5, clofun2, 0, 4, _35p1632, _35p1633, _35p1634, _35p1635);
-Obj _35reg3254 = primEQ(Nil, _35p1632);
+Obj _35reg3254 = PRIM_EQ(Nil, _35p1632);
 if (True == _35reg3254) {
 Obj type = _35p1633;
 Obj code = _35p1634;
@@ -526,7 +526,7 @@ Obj _35reg3245 = primIsCons(_35reg3244);
 if (True == _35reg3245) {
 Obj _35reg3246 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3247 = PRIM_CAR(_35reg3246);
-Obj _35reg3248 = primEQ(intern(":type"), _35reg3247);
+Obj _35reg3248 = PRIM_EQ(intern(":type"), _35reg3247);
 if (True == _35reg3248) {
 Obj _35reg3249 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3250 = PRIM_CDR(_35reg3249);
@@ -608,7 +608,7 @@ Obj _35reg3234 = primIsCons(_35reg3233);
 if (True == _35reg3234) {
 Obj _35reg3235 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3236 = PRIM_CAR(_35reg3235);
-Obj _35reg3237 = primEQ(intern(":declare"), _35reg3236);
+Obj _35reg3237 = PRIM_EQ(intern(":declare"), _35reg3236);
 if (True == _35reg3237) {
 Obj _35reg3238 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3239 = PRIM_CDR(_35reg3238);
@@ -725,7 +725,7 @@ Obj _35cc1628 = makeNative(4, clofun3, 0, 1, _35p1627);
 Obj _35reg3207 = primIsCons(_35p1627);
 if (True == _35reg3207) {
 Obj _35reg3208 = PRIM_CAR(_35p1627);
-Obj _35reg3209 = primEQ(intern("define-library"), _35reg3208);
+Obj _35reg3209 = PRIM_EQ(intern("define-library"), _35reg3208);
 if (True == _35reg3209) {
 Obj _35reg3210 = PRIM_CDR(_35p1627);
 Obj _35reg3211 = primIsCons(_35reg3210);
@@ -779,7 +779,7 @@ Obj _35cc1629 = makeNative(5, clofun3, 0, 1, closureRef(co, 0));
 Obj _35reg3203 = primIsCons(closureRef(co, 0));
 if (True == _35reg3203) {
 Obj _35reg3204 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg3205 = primEQ(intern("begin"), _35reg3204);
+Obj _35reg3205 = PRIM_EQ(intern("begin"), _35reg3204);
 if (True == _35reg3205) {
 Obj _35reg3206 = PRIM_CDR(closureRef(co, 0));
 Obj remain = _35reg3206;
@@ -821,7 +821,7 @@ Obj _35reg3187 = primIsCons(_35reg3186);
 if (True == _35reg3187) {
 Obj _35reg3188 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3189 = PRIM_CAR(_35reg3188);
-Obj _35reg3190 = primEQ(intern("import"), _35reg3189);
+Obj _35reg3190 = PRIM_EQ(intern("import"), _35reg3189);
 if (True == _35reg3190) {
 Obj _35reg3191 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3192 = PRIM_CDR(_35reg3191);
@@ -834,7 +834,7 @@ Obj pkg = _35reg3196;
 Obj _35reg3197 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg3198 = PRIM_CDR(_35reg3197);
 Obj _35reg3199 = PRIM_CDR(_35reg3198);
-Obj _35reg3200 = primEQ(Nil, _35reg3199);
+Obj _35reg3200 = PRIM_EQ(Nil, _35reg3199);
 if (True == _35reg3200) {
 Obj _35reg3201 = PRIM_CDR(closureRef(co, 0));
 Obj remain = _35reg3201;
@@ -1184,7 +1184,7 @@ Obj _35cc1625 = makeNative(5, clofun6, 0, 4, _35p1621, _35p1622, _35p1623, _35p1
 Obj res = _35p1621;
 Obj idx = _35p1622;
 Obj acc = _35p1623;
-Obj _35reg3170 = primEQ(Nil, _35p1624);
+Obj _35reg3170 = PRIM_EQ(Nil, _35p1624);
 if (True == _35reg3170) {
 PUSH_CONT(co, 3, clofun6, 2, acc, res);
 __nargs = 2;
@@ -1261,7 +1261,7 @@ Obj _35reg3162 = PRIM_CAR(closureRef(co, 3));
 Obj bc = _35reg3162;
 Obj _35reg3163 = PRIM_CDR(closureRef(co, 3));
 Obj more = _35reg3163;
-Obj _35reg3164 = primEQ(idx, globalRef(intern("cora/lib/toc#*mod-num*")));
+Obj _35reg3164 = PRIM_EQ(idx, globalRef(intern("cora/lib/toc#*mod-num*")));
 if (True == _35reg3164) {
 PUSH_CONT(co, 0, clofun7, 3, res, bc, more);
 __nargs = 2;
@@ -1813,7 +1813,7 @@ label0:
 Obj to = __arg1;
 Obj i = __arg2;
 Obj n = __arg3;
-Obj _35reg3133 = primEQ(i, MAKE_NUMBER(0));
+Obj _35reg3133 = PRIM_EQ(i, MAKE_NUMBER(0));
 if (True == _35reg3133) {
 PUSH_CONT(co, 3, clofun11, 2, to, n);
 __nargs = 3;
@@ -1908,7 +1908,7 @@ Obj _35p1617 = __arg1;
 Obj _35p1618 = __arg2;
 Obj _35cc1619 = makeNative(5, clofun11, 0, 2, _35p1617, _35p1618);
 Obj fn = _35p1617;
-Obj _35reg3131 = primEQ(Nil, _35p1618);
+Obj _35reg3131 = PRIM_EQ(Nil, _35p1618);
 if (True == _35reg3131) {
 __nargs = 2;
 __arg1 = Nil;
@@ -2145,7 +2145,7 @@ Obj _35p1613 = __arg1;
 Obj _35p1614 = __arg2;
 Obj _35cc1615 = makeNative(5, clofun13, 0, 2, _35p1613, _35p1614);
 Obj obj = _35p1613;
-Obj _35reg3117 = primEQ(Nil, _35p1614);
+Obj _35reg3117 = PRIM_EQ(Nil, _35p1614);
 if (True == _35reg3117) {
 __nargs = 2;
 __arg1 = obj;
@@ -2429,7 +2429,7 @@ if (True == _35reg3043) {
 Obj _35reg3044 = PRIM_CDR(_35p1609);
 Obj _35reg3045 = PRIM_CAR(_35reg3044);
 Obj _35reg3046 = PRIM_CAR(_35reg3045);
-Obj _35reg3047 = primEQ(intern("lambda"), _35reg3046);
+Obj _35reg3047 = PRIM_EQ(intern("lambda"), _35reg3046);
 if (True == _35reg3047) {
 Obj _35reg3048 = PRIM_CDR(_35p1609);
 Obj _35reg3049 = PRIM_CAR(_35reg3048);
@@ -2473,11 +2473,11 @@ Obj _35reg3080 = PRIM_CDR(_35reg3079);
 Obj _35reg3081 = PRIM_CDR(_35reg3080);
 Obj _35reg3082 = PRIM_CDR(_35reg3081);
 Obj _35reg3083 = PRIM_CDR(_35reg3082);
-Obj _35reg3084 = primEQ(Nil, _35reg3083);
+Obj _35reg3084 = PRIM_EQ(Nil, _35reg3083);
 if (True == _35reg3084) {
 Obj _35reg3085 = PRIM_CDR(_35p1609);
 Obj _35reg3086 = PRIM_CDR(_35reg3085);
-Obj _35reg3087 = primEQ(Nil, _35reg3086);
+Obj _35reg3087 = PRIM_EQ(Nil, _35reg3086);
 if (True == _35reg3087) {
 Obj maxid = _35p1610;
 PUSH_CONT(co, 0, clofun16, 6, actives, maxid, label, params, body, w);
@@ -2828,7 +2828,7 @@ Obj _35cc1606 = makeNative(0, clofun18, 0, 4, _35p1602, _35p1603, _35p1604, _35p
 Obj fn = _35p1602;
 Obj w = _35p1603;
 Obj idx = _35p1604;
-Obj _35reg3033 = primEQ(Nil, _35p1605);
+Obj _35reg3033 = PRIM_EQ(Nil, _35p1605);
 if (True == _35reg3033) {
 __nargs = 2;
 __arg1 = Nil;
@@ -3286,7 +3286,7 @@ Obj maxid = __arg3;
 Obj _35reg3006 = PRIM_SUB(maxid, label);
 Obj _35reg3007 = primDiv(_35reg3006, globalRef(intern("cora/lib/toc#*mod-num*")));
 Obj gid = _35reg3007;
-Obj _35reg3008 = primEQ(gid, MAKE_NUMBER(0));
+Obj _35reg3008 = PRIM_EQ(gid, MAKE_NUMBER(0));
 if (True == _35reg3008) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal#generate-str"));
@@ -3359,7 +3359,7 @@ Obj self = _35p1595;
 Obj env = _35p1596;
 Obj fn = _35p1597;
 Obj w = _35p1598;
-Obj _35reg3002 = primEQ(Nil, _35p1599);
+Obj _35reg3002 = PRIM_EQ(Nil, _35p1599);
 if (True == _35reg3002) {
 __nargs = 2;
 __arg1 = Nil;
@@ -3534,7 +3534,7 @@ Obj w = _35p1592;
 Obj _35reg2970 = primIsCons(_35p1593);
 if (True == _35reg2970) {
 Obj _35reg2971 = PRIM_CAR(_35p1593);
-Obj _35reg2972 = primEQ(intern("%continuation"), _35reg2971);
+Obj _35reg2972 = PRIM_EQ(intern("%continuation"), _35reg2971);
 if (True == _35reg2972) {
 Obj _35reg2973 = PRIM_CDR(_35p1593);
 Obj _35reg2974 = primIsCons(_35reg2973);
@@ -3927,7 +3927,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2955 = primIsCons(closureRef(co, 3));
 if (True == _35reg2955) {
 Obj _35reg2956 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2957 = primEQ(intern("%global"), _35reg2956);
+Obj _35reg2957 = PRIM_EQ(intern("%global"), _35reg2956);
 if (True == _35reg2957) {
 Obj _35reg2958 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2959 = primIsCons(_35reg2958);
@@ -3937,7 +3937,7 @@ Obj _35reg2961 = PRIM_CAR(_35reg2960);
 Obj x = _35reg2961;
 Obj _35reg2962 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2963 = PRIM_CDR(_35reg2962);
-Obj _35reg2964 = primEQ(Nil, _35reg2963);
+Obj _35reg2964 = PRIM_EQ(Nil, _35reg2963);
 if (True == _35reg2964) {
 PUSH_CONT(co, 2, clofun25, 2, x, w);
 __nargs = 3;
@@ -4043,7 +4043,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2943 = primIsCons(closureRef(co, 3));
 if (True == _35reg2943) {
 Obj _35reg2944 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2945 = primEQ(intern("%closure-ref"), _35reg2944);
+Obj _35reg2945 = PRIM_EQ(intern("%closure-ref"), _35reg2944);
 if (True == _35reg2945) {
 Obj _35reg2946 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2947 = primIsCons(_35reg2946);
@@ -4053,7 +4053,7 @@ Obj _35reg2949 = PRIM_CAR(_35reg2948);
 Obj idx = _35reg2949;
 Obj _35reg2950 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2951 = PRIM_CDR(_35reg2950);
-Obj _35reg2952 = primEQ(Nil, _35reg2951);
+Obj _35reg2952 = PRIM_EQ(Nil, _35reg2951);
 if (True == _35reg2952) {
 PUSH_CONT(co, 0, clofun26, 2, idx, w);
 __nargs = 3;
@@ -4164,7 +4164,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2931 = primIsCons(closureRef(co, 3));
 if (True == _35reg2931) {
 Obj _35reg2932 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2933 = primEQ(intern("%stack-ref"), _35reg2932);
+Obj _35reg2933 = PRIM_EQ(intern("%stack-ref"), _35reg2932);
 if (True == _35reg2933) {
 Obj _35reg2934 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2935 = primIsCons(_35reg2934);
@@ -4174,7 +4174,7 @@ Obj _35reg2937 = PRIM_CAR(_35reg2936);
 Obj idx = _35reg2937;
 Obj _35reg2938 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2939 = PRIM_CDR(_35reg2938);
-Obj _35reg2940 = primEQ(Nil, _35reg2939);
+Obj _35reg2940 = PRIM_EQ(Nil, _35reg2939);
 if (True == _35reg2940) {
 PUSH_CONT(co, 3, clofun26, 2, idx, w);
 __nargs = 3;
@@ -4265,7 +4265,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2907 = primIsCons(closureRef(co, 3));
 if (True == _35reg2907) {
 Obj _35reg2908 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2909 = primEQ(intern("%const"), _35reg2908);
+Obj _35reg2909 = PRIM_EQ(intern("%const"), _35reg2908);
 if (True == _35reg2909) {
 Obj _35reg2910 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2911 = primIsCons(_35reg2910);
@@ -4275,7 +4275,7 @@ Obj _35reg2913 = PRIM_CAR(_35reg2912);
 Obj x = _35reg2913;
 Obj _35reg2914 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2915 = PRIM_CDR(_35reg2914);
-Obj _35reg2916 = primEQ(Nil, _35reg2915);
+Obj _35reg2916 = PRIM_EQ(Nil, _35reg2915);
 if (True == _35reg2916) {
 Obj _35reg2917 = primIsSymbol(x);
 if (True == _35reg2917) {
@@ -4388,7 +4388,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun27) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2928 = primEQ(x, Nil);
+Obj _35reg2928 = PRIM_EQ(x, Nil);
 if (True == _35reg2928) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal#generate-str"));
@@ -4400,7 +4400,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun27) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2929 = primEQ(x, True);
+Obj _35reg2929 = PRIM_EQ(x, True);
 if (True == _35reg2929) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal#generate-str"));
@@ -4412,7 +4412,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun27) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2930 = primEQ(x, False);
+Obj _35reg2930 = PRIM_EQ(x, False);
 if (True == _35reg2930) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc/internal#generate-str"));
@@ -4594,7 +4594,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2868 = primIsCons(closureRef(co, 3));
 if (True == _35reg2868) {
 Obj _35reg2869 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2870 = primEQ(intern("let"), _35reg2869);
+Obj _35reg2870 = PRIM_EQ(intern("let"), _35reg2869);
 if (True == _35reg2870) {
 Obj _35reg2871 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2872 = primIsCons(_35reg2871);
@@ -4624,7 +4624,7 @@ Obj _35reg2889 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2890 = PRIM_CDR(_35reg2889);
 Obj _35reg2891 = PRIM_CDR(_35reg2890);
 Obj _35reg2892 = PRIM_CDR(_35reg2891);
-Obj _35reg2893 = primEQ(Nil, _35reg2892);
+Obj _35reg2893 = PRIM_EQ(Nil, _35reg2892);
 if (True == _35reg2893) {
 PUSH_CONT(co, 4, clofun28, 6, b, a, env, self, w, c);
 __nargs = 3;
@@ -4975,7 +4975,7 @@ Obj _35reg2846 = primIsCons(_35reg2845);
 if (True == _35reg2846) {
 Obj _35reg2847 = PRIM_CAR(closureRef(co, 3));
 Obj _35reg2848 = PRIM_CAR(_35reg2847);
-Obj _35reg2849 = primEQ(intern("%builtin"), _35reg2848);
+Obj _35reg2849 = PRIM_EQ(intern("%builtin"), _35reg2848);
 if (True == _35reg2849) {
 Obj _35reg2850 = PRIM_CAR(closureRef(co, 3));
 Obj _35reg2851 = PRIM_CDR(_35reg2850);
@@ -4988,7 +4988,7 @@ Obj f = _35reg2855;
 Obj _35reg2856 = PRIM_CAR(closureRef(co, 3));
 Obj _35reg2857 = PRIM_CDR(_35reg2856);
 Obj _35reg2858 = PRIM_CDR(_35reg2857);
-Obj _35reg2859 = primEQ(Nil, _35reg2858);
+Obj _35reg2859 = PRIM_EQ(Nil, _35reg2858);
 if (True == _35reg2859) {
 Obj _35reg2860 = PRIM_CDR(closureRef(co, 3));
 Obj args = _35reg2860;
@@ -5076,7 +5076,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj env= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj args= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
-Obj _35reg2863 = primEQ(f, intern("set"));
+Obj _35reg2863 = PRIM_EQ(f, intern("set"));
 if (True == _35reg2863) {
 PUSH_CONT(co, 1, clofun31, 4, self, env, args, w);
 __nargs = 3;
@@ -5203,7 +5203,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2812 = primIsCons(closureRef(co, 3));
 if (True == _35reg2812) {
 Obj _35reg2813 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2814 = primEQ(intern("if"), _35reg2813);
+Obj _35reg2814 = PRIM_EQ(intern("if"), _35reg2813);
 if (True == _35reg2814) {
 Obj _35reg2815 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2816 = primIsCons(_35reg2815);
@@ -5233,7 +5233,7 @@ Obj _35reg2833 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2834 = PRIM_CDR(_35reg2833);
 Obj _35reg2835 = PRIM_CDR(_35reg2834);
 Obj _35reg2836 = PRIM_CDR(_35reg2835);
-Obj _35reg2837 = primEQ(Nil, _35reg2836);
+Obj _35reg2837 = PRIM_EQ(Nil, _35reg2836);
 if (True == _35reg2837) {
 PUSH_CONT(co, 4, clofun31, 6, a, b, self, env, c, w);
 __nargs = 3;
@@ -5450,7 +5450,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2779 = primIsCons(closureRef(co, 3));
 if (True == _35reg2779) {
 Obj _35reg2780 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2781 = primEQ(intern("%closure"), _35reg2780);
+Obj _35reg2781 = PRIM_EQ(intern("%closure"), _35reg2780);
 if (True == _35reg2781) {
 Obj _35reg2782 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2783 = primIsCons(_35reg2782);
@@ -5858,7 +5858,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2760 = primIsCons(closureRef(co, 3));
 if (True == _35reg2760) {
 Obj _35reg2761 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2762 = primEQ(intern("do"), _35reg2761);
+Obj _35reg2762 = PRIM_EQ(intern("do"), _35reg2761);
 if (True == _35reg2762) {
 Obj _35reg2763 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2764 = primIsCons(_35reg2763);
@@ -5877,7 +5877,7 @@ Obj b = _35reg2772;
 Obj _35reg2773 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2774 = PRIM_CDR(_35reg2773);
 Obj _35reg2775 = PRIM_CDR(_35reg2774);
-Obj _35reg2776 = primEQ(Nil, _35reg2775);
+Obj _35reg2776 = PRIM_EQ(Nil, _35reg2775);
 if (True == _35reg2776) {
 PUSH_CONT(co, 1, clofun35, 4, self, env, w, b);
 __nargs = 5;
@@ -5986,7 +5986,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2740 = primIsCons(closureRef(co, 3));
 if (True == _35reg2740) {
 Obj _35reg2741 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2742 = primEQ(intern("return"), _35reg2741);
+Obj _35reg2742 = PRIM_EQ(intern("return"), _35reg2741);
 if (True == _35reg2742) {
 Obj _35reg2743 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2744 = primIsCons(_35reg2743);
@@ -5996,7 +5996,7 @@ Obj _35reg2746 = PRIM_CAR(_35reg2745);
 Obj x = _35reg2746;
 Obj _35reg2747 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2748 = PRIM_CDR(_35reg2747);
-Obj _35reg2749 = primEQ(Nil, _35reg2748);
+Obj _35reg2749 = PRIM_EQ(Nil, _35reg2748);
 if (True == _35reg2749) {
 PUSH_CONT(co, 4, clofun35, 4, env, x, self, w);
 __nargs = 3;
@@ -6237,7 +6237,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2730 = primIsCons(closureRef(co, 3));
 if (True == _35reg2730) {
 Obj _35reg2731 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2732 = primEQ(intern("tailcall"), _35reg2731);
+Obj _35reg2732 = PRIM_EQ(intern("tailcall"), _35reg2731);
 if (True == _35reg2732) {
 Obj _35reg2733 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2734 = primIsCons(_35reg2733);
@@ -6247,7 +6247,7 @@ Obj _35reg2736 = PRIM_CAR(_35reg2735);
 Obj exp = _35reg2736;
 Obj _35reg2737 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2738 = PRIM_CDR(_35reg2737);
-Obj _35reg2739 = primEQ(Nil, _35reg2738);
+Obj _35reg2739 = PRIM_EQ(Nil, _35reg2738);
 if (True == _35reg2739) {
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc#generate-inst"));
@@ -6307,7 +6307,7 @@ Obj w = closureRef(co, 2);
 Obj _35reg2712 = primIsCons(closureRef(co, 3));
 if (True == _35reg2712) {
 Obj _35reg2713 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg2714 = primEQ(intern("call"), _35reg2713);
+Obj _35reg2714 = PRIM_EQ(intern("call"), _35reg2713);
 if (True == _35reg2714) {
 Obj _35reg2715 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2716 = primIsCons(_35reg2715);
@@ -6326,7 +6326,7 @@ Obj cont = _35reg2724;
 Obj _35reg2725 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg2726 = PRIM_CDR(_35reg2725);
 Obj _35reg2727 = PRIM_CDR(_35reg2726);
-Obj _35reg2728 = primEQ(Nil, _35reg2727);
+Obj _35reg2728 = PRIM_EQ(Nil, _35reg2727);
 if (True == _35reg2728) {
 PUSH_CONT(co, 2, clofun37, 4, self, env, w, exp);
 __nargs = 4;
@@ -6699,7 +6699,7 @@ Obj _35cc1571 = makeNative(5, clofun39, 0, 4, _35p1567, _35p1568, _35p1569, _35p
 Obj self = _35p1567;
 Obj w = _35p1568;
 Obj i = _35p1569;
-Obj _35reg2692 = primEQ(Nil, _35p1570);
+Obj _35reg2692 = PRIM_EQ(Nil, _35p1570);
 if (True == _35reg2692) {
 __nargs = 2;
 __arg1 = Nil;
@@ -7210,7 +7210,7 @@ if (True == _35reg2568) {
 Obj _35reg2569 = PRIM_CDR(_35p1563);
 Obj _35reg2570 = PRIM_CAR(_35reg2569);
 Obj _35reg2571 = PRIM_CAR(_35reg2570);
-Obj _35reg2572 = primEQ(intern("lambda"), _35reg2571);
+Obj _35reg2572 = PRIM_EQ(intern("lambda"), _35reg2571);
 if (True == _35reg2572) {
 Obj _35reg2573 = PRIM_CDR(_35p1563);
 Obj _35reg2574 = PRIM_CAR(_35reg2573);
@@ -7239,12 +7239,12 @@ Obj _35reg2592 = PRIM_CAR(_35reg2591);
 Obj _35reg2593 = PRIM_CDR(_35reg2592);
 Obj _35reg2594 = PRIM_CDR(_35reg2593);
 Obj _35reg2595 = PRIM_CDR(_35reg2594);
-Obj _35reg2596 = primEQ(Nil, _35reg2595);
+Obj _35reg2596 = PRIM_EQ(Nil, _35reg2595);
 if (True == _35reg2596) {
 Obj _35reg2597 = PRIM_CDR(_35p1563);
 Obj _35reg2598 = PRIM_CDR(_35reg2597);
 Obj fvs = _35reg2598;
-Obj _35reg2599 = primEQ(clo_45or_45cont, intern("%closure"));
+Obj _35reg2599 = PRIM_EQ(clo_45or_45cont, intern("%closure"));
 if (True == _35reg2599) {
 if (True == True) {
 PUSH_CONT(co, 5, clofun44, 4, params, v, fvs, clo_45or_45cont);
@@ -7267,7 +7267,7 @@ if (ps.func != clofun43) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 }
 } else {
-Obj _35reg2619 = primEQ(clo_45or_45cont, intern("%continuation"));
+Obj _35reg2619 = PRIM_EQ(clo_45or_45cont, intern("%continuation"));
 if (True == _35reg2619) {
 if (True == True) {
 PUSH_CONT(co, 0, clofun44, 4, params, v, fvs, clo_45or_45cont);
@@ -7406,7 +7406,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj cur = _35val2640;
-Obj _35reg2641 = primEQ(clo_45or_45cont, intern("%closure"));
+Obj _35reg2641 = PRIM_EQ(clo_45or_45cont, intern("%closure"));
 if (True == _35reg2641) {
 Obj _35reg2642 = primCons(body1, Nil);
 Obj _35reg2643 = primCons(Nil, _35reg2642);
@@ -7538,7 +7538,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj cur = _35val2621;
-Obj _35reg2622 = primEQ(clo_45or_45cont, intern("%closure"));
+Obj _35reg2622 = PRIM_EQ(clo_45or_45cont, intern("%closure"));
 if (True == _35reg2622) {
 Obj _35reg2623 = primCons(body1, Nil);
 Obj _35reg2624 = primCons(Nil, _35reg2623);
@@ -7670,7 +7670,7 @@ Obj v= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj fvs= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj clo_45or_45cont= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj cur = _35val2601;
-Obj _35reg2602 = primEQ(clo_45or_45cont, intern("%closure"));
+Obj _35reg2602 = PRIM_EQ(clo_45or_45cont, intern("%closure"));
 if (True == _35reg2602) {
 Obj _35reg2603 = primCons(body1, Nil);
 Obj _35reg2604 = primCons(Nil, _35reg2603);
@@ -7908,7 +7908,7 @@ Obj fvs = closureRef(co, 0);
 Obj _35reg2537 = primIsCons(closureRef(co, 1));
 if (True == _35reg2537) {
 Obj _35reg2538 = PRIM_CAR(closureRef(co, 1));
-Obj _35reg2539 = primEQ(intern("lambda"), _35reg2538);
+Obj _35reg2539 = PRIM_EQ(intern("lambda"), _35reg2538);
 if (True == _35reg2539) {
 Obj _35reg2540 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2541 = primIsCons(_35reg2540);
@@ -7927,7 +7927,7 @@ Obj body = _35reg2549;
 Obj _35reg2550 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2551 = PRIM_CDR(_35reg2550);
 Obj _35reg2552 = PRIM_CDR(_35reg2551);
-Obj _35reg2553 = primEQ(Nil, _35reg2552);
+Obj _35reg2553 = PRIM_EQ(Nil, _35reg2552);
 if (True == _35reg2553) {
 PUSH_CONT(co, 0, clofun47, 1, args);
 __nargs = 3;
@@ -8027,7 +8027,7 @@ Obj fvs = closureRef(co, 0);
 Obj _35reg2510 = primIsCons(closureRef(co, 1));
 if (True == _35reg2510) {
 Obj _35reg2511 = PRIM_CAR(closureRef(co, 1));
-Obj _35reg2512 = primEQ(intern("continuation"), _35reg2511);
+Obj _35reg2512 = PRIM_EQ(intern("continuation"), _35reg2511);
 if (True == _35reg2512) {
 Obj _35reg2513 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2514 = primIsCons(_35reg2513);
@@ -8046,7 +8046,7 @@ Obj body = _35reg2522;
 Obj _35reg2523 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2524 = PRIM_CDR(_35reg2523);
 Obj _35reg2525 = PRIM_CDR(_35reg2524);
-Obj _35reg2526 = primEQ(Nil, _35reg2525);
+Obj _35reg2526 = PRIM_EQ(Nil, _35reg2525);
 if (True == _35reg2526) {
 PUSH_CONT(co, 2, clofun47, 3, fvs, body, val);
 __nargs = 2;
@@ -8221,7 +8221,7 @@ Obj fvs = closureRef(co, 0);
 Obj _35reg2487 = primIsCons(closureRef(co, 1));
 if (True == _35reg2487) {
 Obj _35reg2488 = PRIM_CAR(closureRef(co, 1));
-Obj _35reg2489 = primEQ(intern("call"), _35reg2488);
+Obj _35reg2489 = PRIM_EQ(intern("call"), _35reg2488);
 if (True == _35reg2489) {
 Obj _35reg2490 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2491 = primIsCons(_35reg2490);
@@ -8240,7 +8240,7 @@ Obj cont = _35reg2499;
 Obj _35reg2500 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2501 = PRIM_CDR(_35reg2500);
 Obj _35reg2502 = PRIM_CDR(_35reg2501);
-Obj _35reg2503 = primEQ(Nil, _35reg2502);
+Obj _35reg2503 = PRIM_EQ(Nil, _35reg2502);
 if (True == _35reg2503) {
 PUSH_CONT(co, 2, clofun48, 3, exp, fvs, cont);
 __nargs = 2;
@@ -8432,7 +8432,7 @@ Obj _35p1549 = __arg1;
 Obj _35p1550 = __arg2;
 Obj _35p1551 = __arg3;
 Obj _35cc1552 = makeNative(3, clofun50, 0, 3, _35p1549, _35p1550, _35p1551);
-Obj _35reg2439 = primEQ(Nil, _35p1549);
+Obj _35reg2439 = PRIM_EQ(Nil, _35p1549);
 if (True == _35reg2439) {
 Obj ls = _35p1550;
 Obj next = _35p1551;
@@ -8500,7 +8500,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun49) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2469 = primEQ(next, globalRef(intern("cora/lib/toc#id")));
+Obj _35reg2469 = PRIM_EQ(next, globalRef(intern("cora/lib/toc#id")));
 if (True == _35reg2469) {
 Obj _35reg2470 = primCons(exp, Nil);
 Obj _35reg2471 = primCons(intern("tailcall"), _35reg2470);
@@ -8570,7 +8570,7 @@ label0:
 Obj _35val2443 = __arg1;
 Obj next= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg2444 = primEQ(_35val2443, intern("%builtin"));
+Obj _35reg2444 = PRIM_EQ(_35val2443, intern("%builtin"));
 if (True == _35reg2444) {
 if (True == True) {
 __nargs = 3;
@@ -8583,7 +8583,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun50) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2445 = primEQ(next, globalRef(intern("cora/lib/toc#id")));
+Obj _35reg2445 = PRIM_EQ(next, globalRef(intern("cora/lib/toc#id")));
 if (True == _35reg2445) {
 Obj _35reg2446 = primCons(exp, Nil);
 Obj _35reg2447 = primCons(intern("tailcall"), _35reg2446);
@@ -8619,7 +8619,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun50) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg2457 = primEQ(next, globalRef(intern("cora/lib/toc#id")));
+Obj _35reg2457 = PRIM_EQ(next, globalRef(intern("cora/lib/toc#id")));
 if (True == _35reg2457) {
 Obj _35reg2458 = primCons(exp, Nil);
 Obj _35reg2459 = primCons(intern("tailcall"), _35reg2458);
@@ -8892,7 +8892,7 @@ Obj _35cc1544 = makeNative(2, clofun52, 0, 2, closureRef(co, 0), closureRef(co, 
 Obj _35reg2399 = primIsCons(closureRef(co, 0));
 if (True == _35reg2399) {
 Obj _35reg2400 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2401 = primEQ(intern("if"), _35reg2400);
+Obj _35reg2401 = PRIM_EQ(intern("if"), _35reg2400);
 if (True == _35reg2401) {
 Obj _35reg2402 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2403 = primIsCons(_35reg2402);
@@ -8922,7 +8922,7 @@ Obj _35reg2420 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2421 = PRIM_CDR(_35reg2420);
 Obj _35reg2422 = PRIM_CDR(_35reg2421);
 Obj _35reg2423 = PRIM_CDR(_35reg2422);
-Obj _35reg2424 = primEQ(Nil, _35reg2423);
+Obj _35reg2424 = PRIM_EQ(Nil, _35reg2423);
 if (True == _35reg2424) {
 Obj next = closureRef(co, 1);
 __nargs = 3;
@@ -9063,7 +9063,7 @@ Obj _35cc1545 = makeNative(5, clofun52, 0, 2, closureRef(co, 0), closureRef(co, 
 Obj _35reg2377 = primIsCons(closureRef(co, 0));
 if (True == _35reg2377) {
 Obj _35reg2378 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2379 = primEQ(intern("do"), _35reg2378);
+Obj _35reg2379 = PRIM_EQ(intern("do"), _35reg2378);
 if (True == _35reg2379) {
 Obj _35reg2380 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2381 = primIsCons(_35reg2380);
@@ -9082,7 +9082,7 @@ Obj b = _35reg2389;
 Obj _35reg2390 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2391 = PRIM_CDR(_35reg2390);
 Obj _35reg2392 = PRIM_CDR(_35reg2391);
-Obj _35reg2393 = primEQ(Nil, _35reg2392);
+Obj _35reg2393 = PRIM_EQ(Nil, _35reg2392);
 if (True == _35reg2393) {
 Obj next = closureRef(co, 1);
 __nargs = 3;
@@ -9189,7 +9189,7 @@ Obj _35cc1546 = makeNative(2, clofun53, 0, 2, closureRef(co, 0), closureRef(co, 
 Obj _35reg2346 = primIsCons(closureRef(co, 0));
 if (True == _35reg2346) {
 Obj _35reg2347 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2348 = primEQ(intern("let"), _35reg2347);
+Obj _35reg2348 = PRIM_EQ(intern("let"), _35reg2347);
 if (True == _35reg2348) {
 Obj _35reg2349 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2350 = primIsCons(_35reg2349);
@@ -9219,7 +9219,7 @@ Obj _35reg2367 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2368 = PRIM_CDR(_35reg2367);
 Obj _35reg2369 = PRIM_CDR(_35reg2368);
 Obj _35reg2370 = PRIM_CDR(_35reg2369);
-Obj _35reg2371 = primEQ(Nil, _35reg2370);
+Obj _35reg2371 = PRIM_EQ(Nil, _35reg2370);
 if (True == _35reg2371) {
 Obj next = closureRef(co, 1);
 __nargs = 3;
@@ -9343,7 +9343,7 @@ Obj _35cc1547 = makeNative(4, clofun53, 0, 2, closureRef(co, 0), closureRef(co, 
 Obj _35reg2302 = primIsCons(closureRef(co, 0));
 if (True == _35reg2302) {
 Obj _35reg2303 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2304 = primEQ(intern("%closure"), _35reg2303);
+Obj _35reg2304 = PRIM_EQ(intern("%closure"), _35reg2303);
 if (True == _35reg2304) {
 Obj _35reg2305 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2306 = primIsCons(_35reg2305);
@@ -9355,7 +9355,7 @@ if (True == _35reg2309) {
 Obj _35reg2310 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2311 = PRIM_CAR(_35reg2310);
 Obj _35reg2312 = PRIM_CAR(_35reg2311);
-Obj _35reg2313 = primEQ(intern("lambda"), _35reg2312);
+Obj _35reg2313 = PRIM_EQ(intern("lambda"), _35reg2312);
 if (True == _35reg2313) {
 Obj _35reg2314 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2315 = PRIM_CAR(_35reg2314);
@@ -9384,7 +9384,7 @@ Obj _35reg2333 = PRIM_CAR(_35reg2332);
 Obj _35reg2334 = PRIM_CDR(_35reg2333);
 Obj _35reg2335 = PRIM_CDR(_35reg2334);
 Obj _35reg2336 = PRIM_CDR(_35reg2335);
-Obj _35reg2337 = primEQ(Nil, _35reg2336);
+Obj _35reg2337 = PRIM_EQ(Nil, _35reg2336);
 if (True == _35reg2337) {
 Obj _35reg2338 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2339 = PRIM_CDR(_35reg2338);
@@ -9644,7 +9644,7 @@ label4:
 Obj _35val2289 = __arg1;
 Obj var= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj pos = _35val2289;
-Obj _35reg2290 = primEQ(MAKE_NUMBER(-1), pos);
+Obj _35reg2290 = PRIM_EQ(MAKE_NUMBER(-1), pos);
 if (True == _35reg2290) {
 __nargs = 2;
 __arg1 = var;
@@ -9669,7 +9669,7 @@ Obj fvs = closureRef(co, 0);
 Obj _35reg2259 = primIsCons(closureRef(co, 1));
 if (True == _35reg2259) {
 Obj _35reg2260 = PRIM_CAR(closureRef(co, 1));
-Obj _35reg2261 = primEQ(intern("lambda"), _35reg2260);
+Obj _35reg2261 = PRIM_EQ(intern("lambda"), _35reg2260);
 if (True == _35reg2261) {
 Obj _35reg2262 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2263 = primIsCons(_35reg2262);
@@ -9688,7 +9688,7 @@ Obj body = _35reg2271;
 Obj _35reg2272 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2273 = PRIM_CDR(_35reg2272);
 Obj _35reg2274 = PRIM_CDR(_35reg2273);
-Obj _35reg2275 = primEQ(Nil, _35reg2274);
+Obj _35reg2275 = PRIM_EQ(Nil, _35reg2274);
 if (True == _35reg2275) {
 Obj _35reg2276 = primCons(body, Nil);
 Obj _35reg2277 = primCons(args, _35reg2276);
@@ -9845,7 +9845,7 @@ Obj fvs = closureRef(co, 0);
 Obj _35reg2227 = primIsCons(closureRef(co, 1));
 if (True == _35reg2227) {
 Obj _35reg2228 = PRIM_CAR(closureRef(co, 1));
-Obj _35reg2229 = primEQ(intern("let"), _35reg2228);
+Obj _35reg2229 = PRIM_EQ(intern("let"), _35reg2228);
 if (True == _35reg2229) {
 Obj _35reg2230 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2231 = primIsCons(_35reg2230);
@@ -9875,7 +9875,7 @@ Obj _35reg2248 = PRIM_CDR(closureRef(co, 1));
 Obj _35reg2249 = PRIM_CDR(_35reg2248);
 Obj _35reg2250 = PRIM_CDR(_35reg2249);
 Obj _35reg2251 = PRIM_CDR(_35reg2250);
-Obj _35reg2252 = primEQ(Nil, _35reg2251);
+Obj _35reg2252 = PRIM_EQ(Nil, _35reg2251);
 if (True == _35reg2252) {
 PUSH_CONT(co, 5, clofun55, 3, fvs, c, a);
 __nargs = 3;
@@ -10142,7 +10142,7 @@ Obj _35cc1523 = makeNative(3, clofun57, 0, 1, closureRef(co, 0));
 Obj _35reg2200 = primIsCons(closureRef(co, 0));
 if (True == _35reg2200) {
 Obj _35reg2201 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2202 = primEQ(intern("lambda"), _35reg2201);
+Obj _35reg2202 = PRIM_EQ(intern("lambda"), _35reg2201);
 if (True == _35reg2202) {
 Obj _35reg2203 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2204 = primIsCons(_35reg2203);
@@ -10161,7 +10161,7 @@ Obj body = _35reg2212;
 Obj _35reg2213 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2214 = PRIM_CDR(_35reg2213);
 Obj _35reg2215 = PRIM_CDR(_35reg2214);
-Obj _35reg2216 = primEQ(Nil, _35reg2215);
+Obj _35reg2216 = PRIM_EQ(Nil, _35reg2215);
 if (True == _35reg2216) {
 PUSH_CONT(co, 2, clofun57, 1, args);
 __nargs = 2;
@@ -10240,7 +10240,7 @@ Obj _35cc1524 = makeNative(5, clofun57, 0, 1, closureRef(co, 0));
 Obj _35reg2170 = primIsCons(closureRef(co, 0));
 if (True == _35reg2170) {
 Obj _35reg2171 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2172 = primEQ(intern("if"), _35reg2171);
+Obj _35reg2172 = PRIM_EQ(intern("if"), _35reg2171);
 if (True == _35reg2172) {
 Obj _35reg2173 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2174 = primIsCons(_35reg2173);
@@ -10270,7 +10270,7 @@ Obj _35reg2191 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2192 = PRIM_CDR(_35reg2191);
 Obj _35reg2193 = PRIM_CDR(_35reg2192);
 Obj _35reg2194 = PRIM_CDR(_35reg2193);
-Obj _35reg2195 = primEQ(Nil, _35reg2194);
+Obj _35reg2195 = PRIM_EQ(Nil, _35reg2194);
 if (True == _35reg2195) {
 Obj _35reg2196 = primCons(z, Nil);
 Obj _35reg2197 = primCons(y, _35reg2196);
@@ -10362,7 +10362,7 @@ Obj _35cc1525 = makeNative(1, clofun58, 0, 1, closureRef(co, 0));
 Obj _35reg2150 = primIsCons(closureRef(co, 0));
 if (True == _35reg2150) {
 Obj _35reg2151 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2152 = primEQ(intern("do"), _35reg2151);
+Obj _35reg2152 = PRIM_EQ(intern("do"), _35reg2151);
 if (True == _35reg2152) {
 Obj _35reg2153 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2154 = primIsCons(_35reg2153);
@@ -10381,7 +10381,7 @@ Obj y = _35reg2162;
 Obj _35reg2163 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2164 = PRIM_CDR(_35reg2163);
 Obj _35reg2165 = PRIM_CDR(_35reg2164);
-Obj _35reg2166 = primEQ(Nil, _35reg2165);
+Obj _35reg2166 = PRIM_EQ(Nil, _35reg2165);
 if (True == _35reg2166) {
 Obj _35reg2167 = primCons(y, Nil);
 Obj _35reg2168 = primCons(x, _35reg2167);
@@ -10483,7 +10483,7 @@ Obj _35cc1526 = makeNative(5, clofun58, 0, 1, closureRef(co, 0));
 Obj _35reg2120 = primIsCons(closureRef(co, 0));
 if (True == _35reg2120) {
 Obj _35reg2121 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2122 = primEQ(intern("let"), _35reg2121);
+Obj _35reg2122 = PRIM_EQ(intern("let"), _35reg2121);
 if (True == _35reg2122) {
 Obj _35reg2123 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2124 = primIsCons(_35reg2123);
@@ -10513,7 +10513,7 @@ Obj _35reg2141 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2142 = PRIM_CDR(_35reg2141);
 Obj _35reg2143 = PRIM_CDR(_35reg2142);
 Obj _35reg2144 = PRIM_CDR(_35reg2143);
-Obj _35reg2145 = primEQ(Nil, _35reg2144);
+Obj _35reg2145 = PRIM_EQ(Nil, _35reg2144);
 if (True == _35reg2145) {
 PUSH_CONT(co, 2, clofun58, 2, c, a);
 __nargs = 2;
@@ -10635,7 +10635,7 @@ Obj _35cc1527 = makeNative(0, clofun59, 0, 1, closureRef(co, 0));
 Obj _35reg2110 = primIsCons(closureRef(co, 0));
 if (True == _35reg2110) {
 Obj _35reg2111 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2112 = primEQ(intern("%closure"), _35reg2111);
+Obj _35reg2112 = PRIM_EQ(intern("%closure"), _35reg2111);
 if (True == _35reg2112) {
 Obj _35reg2113 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2114 = primIsCons(_35reg2113);
@@ -10710,7 +10710,7 @@ Obj _35cc1528 = makeNative(1, clofun59, 0, 1, closureRef(co, 0));
 Obj _35reg2100 = primIsCons(closureRef(co, 0));
 if (True == _35reg2100) {
 Obj _35reg2101 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2102 = primEQ(intern("return"), _35reg2101);
+Obj _35reg2102 = PRIM_EQ(intern("return"), _35reg2101);
 if (True == _35reg2102) {
 Obj _35reg2103 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2104 = primIsCons(_35reg2103);
@@ -10720,7 +10720,7 @@ Obj _35reg2106 = PRIM_CAR(_35reg2105);
 Obj x = _35reg2106;
 Obj _35reg2107 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2108 = PRIM_CDR(_35reg2107);
-Obj _35reg2109 = primEQ(Nil, _35reg2108);
+Obj _35reg2109 = PRIM_EQ(Nil, _35reg2108);
 if (True == _35reg2109) {
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc#free-vars"));
@@ -10774,7 +10774,7 @@ Obj _35cc1529 = makeNative(3, clofun59, 0, 1, closureRef(co, 0));
 Obj _35reg2080 = primIsCons(closureRef(co, 0));
 if (True == _35reg2080) {
 Obj _35reg2081 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2082 = primEQ(intern("call"), _35reg2081);
+Obj _35reg2082 = PRIM_EQ(intern("call"), _35reg2081);
 if (True == _35reg2082) {
 Obj _35reg2083 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2084 = primIsCons(_35reg2083);
@@ -10793,7 +10793,7 @@ Obj cont = _35reg2092;
 Obj _35reg2093 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2094 = PRIM_CDR(_35reg2093);
 Obj _35reg2095 = PRIM_CDR(_35reg2094);
-Obj _35reg2096 = primEQ(Nil, _35reg2095);
+Obj _35reg2096 = PRIM_EQ(Nil, _35reg2095);
 if (True == _35reg2096) {
 Obj _35reg2097 = primCons(cont, Nil);
 Obj _35reg2098 = primCons(exp, _35reg2097);
@@ -10875,7 +10875,7 @@ Obj _35cc1530 = makeNative(4, clofun59, 0, 1, closureRef(co, 0));
 Obj _35reg2070 = primIsCons(closureRef(co, 0));
 if (True == _35reg2070) {
 Obj _35reg2071 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2072 = primEQ(intern("tailcall"), _35reg2071);
+Obj _35reg2072 = PRIM_EQ(intern("tailcall"), _35reg2071);
 if (True == _35reg2072) {
 Obj _35reg2073 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2074 = primIsCons(_35reg2073);
@@ -10885,7 +10885,7 @@ Obj _35reg2076 = PRIM_CAR(_35reg2075);
 Obj exp = _35reg2076;
 Obj _35reg2077 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2078 = PRIM_CDR(_35reg2077);
-Obj _35reg2079 = primEQ(Nil, _35reg2078);
+Obj _35reg2079 = PRIM_EQ(Nil, _35reg2078);
 if (True == _35reg2079) {
 __nargs = 2;
 __arg0 = globalRef(intern("cora/lib/toc#free-vars"));
@@ -10939,7 +10939,7 @@ Obj _35cc1531 = makeNative(0, clofun60, 0, 1, closureRef(co, 0));
 Obj _35reg2052 = primIsCons(closureRef(co, 0));
 if (True == _35reg2052) {
 Obj _35reg2053 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2054 = primEQ(intern("continuation"), _35reg2053);
+Obj _35reg2054 = PRIM_EQ(intern("continuation"), _35reg2053);
 if (True == _35reg2054) {
 Obj _35reg2055 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2056 = primIsCons(_35reg2055);
@@ -10958,7 +10958,7 @@ Obj body = _35reg2064;
 Obj _35reg2065 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2066 = PRIM_CDR(_35reg2065);
 Obj _35reg2067 = PRIM_CDR(_35reg2066);
-Obj _35reg2068 = primEQ(Nil, _35reg2067);
+Obj _35reg2068 = PRIM_EQ(Nil, _35reg2067);
 if (True == _35reg2068) {
 PUSH_CONT(co, 5, clofun59, 1, arg);
 __nargs = 2;
@@ -11116,7 +11116,7 @@ Obj _35cc1514 = makeNative(4, clofun60, 0, 1, _35p1513);
 Obj _35reg2036 = primIsCons(_35p1513);
 if (True == _35reg2036) {
 Obj _35reg2037 = PRIM_CAR(_35p1513);
-Obj _35reg2038 = primEQ(intern("%const"), _35reg2037);
+Obj _35reg2038 = PRIM_EQ(intern("%const"), _35reg2037);
 if (True == _35reg2038) {
 Obj _35reg2039 = PRIM_CDR(_35p1513);
 Obj _35reg2040 = primIsCons(_35reg2039);
@@ -11126,7 +11126,7 @@ Obj _35reg2042 = PRIM_CAR(_35reg2041);
 Obj x = _35reg2042;
 Obj _35reg2043 = PRIM_CDR(_35p1513);
 Obj _35reg2044 = PRIM_CDR(_35reg2043);
-Obj _35reg2045 = primEQ(Nil, _35reg2044);
+Obj _35reg2045 = PRIM_EQ(Nil, _35reg2044);
 if (True == _35reg2045) {
 __nargs = 2;
 __arg1 = True;
@@ -11177,7 +11177,7 @@ Obj _35cc1515 = makeNative(5, clofun60, 0, 1, closureRef(co, 0));
 Obj _35reg2026 = primIsCons(closureRef(co, 0));
 if (True == _35reg2026) {
 Obj _35reg2027 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2028 = primEQ(intern("%global"), _35reg2027);
+Obj _35reg2028 = PRIM_EQ(intern("%global"), _35reg2027);
 if (True == _35reg2028) {
 Obj _35reg2029 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2030 = primIsCons(_35reg2029);
@@ -11187,7 +11187,7 @@ Obj _35reg2032 = PRIM_CAR(_35reg2031);
 Obj x = _35reg2032;
 Obj _35reg2033 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2034 = PRIM_CDR(_35reg2033);
-Obj _35reg2035 = primEQ(Nil, _35reg2034);
+Obj _35reg2035 = PRIM_EQ(Nil, _35reg2034);
 if (True == _35reg2035) {
 __nargs = 2;
 __arg1 = True;
@@ -11238,7 +11238,7 @@ Obj _35cc1516 = makeNative(0, clofun61, 0, 1, closureRef(co, 0));
 Obj _35reg2016 = primIsCons(closureRef(co, 0));
 if (True == _35reg2016) {
 Obj _35reg2017 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2018 = primEQ(intern("%builtin"), _35reg2017);
+Obj _35reg2018 = PRIM_EQ(intern("%builtin"), _35reg2017);
 if (True == _35reg2018) {
 Obj _35reg2019 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2020 = primIsCons(_35reg2019);
@@ -11248,7 +11248,7 @@ Obj _35reg2022 = PRIM_CAR(_35reg2021);
 Obj op = _35reg2022;
 Obj _35reg2023 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2024 = PRIM_CDR(_35reg2023);
-Obj _35reg2025 = primEQ(Nil, _35reg2024);
+Obj _35reg2025 = PRIM_EQ(Nil, _35reg2024);
 if (True == _35reg2025) {
 __nargs = 2;
 __arg1 = True;
@@ -11319,7 +11319,7 @@ Obj _35cc1517 = makeNative(1, clofun61, 0, 1, closureRef(co, 0));
 Obj _35reg2006 = primIsCons(closureRef(co, 0));
 if (True == _35reg2006) {
 Obj _35reg2007 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg2008 = primEQ(intern("quote"), _35reg2007);
+Obj _35reg2008 = PRIM_EQ(intern("quote"), _35reg2007);
 if (True == _35reg2008) {
 Obj _35reg2009 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2010 = primIsCons(_35reg2009);
@@ -11329,7 +11329,7 @@ Obj _35reg2012 = PRIM_CAR(_35reg2011);
 Obj x = _35reg2012;
 Obj _35reg2013 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2014 = PRIM_CDR(_35reg2013);
-Obj _35reg2015 = primEQ(Nil, _35reg2014);
+Obj _35reg2015 = PRIM_EQ(Nil, _35reg2014);
 if (True == _35reg2015) {
 __nargs = 2;
 __arg1 = True;
@@ -11380,7 +11380,7 @@ Obj _35cc1518 = makeNative(2, clofun61, 0, 1, closureRef(co, 0));
 Obj _35reg1996 = primIsCons(closureRef(co, 0));
 if (True == _35reg1996) {
 Obj _35reg1997 = PRIM_CAR(closureRef(co, 0));
-Obj _35reg1998 = primEQ(intern("%closure-ref"), _35reg1997);
+Obj _35reg1998 = PRIM_EQ(intern("%closure-ref"), _35reg1997);
 if (True == _35reg1998) {
 Obj _35reg1999 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2000 = primIsCons(_35reg1999);
@@ -11390,7 +11390,7 @@ Obj _35reg2002 = PRIM_CAR(_35reg2001);
 Obj __ = _35reg2002;
 Obj _35reg2003 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2004 = PRIM_CDR(_35reg2003);
-Obj _35reg2005 = primEQ(Nil, _35reg2004);
+Obj _35reg2005 = PRIM_EQ(Nil, _35reg2004);
 if (True == _35reg2005) {
 __nargs = 2;
 __arg1 = True;
@@ -11463,7 +11463,7 @@ label4:
 Obj _35p1508 = __arg1;
 Obj _35p1509 = __arg2;
 Obj _35cc1510 = makeNative(5, clofun61, 0, 2, _35p1508, _35p1509);
-Obj _35reg1994 = primEQ(Nil, _35p1508);
+Obj _35reg1994 = PRIM_EQ(Nil, _35p1508);
 if (True == _35reg1994) {
 Obj __ = _35p1509;
 __nargs = 2;
@@ -11620,7 +11620,7 @@ label4:
 Obj _35p1503 = __arg1;
 Obj _35p1504 = __arg2;
 Obj _35cc1505 = makeNative(5, clofun62, 0, 2, _35p1503, _35p1504);
-Obj _35reg1983 = primEQ(Nil, _35p1503);
+Obj _35reg1983 = PRIM_EQ(Nil, _35p1503);
 if (True == _35reg1983) {
 Obj s2 = _35p1504;
 __nargs = 2;
@@ -11960,7 +11960,7 @@ __ = closureRef(co, 2);
 Obj _35reg1947 = primIsCons(closureRef(co, 3));
 if (True == _35reg1947) {
 Obj _35reg1948 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1949 = primEQ(intern("quote"), _35reg1948);
+Obj _35reg1949 = PRIM_EQ(intern("quote"), _35reg1948);
 if (True == _35reg1949) {
 Obj _35reg1950 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1951 = primIsCons(_35reg1950);
@@ -11970,7 +11970,7 @@ Obj _35reg1953 = PRIM_CAR(_35reg1952);
 Obj x = _35reg1953;
 Obj _35reg1954 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1955 = PRIM_CDR(_35reg1954);
-Obj _35reg1956 = primEQ(Nil, _35reg1955);
+Obj _35reg1956 = PRIM_EQ(Nil, _35reg1955);
 if (True == _35reg1956) {
 Obj _35reg1957 = primCons(x, Nil);
 Obj _35reg1958 = primCons(intern("%const"), _35reg1957);
@@ -12115,7 +12115,7 @@ Obj import = closureRef(co, 2);
 Obj _35reg1920 = primIsCons(closureRef(co, 3));
 if (True == _35reg1920) {
 Obj _35reg1921 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1922 = primEQ(intern("lambda"), _35reg1921);
+Obj _35reg1922 = PRIM_EQ(intern("lambda"), _35reg1921);
 if (True == _35reg1922) {
 Obj _35reg1923 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1924 = primIsCons(_35reg1923);
@@ -12134,7 +12134,7 @@ Obj body = _35reg1932;
 Obj _35reg1933 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1934 = PRIM_CDR(_35reg1933);
 Obj _35reg1935 = PRIM_CDR(_35reg1934);
-Obj _35reg1936 = primEQ(Nil, _35reg1935);
+Obj _35reg1936 = PRIM_EQ(Nil, _35reg1935);
 if (True == _35reg1936) {
 PUSH_CONT(co, 1, clofun65, 4, ns, import, body, args);
 __nargs = 3;
@@ -12237,7 +12237,7 @@ Obj import = closureRef(co, 2);
 Obj _35reg1913 = primIsCons(closureRef(co, 3));
 if (True == _35reg1913) {
 Obj _35reg1914 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1915 = primEQ(intern("if"), _35reg1914);
+Obj _35reg1915 = PRIM_EQ(intern("if"), _35reg1914);
 if (True == _35reg1915) {
 Obj _35reg1916 = PRIM_CDR(closureRef(co, 3));
 Obj args = _35reg1916;
@@ -12328,7 +12328,7 @@ Obj import = closureRef(co, 2);
 Obj _35reg1891 = primIsCons(closureRef(co, 3));
 if (True == _35reg1891) {
 Obj _35reg1892 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1893 = primEQ(intern("do"), _35reg1892);
+Obj _35reg1893 = PRIM_EQ(intern("do"), _35reg1892);
 if (True == _35reg1893) {
 Obj _35reg1894 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1895 = primIsCons(_35reg1894);
@@ -12347,7 +12347,7 @@ Obj y = _35reg1903;
 Obj _35reg1904 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1905 = PRIM_CDR(_35reg1904);
 Obj _35reg1906 = PRIM_CDR(_35reg1905);
-Obj _35reg1907 = primEQ(Nil, _35reg1906);
+Obj _35reg1907 = PRIM_EQ(Nil, _35reg1906);
 if (True == _35reg1907) {
 PUSH_CONT(co, 1, clofun66, 4, env, ns, import, y);
 __nargs = 5;
@@ -12452,7 +12452,7 @@ Obj import = closureRef(co, 2);
 Obj _35reg1858 = primIsCons(closureRef(co, 3));
 if (True == _35reg1858) {
 Obj _35reg1859 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1860 = primEQ(intern("let"), _35reg1859);
+Obj _35reg1860 = PRIM_EQ(intern("let"), _35reg1859);
 if (True == _35reg1860) {
 Obj _35reg1861 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1862 = primIsCons(_35reg1861);
@@ -12482,7 +12482,7 @@ Obj _35reg1879 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1880 = PRIM_CDR(_35reg1879);
 Obj _35reg1881 = PRIM_CDR(_35reg1880);
 Obj _35reg1882 = PRIM_CDR(_35reg1881);
-Obj _35reg1883 = primEQ(Nil, _35reg1882);
+Obj _35reg1883 = PRIM_EQ(Nil, _35reg1882);
 if (True == _35reg1883) {
 PUSH_CONT(co, 4, clofun66, 5, env, ns, import, c, a);
 __nargs = 5;
@@ -12620,7 +12620,7 @@ __ = closureRef(co, 2);
 Obj _35reg1832 = primIsCons(closureRef(co, 3));
 if (True == _35reg1832) {
 Obj _35reg1833 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1834 = primEQ(intern("ns"), _35reg1833);
+Obj _35reg1834 = PRIM_EQ(intern("ns"), _35reg1833);
 if (True == _35reg1834) {
 Obj _35reg1835 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1836 = primIsCons(_35reg1835);
@@ -12650,7 +12650,7 @@ Obj _35reg1853 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1854 = PRIM_CDR(_35reg1853);
 Obj _35reg1855 = PRIM_CDR(_35reg1854);
 Obj _35reg1856 = PRIM_CDR(_35reg1855);
-Obj _35reg1857 = primEQ(Nil, _35reg1856);
+Obj _35reg1857 = PRIM_EQ(Nil, _35reg1856);
 if (True == _35reg1857) {
 __nargs = 5;
 __arg0 = globalRef(intern("cora/lib/toc#parse"));
@@ -12728,7 +12728,7 @@ Obj import = closureRef(co, 2);
 Obj _35reg1806 = primIsCons(closureRef(co, 3));
 if (True == _35reg1806) {
 Obj _35reg1807 = PRIM_CAR(closureRef(co, 3));
-Obj _35reg1808 = primEQ(intern("def"), _35reg1807);
+Obj _35reg1808 = PRIM_EQ(intern("def"), _35reg1807);
 if (True == _35reg1808) {
 Obj _35reg1809 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1810 = primIsCons(_35reg1809);
@@ -12747,7 +12747,7 @@ Obj val = _35reg1818;
 Obj _35reg1819 = PRIM_CDR(closureRef(co, 3));
 Obj _35reg1820 = PRIM_CDR(_35reg1819);
 Obj _35reg1821 = PRIM_CDR(_35reg1820);
-Obj _35reg1822 = primEQ(Nil, _35reg1821);
+Obj _35reg1822 = PRIM_EQ(Nil, _35reg1821);
 if (True == _35reg1822) {
 PUSH_CONT(co, 2, clofun67, 4, env, ns, import, val);
 __nargs = 3;
@@ -12959,7 +12959,7 @@ Obj env= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj ns= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj import= co->ctx.stk.stack[co->ctx.stk.base + 5];
 Obj provided = _35val1791;
-Obj _35reg1792 = primEQ(required, provided);
+Obj _35reg1792 = PRIM_EQ(required, provided);
 if (True == _35reg1792) {
 Obj _35reg1793 = primCons(op, Nil);
 Obj _35reg1794 = primCons(intern("%builtin"), _35reg1793);
@@ -13150,7 +13150,7 @@ Obj _35p1485 = __arg3;
 Obj _35cc1486 = makeNative(4, clofun69, 0, 3, _35p1483, _35p1484, _35p1485);
 Obj s = _35p1483;
 Obj ns = _35p1484;
-Obj _35reg1783 = primEQ(Nil, _35p1485);
+Obj _35reg1783 = PRIM_EQ(Nil, _35p1485);
 if (True == _35reg1783) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc#var-with-ns"));
@@ -13393,7 +13393,7 @@ label1:
 {
 Obj var = __arg1;
 Obj ns = __arg2;
-Obj _35reg1767 = primEQ(ns, makeCString(""));
+Obj _35reg1767 = PRIM_EQ(ns, makeCString(""));
 if (True == _35reg1767) {
 __nargs = 2;
 __arg1 = var;
@@ -13507,7 +13507,7 @@ label0:
 Obj _35p1479 = __arg1;
 Obj _35p1480 = __arg2;
 Obj _35cc1481 = makeNative(1, clofun72, 0, 2, _35p1479, _35p1480);
-Obj _35reg1765 = primEQ(MAKE_NUMBER(0), _35p1479);
+Obj _35reg1765 = PRIM_EQ(MAKE_NUMBER(0), _35p1479);
 if (True == _35reg1765) {
 Obj res = _35p1480;
 __nargs = 2;
@@ -13747,7 +13747,7 @@ Obj _35p1475 = __arg1;
 Obj _35p1476 = __arg2;
 Obj _35cc1477 = makeNative(1, clofun74, 0, 2, _35p1475, _35p1476);
 Obj x = _35p1475;
-Obj _35reg1681 = primEQ(Nil, _35p1476);
+Obj _35reg1681 = PRIM_EQ(Nil, _35p1476);
 if (True == _35reg1681) {
 __nargs = 2;
 __arg1 = False;
@@ -13857,7 +13857,7 @@ Obj _35p1471 = __arg3;
 Obj _35cc1472 = makeNative(0, clofun75, 0, 3, _35p1469, _35p1470, _35p1471);
 Obj __ = _35p1469;
 Obj x = _35p1470;
-Obj _35reg1673 = primEQ(Nil, _35p1471);
+Obj _35reg1673 = PRIM_EQ(Nil, _35p1471);
 if (True == _35reg1673) {
 __nargs = 2;
 __arg1 = MAKE_NUMBER(-1);
@@ -13906,7 +13906,7 @@ Obj _35reg1670 = PRIM_CAR(closureRef(co, 2));
 Obj a = _35reg1670;
 Obj _35reg1671 = PRIM_CDR(closureRef(co, 2));
 Obj b = _35reg1671;
-Obj _35reg1672 = primEQ(x, a);
+Obj _35reg1672 = PRIM_EQ(x, a);
 if (True == _35reg1672) {
 __nargs = 2;
 __arg1 = pos;
@@ -13986,7 +13986,7 @@ Obj _35p1466 = __arg3;
 Obj _35cc1467 = makeNative(4, clofun75, 0, 3, _35p1464, _35p1465, _35p1466);
 Obj f = _35p1464;
 Obj acc = _35p1465;
-Obj _35reg1663 = primEQ(Nil, _35p1466);
+Obj _35reg1663 = PRIM_EQ(Nil, _35p1466);
 if (True == _35reg1663) {
 __nargs = 2;
 __arg1 = acc;
@@ -14091,7 +14091,7 @@ Obj _35p1459 = __arg1;
 Obj _35p1460 = __arg2;
 Obj _35cc1461 = makeNative(2, clofun76, 0, 2, _35p1459, _35p1460);
 Obj var = _35p1459;
-Obj _35reg1657 = primEQ(Nil, _35p1460);
+Obj _35reg1657 = PRIM_EQ(Nil, _35p1460);
 if (True == _35reg1657) {
 __nargs = 2;
 __arg1 = Nil;
@@ -14126,7 +14126,7 @@ Obj _35reg1653 = PRIM_CDR(_35reg1652);
 Obj y = _35reg1653;
 Obj _35reg1654 = PRIM_CDR(closureRef(co, 1));
 Obj __ = _35reg1654;
-Obj _35reg1655 = primEQ(var, x);
+Obj _35reg1655 = PRIM_EQ(var, x);
 if (True == _35reg1655) {
 Obj _35reg1656 = primCons(x, y);
 __nargs = 2;
