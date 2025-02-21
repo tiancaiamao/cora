@@ -62,4 +62,75 @@ void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 struct Cora* coraNew();
 void coraInit(struct Cora *co, uintptr_t *mark);
 
+static inline void
+growCallStack(struct callStack *cs) {
+    size_t new_cap = cs->cap * 2;
+    struct returnAddr *new_data = malloc(new_cap * sizeof(struct returnAddr));
+    memcpy(new_data, cs->data, cs->len * sizeof(struct returnAddr));
+    free(cs->data);
+    cs->data = new_data;
+    cs->cap = new_cap;
+}
+
+#ifdef __GNUC__
+#define likely(x)    __builtin_expect(!!(x), 1)
+#define unlikely(x)  __builtin_expect(!!(x), 0)
+#else
+#define likely(x)    (x)
+#define unlikely(x)  (x)
+#endif
+
+#define PUSH_CONT_0(co, label, func) do { \
+    struct callStack *__cs = &(co)->callstack; \
+    if (unlikely(__cs->len >= __cs->cap)) { \
+        growCallStack(__cs); \
+    } \
+    struct returnAddr *__addr = &__cs->data[__cs->len++]; \
+    __addr->pc.func = (func); \
+    __addr->pc.label = (label); \
+    __addr->stk.stack = (co)->ctx.stk.stack; \
+    __addr->stk.base = (co)->ctx.stk.base; \
+    __addr->frees = (co)->ctx.frees; \
+} while (0)
+
+#define PUSH_CONT_1(co, label, func, val) do { \
+    PUSH_CONT_0(co, label, func); \
+    (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val); \
+    (co)->ctx.stk.base += 1; \
+} while (0)
+
+#define PUSH_CONT_2(co, label, func, val1, val2) do { \
+    PUSH_CONT_0(co, label, func); \
+    (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val1); \
+    (co)->ctx.stk.base += 1; \
+    (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val2); \
+    (co)->ctx.stk.base += 1; \
+} while (0)
+
+#define PUSH_CONT(co, label, func, nstack, ...) do { \
+    PUSH_CONT_0(co, label, func); \
+    if ((nstack) > 0) { \
+        Obj __tmp[] = { __VA_ARGS__ }; \
+        memcpy((co)->ctx.stk.stack + (co)->ctx.stk.base, __tmp, \
+               sizeof(Obj) * (nstack)); \
+    } \
+    (co)->ctx.stk.base += (nstack); \
+} while (0)
+
+#define PRIM_CAR(obj) (((struct scmCons*)(ptr(obj)))->car)
+#define PRIM_CDR(obj) (((struct scmCons*)(ptr(obj)))->cdr)
+#define PRIM_CONS(car, cdr) ({ \
+    struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons)); \
+    p->car = (car); \
+    p->cdr = (cdr); \
+    ((Obj)(&p->head) | TAG_PTR); \
+})
+
+#define PRIM_EQ(x, y) (eq(x, y) ? True : False)
+
+// assuming x and y are both fixnum
+#define PRIM_ADD(x, y)    ((x) + (y))
+#define PRIM_SUB(x, y)    ((x) - (y))
+#define PRIM_MUL(x, y)    makeNumber(fixnum(x) * fixnum(y))
+
 #endif

@@ -12,12 +12,7 @@ static void
 saveToStack(struct callStack *cs, int label, basicBlock cb, int base,
 	    Obj frees, Obj * stack) {
 	if (cs->len + 1 >= cs->cap) {
-		cs->cap = cs->cap * 2;
-		void *newData = malloc(cs->cap * sizeof(struct returnAddr));
-		memcpy(newData, cs->data,
-		       cs->len * sizeof(struct returnAddr));
-		free(cs->data);
-		cs->data = newData;
+	  growCallStack(cs);
 	}
 
 	struct returnAddr *addr = &cs->data[cs->len];
