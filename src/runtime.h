@@ -24,7 +24,7 @@ Obj coraGet(struct Cora *co, int i);
 void coraCall(struct Cora *co, int nargs, ...);
 
 void pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...);
-Obj globalRef(Obj sym);
+/* Obj globalRef(Obj sym); */
 Obj closureRef(struct Cora *co, int idx);
 
 Obj primEQ(Obj x, Obj y);

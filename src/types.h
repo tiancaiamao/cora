@@ -185,6 +185,15 @@ struct trieNode {
 		struct Cora *owner;
 };
 
+#define globalRef(symbol) ({ \
+    struct trieNode *s = ptr(symbol); \
+    Obj val = s->value; \
+    if (val == Undef) { \
+        printf("undefined global symbol: %s\n", s->sym); \
+        assert(false); \
+    } \
+    val; \
+})
 
 void trieNodeGCFunc(struct GC* gc, struct trieNode *node);
 

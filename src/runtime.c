@@ -194,16 +194,16 @@ closureRef(struct Cora *co, int idx) {
 	return frees[idx];
 }
 
-Obj
-globalRef(Obj sym) {
-	struct trieNode *s = ptr(sym);
-	Obj val = s->value;
-	if (val == Undef) {
-		printf("undefined global symbol: %s\n", s->sym);
-		assert(false);
-	}
-	return val;
-}
+/* Obj */
+/* globalRef(Obj sym) { */
+/* 	struct trieNode *s = ptr(sym); */
+/* 	Obj val = s->value; */
+/* 	if (val == Undef) { */
+/* 		printf("undefined global symbol: %s\n", s->sym); */
+/* 		assert(false); */
+/* 	} */
+/* 	return val; */
+/* } */
 
 Obj
 primEQ(Obj x, Obj y) {
@@ -592,7 +592,7 @@ static int unique = 1;
 
 void
 builtinLoad(struct Cora *co) {
-	// (load "file-path.cora" "package-path")
+	// (load "file-path.cora")
 	Obj filePath = co->args[1];
 
 	co->nargs = 3;

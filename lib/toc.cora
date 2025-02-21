@@ -65,29 +65,34 @@
 				      (lookup-var s ns more))))
 
   (func parse
-	_ _ _ x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
-	_ _ _ ['quote x] => ['%const x]
-	env ns import x => (if (elem? x env) x
-			       ['%global (lookup-var x ns import)]) where (symbol? x)
-			       env ns import ['lambda args body] => ['lambda args (parse (append args env) ns import body)]
-			       env ns import  ['if . args] => ['if . (map (parse env ns import) args)]
-			       env ns import ['do x y] => ['do (parse env ns import x) (parse env ns import y)]
-			       env ns import ['let a b c] => ['let a (parse env ns import b) (parse (cons a env) ns import c)]
-			       env _ _ ['ns path import body] => (parse env path import body)
-			       env ns import ['def var val] => (let var1 (var-with-ns var ns)
-								 [['%builtin 'set] ['%const var1] (parse env ns import val)])
-			       env ns import [op . args] => (let required (builtin->args op)
-							      provided (length args)
-							      (cond
-							       ((= required provided)  [['%builtin op] . (map (parse env ns import) args)])
-							       ((> required provided)
-								;; rewrite partial apply of primitives
-								;; (+ x) => (lambda (tmp) (+ x tmp))
-								(let tmp (temp-list (- required provided) ())
-								  (parse env ns import ['lambda tmp (append [op . args] tmp)])))
-							       (true (error "primitive call mismatch"))))
-			       where (builtin? op)
-			       env ns import ls => (map (parse env ns import) ls))
+	_ _ _ globals x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
+	_ _ _ globals ['quote x] => (begin (add-symbol-to-list x globals) ['%const x])
+	env ns import globals x => (if (elem? x env) x
+				       (let v (lookup-var x ns import)
+					    (begin
+					     (add-symbol-to-list v globals)
+					     ['%global v]))) where (symbol? x)
+	env ns import globals ['lambda args body] => ['lambda args (parse (append args env) ns import globals body)]
+	env ns import  globals ['if . args] => ['if . (map (parse env ns import globals) args)]
+	env ns import globals ['do x y] => ['do (parse env ns import globals x) (parse env ns import globals y)]
+	env ns import globals ['let a b c] => ['let a (parse env ns import globals b) (parse (cons a env) ns import globals c)]
+	env _ _ globals ['ns path import body] => (parse env path import globals body)
+	env ns import globals ['def var val] => (let var1 (var-with-ns var ns)
+						     (begin
+						      (add-symbol-to-list var1 globals)
+						      [['%builtin 'set] ['%const var1] (parse env ns import globals val)]))
+	env ns import globals [op . args] => (let required (builtin->args op)
+					  provided (length args)
+					  (cond
+					    ((= required provided)  [['%builtin op] . (map (parse env ns import globals) args)])
+					    ((> required provided)
+					     ;; rewrite partial apply of primitives
+					     ;; (+ x) => (lambda (tmp) (+ x tmp))
+					     (let tmp (temp-list (- required provided) ())
+						  (parse env ns import globals ['lambda tmp (append [op . args] tmp)])))
+					    (true (error "primitive call mismatch"))))
+	where (builtin? op)
+	env ns import globals ls => (map (parse env ns import globals) ls))
 
   (func union
 	[] s2 => s2
@@ -217,8 +222,8 @@
 	(k tmp)]))
 
   (func generate-call-list
-	globals self w i [] => ()
-	globals self w i [x . more] => (begin
+	self w i [] => ()
+	self w i [x . more] => (begin
 				 (if (not (> i 3))
 				     (begin (generate-str w "__arg")
 					    (generate-num w i))
@@ -226,18 +231,24 @@
 					    (generate-num w i)
 					    (generate-str w "]")))
 				 (generate-str w " = ")
-				 (generate-inst globals self () w x)
+				 (generate-inst self () w x)
 				 (generate-str w ";\n")
-				 (generate-call-list globals self w (+ i 1) more)))
+				 (generate-call-list self w (+ i 1) more)))
 
-  (defun generate-inst (globals self env w x1)
+  (defun add-symbol-to-list (sym globals)
+    (let val (value globals)
+      (if (elem? sym val)
+	  ()
+	  (set globals (cons sym val)))))
+
+  (defun generate-inst (self env w x1)
     (if (symbol? x1)
 	(generate-sym w x1)
 	(match x1
 	  ['%global x] (begin
-			 (generate-str w "globalRef(intern(\"")
-			 (generate-str w (symbol->string x))
-			 (generate-str w "\"))"))
+			 (generate-str w "globalRef(sym")
+			 (generate-sym w x)
+			 (generate-str w ")"))
 	  ['%closure-ref idx] (begin
 				(generate-str w "closureRef(co, ")
 				(generate-num w idx)
@@ -248,9 +259,8 @@
 			      (generate-str w ")"))
 	  ['%const x] (cond
 		       ((symbol? x) (begin
-				      (generate-str w "intern(\"")
-				      (generate-str w (symbol->string x))
-				      (generate-str w "\")")))
+				      (generate-str w "sym")
+				      (generate-sym w x)))
 		       ((number? x) (begin
 				      (generate-str w "MAKE_NUMBER(")
 				      (generate-num w x)
@@ -267,23 +277,23 @@
 			   (if (< idx 0) (generate-str w "Obj ") ())
 			   (generate-sym w a)
 			   (generate-str w " = ")
-			   (generate-inst globals self env w b)
+			   (generate-inst self env w b)
 			   (generate-str w ";\n")
-			   (generate-inst globals self (cons a env) w c)))
+			   (generate-inst self (cons a env) w c)))
 	  [['%builtin f] . args] (begin
 				   (generate-str w (builtin->name f))
 				   (if (= f 'set)
 				       (generate-str w "(co, ")
 				       (generate-str w "("))
-				   (generate-inst-list globals self env w args)
+				   (generate-inst-list self env w args)
 				   (generate-str w ")"))
 	  ['if a b c] (begin
 			(generate-str w "if (True == ")
-			(generate-inst globals self env w a)
+			(generate-inst self env w a)
 			(generate-str w ") {\n")
-			(generate-inst globals self env w b)
+			(generate-inst self env w b)
 			(generate-str w "} else {\n")
-			(generate-inst globals self env w c)
+			(generate-inst self env w c)
 			(generate-str w "}\n"))
 	  ['%closure label nargs . frees] (begin
 					    (generate-str w "makeNative(")
@@ -297,32 +307,32 @@
 					    (if (not (null? frees))
 						(begin
 						  (generate-str w ", ")
-						  (generate-inst-list globals self env w frees))
+						  (generate-inst-list self env w frees))
 						())
 					    (generate-str w ")"))
 	  ['do a b] (begin
-		      (generate-inst globals self env w a)
+		      (generate-inst self env w a)
 		      (generate-str w ";\n")
-		      (generate-inst globals self env w b))
+		      (generate-inst self env w b))
 	  ['return x] (begin
 			(generate-str w "__nargs = 2;\n")
 			(generate-str w "__arg1 = ")
-			(generate-inst globals self env w x)
+			(generate-inst self env w x)
 			(generate-str w ";\n")
 			(generate-str w "co->ctx = co->callstack.data[--co->callstack.len];\n")
 			(generate-str w "if (co->ctx.pc.func != ")
 			(generate-group-name w (cdr self) (car self))
 			(generate-str w ") { goto fail; }\n")
 			(generate-str w "goto *jumpTable[co->ctx.pc.label];\n"))
-	  ['tailcall exp] (generate-inst globals self env w exp)
+	  ['tailcall exp] (generate-inst self env w exp)
 	  ['call exp cont] (begin
-			     (generate-cont globals self w cont)
-			     (generate-inst globals self env w exp))
+			     (generate-cont self w cont)
+			     (generate-inst self env w exp))
 	  [f . args] (begin
 		       (generate-str w "__nargs = ")
 		       (generate-num w (+ 1 (length args)))
 		       (generate-str w ";\n")
-		       (generate-call-list globals self w 0 [f . args])
+		       (generate-call-list self w 0 [f . args])
 		       (generate-str w "co->ctx.frees = __arg0;\n")
 		       (generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
 		       (generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
@@ -342,7 +352,7 @@
   ;; 			    (.generate-call-args env w (+ idx 1) b)))
 
   (func generate-cont
-	globals self w ['%continuation label . stacks] => (begin
+	self w ['%continuation label . stacks] => (begin
 						    (generate-str w "PUSH_CONT(co, ")
 						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
@@ -353,35 +363,33 @@
 							(for-each (lambda (x)
 								    (begin
 								      (generate-str w ", ")
-								      (generate-inst globals self () w x)))
+								      (generate-inst self () w x)))
 								  stacks)
 							())
 						    (generate-str w ");\n")))
 
   (func generate-inst-list-h
-	globals self env fn w [] => ()
-	globals self env fn w [a . b] => (begin (fn globals self env w a)
+	self env fn w [] => ()
+	self env fn w [a . b] => (begin (fn self env w a)
 					(if (not (null? b))
 					    (generate-str w ", ")
 					    ())
-					(generate-inst-list-h globals self env fn w b)))
+					(generate-inst-list-h self env fn w b)))
 
-  (defun generate-inst-list (globals self env w l)
-    (generate-inst-list-h globals self env generate-inst w l))
+  (defun generate-inst-list (self env w l)
+    (generate-inst-list-h self env generate-inst w l))
 
   (def *mod-num* 50)
 
   (defun generate-group-name (w label maxid)
     (let gid (/ (- maxid label) *mod-num*)
-      (if (= gid 0)
-         (generate-str w "entry")
-         (begin
+      (begin
            (generate-str w "clofun")
-           (generate-num w gid)))))
+           (generate-num w gid))))
 
   (defun code-gen-func-declare (w label maxid)
     (begin
-      (generate-str w "void ")
+      (generate-str w "static void ")
       (generate-group-name w label maxid)
       (generate-str w "(struct Cora* co")
       (generate-str w ")")))
@@ -389,7 +397,7 @@
   (defun local-from-params (w i var)
     (begin
       (generate-str w "Obj ")
-      (generate-inst 'ignore 'ignore () w var)
+      (generate-inst 'ignore () w var)
       (if (< i 4)
 	  (begin (generate-str w " = __arg")
 		 (generate-num w i)
@@ -401,7 +409,7 @@
   (defun local-from-cont (w i var)
     (begin
       (generate-str w "Obj ")
-      (generate-inst 'ignore 'ignore () w var)
+      (generate-inst 'ignore () w var)
       (generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
       (generate-num w i)
       (generate-str w "];\n")))
@@ -413,20 +421,20 @@
 			      (generate-call-args-reverse fn w (+ idx 1) b)))
 
   (func code-gen-toplevel
-	w [label ['lambda params actives body]] maxid globals => (begin
+	w [label ['lambda params actives body]] maxid => (begin
 						     (generate-str w "label")
 						     (generate-num w (mod (- maxid label) *mod-num*))
 						     (generate-str w ":\n{\n")
 						     (generate-call-args-reverse local-from-params w 1 params)
 						     (generate-call-args-reverse local-from-cont w 0 actives)
-						     (generate-inst globals (cons maxid label) params w body)
+						     (generate-inst (cons maxid label) params w body)
 						     (generate-str w "}\n\n"))
-	w other maxid globals =>  (begin (display "wrong format of toplevel\n")
+	w other maxid =>  (begin (display "wrong format of toplevel\n")
 			   (display other)
 			   (display "\n")))
 
-  (defun parse-pass (exp)
-    (parse [] "" [] exp))
+  (defun parse-pass (globals exp)
+    (parse [] "" [] globals exp))
 
   (defun closure-convert-pass (exp)
     (closure-convert [] exp))
@@ -455,9 +463,9 @@
       (let fns (cddr exp)
 	(rewrite-->macro obj fns))))
 
-  (defun compile (exp)
+  (defun compile (globals exp)
     (-> exp
-	parse-pass
+	(parse-pass globals)
 	closure-convert-pass
 	tailify-pass
 	explicit-stack-pass
@@ -480,7 +488,7 @@
 		(generate-jumptable to (+ i 1) n)))
      (true ())))
 
-  (defun generate-toplevel-group (to group maxid globals)
+  (defun generate-toplevel-group (to group maxid)
     (begin
       (code-gen-func-declare to (caar group) maxid)
       (generate-str to "{\n")
@@ -496,7 +504,7 @@
       (generate-str to "};\n\n")
       (generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
 
-      (for-each (lambda (x) (code-gen-toplevel to x maxid globals)) group)
+      (for-each (lambda (x) (code-gen-toplevel to x maxid)) group)
 
       (generate-str to "fail:\n")
       (generate-str to "co->nargs = __nargs;\n")
@@ -515,22 +523,39 @@
 				       (group-by-mod-h (cons (reverse acc) res) 0 [] [bc . more])
 				       (group-by-mod-h res (+ idx 1) (cons bc acc) more)))
 
-  (defun generate-c (to bc)
+  (defun generate-entry (to globals)
+    (begin
+      (for-each (lambda (sym)
+		  (begin
+		    (generate-str to "static Obj sym")
+		    (generate-sym to sym)
+		    (generate-str to ";\n"))) globals)
+      (generate-str to "void entry(struct Cora *co) {\n")
+      (for-each (lambda (sym)
+		  (begin
+		    (generate-str to "sym")
+		    (generate-sym to sym)
+		    (generate-str to " = intern(\"")
+		    (generate-str to (symbol->string sym))
+		    (generate-str to "\");\n"))) globals)
+      (generate-str to "clofun0(co);\n}\n")))
+
+  (defun generate-c (to bc globals)
     (let groups (group-by-mod-h [] 0 [] bc)
-      maxid (caar bc)
-      globals (gensym 'collect)
-      (begin
-	(generate-str to "#include \"types.h\"\n")
-	(generate-str to "#include \"runtime.h\"\n\n")
-	(for-each (lambda (group)
-		    (begin
-		      (code-gen-func-declare to (caar group) maxid)
-		      (generate-str to ";\n")))
-		  groups)
-	(generate-str to "\n\n")
-	(for-each (lambda (group)
-		    (generate-toplevel-group to group maxid globals))
-		  groups))))
+	 maxid (caar bc)
+	 (begin
+	  (generate-str to "#include \"types.h\"\n")
+	  (generate-str to "#include \"runtime.h\"\n\n")
+	  (for-each (lambda (group)
+		      (begin
+		       (code-gen-func-declare to (caar group) maxid)
+		       (generate-str to ";\n")))
+		    groups)
+	  (generate-str to "\n\n")
+	  (generate-entry to (value globals))
+	  (for-each (lambda (group)
+		      (generate-toplevel-group to group maxid))
+		    groups))))
 
   (func handle-import-eagerly
 	['define-library _ . remain] => (handle-import-eagerly remain)
@@ -560,13 +585,16 @@
 	sexp)))
 
   (defun compile-to-c (from to)
-    (let bc (-> from
-		preprocess
-		macroexpand
-		compile)
-      (let stream (open-output-file to)
-	(begin
-	  (generate-c stream bc)
-	  (close-output-file stream)))))
+    (let globals (gensym 'collect)
+	 (begin
+	  (set globals ())
+	  (let bc (-> from
+		      preprocess
+		      macroexpand
+		      (compile globals))
+	       (let stream (open-output-file to)
+		    (begin
+		     (generate-c stream bc globals)
+		     (close-output-file stream)))))))
 
-  )
+    )
