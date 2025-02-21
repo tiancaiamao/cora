@@ -342,7 +342,7 @@
 
   (func generate-cont
 	self w ['%continuation label . stacks] => (begin
-						    (generate-str w "pushCont(co, ")
+						    (generate-str w "PUSH_CONT(co, ")
 						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
 						    (generate-group-name w label (car self))

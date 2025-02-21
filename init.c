@@ -65,7 +65,7 @@ Obj _35reg395 = primSet(co, intern("cdddr"), makeNative(2, clofun36, 1, 0));
 Obj _35reg403 = primSet(co, intern("rcons"), makeNative(0, clofun36, 1, 0));
 Obj _35reg405 = primSet(co, intern("pair?"), makeNative(5, clofun35, 1, 0));
 Obj _35reg410 = primSet(co, intern("cora/init#reverse-h"), makeNative(4, clofun35, 2, 0));
-pushCont(co, 1, entry, 0);
+PUSH_CONT(co, 1, entry, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#reverse-h"));
 __arg1 = Nil;
@@ -91,7 +91,7 @@ Obj _35reg440 = primSet(co, intern("cora/init#macroexpand1"), makeNative(3, clof
 Obj _35reg457 = primSet(co, intern("cora/init#macroexpand-boot"), makeNative(3, clofun33, 1, 0));
 Obj _35reg458 = primSet(co, intern("macroexpand"), globalRef(intern("cora/init#macroexpand-boot")));
 Obj _35reg469 = primSet(co, intern("defmacro-macro"), makeNative(5, clofun32, 1, 0));
-pushCont(co, 2, entry, 0);
+PUSH_CONT(co, 2, entry, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("defmacro");
@@ -106,7 +106,7 @@ goto *jumpTable[ps.label];
 label2:
 {
 Obj _35val470 = __arg1;
-pushCont(co, 3, entry, 0);
+PUSH_CONT(co, 3, entry, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("list");
@@ -121,7 +121,7 @@ goto *jumpTable[ps.label];
 label3:
 {
 Obj _35val472 = __arg1;
-pushCont(co, 4, entry, 0);
+PUSH_CONT(co, 4, entry, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("defun");
@@ -139,7 +139,7 @@ Obj _35val482 = __arg1;
 Obj _35reg487 = primSet(co, intern("elem?"), makeNative(5, clofun31, 2, 0));
 Obj _35reg490 = primSet(co, intern("atom?"), makeNative(4, clofun31, 1, 0));
 Obj _35reg502 = primSet(co, intern("cora/init#rewrite-let"), makeNative(5, clofun30, 1, 0));
-pushCont(co, 5, entry, 0);
+PUSH_CONT(co, 5, entry, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("let");
@@ -154,7 +154,7 @@ goto *jumpTable[ps.label];
 label5:
 {
 Obj _35val504 = __arg1;
-pushCont(co, 0, clofun1, 0);
+PUSH_CONT(co, 0, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("cond");
@@ -190,7 +190,7 @@ label0:
 {
 Obj _35val518 = __arg1;
 Obj _35reg530 = primSet(co, intern("cora/init#rewrite-or"), makeNative(4, clofun29, 1, 0));
-pushCont(co, 1, clofun1, 0);
+PUSH_CONT(co, 1, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("or");
@@ -206,7 +206,7 @@ label1:
 {
 Obj _35val532 = __arg1;
 Obj _35reg544 = primSet(co, intern("cora/init#rewrite-and"), makeNative(1, clofun29, 1, 0));
-pushCont(co, 2, clofun1, 0);
+PUSH_CONT(co, 2, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("and");
@@ -223,7 +223,7 @@ label2:
 Obj _35val546 = __arg1;
 Obj _35reg549 = primSet(co, intern("boolean?"), makeNative(5, clofun28, 1, 0));
 Obj _35reg559 = primSet(co, intern("cora/init#rcons1"), makeNative(2, clofun28, 1, 0));
-pushCont(co, 3, clofun1, 0);
+PUSH_CONT(co, 3, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("list-rest");
@@ -243,7 +243,7 @@ Obj _35reg648 = primSet(co, intern("cora/init#match1"), makeNative(1, clofun24, 
 Obj _35reg675 = primSet(co, intern("cora/init#extract-rule-action"), makeNative(5, clofun22, 2, 0));
 Obj _35reg727 = primSet(co, intern("cora/init#match-helper"), makeNative(1, clofun20, 2, 0));
 Obj _35reg753 = primSet(co, intern("cora/init#rewrite-match"), makeNative(0, clofun19, 1, 0));
-pushCont(co, 4, clofun1, 0);
+PUSH_CONT(co, 4, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("match");
@@ -268,7 +268,7 @@ Obj _35reg826 = primSet(co, intern("filter"), makeNative(1, clofun16, 2, 0));
 Obj _35reg832 = primSet(co, intern("append"), makeNative(5, clofun15, 2, 0));
 Obj _35reg843 = primSet(co, intern("cora/init#rules-arg-count"), makeNative(4, clofun14, 1, 0));
 Obj _35reg849 = primSet(co, intern("cora/init#gen-paramenters"), makeNative(2, clofun14, 1, 0));
-pushCont(co, 5, clofun1, 0);
+PUSH_CONT(co, 5, clofun1, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("func");
@@ -287,7 +287,7 @@ Obj _35reg1125 = primSet(co, intern("cora/init#propagate-boolean0"), makeNative(
 Obj _35reg1283 = primSet(co, intern("cora/init#propagate-boolean"), makeNative(3, clofun7, 1, 0));
 Obj _35reg1285 = primSet(co, intern("macroexpand"), makeNative(1, clofun7, 1, 0));
 Obj _35reg1309 = primSet(co, intern("cora/init#rewrite-begin"), makeNative(2, clofun6, 1, 0));
-pushCont(co, 0, clofun2, 0);
+PUSH_CONT(co, 0, clofun2, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("begin");
@@ -323,7 +323,7 @@ label0:
 {
 Obj _35val1311 = __arg1;
 Obj _35reg1331 = primSet(co, intern("cora/init#rewrite-backquote"), makeNative(1, clofun5, 1, 0));
-pushCont(co, 1, clofun2, 0);
+PUSH_CONT(co, 1, clofun2, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("backquote");
@@ -340,7 +340,7 @@ label1:
 Obj _35val1333 = __arg1;
 Obj _35reg1362 = primSet(co, intern("cora/init#parse-define-library-h"), makeNative(0, clofun4, 4, 0));
 Obj _35reg1363 = primSet(co, intern("cora/init#parse-define-library"), makeNative(5, clofun3, 2, 0));
-pushCont(co, 2, clofun2, 0);
+PUSH_CONT(co, 2, clofun2, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#add-to-*macros*"));
 __arg1 = intern("define-library");
@@ -440,7 +440,7 @@ goto *jumpTable[co->ctx.pc.label];
 label3:
 {
 Obj sexp = __arg1;
-pushCont(co, 4, clofun2, 1, sexp);
+PUSH_CONT(co, 4, clofun2, 1, sexp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = sexp;
@@ -456,7 +456,7 @@ label4:
 Obj _35val1364 = __arg1;
 Obj sexp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj path = _35val1364;
-pushCont(co, 5, clofun2, 1, path);
+PUSH_CONT(co, 5, clofun2, 1, path);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = sexp;
@@ -471,7 +471,7 @@ label5:
 {
 Obj _35val1365 = __arg1;
 Obj path= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 0, clofun3, 1, path);
+PUSH_CONT(co, 0, clofun3, 1, path);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#parse-define-library"));
 __arg1 = _35val1365;
@@ -522,7 +522,7 @@ Obj import = __arg1;
 Obj export = __arg2;
 Obj body = __arg3;
 Obj _35reg1367 = primCons(makeCString("cora/init"), import);
-pushCont(co, 2, clofun3, 3, export, body, _35reg1367);
+PUSH_CONT(co, 2, clofun3, 3, export, body, _35reg1367);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = makeNative(4, clofun3, 1, 0);
@@ -546,7 +546,7 @@ Obj _35reg1373 = primCons(_35reg1372, Nil);
 Obj _35reg1374 = primCons(intern("*ns-export*"), _35reg1373);
 Obj _35reg1375 = primCons(intern("def"), _35reg1374);
 Obj _35reg1376 = primCons(_35reg1375, body);
-pushCont(co, 3, clofun3, 1, _35reg1367);
+PUSH_CONT(co, 3, clofun3, 1, _35reg1367);
 __nargs = 3;
 __arg0 = globalRef(intern("append"));
 __arg1 = _35val1370;
@@ -783,7 +783,7 @@ Obj body = closureRef(co, 0);
 Obj imports = closureRef(co, 1);
 Obj exports = closureRef(co, 2);
 Obj k = closureRef(co, 3);
-pushCont(co, 3, clofun4, 3, k, exports, body);
+PUSH_CONT(co, 3, clofun4, 3, k, exports, body);
 __nargs = 2;
 __arg0 = globalRef(intern("reverse"));
 __arg1 = imports;
@@ -827,7 +827,7 @@ goto *jumpTable[ps.label];
 label5:
 {
 Obj exp = __arg1;
-pushCont(co, 0, clofun5, 0);
+PUSH_CONT(co, 0, clofun5, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -967,7 +967,7 @@ Obj x = _35reg1313;
 Obj _35reg1314 = primCdr(closureRef(co, 0));
 Obj more = _35reg1314;
 Obj _35reg1315 = primCons(x, more);
-pushCont(co, 4, clofun5, 0);
+PUSH_CONT(co, 4, clofun5, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = globalRef(intern("cora/init#rewrite-backquote"));
@@ -1155,7 +1155,7 @@ Obj _35reg1287 = primCar(closureRef(co, 0));
 Obj x = _35reg1287;
 Obj _35reg1288 = primCdr(closureRef(co, 0));
 Obj y = _35reg1288;
-pushCont(co, 5, clofun6, 1, x);
+PUSH_CONT(co, 5, clofun6, 1, x);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rewrite-begin"));
 __arg1 = y;
@@ -1224,7 +1224,7 @@ goto *jumpTable[ps.label];
 label1:
 {
 Obj exp = __arg1;
-pushCont(co, 2, clofun7, 0);
+PUSH_CONT(co, 2, clofun7, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#macroexpand-boot"));
 __arg1 = exp;
@@ -1330,7 +1330,7 @@ Obj _35reg1265 = primCdr(closureRef(co, 0));
 Obj _35reg1266 = primCdr(_35reg1265);
 Obj _35reg1267 = primEQ(Nil, _35reg1266);
 if (True == _35reg1267) {
-pushCont(co, 5, clofun7, 0);
+PUSH_CONT(co, 5, clofun7, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1431,7 +1431,7 @@ Obj _35reg1252 = primCdr(closureRef(co, 0));
 Obj _35reg1253 = primCdr(_35reg1252);
 Obj _35reg1254 = primEQ(Nil, _35reg1253);
 if (True == _35reg1254) {
-pushCont(co, 1, clofun8, 0);
+PUSH_CONT(co, 1, clofun8, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1512,7 +1512,7 @@ Obj _35reg1239 = primCdr(closureRef(co, 0));
 Obj _35reg1240 = primCdr(_35reg1239);
 Obj _35reg1241 = primEQ(Nil, _35reg1240);
 if (True == _35reg1241) {
-pushCont(co, 3, clofun8, 0);
+PUSH_CONT(co, 3, clofun8, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1602,7 +1602,7 @@ Obj _35reg1224 = primCdr(_35reg1223);
 Obj _35reg1225 = primCdr(_35reg1224);
 Obj _35reg1226 = primEQ(Nil, _35reg1225);
 if (True == _35reg1226) {
-pushCont(co, 5, clofun8, 1, y);
+PUSH_CONT(co, 5, clofun8, 1, y);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1663,7 +1663,7 @@ label5:
 Obj _35val1227 = __arg1;
 Obj y= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj x1 = _35val1227;
-pushCont(co, 0, clofun9, 1, x1);
+PUSH_CONT(co, 0, clofun9, 1, x1);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = y;
@@ -1730,7 +1730,7 @@ Obj _35reg1204 = primCdr(closureRef(co, 0));
 Obj _35reg1205 = primCdr(_35reg1204);
 Obj _35reg1206 = primEQ(Nil, _35reg1205);
 if (True == _35reg1206) {
-pushCont(co, 2, clofun9, 0);
+PUSH_CONT(co, 2, clofun9, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1811,7 +1811,7 @@ Obj _35reg1191 = primCdr(closureRef(co, 0));
 Obj _35reg1192 = primCdr(_35reg1191);
 Obj _35reg1193 = primEQ(Nil, _35reg1192);
 if (True == _35reg1193) {
-pushCont(co, 4, clofun9, 0);
+PUSH_CONT(co, 4, clofun9, 0);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -1912,7 +1912,7 @@ Obj _35reg1174 = primCdr(_35reg1173);
 Obj _35reg1175 = primCdr(_35reg1174);
 Obj _35reg1176 = primEQ(Nil, _35reg1175);
 if (True == _35reg1176) {
-pushCont(co, 0, clofun10, 2, y, z);
+PUSH_CONT(co, 0, clofun10, 2, y, z);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = x;
@@ -2003,7 +2003,7 @@ Obj _35val1177 = __arg1;
 Obj y= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj z= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj x1 = _35val1177;
-pushCont(co, 1, clofun10, 2, z, x1);
+PUSH_CONT(co, 1, clofun10, 2, z, x1);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = y;
@@ -2020,7 +2020,7 @@ Obj _35val1178 = __arg1;
 Obj z= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj x1= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj y1 = _35val1178;
-pushCont(co, 2, clofun10, 2, y1, x1);
+PUSH_CONT(co, 2, clofun10, 2, y1, x1);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = z;
@@ -2078,7 +2078,7 @@ Obj _35reg1144 = primCdr(_35reg1143);
 Obj _35reg1145 = primCdr(_35reg1144);
 Obj _35reg1146 = primEQ(Nil, _35reg1145);
 if (True == _35reg1146) {
-pushCont(co, 4, clofun10, 1, args);
+PUSH_CONT(co, 4, clofun10, 1, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#propagate-boolean"));
 __arg1 = body;
@@ -3382,7 +3382,7 @@ goto *jumpTable[ps.label];
 label2:
 {
 Obj exp = __arg1;
-pushCont(co, 3, clofun13, 1, exp);
+PUSH_CONT(co, 3, clofun13, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = exp;
@@ -3397,7 +3397,7 @@ label3:
 {
 Obj _35val850 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 4, clofun13, 1, exp);
+PUSH_CONT(co, 4, clofun13, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#extract-rules"));
 __arg1 = _35val850;
@@ -3413,7 +3413,7 @@ label4:
 Obj _35val851 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body = _35val851;
-pushCont(co, 5, clofun13, 2, exp, body);
+PUSH_CONT(co, 5, clofun13, 2, exp, body);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rules-arg-count"));
 __arg1 = body;
@@ -3430,7 +3430,7 @@ Obj _35val852 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj nargs = _35val852;
-pushCont(co, 0, clofun14, 2, exp, body);
+PUSH_CONT(co, 0, clofun14, 2, exp, body);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#gen-paramenters"));
 __arg1 = nargs;
@@ -3467,7 +3467,7 @@ Obj _35val853 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj args = _35val853;
-pushCont(co, 1, clofun14, 2, body, args);
+PUSH_CONT(co, 1, clofun14, 2, body, args);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -3510,7 +3510,7 @@ goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg845 = primGenSym(intern("p"));
 Obj _35reg846 = primSub(n, makeNumber(1));
-pushCont(co, 3, clofun14, 1, _35reg845);
+PUSH_CONT(co, 3, clofun14, 1, _35reg845);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#gen-paramenters"));
 __arg1 = _35reg846;
@@ -3537,7 +3537,7 @@ goto *jumpTable[co->ctx.pc.label];
 label4:
 {
 Obj rules = __arg1;
-pushCont(co, 5, clofun14, 0);
+PUSH_CONT(co, 5, clofun14, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#rules-patterns"));
 __arg1 = Nil;
@@ -3554,7 +3554,7 @@ label5:
 Obj _35val833 = __arg1;
 Obj pats = _35val833;
 Obj len = makeNative(4, clofun15, 1, 0);
-pushCont(co, 0, clofun15, 0);
+PUSH_CONT(co, 0, clofun15, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("map"));
 __arg1 = len;
@@ -3594,7 +3594,7 @@ Obj _35reg836 = primCar(counts);
 Obj n = _35reg836;
 Obj dif = makeNative(3, clofun15, 1, 1, n);
 Obj _35reg839 = primCdr(counts);
-pushCont(co, 1, clofun15, 1, n);
+PUSH_CONT(co, 1, clofun15, 1, n);
 __nargs = 3;
 __arg0 = globalRef(intern("filter"));
 __arg1 = dif;
@@ -3610,7 +3610,7 @@ label1:
 {
 Obj _35val840 = __arg1;
 Obj n= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 2, clofun15, 1, n);
+PUSH_CONT(co, 2, clofun15, 1, n);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = _35val840;
@@ -3684,7 +3684,7 @@ goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg828 = primCar(l1);
 Obj _35reg829 = primCdr(l1);
-pushCont(co, 0, clofun16, 1, _35reg828);
+PUSH_CONT(co, 0, clofun16, 1, _35reg828);
 __nargs = 3;
 __arg0 = globalRef(intern("append"));
 __arg1 = _35reg829;
@@ -3753,7 +3753,7 @@ Obj l = __arg3;
 Obj _35reg818 = primIsCons(l);
 if (True == _35reg818) {
 Obj _35reg819 = primCar(l);
-pushCont(co, 3, clofun16, 3, l, res, fn);
+PUSH_CONT(co, 3, clofun16, 3, l, res, fn);
 __nargs = 2;
 __arg0 = fn;
 __arg1 = _35reg819;
@@ -3873,7 +3873,7 @@ label0:
 {
 Obj res = __arg1;
 Obj rules = __arg2;
-pushCont(co, 1, clofun17, 2, res, rules);
+PUSH_CONT(co, 1, clofun17, 2, res, rules);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = rules;
@@ -3901,7 +3901,7 @@ goto *jumpTable[ps.label];
 } else {
 Obj _35reg809 = primCar(rules);
 Obj _35reg810 = primCons(_35reg809, res);
-pushCont(co, 2, clofun17, 1, _35reg810);
+PUSH_CONT(co, 2, clofun17, 1, _35reg810);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = rules;
@@ -4008,7 +4008,7 @@ Obj _35reg795 = primCdr(_35reg794);
 Obj _35reg796 = primCdr(_35reg795);
 Obj _35reg797 = primCdr(_35reg796);
 Obj remain = _35reg797;
-pushCont(co, 0, clofun18, 3, act, pred, remain);
+PUSH_CONT(co, 0, clofun18, 3, act, pred, remain);
 __nargs = 2;
 __arg0 = globalRef(intern("reverse"));
 __arg1 = closureRef(co, 1);
@@ -4135,7 +4135,7 @@ Obj act = _35reg765;
 Obj _35reg766 = primCdr(closureRef(co, 0));
 Obj _35reg767 = primCdr(_35reg766);
 Obj remain = _35reg767;
-pushCont(co, 2, clofun18, 2, act, remain);
+PUSH_CONT(co, 2, clofun18, 2, act, remain);
 __nargs = 2;
 __arg0 = globalRef(intern("reverse"));
 __arg1 = closureRef(co, 1);
@@ -4273,7 +4273,7 @@ goto *jumpTable[co->ctx.pc.label];
 label0:
 {
 Obj exp = __arg1;
-pushCont(co, 1, clofun19, 1, exp);
+PUSH_CONT(co, 1, clofun19, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -4288,7 +4288,7 @@ label1:
 {
 Obj _35val728 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 2, clofun19, 1, exp);
+PUSH_CONT(co, 2, clofun19, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("macroexpand"));
 __arg1 = _35val728;
@@ -4304,7 +4304,7 @@ label2:
 Obj _35val729 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj value = _35val729;
-pushCont(co, 3, clofun19, 1, value);
+PUSH_CONT(co, 3, clofun19, 1, value);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = exp;
@@ -4329,7 +4329,7 @@ if (True == _35reg734) {
 if (True == True) {
 Obj _35reg735 = primGenSym(intern("val"));
 Obj val = _35reg735;
-pushCont(co, 0, clofun20, 2, value, val);
+PUSH_CONT(co, 0, clofun20, 2, value, val);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = val;
@@ -4354,7 +4354,7 @@ goto *jumpTable[ps.label];
 if (True == False) {
 Obj _35reg741 = primGenSym(intern("val"));
 Obj val = _35reg741;
-pushCont(co, 5, clofun19, 2, value, val);
+PUSH_CONT(co, 5, clofun19, 2, value, val);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = val;
@@ -4380,7 +4380,7 @@ goto *jumpTable[ps.label];
 if (True == False) {
 Obj _35reg747 = primGenSym(intern("val"));
 Obj val = _35reg747;
-pushCont(co, 4, clofun19, 2, value, val);
+PUSH_CONT(co, 4, clofun19, 2, value, val);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = val;
@@ -4476,7 +4476,7 @@ label1:
 {
 Obj value = __arg1;
 Obj rules = __arg2;
-pushCont(co, 2, clofun20, 2, rules, value);
+PUSH_CONT(co, 2, clofun20, 2, rules, value);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = rules;
@@ -4501,7 +4501,7 @@ co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != clofun20) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-pushCont(co, 3, clofun20, 2, rules, value);
+PUSH_CONT(co, 3, clofun20, 2, rules, value);
 __nargs = 2;
 __arg0 = globalRef(intern("pair?"));
 __arg1 = rules;
@@ -4520,7 +4520,7 @@ Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 1];
 if (True == _35val679) {
 Obj _35reg680 = primCdr(rules);
-pushCont(co, 2, clofun21, 2, rules, value);
+PUSH_CONT(co, 2, clofun21, 2, rules, value);
 __nargs = 2;
 __arg0 = globalRef(intern("pair?"));
 __arg1 = _35reg680;
@@ -4535,7 +4535,7 @@ Obj _35reg712 = primCar(rules);
 Obj pat = _35reg712;
 Obj _35reg713 = primGenSym(intern("cc"));
 Obj cc = _35reg713;
-pushCont(co, 4, clofun20, 4, pat, rules, value, cc);
+PUSH_CONT(co, 4, clofun20, 4, pat, rules, value, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#extract-rule-action"));
 __arg1 = rules;
@@ -4566,7 +4566,7 @@ Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj action = _35val714;
-pushCont(co, 5, clofun20, 4, action, rules, value, cc);
+PUSH_CONT(co, 5, clofun20, 4, action, rules, value, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("macroexpand"));
 __arg1 = pat;
@@ -4584,7 +4584,7 @@ Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 0, clofun21, 3, rules, value, cc);
+PUSH_CONT(co, 0, clofun21, 3, rules, value, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = _35val715;
@@ -4627,7 +4627,7 @@ Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj curr = _35val716;
 Obj _35reg717 = primCdr(rules);
 Obj _35reg718 = primCdr(_35reg717);
-pushCont(co, 1, clofun21, 2, curr, cc);
+PUSH_CONT(co, 1, clofun21, 2, curr, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = value;
@@ -4670,7 +4670,7 @@ Obj _35reg682 = primCar(rules);
 Obj pat = _35reg682;
 Obj _35reg683 = primGenSym(intern("cc"));
 Obj cc = _35reg683;
-pushCont(co, 1, clofun22, 4, pat, rules, value, cc);
+PUSH_CONT(co, 1, clofun22, 4, pat, rules, value, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#extract-rule-action"));
 __arg1 = rules;
@@ -4696,7 +4696,7 @@ Obj _35reg697 = primCar(rules);
 Obj pat = _35reg697;
 Obj _35reg698 = primGenSym(intern("cc"));
 Obj cc = _35reg698;
-pushCont(co, 3, clofun21, 4, pat, rules, value, cc);
+PUSH_CONT(co, 3, clofun21, 4, pat, rules, value, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#extract-rule-action"));
 __arg1 = rules;
@@ -4727,7 +4727,7 @@ Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj action = _35val699;
-pushCont(co, 4, clofun21, 4, action, rules, value, cc);
+PUSH_CONT(co, 4, clofun21, 4, action, rules, value, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("macroexpand"));
 __arg1 = pat;
@@ -4745,7 +4745,7 @@ Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 5, clofun21, 3, rules, value, cc);
+PUSH_CONT(co, 5, clofun21, 3, rules, value, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = _35val700;
@@ -4768,7 +4768,7 @@ Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj curr = _35val701;
 Obj _35reg702 = primCdr(rules);
 Obj _35reg703 = primCdr(_35reg702);
-pushCont(co, 0, clofun22, 2, curr, cc);
+PUSH_CONT(co, 0, clofun22, 2, curr, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = value;
@@ -4828,7 +4828,7 @@ Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj action = _35val684;
-pushCont(co, 2, clofun22, 4, action, rules, value, cc);
+PUSH_CONT(co, 2, clofun22, 4, action, rules, value, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("macroexpand"));
 __arg1 = pat;
@@ -4846,7 +4846,7 @@ Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj rules= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj value= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 3, clofun22, 3, rules, value, cc);
+PUSH_CONT(co, 3, clofun22, 3, rules, value, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = _35val685;
@@ -4869,7 +4869,7 @@ Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj curr = _35val686;
 Obj _35reg687 = primCdr(rules);
 Obj _35reg688 = primCdr(_35reg687);
-pushCont(co, 4, clofun22, 2, curr, cc);
+PUSH_CONT(co, 4, clofun22, 2, curr, cc);
 __nargs = 3;
 __arg0 = globalRef(intern("cora/init#match-helper"));
 __arg1 = value;
@@ -4908,7 +4908,7 @@ Obj cc = __arg2;
 Obj _35reg649 = primCdr(rules);
 Obj _35reg650 = primCar(_35reg649);
 Obj action = _35reg650;
-pushCont(co, 0, clofun23, 2, cc, action);
+PUSH_CONT(co, 0, clofun23, 2, cc, action);
 __nargs = 2;
 __arg0 = globalRef(intern("pair?"));
 __arg1 = action;
@@ -4949,7 +4949,7 @@ Obj _35reg652 = primCar(action);
 Obj _35reg653 = primEQ(_35reg652, intern("where"));
 if (True == _35reg653) {
 if (True == True) {
-pushCont(co, 5, clofun23, 2, action, cc);
+PUSH_CONT(co, 5, clofun23, 2, action, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = action;
@@ -4967,7 +4967,7 @@ goto *jumpTable[co->ctx.pc.label];
 }
 } else {
 if (True == False) {
-pushCont(co, 3, clofun23, 2, action, cc);
+PUSH_CONT(co, 3, clofun23, 2, action, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = action;
@@ -4986,7 +4986,7 @@ goto *jumpTable[co->ctx.pc.label];
 }
 } else {
 if (True == False) {
-pushCont(co, 1, clofun23, 2, action, cc);
+PUSH_CONT(co, 1, clofun23, 2, action, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = action;
@@ -5010,7 +5010,7 @@ label1:
 Obj _35val668 = __arg1;
 Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 2, clofun23, 2, cc, _35val668);
+PUSH_CONT(co, 2, clofun23, 2, cc, _35val668);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = action;
@@ -5043,7 +5043,7 @@ label3:
 Obj _35val661 = __arg1;
 Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 4, clofun23, 2, cc, _35val661);
+PUSH_CONT(co, 4, clofun23, 2, cc, _35val661);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = action;
@@ -5076,7 +5076,7 @@ label5:
 Obj _35val654 = __arg1;
 Obj action= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 0, clofun24, 2, cc, _35val654);
+PUSH_CONT(co, 0, clofun24, 2, cc, _35val654);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = action;
@@ -5131,7 +5131,7 @@ Obj expr = __arg2;
 Obj body = __arg3;
 Obj cc = co->args[4];
 Obj literal_63 = makeNative(5, clofun24, 1, 0);
-pushCont(co, 2, clofun24, 4, expr, body, cc, pat);
+PUSH_CONT(co, 2, clofun24, 4, expr, body, cc, pat);
 __nargs = 2;
 __arg0 = literal_63;
 __arg1 = pat;
@@ -5185,7 +5185,7 @@ co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != clofun24) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-pushCont(co, 3, clofun24, 4, expr, body, cc, pat);
+PUSH_CONT(co, 3, clofun24, 4, expr, body, cc, pat);
 __nargs = 2;
 __arg0 = globalRef(intern("pair?"));
 __arg1 = pat;
@@ -5249,7 +5249,7 @@ goto *jumpTable[ps.label];
 }
 }
 } else {
-pushCont(co, 4, clofun24, 0);
+PUSH_CONT(co, 4, clofun24, 0);
 __nargs = 3;
 __arg0 = globalRef(intern("str"));
 __arg1 = makeCString("match fail ");
@@ -5278,7 +5278,7 @@ goto *jumpTable[ps.label];
 label5:
 {
 Obj x = __arg1;
-pushCont(co, 0, clofun25, 1, x);
+PUSH_CONT(co, 0, clofun25, 1, x);
 __nargs = 2;
 __arg0 = globalRef(intern("atom?"));
 __arg1 = x;
@@ -5344,7 +5344,7 @@ Obj pat = __arg1;
 Obj expr = __arg2;
 Obj body = __arg3;
 Obj cc = co->args[4];
-pushCont(co, 2, clofun25, 4, pat, expr, body, cc);
+PUSH_CONT(co, 2, clofun25, 4, pat, expr, body, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = pat;
@@ -5363,7 +5363,7 @@ Obj expr= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj x = _35val562;
-pushCont(co, 3, clofun25, 4, expr, body, x, cc);
+PUSH_CONT(co, 3, clofun25, 4, expr, body, x, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = pat;
@@ -5388,7 +5388,7 @@ Obj _35reg565 = primCar(expr);
 Obj _35reg566 = primEQ(_35reg565, intern("cons"));
 if (True == _35reg566) {
 if (True == True) {
-pushCont(co, 4, clofun27, 5, expr, y, body, x, cc);
+PUSH_CONT(co, 4, clofun27, 5, expr, y, body, x, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = expr;
@@ -5404,7 +5404,7 @@ Obj _35reg572 = primCons(expr, Nil);
 Obj _35reg573 = primCons(intern("car"), _35reg572);
 Obj _35reg574 = primCons(expr, Nil);
 Obj _35reg575 = primCons(intern("cdr"), _35reg574);
-pushCont(co, 2, clofun27, 4, x, _35reg573, cc, _35reg571);
+PUSH_CONT(co, 2, clofun27, 4, x, _35reg573, cc, _35reg571);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5419,7 +5419,7 @@ goto *jumpTable[ps.label];
 }
 } else {
 if (True == False) {
-pushCont(co, 5, clofun26, 5, expr, y, body, x, cc);
+PUSH_CONT(co, 5, clofun26, 5, expr, y, body, x, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = expr;
@@ -5435,7 +5435,7 @@ Obj _35reg588 = primCons(expr, Nil);
 Obj _35reg589 = primCons(intern("car"), _35reg588);
 Obj _35reg590 = primCons(expr, Nil);
 Obj _35reg591 = primCons(intern("cdr"), _35reg590);
-pushCont(co, 3, clofun26, 4, x, _35reg589, cc, _35reg587);
+PUSH_CONT(co, 3, clofun26, 4, x, _35reg589, cc, _35reg587);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5451,7 +5451,7 @@ goto *jumpTable[ps.label];
 }
 } else {
 if (True == False) {
-pushCont(co, 0, clofun26, 5, expr, y, body, x, cc);
+PUSH_CONT(co, 0, clofun26, 5, expr, y, body, x, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = expr;
@@ -5467,7 +5467,7 @@ Obj _35reg604 = primCons(expr, Nil);
 Obj _35reg605 = primCons(intern("car"), _35reg604);
 Obj _35reg606 = primCons(expr, Nil);
 Obj _35reg607 = primCons(intern("cdr"), _35reg606);
-pushCont(co, 4, clofun25, 4, x, _35reg605, cc, _35reg603);
+PUSH_CONT(co, 4, clofun25, 4, x, _35reg605, cc, _35reg603);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5490,7 +5490,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg605= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35reg603= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 5, clofun25, 2, cc, _35reg603);
+PUSH_CONT(co, 5, clofun25, 2, cc, _35reg603);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = x;
@@ -5550,7 +5550,7 @@ Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e1 = _35val599;
-pushCont(co, 1, clofun26, 5, y, body, x, e1, cc);
+PUSH_CONT(co, 1, clofun26, 5, y, body, x, e1, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = expr;
@@ -5570,7 +5570,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e2 = _35val600;
-pushCont(co, 2, clofun26, 3, x, e1, cc);
+PUSH_CONT(co, 2, clofun26, 3, x, e1, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5610,7 +5610,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg589= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35reg587= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 4, clofun26, 2, cc, _35reg587);
+PUSH_CONT(co, 4, clofun26, 2, cc, _35reg587);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = x;
@@ -5650,7 +5650,7 @@ Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e1 = _35val583;
-pushCont(co, 0, clofun27, 5, y, body, x, e1, cc);
+PUSH_CONT(co, 0, clofun27, 5, y, body, x, e1, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = expr;
@@ -5690,7 +5690,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e2 = _35val584;
-pushCont(co, 1, clofun27, 3, x, e1, cc);
+PUSH_CONT(co, 1, clofun27, 3, x, e1, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5730,7 +5730,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg573= co->ctx.stk.stack[co->ctx.stk.base + 1];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj _35reg571= co->ctx.stk.stack[co->ctx.stk.base + 3];
-pushCont(co, 3, clofun27, 2, cc, _35reg571);
+PUSH_CONT(co, 3, clofun27, 2, cc, _35reg571);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = x;
@@ -5770,7 +5770,7 @@ Obj body= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e1 = _35val567;
-pushCont(co, 5, clofun27, 5, y, body, x, e1, cc);
+PUSH_CONT(co, 5, clofun27, 5, y, body, x, e1, cc);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = expr;
@@ -5790,7 +5790,7 @@ Obj x= co->ctx.stk.stack[co->ctx.stk.base + 2];
 Obj e1= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj cc= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj e2 = _35val568;
-pushCont(co, 0, clofun28, 3, x, e1, cc);
+PUSH_CONT(co, 0, clofun28, 3, x, e1, cc);
 __nargs = 5;
 __arg0 = globalRef(intern("cora/init#match1"));
 __arg1 = y;
@@ -5861,7 +5861,7 @@ label2:
 {
 Obj pat = __arg1;
 Obj _35reg550 = primCdr(pat);
-pushCont(co, 3, clofun28, 1, pat);
+PUSH_CONT(co, 3, clofun28, 1, pat);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = _35reg550;
@@ -5886,7 +5886,7 @@ goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg553 = primCar(pat);
 Obj _35reg554 = primCdr(pat);
-pushCont(co, 4, clofun28, 1, _35reg553);
+PUSH_CONT(co, 4, clofun28, 1, _35reg553);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rcons1"));
 __arg1 = _35reg554;
@@ -5995,7 +5995,7 @@ if (co->ctx.pc.func != clofun29) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg536 = primCdr(l);
-pushCont(co, 2, clofun29, 1, l);
+PUSH_CONT(co, 2, clofun29, 1, l);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rewrite-and"));
 __arg1 = _35reg536;
@@ -6069,7 +6069,7 @@ if (co->ctx.pc.func != clofun29) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg522 = primCdr(l);
-pushCont(co, 5, clofun29, 1, l);
+PUSH_CONT(co, 5, clofun29, 1, l);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rewrite-or"));
 __arg1 = _35reg522;
@@ -6142,7 +6142,7 @@ co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != clofun30) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-pushCont(co, 1, clofun30, 1, exp);
+PUSH_CONT(co, 1, clofun30, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -6160,7 +6160,7 @@ Obj _35val509 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj curr = _35val509;
 Obj _35reg510 = primCar(curr);
-pushCont(co, 2, clofun30, 2, exp, _35reg510);
+PUSH_CONT(co, 2, clofun30, 2, exp, _35reg510);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = curr;
@@ -6176,7 +6176,7 @@ label2:
 Obj _35val511 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg510= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 3, clofun30, 2, _35val511, _35reg510);
+PUSH_CONT(co, 3, clofun30, 2, _35val511, _35reg510);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = exp;
@@ -6222,7 +6222,7 @@ label5:
 {
 Obj exp = __arg1;
 Obj _35reg491 = primCdr(exp);
-pushCont(co, 0, clofun31, 1, exp);
+PUSH_CONT(co, 0, clofun31, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("null?"));
 __arg1 = _35reg491;
@@ -6266,7 +6266,7 @@ if (co->ctx.pc.func != clofun31) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
 Obj _35reg494 = primCar(exp);
-pushCont(co, 1, clofun31, 2, exp, _35reg494);
+PUSH_CONT(co, 1, clofun31, 2, exp, _35reg494);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -6283,7 +6283,7 @@ label1:
 Obj _35val495 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg494= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 2, clofun31, 2, _35val495, _35reg494);
+PUSH_CONT(co, 2, clofun31, 2, _35val495, _35reg494);
 __nargs = 2;
 __arg0 = globalRef(intern("cddr"));
 __arg1 = exp;
@@ -6299,7 +6299,7 @@ label2:
 Obj _35val496 = __arg1;
 Obj _35val495= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg494= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 3, clofun31, 2, _35val495, _35reg494);
+PUSH_CONT(co, 3, clofun31, 2, _35val495, _35reg494);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#rewrite-let"));
 __arg1 = _35val496;
@@ -6396,7 +6396,7 @@ goto *jumpTable[co->ctx.pc.label];
 label0:
 {
 Obj exp = __arg1;
-pushCont(co, 1, clofun32, 1, exp);
+PUSH_CONT(co, 1, clofun32, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -6411,7 +6411,7 @@ label1:
 {
 Obj _35val473 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 2, clofun32, 2, exp, _35val473);
+PUSH_CONT(co, 2, clofun32, 2, exp, _35val473);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = exp;
@@ -6427,7 +6427,7 @@ label2:
 Obj _35val474 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35val473= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 3, clofun32, 2, _35val474, _35val473);
+PUSH_CONT(co, 3, clofun32, 2, _35val474, _35val473);
 __nargs = 2;
 __arg0 = globalRef(intern("cadddr"));
 __arg1 = exp;
@@ -6473,7 +6473,7 @@ goto *jumpTable[ps.label];
 label5:
 {
 Obj exp = __arg1;
-pushCont(co, 0, clofun33, 1, exp);
+PUSH_CONT(co, 0, clofun33, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -6510,7 +6510,7 @@ Obj _35val459 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg460 = primCons(_35val459, Nil);
 Obj _35reg461 = primCons(intern("quote"), _35reg460);
-pushCont(co, 1, clofun33, 2, exp, _35reg461);
+PUSH_CONT(co, 1, clofun33, 2, exp, _35reg461);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = exp;
@@ -6526,7 +6526,7 @@ label1:
 Obj _35val462 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj _35reg461= co->ctx.stk.stack[co->ctx.stk.base + 1];
-pushCont(co, 2, clofun33, 2, _35val462, _35reg461);
+PUSH_CONT(co, 2, clofun33, 2, _35val462, _35reg461);
 __nargs = 2;
 __arg0 = globalRef(intern("cdddr"));
 __arg1 = exp;
@@ -6572,7 +6572,7 @@ goto *jumpTable[co->ctx.pc.label];
 Obj _35reg445 = primCar(exp);
 Obj _35reg446 = primEQ(_35reg445, intern("lambda"));
 if (True == _35reg446) {
-pushCont(co, 0, clofun34, 1, exp);
+PUSH_CONT(co, 0, clofun34, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cadr"));
 __arg1 = exp;
@@ -6591,7 +6591,7 @@ co->ctx = co->callstack.data[--co->callstack.len];
 if (co->ctx.pc.func != clofun33) { goto fail; }
 goto *jumpTable[co->ctx.pc.label];
 } else {
-pushCont(co, 4, clofun33, 1, exp);
+PUSH_CONT(co, 4, clofun33, 1, exp);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#macroexpand1"));
 __arg1 = exp;
@@ -6676,7 +6676,7 @@ label0:
 {
 Obj _35val447 = __arg1;
 Obj exp= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 1, clofun34, 1, _35val447);
+PUSH_CONT(co, 1, clofun34, 1, _35val447);
 __nargs = 2;
 __arg0 = globalRef(intern("caddr"));
 __arg1 = exp;
@@ -6691,7 +6691,7 @@ label1:
 {
 Obj _35val448 = __arg1;
 Obj _35val447= co->ctx.stk.stack[co->ctx.stk.base + 0];
-pushCont(co, 2, clofun34, 1, _35val447);
+PUSH_CONT(co, 2, clofun34, 1, _35val447);
 __nargs = 2;
 __arg0 = globalRef(intern("cora/init#macroexpand-boot"));
 __arg1 = _35val448;
@@ -6893,7 +6893,7 @@ Obj l = __arg3;
 Obj _35reg413 = primIsCons(l);
 if (True == _35reg413) {
 Obj _35reg414 = primCar(l);
-pushCont(co, 3, clofun35, 3, res, l, f);
+PUSH_CONT(co, 3, clofun35, 3, res, l, f);
 __nargs = 2;
 __arg0 = f;
 __arg1 = _35reg414;
@@ -6999,7 +6999,7 @@ Obj _35reg396 = primIsCons(exp);
 if (True == _35reg396) {
 Obj _35reg397 = primCar(exp);
 Obj _35reg398 = primCdr(exp);
-pushCont(co, 1, clofun36, 1, _35reg397);
+PUSH_CONT(co, 1, clofun36, 1, _35reg397);
 __nargs = 2;
 __arg0 = globalRef(intern("rcons"));
 __arg1 = _35reg398;
