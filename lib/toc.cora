@@ -29,7 +29,7 @@
   (def *builtin-prims*
        [['set 2 "primSet"] ['car 1 "PRIM_CAR"] ['cdr 1 "PRIM_CDR"] ['cons 2 "primCons"] ['cons? 1 "primIsCons"]
 	['+ 2 "PRIM_ADD"] ['- 2 "PRIM_SUB"] ['* 2 "primMul"] ['/ 2 "primDiv"]
-	['= 2 "primEQ"] ['> 2 "primGT"] ['< 2 "primLT"] ['gensym 1 "primGenSym"] ['symbol? 1 "primIsSymbol"]
+	['= 2 "primEQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 1 "primGenSym"] ['symbol? 1 "primIsSymbol"]
 	['not 1 "primNot"] ['integer? 1 "primIsNumber"] ['string? 1 "primIsString"]])
 
   (defun builtin? (x)

@@ -136,8 +136,8 @@ growCallStack(struct callStack *cs) {
 })
 
 #define PRIM_EQ(x, y) (eq(x, y) ? True : False)
-#define PRIM_GT(x, y) ((x) > (y) ? True : False)
-#define PRIM_LT(x, y) ((x) < (y) ? True : False)
+#define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
+#define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
 
 #define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
 

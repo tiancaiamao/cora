@@ -171,10 +171,10 @@ Obj _35reg1709 = primCons(intern("/"), _35reg1708);
 Obj _35reg1710 = primCons(makeCString("primEQ"), Nil);
 Obj _35reg1711 = primCons(MAKE_NUMBER(2), _35reg1710);
 Obj _35reg1712 = primCons(intern("="), _35reg1711);
-Obj _35reg1713 = primCons(makeCString("primGT"), Nil);
+Obj _35reg1713 = primCons(makeCString("PRIM_GT"), Nil);
 Obj _35reg1714 = primCons(MAKE_NUMBER(2), _35reg1713);
 Obj _35reg1715 = primCons(intern(">"), _35reg1714);
-Obj _35reg1716 = primCons(makeCString("primLT"), Nil);
+Obj _35reg1716 = primCons(makeCString("PRIM_LT"), Nil);
 Obj _35reg1717 = primCons(MAKE_NUMBER(2), _35reg1716);
 Obj _35reg1718 = primCons(intern("<"), _35reg1717);
 Obj _35reg1719 = primCons(makeCString("primGenSym"), Nil);
@@ -1826,7 +1826,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun11) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg3135 = primLT(i, n);
+Obj _35reg3135 = PRIM_LT(i, n);
 if (True == _35reg3135) {
 PUSH_CONT(co, 1, clofun11, 3, i, to, n);
 __nargs = 3;
@@ -3081,7 +3081,7 @@ label4:
 Obj _35val3016 = __arg1;
 Obj i= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg3017 = primLT(i, MAKE_NUMBER(4));
+Obj _35reg3017 = PRIM_LT(i, MAKE_NUMBER(4));
 if (True == _35reg3017) {
 PUSH_CONT(co, 1, clofun20, 2, i, w);
 __nargs = 3;
@@ -4702,7 +4702,7 @@ Obj self= co->ctx.stk.stack[co->ctx.stk.base + 3];
 Obj w= co->ctx.stk.stack[co->ctx.stk.base + 4];
 Obj c= co->ctx.stk.stack[co->ctx.stk.base + 5];
 Obj idx = _35val2894;
-Obj _35reg2895 = primLT(idx, MAKE_NUMBER(0));
+Obj _35reg2895 = PRIM_LT(idx, MAKE_NUMBER(0));
 if (True == _35reg2895) {
 PUSH_CONT(co, 3, clofun29, 6, b, a, env, self, w, c);
 __nargs = 3;
@@ -6729,7 +6729,7 @@ Obj _35reg2675 = PRIM_CAR(closureRef(co, 3));
 Obj x = _35reg2675;
 Obj _35reg2676 = PRIM_CDR(closureRef(co, 3));
 Obj more = _35reg2676;
-Obj _35reg2677 = primGT(i, MAKE_NUMBER(3));
+Obj _35reg2677 = PRIM_GT(i, MAKE_NUMBER(3));
 Obj _35reg2678 = primNot(_35reg2677);
 if (True == _35reg2678) {
 PUSH_CONT(co, 0, clofun41, 5, x, i, self, w, more);
@@ -12975,7 +12975,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun68) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
-Obj _35reg1798 = primGT(required, provided);
+Obj _35reg1798 = PRIM_GT(required, provided);
 if (True == _35reg1798) {
 Obj _35reg1799 = PRIM_SUB(required, provided);
 PUSH_CONT(co, 2, clofun68, 5, op, args, env, ns, import);
@@ -13801,7 +13801,7 @@ label2:
 Obj _35val1679 = __arg1;
 Obj x= co->ctx.stk.stack[co->ctx.stk.base + 0];
 Obj tl= co->ctx.stk.stack[co->ctx.stk.base + 1];
-Obj _35reg1680 = primLT(_35val1679, MAKE_NUMBER(0));
+Obj _35reg1680 = PRIM_LT(_35val1679, MAKE_NUMBER(0));
 if (True == _35reg1680) {
 __nargs = 3;
 __arg0 = globalRef(intern("cora/lib/toc#exist-in-env"));
