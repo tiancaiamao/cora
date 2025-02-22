@@ -74,6 +74,9 @@
 					     ['%global v]))) where (symbol? x)
 	env ns import globals ['lambda args body] => ['lambda args (parse (append args env) ns import globals body)]
 	env ns import  globals ['if . args] => ['if . (map (parse env ns import globals) args)]
+	env ns import globals ['do ['import pkg] y] => ['do (parse env ns import globals ['import pkg])
+	       	      	      	   	    	       	    (parse env ns (cons pkg import) globals y)]
+	    						    	  where (string? pkg)
 	env ns import globals ['do x y] => ['do (parse env ns import globals x) (parse env ns import globals y)]
 	env ns import globals ['let a b c] => ['let a (parse env ns import globals b) (parse (cons a env) ns import globals c)]
 	env _ _ globals ['ns path import body] => (parse env path import globals body)
