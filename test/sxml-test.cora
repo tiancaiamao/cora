@@ -1,30 +1,33 @@
-(@import "cora/lib/sys")
-(@import "cora/lib/toc" toc)
-(@import "cora/lib/os" os)
-(@import "cora/lib/io" io)
-(@import "cora/lib/string" string)
-(@import "cora/lib/md4c/include" md4c)
-(@import "cora/lib/sxml" sxml)
+(define-library "cora/test/sxml-test"
 
-	     (io.display "!!!!!!!!!!!!")
-	     (io.display "\n")
+  (import "cora/lib/sys")
+  (import "cora/lib/toc")
+  (import "cora/lib/os")
+  (import "cora/lib/io")
+  (import "cora/lib/string")
+  (import "cora/lib/md4c/include")
+  (import "cora/lib/sxml")
 
-(let output (os.popen ["ls" "../go.blog/content/*.md"] 'r)
-     data (io.read-all output)
-     (begin
-      (set '*cases* (filter (lambda (s) (and 
-					 (> (string.length s) 0)
-					 (not (string.contain? s "resume"))
-					 (not (string.contain? s "sql-in-cockroachdb"))))
-			    (string.split data "\n")))
-      (os.pclose output)))
+  (display "!!!!!!!!!!!!")
+  (display "\n")
 
-(for-each (lambda (path)
-	    (begin
-	     (io.display "processing")
-	     (io.display path)
-	     (io.display "\n")
-	     ;; (md4c.process-file path)))
-	     (let sx (md4c.process-file path)
+  (let output (popen ["ls" "../go.blog/content/*.md"] 'r)
+    data (read-all output)
+    (begin
+      (def *cases* (filter (lambda (s) (and 
+					(> (string-length s) 0)
+					(not (string-contain? s "resume"))
+					(not (string-contain? s "sql-in-cockroachdb"))))
+			   (string-split data "\n")))
+      (pclose output)))
+
+  (for-each (lambda (path)
+	      (begin
+		(display "processing")
+		(display path)
+		(display "\n")
+		(let sx (process-file path)
 		  (map sxml->xml sx))))
-	  *cases*)
+	    *cases*)
+
+  )
