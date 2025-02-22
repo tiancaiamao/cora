@@ -560,6 +560,7 @@
   (func handle-import-eagerly
 	['define-library _ . remain] => (handle-import-eagerly remain)
 	['begin . remain] => (handle-import-eagerly remain)
+	[['export . more] . remain] => (handle-import-eagerly remain)
 	[['import pkg] . remain] => (begin
 				      (import pkg)
 				      ;; (display "import ==")
