@@ -64,6 +64,24 @@ ioCopy(struct Cora *co) {
   coraReturn(co, feof(from));
 }
 
+static void
+ioWrite(struct Cora *co) {
+  FILE *to = mustCObj(co->args[1]);
+  Obj from = co->args[2];
+  char *data = bytesData(from);
+  int len = bytesLen(from);
+  size_t off = 0;
+  while (off < len) {
+    size_t sz = fwrite(data+off, 1, len-off, to);
+    if (sz < 0) {
+      coraReturn(co, makeNumber(sz));
+      return;
+    }
+    off += sz;
+  }
+  coraReturn(co, makeNumber(len));
+}
+
 struct registerModule ioModule = {
   NULL,
   {
@@ -72,6 +90,7 @@ struct registerModule ioModule = {
     {"close-output-file", builtinCloseOutputFile, 1},
     {"read-all", ioReadAll, 1},
     {"copy", ioCopy, 2},
+    {"write-bytes", ioWrite, 2},
     /* {NULL, NULL, 0} */
   }
 };

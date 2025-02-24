@@ -7,27 +7,50 @@
   (import "cora/lib/string")
   (import "cora/lib/md4c/include")
   (import "cora/lib/sxml")
+  (import "cora/lib/json")
 
   (display "!!!!!!!!!!!!")
   (display "\n")
 
-  (let output (popen ["ls" "../go.blog/content/*.md"] 'r)
-    data (read-all output)
-    (begin
-      (def *cases* (filter (lambda (s) (and 
-					(> (string-length s) 0)
-					(not (string-contain? s "resume"))
-					(not (string-contain? s "sql-in-cockroachdb"))))
-			   (string-split data "\n")))
-      (pclose output)))
+  (defun for-range (from to fn init)
+    (if (= from to)
+	init
+	(for-range (+ from 1) to fn (fn init from))))
 
-  (for-each (lambda (path)
-	      (begin
-		(display "processing")
-		(display path)
-		(display "\n")
-		(let sx (process-file path)
-		  (map sxml->xml sx))))
-	    *cases*)
+  (defun parse-index-file (idx-file)
+    (let data (json-load-file idx-file)
+      (let n (json-array-size data)
+	(for-range 0 n
+		   (lambda (init i)
+		     (let item (json-array-get data i)
+		       (let path (json-object-get item "File")
+			 (if (json-is-string? path)
+			     (cons (json-string-value path) init)
+			     init)))) ()))))
+
+  ;; (let output (popen ["ls" "../go.blog/content/*.md"] 'r)
+  ;;   data (read-all output)
+  ;;   (begin
+  ;;     (def *cases* (filter (lambda (s) (and
+  ;; 					(> (string-length s) 0)
+  ;; 					(not (string-contain? s "resume"))
+  ;; 					(not (string-contain? s "sql-in-cockroachdb"))))
+  ;; 			   (string-split data "\n")))
+  ;;     (pclose output)))
+
+  (let *cases* (parse-index-file "../go.blog/content/index.json")
+    (for-each (lambda (path1)
+		(let path (string-append "../go.blog/content/" path1)
+		  (begin
+		    (display "processing")
+		    (display path)
+		    (display "\n")
+		    (let sx (process-file path)
+		      (let data (sxml->xml sx)
+			outfile (open-output-file (string-replace path1 ".md" ".html"))
+			(begin
+			  (write-bytes outfile data)
+			  (close-output-file outfile)))))))
+	      *cases*))
 
   )

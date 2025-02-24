@@ -12,6 +12,9 @@ COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 clean:
 	rm -rf *.o *.so toc/internal.so
 
+json.so: json.c
+	gcc -shared -o json.so json.c -fPIC -I../src -L../src -lcora -ljansson
+
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
 

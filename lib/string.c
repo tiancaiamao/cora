@@ -9,14 +9,22 @@
 static void
 stringSlice(struct Cora *co) {
   Obj str1 = co->args[1];
-  Obj pos = fixnum(co->args[2]);
-  Obj ret;
   int len = bytesLen(str1);
-  if (pos >= len) {
+  int beg = fixnum(co->args[2]);
+  if (beg < 0) {
+    beg = len + beg;
+  }
+  int end = fixnum(co->args[3]);
+  if (end < 0) {
+    end = len + end;
+  }
+
+  Obj ret;
+  if (beg < 0 || end > len || end < beg) {
     ret = makeString("", 0);
   } else {
     str s = stringStr(str1);
-    ret = makeString(s.str+pos, len-pos);
+    ret = makeString(s.str+beg, end-beg);
   }
   coraReturn(co, ret);
 }
@@ -174,7 +182,7 @@ bytesRef(struct Cora *co) {
 static struct registerModule stringModule = {
   NULL,
   {
-    {"slice", stringSlice, 2},
+    {"string-slice", stringSlice, 3},
     {"has-prefix?", stringHasPrefix, 2},
     {"string-length", bytesLength, 1},
     {"string-index", stringIndex, 2},

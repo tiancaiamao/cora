@@ -22,7 +22,8 @@
     (bytes-length (buffer-bytes buf)))
 
   (defun buffer->string (buf)
-    (vector-ref buf 0))
+    (let b (vector-ref buf 0)
+	 (string-slice b 0 (buffer-size buf))))
 
   (defun next-size (size)
     (if (< size 1024)
@@ -106,6 +107,6 @@
     (let buf (make-buffer)
       (begin
 	(sxml->xml-h buf sx)
-	(buffer-bytes buf))))
+	(buffer->string buf))))
 
   )
