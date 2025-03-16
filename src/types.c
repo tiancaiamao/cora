@@ -289,6 +289,8 @@ nativeRequired(Obj o) {
 	return native->required;
 }
 
+// TODO: add a cap field to this.
+// cora stack can be simplify using a vector.
 struct scmVector {
 	scmHead head;
 	int size;
