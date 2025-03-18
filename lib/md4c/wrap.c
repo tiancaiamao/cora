@@ -25,7 +25,7 @@ md_html_push(MD_HTML * r) {
 			r->cap = r->cap * 2;
 		}
 
-		Obj stack = makeVector(r->cap);
+		Obj stack = makeVector(r->cap, r->cap);
 		for (int i = 0; i < r->size; i++) {
 			Obj oldStack = symbolGet(r->stack);
 			vectorSet(stack, i, vectorRef(oldStack, i));

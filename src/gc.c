@@ -249,7 +249,7 @@ blockReset(struct Block *block) {
 __thread struct GC *threadLocalGC;
 
 void
-gcInit(uintptr_t * baseStackAddr) {
+gcInit(uintptr_t *baseStackAddr) {
 	assert(((uintptr_t) baseStackAddr & 0x7) == 0);
 
 	struct GC *gc = malloc(sizeof(struct GC));
@@ -306,7 +306,7 @@ gcContains(struct GC *gc, void *p) {
 }
 
 static bool
-inuse(struct GC *gc, scmHead * h) {
+inuse(struct GC *gc, scmHead *h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
@@ -336,7 +336,7 @@ shouldTriggerGC(struct GC *gc) {
 
 // Used in allocDone
 static void
-allocDone(struct GC *gc, int size, scmHead * ret) {
+allocDone(struct GC *gc, int size, scmHead *ret) {
 	ret->size = size;
 	ret->version =
 		(gc->state ==
@@ -353,7 +353,7 @@ allocDone(struct GC *gc, int size, scmHead * ret) {
 }
 
 static int
-getLargeObjSlots(scmHead * n) {
+getLargeObjSlots(scmHead *n) {
 	if (n->type == scmHeadUnused) {
 		return ((struct scmFreeNode *) n)->slots;
 	}
@@ -361,7 +361,7 @@ getLargeObjSlots(scmHead * n) {
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead * h) {
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead *h) {
 	for (int i = 0; i < slots; i++) {
 		struct Block *b = &ha->blocks[start + i];
 		b->base = (char *) h;
@@ -544,7 +544,7 @@ gcQueueInit(struct GC *gc) {
 }
 
 static void
-gcEnqueue(struct GC *gc, scmHead * p) {
+gcEnqueue(struct GC *gc, scmHead *p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
 		b = blockNew(gc);
@@ -651,7 +651,7 @@ nextVersion(version_t ver) {
 }
 
 static void
-markObject(struct GC *gc, scmHead * from, version_t minv) {
+markObject(struct GC *gc, scmHead *from, version_t minv) {
 	// Skip if already a gray object
 	if ((from->version & 1) == 1) {
 		return;
@@ -677,18 +677,13 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 }
 
 void
-gcMarkAndEnsure(struct GC *gc, uintptr_t p, version_t minv) {
+gcMark(struct GC *gc, uintptr_t p, version_t minv) {
 	scmHead *from = checkPointer(gc, p);
 	if (from == NULL) {
 		return;
 	}
 	assert(from->type > scmHeadUnused && from->type < scmHeadMax);
 	markObject(gc, from, minv);
-}
-
-void
-gcMark(struct GC *gc, uintptr_t p) {
-	gcMarkAndEnsure(gc, p, 0);
 }
 
 #if defined(__clang__) || defined (__GNUC__)
@@ -716,7 +711,7 @@ gcStack(struct GC *gc) {
 	for (uintptr_t * p = stackAddr; p < (uintptr_t *) gc->baseStackAddr;
 	     p++) {
 		uintptr_t stackValue = *p;
-		gcMark(gc, stackValue);
+		gcMark(gc, stackValue, 0);
 	}
 }
 
@@ -940,17 +935,17 @@ gcRun(struct GC *gc) {
 }
 
 void
-writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
+writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 	// Yuasa-style deletion barrier
 	if (gc->state == gcStateIncremental) {
 		uintptr_t old = *slot;
-		gcMark(gc, old);
+		gcMark(gc, old, 0);
 	}
 	*slot = val;
 }
 
 void
-writeBarrierForGeneration(scmHead * v, uintptr_t val) {
+writeBarrierForGeneration(scmHead *v, uintptr_t val) {
 	// Skip if not a pointer
 	if (tag(val) != TAG_PTR) {
 		return;

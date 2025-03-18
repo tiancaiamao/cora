@@ -2,37 +2,37 @@
 ;;    1. how much memory it uses
 ;;    2. how long it takes
 
-(@import "cora/lib/let-loop")
-(@import "cora/lib/cml" cml)
-(@import "cora/lib/io" io)
-(@import "cora/lib/chan" chan)
+(import "cora/lib/let-loop")
+(import "cora/lib/cml")
+(import "cora/lib/io")
+(import "cora/lib/chan")
 
-(let ch (chan.make)
- N 1000000
- (begin
+(let ch (chan-make)
+  N 1000000
+  (begin
+    
+    (defun create ()
+      (let-loop recur (i 0)
+		(if (> i N)
+		    (display "spawn finish\n")
+		    (begin
+		      (spawn (lambda ()
+				   (let v (perform (chan-recv ch))
+				     (begin
+				       (display "receive value")
+				       (display v)
+				       (display "\n")))))	
+		      (recur (+ i 1))))))
+    
+    (defun boot ()
+      (let-loop recur1 (i 0)
+		(if (> i N)
+		    (display "test finish\n")
+		    (begin
+		      (perform (chan-send ch i))
+		      (recur1 (+ i 1))))))))
 
-  (defun create ()
-   (let-loop recur (i 0)
-	(if (> i N)
-	 (io.display "spawn finish\n")
-	 (begin
-	  (cml.spawn (lambda ()
-				  (let v (cml.perform (chan.recv ch))
-				   (begin
-					(io.display "receive value")
-					(io.display v)
-					(io.display "\n")))))	
-	  (recur (+ i 1))))))
-
-  (defun boot ()
-   (let-loop recur1 (i 0)
-	(if (> i N)
-	 (io.display "test finish\n")
-	 (begin
-	  (cml.perform (chan.send ch i))
-	  (recur1 (+ i 1))))))))
-								
 (create)
-(io.display "here???\n")
-(cml.spawn boot)
-(cml.main)
+(display "here???\n")
+(spawn boot)
+(main)

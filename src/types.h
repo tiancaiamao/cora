@@ -148,14 +148,14 @@ struct stackState {
   int base;
 };
 
-struct returnAddr {
+struct frame {
   struct stackState stk;
   struct pcState pc;
   Obj frees;
 };
 
 struct callStack {
-  struct returnAddr *data;
+  struct frame *data;
   int len;
   int cap;
 };
@@ -167,9 +167,10 @@ void gcMarkCallStack(struct GC *gc, struct callStack *stack);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
-Obj makeVector(int c);
+Obj makeVector(int size, int cap);
 Obj vectorRef(Obj vec, int idx);
 Obj vectorSet(Obj vec, int idx, Obj val);
+Obj vectorAppend(Obj vec, Obj val);
 bool isvector(Obj o);
 int vectorLength(Obj vec);
 

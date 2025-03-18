@@ -65,8 +65,8 @@ static void
 consGCFunc(struct GC *gc, void *f) {
 	struct scmCons *from = f;
 	version_t minv = from->head.version;
-	gcMarkAndEnsure(gc, from->car, minv);
-	gcMarkAndEnsure(gc, from->cdr, minv);
+	gcMark(gc, from->car, minv);
+	gcMark(gc, from->cdr, minv);
 }
 
 Obj
@@ -140,16 +140,6 @@ bytesLen(Obj o) {
 	assert(s->head.type == scmHeadBytes);
 	return s->len;
 }
-
-/* bool */
-/* isBytes(Obj o) { */
-/* 	if (tag(o) == TAG_PTR) { */
-/* 		if (((scmHead *) ptr(o))->type == scmHeadBytes) { */
-/* 			return true; */
-/* 		} */
-/* 	} */
-/* 	return false; */
-/* } */
 
 Obj
 makeString(const char *s, int len) {
@@ -245,7 +235,7 @@ nativeGCFunc(struct GC *gc, void *f) {
 	struct scmNative *from = f;
 	version_t minv = from->head.version;
 	for (int i = 0; i < from->captured; i++) {
-		gcMarkAndEnsure(gc, from->data[i], minv);
+		gcMark(gc, from->data[i], minv);
 	}
 }
 
@@ -289,18 +279,22 @@ nativeRequired(Obj o) {
 	return native->required;
 }
 
+// cora stack can be simplify using a vector.
 struct scmVector {
 	scmHead head;
 	int size;
+	int cap;
 	Obj data[];
 };
 
 Obj
-makeVector(int size) {
+makeVector(int size, int cap) {
+	assert(size <= cap);
 	struct scmVector *vec = newObj(scmHeadVector,
 				       sizeof(struct scmVector) +
-				       sizeof(Obj) * size);
+				       sizeof(Obj) * cap);
 	vec->size = size;
+	vec->cap = cap;
 	for (int i = 0; i < vec->size; i++) {
 		vec->data[i] = Undef;
 	}
@@ -332,6 +326,39 @@ vectorLength(Obj vec) {
 	return v->size;
 }
 
+int
+vectorCapacity(Obj vec) {
+	assert(isvector(vec));
+	struct scmVector *v = ptr(vec);
+	return v->cap;
+}
+
+Obj
+vectorAppend(Obj vec, Obj val) {
+	assert(isvector(vec));
+	struct scmVector *v = ptr(vec);
+	if (v->size >= v->cap) {
+		assert(v->cap > 0);
+		int newCap;
+		if (v->cap < 1024) {
+			newCap = v->cap * 2;
+		} else {
+			newCap = v->cap + v->cap / 4;
+		}
+		Obj tmp = makeVector(v->size, newCap);
+		struct scmVector *tmpV = ptr(tmp);
+		memcpy(tmpV->data, v->data, v->size * sizeof(Obj));
+		// writeBarrier!
+		writeBarrierForIncremental(getGC(), &vec, tmp);
+		// this seems not required, because tmp->version should always >= val->version?
+		writeBarrierForGeneration(&v->head, val);
+		v = ptr(tmp);
+	}
+	v->data[v->size] = val;
+	v->size++;
+	return ((Obj) (&v->head) | TAG_PTR);
+}
+
 bool
 isvector(Obj o) {
 	if (tag(o) == TAG_PTR) {
@@ -348,7 +375,7 @@ vectorGCFunc(struct GC *gc, void *f) {
 	struct scmVector *from = f;
 	version_t minv = from->head.version;
 	for (int i = 0; i < from->size; i++) {
-		gcMarkAndEnsure(gc, from->data[i], minv);
+		gcMark(gc, from->data[i], minv);
 	}
 }
 
@@ -362,7 +389,7 @@ makeContinuation() {
 	struct scmContinuation *cont =
 		newObj(scmHeadContinuation, sizeof(struct scmContinuation));
 	struct callStack *stack = &cont->cs;
-	stack->data = malloc(64 * sizeof(struct returnAddr));
+	stack->data = malloc(64 * sizeof(struct frame));
 	stack->len = 0;
 	stack->cap = 64;
 	return ((Obj) (&cont->head) | TAG_PTR);
@@ -378,26 +405,26 @@ contCallStack(Obj cont) {
 void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 	for (int i = 0; i < stack->len; i++) {
-		struct returnAddr *addr = &stack->data[i];
+		struct frame *addr = &stack->data[i];
 		// TODO: duplicated operation
 		for (int j = 0; j < addr->stk.base; j++) {
-			gcMark(gc, addr->stk.stack[j]);
+			gcMark(gc, addr->stk.stack[j], 0);
 		}
 		// Don't forget this one!
-		gcMark(gc, addr->frees);
+		gcMark(gc, addr->frees, 0);
 	}
 }
 
 static void
 gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
 	for (int i = 0; i < stack->len; i++) {
-		struct returnAddr *addr = &stack->data[i];
+		struct frame *addr = &stack->data[i];
 		// TODO: duplicated operation
 		for (int j = 0; j < addr->stk.base; j++) {
-			gcMarkAndEnsure(gc, addr->stk.stack[j], minv);
+			gcMark(gc, addr->stk.stack[j], minv);
 		}
 		// Don't forget this one!
-		gcMarkAndEnsure(gc, addr->frees, minv);
+		gcMark(gc, addr->frees, minv);
 	}
 }
 

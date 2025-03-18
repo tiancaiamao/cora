@@ -9,7 +9,7 @@
 #include "reader.h"
 
 struct Cora {
-		struct returnAddr ctx;
+		struct frame ctx;
 		struct callStack callstack;
 		struct trieNode *globals;
 
@@ -64,8 +64,8 @@ void coraInit(struct Cora *co, uintptr_t *mark);
 static inline void
 growCallStack(struct callStack *cs) {
     size_t new_cap = cs->cap * 2;
-    struct returnAddr *new_data = malloc(new_cap * sizeof(struct returnAddr));
-    memcpy(new_data, cs->data, cs->len * sizeof(struct returnAddr));
+    struct frame *new_data = malloc(new_cap * sizeof(struct frame));
+    memcpy(new_data, cs->data, cs->len * sizeof(struct frame));
     free(cs->data);
     cs->data = new_data;
     cs->cap = new_cap;
@@ -84,7 +84,7 @@ growCallStack(struct callStack *cs) {
     if (unlikely(__cs->len >= __cs->cap)) { \
         growCallStack(__cs); \
     } \
-    struct returnAddr *__addr = &__cs->data[__cs->len++]; \
+    struct frame *__addr = &__cs->data[__cs->len++]; \
     __addr->pc.func = (func); \
     __addr->pc.label = (label); \
     __addr->stk.stack = (co)->ctx.stk.stack; \
@@ -111,7 +111,7 @@ growCallStack(struct callStack *cs) {
     if (unlikely(__cs->len >= __cs->cap)) { \
         growCallStack(__cs); \
     } \
-    struct returnAddr *__addr = &__cs->data[__cs->len++]; \
+    struct frame *__addr = &__cs->data[__cs->len++]; \
     __addr->pc.func = (bb); \
     __addr->pc.label = (lbl); \
     __addr->stk.stack = (co)->ctx.stk.stack; \

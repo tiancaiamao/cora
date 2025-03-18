@@ -10,12 +10,12 @@
 
 static void
 saveToStack(struct callStack *cs, int label, basicBlock cb, int base,
-	    Obj frees, Obj * stack) {
+	    Obj frees, Obj *stack) {
 	if (cs->len + 1 >= cs->cap) {
-	  growCallStack(cs);
+		growCallStack(cs);
 	}
 
-	struct returnAddr *addr = &cs->data[cs->len];
+	struct frame *addr = &cs->data[cs->len];
 	addr->pc.func = cb;
 	addr->pc.label = label;
 	addr->stk.stack = stack;
@@ -77,7 +77,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry(int required, int captured, Obj * data) {
+makeCurry(int required, int captured, Obj *data) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = callCurry;
@@ -128,7 +128,7 @@ coraGet(struct Cora *co, int idx) {
 	return co->args[idx];
 }
 
-const int INIT_STACK_SIZE = 5000;
+const int INIT_STACK_SIZE = 256;
 
 
 extern struct trieNode gRoot;
@@ -140,7 +140,7 @@ coraNew() {
 	co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
 	co->ctx.stk.base = 0;
 
-	co->callstack.data = malloc(64 * sizeof(struct returnAddr));
+	co->callstack.data = malloc(64 * sizeof(struct frame));
 	co->callstack.len = 0;
 	co->callstack.cap = 64;
 
@@ -155,19 +155,19 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 	// The globals
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
-		gcMark(gc, p->value);
+		gcMark(gc, p->value, 0);
 	}
 	// The stack.
 	for (int i = 0; i < co->ctx.stk.base; i++) {
-		gcMark(gc, co->ctx.stk.stack[i]);
+		gcMark(gc, co->ctx.stk.stack[i], 0);
 	}
 	// The args.
 	for (int i = 0; i < co->nargs; i++) {
-		gcMark(gc, co->args[i]);
+		gcMark(gc, co->args[i], 0);
 	}
 
 	// Closure register.
-	gcMark(gc, co->ctx.frees);
+	gcMark(gc, co->ctx.frees, 0);
 
 	// Return addr
 	gcMarkCallStack(gc, &co->callstack);
@@ -401,7 +401,7 @@ static int
 findTryMark(struct Cora *co) {
 	int p = co->callstack.len - 1;
 	for (; p >= 0; p--) {
-		struct returnAddr *addr = &co->callstack.data[p];
+		struct frame *addr = &co->callstack.data[p];
 		if (addr->pc.func == tryStackMark) {
 			break;
 		}
@@ -422,7 +422,7 @@ continuationAsClosure(struct Cora *co) {
 	struct callStack *cs = contCallStack(cont);
 	Obj val = co->args[1];
 	for (int i = 0; i < cs->len; i++) {
-		struct returnAddr *addr = &cs->data[i];
+		struct frame *addr = &cs->data[i];
 		saveToStack(&co->callstack, addr->pc.label, addr->pc.func,
 			    addr->stk.base, addr->frees, addr->stk.stack);
 	}
@@ -435,14 +435,14 @@ builtinThrow(struct Cora *co) {
 	Obj v = co->args[1];
 
 	// Now p point to the try-marked stack.
-	struct returnAddr *try = &co->callstack.data[p];
+	struct frame *try = &co->callstack.data[p];
 	assert(try->stk.base == 0);
 
 	// Capture the call stack as continuation.
 	Obj cont = makeContinuation();
 	struct callStack *stack = contCallStack(cont);
 	for (int i = p; i < co->callstack.len; i++) {
-		struct returnAddr *addr = &co->callstack.data[i];
+		struct frame *addr = &co->callstack.data[i];
 		saveToStack(stack, addr->pc.label, addr->pc.func,
 			    addr->stk.base, addr->frees, addr->stk.stack);
 	}
@@ -452,7 +452,7 @@ builtinThrow(struct Cora *co) {
 
 	// Reset to the stack before try.
 	co->callstack.len = p;
-	struct returnAddr *addr = &co->callstack.data[p - 1];
+	struct frame *addr = &co->callstack.data[p - 1];
 	co->ctx.stk = addr->stk;
 
 	// Find the handler, invoke it, passing the continuation.
@@ -677,7 +677,7 @@ static void
 builtinVector(struct Cora *co) {
 	Obj o = co->args[1];
 	int n = fixnum(o);
-	Obj res = makeVector(n);
+	Obj res = makeVector(n, n);
 	coraReturn(co, res);
 }
 
@@ -795,7 +795,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 }
 
 void
-coraInit(struct Cora *co, uintptr_t * mark) {
+coraInit(struct Cora *co, uintptr_t *mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
