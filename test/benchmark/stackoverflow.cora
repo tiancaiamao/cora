@@ -1,0 +1,15 @@
+(import "cora/lib/let-loop")
+
+(func f
+      0 x => 0
+      n x => (+ (f (- n 1) x) x))
+
+;; test no stack overflow
+(f 1000000 1)
+
+;; test memory leak
+;; (let-loop recur (i 0)
+;; 	  (if (= i 10000)
+;; 	      42
+;; 	      (do (f 1000000 1)
+;; 		  (recur (+ i 1)))))

@@ -10,7 +10,7 @@
 
 static void
 saveToCallStack(struct callStack *cs, int label, basicBlock cb, int base,
-	    Obj frees, Obj *stack) {
+	    Obj frees, Obj stack) {
 	if (cs->len + 1 >= cs->cap) {
 		growCallStack(cs);
 	}
@@ -49,7 +49,7 @@ void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	// Use segment stack
 	if (co->ctx.stk.base + nstack >= INIT_STACK_SIZE) {
-		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 	}
 
@@ -58,8 +58,9 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	if (nstack > 0) {
 		va_list ap;
 		va_start(ap, nstack);
+		Obj *stk = (Obj*)bytesData(co->ctx.stk.stack);
 		for (int i = 0; i < nstack; i++) {
-			co->ctx.stk.stack[co->ctx.stk.base + i] =
+			stk[co->ctx.stk.base + i] =
 				va_arg(ap, Obj);
 		}
 		va_end(ap);
@@ -142,7 +143,7 @@ struct Cora *gCo;
 struct Cora *
 coraNew() {
 	struct Cora *co = malloc(sizeof(struct Cora));
-	co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+	co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 	co->ctx.stk.base = 0;
 
 	co->callstack.data = malloc(64 * sizeof(struct frame));
@@ -162,9 +163,11 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
 		gcMark(gc, p->value, 0);
 	}
-	// The stack.
+	// Current stack.
+	gcMark(gc, co->ctx.stk.stack, 0);
+	Obj *stk = (Obj*)bytesData(co->ctx.stk.stack);
 	for (int i = 0; i < co->ctx.stk.base; i++) {
-		gcMark(gc, co->ctx.stk.stack[i], 0);
+		gcMark(gc, stk[i], 0);
 	}
 	// The args.
 	for (int i = 0; i < co->nargs; i++) {
@@ -174,8 +177,8 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	// Closure register.
 	gcMark(gc, co->ctx.frees, 0);
 
-	// Return addr
-	gcMarkCallStack(gc, &co->callstack);
+	// Call stack frames.
+	gcMarkCallStack(gc, &co->callstack, 0);
 }
 
 void
@@ -388,7 +391,7 @@ builtinTryCatch(struct Cora *co) {
 	//     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
 	// Prepare a new stack for the chunk to run, segment stack!
-	co->ctx.stk.stack = (Obj *) malloc(sizeof(Obj) * INIT_STACK_SIZE);
+	co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 	co->ctx.stk.base = 0;
 
 	// Save the old cont.
@@ -461,7 +464,8 @@ builtinThrow(struct Cora *co) {
 	co->ctx.stk = addr->stk;
 
 	// Find the handler, invoke it, passing the continuation.
-	Obj handler = try->stk.stack[try->stk.base];
+	Obj* stk = (Obj*)bytesData(try->stk.stack);
+	Obj handler = stk[try->stk.base];
 
 	co->nargs = 3;
 	co->args[0] = handler;

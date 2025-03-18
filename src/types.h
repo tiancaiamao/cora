@@ -144,8 +144,10 @@ int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 
 struct stackState {
-  Obj *stack;
-  int base;
+	// this is a bytes object in fact.
+	// let GC handle the memory release
+	Obj stack;
+	int base;
 };
 
 struct frame {
@@ -163,7 +165,7 @@ struct callStack {
 Obj makeContinuation();
 struct callStack* contCallStack(Obj cont);
 
-void gcMarkCallStack(struct GC *gc, struct callStack *stack);
+void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
