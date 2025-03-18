@@ -9,7 +9,7 @@
 #include "gc.h"
 
 static void
-saveToStack(struct callStack *cs, int label, basicBlock cb, int base,
+saveToCallStack(struct callStack *cs, int label, basicBlock cb, int base,
 	    Obj frees, Obj *stack) {
 	if (cs->len + 1 >= cs->cap) {
 		growCallStack(cs);
@@ -43,9 +43,17 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
+const int INIT_STACK_SIZE = 128;
+
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
-	saveToStack(&co->callstack, label, cb, co->ctx.stk.base,
+	// Use segment stack
+	if (co->ctx.stk.base + nstack >= INIT_STACK_SIZE) {
+		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.base = 0;
+	}
+
+	saveToCallStack(&co->callstack, label, cb, co->ctx.stk.base,
 		    co->ctx.frees, co->ctx.stk.stack);
 	if (nstack > 0) {
 		va_list ap;
@@ -127,9 +135,6 @@ Obj
 coraGet(struct Cora *co, int idx) {
 	return co->args[idx];
 }
-
-const int INIT_STACK_SIZE = 256;
-
 
 extern struct trieNode gRoot;
 struct Cora *gCo;
@@ -423,7 +428,7 @@ continuationAsClosure(struct Cora *co) {
 	Obj val = co->args[1];
 	for (int i = 0; i < cs->len; i++) {
 		struct frame *addr = &cs->data[i];
-		saveToStack(&co->callstack, addr->pc.label, addr->pc.func,
+		saveToCallStack(&co->callstack, addr->pc.label, addr->pc.func,
 			    addr->stk.base, addr->frees, addr->stk.stack);
 	}
 	coraReturn(co, val);
@@ -443,7 +448,7 @@ builtinThrow(struct Cora *co) {
 	struct callStack *stack = contCallStack(cont);
 	for (int i = p; i < co->callstack.len; i++) {
 		struct frame *addr = &co->callstack.data[i];
-		saveToStack(stack, addr->pc.label, addr->pc.func,
+		saveToCallStack(stack, addr->pc.label, addr->pc.func,
 			    addr->stk.base, addr->frees, addr->stk.stack);
 	}
 
