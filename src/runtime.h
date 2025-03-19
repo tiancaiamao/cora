@@ -58,8 +58,7 @@ struct registerModule {
 void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 
 
-struct Cora* coraNew();
-void coraInit(struct Cora *co, uintptr_t *mark);
+struct Cora* coraInit(uintptr_t *mark);
 
 static inline void
 growCallStack(struct callStack *cs) {

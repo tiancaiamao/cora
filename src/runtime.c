@@ -140,7 +140,7 @@ coraGet(struct Cora *co, int idx) {
 extern struct trieNode gRoot;
 struct Cora *gCo;
 
-struct Cora *
+static struct Cora *
 coraNew() {
 	struct Cora *co = malloc(sizeof(struct Cora));
 	co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
@@ -803,13 +803,14 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 }
 
-void
-coraInit(struct Cora *co, uintptr_t *mark) {
+struct Cora*
+coraInit(uintptr_t *mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
+	struct Cora *co = coraNew();
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
@@ -837,6 +838,7 @@ coraInit(struct Cora *co, uintptr_t *mark) {
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
+	return co;
 }
 
 #ifdef ForTest
@@ -846,8 +848,7 @@ extern void entry(struct Cora *co);
 int
 main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	struct Cora *co = coraNew();
-	coraInit(co, &dummy);
+	struct Cora *co = coraInit(&dummy);
 	trampoline(co, 0, entry);
 	printObj(stdout, co->args[1]);
 	return 0;
