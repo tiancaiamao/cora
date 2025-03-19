@@ -736,7 +736,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	/* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
@@ -832,25 +832,29 @@ gcRunIncremental(struct GC *gc) {
 
 static void
 sweepSizeClass(struct GC *gc, struct runDoneProgress *pg) {
-  if (pg->b == NULL) {
-    pg->b = gc->sizeClass[pg->sizeClassPos];
-  }
-  while (pg->sizeClassPos < sizeClassSZ) {
-    if (pg->b == NULL) {
-      pg->sizeClassPos++;
-      continue;
-    }
-    // Small step to finish one block in size class
-    for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
-	 j += pg->b->sizeClass) {
-      scmHead *p = (scmHead *) (pg->b->base + j);
-      if ((p->version & VERSION_MASK) ==
-	  ((gc->version - 2) & VERSION_MASK)) {
-	p->type = scmHeadUnused;
-      }
-    }
-    pg->b = pg->b->next;
-  }
+	if (pg->b == NULL) {
+		pg->b = gc->sizeClass[pg->sizeClassPos];
+	}
+	while (pg->sizeClassPos < sizeClassSZ) {
+		if (pg->b == NULL) {
+			pg->sizeClassPos++;
+			continue;
+		}
+		// Small step to finish one block in size class
+		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
+		     j += pg->b->sizeClass) {
+			scmHead *p = (scmHead *) (pg->b->base + j);
+			if ((p->version & VERSION_MASK) ==
+			    ((gc->version - 2) & VERSION_MASK)) {
+				p->type = scmHeadUnused;
+			}
+		}
+		pg->b = pg->b->next;
+		if (pg->b == NULL) {
+			pg->sizeClassPos++;
+		}
+		return;
+	}
 }
 
 static void
