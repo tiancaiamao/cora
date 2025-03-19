@@ -413,7 +413,7 @@
     (begin
       (generate-str w "Obj ")
       (generate-inst 'ignore () w var)
-      (generate-str w  "= co->ctx.stk.stack[co->ctx.stk.base + ")
+      (generate-str w  "= ((Obj*)bytesData(co->ctx.stk.stack))[co->ctx.stk.base + ")
       (generate-num w i)
       (generate-str w "];\n")))
 
