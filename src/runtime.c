@@ -128,7 +128,7 @@ coraGet(struct Cora *co, int idx) {
 	return co->args[idx];
 }
 
-const int INIT_STACK_SIZE = 256;
+const int INIT_STACK_SIZE = 5000;
 
 
 extern struct trieNode gRoot;
