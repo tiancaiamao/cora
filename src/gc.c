@@ -12,7 +12,7 @@ enum gcState {
 	gcStateNone = 0,
 	gcStateMark,
 	gcStateIncremental,
-	gcStateDone,
+	gcStateSweep,
 };
 
 #define MEM_BLOCK_SIZE (4 * 1024)
@@ -200,7 +200,7 @@ struct GC {
 	int start;
 	int end;
 
-	// Save the current progress of gcRunDone state.
+	// Save the current progress of gcRunSweep state.
 	struct runDoneProgress progress;
 
 	int allocated;
@@ -457,7 +457,7 @@ gcAllocLargeObject(struct GC *gc, int size) {
 		}
 		// Current arena is full, move to heap list waiting for GC
 		gc->large = ha->next;
-		if (gc->state == gcStateDone && gc->progress.ha == ha) {
+		if (gc->state == gcStateSweep && gc->progress.ha == ha) {
 			gc->progress.ha = gc->large;
 			printf("update gc progress in alloc large object\n");
 		}
@@ -511,7 +511,7 @@ gcAlloc(struct GC *gc, int size) {
 		b->curr = 0;
 
 		// Update GC progress
-		if (gc->state == gcStateDone && gc->progress.b == b) {
+		if (gc->state == gcStateSweep && gc->progress.b == b) {
 			gc->progress.b = gc->sizeClass[slot];
 			printf("update gc progress in alloc object\n");
 		}
@@ -736,7 +736,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	// printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
@@ -806,9 +806,9 @@ gcRunIncremental(struct GC *gc) {
 	while (steps > 0) {
 		scmHead *curr = gcDequeue(gc);
 		if (curr == NULL) {
-			// Queue is empty, check if we need to enter gcStateDone
+			// Queue is empty, check whether we need to enter gcStateSweep
 			if (gc->version % 30 == 0) {
-				gc->state = gcStateDone;
+				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
 				gc->progress.b = NULL;
 				gc->progress.ha = gc->large;
@@ -832,27 +832,25 @@ gcRunIncremental(struct GC *gc) {
 
 static void
 sweepSizeClass(struct GC *gc, struct runDoneProgress *pg) {
-	while (pg->sizeClassPos < sizeClassSZ) {
-		if (pg->b == NULL) {
-			pg->b = gc->sizeClass[pg->sizeClassPos];
-		}
-		if (pg->b == NULL) {
-			pg->sizeClassPos++;
-			continue;
-		}
-		// Small step to finish one block in size class
-		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
-		     j += pg->b->sizeClass) {
-			scmHead *p = (scmHead *) (pg->b->base + j);
-			if ((p->version & VERSION_MASK) ==
-			    ((gc->version - 2) & VERSION_MASK)) {
-				p->type = scmHeadUnused;
-			}
-		}
-
-		pg->b = pg->b->next;
-		return;
-	}
+  if (pg->b == NULL) {
+    pg->b = gc->sizeClass[pg->sizeClassPos];
+  }
+  while (pg->sizeClassPos < sizeClassSZ) {
+    if (pg->b == NULL) {
+      pg->sizeClassPos++;
+      continue;
+    }
+    // Small step to finish one block in size class
+    for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
+	 j += pg->b->sizeClass) {
+      scmHead *p = (scmHead *) (pg->b->base + j);
+      if ((p->version & VERSION_MASK) ==
+	  ((gc->version - 2) & VERSION_MASK)) {
+	p->type = scmHeadUnused;
+      }
+    }
+    pg->b = pg->b->next;
+  }
 }
 
 static void
@@ -888,27 +886,22 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 		pg->ha = pg->ha->next;
 		return;
 	}
-
 	// All objects have been cleaned, proceed to flip
 	gcFlip(gc);
 }
 
 static void
-gcRunDone(struct GC *gc) {
+gcRunSweep(struct GC *gc) {
 	struct runDoneProgress *pg = &gc->progress;
-
 	// First handle size classes
-	if (pg->sizeClassPos < sizeClassSZ) {
-		sweepSizeClass(gc, pg);
-		return;
-	}
+	sweepSizeClass(gc, pg);
 	// Then handle large objects
 	sweepLargeObjects(gc, pg);
 }
 
 static void
 gcRun(struct GC *gc) {
-	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateDone | gcFlip     |
+	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
 	// | ---         | --          | --                 | --          | --         |
 	// | version  <- | version <-  | version            | version     | stale      |
 	// |             |             | gray               |             |            |
@@ -916,8 +909,8 @@ gcRun(struct GC *gc) {
 
 	// gcStateNone -> gcStateMark: start a new round of GC, mark root
 	// gcStateMark -> gcStateIncremental: mark root done, start incremental GC
-	// gcStateIncremental -> gcStateDone: incremental GC done, wait for white to be exhausted
-	// gcStateDone -> gcFlip: now only ecru and black, flip
+	// gcStateIncremental -> gcStateSweep: incremental GC done, wait for white to be exhausted
+	// gcStateSweep -> gcFlip: now only ecru and black, flip
 
 	switch (gc->state) {
 	case gcStateNone:
@@ -928,8 +921,8 @@ gcRun(struct GC *gc) {
 	case gcStateIncremental:
 		gcRunIncremental(gc);
 		break;
-	case gcStateDone:
-		gcRunDone(gc);
+	case gcStateSweep:
+		gcRunSweep(gc);
 		break;
 	}
 }
