@@ -89,6 +89,7 @@ static struct registerModule module = {
     {"generate-num", builtinGenerateNum, 2},
     {"escape-str", builtinEscapeStr, 1},
     {"symbol-cooked?", builtinSymbolCooked, 1},
+    {NULL, NULL, 0},
   }
 };
 

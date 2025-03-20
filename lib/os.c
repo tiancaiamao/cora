@@ -52,6 +52,7 @@ static struct registerModule osModule = {
     {"exec", exec, 1},
     {"popen", popenFn, 2},
     {"pclose", pcloseFn, 1},
+    {NULL, NULL, 0},
   }
 };
 

@@ -91,7 +91,7 @@ struct registerModule ioModule = {
     {"read-all", ioReadAll, 1},
     {"copy", ioCopy, 2},
     {"write-bytes", ioWrite, 2},
-    /* {NULL, NULL, 0} */
+    {NULL, NULL, 0},
   }
 };
 
