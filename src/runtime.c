@@ -43,8 +43,16 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
+const int INIT_STACK_SIZE = 256;
+
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
+	// Use segment stack
+	if (co->ctx.stk.base + nstack >= INIT_STACK_SIZE) {
+		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.base = 0;
+	}
+
 	saveToStack(&co->callstack, label, cb, co->ctx.stk.base,
 		    co->ctx.frees, co->ctx.stk.stack);
 	if (nstack > 0) {
@@ -127,9 +135,6 @@ Obj
 coraGet(struct Cora *co, int idx) {
 	return co->args[idx];
 }
-
-const int INIT_STACK_SIZE = 5000;
-
 
 extern struct trieNode gRoot;
 struct Cora *gCo;
