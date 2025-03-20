@@ -193,7 +193,7 @@ static struct registerModule stringModule = {
     {"string-contain?", stringContain, 2},
     {"memcpy", bytesMemCpy, 5},
     {"byte-ref", bytesRef, 2},
-    /* {NULL, NULL, 0} */
+    {NULL, NULL, 0},
   }
 };
 
