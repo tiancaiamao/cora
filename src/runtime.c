@@ -43,7 +43,7 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 256;
+const int INIT_STACK_SIZE = 500;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
