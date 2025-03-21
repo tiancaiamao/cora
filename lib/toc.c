@@ -5975,8 +5975,6 @@ Obj _35reg2766 = PRIM_ISCONS(closureRef(co, 0));
 if (True == _35reg2766) {
 Obj _35reg2767 = PRIM_CAR(closureRef(co, 0));
 Obj _35reg2768 = PRIM_EQ(symcall, _35reg2767);
-	printf("generate inst for ?? ==\n");
-	printObj(stderr, closureRef(co, 0));
 if (True == _35reg2768) {
 Obj _35reg2769 = PRIM_CDR(closureRef(co, 0));
 Obj _35reg2770 = PRIM_ISCONS(_35reg2769);
@@ -6166,11 +6164,6 @@ __arg1 = closureRef(co, 1);
 __arg2 = closureRef(co, 2);
 __arg3 = MAKE_NUMBER(0);
 co->args[4] = _35reg2756;
-
- if (iscons(_35reg2756) && car(_35reg2756) == 424) {
-	 printf("what the fuck? 6169\n");
- }
-
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -6379,9 +6372,6 @@ Obj _35p1572 = __arg1;
 Obj _35p1573 = __arg2;
 Obj _35p1574 = __arg3;
 Obj _35p1575 = co->args[4];
- if (iscons(_35p1575) && car(_35p1575) == 424) {
-	 printf("what the fuck? 6381\n");
- }
 Obj _35cc1576 = makeNative(6, clofun5, 0, 4, _35p1572, _35p1573, _35p1574, _35p1575);
 Obj self = _35p1572;
 Obj w = _35p1573;
@@ -6416,17 +6406,9 @@ Obj _35reg2723 = PRIM_CAR(closureRef(co, 3));
 Obj x = _35reg2723;
 Obj _35reg2724 = PRIM_CDR(closureRef(co, 3));
 Obj more = _35reg2724;
-
- if (iscons(more) && car(more) == 424) {
-	 printf("what the fuck? 6 clofun5\n");
- }
-
 Obj _35reg2725 = PRIM_GT(i, MAKE_NUMBER(3));
 Obj _35reg2726 = primNot(_35reg2725);
 if (True == _35reg2726) {
-	 if (x == 424) {
-		 printf("!!= %d\n", x);
-	 }
 PUSH_CONT(co, 13, clofun5, 5, x, i, self, w, more);
 __nargs = 3;
 __arg0 = globalRef(symcora_47lib_47toc_47internal_35generate_45str);
@@ -6575,11 +6557,6 @@ __arg1 = self;
 __arg2 = w;
 __arg3 = _35reg2739;
 co->args[4] = more;
-
- if (iscons(more) && car(more) == 424) {
-	 printf("what the fuck?, 6573\n");
- }
-
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
@@ -6682,9 +6659,6 @@ __arg1 = self;
 __arg2 = w;
 __arg3 = _35reg2732;
 co->args[4] = more;
- if (iscons(more) && car(more) == 424) {
-	 printf("what the fuck? 6679\n");
- }
 co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };

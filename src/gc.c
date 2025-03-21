@@ -632,7 +632,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 static const int GEN_INCREMENTS[] = { 3, 5, 11, 31 };
 
 // A smart generational GC strategy
-// Here 2bits are for generation mark and 6bits are for version,
+// Higher 2bits are for generation mark and lower 6bits are for version,
 // Instead of next version = version + 1, using next version = version + N
 // +N can make the object be skipped in next several rounds of GC.
 // i.e. using a lower GC frequency for older generation.
@@ -642,7 +642,9 @@ nextVersion(version_t ver) {
 	int curr_version = ver & VERSION_MASK;
 
 	// Calculate new version
-	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
+	// !! Disable generational GC temporarily !!
+	/* int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK; */
+	int new_version = (curr_version + 1) & VERSION_MASK;
 
 	// If not the last generation, upgrade to next generation
 	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
