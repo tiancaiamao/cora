@@ -19,8 +19,8 @@ generate_mixed_random(size_t max_size) {
 
 static void
 testWithSize(struct Cora *co, int maxSize, int count) {
-	/* unsigned int seed = (unsigned int) time(NULL); */
-	unsigned int seed = 1742627754;
+	unsigned int seed = (unsigned int) time(NULL);
+	/* unsigned int seed = 1742627754; */
 	printf("test using seed %u\n", seed);
 	srand(seed);
 	for (int i = 0; i < count; i++) {
