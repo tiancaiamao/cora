@@ -43,11 +43,11 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 500;
+const int INIT_STACK_SIZE = 256;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
-	struct callStack *cs = &(co)->callstack;
+	struct callStack *cs = &co->callstack;
 	if (unlikely(cs->len >= cs->cap)) {
 		growCallStack(cs);
 	}
@@ -58,7 +58,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	addr->pc.label = label;
 
 	// Use segment stack
-	if (unlikely(co->ctx.stk.base + nstack >= INIT_STACK_SIZE)) {
+	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
 		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 		co->ctx.stk.pos = 0;
@@ -188,8 +188,8 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	// Closure register.
 	gcMark(gc, co->ctx.frees, 0);
 
-	// Return addr
-	gcMarkCallStack(gc, &co->callstack);
+	// All call stack frames.
+	gcMarkCallStack(gc, &co->callstack, 0);
 }
 
 void

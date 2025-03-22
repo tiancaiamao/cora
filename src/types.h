@@ -164,7 +164,7 @@ struct callStack {
 Obj makeContinuation();
 struct callStack* contCallStack(Obj cont);
 
-void gcMarkCallStack(struct GC *gc, struct callStack *stack);
+void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
 
 extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 

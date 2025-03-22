@@ -900,7 +900,10 @@ static void
 gcRunSweep(struct GC *gc) {
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
-	sweepSizeClass(gc, pg);
+	if (pg->sizeClassPos < sizeClassSZ) {
+	  sweepSizeClass(gc, pg);
+	  return;
+	}
 	// Then handle large objects
 	sweepLargeObjects(gc, pg);
 }
