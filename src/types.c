@@ -408,8 +408,7 @@ void
 gcMarkCallStack(struct GC *gc, struct callStack *stack) {
 	for (int i = 0; i < stack->len; i++) {
 		struct frame *addr = &stack->data[i];
-		// TODO: duplicated operation
-		for (int j = 0; j < addr->stk.base; j++) {
+		for (int j = addr->stk.base; j < addr->stk.pos; j++) {
 			gcMark(gc, addr->stk.stack[j], 0);
 		}
 		// Don't forget this one!
