@@ -6,7 +6,8 @@
 #include "types.h"
 #include "gc.h"
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
+	symBackQuote, symUnQuote;
 
 const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
@@ -317,7 +318,7 @@ vectorSet(Obj vec, int idx, Obj val) {
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	/* writeBarrierForGeneration(&v->head, val); */
+	writeBarrierForGeneration(&v->head, val);
 	return vec;
 }
 
