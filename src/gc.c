@@ -668,7 +668,7 @@ nextVersion(version_t ver) {
 	int curr_version = ver & VERSION_MASK;
 
 	// Calculate new version
-	// !! Disable generational GC temporarily !!
+	/* !! Disable generational GC temporarily !! */
 	/* int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK; */
 	int new_version = (curr_version + 1) & VERSION_MASK;
 

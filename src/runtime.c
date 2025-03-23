@@ -8,22 +8,22 @@
 #include "str.h"
 #include "gc.h"
 
-static void
-saveToStack(struct callStack *cs, int label, basicBlock cb, int base,
-	    Obj frees, Obj *stack) {
-	if (cs->len + 1 >= cs->cap) {
-		growCallStack(cs);
-	}
+/* static void */
+/* saveToStack(struct callStack *cs, int label, basicBlock cb, int base, */
+/* 	    Obj frees, Obj *stack) { */
+/* 	if (cs->len + 1 >= cs->cap) { */
+/* 		growCallStack(cs); */
+/* 	} */
 
-	struct frame *addr = &cs->data[cs->len];
-	addr->pc.func = cb;
-	addr->pc.label = label;
-	addr->stk.stack = stack;
-	addr->stk.base = base;
-	addr->frees = frees;
-	cs->len++;
-	return;
-}
+/* 	struct frame *addr = &cs->data[cs->len]; */
+/* 	addr->pc.func = cb; */
+/* 	addr->pc.label = label; */
+/* 	addr->stk.stack = stack; */
+/* 	addr->stk.base = base; */
+/* 	addr->frees = frees; */
+/* 	cs->len++; */
+/* 	return; */
+/* } */
 
 void
 coraCall(struct Cora *co, int nargs, ...) {
@@ -59,6 +59,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
+	  assert(false);
 		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 		co->ctx.stk.pos = 0;
@@ -438,13 +439,16 @@ continuationAsClosure(struct Cora *co) {
 	Obj cont = nativeData(this)[0];
 
 	// Replace the current stack with the delimited continuation.
+	struct callStack *to = &co->callstack;
 	struct callStack *cs = contCallStack(cont);
-	Obj val = co->args[1];
 	for (int i = 0; i < cs->len; i++) {
 		struct frame *addr = &cs->data[i];
-		saveToStack(&co->callstack, addr->pc.label, addr->pc.func,
-			    addr->stk.base, addr->frees, addr->stk.stack);
+		if (to->len +1 >= to->cap) {
+		  growCallStack(to);
+		}
+		to->data[to->len++] = *addr;
 	}
+	Obj val = co->args[1];
 	coraReturn(co, val);
 }
 
@@ -462,8 +466,10 @@ builtinThrow(struct Cora *co) {
 	struct callStack *stack = contCallStack(cont);
 	for (int i = p; i < co->callstack.len; i++) {
 		struct frame *addr = &co->callstack.data[i];
-		saveToStack(stack, addr->pc.label, addr->pc.func,
-			    addr->stk.base, addr->frees, addr->stk.stack);
+		if (stack->len +1 >= stack->cap) {
+		  growCallStack(stack);
+		}
+		stack->data[stack->len++] = *addr;
 	}
 
 	// Now that we get the current continuation, disguise as a closure.
