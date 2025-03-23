@@ -6,7 +6,8 @@
 #include "types.h"
 #include "gc.h"
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
+	symBackQuote, symUnQuote;
 
 const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);

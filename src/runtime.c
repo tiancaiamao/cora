@@ -8,23 +8,6 @@
 #include "str.h"
 #include "gc.h"
 
-/* static void */
-/* saveToStack(struct callStack *cs, int label, basicBlock cb, int base, */
-/* 	    Obj frees, Obj *stack) { */
-/* 	if (cs->len + 1 >= cs->cap) { */
-/* 		growCallStack(cs); */
-/* 	} */
-
-/* 	struct frame *addr = &cs->data[cs->len]; */
-/* 	addr->pc.func = cb; */
-/* 	addr->pc.label = label; */
-/* 	addr->stk.stack = stack; */
-/* 	addr->stk.base = base; */
-/* 	addr->frees = frees; */
-/* 	cs->len++; */
-/* 	return; */
-/* } */
-
 void
 coraCall(struct Cora *co, int nargs, ...) {
 	co->nargs = nargs;
@@ -59,7 +42,6 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
-	  /* assert(false); */
 		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 		co->ctx.stk.pos = 0;
@@ -73,8 +55,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 		va_list ap;
 		va_start(ap, nstack);
 		for (int i = 0; i < nstack; i++) {
-			addr->stk.stack[addr->stk.base + i] =
-				va_arg(ap, Obj);
+			addr->stk.stack[addr->stk.base + i] = va_arg(ap, Obj);
 		}
 		va_end(ap);
 	}
@@ -100,7 +81,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry(int required, int captured, Obj *data) {
+makeCurry(int required, int captured, Obj * data) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = callCurry;
@@ -443,8 +424,8 @@ continuationAsClosure(struct Cora *co) {
 	struct callStack *cs = contCallStack(cont);
 	for (int i = 0; i < cs->len; i++) {
 		struct frame *addr = &cs->data[i];
-		if (to->len +1 >= to->cap) {
-		  growCallStack(to);
+		if (to->len + 1 >= to->cap) {
+			growCallStack(to);
 		}
 		to->data[to->len++] = *addr;
 	}
@@ -466,8 +447,8 @@ builtinThrow(struct Cora *co) {
 	struct callStack *stack = contCallStack(cont);
 	for (int i = p; i < co->callstack.len; i++) {
 		struct frame *addr = &co->callstack.data[i];
-		if (stack->len +1 >= stack->cap) {
-		  growCallStack(stack);
+		if (stack->len + 1 >= stack->cap) {
+			growCallStack(stack);
 		}
 		stack->data[stack->len++] = *addr;
 	}
@@ -812,7 +793,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 }
 
 void
-coraInit(struct Cora *co, uintptr_t *mark) {
+coraInit(struct Cora *co, uintptr_t * mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
