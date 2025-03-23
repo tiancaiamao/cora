@@ -9,6 +9,7 @@ jsonLoadFile(struct Cora *co) {
   json_error_t err;
   json_t *json = json_load_file(path.str, 0, &err);
   if (!json) {
+    printf("json load file error:%s\n", err.text);
     coraReturn(co, Nil);
     return;
   }

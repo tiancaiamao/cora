@@ -26,7 +26,7 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 5000;
+const int INIT_STACK_SIZE = 256;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
@@ -42,7 +42,9 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
-		assert(false);
+		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.base = 0;
+		co->ctx.stk.pos = 0;
 	}
 
 	addr->stk.stack = co->ctx.stk.stack;

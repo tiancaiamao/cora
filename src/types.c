@@ -318,7 +318,7 @@ vectorSet(Obj vec, int idx, Obj val) {
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	writeBarrierForGeneration(&v->head, val);
+	/* writeBarrierForGeneration(&v->head, val); */
 	return vec;
 }
 

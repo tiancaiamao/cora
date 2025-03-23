@@ -1,5 +1,10 @@
 all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so
 
+extra: md4c/include.so json.so
+
+md4c/include.so:
+	make -C md4c
+
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
@@ -13,7 +18,7 @@ clean:
 	rm -rf *.o *.so toc/internal.so
 
 json.so: json.c
-	gcc -shared -o json.so json.c -fPIC -I../src -L../src -lcora -ljansson
+	gcc -shared -o json.so -g json.c -fPIC -I../src -L../src -lcora -ljansson
 
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
