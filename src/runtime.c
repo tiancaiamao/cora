@@ -43,7 +43,7 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 256;
+const int INIT_STACK_SIZE = 5000;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
@@ -65,8 +65,8 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	}
 
 	addr->stk.stack = co->ctx.stk.stack;
-	addr->stk.base = co->ctx.stk.pos;
-	addr->stk.pos = co->ctx.stk.pos + nstack;
+	addr->stk.base = co->ctx.stk.base;
+	addr->stk.pos = co->ctx.stk.base + nstack;
 
 	if (nstack > 0) {
 		va_list ap;
@@ -77,8 +77,8 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 		}
 		va_end(ap);
 	}
-	co->ctx.stk.base += co->ctx.stk.pos + nstack;
-	co->ctx.stk.pos += co->ctx.stk.pos + nstack;
+	co->ctx.stk.base = addr->stk.pos;
+	co->ctx.stk.pos = addr->stk.pos;
 }
 
 static inline void
