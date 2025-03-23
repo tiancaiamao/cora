@@ -79,20 +79,66 @@ growCallStack(struct callStack *cs) {
 #endif
 
 #define PUSH_COUNT_0(co, label, func) do { \
-	pushCont((co), (label), (func), 0);	\
-} while (0)
+       pushCont((co), (label), (func), 0);     \
+	} while (0)
 
-#define PUSH_COUNT_1(co, label, func, val) do {	\
-	pushCont((co), (label), (func), 1, (val));	\
-} while (0)
+#define PUSH_COUNT_1(co, label, func, val) do {        \
+       pushCont((co), (label), (func), 1, (val));      \
+	} while (0)
 
-#define PUSH_COUNT_2(co, label, func, val1, val2) do {	\
-	pushCont((co), (label), (func), 2, (val1), (val2));	\
-} while (0)
+#define PUSH_COUNT_2(co, label, func, val1, val2) do { \
+       pushCont((co), (label), (func), 2, (val1), (val2));     \
+	} while (0)
 
 #define PUSH_CONT(co, lbl, bb, nstack, ...) do { \
     pushCont((co), (lbl), (bb), (nstack), ##__VA_ARGS__); \
-} while (0)
+	} while (0)
+
+/* #define PUSH_CONT_0(co, label, func) do { \ */
+/*     struct callStack *__cs = &(co)->callstack; \ */
+/*     if (unlikely(__cs->len >= __cs->cap)) { \ */
+/*         growCallStack(__cs); \ */
+/*     } \ */
+/*     struct frame *__addr = &__cs->data[__cs->len++]; \ */
+/*     __addr->pc.func = (func); \ */
+/*     __addr->pc.label = (label); \ */
+/*     __addr->stk.stack = (co)->ctx.stk.stack; \ */
+/*     __addr->stk.base = (co)->ctx.stk.base; \ */
+/*     __addr->frees = (co)->ctx.frees; \ */
+/* } while (0) */
+
+/* #define PUSH_CONT_1(co, label, func, val) do { \ */
+/*     PUSH_CONT_0(co, label, func); \ */
+/*     (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val); \ */
+/*     (co)->ctx.stk.base += 1; \ */
+/* } while (0) */
+
+/* #define PUSH_CONT_2(co, label, func, val1, val2) do { \ */
+/*     PUSH_CONT_0(co, label, func); \ */
+/*     (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val1); \ */
+/*     (co)->ctx.stk.base += 1; \ */
+/*     (co)->ctx.stk.stack[(co)->ctx.stk.base] = (val2); \ */
+/*     (co)->ctx.stk.base += 1; \ */
+/* } while (0) */
+
+/* #define PUSH_CONT(co, lbl, bb, nstack, ...) do { \ */
+/*     struct callStack *__cs = &(co)->callstack; \ */
+/*     if (unlikely(__cs->len >= __cs->cap)) { \ */
+/*         growCallStack(__cs); \ */
+/*     } \ */
+/*     struct frame *__addr = &__cs->data[__cs->len++]; \ */
+/*     __addr->pc.func = (bb); \ */
+/*     __addr->pc.label = (lbl); \ */
+/*     __addr->stk.stack = (co)->ctx.stk.stack; \ */
+/*     __addr->stk.base = (co)->ctx.stk.base; \ */
+/*     __addr->frees = (co)->ctx.frees; \ */
+/*     if ((nstack) > 0) { \ */
+/*         Obj __tmp[] = { __VA_ARGS__ }; \ */
+/*         memcpy((co)->ctx.stk.stack + (co)->ctx.stk.base, __tmp, \ */
+/*                sizeof(Obj) * (nstack)); \ */
+/*     } \ */
+/*     (co)->ctx.stk.base += (nstack); \ */
+/* } while (0) */
 
 /* #define PUSH_CONT_0(co, label, func) do { \ */
 /*     struct callStack *__cs = &(co)->callstack; \ */

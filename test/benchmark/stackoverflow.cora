@@ -9,7 +9,7 @@
 
 ;; test memory leak
 (let-loop recur (i 0)
-	  (if (= i 20)
-	      42
-	      (do (f 1000000 1)
-		  (recur (+ i 1)))))
+         (if (= i 20)
+             42
+             (do (f 1000000 1)
+                 (recur (+ i 1)))))

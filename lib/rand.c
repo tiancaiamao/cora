@@ -12,7 +12,7 @@ struct registerModule ioModule = {
   NULL,
   {
     {"randN", builtinN, 1},
-    /* {NULL, NULL, 0} */
+    {NULL, NULL, 0}
   }
 };
 

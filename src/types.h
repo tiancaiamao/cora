@@ -148,6 +148,7 @@ struct stackState {
 	// let GC handle the memory release
 	Obj stack;
 	int base;
+  int pos;
 };
 
 struct frame {
@@ -167,7 +168,7 @@ struct callStack* contCallStack(Obj cont);
 
 void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
+extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
 Obj makeVector(int size, int cap);
 Obj vectorRef(Obj vec, int idx);

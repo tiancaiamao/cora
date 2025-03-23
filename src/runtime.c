@@ -8,22 +8,6 @@
 #include "str.h"
 #include "gc.h"
 
-static void
-saveToCallStack(struct callStack *cs, int label, basicBlock cb, int base,
-	    Obj frees, Obj stack) {
-	if (cs->len + 1 >= cs->cap) {
-		growCallStack(cs);
-	}
-
-	struct frame *addr = &cs->data[cs->len];
-	addr->pc.func = cb;
-	addr->pc.label = label;
-	addr->stk.stack = stack;
-	addr->stk.base = base;
-	addr->frees = frees;
-	cs->len++;
-	return;
-}
 
 void
 coraCall(struct Cora *co, int nargs, ...) {
@@ -43,29 +27,46 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 128;
+const int INIT_STACK_SIZE = 256;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
-	// Use segment stack
-	if (co->ctx.stk.base + nstack >= INIT_STACK_SIZE) {
-		co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
-		co->ctx.stk.base = 0;
+	struct callStack *cs = &co->callstack;
+	if (unlikely(cs->len >= cs->cap)) {
+		growCallStack(cs);
 	}
 
-	saveToCallStack(&co->callstack, label, cb, co->ctx.stk.base,
-		    co->ctx.frees, co->ctx.stk.stack);
+	struct frame *addr = &cs->data[cs->len++];
+	addr->frees = co->ctx.frees;
+	addr->pc.func = cb;
+	addr->pc.label = label;
+
+	// Use segment stack
+	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
+	  /* assert(false); */
+		/* co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE); */
+	  co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.base = 0;
+		co->ctx.stk.pos = 0;
+	}
+
+	addr->stk.stack = co->ctx.stk.stack;
+	addr->stk.base = co->ctx.stk.base;
+	addr->stk.pos = co->ctx.stk.base + nstack;
+
 	if (nstack > 0) {
 		va_list ap;
 		va_start(ap, nstack);
-		Obj *stk = (Obj*)bytesData(co->ctx.stk.stack);
+		Obj *stk = bytesData(co->ctx.stk.stack);
+		Obj *p = bytesData(addr->stk.stack);
 		for (int i = 0; i < nstack; i++) {
-			stk[co->ctx.stk.base + i] =
+			p[addr->stk.base + i] =
 				va_arg(ap, Obj);
 		}
 		va_end(ap);
 	}
-	co->ctx.stk.base += nstack;
+	co->ctx.stk.base = addr->stk.pos;
+	co->ctx.stk.pos = addr->stk.pos;
 }
 
 static inline void
@@ -163,11 +164,10 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
 		gcMark(gc, p->value, 0);
 	}
-	// Current stack.
-	gcMark(gc, co->ctx.stk.stack, 0);
-	Obj *stk = (Obj*)bytesData(co->ctx.stk.stack);
-	for (int i = 0; i < co->ctx.stk.base; i++) {
-		gcMark(gc, stk[i], 0);
+	// The stack.
+	Obj *p = (Obj*)bytesData(co->ctx.stk.stack);
+	for (int i = co->ctx.stk.base; i < co->ctx.stk.pos; i++) {
+		gcMark(gc, p[i], 0);
 	}
 	// The args.
 	for (int i = 0; i < co->nargs; i++) {
@@ -177,7 +177,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	// Closure register.
 	gcMark(gc, co->ctx.frees, 0);
 
-	// Call stack frames.
+	// All call stack frames.
 	gcMarkCallStack(gc, &co->callstack, 0);
 }
 
@@ -427,13 +427,16 @@ continuationAsClosure(struct Cora *co) {
 	Obj cont = nativeData(this)[0];
 
 	// Replace the current stack with the delimited continuation.
+	struct callStack *to = &co->callstack;
 	struct callStack *cs = contCallStack(cont);
-	Obj val = co->args[1];
 	for (int i = 0; i < cs->len; i++) {
 		struct frame *addr = &cs->data[i];
-		saveToCallStack(&co->callstack, addr->pc.label, addr->pc.func,
-			    addr->stk.base, addr->frees, addr->stk.stack);
+		if (to->len +1 >= to->cap) {
+		  growCallStack(to);
+		}
+		to->data[to->len++] = *addr;
 	}
+	Obj val = co->args[1];
 	coraReturn(co, val);
 }
 
@@ -451,8 +454,10 @@ builtinThrow(struct Cora *co) {
 	struct callStack *stack = contCallStack(cont);
 	for (int i = p; i < co->callstack.len; i++) {
 		struct frame *addr = &co->callstack.data[i];
-		saveToCallStack(stack, addr->pc.label, addr->pc.func,
-			    addr->stk.base, addr->frees, addr->stk.stack);
+		if (stack->len +1 >= stack->cap) {
+		  growCallStack(stack);
+		}
+		stack->data[stack->len++] = *addr;
 	}
 
 	// Now that we get the current continuation, disguise as a closure.
@@ -678,7 +683,6 @@ builtinImport(struct Cora *co) {
 	co->args[2] = pkg;
 	trampoline(co, 0, coraDispatch);
 	strFree(tmp);
-
 	coraReturn(co, pkg);
 }
 
@@ -694,9 +698,7 @@ static void
 builtinVectorRef(struct Cora *co) {
 	Obj v = co->args[1];
 	Obj idx = co->args[2];
-	co->nargs = 2;
-	co->args[1] = vectorRef(v, fixnum(idx));
-	popStack(co);
+	coraReturn(co, vectorRef(v, fixnum(idx)));
 }
 
 static void
@@ -704,19 +706,14 @@ builtinVectorSet(struct Cora *co) {
 	Obj v = co->args[1];
 	Obj idx = co->args[2];
 	Obj o = co->args[3];
-
-	co->nargs = 2;
-	co->args[1] = vectorSet(v, fixnum(idx), o);
-	popStack(co);
+	coraReturn(co, vectorSet(v, fixnum(idx), o));
 }
 
 static void
 builtinVectorLength(struct Cora *co) {
 	Obj o = co->args[1];
 	int res = vectorLength(o);
-	co->nargs = 2;
-	co->args[1] = makeNumber(res);
-	popStack(co);
+	coraReturn(co, makeNumber(res));
 }
 
 void
