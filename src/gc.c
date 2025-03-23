@@ -249,7 +249,7 @@ blockReset(struct Block *block) {
 __thread struct GC *threadLocalGC;
 
 void
-gcInit(uintptr_t *baseStackAddr) {
+gcInit(uintptr_t * baseStackAddr) {
 	assert(((uintptr_t) baseStackAddr & 0x7) == 0);
 
 	struct GC *gc = malloc(sizeof(struct GC));
@@ -306,7 +306,7 @@ gcContains(struct GC *gc, void *p) {
 }
 
 static bool
-inuse(struct GC *gc, scmHead *h) {
+inuse(struct GC *gc, scmHead * h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
@@ -336,7 +336,7 @@ shouldTriggerGC(struct GC *gc) {
 
 // Used in allocDone
 static void
-allocDone(struct GC *gc, int size, scmHead *ret) {
+allocDone(struct GC *gc, int size, scmHead * ret) {
 	ret->size = size;
 	ret->version =
 		(gc->state ==
@@ -353,7 +353,7 @@ allocDone(struct GC *gc, int size, scmHead *ret) {
 }
 
 static int
-getLargeObjSlots(scmHead *n) {
+getLargeObjSlots(scmHead * n) {
 	if (n->type == scmHeadUnused) {
 		return ((struct scmFreeNode *) n)->slots;
 	}
@@ -361,79 +361,105 @@ getLargeObjSlots(scmHead *n) {
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead *h) {
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead * h) {
 	for (int i = 0; i < slots; i++) {
 		struct Block *b = &ha->blocks[start + i];
 		b->base = (char *) h;
 	}
 }
 
-static scmHead *
-tryMergeAndAllocate(struct heapArena *ha, struct GC *gc, int slots,
-		    int curr_pos) {
-	scmHead *n = (scmHead *) (ha->ptr + (curr_pos * MEM_BLOCK_SIZE));
-	int slots1 = getLargeObjSlots(n);
-
-	while (slots1 < slots) {
-		// If reached uninitialized area, extend directly
-		if (curr_pos + slots1 == ha->idx) {
-			ha->idx = curr_pos + slots;
-			n->type = scmHeadUnused;
-			((struct scmFreeNode *) n)->slots = slots;
-			updateLargeObjectMeta(ha, curr_pos + slots1,
-					      slots - slots1, n);
-			slots1 = slots;
-			break;
-		}
-		// Try to merge with next block
-		scmHead *next =
-			(scmHead *) (ha->ptr +
-				     ((curr_pos + slots1) * MEM_BLOCK_SIZE));
-		if (inuse(gc, next)) {
-			break;
-		}
-
-		int slots2 = getLargeObjSlots(next);
-		n->type = scmHeadUnused;
-		updateLargeObjectMeta(ha, curr_pos + slots1, slots2, n);
-		slots1 += slots2;
-		((struct scmFreeNode *) n)->slots = slots1;
-	}
-
-	return (slots1 >= slots) ? n : NULL;
-}
-
 scmHead *
 heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
 	while (ha->curr + slots <= BLOCKS_PER_HEAP) {
-		// Allocate from uninitialized area
+		// printf("allocate from %p, curr=%d, slots=%d\n", ha, ha->curr, slots);
+		// The simple case.
 		if (ha->curr == ha->idx) {
 			if (ha->curr + slots >= BLOCKS_PER_HEAP) {
 				return NULL;
 			}
-			scmHead *n =
-				(scmHead *) (ha->ptr +
-					     (ha->curr * MEM_BLOCK_SIZE));
-			n->type = scmHeadUnused;
-			((struct scmFreeNode *) n)->slots = slots;
-			updateLargeObjectMeta(ha, ha->curr, slots, n);
+			// printf("allocate from uninitialized ==%d\n", ha->curr);
+			struct scmFreeNode *n =
+				(struct scmFreeNode *) (ha->ptr +
+							(ha->curr *
+							 MEM_BLOCK_SIZE));
+			n->head.type = scmHeadUnused;
+			n->slots = slots;
+			updateLargeObjectMeta(ha, ha->curr, slots, &n->head);
 			ha->curr += slots;
 			ha->idx += slots;
-			return n;
+			return &n->head;
 		}
-		// Try to allocate from existing space
+		// Find the first available object
 		scmHead *n =
 			(scmHead *) (ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
-		if (!inuse(gc, n)) {
-			n = tryMergeAndAllocate(ha, gc, slots, ha->curr);
-			if (n != NULL) {
-				ha->curr += slots;
-				return n;
-			}
+		if (inuse(gc, n)) {
+			// skip this object and move num blocks forward.
+			int skip =
+				(n->size + MEM_BLOCK_SIZE -
+				 1) / MEM_BLOCK_SIZE;
+			ha->curr += skip;
+			continue;
 		}
-		// Skip current object
-		int skip = getLargeObjSlots(n);
-		ha->curr += skip;
+
+		int slots1 = getLargeObjSlots(n);
+		// printf("first available object at == %d slots=%d\n", ha->curr, slots1);
+		assert(slots1 > 0);
+		while (slots1 < slots) {
+			// Grow the unused space.
+			if (ha->curr + slots1 == ha->idx) {
+				ha->idx = ha->curr + slots;
+				n->type = scmHeadUnused;
+				((struct scmFreeNode *) n)->slots = slots;
+				updateLargeObjectMeta(ha, ha->curr + slots1,
+						      slots - slots1, n);
+				slots1 = slots;
+				break;
+			}
+			// Try to merge n with the adjacent one 
+			scmHead *next =
+				(scmHead *) (ha->ptr +
+					     ((ha->curr +
+					       slots1) * MEM_BLOCK_SIZE));
+			if (inuse(gc, next)) {
+				break;
+			}
+			int slots2 = getLargeObjSlots(next);
+			// printf("merge with next, slots ==%d\n", slots2);
+			assert(slots2 > 0);
+			for (int i = 0; i < slots2; i++) {
+				struct Block *b =
+					&ha->blocks[ha->curr + slots1 + i];
+				assert(b->base == (char *) next);
+			}
+
+			n->type = scmHeadUnused;
+			updateLargeObjectMeta(ha, ha->curr + slots1, slots2,
+					      n);
+			slots1 += slots2;
+			((struct scmFreeNode *) n)->slots = slots1;
+		}
+		if (slots1 < slots) {
+			ha->curr += slots1;
+			continue;
+		}
+		// Now alloc from this one
+		for (int i = 0; i < slots; i++) {
+			struct Block *b = &ha->blocks[ha->curr + i];
+			// b->base = (char*)n;
+			assert(b->base == (char *) n);
+		}
+		if (slots1 > slots) {
+			scmHead *next =
+				(scmHead *) (ha->ptr +
+					     ((ha->curr +
+					       slots) * MEM_BLOCK_SIZE));
+			next->type = scmHeadUnused;
+			((struct scmFreeNode *) next)->slots = slots1 - slots;
+			updateLargeObjectMeta(ha, ha->curr + slots,
+					      slots1 - slots, next);
+		}
+		ha->curr += slots;
+		return n;
 	}
 	return NULL;
 }
@@ -544,7 +570,7 @@ gcQueueInit(struct GC *gc) {
 }
 
 static void
-gcEnqueue(struct GC *gc, scmHead *p) {
+gcEnqueue(struct GC *gc, scmHead * p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
 		b = blockNew(gc);
@@ -632,7 +658,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 static const int GEN_INCREMENTS[] = { 3, 5, 11, 31 };
 
 // A smart generational GC strategy
-// Here 2bits are for generation mark and 6bits are for version,
+// Higher 2bits are for generation mark and lower 6bits are for version,
 // Instead of next version = version + 1, using next version = version + N
 // +N can make the object be skipped in next several rounds of GC.
 // i.e. using a lower GC frequency for older generation.
@@ -642,9 +668,7 @@ nextVersion(version_t ver) {
 	int curr_version = ver & VERSION_MASK;
 
 	// Calculate new version
-	// !! Disable generational GC temporarily !!
-	/* int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK; */
-	int new_version = (curr_version + 1) & VERSION_MASK;
+	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
 
 	// If not the last generation, upgrade to next generation
 	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
@@ -653,7 +677,7 @@ nextVersion(version_t ver) {
 }
 
 static void
-markObject(struct GC *gc, scmHead *from, version_t minv) {
+markObject(struct GC *gc, scmHead * from, version_t minv) {
 	// Skip if already a gray object
 	if ((from->version & 1) == 1) {
 		return;
@@ -900,7 +924,10 @@ static void
 gcRunSweep(struct GC *gc) {
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
-	sweepSizeClass(gc, pg);
+	if (pg->sizeClassPos < sizeClassSZ) {
+		sweepSizeClass(gc, pg);
+		return;
+	}
 	// Then handle large objects
 	sweepLargeObjects(gc, pg);
 }
@@ -934,7 +961,7 @@ gcRun(struct GC *gc) {
 }
 
 void
-writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
+writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	// Yuasa-style deletion barrier
 	if (gc->state == gcStateIncremental) {
 		uintptr_t old = *slot;
@@ -944,15 +971,26 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 }
 
 void
-writeBarrierForGeneration(scmHead *v, uintptr_t val) {
+writeBarrierForGeneration(scmHead * v, uintptr_t val) {
 	// Skip if not a pointer
 	if (tag(val) != TAG_PTR) {
 		return;
 	}
 	scmHead *h = ptr(val);
 	// Update version if necessary for generational GC
+	// Forbid greater to smaller version references, that is, old generation to young generation
 	if (versionCmp(v->version & VERSION_MASK, h->version & VERSION_MASK) >
 	    0) {
-		h->version = v->version;
+		// NOTE: **must not** change the mark queuing state, for example:
+		// 6 -> 5, change 5 to 6 is in improper, 5 is in mark queuing state.
+		// 7 -> 6, change 6 to 7 is improper too
+		if ((v->version & 1) == (h->version & 1)) {
+			// bump version if the mark queuing state are same
+			h->version = v->version;
+		} else {
+			// bump to version - 1
+			int gen = v->version & (3 << 6);
+			h->version = ((v->version + 64 - 1) % 64) | gen;
+		}
 	}
 }

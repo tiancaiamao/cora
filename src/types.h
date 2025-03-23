@@ -144,8 +144,9 @@ int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 
 struct stackState {
-  Obj *stack;
-  int base;
+	Obj *stack;
+	int base;
+	int pos;
 };
 
 struct frame {
@@ -163,7 +164,7 @@ struct callStack {
 Obj makeContinuation();
 struct callStack* contCallStack(Obj cont);
 
-void gcMarkCallStack(struct GC *gc, struct callStack *stack);
+void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
 
 extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 

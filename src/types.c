@@ -6,7 +6,8 @@
 #include "types.h"
 #include "gc.h"
 
-Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
+Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
+	symBackQuote, symUnQuote;
 
 const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
 const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
@@ -405,24 +406,10 @@ contCallStack(Obj cont) {
 }
 
 void
-gcMarkCallStack(struct GC *gc, struct callStack *stack) {
+gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv) {
 	for (int i = 0; i < stack->len; i++) {
 		struct frame *addr = &stack->data[i];
-		// TODO: duplicated operation
-		for (int j = 0; j < addr->stk.base; j++) {
-			gcMark(gc, addr->stk.stack[j], 0);
-		}
-		// Don't forget this one!
-		gcMark(gc, addr->frees, 0);
-	}
-}
-
-static void
-gcMarkCallStackAndEnsure(struct GC *gc, struct callStack *stack, int minv) {
-	for (int i = 0; i < stack->len; i++) {
-		struct frame *addr = &stack->data[i];
-		// TODO: duplicated operation
-		for (int j = 0; j < addr->stk.base; j++) {
+		for (int j = addr->stk.base; j < addr->stk.pos; j++) {
 			gcMark(gc, addr->stk.stack[j], minv);
 		}
 		// Don't forget this one!
@@ -434,7 +421,7 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	version_t minv = from->head.version;
-	gcMarkCallStackAndEnsure(gc, &from->cs, minv);
+	gcMarkCallStack(gc, &from->cs, minv);
 }
 
 void
