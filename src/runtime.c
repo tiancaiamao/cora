@@ -43,8 +43,6 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
-		/* assert(false); */
-		/* co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE); */
 		co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 		co->ctx.stk.pos = 0;
@@ -163,6 +161,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 		gcMark(gc, p->value, 0);
 	}
 	// The stack.
+	gcMark(gc, co->ctx.stk.stack, 0);
 	Obj *p = (Obj *) bytesData(co->ctx.stk.stack);
 	for (int i = co->ctx.stk.base; i < co->ctx.stk.pos; i++) {
 		gcMark(gc, p[i], 0);

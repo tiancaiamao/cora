@@ -409,6 +409,7 @@ void
 gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv) {
 	for (int i = 0; i < stack->len; i++) {
 		struct frame *addr = &stack->data[i];
+		gcMark(gc, addr->stk.stack, minv);
 		Obj *p = (Obj *) bytesData(addr->stk.stack);
 		for (int j = addr->stk.base; j < addr->stk.pos; j++) {
 			gcMark(gc, p[j], minv);
