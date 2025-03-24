@@ -46,8 +46,7 @@ TestLargeObjects(struct Cora *co) {
 int
 main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	struct Cora *co = coraNew();
-	coraInit(co, &dummy);
+	struct Cora *co = coraInit(&dummy);
 	TestSmallObjects(co);
 	TestLargeObjects(co);
 }
