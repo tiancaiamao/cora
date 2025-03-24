@@ -251,6 +251,14 @@ isNative(Obj c) {
 	return h->type == scmHeadNative;
 }
 
+
+struct scmNative *
+mustNative(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
+	return native;
+}
+
 Obj *
 nativeData(Obj o) {
 	struct scmNative *native = ptr(o);

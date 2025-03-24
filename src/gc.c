@@ -207,11 +207,15 @@ struct GC {
 	int nextSize;
 	// inuseSize is calculated in each GC mark round.
 	int inuseSize;
+	int inuseCount;
+	int markSkip;
 };
 
 static void
 gcInuseSizeInc(struct GC *gc, int size) {
+	assert(size > 0);
 	gc->inuseSize += size;
+	gc->inuseCount++;
 }
 
 static struct heapArena *
@@ -272,6 +276,8 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->nextSize = MEM_BLOCK_SIZE;
 	gc->allocated = 0;
 	gc->inuseSize = 0;
+	gc->inuseCount = 0;
+	gc->markSkip = 0;
 
 	for (int i = 0; i < sizeClassSZ; i++) {
 		gc->sizeClass[i] = NULL;
@@ -655,7 +661,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 #define GEN_SHIFT VERSION_BITS
 
 // Increment values for each generation
-static const int GEN_INCREMENTS[] = { 3, 5, 11, 31 };
+static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
 
 // A smart generational GC strategy
 // Higher 2bits are for generation mark and lower 6bits are for version,
@@ -699,7 +705,9 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 	if (curr_version == (gc->version & VERSION_MASK)) {
 		from->version = nextVersion(from->version);
 		gcEnqueue(gc, from);
+		return;
 	}
+	gc->markSkip++;
 }
 
 void
@@ -748,6 +756,8 @@ gcRunMark(struct GC *gc) {
 	// Reset counters
 	gc->allocated = 0;
 	gc->inuseSize = 0;
+	gc->inuseCount = 0;
+	gc->markSkip = 0;
 
 	// Initialize gray object queue
 	gcQueueInit(gc);
@@ -762,7 +772,8 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	/* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
+	/* printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n", */
+	/*        gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip); */
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
@@ -833,7 +844,7 @@ gcRunIncremental(struct GC *gc) {
 		scmHead *curr = gcDequeue(gc);
 		if (curr == NULL) {
 			// Queue is empty, check whether we need to enter gcStateSweep
-			if (gc->version % 30 == 0) {
+			if (gc->version % 28 == 0) {
 				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
 				gc->progress.b = NULL;
@@ -849,7 +860,10 @@ gcRunIncremental(struct GC *gc) {
 		if (fn != NULL) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
-			curr->version = (curr->version + 1) % 64;
+			curr->version =
+				(curr->
+				 version & (3 << 6)) | ((curr->version +
+							 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
