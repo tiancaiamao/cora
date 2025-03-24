@@ -677,13 +677,7 @@ nextVersion(version_t ver) {
 	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
 
 	// If not the last generation, upgrade to next generation
-	/* int new_gen = (gen < GEN_MASK) ? gen + 1 : gen; */
-	int new_gen;
-	if (gen < GEN_MASK) {
-		new_gen = gen + 1;
-	} else {
-		new_gen = gen;
-	}
+	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
 
 	return new_version | (new_gen << GEN_SHIFT);
 }
@@ -778,8 +772,8 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n",
-	       gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip);
+	/* printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n", */
+	/*        gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip); */
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
@@ -867,7 +861,10 @@ gcRunIncremental(struct GC *gc) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			/* curr->version = (curr->version + 1) % 64; */
-			curr->version = (curr->version & (3<<6)) | ((curr->version + 1) % 64);
+			curr->version =
+				(curr->
+				 version & (3 << 6)) | ((curr->version +
+							 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
@@ -940,7 +937,7 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 
 static void
 gcRunSweep(struct GC *gc) {
-	printf("run gc sweep ===\n");
+	/* printf("run gc sweep ===\n"); */
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {

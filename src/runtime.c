@@ -194,7 +194,7 @@ trampoline(struct Cora *co, int label, basicBlock pc) {
 
 Obj
 closureRef(struct Cora *co, int idx) {
-	struct scmNative* ntv = mustNative(co->ctx.frees);
+	struct scmNative *ntv = mustNative(co->ctx.frees);
 	assert(ntv->captured > idx);
 	return ntv->data[idx];
 }
