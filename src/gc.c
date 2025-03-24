@@ -661,7 +661,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 #define GEN_SHIFT VERSION_BITS
 
 // Increment values for each generation
-static const int GEN_INCREMENTS[] = { 3, 5, 11, 31 };
+static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
 
 // A smart generational GC strategy
 // Higher 2bits are for generation mark and lower 6bits are for version,
@@ -850,7 +850,7 @@ gcRunIncremental(struct GC *gc) {
 		scmHead *curr = gcDequeue(gc);
 		if (curr == NULL) {
 			// Queue is empty, check whether we need to enter gcStateSweep
-			if (gc->version % 30 == 0) {
+			if (gc->version % 28 == 0) {
 				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
 				gc->progress.b = NULL;
