@@ -8,7 +8,6 @@
 #include "str.h"
 #include "gc.h"
 
-
 void
 coraCall(struct Cora *co, int nargs, ...) {
 	co->nargs = nargs;

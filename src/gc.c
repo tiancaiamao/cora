@@ -763,7 +763,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated);
+	/* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
