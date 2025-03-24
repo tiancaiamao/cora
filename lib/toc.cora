@@ -356,19 +356,22 @@
 
   (func generate-cont
 	self w ['%continuation label . stacks] => (begin
-						    (generate-str w "PUSH_CONT(co, ")
+						    (if (= stacks ())
+							(generate-str w "PUSH_CONT_0(co, ")
+							(generate-str w "pushCont(co, "))
 						    (generate-num w (mod (- (car self) label) *mod-num*))
 						    (generate-str w ", ")
 						    (generate-group-name w label (car self))
-						    (generate-str w ", ")
-						    (generate-num w (length stacks))
-						    (if (not (null? stacks))
-							(for-each (lambda (x)
-								    (begin
-								      (generate-str w ", ")
-								      (generate-inst self () w x)))
-								  stacks)
-							())
+						    (if (= stacks ())
+							()
+							(begin
+							  (generate-str w ", ")
+							  (generate-num w (length stacks))
+							  (for-each (lambda (x)
+								      (begin
+									(generate-str w ", ")
+									(generate-inst self () w x)))
+								    stacks)))
 						    (generate-str w ");\n")))
 
   (func generate-inst-list-h

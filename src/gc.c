@@ -698,7 +698,6 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 	// Normal marking logic
 	if (curr_version == (gc->version & VERSION_MASK)) {
 		from->version = nextVersion(from->version);
-
 		gcEnqueue(gc, from);
 	}
 }
