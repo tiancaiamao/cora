@@ -5,8 +5,7 @@ extern void builtinImport(struct Cora *co);
 
 int main(int argc, char *argv[]) {
   uintptr_t dummy;
-  struct Cora* co = coraNew();
-  coraInit(co, &dummy);
+  struct Cora* co = coraInit(&dummy);
   co->args[1] = makeCString("cora/init");
   co->nargs = 2;
   trampoline(co, 0, builtinImport);

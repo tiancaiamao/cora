@@ -42,7 +42,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
-		co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+		co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 		co->ctx.stk.base = 0;
 		co->ctx.stk.pos = 0;
 	}
@@ -52,10 +52,11 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	addr->stk.pos = co->ctx.stk.base + nstack;
 
 	if (nstack > 0) {
+		Obj *p = (Obj *) bytesData(addr->stk.stack);
 		va_list ap;
 		va_start(ap, nstack);
 		for (int i = 0; i < nstack; i++) {
-			addr->stk.stack[addr->stk.base + i] = va_arg(ap, Obj);
+			p[addr->stk.base + i] = va_arg(ap, Obj);
 		}
 		va_end(ap);
 	}
@@ -135,10 +136,10 @@ coraGet(struct Cora *co, int idx) {
 extern struct trieNode gRoot;
 struct Cora *gCo;
 
-struct Cora *
+static struct Cora *
 coraNew() {
 	struct Cora *co = malloc(sizeof(struct Cora));
-	co->ctx.stk.stack = malloc(sizeof(Obj) * INIT_STACK_SIZE);
+	co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 	co->ctx.stk.base = 0;
 
 	co->callstack.data = malloc(64 * sizeof(struct frame));
@@ -159,8 +160,10 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 		gcMark(gc, p->value, 0);
 	}
 	// The stack.
+	gcMark(gc, co->ctx.stk.stack, 0);
+	Obj *p = (Obj *) bytesData(co->ctx.stk.stack);
 	for (int i = co->ctx.stk.base; i < co->ctx.stk.pos; i++) {
-		gcMark(gc, co->ctx.stk.stack[i], 0);
+		gcMark(gc, p[i], 0);
 	}
 	// The args.
 	for (int i = 0; i < co->nargs; i++) {
@@ -384,7 +387,7 @@ builtinTryCatch(struct Cora *co) {
 	//     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
 	// Prepare a new stack for the chunk to run, segment stack!
-	co->ctx.stk.stack = (Obj *) malloc(sizeof(Obj) * INIT_STACK_SIZE);
+	co->ctx.stk.stack = makeBytes(sizeof(Obj) * INIT_STACK_SIZE);
 	co->ctx.stk.base = 0;
 
 	// Save the old cont.
@@ -462,7 +465,8 @@ builtinThrow(struct Cora *co) {
 	co->ctx.stk = addr->stk;
 
 	// Find the handler, invoke it, passing the continuation.
-	Obj handler = try->stk.stack[try->stk.base];
+	Obj *stk = (Obj *) bytesData(try->stk.stack);
+	Obj handler = stk[try->stk.base];
 
 	co->nargs = 3;
 	co->args[0] = handler;
@@ -792,13 +796,14 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 }
 
-void
-coraInit(struct Cora *co, uintptr_t * mark) {
+struct Cora *
+coraInit(uintptr_t * mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
+	struct Cora *co = coraNew();
 	primSet(co, intern("symbol->string"),
 		makeNative(0, symbolToString, 1, 0));
 	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
@@ -826,6 +831,7 @@ coraInit(struct Cora *co, uintptr_t * mark) {
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
+	return co;
 }
 
 #ifdef ForTest
@@ -835,8 +841,7 @@ extern void entry(struct Cora *co);
 int
 main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	struct Cora *co = coraNew();
-	coraInit(co, &dummy);
+	struct Cora *co = coraInit(&dummy);
 	trampoline(co, 0, entry);
 	printObj(stdout, co->args[1]);
 	return 0;

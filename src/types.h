@@ -144,7 +144,7 @@ int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 
 struct stackState {
-	Obj *stack;
+	Obj stack;
 	int base;
 	int pos;
 };

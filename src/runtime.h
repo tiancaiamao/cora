@@ -58,8 +58,7 @@ struct registerModule {
 void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 
 
-struct Cora* coraNew();
-void coraInit(struct Cora *co, uintptr_t *mark);
+struct Cora* coraInit(uintptr_t *mark);
 
 static inline void
 growCallStack(struct callStack *cs) {
@@ -79,21 +78,17 @@ growCallStack(struct callStack *cs) {
 #define unlikely(x)  (x)
 #endif
 
-#define PUSH_COUNT_0(co, label, func) do { \
-       pushCont((co), (label), (func), 0);     \
-	} while (0)
-
-#define PUSH_COUNT_1(co, label, func, val) do {        \
-       pushCont((co), (label), (func), 1, (val));      \
-	} while (0)
-
-#define PUSH_COUNT_2(co, label, func, val1, val2) do { \
-       pushCont((co), (label), (func), 2, (val1), (val2));     \
-	} while (0)
-
-#define PUSH_CONT(co, lbl, bb, nstack, ...) do { \
-    pushCont((co), (lbl), (bb), (nstack), ##__VA_ARGS__); \
-	} while (0)
+#define PUSH_CONT_0(co, lbl, cb) do {			\
+    struct callStack *__cs = &(co)->callstack;		\
+    if (unlikely(__cs->len >= __cs->cap)) {		\
+      growCallStack(__cs);				\
+    }							\
+    struct frame *__addr = &__cs->data[__cs->len++];	\
+    __addr->frees = (co)->ctx.frees;			\
+    __addr->pc.func = (cb);				\
+    __addr->pc.label = (lbl);				\
+    __addr->stk = (co)->ctx.stk;			\
+  } while (0)
 
 #define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
 #define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
