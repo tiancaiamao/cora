@@ -249,7 +249,7 @@ blockReset(struct Block *block) {
 __thread struct GC *threadLocalGC;
 
 void
-gcInit(uintptr_t *baseStackAddr) {
+gcInit(uintptr_t * baseStackAddr) {
 	assert(((uintptr_t) baseStackAddr & 0x7) == 0);
 
 	struct GC *gc = malloc(sizeof(struct GC));
@@ -306,7 +306,7 @@ gcContains(struct GC *gc, void *p) {
 }
 
 static bool
-inuse(struct GC *gc, scmHead *h) {
+inuse(struct GC *gc, scmHead * h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
@@ -336,7 +336,7 @@ shouldTriggerGC(struct GC *gc) {
 
 // Used in allocDone
 static void
-allocDone(struct GC *gc, int size, scmHead *ret) {
+allocDone(struct GC *gc, int size, scmHead * ret) {
 	ret->size = size;
 	ret->version =
 		(gc->state ==
@@ -353,7 +353,7 @@ allocDone(struct GC *gc, int size, scmHead *ret) {
 }
 
 static int
-getLargeObjSlots(scmHead *n) {
+getLargeObjSlots(scmHead * n) {
 	if (n->type == scmHeadUnused) {
 		return ((struct scmFreeNode *) n)->slots;
 	}
@@ -361,7 +361,7 @@ getLargeObjSlots(scmHead *n) {
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead *h) {
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead * h) {
 	for (int i = 0; i < slots; i++) {
 		struct Block *b = &ha->blocks[start + i];
 		b->base = (char *) h;
@@ -570,7 +570,7 @@ gcQueueInit(struct GC *gc) {
 }
 
 static void
-gcEnqueue(struct GC *gc, scmHead *p) {
+gcEnqueue(struct GC *gc, scmHead * p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
 		b = blockNew(gc);
@@ -668,9 +668,7 @@ nextVersion(version_t ver) {
 	int curr_version = ver & VERSION_MASK;
 
 	// Calculate new version
-	/* int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK; */
-	/* !! Disable generational GC temporarily !! */
-	int new_version = (curr_version + 1) & VERSION_MASK;
+	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
 
 	// If not the last generation, upgrade to next generation
 	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
@@ -679,7 +677,7 @@ nextVersion(version_t ver) {
 }
 
 static void
-markObject(struct GC *gc, scmHead *from, version_t minv) {
+markObject(struct GC *gc, scmHead * from, version_t minv) {
 	// Skip if already a gray object
 	if ((from->version & 1) == 1) {
 		return;
@@ -927,8 +925,8 @@ gcRunSweep(struct GC *gc) {
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {
-	  sweepSizeClass(gc, pg);
-	  return;
+		sweepSizeClass(gc, pg);
+		return;
 	}
 	// Then handle large objects
 	sweepLargeObjects(gc, pg);
@@ -963,7 +961,7 @@ gcRun(struct GC *gc) {
 }
 
 void
-writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
+writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	// Yuasa-style deletion barrier
 	if (gc->state == gcStateIncremental) {
 		uintptr_t old = *slot;
@@ -973,7 +971,7 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 }
 
 void
-writeBarrierForGeneration(scmHead *v, uintptr_t val) {
+writeBarrierForGeneration(scmHead * v, uintptr_t val) {
 	// Skip if not a pointer
 	if (tag(val) != TAG_PTR) {
 		return;
@@ -983,16 +981,16 @@ writeBarrierForGeneration(scmHead *v, uintptr_t val) {
 	// Forbid greater to smaller version references, that is, old generation to young generation
 	if (versionCmp(v->version & VERSION_MASK, h->version & VERSION_MASK) >
 	    0) {
-	  // NOTE: **must not** change the mark queuing state, for example:
-	  // 6 -> 5, change 5 to 6 is in improper, 5 is in mark queuing state.
-	  // 7 -> 6, change 6 to 7 is improper too
-	  if ((v->version & 1) == (h->version & 1)) {
-	    // bump version if the mark queuing state are same
-	    h->version = v->version;
-	  } else {
-	    // bump to version - 1
-	    int gen = v->version & (3 << 6);
-	    h->version = ((v->version + 64 - 1) % 64) | gen;
-	  }
+		// NOTE: **must not** change the mark queuing state, for example:
+		// 6 -> 5, change 5 to 6 is in improper, 5 is in mark queuing state.
+		// 7 -> 6, change 6 to 7 is improper too
+		if ((v->version & 1) == (h->version & 1)) {
+			// bump version if the mark queuing state are same
+			h->version = v->version;
+		} else {
+			// bump to version - 1
+			int gen = v->version & (3 << 6);
+			h->version = ((v->version + 64 - 1) % 64) | gen;
+		}
 	}
 }

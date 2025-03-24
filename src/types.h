@@ -144,11 +144,9 @@ int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 
 struct stackState {
-	// this is a bytes object in fact.
-	// let GC handle the memory release
 	Obj stack;
 	int base;
-  int pos;
+	int pos;
 };
 
 struct frame {
