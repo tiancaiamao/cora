@@ -207,11 +207,15 @@ struct GC {
 	int nextSize;
 	// inuseSize is calculated in each GC mark round.
 	int inuseSize;
+	int inuseCount;
+	int markSkip;
 };
 
 static void
 gcInuseSizeInc(struct GC *gc, int size) {
+	assert(size > 0);
 	gc->inuseSize += size;
+	gc->inuseCount++;
 }
 
 static struct heapArena *
@@ -272,6 +276,8 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->nextSize = MEM_BLOCK_SIZE;
 	gc->allocated = 0;
 	gc->inuseSize = 0;
+	gc->inuseCount = 0;
+	gc->markSkip = 0;
 
 	for (int i = 0; i < sizeClassSZ; i++) {
 		gc->sizeClass[i] = NULL;
@@ -671,7 +677,13 @@ nextVersion(version_t ver) {
 	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
 
 	// If not the last generation, upgrade to next generation
-	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
+	/* int new_gen = (gen < GEN_MASK) ? gen + 1 : gen; */
+	int new_gen;
+	if (gen < GEN_MASK) {
+		new_gen = gen + 1;
+	} else {
+		new_gen = gen;
+	}
 
 	return new_version | (new_gen << GEN_SHIFT);
 }
@@ -699,7 +711,9 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 	if (curr_version == (gc->version & VERSION_MASK)) {
 		from->version = nextVersion(from->version);
 		gcEnqueue(gc, from);
+		return;
 	}
+	gc->markSkip++;
 }
 
 void
@@ -748,6 +762,8 @@ gcRunMark(struct GC *gc) {
 	// Reset counters
 	gc->allocated = 0;
 	gc->inuseSize = 0;
+	gc->inuseCount = 0;
+	gc->markSkip = 0;
 
 	// Initialize gray object queue
 	gcQueueInit(gc);
@@ -762,7 +778,8 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	/* printf("run gc, before size = %d, inuse size = %d, incremental size=%d\n", gc->nextSize, gc->inuseSize, gc->allocated); */
+	printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n",
+	       gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip);
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
 	if (gc->nextSize < MEM_BLOCK_SIZE) {
 		// Because a block is at least that size, GC smaller then this is meanless.
@@ -849,7 +866,8 @@ gcRunIncremental(struct GC *gc) {
 		if (fn != NULL) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
-			curr->version = (curr->version + 1) % 64;
+			/* curr->version = (curr->version + 1) % 64; */
+			curr->version = (curr->version & (3<<6)) | ((curr->version + 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
@@ -922,6 +940,7 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 
 static void
 gcRunSweep(struct GC *gc) {
+	printf("run gc sweep ===\n");
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {

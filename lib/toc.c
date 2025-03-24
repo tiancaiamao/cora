@@ -9242,6 +9242,11 @@ label4:
 Obj _35cc1541 = makeNative(6, clofun7, 0, 2, closureRef(co, 0), closureRef(co, 1));
 Obj fvs = closureRef(co, 0);
 Obj var = closureRef(co, 1);
+ printf("closure convert for ===\n");
+ printObj(stderr, var);
+ printf("in env ==\n");
+ printObj(stderr, fvs);
+ printf("===\n");
 Obj _35reg2336 = primIsSymbol(var);
 if (True == _35reg2336) {
 pushCont(co, 5, clofun7, 1, var);
@@ -10578,6 +10583,7 @@ if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = cor
 if (ps.func != clofun7) { co->ctx.pc = ps; goto fail; };
 goto *jumpTable[ps.label];
 } else {
+	assert(false);
 __nargs = 1;
 __arg0 = _35cc1537;
 co->ctx.frees = __arg0;
