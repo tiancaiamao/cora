@@ -860,7 +860,6 @@ gcRunIncremental(struct GC *gc) {
 		if (fn != NULL) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
-			/* curr->version = (curr->version + 1) % 64; */
 			curr->version =
 				(curr->
 				 version & (3 << 6)) | ((curr->version +
@@ -937,7 +936,6 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 
 static void
 gcRunSweep(struct GC *gc) {
-	/* printf("run gc sweep ===\n"); */
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {
