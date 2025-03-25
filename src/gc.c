@@ -690,21 +690,23 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 		return;
 	}
 
+	int bump = false;
 	version_t curr_version = from->version & VERSION_MASK;
-
+	// Normal marking logic
+	if (curr_version == (gc->version & VERSION_MASK)) {
+		from->version = nextVersion(from->version);
+		bump = true;
+	}
 	// Generational GC barrier check
 	if ((minv & 1) == 1) {
 		// Barrier for generational GC
 		// Old generation to young generation is forbidden
-		if (versionCmp(minv & VERSION_MASK, curr_version) > 0) {
-			from->version = minv;
-			gcEnqueue(gc, from);
-			return;
+		if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
+			from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
+			bump = true;
 		}
 	}
-	// Normal marking logic
-	if (curr_version == (gc->version & VERSION_MASK)) {
-		from->version = nextVersion(from->version);
+	if (bump) {
 		gcEnqueue(gc, from);
 		return;
 	}
