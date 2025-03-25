@@ -675,6 +675,7 @@ nextVersion(version_t ver) {
 
 	// Calculate new version
 	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
+	/* int new_version = (curr_version + 1) & VERSION_MASK; */
 
 	// If not the last generation, upgrade to next generation
 	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
@@ -772,13 +773,6 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
-	/* printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n", */
-	/*        gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip); */
-	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
-	if (gc->nextSize < MEM_BLOCK_SIZE) {
-		// Because a block is at least that size, GC smaller then this is meanless.
-		gc->nextSize = MEM_BLOCK_SIZE;
-	}
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -787,11 +781,13 @@ gcFlip(struct GC *gc) {
 		gc->sizeClass[i] = NULL;
 	}
 
+	size_t sysSize = 0;
 	// Put back the heap blocks to sizeClass list or large objects list.
 	struct heapArena *prev = NULL;
 	struct heapArena *h = gc->heap;
 	while (h != NULL) {
 		if (h->forLargeObjects) {
+			sysSize += h->curr * MEM_BLOCK_SIZE;
 			// unlink p from heap list.
 			struct heapArena *p = h;
 			h = p->next;
@@ -802,6 +798,7 @@ gcFlip(struct GC *gc) {
 				prev->next = p->next;
 				p->next = NULL;
 			}
+
 			// reset p and link it to large list.
 			p->curr = 0;
 			p->next = gc->large;
@@ -809,6 +806,7 @@ gcFlip(struct GC *gc) {
 			continue;
 		}
 
+		sysSize += h->idx * MEM_BLOCK_SIZE;
 		for (int i = 0; i < h->idx; i++) {
 			struct Block *b = &h->blocks[i];
 			if (b->sizeClass == 0) {
@@ -833,6 +831,19 @@ gcFlip(struct GC *gc) {
 	}
 	gc->version = gc->version + 2;
 	gc->state = gcStateNone;
+
+	// Statistics
+	char *coraDebug = getenv("CORADEBUG");
+	if (coraDebug != NULL) {
+		printf("run gc, trigger size=%d, inuse=size(%d) count(%d), incremental size=%d, mark skip=%d, sys size=%zu\n",
+		       gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip, sysSize);
+	}
+
+	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
+	if (gc->nextSize < MEM_BLOCK_SIZE) {
+		// Because a block is at least that size, GC smaller then this is meanless.
+		gc->nextSize = MEM_BLOCK_SIZE;
+	}
 }
 
 static void
@@ -847,7 +858,7 @@ gcRunIncremental(struct GC *gc) {
 			if (gc->version % 28 == 0) {
 				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
-				gc->progress.b = NULL;
+				gc->progress.b = gc->sizeClass[0];
 				gc->progress.ha = gc->large;
 				return;
 			}
@@ -872,27 +883,25 @@ gcRunIncremental(struct GC *gc) {
 
 static void
 sweepSizeClass(struct GC *gc, struct runDoneProgress *pg) {
-	if (pg->b == NULL) {
-		pg->b = gc->sizeClass[pg->sizeClassPos];
-	}
 	while (pg->sizeClassPos < sizeClassSZ) {
 		if (pg->b == NULL) {
 			pg->sizeClassPos++;
+			pg->b = gc->sizeClass[pg->sizeClassPos];
 			continue;
 		}
 		// Small step to finish one block in size class
 		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
 		     j += pg->b->sizeClass) {
 			scmHead *p = (scmHead *) (pg->b->base + j);
-			if ((p->version & VERSION_MASK) ==
-			    ((gc->version - 2) & VERSION_MASK)) {
+			if (!inuse(gc, p)) {
 				p->type = scmHeadUnused;
 			}
+			/* if ((p->version & VERSION_MASK) == */
+			/*     ((gc->version - 2) & VERSION_MASK)) { */
+			/* 	p->type = scmHeadUnused; */
+			/* } */
 		}
 		pg->b = pg->b->next;
-		if (pg->b == NULL) {
-			pg->sizeClassPos++;
-		}
 		return;
 	}
 }
