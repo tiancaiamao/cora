@@ -687,6 +687,12 @@ static void
 markObject(struct GC *gc, scmHead * from, version_t minv) {
 	// Skip if already a gray object
 	if ((from->version & 1) == 1) {
+		if ((minv & 1) == 1) {
+			// Old generation to young generation is forbidden
+			if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
+				from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
+			}
+		}
 		return;
 	}
 
@@ -699,7 +705,6 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 	}
 	// Generational GC barrier check
 	if ((minv & 1) == 1) {
-		// Barrier for generational GC
 		// Old generation to young generation is forbidden
 		if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
 			from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
