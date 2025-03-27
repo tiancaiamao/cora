@@ -661,7 +661,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 #define GEN_SHIFT VERSION_BITS
 
 // Increment values for each generation
-static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
+static const int GEN_INCREMENTS[] = { 2, 4, 8, 24 };
 
 // A smart generational GC strategy
 // Higher 2bits are for generation mark and lower 6bits are for version,
@@ -669,28 +669,32 @@ static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
 // +N can make the object be skipped in next several rounds of GC.
 // i.e. using a lower GC frequency for older generation.
 static version_t
-nextVersion(version_t ver) {
-	int gen = (ver >> GEN_SHIFT) & GEN_MASK;
-	int curr_version = ver & VERSION_MASK;
-
-	// Calculate new version
-	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
-	/* int new_version = (curr_version + 1) & VERSION_MASK; */
-
-	// If not the last generation, upgrade to next generation
-	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
-
-	return new_version | (new_gen << GEN_SHIFT);
+nextVersion(int gen, uint64_t ver) {
+	/* return ((gen + 1) << 6) | ((ver + 1) % 64); */
+	assert(gen >= 0 && gen < 4);
+	for(int i=gen; i >= 0; i--) {
+		int inc = GEN_INCREMENTS[i];
+		if ((ver % inc) == 0) {
+			ver = ver + inc - 1;
+			break;
+		}
+	}
+	if (gen < 3) {
+		gen++;
+	}
+	return (gen << 6) | (ver % 64);
 }
 
 static void
 markObject(struct GC *gc, scmHead * from, version_t minv) {
-	// Skip if already a gray object
+	assert(minv == 0 || ((minv & 1) == 1));
+	// A gray object
 	if ((from->version & 1) == 1) {
-		if ((minv & 1) == 1) {
+		if (minv != 0) {
 			// Old generation to young generation is forbidden
 			if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
-				from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
+				/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
+				from->version = minv;
 			}
 		}
 		return;
@@ -700,14 +704,15 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 	version_t curr_version = from->version & VERSION_MASK;
 	// Normal marking logic
 	if (curr_version == (gc->version & VERSION_MASK)) {
-		from->version = nextVersion(from->version);
+		from->version = nextVersion(from->version >> 6, gc->version);
 		bump = true;
 	}
 	// Generational GC barrier check
-	if ((minv & 1) == 1) {
+	if (minv != 0) {
 		// Old generation to young generation is forbidden
 		if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
-			from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
+			/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
+			from->version = minv;
 			bump = true;
 		}
 	}
@@ -842,8 +847,8 @@ gcFlip(struct GC *gc) {
 	// Statistics
 	char *coraDebug = getenv("CORADEBUG");
 	if (coraDebug != NULL) {
-		printf("run gc, trigger size=%d, inuse=size(%d) count(%d), incremental size=%d, mark skip=%d, sys size=%zu\n",
-		       gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip, sysSize);
+		printf("gc%ld, trigger size=%d, inuse=size(%d) count(%d), incremental size=%d, mark skip=%d, sys size=%zu\n",
+		       gc->version, gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip, sysSize);
 	}
 
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
@@ -862,7 +867,7 @@ gcRunIncremental(struct GC *gc) {
 		scmHead *curr = gcDequeue(gc);
 		if (curr == NULL) {
 			// Queue is empty, check whether we need to enter gcStateSweep
-			if (gc->version % 28 == 0) {
+			if (gc->version % 30 == 0) {
 				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
 				gc->progress.b = gc->sizeClass[0];
@@ -1016,7 +1021,7 @@ writeBarrierForGeneration(scmHead * v, uintptr_t val) {
 		// 7 -> 6, change 6 to 7 is improper too
 		if ((v->version & 1) == (h->version & 1)) {
 			// bump version if the mark queuing state are same
-			h->version = v->version;
+			h->version = (h->version & (3 << 6)) | (v->version % 64);
 		} else {
 			// bump to version - 1
 			int gen = v->version & (3 << 6);
