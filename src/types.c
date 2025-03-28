@@ -320,13 +320,18 @@ vectorRef(Obj v, int idx) {
 	return vec->data[idx];
 }
 
+struct scmContinuation {
+	scmHead head;
+	struct callStack cs;
+};
+
 Obj
 vectorSet(Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	writeBarrierForGeneration(&v->head, val);
+	/* writeBarrierForGeneration(&v->head, val); */
 	return vec;
 }
 
@@ -362,7 +367,7 @@ vectorAppend(Obj vec, Obj val) {
 		// writeBarrier!
 		writeBarrierForIncremental(getGC(), &vec, tmp);
 		// this seems not required, because tmp->version should always >= val->version?
-		writeBarrierForGeneration(&v->head, val);
+		/* writeBarrierForGeneration(&v->head, val); */
 		v = ptr(tmp);
 	}
 	v->data[v->size] = val;
@@ -390,10 +395,13 @@ vectorGCFunc(struct GC *gc, void *f) {
 	}
 }
 
-struct scmContinuation {
-	scmHead head;
-	struct callStack cs;
-};
+void
+vectorGCHack(struct GC *gc, scmHead *h, version_t minv) {
+	struct scmVector *from = (struct scmVector*)h;
+	for (int i = 0; i < from->size; i++) {
+		gcMark(gc, from->data[i], minv);
+	}
+}
 
 Obj
 makeContinuation() {

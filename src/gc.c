@@ -685,6 +685,8 @@ nextVersion(int gen, uint64_t ver) {
 	return (gen << 6) | (ver % 64);
 }
 
+extern void vectorGCHack(struct GC *gc, scmHead* h, version_t minv);
+
 static void
 markObject(struct GC *gc, scmHead * from, version_t minv) {
 	assert(minv == 0 || ((minv & 1) == 1));
@@ -707,6 +709,7 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 		from->version = nextVersion(from->version >> 6, gc->version);
 		bump = true;
 	}
+
 	// Generational GC barrier check
 	if (minv != 0) {
 		// Old generation to young generation is forbidden
@@ -716,11 +719,16 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 			bump = true;
 		}
 	}
+
 	if (bump) {
 		gcEnqueue(gc, from);
 		return;
 	}
 	gc->markSkip++;
+
+	if (from->type == scmHeadVector) {
+		vectorGCHack(gc, from, minv);
+	}
 }
 
 void
@@ -1005,27 +1013,3 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	*slot = val;
 }
 
-void
-writeBarrierForGeneration(scmHead * v, uintptr_t val) {
-	// Skip if not a pointer
-	if (tag(val) != TAG_PTR) {
-		return;
-	}
-	scmHead *h = ptr(val);
-	// Update version if necessary for generational GC
-	// Forbid greater to smaller version references, that is, old generation to young generation
-	if (versionCmp(v->version & VERSION_MASK, h->version & VERSION_MASK) >
-	    0) {
-		// NOTE: **must not** change the mark queuing state, for example:
-		// 6 -> 5, change 5 to 6 is in improper, 5 is in mark queuing state.
-		// 7 -> 6, change 6 to 7 is improper too
-		if ((v->version & 1) == (h->version & 1)) {
-			// bump version if the mark queuing state are same
-			h->version = (h->version & (3 << 6)) | (v->version % 64);
-		} else {
-			// bump to version - 1
-			int gen = v->version & (3 << 6);
-			h->version = ((v->version + 64 - 1) % 64) | gen;
-		}
-	}
-}

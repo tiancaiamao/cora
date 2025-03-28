@@ -45,7 +45,7 @@ struct GC *getGC();
 
 void* gcAlloc(struct GC* gc, int size);
 
-void writeBarrierForGeneration(scmHead* from, uintptr_t val);
+/* void writeBarrierForGeneration(scmHead* from, uintptr_t val); */
 void writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head, version_t minv);
 
