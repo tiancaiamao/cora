@@ -35,7 +35,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 		growCallStack(cs);
 	}
 
-	struct frame *addr = &cs->data[cs->len++];
+	struct frame *addr = &cs->data[cs->len];
 	addr->frees = co->ctx.frees;
 	addr->pc.func = cb;
 	addr->pc.label = label;
@@ -50,6 +50,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	addr->stk.stack = co->ctx.stk.stack;
 	addr->stk.base = co->ctx.stk.base;
 	addr->stk.pos = co->ctx.stk.base + nstack;
+	cs->len++;
 
 	if (nstack > 0) {
 		Obj *p = (Obj *) bytesData(addr->stk.stack);

@@ -1037,6 +1037,9 @@ writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
 		}
 		break;
 	case gcStateIncremental:
+		if (((v->head.version & 1) == 1) && ((h->version + 1) % 64) == (v->head.version % 64)) {
+			return;
+		}
 		// add vec to rset and enqueue val
 		if (!v->inRSet) {
 			v->rset = gc->rset;
