@@ -45,11 +45,26 @@ struct GC *getGC();
 
 void* gcAlloc(struct GC* gc, int size);
 
-/* void writeBarrierForGeneration(scmHead* from, uintptr_t val); */
 void writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head, version_t minv);
 
 typedef void (*gcFunc)(struct GC *gc, void* from);
 bool gcRegistForType(uint8_t type, gcFunc fn);
+
+typedef uintptr_t Obj;
+
+// cora stack can be simplify using a vector.
+struct scmVector {
+	scmHead head;
+	// remember set for generational GC
+	struct scmVector *rset;
+	bool inRSet;
+
+	int size;
+	int cap;
+	Obj data[];
+};
+
+void writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val);
 
 #endif

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "types.h"
 #include "gc.h"
+#include "types.h"
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -290,20 +290,14 @@ nativeRequired(Obj o) {
 	return native->required;
 }
 
-// cora stack can be simplify using a vector.
-struct scmVector {
-	scmHead head;
-	int size;
-	int cap;
-	Obj data[];
-};
-
 Obj
 makeVector(int size, int cap) {
 	assert(size <= cap);
 	struct scmVector *vec = newObj(scmHeadVector,
 				       sizeof(struct scmVector) +
 				       sizeof(Obj) * cap);
+	vec->rset = NULL;
+	vec->inRSet = false;
 	vec->size = size;
 	vec->cap = cap;
 	for (int i = 0; i < vec->size; i++) {
@@ -331,7 +325,7 @@ vectorSet(Obj vec, int idx, Obj val) {
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	/* writeBarrierForGeneration(&v->head, val); */
+	writeBarrierForGeneration(getGC(), v, val);
 	return vec;
 }
 
@@ -390,14 +384,6 @@ static void
 vectorGCFunc(struct GC *gc, void *f) {
 	struct scmVector *from = f;
 	version_t minv = from->head.version;
-	for (int i = 0; i < from->size; i++) {
-		gcMark(gc, from->data[i], minv);
-	}
-}
-
-void
-vectorGCHack(struct GC *gc, scmHead *h, version_t minv) {
-	struct scmVector *from = (struct scmVector*)h;
 	for (int i = 0; i < from->size; i++) {
 		gcMark(gc, from->data[i], minv);
 	}

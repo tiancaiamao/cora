@@ -209,6 +209,9 @@ struct GC {
 	int inuseSize;
 	int inuseCount;
 	int markSkip;
+
+	// remember set for generationGC.
+	struct scmVector *rset;
 };
 
 static void
@@ -267,6 +270,7 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->state = gcStateNone;
 	gc->baseStackAddr = baseStackAddr;
 	gc->version = 2;	// Start from 2, so uninitialized blocks can be treated as garbage
+	gc->rset = NULL;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -685,8 +689,6 @@ nextVersion(int gen, uint64_t ver) {
 	return (gen << 6) | (ver % 64);
 }
 
-extern void vectorGCHack(struct GC *gc, scmHead* h, version_t minv);
-
 static void
 markObject(struct GC *gc, scmHead * from, version_t minv) {
 	assert(minv == 0 || ((minv & 1) == 1));
@@ -725,10 +727,6 @@ markObject(struct GC *gc, scmHead * from, version_t minv) {
 		return;
 	}
 	gc->markSkip++;
-
-	if (from->type == scmHeadVector) {
-		vectorGCHack(gc, from, minv);
-	}
 }
 
 void
@@ -748,7 +746,7 @@ gcMark(struct GC *gc, uintptr_t p, version_t minv) {
 #endif
 
 ATTRIBUTE_NO_SANITIZE_ADDRESS static void
-gcStack(struct GC *gc) {
+gcCStack(struct GC *gc) {
 	// Get current stack pointer
 	uintptr_t *stackAddr = (uintptr_t *) & stackAddr;
 
@@ -771,6 +769,7 @@ gcStack(struct GC *gc) {
 }
 
 extern void gcGlobal(struct GC *gc);
+extern void gcRSet(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
@@ -785,7 +784,8 @@ gcRunMark(struct GC *gc) {
 
 	// Mark all root objects
 	gcGlobal(gc);		// Mark global variables
-	gcStack(gc);		// Mark stack variables
+	gcCStack(gc);		// Mark stack variables
+	gcRSet(gc);
 
 	// Switch to incremental marking phase
 	gc->state = gcStateIncremental;
@@ -1013,3 +1013,63 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 	*slot = val;
 }
 
+void
+writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
+	// skip if not a pointer
+	if (tag(val) != TAG_PTR) {
+		return;
+	}
+
+	scmHead* h = ptr(val);
+	if (versionCmp(v->head.version%64, h->version%64) <= 0) {
+		return;
+	}
+
+	switch(gc->state) {
+	case gcStateNone:
+	case gcStateMark:
+	case gcStateSweep:
+		// add to rset
+		if (!v->inRSet) {
+			v->rset = gc->rset;
+			gc->rset = v;
+			v->inRSet = true;
+		}
+		break;
+	case gcStateIncremental:
+		// add vec to rset and enqueue val
+		if (!v->inRSet) {
+			v->rset = gc->rset;
+			gc->rset = v;
+			v->inRSet = true;
+		}
+		gcMark(gc, val, 0);
+	}
+}
+
+void
+gcRSet(struct GC *gc) {
+	if (gc->rset == NULL) {
+		return;
+	}
+
+	struct scmVector *prev = NULL;
+	struct scmVector *p = gc->rset;
+	while(p != NULL) {
+		scmHead *h = (scmHead*)p;
+		if (versionCmp(gc->version&VERSION_MASK, h->version&VERSION_MASK) >= 0) {
+			// remove this from remember set.
+			if (prev == NULL) {
+				gc->rset = p->rset;
+			} else {
+				prev->rset = p->rset;
+			}
+			p->rset = NULL;
+			p->inRSet = false;
+		} else {
+			gcMark(gc, (Obj)h|TAG_PTR, 0);
+		}
+		prev = p;
+		p = p->rset;
+	}
+}
