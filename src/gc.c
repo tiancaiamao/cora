@@ -1041,6 +1041,7 @@ writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
 			return;
 		}
 		// add vec to rset and enqueue val
+		// The next round it will be mark
 		if (!v->inRSet) {
 			v->rset = gc->rset;
 			gc->rset = v;
@@ -1073,7 +1074,9 @@ gcRSet(struct GC *gc) {
 			tmp->rset = NULL;
 			tmp->inRSet = false;
 		} else {
-			gcMark(gc, (Obj)h|TAG_PTR, 0);
+			for (int i=0; i<p->size; i++) {
+				gcMark(gc, p->data[i], 0);
+			}
 			prev = p;
 			p = p->rset;
 		}
