@@ -1,14 +1,14 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c gc.c types.c reader.c runtime.c reader_test.c eval_test.c bootstrap_test.c gc_test.c
+SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c bootstrap_test.c gc_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
+
 ifeq ("${ENABLE_ASAN}", "1")
-	CFLAGS = -g -Wall -fPIC -fsanitize=address
+	CFLAGS += -fsanitize=address
 endif
-# CFLAGS = -Wall -O2
 
 all: libcora.so
 
@@ -39,7 +39,7 @@ gc_test: gc.test
 # bootstrap.test: bootstrap_test.o libcora.a
 # 	$(CC) -o $@ $^ -ldl
 
-LIBOBJS = str.o gc.o types.o reader.o runtime.o
+LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
 libcora.a: $(LIBOBJS)
 	ar -rc $@ $^

@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include "gc.h"
+#include "trace.h"
 
 enum gcState {
 	gcStateNone = 0,
@@ -62,6 +63,7 @@ struct heapArena {
 
 static struct heapArena *
 heapArenaNew() {
+	TRACE_SCOPE("heapArenaNew");
 	struct heapArena *ha = malloc(sizeof(struct heapArena));
 	ha->next = NULL;
 	ha->ptr =
@@ -232,6 +234,7 @@ gcGetHeapArena(struct GC *gc) {
 // for allocating GC object or be used as GC gray queue.
 static struct Block *
 blockNew(struct GC *gc) {
+	TRACE_SCOPE("blockNew");
 	struct heapArena *ha = gcGetHeapArena(gc);
 	struct Block *b = heapArenaAlloc(ha);
 	return b;
@@ -472,6 +475,7 @@ heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
 
 static void *
 gcAllocLargeObject(struct GC *gc, int size) {
+	TRACE_SCOPE("gcAllocLargeObject");
 	assert(size < HEAP_ARENA_SIZE);
 	scmHead *p;
 	while (true) {
@@ -517,6 +521,7 @@ blockAlloc(struct GC *gc, struct Block *block) {
 
 void *
 gcAlloc(struct GC *gc, int size) {
+	TRACE_SCOPE("gcAlloc");
 	assert(size > sizeof(scmHead));
 
 	// If GC is in progress, continue GC steps
@@ -674,7 +679,8 @@ nextVersion(version_t ver) {
 	int curr_version = ver & VERSION_MASK;
 
 	// Calculate new version
-	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
+	int new_version = (curr_version + 1) & VERSION_MASK;
+	/* int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK; */
 
 	// If not the last generation, upgrade to next generation
 	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
@@ -728,6 +734,7 @@ gcMark(struct GC *gc, uintptr_t p, version_t minv) {
 
 ATTRIBUTE_NO_SANITIZE_ADDRESS static void
 gcStack(struct GC *gc) {
+	TRACE_SCOPE("gcStack");
 	// Get current stack pointer
 	uintptr_t *stackAddr = (uintptr_t *) & stackAddr;
 
@@ -753,6 +760,7 @@ extern void gcGlobal(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
+	TRACE_SCOPE("gcRunMark");
 	// Reset counters
 	gc->allocated = 0;
 	gc->inuseSize = 0;
@@ -772,6 +780,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
+	TRACE_SCOPE("gcFlip");
 	/* printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n", */
 	/*        gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip); */
 	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
@@ -837,6 +846,7 @@ gcFlip(struct GC *gc) {
 
 static void
 gcRunIncremental(struct GC *gc) {
+	TRACE_SCOPE("gcRunIncremental");
 	const int STEPS_PER_INCREMENT = 20;
 	int steps = STEPS_PER_INCREMENT;
 
@@ -936,6 +946,7 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 
 static void
 gcRunSweep(struct GC *gc) {
+	TRACE_SCOPE("gcRunSweep");
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {
@@ -948,6 +959,7 @@ gcRunSweep(struct GC *gc) {
 
 static void
 gcRun(struct GC *gc) {
+	TRACE_SCOPE("gcRun");
 	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
 	// | ---         | --          | --                 | --          | --         |
 	// | version  <- | version <-  | version            | version     | stale      |

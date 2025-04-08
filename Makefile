@@ -1,7 +1,11 @@
 .PHONY: libcora lib fmt
 
 CC = gcc
-CFLAGS = -g -Wall -fPIC
+CFLAGS := -g -Wall
+ifeq ("${ENABLE_ASAN}", "1")
+	CFLAGS += -fsanitize=address
+endif
+
 LD_FLAG	:=  -lcora -ldl
 ifeq ("${ENABLE_ASAN}", "1")
 	LD_FLAG = -lasan -lcora -ldl
@@ -16,9 +20,8 @@ lib:
 	make -C lib
 
 .c.o:
+	echo $(CFLAGS)
 	$(CC) $(CFLAGS) -c $< -I src
-
-main.o: main.c
 
 cora.bin: libcora main.o init.so
 	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@

@@ -7,9 +7,11 @@
 #include "runtime.h"
 #include "str.h"
 #include "gc.h"
+#include "trace.h"
 
 void
 coraCall(struct Cora *co, int nargs, ...) {
+	TRACE_SCOPE("coraCall");
 	co->nargs = nargs;
 	va_list ap;
 	va_start(ap, nargs);
@@ -72,6 +74,7 @@ popStack(struct Cora *co) {
 
 void
 callCurry(struct Cora *co) {
+	TRACE_SCOPE("callCurry");
 	Obj fn = co->args[0];
 	int captured = nativeCaptured(fn);
 	memmove(co->args + captured, co->args + 1,
@@ -83,6 +86,7 @@ callCurry(struct Cora *co) {
 
 Obj
 makeCurry(int required, int captured, Obj * data) {
+	TRACE_SCOPE("makeCurry");
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = callCurry;
@@ -155,6 +159,7 @@ coraNew() {
 
 static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
+	TRACE_SCOPE("coraGCFunc");
 	// The globals
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
 		gcMark(gc, p->value, 0);
@@ -179,6 +184,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 
 void
 gcGlobal(struct GC *gc) {
+	TRACE_SCOPE("gcGlobal");
 	coraGCFunc(gc, gCo);
 }
 
@@ -357,6 +363,7 @@ symbolToString(struct Cora *co) {
 
 void
 builtinBytes(struct Cora *co) {
+	TRACE_SCOPE("builtinBytes");
 	int n = fixnum(co->args[1]);
 	Obj val = makeBytes(n);
 	coraReturn(co, val);
@@ -378,6 +385,7 @@ tryStackMark(struct Cora *co) {
 //      (lambda (v resume) (resume (+ v 66))))
 void
 builtinTryCatch(struct Cora *co) {
+	TRACE_SCOPE("builtinTryCatch");
 	Obj chunk = co->args[1];
 	Obj handler = co->args[2];
 
@@ -439,6 +447,7 @@ continuationAsClosure(struct Cora *co) {
 
 void
 builtinThrow(struct Cora *co) {
+	TRACE_SCOPE("builtinThrow");
 	int p = findTryMark(co);
 	Obj v = co->args[1];
 
@@ -478,6 +487,7 @@ builtinThrow(struct Cora *co) {
 
 void
 builtinIntern(struct Cora *co) {
+	TRACE_SCOPE("builtinIntern");
 	Obj x = co->args[1];
 	assert(isBytes(x));
 	Obj val = intern(stringStr(x).str);
@@ -527,6 +537,7 @@ builtinValueOr(struct Cora *co) {
 
 void
 builtinApply(struct Cora *co) {
+	TRACE_SCOPE("builtinApply");
 	Obj fn = co->args[1];
 	Obj args = co->args[2];
 
@@ -561,6 +572,7 @@ getCoraPath() {
 
 void
 builtinLoadSo(struct Cora *co) {
+	TRACE_SCOPE("builtinLoadSo");
 	// (load-so "file-path.so" "package-path")
 	Obj filePath = co->args[1];
 	str str = stringStr(filePath);
@@ -592,6 +604,7 @@ static int unique = 1;
 
 void
 builtinLoad(struct Cora *co) {
+	TRACE_SCOPE("builtinLoad");
 	// (load "file-path.cora")
 	Obj filePath = co->args[1];
 
@@ -635,6 +648,7 @@ builtinLoad(struct Cora *co) {
 // 3. call load or load-so for the actual work
 void
 builtinImport(struct Cora *co) {
+	TRACE_SCOPE("builtinImport");
 	Obj pkg = co->args[1];
 	str pkgStr = stringStr(pkg);
 	Obj sym = intern("cora/init#*imported*");
@@ -685,6 +699,7 @@ builtinImport(struct Cora *co) {
 
 static void
 builtinVector(struct Cora *co) {
+	TRACE_SCOPE("builtinVector");
 	Obj o = co->args[1];
 	int n = fixnum(o);
 	Obj res = makeVector(n, n);
@@ -700,6 +715,7 @@ builtinVectorRef(struct Cora *co) {
 
 static void
 builtinVectorSet(struct Cora *co) {
+	TRACE_SCOPE("builtinVectorSet");
 	Obj v = co->args[1];
 	Obj idx = co->args[2];
 	Obj o = co->args[3];
@@ -750,6 +766,7 @@ builtinReadFileAsSexp(struct Cora *co) {
 
 static void
 builtinStringAppend(struct Cora *co) {
+	TRACE_SCOPE("builtinStringAppend");
 	Obj str1 = co->args[1];
 	Obj str2 = co->args[2];
 	str x = stringStr(str1);
