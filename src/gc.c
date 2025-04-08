@@ -1067,12 +1067,15 @@ gcRSet(struct GC *gc) {
 			} else {
 				prev->rset = p->rset;
 			}
-			p->rset = NULL;
-			p->inRSet = false;
+
+			struct scmVector *tmp = p;
+			p = p->rset;
+			tmp->rset = NULL;
+			tmp->inRSet = false;
 		} else {
 			gcMark(gc, (Obj)h|TAG_PTR, 0);
+			prev = p;
+			p = p->rset;
 		}
-		prev = p;
-		p = p->rset;
 	}
 }
