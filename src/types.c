@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "types.h"
 #include "gc.h"
+#include "types.h"
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -290,20 +290,14 @@ nativeRequired(Obj o) {
 	return native->required;
 }
 
-// cora stack can be simplify using a vector.
-struct scmVector {
-	scmHead head;
-	int size;
-	int cap;
-	Obj data[];
-};
-
 Obj
 makeVector(int size, int cap) {
 	assert(size <= cap);
 	struct scmVector *vec = newObj(scmHeadVector,
 				       sizeof(struct scmVector) +
 				       sizeof(Obj) * cap);
+	vec->rset = NULL;
+	vec->inRSet = false;
 	vec->size = size;
 	vec->cap = cap;
 	for (int i = 0; i < vec->size; i++) {
@@ -320,13 +314,18 @@ vectorRef(Obj v, int idx) {
 	return vec->data[idx];
 }
 
+struct scmContinuation {
+	scmHead head;
+	struct callStack cs;
+};
+
 Obj
 vectorSet(Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	/* writeBarrierForGeneration(&v->head, val); */
+	writeBarrierForGeneration(getGC(), v, val);
 	return vec;
 }
 
@@ -362,7 +361,7 @@ vectorAppend(Obj vec, Obj val) {
 		// writeBarrier!
 		writeBarrierForIncremental(getGC(), &vec, tmp);
 		// this seems not required, because tmp->version should always >= val->version?
-		writeBarrierForGeneration(&v->head, val);
+		/* writeBarrierForGeneration(&v->head, val); */
 		v = ptr(tmp);
 	}
 	v->data[v->size] = val;
@@ -389,11 +388,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 		gcMark(gc, from->data[i], minv);
 	}
 }
-
-struct scmContinuation {
-	scmHead head;
-	struct callStack cs;
-};
 
 Obj
 makeContinuation() {

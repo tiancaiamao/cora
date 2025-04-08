@@ -1,43 +1,45 @@
-(@import "cora/lib/cml" cml)
-(@import "cora/lib/chan" chan)
-(@import "cora/lib/io" io)
+(define-library "cora/example/ping-pong"
+  (import "cora/lib/cml")
+  (import "cora/lib/chan")
+  (import "cora/lib/io")
 
-(let s2c (chan.make)
-     c2s (chan.make)
+  (let s2c (chan-make)
+    c2s (chan-make)
 
-     (begin
+    (begin
 
       (defun server ()
 	(begin
-	 (cml.perform
-	  (choice
-	   (cml.wrap (chan.recv c2s) (lambda (v)
-				      (begin
-				       (io.display "server recv:")
-				       (io.display v)
-				       (io.display "\n"))))
-	   (cml.wrap (chan.send s2c "pong") (lambda (v)
-					     (io.display "server send pong\n"))))
-	  )
-	 (server)))
+	  (perform
+	   (choice
+	    (wrap (chan-recv c2s) (lambda (v)
+				    (begin
+				      (display "server recv:")
+				      (display v)
+				      (display "\n"))))
+	    (wrap (chan-send s2c "pong") (lambda (v)
+					   (display "server send pong\n"))))
+	   )
+	  (server)))
 
       (defun client ()
 	(begin
-	 (cml.perform
-	  (choice
-	   (cml.wrap (chan.send c2s "ping") (lambda (v)
-					     (io.display "client send ping\n")))
-	   (cml.wrap (chan.recv s2c) (lambda (v) (begin
-						 (io.display "client recv:")
-						 (io.display v)
-						 (io.display "\n")
-						 v)))))
-	 (client)))
+	  (perform
+	   (choice
+	    (wrap (chan-send c2s "ping") (lambda (v)
+					   (display "client send ping\n")))
+	    (wrap (chan-recv s2c) (lambda (v) (begin
+						(display "client recv:")
+						(display v)
+						(display "\n")
+						v)))))
+	  (client)))
 
-      (io.display "hello world\n")
+      (display "hello world\n")
       
-      (cml.spawn server)
-      (cml.spawn client)))
+      (spawn server)
+      (spawn client)))
 
 
-(cml.main)
+  (main)
+  )

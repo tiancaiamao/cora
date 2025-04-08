@@ -12,7 +12,7 @@ pollReadAdd(int pollfd, int fd) {
   ev.data.fd = fd;
   /* printf("netRecv, epoll_ctl add fd = %d\n", fd); */
   if (epoll_ctl(pollfd, EPOLL_CTL_ADD, fd, &ev) < 0) {
-    printf("epoll ctl add read fail %d\n", fd);
+	  printf("epoll ctl add read fail %d, err=%s\n", fd, strerror(errno));
   }
 }
 
