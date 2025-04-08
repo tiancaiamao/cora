@@ -83,7 +83,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry(int required, int captured, Obj * data) {
+makeCurry(int required, int captured, Obj *data) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = callCurry;
@@ -799,7 +799,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 }
 
 struct Cora *
-coraInit(uintptr_t * mark) {
+coraInit(uintptr_t *mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
