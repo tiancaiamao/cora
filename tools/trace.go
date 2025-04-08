@@ -29,6 +29,7 @@ func main() {
 	}
 	defer f.Close()
 
+	totalOfst := 0
 	var events []TraceEvent
 	pid := 1
 	for {
@@ -41,6 +42,11 @@ func main() {
 		}
 
 		ph := hdr[0]
+		switch ph {
+		case 'B','E','b','e','s','f':
+		default:
+			panic(fmt.Sprintf("wrong data at ofst:%d", totalOfst))
+		}
 		nameLen := int(hdr[1])
 		tid := uint16(hdr[2]) | uint16(hdr[3])<<8
 		id := uint32(hdr[4]) | uint32(hdr[5])<<8 | uint32(hdr[6])<<16 | uint32(hdr[7])<<24
@@ -68,6 +74,7 @@ func main() {
 			Id:   id,
 		}
 		events = append(events, event)
+		totalOfst += (16 + nameLen)
 	}
 
 	out, err := json.MarshalIndent(events, "", "  ")

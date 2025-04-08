@@ -1,13 +1,9 @@
 #include "runtime.h"
-#include "trace.h"
-
 
 extern void builtinImport(struct Cora *co);
 
 int main(int argc, char *argv[]) {
   uintptr_t dummy;
-  trace_init("./trace.bin");
-
   struct Cora* co = coraInit(&dummy);
   co->args[1] = makeCString("cora/init");
   co->nargs = 2;
@@ -56,6 +52,4 @@ int main(int argc, char *argv[]) {
     sexpWrite(stdout, co->args[1]);
     printf("\n");
   }
-
-  trace_close();
 }
