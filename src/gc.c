@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include "gc.h"
+#include "trace.h"
 
 enum gcState {
 	gcStateNone = 0,
@@ -63,6 +64,7 @@ struct heapArena {
 
 static struct heapArena *
 heapArenaNew() {
+	TRACE_SCOPE("heapArenaNew");
 	struct heapArena *ha = malloc(sizeof(struct heapArena));
 	ha->next = NULL;
 	ha->ptr =
@@ -236,6 +238,7 @@ gcGetHeapArena(struct GC *gc) {
 // for allocating GC object or be used as GC gray queue.
 static struct Block *
 blockNew(struct GC *gc) {
+	TRACE_SCOPE("blockNew");
 	struct heapArena *ha = gcGetHeapArena(gc);
 	struct Block *b = heapArenaAlloc(ha);
 	return b;
@@ -477,6 +480,7 @@ heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
 
 static void *
 gcAllocLargeObject(struct GC *gc, int size) {
+	TRACE_SCOPE("gcAllocLargeObject");
 	assert(size < HEAP_ARENA_SIZE);
 	scmHead *p;
 	while (true) {
@@ -522,6 +526,7 @@ blockAlloc(struct GC *gc, struct Block *block) {
 
 void *
 gcAlloc(struct GC *gc, int size) {
+	TRACE_SCOPE("gcAlloc");
 	assert(size > sizeof(scmHead));
 
 	// If GC is in progress, continue GC steps
@@ -750,6 +755,7 @@ gcMark(struct GC *gc, uintptr_t p, version_t minv) {
 
 ATTRIBUTE_NO_SANITIZE_ADDRESS static void
 gcCStack(struct GC *gc) {
+	TRACE_SCOPE("gcStack");
 	// Get current stack pointer
 	uintptr_t *stackAddr = (uintptr_t *) & stackAddr;
 
@@ -776,6 +782,7 @@ extern void gcRSet(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
+	TRACE_SCOPE("gcRunMark");
 	// Reset counters
 	gc->allocated = 0;
 	gc->inuseSize = 0;
@@ -796,6 +803,7 @@ gcRunMark(struct GC *gc) {
 
 static void
 gcFlip(struct GC *gc) {
+	TRACE_SCOPE("gcFlip");
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -873,6 +881,7 @@ gcFlip(struct GC *gc) {
 
 static void
 gcRunIncremental(struct GC *gc) {
+	TRACE_SCOPE("gcRunIncremental");
 	const int STEPS_PER_INCREMENT = 20;
 	int steps = STEPS_PER_INCREMENT;
 
@@ -969,6 +978,7 @@ sweepLargeObjects(struct GC *gc, struct runDoneProgress *pg) {
 
 static void
 gcRunSweep(struct GC *gc) {
+	TRACE_SCOPE("gcRunSweep");
 	struct runDoneProgress *pg = &gc->progress;
 	// First handle size classes
 	if (pg->sizeClassPos < sizeClassSZ) {
@@ -981,6 +991,7 @@ gcRunSweep(struct GC *gc) {
 
 static void
 gcRun(struct GC *gc) {
+	TRACE_SCOPE("gcRun");
 	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
 	// | ---         | --          | --                 | --          | --         |
 	// | version  <- | version <-  | version            | version     | stale      |

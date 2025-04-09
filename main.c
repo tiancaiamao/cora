@@ -1,6 +1,5 @@
 #include "runtime.h"
 
-
 extern void builtinImport(struct Cora *co);
 
 int main(int argc, char *argv[]) {
