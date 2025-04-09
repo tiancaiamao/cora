@@ -1,3 +1,4 @@
+(define-library "cora/test/benchmark/coroutine1m"
 ;; create 1M coroutines and check:
 ;;    1. how much memory it uses
 ;;    2. how long it takes
@@ -36,3 +37,5 @@
 (display "here???\n")
 (spawn boot)
 (main)
+
+)

@@ -28,7 +28,7 @@ coraCall(struct Cora *co, int nargs, ...) {
 	}
 }
 
-const int INIT_STACK_SIZE = 256;
+const int INIT_STACK_SIZE = 254;
 
 void
 pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
@@ -37,7 +37,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 		growCallStack(cs);
 	}
 
-	struct frame *addr = &cs->data[cs->len++];
+	struct frame *addr = &cs->data[cs->len];
 	addr->frees = co->ctx.frees;
 	addr->pc.func = cb;
 	addr->pc.label = label;
@@ -52,6 +52,7 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	addr->stk.stack = co->ctx.stk.stack;
 	addr->stk.base = co->ctx.stk.base;
 	addr->stk.pos = co->ctx.stk.base + nstack;
+	cs->len++;
 
 	if (nstack > 0) {
 		Obj *p = (Obj *) bytesData(addr->stk.stack);
@@ -85,7 +86,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry(int required, int captured, Obj * data) {
+makeCurry(int required, int captured, Obj *data) {
 	TRACE_SCOPE("makeCurry");
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
@@ -815,7 +816,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 }
 
 struct Cora *
-coraInit(uintptr_t * mark) {
+coraInit(uintptr_t *mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");

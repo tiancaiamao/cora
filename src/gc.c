@@ -6,6 +6,7 @@
 #include <setjmp.h>
 #include <stddef.h>
 #include <assert.h>
+#include <inttypes.h>
 #include "gc.h"
 #include "trace.h"
 
@@ -211,6 +212,9 @@ struct GC {
 	int inuseSize;
 	int inuseCount;
 	int markSkip;
+
+	// remember set for generationGC.
+	struct scmVector *rset;
 };
 
 static void
@@ -256,7 +260,7 @@ blockReset(struct Block *block) {
 __thread struct GC *threadLocalGC;
 
 void
-gcInit(uintptr_t * baseStackAddr) {
+gcInit(uintptr_t *baseStackAddr) {
 	assert(((uintptr_t) baseStackAddr & 0x7) == 0);
 
 	struct GC *gc = malloc(sizeof(struct GC));
@@ -270,6 +274,7 @@ gcInit(uintptr_t * baseStackAddr) {
 	gc->state = gcStateNone;
 	gc->baseStackAddr = baseStackAddr;
 	gc->version = 2;	// Start from 2, so uninitialized blocks can be treated as garbage
+	gc->rset = NULL;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -315,7 +320,7 @@ gcContains(struct GC *gc, void *p) {
 }
 
 static bool
-inuse(struct GC *gc, scmHead * h) {
+inuse(struct GC *gc, scmHead *h) {
 	if (h->type == scmHeadUnused) {
 		return false;
 	}
@@ -345,7 +350,7 @@ shouldTriggerGC(struct GC *gc) {
 
 // Used in allocDone
 static void
-allocDone(struct GC *gc, int size, scmHead * ret) {
+allocDone(struct GC *gc, int size, scmHead *ret) {
 	ret->size = size;
 	ret->version =
 		(gc->state ==
@@ -362,7 +367,7 @@ allocDone(struct GC *gc, int size, scmHead * ret) {
 }
 
 static int
-getLargeObjSlots(scmHead * n) {
+getLargeObjSlots(scmHead *n) {
 	if (n->type == scmHeadUnused) {
 		return ((struct scmFreeNode *) n)->slots;
 	}
@@ -370,7 +375,7 @@ getLargeObjSlots(scmHead * n) {
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead * h) {
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead *h) {
 	for (int i = 0; i < slots; i++) {
 		struct Block *b = &ha->blocks[start + i];
 		b->base = (char *) h;
@@ -581,7 +586,7 @@ gcQueueInit(struct GC *gc) {
 }
 
 static void
-gcEnqueue(struct GC *gc, scmHead * p) {
+gcEnqueue(struct GC *gc, scmHead *p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
 		b = blockNew(gc);
@@ -666,7 +671,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 #define GEN_SHIFT VERSION_BITS
 
 // Increment values for each generation
-static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
+static const int GEN_INCREMENTS[] = { 2, 4, 8, 24 };
 
 // A smart generational GC strategy
 // Higher 2bits are for generation mark and lower 6bits are for version,
@@ -674,41 +679,58 @@ static const int GEN_INCREMENTS[] = { 3, 5, 11, 29 };
 // +N can make the object be skipped in next several rounds of GC.
 // i.e. using a lower GC frequency for older generation.
 static version_t
-nextVersion(version_t ver) {
-	int gen = (ver >> GEN_SHIFT) & GEN_MASK;
-	int curr_version = ver & VERSION_MASK;
-
-	// Calculate new version
-	int new_version = (curr_version + GEN_INCREMENTS[gen]) & VERSION_MASK;
-
-	// If not the last generation, upgrade to next generation
-	int new_gen = (gen < GEN_MASK) ? gen + 1 : gen;
-
-	return new_version | (new_gen << GEN_SHIFT);
+nextVersion(int gen, uint64_t ver) {
+	/* return ((gen + 1) << 6) | ((ver + 1) % 64); */
+	assert(gen >= 0 && gen < 4);
+	for (int i = gen; i >= 0; i--) {
+		int inc = GEN_INCREMENTS[i];
+		if ((ver % inc) == 0) {
+			ver = ver + inc - 1;
+			break;
+		}
+	}
+	if (gen < 3) {
+		gen++;
+	}
+	return (gen << 6) | (ver % 64);
 }
 
 static void
-markObject(struct GC *gc, scmHead * from, version_t minv) {
-	// Skip if already a gray object
+markObject(struct GC *gc, scmHead *from, version_t minv) {
+	assert(minv == 0 || ((minv & 1) == 1));
+	// A gray object
 	if ((from->version & 1) == 1) {
+		if (minv != 0) {
+			// Old generation to young generation is forbidden
+			if (versionCmp
+			    (minv & VERSION_MASK,
+			     from->version & VERSION_MASK) > 0) {
+				/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
+				from->version = minv;
+			}
+		}
 		return;
 	}
 
+	int bump = false;
 	version_t curr_version = from->version & VERSION_MASK;
-
-	// Generational GC barrier check
-	if ((minv & 1) == 1) {
-		// Barrier for generational GC
-		// Old generation to young generation is forbidden
-		if (versionCmp(minv & VERSION_MASK, curr_version) > 0) {
-			from->version = minv;
-			gcEnqueue(gc, from);
-			return;
-		}
-	}
 	// Normal marking logic
 	if (curr_version == (gc->version & VERSION_MASK)) {
-		from->version = nextVersion(from->version);
+		from->version = nextVersion(from->version >> 6, gc->version);
+		bump = true;
+	}
+	// Generational GC barrier check
+	if (minv != 0) {
+		// Old generation to young generation is forbidden
+		if (versionCmp
+		    (minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
+			/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
+			from->version = minv;
+			bump = true;
+		}
+	}
+
+	if (bump) {
 		gcEnqueue(gc, from);
 		return;
 	}
@@ -732,7 +754,7 @@ gcMark(struct GC *gc, uintptr_t p, version_t minv) {
 #endif
 
 ATTRIBUTE_NO_SANITIZE_ADDRESS static void
-gcStack(struct GC *gc) {
+gcCStack(struct GC *gc) {
 	TRACE_SCOPE("gcStack");
 	// Get current stack pointer
 	uintptr_t *stackAddr = (uintptr_t *) & stackAddr;
@@ -756,6 +778,7 @@ gcStack(struct GC *gc) {
 }
 
 extern void gcGlobal(struct GC *gc);
+extern void gcRSet(struct GC *gc);
 
 static void
 gcRunMark(struct GC *gc) {
@@ -771,7 +794,8 @@ gcRunMark(struct GC *gc) {
 
 	// Mark all root objects
 	gcGlobal(gc);		// Mark global variables
-	gcStack(gc);		// Mark stack variables
+	gcCStack(gc);		// Mark stack variables
+	gcRSet(gc);
 
 	// Switch to incremental marking phase
 	gc->state = gcStateIncremental;
@@ -780,13 +804,6 @@ gcRunMark(struct GC *gc) {
 static void
 gcFlip(struct GC *gc) {
 	TRACE_SCOPE("gcFlip");
-	/* printf("run gc, before size = %d, inuse = size(%d) count(%d), incremental size=%d, mark skip=%d\n", */
-	/*        gc->nextSize, gc->inuseSize, gc->inuseCount, gc->allocated, gc->markSkip); */
-	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
-	if (gc->nextSize < MEM_BLOCK_SIZE) {
-		// Because a block is at least that size, GC smaller then this is meanless.
-		gc->nextSize = MEM_BLOCK_SIZE;
-	}
 	// Reset the current large list and sizeClass list.
 	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
@@ -795,11 +812,13 @@ gcFlip(struct GC *gc) {
 		gc->sizeClass[i] = NULL;
 	}
 
+	size_t sysSize = 0;
 	// Put back the heap blocks to sizeClass list or large objects list.
 	struct heapArena *prev = NULL;
 	struct heapArena *h = gc->heap;
 	while (h != NULL) {
 		if (h->forLargeObjects) {
+			sysSize += h->curr * MEM_BLOCK_SIZE;
 			// unlink p from heap list.
 			struct heapArena *p = h;
 			h = p->next;
@@ -810,6 +829,7 @@ gcFlip(struct GC *gc) {
 				prev->next = p->next;
 				p->next = NULL;
 			}
+
 			// reset p and link it to large list.
 			p->curr = 0;
 			p->next = gc->large;
@@ -817,6 +837,7 @@ gcFlip(struct GC *gc) {
 			continue;
 		}
 
+		sysSize += h->idx * MEM_BLOCK_SIZE;
 		for (int i = 0; i < h->idx; i++) {
 			struct Block *b = &h->blocks[i];
 			if (b->sizeClass == 0) {
@@ -841,6 +862,21 @@ gcFlip(struct GC *gc) {
 	}
 	gc->version = gc->version + 2;
 	gc->state = gcStateNone;
+
+	// Statistics
+	char *coraDebug = getenv("CORADEBUG");
+	if (coraDebug != NULL) {
+		printf("gc%" PRIu64
+		       ", trigger size=%d, inuse=size(%d) count(%d), incremental size=%d, mark skip=%d, sys size=%zu\n",
+		       gc->version, gc->nextSize, gc->inuseSize,
+		       gc->inuseCount, gc->allocated, gc->markSkip, sysSize);
+	}
+
+	gc->nextSize = 2 * gc->inuseSize + gc->allocated;
+	if (gc->nextSize < MEM_BLOCK_SIZE) {
+		// Because a block is at least that size, GC smaller then this is meanless.
+		gc->nextSize = MEM_BLOCK_SIZE;
+	}
 }
 
 static void
@@ -853,10 +889,10 @@ gcRunIncremental(struct GC *gc) {
 		scmHead *curr = gcDequeue(gc);
 		if (curr == NULL) {
 			// Queue is empty, check whether we need to enter gcStateSweep
-			if (gc->version % 28 == 0) {
+			if (gc->version % 30 == 0) {
 				gc->state = gcStateSweep;
 				gc->progress.sizeClassPos = 0;
-				gc->progress.b = NULL;
+				gc->progress.b = gc->sizeClass[0];
 				gc->progress.ha = gc->large;
 				return;
 			}
@@ -870,9 +906,8 @@ gcRunIncremental(struct GC *gc) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			curr->version =
-				(curr->
-				 version & (3 << 6)) | ((curr->version +
-							 1) % 64);
+				(curr->version & (3 << 6)) |
+				((curr->version + 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
@@ -881,27 +916,25 @@ gcRunIncremental(struct GC *gc) {
 
 static void
 sweepSizeClass(struct GC *gc, struct runDoneProgress *pg) {
-	if (pg->b == NULL) {
-		pg->b = gc->sizeClass[pg->sizeClassPos];
-	}
 	while (pg->sizeClassPos < sizeClassSZ) {
 		if (pg->b == NULL) {
 			pg->sizeClassPos++;
+			pg->b = gc->sizeClass[pg->sizeClassPos];
 			continue;
 		}
 		// Small step to finish one block in size class
 		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
 		     j += pg->b->sizeClass) {
 			scmHead *p = (scmHead *) (pg->b->base + j);
-			if ((p->version & VERSION_MASK) ==
-			    ((gc->version - 2) & VERSION_MASK)) {
+			if (!inuse(gc, p)) {
 				p->type = scmHeadUnused;
 			}
+			/* if ((p->version & VERSION_MASK) == */
+			/*     ((gc->version - 2) & VERSION_MASK)) { */
+			/*      p->type = scmHeadUnused; */
+			/* } */
 		}
 		pg->b = pg->b->next;
-		if (pg->b == NULL) {
-			pg->sizeClassPos++;
-		}
 		return;
 	}
 }
@@ -986,7 +1019,7 @@ gcRun(struct GC *gc) {
 }
 
 void
-writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
+writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 	// Yuasa-style deletion barrier
 	if (gc->state == gcStateIncremental) {
 		uintptr_t old = *slot;
@@ -996,26 +1029,74 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t * slot, uintptr_t val) {
 }
 
 void
-writeBarrierForGeneration(scmHead * v, uintptr_t val) {
-	// Skip if not a pointer
+writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
+	// skip if not a pointer
 	if (tag(val) != TAG_PTR) {
 		return;
 	}
+
 	scmHead *h = ptr(val);
-	// Update version if necessary for generational GC
-	// Forbid greater to smaller version references, that is, old generation to young generation
-	if (versionCmp(v->version & VERSION_MASK, h->version & VERSION_MASK) >
-	    0) {
-		// NOTE: **must not** change the mark queuing state, for example:
-		// 6 -> 5, change 5 to 6 is in improper, 5 is in mark queuing state.
-		// 7 -> 6, change 6 to 7 is improper too
-		if ((v->version & 1) == (h->version & 1)) {
-			// bump version if the mark queuing state are same
-			h->version = v->version;
+	if (versionCmp(v->head.version % 64, h->version % 64) <= 0) {
+		return;
+	}
+
+	switch (gc->state) {
+	case gcStateNone:
+	case gcStateMark:
+	case gcStateSweep:
+		// add to rset
+		if (!v->inRSet) {
+			v->rset = gc->rset;
+			gc->rset = v;
+			v->inRSet = true;
+		}
+		break;
+	case gcStateIncremental:
+		if (((v->head.version & 1) == 1) &&
+		    ((h->version + 1) % 64) == (v->head.version % 64)) {
+			return;
+		}
+		// add vec to rset and enqueue val
+		// The next round it will be mark
+		if (!v->inRSet) {
+			v->rset = gc->rset;
+			gc->rset = v;
+			v->inRSet = true;
+		}
+		gcMark(gc, val, 0);
+	}
+}
+
+void
+gcRSet(struct GC *gc) {
+	if (gc->rset == NULL) {
+		return;
+	}
+
+	struct scmVector *prev = NULL;
+	struct scmVector *p = gc->rset;
+	while (p != NULL) {
+		scmHead *h = (scmHead *) p;
+		if (versionCmp
+		    (gc->version & VERSION_MASK,
+		     h->version & VERSION_MASK) >= 0) {
+			// remove this from remember set.
+			if (prev == NULL) {
+				gc->rset = p->rset;
+			} else {
+				prev->rset = p->rset;
+			}
+
+			struct scmVector *tmp = p;
+			p = p->rset;
+			tmp->rset = NULL;
+			tmp->inRSet = false;
 		} else {
-			// bump to version - 1
-			int gen = v->version & (3 << 6);
-			h->version = ((v->version + 64 - 1) % 64) | gen;
+			for (int i = 0; i < p->size; i++) {
+				gcMark(gc, p->data[i], 0);
+			}
+			prev = p;
+			p = p->rset;
 		}
 	}
 }
