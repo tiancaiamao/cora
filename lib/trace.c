@@ -16,11 +16,52 @@ traceDisable(struct Cora *co) {
 	coraReturn(co, True);
 }
 
+static void
+traceWrap(struct Cora *co) {
+	assert(nativeCaptured(co->args[0]) == 2);
+	Obj* data = nativeData(co->args[0]);
+	Obj origin = data[0];
+	Obj sym = data[1];
+	assert(isNative(origin));
+	co->args[0] = origin;
+
+	char *name = symbolStr(sym);
+	TRACE_BEGIN(name);
+	trampoline(co, 0, coraDispatch);
+	TRACE_END(name);
+	coraReturn(co, co->args[1]);
+}
+
+static void
+builtinTrace(struct Cora *co) {
+	Obj sym = co->args[1];
+	Obj fn = symbolGet(sym);
+	struct scmNative *old = mustNative(fn);
+	Obj wrap = makeNative(0, traceWrap, old->required, 2, fn, sym);
+	Obj ret = primSet(co, sym, wrap);
+	coraReturn(co, ret);
+}
+
+static void
+builtinUntrace(struct Cora *co) {
+	Obj sym = co->args[1];
+	Obj fn = symbolGet(sym);
+	struct scmNative *n = mustNative(fn);
+	if (n->captured == 2 && n->code.func == traceWrap && n->data[1] == sym) {
+		Obj ret = primSet(co, sym, n->data[0]);
+		coraReturn(co, ret);
+		return;
+	}
+	coraReturn(co, Nil);
+}
+
 struct registerModule ioModule = {
   NULL,
   {
     {"trace-enable", traceEnable, 1},
     {"trace-disable", traceDisable, 0},
+    {"trace", builtinTrace, 1},
+    {"untrace", builtinUntrace, 1},
     {NULL, NULL, 0},
   }
 };

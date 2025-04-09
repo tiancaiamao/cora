@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "types.h"
 #include "reader.h"
+#include "trace.h"
 
 struct Cora {
 		struct frame ctx;
@@ -62,12 +63,13 @@ struct Cora* coraInit(uintptr_t *mark);
 
 static inline void
 growCallStack(struct callStack *cs) {
-    size_t new_cap = cs->cap * 2;
-    struct frame *new_data = malloc(new_cap * sizeof(struct frame));
-    memcpy(new_data, cs->data, cs->len * sizeof(struct frame));
-    free(cs->data);
-    cs->data = new_data;
-    cs->cap = new_cap;
+	TRACE_SCOPE("growCallStack");
+	size_t new_cap = cs->cap * 2;
+	struct frame *new_data = malloc(new_cap * sizeof(struct frame));
+	memcpy(new_data, cs->data, cs->len * sizeof(struct frame));
+	free(cs->data);
+	cs->data = new_data;
+	cs->cap = new_cap;
 }
 
 #ifdef __GNUC__

@@ -143,6 +143,7 @@ int nativeCaptured(Obj o);
 int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 struct scmNative* mustNative(Obj o);
+bool isNative(Obj o);
 
 struct stackState {
 	Obj stack;

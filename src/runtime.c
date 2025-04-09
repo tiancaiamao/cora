@@ -73,7 +73,7 @@ popStack(struct Cora *co) {
 	return;
 }
 
-void
+static void
 callCurry(struct Cora *co) {
 	TRACE_SCOPE("callCurry");
 	Obj fn = co->args[0];
