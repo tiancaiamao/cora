@@ -20,7 +20,6 @@ lib:
 	make -C lib
 
 .c.o:
-	echo $(CFLAGS)
 	$(CC) $(CFLAGS) -c $< -I src
 
 cora.bin: libcora main.o init.so
