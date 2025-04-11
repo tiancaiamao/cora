@@ -2,7 +2,7 @@
 
 static int
 pollCreate() {
-  pollfd = epoll_create(1);
+  return epoll_create(1);
 }
 
 static void
