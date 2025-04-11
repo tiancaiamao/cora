@@ -9,13 +9,18 @@
   (import "cora/lib/rand")
   (import "cora/lib/sys")
   ;; (import "cora/lib/io")
-  (export spawn yield main wrap perform schedule register-scheduler)
+  (export spawn yield main wrap perform schedule enqueue-task register-scheduler)
 
   (def task-queue (queue-make))
 
-  (defun spawn (thunk)
+  (defun enqueue-task (thunk)
     (enqueue task-queue thunk))
 
+  (defun spawn (thunk)
+    (enqueue-task (lambda ()
+		    (try thunk
+			 (lambda (v k)
+			   (v k))))))
 
   (def external-schedulers ())
   (defun register-scheduler (fn)
@@ -32,26 +37,29 @@
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-      ;; (display "schedule()\n")
-      (let more-work (run-external-schedulers 0)
-	(if (queue-empty? task-queue)
-	    (if more-work
-		(begin
-		  ;; (display "schedule 2()\n")
-		  (run-external-schedulers -1))
-		false)
-	    (let task (dequeue task-queue)
-	      (begin (task) true))))))
-
-  (defun schedule-loop ()
-    (if (= false (schedule))
-	()
-	(schedule-loop)))
+     ;; (display "schedule()\n")
+     (let more-work (run-external-schedulers 0)
+	  (if (queue-empty? task-queue)
+	      (if more-work
+		  (begin
+		   ;; (display "schedule 2()\n")
+		   (run-external-schedulers -1))
+		  ())
+	      (let task (dequeue task-queue)
+		   (begin
+		    ;; (display "dequeue and run task\n")
+		    (task)))))))
 
   (defun main ()
-    (try schedule-loop
-	 (lambda (v k)
-	   (v k))))
+    (schedule-loop))
+
+  (defun schedule-loop ()
+    (begin
+     (schedule)
+     (if (and (queue-empty? task-queue)
+	      (not (run-external-schedulers 0)))
+	 ()
+	 (schedule-loop))))
 
   (defun yield ()
     (throw (lambda (k)
@@ -117,12 +125,16 @@
   ;; ;; 		   (lambda (v) ...))
   ;; ;; 	  (wrap (send ch2)
   ;; ;; 		   (lambda (v) ...))))
-  (func perform
-	[try block wrap] => (match (try)
-			      false (throw (lambda (k)
-					     (begin
-					       (block k wrap)
-					       (main))))
-			      v (wrap v)))
+  (defun perform (op)
+    (let try (car op)
+	 block (cadr op)
+	 wrap (caddr op)
+	 (let v (try)
+	      (if (= v false)
+		  (throw (lambda (k)
+			   (begin
+			    (block k wrap)
+			    (schedule))))
+		  (wrap v)))))
   )
 
