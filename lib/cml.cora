@@ -14,7 +14,10 @@
   (def task-queue (queue-make))
 
   (defun spawn (thunk)
-    (enqueue task-queue thunk))
+    (enqueue task-queue (lambda ()
+			  (try thunk
+			       (lambda (v k)
+				 (v k))))))
 
 
   (def external-schedulers ())
@@ -32,26 +35,24 @@
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-      ;; (display "schedule()\n")
-      (let more-work (run-external-schedulers 0)
-	(if (queue-empty? task-queue)
-	    (if more-work
-		(begin
-		  ;; (display "schedule 2()\n")
-		  (run-external-schedulers -1))
-		false)
-	    (let task (dequeue task-queue)
-	      (begin (task) true))))))
-
-  (defun schedule-loop ()
-    (if (= false (schedule))
-	()
-	(schedule-loop)))
+     ;; (display "schedule()\n")
+     (let more-work (run-external-schedulers 0)
+	  (if (queue-empty? task-queue)
+	      (if more-work
+		  (begin
+		   ;; (display "schedule 2()\n")
+		   (run-external-schedulers -1))
+		  ())
+	      (let task (dequeue task-queue)
+		   (begin
+		    ;; (display "dequeue and run task\n")
+		    (task)))))))
 
   (defun main ()
-    (try schedule-loop
-	 (lambda (v k)
-	   (v k))))
+    ;; (try schedule
+    ;; 	 (lambda (v k)
+    ;; 	   (v k))))
+    (schedule))
 
   (defun yield ()
     (throw (lambda (k)
@@ -117,12 +118,16 @@
   ;; ;; 		   (lambda (v) ...))
   ;; ;; 	  (wrap (send ch2)
   ;; ;; 		   (lambda (v) ...))))
-  (func perform
-	[try block wrap] => (match (try)
-			      false (throw (lambda (k)
-					     (begin
-					       (block k wrap)
-					       (main))))
-			      v (wrap v)))
+  (defun perform (op)
+    (let try (car op)
+	 block (cadr op)
+	 wrap (caddr op)
+	 (let v (try)
+	      (if (= v false)
+		  (throw (lambda (k)
+			   (begin
+			    (block k wrap)
+			    (schedule))))
+		  (wrap v)))))
   )
 
