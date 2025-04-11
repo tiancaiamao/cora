@@ -33,7 +33,7 @@
 	       false
 	       external-schedulers))
 
-  ;; smchedule take a task out and execute it
+  ;; schedule take a task out and execute it
   ;; return false if no more tasks
   (defun schedule ()
     (begin
