@@ -17,7 +17,7 @@
 			       (if (= 'Done (value state))
 				   (recv-try [sendq recvq]) ;; ignore stale item and continue
 				   (begin
-				     (spawn (lambda () (resume (wrap ()))))
+				     (enqueue-task (lambda () (resume (wrap ()))))
 				     (set state 'Done)
 				     val)))))
 
@@ -39,16 +39,16 @@
 	[sendq recvq] val => (if (queue-empty? recvq)
 				 false
 				 (match (dequeue recvq)
-				   [state resume wrap]
-				   (if (= 'Done (value state))
-				       (send-try [sendq recvq]) ;; ignore stale
-				       (begin
-					 (spawn (lambda ()
-						      (begin
-							;; (io.display "resume recv op\n")
-							(resume (wrap val)))))
-					 (set state 'Done)
-					 ())))))
+					[state resume wrap]
+					(if (= 'Done (value state))
+					    (send-try [sendq recvq]) ;; ignore stale
+					    (begin
+					      (enqueue-task (lambda ()
+							      (begin
+								;; (io.display "resume recv op\n")
+								(resume (wrap val)))))
+					      (set state 'Done)
+					      ())))))
 
   (defun send-block (sendq k val wrap)
     (let state (gensym 'state)

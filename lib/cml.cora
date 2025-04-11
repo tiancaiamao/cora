@@ -8,17 +8,19 @@
   (import "cora/lib/queue")
   (import "cora/lib/rand")
   (import "cora/lib/sys")
-  ;; (import "cora/lib/io")
-  (export spawn yield main wrap perform schedule register-scheduler)
+  (import "cora/lib/io")
+  (export spawn yield main wrap perform schedule enqueue-task register-scheduler)
 
   (def task-queue (queue-make))
 
-  (defun spawn (thunk)
-    (enqueue task-queue (lambda ()
-			  (try thunk
-			       (lambda (v k)
-				 (v k))))))
+  (defun enqueue-task (thunk)
+    (enqueue task-queue thunk))
 
+  (defun spawn (thunk)
+    (enqueue-task (lambda ()
+		    (try thunk
+			 (lambda (v k)
+			   (v k))))))
 
   (def external-schedulers ())
   (defun register-scheduler (fn)
@@ -35,7 +37,7 @@
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-     ;; (display "schedule()\n")
+     (display "schedule()\n")
      (let more-work (run-external-schedulers 0)
 	  (if (queue-empty? task-queue)
 	      (if more-work
@@ -49,9 +51,6 @@
 		    (task)))))))
 
   (defun main ()
-    ;; (try schedule
-    ;; 	 (lambda (v k)
-    ;; 	   (v k))))
     (schedule))
 
   (defun yield ()
