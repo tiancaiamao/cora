@@ -29,7 +29,8 @@ static void
 popenFn(struct Cora *co) {
   Obj cmd = co->args[1];
   Obj mode = co->args[2];
-  char* type = symbolStr(mode);
+  char type[256];
+  symbolStr(mode, type, 256);
 
   strBuf cmdStr = cmdListStr(cmd);
   FILE* f = popen(toCStr(cmdStr), type);

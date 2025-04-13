@@ -234,7 +234,7 @@ struct GC {
 	struct GCStats stats;
 
 	// remember set for generationGC.
-	struct scmVector *rset;
+	scmHeadEx *rset;
 };
 
 static void
@@ -876,18 +876,22 @@ gcFlip(struct GC *gc) {
 	}
 
 	// GC Statistics
+	char *gen = "";
 	if (gc->version % 24 == 0) {
 		gc->stats.oldGenSize = gc->stats.markSize;
+		gen = "***";
 	} else if (gc->version % 8 == 0) {
 		gc->stats.middleGenSize = gc->stats.markSize;
+		gen = "**";
 	} else if (gc->version % 4 == 0) {
 		gc->stats.youngGenSize = gc->stats.markSize;
+		gen = "*";
 	}
 	char *coraDebug = getenv("CORADEBUG");
 	if (coraDebug != NULL) {
 		printf("gc%" PRIu64
-		       ", trigger=%dsz, mark=%dsz %dcnt, skip=%dcnt, incremental=%dsz, sys=%zusz\n",
-		       gc->version, gc->stats.nextSize, gc->stats.markSize,
+		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, sys=%zusz\n",
+		       gc->version, gen, gc->stats.nextSize, gc->stats.markSize,
 		       gc->stats.markCount, gc->stats.markSkip,
 		       gc->stats.allocated, sysSize, gc->stats.youngGenSize,
 		       gc->stats.middleGenSize, gc->stats.oldGenSize);
@@ -1075,14 +1079,14 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 }
 
 void
-writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
+writeBarrierForGeneration(struct GC *gc, scmHeadEx *v, uintptr_t val) {
 	// skip if not a pointer
 	if (tag(val) != TAG_PTR) {
 		return;
 	}
 
 	scmHead *h = ptr(val);
-	if (versionCmp(v->head.version % 64, h->version % 64) <= 0) {
+	if (versionCmp(v->version % 64, h->version % 64) <= 0) {
 		return;
 	}
 
@@ -1098,8 +1102,8 @@ writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val) {
 		}
 		break;
 	case gcStateIncremental:
-		if (((v->head.version & 1) == 1) &&
-		    ((h->version + 1) % 64) == (v->head.version % 64)) {
+		if (((v->version & 1) == 1) &&
+		    ((h->version + 1) % 64) == (v->version % 64)) {
 			return;
 		}
 		// add vec to rset and enqueue val
@@ -1119,8 +1123,8 @@ gcRSet(struct GC *gc) {
 		return;
 	}
 
-	struct scmVector *prev = NULL;
-	struct scmVector *p = gc->rset;
+	scmHeadEx *prev = NULL;
+	scmHeadEx *p = gc->rset;
 	while (p != NULL) {
 		scmHead *h = (scmHead *) p;
 		if (versionCmp
@@ -1133,13 +1137,26 @@ gcRSet(struct GC *gc) {
 				prev->rset = p->rset;
 			}
 
-			struct scmVector *tmp = p;
+			scmHeadEx *tmp = p;
 			p = p->rset;
 			tmp->rset = NULL;
 			tmp->inRSet = false;
 		} else {
-			for (int i = 0; i < p->size; i++) {
-				gcMark(gc, p->data[i], 0);
+			switch(p->type) {
+			case scmHeadVector:
+				{
+					struct scmVector *pv = (struct scmVector*)p;
+					for (int i = 0; i < pv->size; i++) {
+						gcMark(gc, pv->data[i], 0);
+					}
+					break;
+				}
+			case scmHeadSymbol:
+				{
+					struct scmSymbol *pv = (struct scmSymbol*)p;
+					gcMark(gc, pv->value, 0);
+					break;
+				}
 			}
 			prev = p;
 			p = p->rset;

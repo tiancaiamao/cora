@@ -25,7 +25,8 @@ traceWrap(struct Cora *co) {
 	assert(isNative(origin));
 	co->args[0] = origin;
 
-	char *name = symbolStr(sym);
+	char name[256];
+	symbolStr(sym, name, 256);
 	TRACE_BEGIN(name);
 	trampoline(co, 0, coraDispatch);
 	TRACE_END(name);

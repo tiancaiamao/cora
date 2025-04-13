@@ -11,7 +11,9 @@ enum {
   // Instant values.
   scmHeadBoolean,
   scmHeadNull,
-  // Symbol is a special pointer, but it's basically instant value.
+  // There are two kinds of symbol: intern and gensym.
+  // interned symbols are global and never GC, while gensym are temporary.
+  scmHeadSymbol,
   // Number may be or may not be pointer.
   scmHeadNumber,
   // The followings are all pointer types.
@@ -32,6 +34,17 @@ typedef struct {
   scmHeadType type;
   version_t version;
 } scmHead;
+
+struct scmHeadEx_t {
+	uint32_t size;
+	scmHeadType type;
+	version_t version;
+	// remember set for generational GC
+	struct scmHeadEx_t *rset;
+	bool inRSet;
+};
+
+typedef struct scmHeadEx_t scmHeadEx;
 
 #define TAG_SHIFT 3
 #define TAG_MASK 0x7
@@ -55,16 +68,17 @@ typedef uintptr_t Obj;
 
 // cora stack can be simplify using a vector.
 struct scmVector {
-	scmHead head;
-	// remember set for generational GC
-	struct scmVector *rset;
-	bool inRSet;
-
+	scmHeadEx head;
 	int size;
 	int cap;
 	Obj data[];
 };
 
-void writeBarrierForGeneration(struct GC *gc, struct scmVector *v, uintptr_t val);
+struct scmSymbol {
+	scmHeadEx head;
+	Obj value;
+};
+
+void writeBarrierForGeneration(struct GC *gc, scmHeadEx *v, uintptr_t val);
 
 #endif

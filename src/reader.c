@@ -258,7 +258,9 @@ printObj(FILE *to, Obj o) {
 	} else if (iscons(o)) {
 		printCons(to, o, true);
 	} else if (issymbol(o)) {
-		fprintf(to, "%s", symbolStr(o));
+		char dest[256];
+		symbolStr(o, dest, 256);
+		fprintf(to, "%s", dest);
 	} else if (isboolean(o)) {
 		if (o == True) {
 			fprintf(to, "true");

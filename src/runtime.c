@@ -162,9 +162,13 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 	TRACE_SCOPE("coraGCFunc");
 	// The globals
+	int n = 0;
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
+		n++;
 		gcMark(gc, p->value, 0);
 	}
+	printf("gc globals count=%d\n", n);
+
 	// The stack.
 	gcMark(gc, co->ctx.stk.stack, 0);
 	Obj *p = (Obj *) bytesData(co->ctx.stk.stack);
@@ -283,15 +287,22 @@ primIsCons(Obj x) {
 
 Obj
 primSet(struct Cora *co, Obj key, Obj val) {
-	assert(issymbol(key));
-	struct trieNode *s = ptr(key);
-	writeBarrierForIncremental(getGC(), &s->value, val);	// s->value = val;
-	if (s->next == NULL) {
-		s->next = co->globals;
-		s->owner = co;
-		co->globals = s;
+	if (tag(key) == TAG_SYMBOL) {
+		struct trieNode *s = ptr(key);
+		writeBarrierForIncremental(getGC(), &s->value, val);	// s->value = val;
+		if (s->next == NULL) {
+			s->next = co->globals;
+			s->owner = co;
+			co->globals = s;
+		} else {
+			assert(s->owner == co);
+		}
+	} else if (tag(key) == TAG_PTR && ((scmHead *)ptr(key))->type == scmHeadSymbol) {
+		struct scmSymbol *s = ptr(key);
+		writeBarrierForIncremental(getGC(), &s->value, val);
+		writeBarrierForGeneration(getGC(), &s->head, val);
 	} else {
-		assert(s->owner == co);
+		assert(false);
 	}
 	return val;
 }
@@ -316,15 +327,14 @@ primMul(Obj x, Obj y) {
 	}
 }
 
-static uint64_t genIdx = 0;
-
 Obj
 primGenSym(Obj arg) {
-	assert(issymbol(arg));
-	char tmp[200];
-	snprintf(tmp, 100, "#%s%" PRIu64, symbolStr(arg), genIdx);
-	genIdx++;
-	return makeSymbol(tmp);
+	// The pointer is uniqueness and can be used as symbol->string
+	struct scmSymbol *p = newObj(scmHeadSymbol, sizeof(struct scmSymbol));
+	p->head.rset = NULL;
+	p->head.inRSet = false;
+	p->value = Nil;
+	return ((Obj) (&p->head) | TAG_PTR);
 }
 
 Obj
@@ -357,8 +367,9 @@ primIsString(Obj x) {
 void
 symbolToString(struct Cora *co) {
 	Obj sym = co->args[1];
-	char *str = symbolStr(sym);
-	Obj val = makeCString(str);
+	char dest[256];
+	symbolStr(sym, dest, 256);
+	Obj val = makeCString(dest);
 	coraReturn(co, val);
 }
 
@@ -515,10 +526,19 @@ builtinIsNumber(struct Cora *co) {
 void
 builtinValue(struct Cora *co) {
 	Obj sym = co->args[1];
-	struct trieNode *s = ptr(sym);
-	Obj ret = s->value;
-	if (ret == Undef) {
-		printf("undefined value: %s\n", s->sym);
+	Obj ret;
+	if (tag(sym) == TAG_SYMBOL) {
+		struct trieNode *s = ptr(sym);
+		ret = s->value;
+		if (ret == Undef) {
+			printf("undefined value: %s\n", s->sym);
+			assert(false);
+		}
+	} else if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+		struct scmSymbol *s = ptr(sym);
+		ret = s->value;
+		assert(ret != Undef);
+	} else {
 		assert(false);
 	}
 	coraReturn(co, ret);
@@ -527,8 +547,17 @@ builtinValue(struct Cora *co) {
 void
 builtinValueOr(struct Cora *co) {
 	Obj sym = co->args[1];
-	struct trieNode *s = ptr(sym);
-	Obj ret = s->value;
+	Obj ret;
+	if (tag(sym) == TAG_SYMBOL) {
+		struct trieNode *s = ptr(sym);
+		ret = s->value;
+	} else if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+		struct scmSymbol *s = ptr(sym);
+		ret = s->value;
+	} else {
+		assert(false);
+	}
+
 	if (ret == Undef) {
 		coraReturn(co, co->args[2]);
 		return;

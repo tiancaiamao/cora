@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "gc.h"
 #include "str.h"
 
@@ -36,7 +37,7 @@ typedef uintptr_t Obj;
 #define TAG_BOOLEAN 0xd
 
 #define iscobj(x) (tag(x) == TAG_COBJ)
-#define issymbol(x) (tag(x) == TAG_SYMBOL)
+#define issymbol(x) ((tag(x) == TAG_SYMBOL) || (tag(x) == TAG_PTR && ((scmHead *)ptr(x))->type == scmHeadSymbol))
 #define isfixnum(x) (((x) & 1) == 0)
 #define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
 
@@ -66,7 +67,7 @@ void* mustCObj(Obj o);
 #define intern(x) makeSymbol(x)
 Obj makeSymbol(const char *s);
 Obj symbolGet(Obj sym);
-char* symbolStr(Obj sym);
+int symbolStr(Obj sym, char* dest, size_t sz);
 
 #define cons(x, y) makeCons(x, y)
 #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)

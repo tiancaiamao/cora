@@ -17,11 +17,12 @@ hashToNumberHelp(Obj key) {
 
   switch (tag(key)) {
   case TAG_SYMBOL:
-    {
-      const char* str = symbolStr(key);
-      int sum = hashForString(str);
-      return makeNumber(sum);
-    }
+	  {
+		  char str[256];
+		  symbolStr(key, str, 256);
+		  int sum = hashForString(str);
+		  return makeNumber(sum);
+	  }
 
   case TAG_IMMEDIATE_CONST:
     if (key == True) {

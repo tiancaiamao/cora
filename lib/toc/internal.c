@@ -17,7 +17,11 @@ builtinGenerateSym(struct Cora *co) {
 	Obj to = co->args[1];
 	FILE *out = mustCObj(to);
 	Obj exp = co->args[2];
-	const char *s = symbolStr(exp);
+	char s[256];
+	symbolStr(exp, s, 256);
+	if (s[0] >= '0' && s[0] <= '9') {
+		fprintf(out, "v");
+	}
 	for (const char *p = s; *p != 0; p++) {
 		if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
 		    (*p >= '0' && *p <= '9')) {
@@ -71,8 +75,9 @@ builtinEscapeStr(struct Cora *co) {
 static void
 builtinSymbolCooked(struct Cora *co) {
 	Obj sym = co->args[1];
-	char *s = symbolStr(sym);
-	for (; *s != 0; s++) {
+	char dst[256];
+	symbolStr(sym, dst, 256);
+	for (char *s=dst; *s != 0; s++) {
 		if (*s == '#') {
 			coraReturn(co, True);
 			return;
