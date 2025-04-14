@@ -893,8 +893,7 @@ gcFlip(struct GC *gc) {
 		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, sys=%zusz\n",
 		       gc->version, gen, gc->stats.nextSize, gc->stats.markSize,
 		       gc->stats.markCount, gc->stats.markSkip,
-		       gc->stats.allocated, sysSize, gc->stats.youngGenSize,
-		       gc->stats.middleGenSize, gc->stats.oldGenSize);
+		       gc->stats.allocated, sysSize);
 	}
 
 	gc->version = gc->version + 2;
@@ -979,10 +978,6 @@ sweepSizeClass(struct GC *gc, struct runDoneProgress *pg) {
 			if (!inuse(gc, p)) {
 				p->type = scmHeadUnused;
 			}
-			/* if ((p->version & VERSION_MASK) == */
-			/*     ((gc->version - 2) & VERSION_MASK)) { */
-			/*      p->type = scmHeadUnused; */
-			/* } */
 		}
 		pg->b = pg->b->next;
 		return;

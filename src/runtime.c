@@ -162,12 +162,9 @@ static void
 coraGCFunc(struct GC *gc, struct Cora *co) {
 	TRACE_SCOPE("coraGCFunc");
 	// The globals
-	int n = 0;
 	for (struct trieNode * p = co->globals; p != &gRoot; p = p->next) {
-		n++;
 		gcMark(gc, p->value, 0);
 	}
-	printf("gc globals count=%d\n", n);
 
 	// The stack.
 	gcMark(gc, co->ctx.stk.stack, 0);
