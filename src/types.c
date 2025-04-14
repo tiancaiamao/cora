@@ -172,7 +172,6 @@ static void
 bytesGCFunc(struct GC *gc, void *f) {
 }
 
-
 struct trieNode gRoot = { };
 
 Obj
@@ -206,11 +205,21 @@ symbolGet(Obj sym) {
 	return s->value;
 }
 
-char *
-symbolStr(Obj sym) {
+int
+symbolStr(Obj sym, char *dest, size_t sz) {
 	assert(issymbol(sym));
-	struct trieNode *s = ptr(sym);
-	return s->sym;
+	if (tag(sym) == TAG_SYMBOL) {
+		struct trieNode *s = ptr(sym);
+		int l = strlen(s->sym) + 1;
+		assert(l < sz);
+		memcpy(dest, s->sym, l);
+		return 0;
+	} else if (tag(sym) == TAG_PTR &&
+		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
+		snprintf(dest, sz, "%p", ptr(sym));
+		return 0;
+	}
+	assert(false);
 }
 
 Obj
@@ -296,8 +305,8 @@ makeVector(int size, int cap) {
 	struct scmVector *vec = newObj(scmHeadVector,
 				       sizeof(struct scmVector) +
 				       sizeof(Obj) * cap);
-	vec->rset = NULL;
-	vec->inRSet = false;
+	vec->head.rset = NULL;
+	vec->head.inRSet = false;
 	vec->size = size;
 	vec->cap = cap;
 	for (int i = 0; i < vec->size; i++) {
@@ -325,7 +334,7 @@ vectorSet(Obj vec, int idx, Obj val) {
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
 	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	writeBarrierForGeneration(getGC(), v, val);
+	writeBarrierForGeneration(getGC(), &v->head, val);
 	return vec;
 }
 
@@ -428,6 +437,13 @@ continuationGCFunc(struct GC *gc, void *f) {
 	gcMarkCallStack(gc, &from->cs, minv);
 }
 
+static void
+symbolGCFunc(struct GC *gc, void *f) {
+	struct scmSymbol *from = f;
+	version_t minv = from->head.version;
+	gcMark(gc, from->value, minv);
+}
+
 void
 typesInit() {
 	gcRegistForType(scmHeadCons, consGCFunc);
@@ -435,4 +451,5 @@ typesInit() {
 	gcRegistForType(scmHeadVector, vectorGCFunc);
 	gcRegistForType(scmHeadNative, nativeGCFunc);
 	gcRegistForType(scmHeadContinuation, continuationGCFunc);
+	gcRegistForType(scmHeadSymbol, symbolGCFunc);
 }
