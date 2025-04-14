@@ -214,7 +214,8 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 		assert(l < sz);
 		memcpy(dest, s->sym, l);
 		return 0;
-	} else if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+	} else if (tag(sym) == TAG_PTR &&
+		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
 		snprintf(dest, sz, "%p", ptr(sym));
 		return 0;
 	}

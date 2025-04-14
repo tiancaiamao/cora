@@ -294,7 +294,8 @@ primSet(struct Cora *co, Obj key, Obj val) {
 		} else {
 			assert(s->owner == co);
 		}
-	} else if (tag(key) == TAG_PTR && ((scmHead *)ptr(key))->type == scmHeadSymbol) {
+	} else if (tag(key) == TAG_PTR &&
+		   ((scmHead *) ptr(key))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(key);
 		writeBarrierForIncremental(getGC(), &s->value, val);
 		writeBarrierForGeneration(getGC(), &s->head, val);
@@ -531,7 +532,8 @@ builtinValue(struct Cora *co) {
 			printf("undefined value: %s\n", s->sym);
 			assert(false);
 		}
-	} else if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+	} else if (tag(sym) == TAG_PTR &&
+		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(sym);
 		ret = s->value;
 		assert(ret != Undef);
@@ -548,7 +550,8 @@ builtinValueOr(struct Cora *co) {
 	if (tag(sym) == TAG_SYMBOL) {
 		struct trieNode *s = ptr(sym);
 		ret = s->value;
-	} else if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+	} else if (tag(sym) == TAG_PTR &&
+		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(sym);
 		ret = s->value;
 	} else {

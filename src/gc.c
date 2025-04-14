@@ -891,9 +891,9 @@ gcFlip(struct GC *gc) {
 	if (coraDebug != NULL) {
 		printf("gc%" PRIu64
 		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, sys=%zusz\n",
-		       gc->version, gen, gc->stats.nextSize, gc->stats.markSize,
-		       gc->stats.markCount, gc->stats.markSkip,
-		       gc->stats.allocated, sysSize);
+		       gc->version, gen, gc->stats.nextSize,
+		       gc->stats.markSize, gc->stats.markCount,
+		       gc->stats.markSkip, gc->stats.allocated, sysSize);
 	}
 
 	gc->version = gc->version + 2;
@@ -1137,10 +1137,11 @@ gcRSet(struct GC *gc) {
 			tmp->rset = NULL;
 			tmp->inRSet = false;
 		} else {
-			switch(p->type) {
+			switch (p->type) {
 			case scmHeadVector:
 				{
-					struct scmVector *pv = (struct scmVector*)p;
+					struct scmVector *pv =
+						(struct scmVector *) p;
 					for (int i = 0; i < pv->size; i++) {
 						gcMark(gc, pv->data[i], 0);
 					}
@@ -1148,7 +1149,8 @@ gcRSet(struct GC *gc) {
 				}
 			case scmHeadSymbol:
 				{
-					struct scmSymbol *pv = (struct scmSymbol*)p;
+					struct scmSymbol *pv =
+						(struct scmSymbol *) p;
 					gcMark(gc, pv->value, 0);
 					break;
 				}
