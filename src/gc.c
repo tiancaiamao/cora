@@ -52,10 +52,6 @@ struct heapArena {
 
 	struct Block blocks[BLOCKS_PER_HEAP];
 
-	// freelist is used for recycling and fast allocation.
-	// For large objects, the type is scmFreeNode, otherwise the type is blocks.
-	void *freelist;
-
 	bool forLargeObjects;
 	// curr is used when this heapArena is for large objects.
 	int curr;
@@ -71,7 +67,6 @@ heapArenaNew() {
 		mmap(0, HEAP_ARENA_SIZE, PROT_READ | PROT_WRITE,
 		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	/* printf("mmap return ptr ====== %p\n", ha->ptr); */
-	ha->freelist = NULL;
 	ha->idx = 0;
 	ha->curr = 0;
 	ha->forLargeObjects = false;
@@ -80,19 +75,11 @@ heapArenaNew() {
 
 static bool
 heapArenaFull(struct heapArena *ha) {
-	return ha->freelist == NULL && ha->idx >= BLOCKS_PER_HEAP;
+	return ha->idx >= BLOCKS_PER_HEAP;
 }
 
 static struct Block *
 heapArenaAlloc(struct heapArena *h) {
-	if (h->freelist != NULL) {
-		struct Block *b = h->freelist;
-		h->freelist = b->next;
-		b->next = NULL;
-		b->ha = h;
-		return b;
-	}
-
 	struct Block *b = &h->blocks[h->idx];
 	b->ha = h;
 	b->base = h->ptr + h->idx * MEM_BLOCK_SIZE;
@@ -213,6 +200,8 @@ struct GC {
 	struct Block *sizeClass[sizeClassSZ];
 	struct heapArena *heap;
 
+	struct Block *freelist;
+
 	// Large objects are allocated directly from heapArena;
 	// This is a list of heapArena and if one heapArena is full, it's moved to heap.
 	struct heapArena *large;
@@ -265,16 +254,15 @@ blockNew(struct GC *gc) {
 }
 
 static void
-blockReset(struct Block *block) {
+blockReset(struct GC *gc, struct Block *block) {
 	assert(block->sizeClass == 0);
 	assert(block->curr == 0);
 
-	struct heapArena *ha = block->ha;
 	memset(block->base, 0, MEM_BLOCK_SIZE);
 
 	// Insert at the head of freelist
-	block->next = ha->freelist;
-	ha->freelist = block;
+	block->next = gc->freelist;
+	gc->freelist = block;
 }
 
 __thread struct GC *threadLocalGC;
@@ -295,6 +283,7 @@ gcInit(uintptr_t *baseStackAddr) {
 	gc->baseStackAddr = baseStackAddr;
 	gc->version = 2;	// Start from 2, so uninitialized blocks can be treated as garbage
 	gc->rset = NULL;
+	gc->freelist = NULL;
 
 	gc->gray.head = NULL;
 	gc->gray.tail = NULL;
@@ -353,11 +342,28 @@ inuse(struct GC *gc, scmHead *h) {
 
 static void gcRun(struct GC *gc);
 
-static struct Block *
+static struct Block*
 getBlock(struct GC *gc, int slot) {
 	struct Block *block = gc->sizeClass[slot];
-	if (block == NULL) {
+	if (block != NULL) {
+		assert(slot != 0);
+		return block;
+	}
+
+	if (gc->freelist != NULL) {
+		// Take from free list.
+		block = gc->freelist;
+		gc->freelist = gc->freelist->next;
+		block->next = NULL;
+		assert(block->sizeClass == 0);
+		assert(block->curr == 0);
+		/* assert(block->inuse == 0); */
+	} else {
 		block = blockNew(gc);
+	}
+
+	// Put to sizeClass list.
+	if (slot > 0) {
 		block->sizeClass = sizeClass[slot];
 		gc->sizeClass[slot] = block;
 	}
@@ -601,7 +607,7 @@ gcRegistForType(uint8_t idx, gcFunc fn) {
 
 static void
 gcQueueInit(struct GC *gc) {
-	struct Block *b = blockNew(gc);
+	struct Block *b = getBlock(gc, 0);
 	gc->gray.head = b;
 	gc->gray.tail = b;
 	gc->start = 0;
@@ -612,7 +618,7 @@ static void
 gcEnqueue(struct GC *gc, scmHead *p) {
 	struct Block *b = gc->gray.tail;
 	if (gc->end + sizeof(scmHead *) > MEM_BLOCK_SIZE) {
-		b = blockNew(gc);
+		b = getBlock(gc, 0);
 		gc->gray.tail->next = b;
 		gc->gray.tail = b;
 		gc->end = 0;
@@ -627,7 +633,7 @@ gcDequeue(struct GC *gc) {
 	struct Block *b = gc->gray.head;
 	if (gc->start >= MEM_BLOCK_SIZE) {
 		b = b->next;
-		blockReset(gc->gray.head);
+		blockReset(gc, gc->gray.head);
 		gc->start = 0;
 		gc->gray.head = b;
 		if (b == NULL) {
@@ -635,7 +641,7 @@ gcDequeue(struct GC *gc) {
 		}
 	}
 	if (b == gc->gray.tail && gc->start >= gc->end) {
-		blockReset(b);
+		blockReset(gc, b);
 		gc->gray.head = NULL;
 		gc->gray.tail = NULL;
 		gc->start = 0;
