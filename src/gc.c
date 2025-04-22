@@ -24,7 +24,8 @@ enum gcState {
 // each Block is 4K and cora objects are allocated from it.
 struct Block {
 	// The size class this block is responsible for.
-	// size class 0 is special and used for GC gray objects temporary queue.
+	// **size class 0 is special**, used for GC gray objects temporary queue.
+	// Or unused blocks in the freelist.
 	int sizeClass;
 	// Current position for allocation, offset in bytes.
 	int curr;
@@ -35,8 +36,12 @@ struct Block {
 	char *base;
 
 	// Link the block into sizeClass or freelist.
-// Or point to the scmHead for large objects.
+	// Or point to the scmHead for large objects.
 	struct Block *next;
+
+	// If a block is never touched after a round of GC,
+	// then it's safe to put it to freelist.
+	int touch;
 };
 
 // each heapArena maintains 64MB virtual memory (mmap from OS)
@@ -86,6 +91,7 @@ heapArenaAlloc(struct heapArena *h) {
 	b->sizeClass = 0;
 	b->curr = 0;
 	b->next = NULL;
+	b->touch = false;
 	h->idx++;
 	return b;
 }
@@ -330,13 +336,22 @@ gcContains(struct GC *gc, void *p) {
 	return NULL;
 }
 
-static bool
+// return 0 if not in use
+// return 1 when gc->version == h->version
+// return 2 when gc->version > h->version
+static int
 inuse(struct GC *gc, scmHead *h) {
 	if (h->type == scmHeadUnused) {
-		return false;
+		return 0;
 	}
-	return versionCmp(gc->version & VERSION_MASK,
-			  h->version & VERSION_MASK) <= 0;
+	int cmp = versionCmp(gc->version & VERSION_MASK, h->version & VERSION_MASK);
+	if (cmp > 0) {
+		return 0;
+	}
+	if (cmp == 0) {
+		return 1;
+	}
+	return 2;
 }
 
 
@@ -357,7 +372,7 @@ getBlock(struct GC *gc, int slot) {
 		block->next = NULL;
 		assert(block->sizeClass == 0);
 		assert(block->curr == 0);
-		/* assert(block->inuse == 0); */
+		assert(block->touch == false);
 	} else {
 		block = blockNew(gc);
 	}
@@ -545,9 +560,17 @@ blockAlloc(struct GC *gc, struct Block *block) {
 	while (block->curr + block->sizeClass <= MEM_BLOCK_SIZE) {
 		scmHead *p = (scmHead *) (block->base + block->curr);
 		block->curr += block->sizeClass;
-		// skip the inuse object
-		if (!inuse(gc, p)) {
+		switch (inuse(gc, p)) {
+		case 0:
+			if (gc->state != gcStateNone) {
+				block->touch = true;
+			}
 			return p;
+		case 1:
+			// leave to gcMark to decide touch or not.
+			break;
+		case 2:
+			block->touch = true;
 		}
 	}
 	return NULL;
@@ -656,8 +679,9 @@ gcDequeue(struct GC *gc) {
 // checkPointer checks whether an arbitrary pointer p is
 // 1. allocated from heap
 // 2. and point to an in use cora object
+// Also return the block this pointer belong to.
 static scmHead *
-checkPointer(struct GC *gc, uintptr_t p) {
+checkPointer(struct GC *gc, uintptr_t p, struct Block **block) {
 	// Fast path: check pointer tag
 	if ((p & 0x7) != 0x7) {
 		return NULL;
@@ -671,6 +695,7 @@ checkPointer(struct GC *gc, uintptr_t p) {
 	// Get block index
 	int idx = ((char *) addr - h->ptr) / MEM_BLOCK_SIZE;
 	struct Block *b = &h->blocks[idx];
+	*block = b;
 
 	// Handle large objects
 	if (h->forLargeObjects) {
@@ -724,7 +749,8 @@ nextVersion(int gen, uint64_t ver) {
 	return (gen << 6) | (ver % 64);
 }
 
-static void
+// return whether the object is enqueued.
+static bool
 markObject(struct GC *gc, scmHead *from, version_t minv) {
 	assert(minv == 0 || ((minv & 1) == 1));
 	// A gray object
@@ -738,7 +764,7 @@ markObject(struct GC *gc, scmHead *from, version_t minv) {
 				from->version = minv;
 			}
 		}
-		return;
+		return false;
 	}
 
 	int bump = false;
@@ -761,19 +787,24 @@ markObject(struct GC *gc, scmHead *from, version_t minv) {
 
 	if (bump) {
 		gcEnqueue(gc, from);
-		return;
+		return true;
 	}
 	gc->stats.markSkip++;
+	return false;
 }
 
 void
 gcMark(struct GC *gc, uintptr_t p, version_t minv) {
-	scmHead *from = checkPointer(gc, p);
+	struct Block *b;
+	scmHead *from = checkPointer(gc, p, &b);
 	if (from == NULL) {
 		return;
 	}
 	assert(from->type > scmHeadUnused && from->type < scmHeadMax);
-	markObject(gc, from, minv);
+	bool enqueued = markObject(gc, from, minv);
+	if (enqueued) {
+		b->touch = true;
+	}
 }
 
 #if defined(__clang__) || defined (__GNUC__)
@@ -828,6 +859,24 @@ gcRunMark(struct GC *gc) {
 }
 
 static void
+checkBlockAssert(struct GC *gc, struct Block *b) {
+	int live = 0;
+	for (int i=0; i<MEM_BLOCK_SIZE; i+=b->sizeClass) {
+		scmHead *h = (scmHead*)(b->base+i);
+		if(inuse(gc, h) == 2) {
+			live++;
+		}
+	}
+	if (b->touch == false && live != 0) {
+		/* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); */
+		assert(false);
+	}
+	if (live == 0 && b->touch != 0) {
+		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass);
+	}
+}
+
+static void
 gcFlip(struct GC *gc) {
 	TRACE_SCOPE("gcFlip");
 	// Reset the current large list and sizeClass list.
@@ -835,9 +884,15 @@ gcFlip(struct GC *gc) {
 		p->curr = 0;
 	}
 	for (int i = 0; i < sizeClassSZ; i++) {
+		struct Block *b = gc->sizeClass[i];
 		gc->sizeClass[i] = NULL;
+		while(b != NULL) {
+			b->touch = true;
+			b = b->next;
+		}
 	}
 
+	int freeBlockCnt = 0;
 	size_t sysSize = 0;
 	// Put back the heap blocks to sizeClass list or large objects list.
 	struct heapArena *prev = NULL;
@@ -868,9 +923,20 @@ gcFlip(struct GC *gc) {
 			struct Block *b = &h->blocks[i];
 			if (b->sizeClass == 0) {
 				// Skip the freelist blocks which is generated by GC gray queue.
+				freeBlockCnt++;
+				continue;
+			}
+			if (b->touch == false) {
+				/* checkBlockAssert(gc, b); */
+				// recycle to freelist
+				b->curr = 0;
+				b->sizeClass = 0;
+				blockReset(gc, b);
+				freeBlockCnt++;
 				continue;
 			}
 
+			// recycle to sizeClass list
 			int slot = getSlotBySize(b->sizeClass);
 			assert(b->sizeClass == sizeClass[slot]);
 			b->curr = 0;
@@ -896,10 +962,11 @@ gcFlip(struct GC *gc) {
 	char *coraDebug = getenv("CORADEBUG");
 	if (coraDebug != NULL) {
 		printf("gc%" PRIu64
-		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, sys=%zusz\n",
+		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, freeBlock=%dcnt, sys=%zusz\n",
 		       gc->version, gen, gc->stats.nextSize,
 		       gc->stats.markSize, gc->stats.markCount,
-		       gc->stats.markSkip, gc->stats.allocated, sysSize);
+		       gc->stats.markSkip, gc->stats.allocated,
+		       freeBlockCnt, sysSize);
 	}
 
 	gc->version = gc->version + 2;
