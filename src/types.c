@@ -201,8 +201,17 @@ makeSymbol(const char *s) {
 Obj
 symbolGet(Obj sym) {
 	assert(issymbol(sym));
-	struct trieNode *s = ptr(sym);
-	return s->value;
+	if (tag(sym) == TAG_SYMBOL) {
+		struct trieNode *s = ptr(sym);
+		return s->value;
+	}
+
+	if (tag(sym) == TAG_PTR &&
+	    ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
+		struct scmSymbol *s = ptr(sym);
+		return s->value;
+	}
+	assert(false);
 }
 
 int

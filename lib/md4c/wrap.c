@@ -499,14 +499,15 @@ debug_log_callback(const char *msg, void *userdata) {
 	/*     fprintf(stderr, "MD4C: %s\n", msg); */
 }
 
-int
+static int
 md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
-	unsigned parser_flags, Obj * res) {
+	unsigned parser_flags, Obj curr, Obj stack,
+	Obj * res) {
 	MD_HTML render;
 	render.co = co;
-	render.curr = primGenSym(intern("curr"));
+	render.curr = curr,
 	primSet(co, render.curr, Nil);
-	render.stack = primGenSym(intern("stack"));
+	render.stack = stack,
 	render.size = 0;
 	render.cap = 0;
 
@@ -534,8 +535,8 @@ md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
 	}
 
 	int succ = md_parse(input, input_size, &parser, (void *) &render);
-	Obj curr = symbolGet(render.curr);
-	*res = reverse(curr);
+	Obj x = symbolGet(render.curr);
+	*res = reverse(x);
 	return succ;
 }
 
@@ -641,7 +642,10 @@ process_file(struct Cora *co, FILE * in, Obj * sxml) {
 	parser_flags |= MD_FLAG_STRIKETHROUGH;
 	parser_flags |= MD_FLAG_TASKLISTS;
 
+	Obj curr = primGenSym(Nil);
+	Obj stack = primGenSym(Nil);
 	ret = md_sxml(co, buf_in.data, (MD_SIZE) buf_in.size, parser_flags,
+		      curr, stack,
 		      sxml);
 
 	// t1 = clock();

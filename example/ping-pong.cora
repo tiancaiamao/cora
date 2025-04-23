@@ -11,28 +11,31 @@
       (defun server ()
 	(begin
 	  (perform
-	   (choice
+	   ;; (choice
 	    (wrap (chan-recv c2s) (lambda (v)
 				    (begin
 				      (display "server recv:")
 				      (display v)
 				      (display "\n"))))
-	    (wrap (chan-send s2c "pong") (lambda (v)
-					   (display "server send pong\n"))))
-	   )
+	    ;; (wrap (chan-send s2c "pong") (lambda (v)
+	    ;; 				   (display "server send pong\n")))
+	    )
+	   ;; )
 	  (server)))
 
       (defun client ()
 	(begin
 	  (perform
-	   (choice
+	   ;; (choice
 	    (wrap (chan-send c2s "ping") (lambda (v)
 					   (display "client send ping\n")))
-	    (wrap (chan-recv s2c) (lambda (v) (begin
-						(display "client recv:")
-						(display v)
-						(display "\n")
-						v)))))
+	    ;; (wrap (chan-recv s2c) (lambda (v) (begin
+	    ;; 					(display "client recv:")
+	    ;; 					(display v)
+	    ;; 					(display "\n")
+	    ;; 					v)))
+	    ;; )
+	  )
 	  (client)))
 
       (display "hello world\n")
