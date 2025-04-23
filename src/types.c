@@ -325,7 +325,8 @@ vectorRef(Obj v, int idx) {
 
 struct scmContinuation {
 	scmHead head;
-	struct callStack cs;
+	int len;
+	struct frame data[];
 };
 
 Obj
@@ -399,21 +400,26 @@ vectorGCFunc(struct GC *gc, void *f) {
 }
 
 Obj
-makeContinuation() {
-	struct scmContinuation *cont =
-		newObj(scmHeadContinuation, sizeof(struct scmContinuation));
-	struct callStack *stack = &cont->cs;
-	stack->data = malloc(64 * sizeof(struct frame));
-	stack->len = 0;
-	stack->cap = 64;
+makeContinuation(struct frame *data, int len) {
+	struct scmContinuation *cont = newObj(scmHeadContinuation,
+					      sizeof(struct scmContinuation) +
+					      len * sizeof(struct frame));
+	for (int i = 0; i < len; i++) {
+		cont->data[i] = data[i];
+	}
+	cont->len = len;
 	return ((Obj) (&cont->head) | TAG_PTR);
 }
 
-struct callStack *
+struct callStack
 contCallStack(Obj cont) {
 	struct scmContinuation *v = ptr(cont);
 	assert(v->head.type == scmHeadContinuation);
-	return &v->cs;
+	struct callStack cs;
+	cs.data = v->data;
+	cs.len = v->len;
+	cs.cap = v->len;
+	return cs;
 }
 
 void
@@ -434,7 +440,8 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	version_t minv = from->head.version;
-	gcMarkCallStack(gc, &from->cs, minv);
+	struct callStack cs = contCallStack((Obj) (&from->head) | TAG_PTR);
+	gcMarkCallStack(gc, &cs, minv);
 }
 
 static void

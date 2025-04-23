@@ -443,13 +443,12 @@ continuationAsClosure(struct Cora *co) {
 
 	// Replace the current stack with the delimited continuation.
 	struct callStack *to = &co->callstack;
-	struct callStack *cs = contCallStack(cont);
-	for (int i = 0; i < cs->len; i++) {
-		struct frame *addr = &cs->data[i];
+	struct callStack cs = contCallStack(cont);
+	for (int i = 0; i < cs.len; i++) {
 		if (to->len + 1 >= to->cap) {
 			growCallStack(to);
 		}
-		to->data[to->len++] = *addr;
+		to->data[to->len++] = cs.data[i];
 	}
 	Obj val = co->args[1];
 	coraReturn(co, val);
@@ -466,15 +465,9 @@ builtinThrow(struct Cora *co) {
 	assert(try->stk.base == 0);
 
 	// Capture the call stack as continuation.
-	Obj cont = makeContinuation();
-	struct callStack *stack = contCallStack(cont);
-	for (int i = p; i < co->callstack.len; i++) {
-		struct frame *addr = &co->callstack.data[i];
-		if (stack->len + 1 >= stack->cap) {
-			growCallStack(stack);
-		}
-		stack->data[stack->len++] = *addr;
-	}
+	Obj cont =
+		makeContinuation(&co->callstack.data[p],
+				 co->callstack.len - p);
 
 	// Now that we get the current continuation, disguise as a closure.
 	Obj clo = makeNative(0, continuationAsClosure, 1, 1, cont);
