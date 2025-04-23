@@ -164,8 +164,8 @@ struct callStack {
   int cap;
 };
 
-Obj makeContinuation();
-struct callStack* contCallStack(Obj cont);
+Obj makeContinuation(struct frame *data, int len);
+struct callStack contCallStack(Obj cont);
 
 void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
 

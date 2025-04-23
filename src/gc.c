@@ -1027,9 +1027,8 @@ gcRunIncremental(struct GC *gc) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
 			curr->version =
-				(curr->
-				 version & (3 << 6)) | ((curr->version +
-							 1) % 64);
+				(curr->version & (3 << 6)) |
+				((curr->version + 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
