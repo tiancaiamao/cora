@@ -69,7 +69,9 @@ builtinEscapeStr(struct Cora *co) {
 			dst = strAppend(dst, c);
 		};
 	}
-	coraReturn(co, makeString(toCStr(dst), strLen(toStr(dst))));
+	Obj ret = makeString(toCStr(dst), strLen(toStr(dst)));
+	strFree(dst);
+	coraReturn(co, ret);
 }
 
 static void

@@ -799,6 +799,7 @@ builtinStringAppend(struct Cora *co) {
 	tmp = strCat(tmp, y);
 	str s = toStr(tmp);
 	Obj val = makeString(s.str, s.len);
+	strFree(tmp);
 	coraReturn(co, val);
 }
 
