@@ -402,8 +402,9 @@ vectorGCFunc(struct GC *gc, void *f) {
 Obj
 makeContinuation(struct frame *data, int len) {
 	struct scmContinuation *cont = newObj(scmHeadContinuation,
-					      sizeof(struct scmContinuation) + len*sizeof(struct frame));
-	for (int i=0; i<len; i++) {
+					      sizeof(struct scmContinuation) +
+					      len * sizeof(struct frame));
+	for (int i = 0; i < len; i++) {
 		cont->data[i] = data[i];
 	}
 	cont->len = len;

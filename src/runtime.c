@@ -465,7 +465,9 @@ builtinThrow(struct Cora *co) {
 	assert(try->stk.base == 0);
 
 	// Capture the call stack as continuation.
-	Obj cont = makeContinuation(&co->callstack.data[p], co->callstack.len - p);
+	Obj cont =
+		makeContinuation(&co->callstack.data[p],
+				 co->callstack.len - p);
 
 	// Now that we get the current continuation, disguise as a closure.
 	Obj clo = makeNative(0, continuationAsClosure, 1, 1, cont);
