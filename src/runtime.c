@@ -646,9 +646,13 @@ builtinLoad(struct Cora *co) {
 	// TODO: check res?
 	// Obj res = co->args[1];
 
+	strBuf path = getCoraPath();
 	snprintf(buf, BUFSIZE,
-		 "gcc -shared -Isrc -I. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -Lsrc -lcora",
-		 cfileidx, cfileidx);
+		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -L%scora/src -lcora",
+		 toCStr(path), toCStr(path),
+		 cfileidx, cfileidx,
+		 toCStr(path));
+	strFree(path);
 	int exitCode = system(buf);
 	if (exitCode != 0) {
 		coraReturn(co, makeNumber(exitCode));

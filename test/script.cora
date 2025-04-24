@@ -1,5 +1,6 @@
 #!/usr/bin/env cora
 
+(import "cora/lib/io")
 (display *command-line-args*)
 
 (+ 4 7)
