@@ -37,11 +37,11 @@
 
 (set '.*builtin-prims*
      [['set . 2] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
-     ['= . 2] ['> . 2] ['< . 2] ['gensym . 1] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
+     ['= . 2] ['> . 2] ['< . 2] ['gensym . 0] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
 
 (func .temp-list
       0 res => res
-      n res => (.temp-list (- n 1) (cons (gensym 'tmp) res)))
+      n res => (.temp-list (- n 1) (cons (gensym) res)))
 
 ;; TODO: optimize the func macro to make the generate code small enough!
 ;; (func .closure-convert

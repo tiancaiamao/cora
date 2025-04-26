@@ -40,7 +40,7 @@ Obj primSet(struct Cora *co, Obj key, Obj val);
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
 Obj primDiv(Obj x, Obj y);
-Obj primGenSym(Obj arg);
+Obj primGenSym();
 Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);

@@ -33,7 +33,7 @@
 
 ;; =============== The macro utilities ============
 (set '*macros* ())
-(set '*protect-symbol* (gensym 'protect))
+(set '*protect-symbol* (gensym))
 (set 'cora/init#add-to-*macros*
      (lambda (n v)
        (set '*macros* (cons (cons n v) *macros*))))
@@ -214,7 +214,7 @@
     ((null? rules) (list 'error "no match-help found!"))
     ((and (pair? rules) (pair? (cdr rules)))
      (let pat (car rules)
-	  cc (gensym 'cc)
+	  cc (gensym)
 	  (let action (cora/init#extract-rule-action rules cc)
 	       (let curr (cora/init#match1 (macroexpand pat) value action cc)
 		    rest (cora/init#match-helper value (cdr (cdr rules)))
@@ -226,7 +226,7 @@
        rules (cddr exp)
        (if (and (cons? value)
 		(not (= 'cons (car value))))
-	   (let val (gensym 'val)
+	   (let val (gensym)
 		(list 'let val value (cora/init#match-helper val rules)))
 	   (cora/init#match-helper value rules))))
 
@@ -290,7 +290,7 @@
 (defun cora/init#gen-paramenters (n)
   (if (= n 0)
       ()
-      (cons (gensym 'p) (cora/init#gen-paramenters (- n 1)))))
+      (cons (gensym) (cora/init#gen-paramenters (- n 1)))))
 
 (defmacro func (exp)
   (let body (cora/init#extract-rules (cddr exp))

@@ -29,7 +29,7 @@
   (def *builtin-prims*
        [['set 2 "primSet"] ['car 1 "PRIM_CAR"] ['cdr 1 "PRIM_CDR"] ['cons 2 "makeCons"] ['cons? 1 "PRIM_ISCONS"]
 	['+ 2 "PRIM_ADD"] ['- 2 "PRIM_SUB"] ['* 2 "PRIM_MUL"] ['/ 2 "primDiv"]
-	['= 2 "PRIM_EQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 1 "primGenSym"] ['symbol? 1 "primIsSymbol"]
+	['= 2 "PRIM_EQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 0 "primGenSym"] ['symbol? 1 "primIsSymbol"]
 	['not 1 "primNot"] ['integer? 1 "primIsNumber"] ['string? 1 "primIsString"]])
 
   (defun builtin? (x)
@@ -49,7 +49,7 @@
 
   (func temp-list
 	0 res => res
-	n res => (temp-list (- n 1) (cons (gensym 'tmp) res)))
+	n res => (temp-list (- n 1) (cons (gensym) res)))
 
   (defun var-with-ns (var ns)
     (cond
@@ -173,7 +173,7 @@
 			(cond
 			 ((and (pair? (car exp)) (= (caar exp) '%builtin)) (wrap-var exp next))
 			 ((= next id) ['tailcall exp])
-			 (true (let val (gensym 'val)
+			 (true (let val (gensym)
 				 ['call exp ['continuation [val] (next val)]]))))
 	[hd . tl] ls next => (tailify hd (lambda (hd1)
 					   (tailify-list tl [hd1 . ls] next))))
@@ -220,7 +220,7 @@
 	  (vector-set! v 1 cur1)))))
 
   (defun wrap-var(x k)
-    (let tmp (gensym 'reg)
+    (let tmp (gensym)
       ['let tmp x
 	(k tmp)]))
 
@@ -592,7 +592,7 @@
 	sexp)))
 
   (defun compile-to-c (from to)
-    (let globals (gensym 'collect)
+    (let globals (gensym)
 	 (begin
 	  (set globals ())
 	  (let bc (-> from
