@@ -26,8 +26,8 @@
   (func rewrite-let-loop-macro
 	[recur param-init body] => (let params (extract-params-h [] param-init)
 				     inits (extract-init-h [] param-init)
-				     meta (gensym 'meta)
-				     f (gensym 'f)
+				     meta (gensym)
+				     f (gensym)
 				     [['let f ['lambda [meta . params]
 						['let recur [meta meta]
 						  body]]

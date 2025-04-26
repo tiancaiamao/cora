@@ -22,7 +22,7 @@
 				     val)))))
 
   (defun recv-block (recvq k wrap)
-    (let state (gensym 'state)
+    (let state (gensym)
       (begin
 	(set state 'Wait)
 	(enqueue recvq [state k wrap]))))
@@ -51,7 +51,7 @@
 					      ())))))
 
   (defun send-block (sendq k val wrap)
-    (let state (gensym 'state)
+    (let state (gensym)
       (begin
 	(set state 'Wait)
 	(enqueue sendq [state k val wrap]))))

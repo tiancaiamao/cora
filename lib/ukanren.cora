@@ -92,7 +92,7 @@
 
 (defmacro Zzz (input)
 	(let g (cadr input)
-	     state (gensym 's)
+	     state (gensym)
 	     ['lambda [state]
 	             ['lambda []
 			[g state]]]))

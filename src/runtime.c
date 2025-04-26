@@ -326,7 +326,7 @@ primMul(Obj x, Obj y) {
 }
 
 Obj
-primGenSym(Obj arg) {
+primGenSym() {
 	// The pointer is uniqueness and can be used as symbol->string
 	struct scmSymbol *p = newObj(scmHeadSymbol, sizeof(struct scmSymbol));
 	p->head.rset = NULL;
