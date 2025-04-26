@@ -337,7 +337,8 @@
       x => x)
 
 (defun macroexpand (exp)
-  (cora/init#propagate-boolean (cora/init#macroexpand-boot exp)))
+  (cora/init#propagate-boolean
+   (cora/init#macroexpand-boot exp)))
 
 ;; ===============
 

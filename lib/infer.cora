@@ -1,7 +1,8 @@
 (define-library "cora/lib/infer"
-
   (import "cora/lib/sys")
   (import "cora/lib/io")
+
+  (export declare check-type enable)
 
   (defun append-tvar (l ret)
     (if (null? l)
@@ -21,7 +22,7 @@
   (def *tvar* 1000)
   (defun tvar ()
     (let ret *tvar*
-      (do (def '*tvar* (+ ret 1))
+      (do (def *tvar* (+ ret 1))
 	  ret)))
 
   (def *type-env* ())
@@ -29,8 +30,8 @@
   (defun declare (sym val)
     (def *type-env* (cons (cons sym val) *type-env*)))
 
-  (set 'hd car)
-  (set 'tl cdr)
+  (set 'hd (car))
+  (set 'tl (cdr))
 
   (defun unify (x y s)
     (unify1 (apply-subst x s) (apply-subst y s) s))
@@ -182,6 +183,27 @@
 						  (check-type f (let b (tvar) [a '-> ['monad b]]) env s1))))
   (deftype 'monad type-check-for-monad)
 
+  (defun enable (on)
+    (if on
+	(def *typecheck* true)
+	(def *typecheck* false)))
+
+  (declare 'car (let a (tvar) b (tvar) [a '-> b]))
+  (declare 'cons [(tvar) '-> [(tvar) '-> (tvar)]])
+  (declare 'cdr [(tvar) '-> (tvar)])
+  (declare 'hd (let a (tvar) [['list a] '-> a]))
+  (declare 'tl (let a (tvar) [['list a] '-> ['list a]]))
+  (declare '+ `(int -> (int -> int)))
+  (declare '- `(int -> (int -> int)))
+  (declare '* `(int -> (int -> int)))
+  (declare '= (let a (tvar) b (tvar) `(,a -> (,b -> bool))))
+  ;; (declare 'set (let a (tvar) ['symbol '-> [a '-> a]]))
+  (declare 'null? [(tvar) '-> 'bool])
+  (declare 'cons? [(tvar) '-> 'bool])
+  (declare '*type-env* ['list ['tuple 'symbol (tvar)]])
+  (declare 'error [(tvar) '-> (tvar)])
+  (declare 'import `(string -> ,(tvar)))
+
   ;; (func type-check-for-fruit
   ;;       ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
   ;; 	  _ _ env s => ['fail])
@@ -249,26 +271,5 @@
   ;;  (extend *type-env*
   ;;   'reverse-h '((list 1) -> ((list 1) -> (list 1))))
   ;;  ())
-
-  (defun .enable (on)
-    (if on
-	(set '.*typecheck* true)
-	(set '.*typecheck* false)))
-
-  (declare 'car (let a (tvar) b (tvar) [a '-> b]))
-  (declare 'cons [(tvar) '-> [(tvar) '-> (tvar)]])
-  (declare 'cdr [(tvar) '-> (tvar)])
-  (declare 'hd (let a (tvar) [['list a] '-> a]))
-  (declare 'tl (let a (tvar) [['list a] '-> ['list a]]))
-  (declare '+ `(int -> (int -> int)))
-  (declare '- `(int -> (int -> int)))
-  (declare '* `(int -> (int -> int)))
-  (declare '= (let a (tvar) b (tvar) `(,a -> (,b -> bool))))
-  ;; (declare 'set (let a (tvar) ['symbol '-> [a '-> a]]))
-  (declare 'null? [(tvar) '-> 'bool])
-  (declare 'cons? [(tvar) '-> 'bool])
-  (declare '*type-env* ['list ['tuple 'symbol (tvar)]])
-  (declare 'error [(tvar) '-> (tvar)])
-  (declare 'import `(string -> ,(tvar)))
 
   )
