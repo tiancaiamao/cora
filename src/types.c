@@ -225,7 +225,7 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 		return 0;
 	} else if (tag(sym) == TAG_PTR &&
 		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
-		snprintf(dest, sz, "%p", ptr(sym));
+		snprintf(dest, sz, "x%ld", sym);
 		return 0;
 	}
 	assert(false);

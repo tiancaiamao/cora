@@ -807,6 +807,20 @@ builtinStringAppend(struct Cora *co) {
 	coraReturn(co, val);
 }
 
+static void
+builtinSymbolCooked(struct Cora *co) {
+	Obj sym = co->args[1];
+	char dst[256];
+	symbolStr(sym, dst, 256);
+	for (char *s=dst; *s != 0; s++) {
+		if (*s == '#') {
+			coraReturn(co, True);
+			return;
+		}
+	}
+	coraReturn(co, False);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -877,6 +891,7 @@ coraInit(uintptr_t *mark) {
 	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
+	primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
 	return co;
 }
 

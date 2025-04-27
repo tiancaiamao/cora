@@ -336,9 +336,16 @@
       [f . args] => (map cora/init#propagate-boolean [f . args])
       x => x)
 
+(defun cora/init#rewrite-namespace (exp)
+  (if (and (cons? exp)
+	   (= 'ns (car exp)))
+      (cora/init#parse () "" () exp)
+      exp))
+
 (defun macroexpand (exp)
   (cora/init#propagate-boolean
-   (cora/init#macroexpand-boot exp)))
+   (cora/init#rewrite-namespace
+    (cora/init#macroexpand-boot exp))))
 
 ;; ===============
 
@@ -378,6 +385,49 @@
 	  ['ns path (cons "cora/init" import)
 	  (cons 'begin (append (map (lambda (imp) ['import imp]) import)
 			  [['def '*ns-export* ['backquote export]] . body]))]))))
+
+(defun cora/init#var-with-ns (var ns)
+  (cond
+    ((= ns "") var)
+    ((symbol-cooked? var) var)
+    (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
+
+(func cora/init#lookup-var
+      s ns [] => (cora/init#var-with-ns s ns)
+      s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
+				   (if (elem? s export)
+				       (intern (string-append import (string-append "#" (symbol->string s))))
+				       (cora/init#lookup-var s ns more))))
+
+(set 'cora/init#*builtin-prims*
+    [['set 2 "primSet"] ['car 1 "PRIM_CAR"] ['cdr 1 "PRIM_CDR"] ['cons 2 "makeCons"] ['cons? 1 "PRIM_ISCONS"]
+    ['+ 2 "PRIM_ADD"] ['- 2 "PRIM_SUB"] ['* 2 "PRIM_MUL"] ['/ 2 "primDiv"]
+    ['= 2 "PRIM_EQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 0 "primGenSym"] ['symbol? 1 "primIsSymbol"]
+    ['not 1 "primNot"] ['integer? 1 "primIsNumber"] ['string? 1 "primIsString"]])
+
+(func assq
+	var [] => ()
+	var [(cons x y) . _] => (cons x y) where (= var x)
+	var [_ . y] => (assq var y))
+
+(defun cora/init#builtin? (x)
+  (not (null? (assq x cora/init#*builtin-prims*))))
+
+(func cora/init#parse
+      _ _ _ x => x where (or (number? x) (string? x) (boolean? x) (null? x))
+      _ _ _ ['quote x] => ['quote x]
+      env ns import x => (if (elem? x env) x
+				     (cora/init#lookup-var x ns import)) where (symbol? x)
+      env ns import ['lambda args body] => ['lambda args (cora/init#parse (append args env) ns import body)]
+      env ns import ['do ['import pkg] y] => ['do (cora/init#parse env ns import ['import pkg])
+      (cora/init#parse env ns (cons pkg import) y)] where (string? pkg)
+      env ns import [op . args] => [op . (map (cora/init#parse env ns import) args)]
+      where (or (cora/init#builtin? op) (= op 'if) (= op 'do))
+      env ns import ['let a b c] => ['let a (cora/init#parse env ns import b) (cora/init#parse (cons a env) ns import c)]
+      env _ _ ['ns path import body] => (cora/init#parse env path import body)
+      env ns import ['def var val] => (let var1 (cora/init#var-with-ns var ns)
+					   ['set ['quote var1] (cora/init#parse env ns import val)])
+      env ns import ls => (map (cora/init#parse env ns import) ls))
 
 (set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
 				   boolean? number? null?
@@ -428,3 +478,4 @@
 (set 'cora/init#length length)
 (set 'cora/init#filter filter)
 (set 'cora/init#append append)
+(set 'cora/init#assq assq)
