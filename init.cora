@@ -337,10 +337,7 @@
       x => x)
 
 (defun cora/init#rewrite-namespace (exp)
-  (if (and (cons? exp)
-	   (= 'ns (car exp)))
-      (cora/init#parse () "" () exp)
-      exp))
+  (cora/init#parse () "" () exp))
 
 (defun macroexpand (exp)
   (cora/init#propagate-boolean
