@@ -51,51 +51,29 @@
 	0 res => res
 	n res => (temp-list (- n 1) (cons (gensym) res)))
 
-  (defun var-with-ns (var ns)
-    (cond
-     ((= ns "") var)
-     ((symbol-cooked? var) var)
-     (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
-
-  (func lookup-var
-	s ns [] => (var-with-ns s ns)
-	s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
-				  (if (elem? s export)
-				      (intern (string-append import (string-append "#" (symbol->string s))))
-				      (lookup-var s ns more))))
-
   (func parse
-	_ _ _ globals x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
-	_ _ _ globals ['quote x] => (begin (add-symbol-to-list x globals) ['%const x])
-	env ns import globals x => (if (elem? x env) x
-				       (let v (lookup-var x ns import)
-					    (begin
-					     (add-symbol-to-list v globals)
-					     ['%global v]))) where (symbol? x)
-	env ns import globals ['lambda args body] => ['lambda args (parse (append args env) ns import globals body)]
-	env ns import  globals ['if . args] => ['if . (map (parse env ns import globals) args)]
-	env ns import globals ['do ['import pkg] y] => ['do (parse env ns import globals ['import pkg])
-	       	      	      	   	    	       	    (parse env ns (cons pkg import) globals y)]
-	    						    	  where (string? pkg)
-	env ns import globals ['do x y] => ['do (parse env ns import globals x) (parse env ns import globals y)]
-	env ns import globals ['let a b c] => ['let a (parse env ns import globals b) (parse (cons a env) ns import globals c)]
-	env _ _ globals ['ns path import body] => (parse env path import globals body)
-	env ns import globals ['def var val] => (let var1 (var-with-ns var ns)
-						     (begin
-						      (add-symbol-to-list var1 globals)
-						      [['%builtin 'set] ['%const var1] (parse env ns import globals val)]))
-	env ns import globals [op . args] => (let required (builtin->args op)
+	_ globals x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
+	_ globals ['quote x] => (begin (add-symbol-to-list x globals) ['%const x])
+	env globals x => (if (elem? x env) x
+			     (begin
+			       (add-symbol-to-list x globals)
+			       ['%global x])) where (symbol? x)
+	env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
+	env globals ['if . args] => ['if . (map (parse env globals) args)]
+	env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
+	env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
+	env globals [op . args] => (let required (builtin->args op)
 					  provided (length args)
 					  (cond
-					    ((= required provided)  [['%builtin op] . (map (parse env ns import globals) args)])
+					    ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
 					    ((> required provided)
 					     ;; rewrite partial apply of primitives
 					     ;; (+ x) => (lambda (tmp) (+ x tmp))
 					     (let tmp (temp-list (- required provided) ())
-						  (parse env ns import globals ['lambda tmp (append [op . args] tmp)])))
+						  (parse env globals ['lambda tmp (append [op . args] tmp)])))
 					    (true (error "primitive call mismatch"))))
 	where (builtin? op)
-	env ns import globals ls => (map (parse env ns import globals) ls))
+	env globals ls => (map (parse env globals) ls))
 
   (func union
 	[] s2 => s2
@@ -440,7 +418,7 @@
 			   (display "\n")))
 
   (defun parse-pass (globals exp)
-    (parse [] "" [] globals exp))
+    (parse [] globals exp))
 
   (defun closure-convert-pass (exp)
     (closure-convert [] exp))

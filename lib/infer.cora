@@ -2,7 +2,7 @@
   (import "cora/lib/sys")
   (import "cora/lib/io")
 
-  (export declare check-type enable)
+  (export declare check-type tvar enable)
 
   (defun append-tvar (l ret)
     (if (null? l)
