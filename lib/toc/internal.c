@@ -74,20 +74,6 @@ builtinEscapeStr(struct Cora *co) {
 	coraReturn(co, ret);
 }
 
-static void
-builtinSymbolCooked(struct Cora *co) {
-	Obj sym = co->args[1];
-	char dst[256];
-	symbolStr(sym, dst, 256);
-	for (char *s=dst; *s != 0; s++) {
-		if (*s == '#') {
-			coraReturn(co, True);
-			return;
-		}
-	}
-	coraReturn(co, False);
-}
-
 static struct registerModule module = {
   NULL,
   {
@@ -95,7 +81,6 @@ static struct registerModule module = {
     {"generate-sym", builtinGenerateSym, 2},
     {"generate-num", builtinGenerateNum, 2},
     {"escape-str", builtinEscapeStr, 1},
-    {"symbol-cooked?", builtinSymbolCooked, 1},
     {NULL, NULL, 0},
   }
 };
