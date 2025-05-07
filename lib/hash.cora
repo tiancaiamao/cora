@@ -1,6 +1,6 @@
 ;; this is a dead simple hash, it doesn't support resize, and handle hash collision with seperate chaining
 ;; then seperate chaining is simply a assoc list
-(define-library "cora/lib/hash"
+(package "cora/lib/hash"
   (import "cora/lib/hash-h")
   (export hash-make hash-get hash-count hash-set! hash-del!)
 

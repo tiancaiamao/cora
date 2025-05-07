@@ -1,4 +1,4 @@
-(define-library "cora/lib/chan"
+(package "cora/lib/chan"
   (export chan-make chan-send chan-recv)
   (import "cora/lib/cml")
   (import "cora/lib/queue")

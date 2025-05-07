@@ -12,7 +12,7 @@
 ;; 		 (recur (+ n 1) (+ sum n)))))
 ;;      (f f))
 
-(define-library "cora/lib/let-loop"
+(package "cora/lib/let-loop"
   
 
   (func extract-params-h

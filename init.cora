@@ -1,4 +1,4 @@
-;; this file does not use define-library deliberately
+;; this file does not use package deliberately
 ;; if we use it, we need to either append cora/init# prefix in C or write car as (value 'car) here
 ;; if we do not use it, there are some duplicated definitions, both cadr and cora/init#cadr exist
 
@@ -365,19 +365,19 @@
 (defmacro backquote (exp)
   (cora/init#rewrite-backquote (cadr exp)))
 
-;; ============= define-library ============
+;; ============= package ============
 
-(func cora/init#parse-define-library-h
-      [['import lib] . rest] imports exports k => (cora/init#parse-define-library-h rest (cons lib imports) exports k)
-      [['export . more] . rest]  imports exports k => (cora/init#parse-define-library-h rest imports more k)
+(func cora/init#parse-package-h
+      [['import lib] . rest] imports exports k => (cora/init#parse-package-h rest (cons lib imports) exports k)
+      [['export . more] . rest]  imports exports k => (cora/init#parse-package-h rest imports more k)
       body imports exports k => (k (reverse imports) exports body))
 
-(defun cora/init#parse-define-library (data k)
-  (cora/init#parse-define-library-h data () () k))
+(defun cora/init#parse-package (data k)
+  (cora/init#parse-package-h data () () k))
 
-(defmacro define-library (sexp)
+(defmacro package (sexp)
   (let path (cadr sexp)
-       ((cora/init#parse-define-library (cddr sexp))
+       ((cora/init#parse-package (cddr sexp))
 	(lambda (import export body)
 	  ['ns path (cons "cora/init" import)
 	  (cons 'begin (append (map (lambda (imp) ['import imp]) import)

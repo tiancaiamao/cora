@@ -1,4 +1,4 @@
-(define-library "cora/test/run-all-test"
+(package "cora/test/run-all-test"
 
   (import "cora/lib/sys")
   (import "cora/lib/toc")
