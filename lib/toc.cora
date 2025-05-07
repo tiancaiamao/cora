@@ -564,7 +564,7 @@
   (func extract-typecheck-body
 	['package name . more] k => ['package name . (extract-typecheck-body more k)]
 	[['import pkg] . more] k => [['import pkg] . (extract-typecheck-body more k)]
-	[['export pkg] . more] k => [['export pkg] . (extract-typecheck-body more k)]
+	[['export . symbols] . more] k => [['export . symbols] . (extract-typecheck-body more k)]
 	['begin . more] k => ['begin . (extract-typecheck-body more k)]
 	other k => (k other))
 
