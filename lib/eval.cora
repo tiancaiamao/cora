@@ -1,4 +1,4 @@
-(define-library "cora/lib/eval"
+(package "cora/lib/eval"
   (export eval)
 
   (set 'set (set))

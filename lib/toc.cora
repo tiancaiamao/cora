@@ -1,4 +1,4 @@
-(define-library "cora/lib/toc"
+(package "cora/lib/toc"
   (import "cora/lib/toc/internal")
   (import "cora/lib/io")
   (import "cora/lib/hash-h")
@@ -542,7 +542,7 @@
 		  groups))))
 
   (func handle-import-eagerly
-	['define-library _ . remain] => (handle-import-eagerly remain)
+	['package _ . remain] => (handle-import-eagerly remain)
 	['begin . remain] => (handle-import-eagerly remain)
 	[['export . more] . remain] => (handle-import-eagerly remain)
 	[['import pkg] . remain] => (begin
@@ -562,7 +562,7 @@
 							 (cons exp code) k))
 
   (func extract-typecheck-body
-	['define-library name . more] k => ['define-library name . (extract-typecheck-body more k)]
+	['package name . more] k => ['package name . (extract-typecheck-body more k)]
 	[['import pkg] . more] k => [['import pkg] . (extract-typecheck-body more k)]
 	[['export pkg] . more] k => [['export pkg] . (extract-typecheck-body more k)]
 	['begin . more] k => ['begin . (extract-typecheck-body more k)]
@@ -574,8 +574,8 @@
 	code))
 
   (func split-type-and-code-toplevel
-	['define-library . more] =>
-	(extract-typecheck-body ['define-library . more]
+	['package . more] =>
+	(extract-typecheck-body ['package . more]
 				(lambda (body)
 				  (split-type-and-code body () ()
 						       (lambda (type code)
