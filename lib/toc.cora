@@ -58,22 +58,22 @@
 			     (begin
 			       (add-symbol-to-list x globals)
 			       ['%global x])) where (symbol? x)
-	env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
-	env globals ['if . args] => ['if . (map (parse env globals) args)]
-	env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
-	env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
-	env globals [op . args] => (let required (builtin->args op)
-					  provided (length args)
-					  (cond
-					    ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
-					    ((> required provided)
-					     ;; rewrite partial apply of primitives
-					     ;; (+ x) => (lambda (tmp) (+ x tmp))
-					     (let tmp (temp-list (- required provided) ())
-						  (parse env globals ['lambda tmp (append [op . args] tmp)])))
-					    (true (error "primitive call mismatch"))))
-	where (builtin? op)
-	env globals ls => (map (parse env globals) ls))
+			       env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
+			       env globals ['if . args] => ['if . (map (parse env globals) args)]
+			       env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
+			       env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
+			       env globals [op . args] => (let required (builtin->args op)
+							    provided (length args)
+							    (cond
+							     ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
+							     ((> required provided)
+							      ;; rewrite partial apply of primitives
+							      ;; (+ x) => (lambda (tmp) (+ x tmp))
+							      (let tmp (temp-list (- required provided) ())
+								(parse env globals ['lambda tmp (append [op . args] tmp)])))
+							     (true (error "primitive call mismatch"))))
+			       where (builtin? op)
+			       env globals ls => (map (parse env globals) ls))
 
   (func union
 	[] s2 => s2
@@ -368,8 +368,8 @@
   (defun generate-group-name (w label maxid)
     (let gid (/ (- maxid label) *mod-num*)
       (begin
-           (generate-str w "clofun")
-           (generate-num w gid))))
+        (generate-str w "clofun")
+        (generate-num w gid))))
 
   (defun code-gen-func-declare (w label maxid)
     (begin
@@ -406,16 +406,16 @@
 
   (func code-gen-toplevel
 	w [label ['lambda params actives body]] maxid => (begin
-						     (generate-str w "label")
-						     (generate-num w (mod (- maxid label) *mod-num*))
-						     (generate-str w ":\n{\n")
-						     (generate-call-args-reverse local-from-params w 1 params)
-						     (generate-call-args-reverse local-from-cont w 0 actives)
-						     (generate-inst (cons maxid label) params w body)
-						     (generate-str w "}\n\n"))
+							   (generate-str w "label")
+							   (generate-num w (mod (- maxid label) *mod-num*))
+							   (generate-str w ":\n{\n")
+							   (generate-call-args-reverse local-from-params w 1 params)
+							   (generate-call-args-reverse local-from-cont w 0 actives)
+							   (generate-inst (cons maxid label) params w body)
+							   (generate-str w "}\n\n"))
 	w other maxid =>  (begin (display "wrong format of toplevel\n")
-			   (display other)
-			   (display "\n")))
+				 (display other)
+				 (display "\n")))
 
   (defun parse-pass (globals exp)
     (parse [] globals exp))
@@ -526,20 +526,20 @@
 
   (defun generate-c (to bc globals)
     (let groups (group-by-mod-h [] 0 [] bc)
-	 maxid (caar bc)
-	 (begin
-	  (generate-str to "#include \"types.h\"\n")
-	  (generate-str to "#include \"runtime.h\"\n\n")
-	  (for-each (lambda (group)
-		      (begin
-		       (code-gen-func-declare to (caar group) maxid)
-		       (generate-str to ";\n")))
-		    groups)
-	  (generate-str to "\n\n")
-	  (generate-entry to (value globals))
-	  (for-each (lambda (group)
-		      (generate-toplevel-group to group maxid))
-		    groups))))
+      maxid (caar bc)
+      (begin
+	(generate-str to "#include \"types.h\"\n")
+	(generate-str to "#include \"runtime.h\"\n\n")
+	(for-each (lambda (group)
+		    (begin
+		      (code-gen-func-declare to (caar group) maxid)
+		      (generate-str to ";\n")))
+		  groups)
+	(generate-str to "\n\n")
+	(generate-entry to (value globals))
+	(for-each (lambda (group)
+		    (generate-toplevel-group to group maxid))
+		  groups))))
 
   (func handle-import-eagerly
 	['define-library _ . remain] => (handle-import-eagerly remain)
@@ -558,28 +558,59 @@
 	[[':type . exp] . more] type code k => (split-type-and-code more (cons ['begin . exp] type) code k)
 	[[':declare . exp] . more] type code k => (split-type-and-code more (cons ['declare . exp] type) code k)
 	[exp . more] type code k => (split-type-and-code more
-							 (cons ['cora/lib/infer#check-type ['macroexpand (cons 'backquote (cons exp ()))] ['tvar] () ()] type)
+							 (cons ['cora/lib/infer#check-type! ['macroexpand (cons 'backquote (cons exp ()))] ['tvar]] type)
 							 (cons exp code) k))
+
+  (func extract-typecheck-body
+	['define-library name . more] k => ['define-library name . (extract-typecheck-body more k)]
+	[['import pkg] . more] k => [['import pkg] . (extract-typecheck-body more k)]
+	[['export pkg] . more] k => [['export pkg] . (extract-typecheck-body more k)]
+	['begin . more] k => ['begin . (extract-typecheck-body more k)]
+	other k => (k other))
+
+  (defun generate-typecheck-code (type code)
+    (if cora/lib/infer#*typecheck*
+	(append type code)
+	code))
+
+  (func split-type-and-code-toplevel
+	['define-library . more] =>
+	(extract-typecheck-body ['define-library . more]
+				(lambda (body)
+				  (split-type-and-code body () ()
+						       (lambda (type code)
+							 (generate-typecheck-code type code)))))
+	['begin . more] => (extract-typecheck-body ['begin . more]
+						   (lambda (body)
+						     (split-type-and-code body () ()
+									  (lambda (type code)
+									    (generate-typecheck-code type code)))))
+	single => (split-type-and-code [single] () ()
+				       (lambda (type code)
+					 ['begin . (generate-typecheck-code type code)])))
 
   (set 'cora/lib/infer#*typecheck* false)
 
   (defun preprocess (file-path)
     (let sexp (read-file-as-sexp file-path)
-      (begin
-	(handle-import-eagerly sexp)
-	sexp)))
+      (let sexp1 (if (and (pair? sexp) (= 'begin (car sexp)))
+		     (cdr sexp)
+		     (cons sexp ()))
+	(begin
+	  (handle-import-eagerly sexp)
+	  (split-type-and-code-toplevel sexp)))))
 
   (defun compile-to-c (from to)
     (let globals (gensym)
-	 (begin
-	  (set globals ())
-	  (let bc (-> from
-		      preprocess
-		      macroexpand
-		      (compile globals))
-	       (let stream (open-output-file to)
-		    (begin
-		     (generate-c stream bc globals)
-		     (close-output-file stream)))))))
+      (begin
+	(set globals ())
+	(let bc (-> from
+		    preprocess
+		    macroexpand
+		    (compile globals))
+	  (let stream (open-output-file to)
+	    (begin
+	      (generate-c stream bc globals)
+	      (close-output-file stream)))))))
 
-    )
+  )

@@ -41,7 +41,7 @@
 (defun f (x)
        (= x 'xxx))
 
-;; (f 'asdfdsf) uncomment it and type check error!
 (f 'apple)
+;; (f 'asdfdsf) ;; uncomment it and type check error!
 
 

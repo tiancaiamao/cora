@@ -2,7 +2,7 @@
   (import "cora/lib/sys")
   (import "cora/lib/io")
 
-  (export declare check-type tvar enable)
+  (export declare deftype check-type! tvar tc)
 
   (defun append-tvar (l ret)
     (if (null? l)
@@ -47,7 +47,7 @@
 	['-> a] ['-> b] s => (unify a b s)
 	[a '-> b] [c '-> d] s => (bind-s (unify a c s)
 					 (lambda (s1) (unify b d s1)))
-	['list a] ['list b] s => (unify a b s)
+	['list a] ['list b] s => (unify a b s) ;; TODO: list should be changed to elems in *type-rule*
 	_ _ s => ['fail])
 
   (func occur?
@@ -86,8 +86,8 @@
 	      (bind-s res
 		      (lambda (s1)
 			(begin
-			  (io.display s)
-			  (io.display " -- check set use any\n")
+			  (display s)
+			  (display " -- check set use any\n")
 			  (declare s (apply-subst t s1))
 			  res)))))
 	  (check-type v (cdr find) env subst))))
@@ -102,14 +102,18 @@
 		       (if (null? find)
 			   (let find1 (assq x *type-env*)
 			     (if (null? find1)
-				 ['succ s] ;; variable not bound, skip check?
+				 (begin
+				   (display "unbound variable for")
+				   (display x)
+				   (display " skip check\n")
+				   ['succ s]) ;; variable not bound, skip check?
 				 (unify (cdr find1) t s)))
 			   (unify (cdr find) t s))) where (symbol? x)
 			   ['if e1 e2 e3] t env s => (bind-s (check-type-h e1 'bool env s)
 							     (lambda (s1)
 							       (bind-s (check-type e2 t env s1)
-								       (lambda (_)
-									 (check-type e3 t env s1)))))
+								       (lambda (s2)
+									 (check-type e3 t env s2)))))
 			   ['do e1 e2] t env s => (bind-s (check-type-h e1 (tvar) env s)
 							  (lambda (_)
 							    (check-type-h e2 t env s)))
@@ -152,9 +156,7 @@
 	(let find (assq (car typ) *type-rule*)
 	  (if (null? find)
 	      (check-type-h exp typ env subst)
-	      (match ((cdr find) exp typ env subst)
-		['fail] (check-type-h exp typ env subst)
-		succ succ)))
+	      ((cdr find) exp typ env subst)))
 	(check-type-h exp typ env subst)))
 
   (func type-check-for-list
@@ -162,7 +164,8 @@
 	['cons x y] ['list a] env s => (bind-s (check-type x a env s)
 					       (lambda (s1)
 						 (check-type y ['list a] env s1)))
-	exp typ env s => ['fail])
+	exp typ env s => (check-type-h exp typ env s))
+
   (deftype 'list type-check-for-list)
 
   (func type-check-for-tuple
@@ -183,7 +186,7 @@
 						  (check-type f (let b (tvar) [a '-> ['monad b]]) env s1))))
   (deftype 'monad type-check-for-monad)
 
-  (defun enable (on)
+  (defun tc (on)
     (if on
 	(def *typecheck* true)
 	(def *typecheck* false)))
@@ -203,6 +206,18 @@
   (declare '*type-env* ['list ['tuple 'symbol (tvar)]])
   (declare 'error [(tvar) '-> (tvar)])
   (declare 'import `(string -> ,(tvar)))
+
+  (defun check-type! (exp typ)
+    (match (check-type exp typ () ())
+      ['succ s] ['succ s]
+      ['fail] (begin
+		(display "exp=")
+		(display exp)
+		(display "\ntyp=")
+		(display typ)
+		(display "\n")
+		(error "type-check failed!"))))
+
 
   ;; (func type-check-for-fruit
   ;;       ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
@@ -227,8 +242,10 @@
   ;; (check-type '(if true 3 false) 12 () ())  should fail
 
   ;; (check-type '(lambda (f g) (f (g 1)))
-  ;; 	    '((0 -> 1) -> ((int -> 0) -> 1))
-  ;; 	    () ())
+  ;; 	      (let t0 (tvar)
+  ;; 		   t1 (tvar)
+  ;; 		   `((,t0 -> ,t1) -> ((int -> ,t0) -> ,t1)))
+  ;; 	      () ())
 
   ;; HM cannot infer high rank polymorphic, but it can check that with annotation.
   ;; (check-type
@@ -271,5 +288,8 @@
   ;;  (extend *type-env*
   ;;   'reverse-h '((list 1) -> ((list 1) -> (list 1))))
   ;;  ())
+
+  ;; type check for a list
+  ;; (check-type `(cons (quote ax) (cons 32 (cons "dsf" ()))) ['list (tvar)] () ())
 
   )
