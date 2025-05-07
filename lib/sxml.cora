@@ -1,4 +1,4 @@
-(define-library "cora/lib/sxml"
+(package "cora/lib/sxml"
   (export sxml->xml)
   (import "cora/lib/let-loop")
   (import "cora/lib/string")

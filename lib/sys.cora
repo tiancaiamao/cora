@@ -1,4 +1,4 @@
-(define-library "cora/lib/sys"
+(package "cora/lib/sys"
 
   (export assq foldl for-each member)
 

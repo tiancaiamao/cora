@@ -4,7 +4,7 @@
 ;; "Toward a parallel implementation of Concurrent ML"    John Reppy
 ;; "Parallel Concurrent ML"          John Reppy
 
-(define-library "cora/lib/cml"
+(package "cora/lib/cml"
   (import "cora/lib/queue")
   (import "cora/lib/rand")
   (import "cora/lib/sys")

@@ -1,4 +1,4 @@
-(define-library "cora/example/async/client"
+(package "cora/example/async/client"
 
   (import "cora/lib/net")
   (import "cora/lib/io")

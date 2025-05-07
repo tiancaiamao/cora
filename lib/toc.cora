@@ -558,7 +558,7 @@
 	[[':type . exp] . more] type code k => (split-type-and-code more (cons ['begin . exp] type) code k)
 	[[':declare . exp] . more] type code k => (split-type-and-code more (cons ['declare . exp] type) code k)
 	[exp . more] type code k => (split-type-and-code more
-							 (cons ['cora/lib/infer#check-type! ['macroexpand (cons 'backquote (cons exp ()))] ['tvar]] type)
+							 (cons ['cora/lib/infer#check-type! ['macroexpand (cons 'backquote (cons exp ()))] ['cora/lib/infer#tvar]] type)
 							 (cons exp code) k))
 
   (func extract-typecheck-body

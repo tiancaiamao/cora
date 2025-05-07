@@ -1,4 +1,4 @@
-(define-library "cora/test/sxml-test"
+(package "cora/test/sxml-test"
 
   (import "cora/lib/sys")
   (import "cora/lib/toc")

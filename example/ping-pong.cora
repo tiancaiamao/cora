@@ -1,4 +1,4 @@
-(define-library "cora/example/ping-pong"
+(package "cora/example/ping-pong"
   (import "cora/lib/cml")
   (import "cora/lib/chan")
   (import "cora/lib/io")

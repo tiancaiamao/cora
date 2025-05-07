@@ -1,4 +1,4 @@
-(define-library "cora/lib/infer"
+(package "cora/lib/infer"
   (import "cora/lib/sys")
   (import "cora/lib/io")
 

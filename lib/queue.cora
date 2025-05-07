@@ -1,5 +1,5 @@
 ;; use two stack to implement a list
-(define-library "cora/lib/queue"
+(package "cora/lib/queue"
 
   (export queue-make enqueue dequeue queue-empty?)
 
