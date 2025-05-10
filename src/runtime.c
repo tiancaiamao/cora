@@ -821,6 +821,46 @@ builtinSymbolCooked(struct Cora *co) {
 	coraReturn(co, False);
 }
 
+static void
+applyClosureForEval(struct Cora *co) {
+	Obj self = co->args[0];
+	Obj* data = nativeData(self);
+	Obj params = data[0];
+	Obj body = data[1];
+	Obj env = data[2];
+	for(int i=1; params != Nil; i++) {
+		Obj var = car(params);
+		Obj val = co->args[i];
+		env = cons(cons(var, val), env);
+		params = cdr(params);
+	}
+	co->nargs = 3;
+	co->args[0] = globalRef(intern("cora/lib/eval#eval"));
+	co->args[1] = body;
+	co->args[2] = env;
+	co->ctx.pc.func = coraDispatch;
+}
+
+static int
+listLen(Obj l) {
+	int c = 0;
+	while(iscons(l) && l != Nil) {
+		c++;
+		l = cdr(l);
+	}
+	return c;
+}
+
+static void
+makeClosureForEval(struct Cora *co) {
+	Obj params = co->args[1];
+	Obj body = co->args[2];
+	Obj env = co->args[3];
+	int len = listLen(params);
+	Obj ret = makeNative(0, applyClosureForEval, len, 3, params, body, env);
+	coraReturn(co, ret);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -892,6 +932,7 @@ coraInit(uintptr_t *mark) {
 	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
+	primSet(co, intern("cora/lib/eval#make-closure-for-eval"), makeNative(0, makeClosureForEval, 3, 0));
 	return co;
 }
 
