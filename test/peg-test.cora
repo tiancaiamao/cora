@@ -1,0 +1,46 @@
+(import "cora/lib/peg")
+(import "cora/lib/string")
+(import "cora/lib/sys")
+
+(set '<digits> (<range> 48 57))
+(set '<month> (@seq <digits> <digits>))
+(set '<day> <month>)
+(set '<year> (@seq <digits> <digits> <digits> <digits>))
+(set '<iso-date> (@seq <year> (<char> 45) <month> (<char> 45) <day>))
+(<iso-date> (string->list "2019-06-10"))
+
+
+(set '<benchmark> (<string> "Benchmark"))
+(set '<ws> (<char> 32))
+(set '<funcname> (@seq (<string> "Funcname") (@+ (<range> 65 122))))
+
+(set '<1-9> ($map (<range> 49 57)
+		  (lambda (v)
+		    (- v 48))))
+(set '<0-9> ($map (<range> 48 57)
+		  (lambda (v)
+		    (- v 48))))
+(set '<number> ($map (@seq <1-9> (@* <0-9>))
+		     (lambda (v)
+		       (foldl (lambda (acc v)
+				(+ (* acc 10) v))
+			      0 v))))
+;; ((@+ (<char> 48)) (string->list "12345"))
+;; ((@+ (<range> 48 57)) (string->list "12345"))
+;; (<number> (string->list "12345"))
+
+(set '<nsop> ($map (@seq <ws> <number> <ws> (<string> "ns/op"))
+		   (lambda (v)
+		     (cadr v))))
+
+(set '<bytesop> ($map (@seq <ws> <number> <ws> (<string> "bytes/op"))
+		      (lambda (v)
+			(cadr v))))
+(set '<allocsop> ($map (@seq <ws> <number> <ws> (<string> "allocs/op"))
+		       (lambda (v)
+			 (cadr v))))
+(set '<benchmark> (@seq <benchmark> <ws> <funcname>
+			      <nsop>
+			      <bytesop>
+			      <allocsop>))
+(<benchmark> (string->list "Benchmark FuncnameXXX 23132 ns/op 823032 bytes/op 41 allocs/op"))

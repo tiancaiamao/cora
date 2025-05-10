@@ -179,6 +179,18 @@ bytesRef(struct Cora *co) {
   coraReturn(co, ret);
 }
 
+static void
+stringToList(struct Cora *co) {
+	Obj str = co->args[1];
+	char *bs = bytesData(str);
+	int len = bytesLen(str);
+	Obj res = Nil;
+	for (int i=0; i<len; i++) {
+		res = cons(makeNumber(bs[i]), res);
+	}
+	coraReturn(co, reverse(res));
+}
+
 static struct registerModule stringModule = {
   NULL,
   {
@@ -193,6 +205,7 @@ static struct registerModule stringModule = {
     {"string-contain?", stringContain, 2},
     {"memcpy", bytesMemCpy, 5},
     {"byte-ref", bytesRef, 2},
+    {"string->list", stringToList, 1},
     {NULL, NULL, 0},
   }
 };
