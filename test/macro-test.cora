@@ -1,0 +1,9 @@
+(let res (macroexpand `(map car x))
+     (if (not (= res `(map car x)))
+	 (error "fail")
+	 res))
+
+(let res (macroexpand `(car x))
+     (if (not (= res `(car x)))
+	 (error "fail")
+	 res))

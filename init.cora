@@ -365,6 +365,14 @@
 (defmacro backquote (exp)
   (cora/init#rewrite-backquote (cadr exp)))
 
+(defun cora/init#rewrite-fold-apply (fn arglist)
+  (if (null? (cddr arglist))
+      [fn (car arglist) (cadr arglist)]
+      [fn (car arglist) (cora/init#rewrite-fold-apply fn (cdr arglist))]))
+
+(defmacro fold-apply (exp)
+  (cora/init#rewrite-fold-apply (cadr exp) (cddr exp)))
+
 ;; ============= package ============
 
 (func cora/init#parse-package-h
@@ -413,13 +421,15 @@
 (func cora/init#parse
       _ _ _ x => x where (or (number? x) (string? x) (boolean? x) (null? x))
       _ _ _ ['quote x] => ['quote x]
-      env ns import x => (if (elem? x env) x
-				     (cora/init#lookup-var x ns import)) where (symbol? x)
+      env ns import x => (cond
+			   ((elem? x env) x)
+			   ((cora/init#builtin? x) x)
+			   (true (cora/init#lookup-var x ns import))) where (symbol? x)
       env ns import ['lambda args body] => ['lambda args (cora/init#parse (append args env) ns import body)]
       env ns import ['do ['import pkg] y] => ['do (cora/init#parse env ns import ['import pkg])
       (cora/init#parse env ns (cons pkg import) y)] where (string? pkg)
       env ns import [op . args] => [op . (map (cora/init#parse env ns import) args)]
-      where (or (cora/init#builtin? op) (= op 'if) (= op 'do))
+      where (or (= op 'if) (= op 'do))
       env ns import ['let a b c] => ['let a (cora/init#parse env ns import b) (cora/init#parse (cons a env) ns import c)]
       env _ _ ['ns path import body] => (cora/init#parse env path import body)
       env ns import ['def var val] => (let var1 (cora/init#var-with-ns var ns)
