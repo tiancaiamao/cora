@@ -56,24 +56,33 @@
 	_ globals ['quote x] => (begin (add-symbol-to-list x globals) ['%const x])
 	env globals x => (if (elem? x env) x
 			     (begin
-			       (add-symbol-to-list x globals)
-			       ['%global x])) where (symbol? x)
-			       env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
-			       env globals ['if . args] => ['if . (map (parse env globals) args)]
-			       env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
-			       env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
-			       env globals [op . args] => (let required (builtin->args op)
-							    provided (length args)
-							    (cond
-							     ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
-							     ((> required provided)
-							      ;; rewrite partial apply of primitives
-							      ;; (+ x) => (lambda (tmp) (+ x tmp))
-							      (let tmp (temp-list (- required provided) ())
-								(parse env globals ['lambda tmp (append [op . args] tmp)])))
-							     (true (error "primitive call mismatch"))))
-			       where (builtin? op)
-			       env globals ls => (map (parse env globals) ls))
+			      (add-symbol-to-list x globals)
+			      ['%global x])) where (symbol? x)
+	env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
+	;; macro rewrite to avoid code explosion during tailify-pass
+	env globals ['if ['if . exp1] . exp2] => (let f (gensym)
+						      v (gensym)
+						      (parse env globals ['let f ['lambda [v] ['if v . exp2]]
+							     [f ['if . exp1]]]))
+	env globals ['if . args] => ['if . (map (parse env globals) args)]
+	env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
+	env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
+	;; macro rewrite to avoid code explosion during tailify-pass
+	env globals [['lambda . exp1] ['if . exp2]] => (let f (gensym)
+							    (parse env globals ['let f ['lambda . exp1]
+								   [f ['if . exp2]]]))
+	env globals [op . args] => (let required (builtin->args op)
+					provided (length args)
+					(cond
+					  ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
+					  ((> required provided)
+					   ;; rewrite partial apply of primitives
+					   ;; (+ x) => (lambda (tmp) (+ x tmp))
+					   (let tmp (temp-list (- required provided) ())
+						(parse env globals ['lambda tmp (append [op . args] tmp)])))
+					  (true (error "primitive call mismatch"))))
+	where (builtin? op)
+	env globals ls => (map (parse env globals) ls))
 
   (func union
 	[] s2 => s2
