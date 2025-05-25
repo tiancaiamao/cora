@@ -1,5 +1,6 @@
 (package "cora/lib/eval"
   (export eval)
+  (import "cora/lib/peval")
 
   (set 'set (set))
   (set 'car (car))
@@ -13,7 +14,7 @@
   (set '= (=))
   (set '> (>))
   (set '< (<))
-  (set 'gensym (gensym))
+  (set 'gensym (lambda () (gensym)))
   (set 'symbol? (symbol?))
   (set 'not (not))
   (set 'string? (string?))

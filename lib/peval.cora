@@ -1,0 +1,131 @@
+(package "cora/lib/peval"
+	 (export peval)
+	 (import "cora/lib/sys")
+
+	 (defun const-symbol? (x)
+	   (and (cons? x)
+		(= (car x) 'quote)))
+
+	 (defun const? (x)
+	   (or (null? x)
+	       (boolean? x)
+	       (number? x)
+	       (string? x)
+	       (const-symbol? x)))
+
+	 (func const-list?
+	       ['cons x more] => (and (const? x)
+				      (or (= more ())
+					  (const-list? more)))
+	       _ => false)
+
+	 (func const-list-length
+	       ['cons _ ()] => 1
+	       ['cons _ more] => (+ 1 (const-list-length more)))
+
+	 (defun shrink-env (params env)
+	   (filter (lambda (kv)
+		     (not (member (car kv) params)))
+		   env))
+
+	 (func peval
+	       env x => (let find (assq x env)
+			     (if (cons? find)
+				 (cdr find)
+				 x)) where (symbol? x)
+	       env ['quote v] => ['quote v]
+	       env ['if a b c] => (let v (peval env a)
+				       (cond
+					 ((= v true) (peval env b))
+					 ((= v false) (peval env c))
+					 (true ['if v (peval env b) (peval env c)])))
+	       env ['do a b] => (let a1 (peval env a)
+				     (if (and (cons? a1) (= (car a1) 'lambda))
+					 (peval env b)
+					 ['do a1 (peval env b)]))
+	       env ['lambda params body] => ['lambda params (peval (shrink-env params env) body)]
+	       env ['let a b c] => (peval-let a (peval env b) c env)
+	       env [f . args] => (peval-app (map (peval env) [f . args]) env)
+	       env x => x)
+
+	 (func ref-count
+	       x exp => 0 where (or (const? exp) (const-list? exp))
+	       x ['quote _] => 0
+	       x var => (if (= x var) 1 0) where (symbol? var)
+	       x ['if a b c] => (+ (ref-count x a)
+				   (+ (ref-count x b) (ref-count x c)))
+	       x ['do a b] => (+ (ref-count x a) (ref-count x b))
+	       x ['let var val body] => (+ (ref-count x val)
+					   (if (= var x) 0
+					       (ref-count x body)))
+	       x ['lambda params body] => (if (member x params) 0
+					      (ref-count x body))
+	       x [f . args] => (foldl (lambda (acc exp)
+					(+ acc (ref-count x exp)))
+				      0 [f . args]))
+
+	 (defun side-effect-free? (exp)
+	   (or (and (cons? exp) (= (car exp) 'lambda))
+	       (const? exp)
+	       (const-list? exp)))
+
+	 (defun peval-let (var val body env)
+	   (if (or (const? val)            ;; val is const
+		   (symbol? val)           ;; val is symbol
+		   (and (const-list? val) (< (const-list-length val) 3))) ;; val is short const list
+	       (peval [(cons var val) . env] body)
+	       (let refs (ref-count var body)
+		    safe (side-effect-free? val)
+		    (cond
+		      ((= refs 0) ;; var is not really used
+		       (if safe (peval env body) 
+			   ['do val (peval env body)]))
+		      ((and (= refs 1) safe) ;; var is used exactly once and val is side effect free
+		       (peval [(cons var val) . env] body))
+		      (true ['let var val (peval (shrink-env [var] env) body)])))))
+		      
+	 ;; collect the static const to env
+	 (defun extend-env (params args env k)
+	   (extend-env-h () () params args env k))
+
+	 (func extend-env-h
+	       retp reta [p . ps] [a . as] env k => (if (or (const? a) (const-list? a))
+							(extend-env-h retp reta ps as (cons (cons p a) env) k)
+							(extend-env-h (cons p retp) (cons a reta) ps as env k))
+	       retp reta [] args env k => (k (reverse retp) (append (reverse reta) args) env)
+	       retp reta params [] env k => (k (append (reverse retp) params) (reverse reta) env))
+
+	 (func peval-apply-lambda
+	       [] [] body => body
+	       params [] body => ['lambda params body]
+	       params args body => [['lambda params body] . args])
+
+	 (func peval-app
+	       ['cons? ['cons _ _]] env => true
+	       ['car ['cons x _]] env => x
+	       ['cdr ['cons _ x]] env => x
+	       ['and true true] env => true
+	       ['null? ()] env => true
+	       ['null? ['cons _ _]] env => false
+	       ['not true] env => false
+	       ['not false] env => true
+	       ['+ x y] env => (+ x y) where (and (number? x) (number? y))
+	       ['- x y] env => (- x y) where (and (number? x) (number? y))
+	       [['lambda params body] . args] env => (extend-env params args env
+								 (lambda (params1 args1 env1)
+								   (let body1 (peval (shrink-env params1 env1) body)
+									(peval-apply-lambda params1 args1 body1))))
+	       x env => x)
+
+	 ;; (peval () `(let example1 (lambda (a b c)
+	 ;; 			   (if (null? a) b (+ (car a) c)))
+	 ;; 		(example1 [10 11] not-const 1)))
+
+	 ;; (peval () `(let example2 (lambda (x y)
+	 ;; 		 (let (q (lambda (a b)
+	 ;; 			   (if (< a 0) b (- 10 b))))
+	 ;; 		   (if (< x 0) (q (- y) (- x)) (q y x))))))
+
+	 (set 'cora/init#peval (peval ()))
+
+	 )

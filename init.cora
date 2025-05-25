@@ -300,47 +300,14 @@
               (cons 'match (cons (cons 'list args)
                                  body)))))))
 
-(func cora/init#propagate-boolean0
-      ['car ['cons x _]] => x
-      ['cdr ['cons _ x]] => x
-      ['cons? ['cons _ _]] => true
-      ['and true true] => true
-      ['null? ()] => true
-      ['null? ['cons _ _]] => false
-      ['not true] => false
-      ['not false] => true
-      ['if true y z] => y
-      ['if false y z] => z
-      x => x)
-
-(func cora/init#propagate-boolean
-      ['quote x] => ['quote x]
-      ['cons? x] => (let x1 (cora/init#propagate-boolean x)
-		       (cora/init#propagate-boolean0 ['cons? x1]))
-      ['car x] => (let x1 (cora/init#propagate-boolean x)
-		       (cora/init#propagate-boolean0 ['car x1]))
-      ['cdr x] => (let x1 (cora/init#propagate-boolean x)
-		       (cora/init#propagate-boolean0 ['cdr x1]))
-      ['and x y] => (let x1 (cora/init#propagate-boolean x)
-			 y1 (cora/init#propagate-boolean y)
-			 (cora/init#propagate-boolean0 ['and x1 y1]))
-      ['null? x] => (let x1 (cora/init#propagate-boolean x)
-			 (cora/init#propagate-boolean0 ['null? x1]))
-      ['not x] => (let x1 (cora/init#propagate-boolean x)
-		       (cora/init#propagate-boolean0 ['not x1]))
-      ['if x y z] => (let x1 (cora/init#propagate-boolean x)
-			  y1 (cora/init#propagate-boolean y)
-			  z1 (cora/init#propagate-boolean z)
-			  (cora/init#propagate-boolean0 ['if x1 y1 z1]))
-      ['lambda args body] => ['lambda args (cora/init#propagate-boolean body)]
-      [f . args] => (map cora/init#propagate-boolean [f . args])
-      x => x)
-
 (defun cora/init#rewrite-namespace (exp)
   (cora/init#parse () "" () exp))
 
+;; rewrite by a real partial evaluation later
+(set 'cora/init#peval (lambda (x) x))
+
 (defun macroexpand (exp)
-  (cora/init#propagate-boolean
+  (cora/init#peval
    (cora/init#rewrite-namespace
     (cora/init#macroexpand-boot exp))))
 
