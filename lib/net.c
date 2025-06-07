@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-static int pollfd = -1;
+__thread int pollfd = -1;
 
 #ifdef __APPLE__
     #include "kqueue.c"
@@ -243,22 +243,23 @@ makeBuffer(struct Cora *ctx) {
 
 static void
 pollAdd(struct Cora *ctx) {
-  Obj fd = coraGet(ctx, 1);
-  Obj mode = coraGet(ctx, 2);
-  if (mode == intern("read")) {
-    pollReadAdd(pollfd, fixnum(fd));
-  } else if (mode == intern("write")) {
-    pollWriteAdd(pollfd, fixnum(fd));
-  } else {
-    printf("error argument for pollAdd\n");
-  }
-  coraReturn(ctx, Nil);
+	Obj conn = coraGet(ctx, 1);
+	Obj mode = coraGet(ctx, 2);
+	int fd = vectorRef(conn, 2);
+	if (mode == intern("read")) {
+		pollReadAdd(pollfd, fixnum(fd), conn);
+	} else if (mode == intern("write")) {
+		pollWriteAdd(pollfd, fixnum(fd), conn);
+	} else {
+		printf("error argument for pollAdd\n");
+	}
+	coraReturn(ctx, Nil);
 }
 
-static void
-netInit() {
+void
+eventLoopInit() {
   pollfd = pollCreate();
-  // TOO
+  // TODO
   if (pollfd == -1) {
     perror("epoll_create1");
     return;
@@ -266,15 +267,15 @@ netInit() {
 }
 
 struct registerModule netModule = {
-  netInit,
+  eventLoopInit,
   {
    {"make-buffer", makeBuffer, 1},
-   {"dial", netDial, 1},
+   {"net-dial", netDial, 1},
    {"net-poll", netPoll, 1},
-   {"net-poll-add", pollAdd, 2},
+   {"net-poll-add", pollAdd, 3},
    {"net-send", netSend, 3},
    {"net-recv", netRecv, 3},
-   {"listen", netListen, 1},
+   {"net-listen", netListen, 1},
    {"net-accept", netAccept, 1},
    {"net-close", netClose, 1},
    {NULL, NULL, 0}

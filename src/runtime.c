@@ -9,24 +9,24 @@
 #include "gc.h"
 #include "trace.h"
 
-void
-coraCall(struct Cora *co, int nargs, ...) {
-	TRACE_SCOPE("coraCall");
-	co->nargs = nargs;
-	va_list ap;
-	va_start(ap, nargs);
-	for (int i = 0; i < nargs; i++) {
-		co->args[i] = va_arg(ap, Obj);
-	}
-	va_end(ap);
+/* void */
+/* coraCall(struct Cora *co, int nargs, ...) { */
+/* 	TRACE_SCOPE("coraCall"); */
+/* 	co->nargs = nargs; */
+/* 	va_list ap; */
+/* 	va_start(ap, nargs); */
+/* 	for (int i = 0; i < nargs; i++) { */
+/* 		co->args[i] = va_arg(ap, Obj); */
+/* 	} */
+/* 	va_end(ap); */
 
-	if (nativeRequired(co->args[0]) + 1 == nargs) {
-		co->ctx.pc = *nativeFuncPtr(co->args[0]);
-		co->ctx.frees = co->args[0];
-	} else {
-		co->ctx.pc.func = coraDispatch;
-	}
-}
+/* 	if (nativeRequired(co->args[0]) + 1 == nargs) { */
+/* 		co->ctx.pc = *nativeFuncPtr(co->args[0]); */
+/* 		co->ctx.frees = co->args[0]; */
+/* 	} else { */
+/* 		co->ctx.pc.func = coraDispatch; */
+/* 	} */
+/* } */
 
 const int INIT_STACK_SIZE = 254;
 
@@ -725,6 +725,17 @@ builtinImport(struct Cora *co) {
 }
 
 static void
+builtinIsVector(struct Cora *co) {
+	TRACE_SCOPE("builtinIsVector");
+	Obj o = co->args[1];
+	if (isvector(o)) {
+		coraReturn(co, True);
+	} else {
+		coraReturn(co, False);
+	}
+}
+
+static void
 builtinVector(struct Cora *co) {
 	TRACE_SCOPE("builtinVector");
 	Obj o = co->args[1];
@@ -896,6 +907,8 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 }
 
+static bool initialized = false;
+
 struct Cora *
 coraInit(uintptr_t *mark) {
 	gcInit(mark);
@@ -904,35 +917,39 @@ coraInit(uintptr_t *mark) {
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
 	struct Cora *co = coraNew();
-	primSet(co, intern("symbol->string"),
-		makeNative(0, symbolToString, 1, 0));
-	primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
-	primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
-	primSet(co, intern("read-file-as-sexp"),
-		makeNative(0, builtinReadFileAsSexp, 1, 0));
-	primSet(co, intern("string-append"),
-		makeNative(0, builtinStringAppend, 2, 0));
-	primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
-	primSet(co, intern("value-or"), makeNative(0, builtinValueOr, 2, 0));
-	primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
-	primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
-	primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
-	primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
-	primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
-	primSet(co, intern("vector-set!"),
-		makeNative(0, builtinVectorSet, 3, 0));
-	primSet(co, intern("vector-ref"),
-		makeNative(0, builtinVectorRef, 2, 0));
-	primSet(co, intern("vector-length"),
-		makeNative(0, builtinVectorLength, 1, 0));
-	primSet(co, intern("bytes"), makeNative(0, builtinBytes, 1, 0));
-	primSet(co, intern("bytes-length"),
-		makeNative(0, builtinBytesLength, 1, 0));
-	primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
-	primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
-	primSet(co, intern("cora/init#*imported*"), Nil);
-	primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
-	primSet(co, intern("cora/lib/eval#make-closure-for-eval"), makeNative(0, makeClosureForEval, 3, 0));
+	if (!initialized) {
+		primSet(co, intern("symbol->string"),
+			makeNative(0, symbolToString, 1, 0));
+		primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
+		primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
+		primSet(co, intern("read-file-as-sexp"),
+			makeNative(0, builtinReadFileAsSexp, 1, 0));
+		primSet(co, intern("string-append"),
+			makeNative(0, builtinStringAppend, 2, 0));
+		primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
+		primSet(co, intern("value-or"), makeNative(0, builtinValueOr, 2, 0));
+		primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
+		primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
+		primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
+		primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
+		primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
+		primSet(co, intern("vector?"), makeNative(0, builtinIsVector, 1, 0));
+		primSet(co, intern("vector-set!"),
+			makeNative(0, builtinVectorSet, 3, 0));
+		primSet(co, intern("vector-ref"),
+			makeNative(0, builtinVectorRef, 2, 0));
+		primSet(co, intern("vector-length"),
+			makeNative(0, builtinVectorLength, 1, 0));
+		primSet(co, intern("bytes"), makeNative(0, builtinBytes, 1, 0));
+		primSet(co, intern("bytes-length"),
+			makeNative(0, builtinBytesLength, 1, 0));
+		primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
+		primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
+		primSet(co, intern("cora/init#*imported*"), Nil);
+		primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
+		primSet(co, intern("cora/lib/eval#make-closure-for-eval"), makeNative(0, makeClosureForEval, 3, 0));
+		initialized = true;
+	}
 	return co;
 }
 

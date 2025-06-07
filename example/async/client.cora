@@ -6,14 +6,14 @@
   (import "cora/lib/cml")
 
   (defun client-main ()
-    (let fd (dial "127.0.0.1:8080")
+    (let conn (dial "127.0.0.1:8080")
       buf (make-buffer 11)
       (begin
-	(recv fd buf)
+	(recv conn buf)
 	(display buf)
 	(display "\n")
-	(send fd "hello arthur")
-	(net-close fd))))
+	(send conn "hello arthur")
+	(net-close conn))))
 
   (spawn client-main)
   (main)

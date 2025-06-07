@@ -27,12 +27,12 @@ pollWriteAdd(int pollfd, int fd) {
   kevent(pollfd, &ev, 1, NULL, 0, NULL);
 }
 
-static void
-pollDel(int pollfd, int fd) {
-  struct kevent ev;
-  EV_SET(&ev, pollfd, EVFILT_READ|EVFILT_WRITE, EV_DELETE, 0, 0, 0);
-  kevent(pollfd, &ev, 1, NULL, 0, NULL);
-}
+/* static void */
+/* pollDel(int pollfd, int fd) { */
+/*   struct kevent ev; */
+/*   EV_SET(&ev, pollfd, EVFILT_READ|EVFILT_WRITE, EV_DELETE, 0, 0, 0); */
+/*   kevent(pollfd, &ev, 1, NULL, 0, NULL); */
+/* } */
 
 static Obj
 poll(int pollfd, int timeout) {
@@ -51,7 +51,7 @@ poll(int pollfd, int timeout) {
     Obj udata = (Obj)events[i].udata;
     Obj fd = cadr(udata);
     ret = cons(fd, ret);
-    pollDel(pollfd, fd);
+    /* pollDel(pollfd, fd); */
   }
   return ret;
 }
