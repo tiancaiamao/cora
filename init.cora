@@ -407,7 +407,7 @@
 				   boolean? number? null?
 				   string-append
 				   intern symbol->string
-				   vector vector-set! vector-ref vector-length
+				   vector vector? vector-set! vector-ref vector-length
 				   bytes bytes-length
 				   read-file-as-sexp
 				   value value-or
@@ -431,6 +431,7 @@
 (set 'cora/init#intern intern)
 (set 'cora/init#symbol->string symbol->string)
 (set 'cora/init#vector vector)
+(set 'cora/init#vector? vector?)
 (set 'cora/init#vector-set! vector-set!)
 (set 'cora/init#vector-ref vector-ref)
 (set 'cora/init#vector-length vector-length)
