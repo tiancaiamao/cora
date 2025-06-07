@@ -1,0 +1,37 @@
+(package "cora/test/define-record-test"
+
+	 (import "cora/lib/define-record")
+
+	 (define-record <person>
+	     (make-person name age)
+	   person?
+	   (name get-name set-name!)
+	   (age get-age set-age!))
+
+	 (if (person? (make-person "sdf" 32))
+	     ()
+	     (error "person? function wrong"))
+
+	 (if (= (get-name (make-person "sdf" 32))
+		"sdf")
+	     ()
+	     (error "get name error"))
+
+
+	 (define-record <conn>
+	     (conn-make fd)
+	   false
+	   (next)
+	   (prev)
+	   (fd conn-fd conn-set-fd!)
+	   (callback conn-callback))
+
+	 (let conn (conn-make 32)
+	      (begin
+	       (if (= (conn-fd conn) 32)
+		   ()
+		   (error "conn fd err"))
+
+	       42))
+
+	 )

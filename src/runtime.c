@@ -86,7 +86,7 @@ callCurry(struct Cora *co) {
 }
 
 Obj
-makeCurry(int required, int captured, Obj *data) {
+makeCurry(int required, int captured, Obj * data) {
 	TRACE_SCOPE("makeCurry");
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
@@ -465,9 +465,8 @@ builtinThrow(struct Cora *co) {
 	assert(try->stk.base == 0);
 
 	// Capture the call stack as continuation.
-	Obj cont =
-		makeContinuation(&co->callstack.data[p],
-				 co->callstack.len - p);
+	Obj cont = makeContinuation(&co->callstack.data[p],
+				    co->callstack.len - p);
 
 	// Now that we get the current continuation, disguise as a closure.
 	Obj clo = makeNative(0, continuationAsClosure, 1, 1, cont);
@@ -649,8 +648,7 @@ builtinLoad(struct Cora *co) {
 	strBuf path = getCoraPath();
 	snprintf(buf, BUFSIZE,
 		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -L%scora/src -lcora",
-		 toCStr(path), toCStr(path),
-		 cfileidx, cfileidx,
+		 toCStr(path), toCStr(path), cfileidx, cfileidx,
 		 toCStr(path));
 	strFree(path);
 	int exitCode = system(buf);
@@ -823,7 +821,7 @@ builtinSymbolCooked(struct Cora *co) {
 	Obj sym = co->args[1];
 	char dst[256];
 	symbolStr(sym, dst, 256);
-	for (char *s=dst; *s != 0; s++) {
+	for (char *s = dst; *s != 0; s++) {
 		if (*s == '#') {
 			coraReturn(co, True);
 			return;
@@ -835,11 +833,11 @@ builtinSymbolCooked(struct Cora *co) {
 static void
 applyClosureForEval(struct Cora *co) {
 	Obj self = co->args[0];
-	Obj* data = nativeData(self);
+	Obj *data = nativeData(self);
 	Obj params = data[0];
 	Obj body = data[1];
 	Obj env = data[2];
-	for(int i=1; params != Nil; i++) {
+	for (int i = 1; params != Nil; i++) {
 		Obj var = car(params);
 		Obj val = co->args[i];
 		env = cons(cons(var, val), env);
@@ -855,7 +853,7 @@ applyClosureForEval(struct Cora *co) {
 static int
 listLen(Obj l) {
 	int c = 0;
-	while(iscons(l) && l != Nil) {
+	while (iscons(l) && l != Nil) {
 		c++;
 		l = cdr(l);
 	}
@@ -868,7 +866,8 @@ makeClosureForEval(struct Cora *co) {
 	Obj body = co->args[2];
 	Obj env = co->args[3];
 	int len = listLen(params);
-	Obj ret = makeNative(0, applyClosureForEval, len, 3, params, body, env);
+	Obj ret =
+		makeNative(0, applyClosureForEval, len, 3, params, body, env);
 	coraReturn(co, ret);
 }
 
@@ -910,7 +909,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 static bool initialized = false;
 
 struct Cora *
-coraInit(uintptr_t *mark) {
+coraInit(uintptr_t * mark) {
 	gcInit(mark);
 	typesInit();
 	symQuote = intern("quote");
@@ -920,34 +919,48 @@ coraInit(uintptr_t *mark) {
 	if (!initialized) {
 		primSet(co, intern("symbol->string"),
 			makeNative(0, symbolToString, 1, 0));
-		primSet(co, intern("intern"), makeNative(0, builtinIntern, 1, 0));
-		primSet(co, intern("number?"), makeNative(0, builtinIsNumber, 1, 0));
+		primSet(co, intern("intern"),
+			makeNative(0, builtinIntern, 1, 0));
+		primSet(co, intern("number?"),
+			makeNative(0, builtinIsNumber, 1, 0));
 		primSet(co, intern("read-file-as-sexp"),
 			makeNative(0, builtinReadFileAsSexp, 1, 0));
 		primSet(co, intern("string-append"),
 			makeNative(0, builtinStringAppend, 2, 0));
-		primSet(co, intern("value"), makeNative(0, builtinValue, 1, 0));
-		primSet(co, intern("value-or"), makeNative(0, builtinValueOr, 2, 0));
-		primSet(co, intern("apply"), makeNative(0, builtinApply, 2, 0));
-		primSet(co, intern("load-so"), makeNative(0, builtinLoadSo, 2, 0));
-		primSet(co, intern("import"), makeNative(0, builtinImport, 1, 0));
+		primSet(co, intern("value"),
+			makeNative(0, builtinValue, 1, 0));
+		primSet(co, intern("value-or"),
+			makeNative(0, builtinValueOr, 2, 0));
+		primSet(co, intern("apply"),
+			makeNative(0, builtinApply, 2, 0));
+		primSet(co, intern("load-so"),
+			makeNative(0, builtinLoadSo, 2, 0));
+		primSet(co, intern("import"),
+			makeNative(0, builtinImport, 1, 0));
 		primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
-		primSet(co, intern("vector"), makeNative(0, builtinVector, 1, 0));
-		primSet(co, intern("vector?"), makeNative(0, builtinIsVector, 1, 0));
+		primSet(co, intern("vector"),
+			makeNative(0, builtinVector, 1, 0));
+		primSet(co, intern("vector?"),
+			makeNative(0, builtinIsVector, 1, 0));
 		primSet(co, intern("vector-set!"),
 			makeNative(0, builtinVectorSet, 3, 0));
 		primSet(co, intern("vector-ref"),
 			makeNative(0, builtinVectorRef, 2, 0));
 		primSet(co, intern("vector-length"),
 			makeNative(0, builtinVectorLength, 1, 0));
-		primSet(co, intern("bytes"), makeNative(0, builtinBytes, 1, 0));
+		primSet(co, intern("bytes"),
+			makeNative(0, builtinBytes, 1, 0));
 		primSet(co, intern("bytes-length"),
 			makeNative(0, builtinBytesLength, 1, 0));
-		primSet(co, intern("try"), makeNative(0, builtinTryCatch, 2, 0));
-		primSet(co, intern("throw"), makeNative(0, builtinThrow, 1, 0));
+		primSet(co, intern("try"),
+			makeNative(0, builtinTryCatch, 2, 0));
+		primSet(co, intern("throw"),
+			makeNative(0, builtinThrow, 1, 0));
 		primSet(co, intern("cora/init#*imported*"), Nil);
-		primSet(co, intern("symbol-cooked?"), makeNative(0, builtinSymbolCooked, 1, 0));
-		primSet(co, intern("cora/lib/eval#make-closure-for-eval"), makeNative(0, makeClosureForEval, 3, 0));
+		primSet(co, intern("symbol-cooked?"),
+			makeNative(0, builtinSymbolCooked, 1, 0));
+		primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
+			makeNative(0, makeClosureForEval, 3, 0));
 		initialized = true;
 	}
 	return co;

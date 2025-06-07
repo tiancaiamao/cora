@@ -1,0 +1,57 @@
+(package "cora/lib/define-record"
+	 ;; (define-record <person>
+	 ;;     (make-person name age)
+	 ;;   person?
+	 ;;   (name get-name set-name!)
+	 ;;   (age get-age set-age!)) 
+
+	 (func field-index-h
+	       idx field [[x . _] . fields] => (if (= x field)
+						   idx
+						   (field-index-h (+ idx 1) field fields)))
+
+	 (defun field-index (field fields)
+	   (field-index-h 0 field fields))
+
+	 (func rewrite-field-h
+	       fields [field getter setter] => (let arg (gensym)
+						    val (gensym)
+						     idx (+ (field-index field fields) 1)
+						     ['begin ['defun getter [arg]
+						     ['vector-ref arg idx]]
+						     ['defun setter [arg val] 
+						     ['vector-set! arg idx val]]])
+	       fields [field getter] => (let arg (gensym)
+					      idx (+ (field-index field fields) 1)
+					      ['defun getter [arg]
+					      ['vector-ref arg idx]])
+	       fields [field] => ())
+
+	 (func rewrite-define-record
+	       [typename [constructor . inits] predicate . fields] =>
+	       (let ret (gensym)
+		    arg (gensym)
+		    init-record (map (lambda (init)
+				       ['vector-set! ret (+ 1 (field-index init fields)) init])
+				     inits)
+		    ['begin
+		    ['defun constructor inits
+		    ['let ret ['vector (+ 1 (length fields))]
+		         ['begin
+			   ['vector-set! ret 0 ['quote typename]]
+			   . (if (null? init-record)
+				 [ret]
+				 (append init-record [ret]))]]]
+		    (if (= false predicate) []
+		    ['defun predicate [arg]
+		    ['and ['vector? arg]
+		    ['= ['vector-length arg] (+ 1 (length fields))]
+		    ['= ['vector-ref arg 0] ['quote typename]]]])
+		    . (map (rewrite-field-h fields) fields)]))
+
+	 (defmacro define-record (exp)
+	   (rewrite-define-record (cdr exp)))
+
+	 )
+		  
+		
