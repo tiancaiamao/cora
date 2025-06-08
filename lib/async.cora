@@ -4,118 +4,255 @@
   (import "cora/lib/io")
   (import "cora/lib/net")
   (import "cora/lib/queue")
-  (import "cora/lib/hash")
+  (import "cora/lib/let-loop")
   (import "cora/lib/cml")
+  (import "cora/lib/define-record")
 
-  (export recv send accept)
+  (export listen dial recv send accept conn-close)
 
-  (def block-queue (hash-make 64))
-  (defun add-blocked-queue (fd val)
-    (hash-set! block-queue fd val))
-  (defun remove-blocked-queue (fd)
-    (hash-del! block-queue fd))
-  (defun blocked-queue-empty? ()
-    (= 0 (hash-count block-queue)))
-  (defun find-blocked-by-fd (fd)
-    (cdr (hash-get block-queue fd)))
+  (define-record <conn>
+      (conn-make-naive fd)
+    false
+    (next conn-next conn-set-next!)
+    (prev conn-prev conn-set-prev!)
+    (mode conn-mode conn-set-mode!)
+    (fd conn-fd)
+    (read-callback conn-read-callback conn-set-read-callback!)
+    (write-callback conn-write-callback conn-set-write-callback!)
+    (extra conn-extra conn-set-extra!))
+
+  (defun conn-make (fd)
+    (let c (conn-make-naive fd)
+	 (begin
+	  (conn-set-next! c ())
+	  (conn-set-prev! c ())
+	  (conn-set-mode! c ())
+	  (conn-set-read-callback! c ())
+	  (conn-set-write-callback! c ())
+	  c)))
+
+  (define-record <node>
+      (node-make)
+    false
+    (next node-next node-set-next!)
+    (prev node-prev node-set-prev!))
+
+  (def *event-loop-conns*
+      (let v (node-make)
+	   (begin
+	    (node-set-next! v ())
+	    (node-set-prev! v ())
+	    v)))
+
+  (defun conn-not-in-event-loop? (conn)
+    (and (null? (conn-next conn))
+	 (null? (conn-prev conn))))
+
+  (defun add-to-event-loop-conns (conn)
+    (let head *event-loop-conns*
+	 (begin
+	  (conn-set-next! conn (node-next head)) ;; conn->next = head->next
+	  (if (not (null? (node-next head))) ;; if head->next != null
+	      (node-set-prev! (node-next head) conn) ;; head->next->prev = conn
+	      ())
+	  (node-set-next! head conn) ;; head->next = conn
+	  (conn-set-prev! conn head)))) ;; conn->prev = conn
+
+  (defun del-from-event-loop-conns (conn)
+    (let prev (conn-prev conn)
+	 (begin
+	  (conn-set-next! prev (conn-next conn)) ;; prev->next = conn->next
+	  (if (null? (conn-next conn)) ;; if conn->next != null
+	      ()
+	      (conn-set-prev! (conn-next conn) prev)) ;; conn->next->prev = prev
+	  (conn-set-next! conn ()) ;; conn->next = null
+	  (conn-set-prev! conn ())))) ;; conn->prev = null
+	 
+
+  ;; event-loop-add registers the conn to event loop.
+  ;; conn is also added to a list to protect from garbage recycle.
+  (defun event-loop-add (conn mode callback)
+    (begin 
+     (cond
+       ((= mode 'read) (conn-set-read-callback! conn callback))
+       ((= mode 'write) (conn-set-write-callback! conn callback)))
+     ;; (display mode)
+     ;; (display "in event-loop-add \n")
+     (if (conn-not-in-event-loop? conn)
+	 (begin
+	  ;; (display "in event-loop-add before add-to-event-loop \n")
+	  (add-to-event-loop-conns conn)
+	  ;; (display "in event-loop-add before net-poll-add \n")
+	  (net-poll-add (conn-fd conn) mode conn)
+	  (conn-set-mode! conn (cons mode ())))
+	 (if (not (member mode (conn-mode conn)))
+	     (begin
+	      ;; (display "conn mode is:")
+	      ;; (display (conn-mode conn))
+	      ;; (display "\n add event loop mode is:")
+	      ;; (display mode)
+	      ;; (display "\n")
+	      (let new-mode (cons mode (conn-mode conn))
+		   (begin
+		    (net-poll-mod (conn-fd conn) new-mode conn)
+		    (conn-set-mode! conn new-mode))))
+	     (display "event loop add no action!\n")))))
+
+  (defun listen (addr)
+    (let fd (net-listen addr)
+	 (begin
+	  ;; (display fd)
+	  ;; (display "here in listen?\n")
+	  (conn-make fd))))
+
+  (defun conn-close (conn)
+    (if (conn-not-in-event-loop? conn)
+	(net-close (conn-fd conn))
+	(let fd (conn-fd conn)
+	     (begin
+	      (net-poll-del fd)
+	      (net-close fd)
+	      (del-from-event-loop-conns conn)))))
+
+  (defun dial (addr)
+    (let fd (net-dial addr)
+	 (conn-make fd)))
 
   (func recv-handler
-	[fd buf pos] k => (begin
-			    ;; (display "run in recv-handler\n")
-			    (match (net-recv fd buf pos)
-			      [block pos] (begin
-					    (add-blocked-queue fd ['Recv fd buf pos k])
-					    (net-poll-add fd 'read)
-					    ;; (display "recv-handler block and go to scheduler\n")
-					    (schedule)
-					    ;; (display "finish schedule in recv-handler")
-					    )
-			      res (begin
-				    ;; (display "before recv handler direct return\n")
-				    (spawn (lambda () (k res)))
-				    ;; (display "after recv handler direct return\n")
-				    ))))
+	[conn buf pos] k => (begin
+			     ;; (display "run in recv-handler\n")
+			     (match (net-recv (conn-fd conn) buf pos)
+				    [block pos] (begin
+						 (event-loop-add conn 'read (lambda (conn) (recv-handler [conn buf pos] k)))
+						 ;; (display "recv-handler block and go to scheduler\n")
+						 (schedule)
+						 ;; (display "finish schedule in recv-handler")
+						 )
+				    res (begin
+					 (conn-set-read-callback! conn ())
+					 ;; (display "before recv handler direct return\n")
+					 (spawn (lambda () (k res)))
+					 ;; (display "after recv handler direct return\n")
+					 ))))
 
   (defun default-wrap (x) x)
 
-  (defun recv-op (fd buf pos)
+  (defun recv-op (conn buf pos)
     (let try (lambda () false)
-      block (lambda (k wrap)
-	      (begin
-		(add-blocked-queue fd ['Recv fd buf pos k])
-		(net-poll-add fd 'read)))
-      [try block default-wrap]))
+	 block (lambda (k wrap)
+		 (event-loop-add conn 'read (lambda (conn) (recv-handler [conn buf pos] k))))
+	 [try block default-wrap]))
 
-  (defun recv (fd buf)
+  (defun recv (conn buf)
     (begin
       ;; (display "in recv ---\n")
-      (perform (recv-op fd buf 0))))
+      (perform (recv-op conn buf 0))))
 
   (func send-handler
-	[fd buf pos] k => (match (net-send fd buf pos)
-			    [block pos] (begin
-					  (add-blocked-queue fd ['Send fd buf pos k])
-					  (net-poll-add fd 'write)
-					  ;; (display "send-handler block and go to schedule\n")
-					  (schedule)
-					  ;; (display "finish send-handler\n")
-					  )
-			    res (spawn (lambda () (k res))))
+	[conn buf pos] k => (match (net-send (conn-fd conn) buf pos)
+				   [block pos] (begin
+						(event-loop-add conn 'write (lambda (conn)
+									      (send-handler [conn buf pos] k)))
+						;; (display "send-handler block and go to schedule\n")
+						(schedule)
+						;; (display "finish send-handler\n")
+						)
+				   res (begin
+					(conn-set-write-callback! conn ())
+					;; remove writable event registry from event loop,
+					;; because we'll get too noisy notifications, writable is almost always true
+					(let fd (conn-fd conn)
+					     old-mode (conn-mode conn)
+					     new-mode (filter
+						       (lambda (m) (not (= 'write m)))
+						       old-mode)
+					     (net-poll-mod fd new-mode conn))
+					(spawn (lambda () (k res)))))
 	_ k => (display "wrong argument for send-handler\n"))
 
+  (defun send-op (conn buf pos)
+    (let try (lambda ()
+	       (match (net-send (conn-fd conn) buf pos)
+		      [block pos] (begin
+				   (conn-set-extra! conn pos)
+				   false)
+		      res res))
+	 block (lambda (k wrap)
+		 (begin
+		  ;; (display "send-op\n")
+		  (let pos1 (conn-extra conn)
+		       (event-loop-add conn 'write (lambda (conn)
+						     (begin
+						      ;; (display "in send callback\n")
+						      (send-handler [conn buf pos1] k)))))))
+	 [try block default-wrap]))
 
-  (defun send-op (fd buf pos)
-    (let try (lambda () false)
-      block (lambda (k wrap)
-	      (begin
-		(add-blocked-queue fd ['Send fd buf pos k])
-		(net-poll-add fd 'write)))
-      [try block default-wrap]))
-
-  (defun send (fd buf)
+  (defun send (conn buf)
     (begin
-      (perform (send-op fd buf 0))
+      (perform (send-op conn buf 0))
       ;; (display buf)
       ;; (display "send success!\n")
       ))
 
   (defun accept-op (ln)
     (let try (lambda () false)
-      block (lambda (k wrap)
-	      (begin
-		(add-blocked-queue ln ['Accept ln k])
-		(net-poll-add ln 'read)))
-      [try block default-wrap]))
+	 block (lambda (k wrap)
+		 (begin
+		  ;; (display "accept-op\n")
+		  (event-loop-add ln 'read (lambda (conn)
+					     (begin
+					      ;; (display "here in accept callback!\n")
+					      (conn-set-read-callback! conn ())
+					      (let fd (conn-fd conn)
+						   new-fd (net-accept fd)
+						   new-conn (conn-make new-fd)
+						   (begin
+						    ;; (display new-fd)
+						    ;; (display "before accept spawn\n")
+						    (spawn (lambda ()
+							     (begin
+							      ;; (display "accept spawn called\n")
+							      (k new-conn)))))))))))
+	 [try block default-wrap]))
 
   (defun accept (ln)
     (perform (accept-op ln)))
 
+  (defun blocked-queue-empty? ()
+    (let-loop recur (conn (node-next *event-loop-conns*))
+	      (cond
+		((null? conn) true)
+		((and (null? (conn-read-callback conn))
+		      (null? (conn-write-callback conn)))
+		 (recur (conn-next conn)))
+		(true false))))
+
   (defun scheduler (timeout)
     (if (blocked-queue-empty?)
 	(begin
-	  ;; (display "block queue empty!!\n")
-	  false) ;; no more task
-	(let ready-fds (net-poll timeout)
-	  (or (null? ready-fds)
-	      (begin
-		;; (display ready-fds)
-		;; (display "ready-blocks\n")
-		(for-each (lambda (fd)
-			    (let msg (find-blocked-by-fd fd)
-			      (begin
-				;; (display "poll find blocked fd")
-				;; (display msg)
-				;; (display "\n")
-				(match msg
-				  ['Send fd buf pos k] (send-handler [fd buf pos] k)
-				  ['Recv fd buf pos k] (recv-handler [fd buf pos] k)
-				  ['Accept fd k] (spawn (lambda () (k (net-accept fd))))
-				  _ (error "don't know how to handle task?"))
-				;; (display fd)
-				;; (display "remove blocked queue\n")
-				(remove-blocked-queue fd))))
-			  ready-fds)
-		true)))))
+	 ;; (display "block queue empty!!\n")
+	 false) ;; no more task
+	(let events (net-poll timeout)
+	     (or (null? events)
+		 (begin
+		  ;; (display "scheduler handle ready events\n")
+		  (for-each (lambda (events)
+			      (let conn (car events)
+				   mode (cdr events)
+				   read-handler (conn-read-callback conn)
+				   write-handler (conn-write-callback conn)
+				   (cond
+				     ((and (= mode 'read) (not (null? read-handler))) (read-handler conn))
+				     ((and (= mode 'write) (not (null? write-handler))) (write-handler conn))
+				     (true (begin
+					    (display "poll get event ")
+					    (display mode)
+					    (display "but callback is not set")
+					    (display "fd=")
+					    (display (conn-fd conn))
+					    (display "\n"))))))
+			    events)
+		  true)))))
 
   (register-scheduler scheduler)
   )

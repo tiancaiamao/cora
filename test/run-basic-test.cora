@@ -1,4 +1,4 @@
-(package "cora/test/run-all-test"
+(package "cora/test/run-basic-test"
 
   (import "cora/lib/sys")
   (import "cora/lib/toc")

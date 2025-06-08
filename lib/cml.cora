@@ -134,6 +134,7 @@
 		  (throw (lambda (k)
 			   (begin
 			    (block k wrap)
+			    ;; (display "perform called block, now schedule\n")
 			    (schedule))))
 		  (wrap v)))))
   )
