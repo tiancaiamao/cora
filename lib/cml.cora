@@ -8,7 +8,7 @@
   (import "cora/lib/queue")
   (import "cora/lib/rand")
   (import "cora/lib/sys")
-  (import "cora/lib/io")
+  ;; (import "cora/lib/io")
   (export spawn yield main wrap perform schedule enqueue-task register-scheduler)
 
   (def task-queue (queue-make))

@@ -20,9 +20,6 @@ clean:
 json.so: json.c
 	gcc -shared -o json.so -g json.c -fPIC -I../src -L../src -lcora -ljansson
 
-os.so: os.o
-	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora -lpthread
-
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
 
