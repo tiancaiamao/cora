@@ -243,9 +243,10 @@ makeBuffer(struct Cora *ctx) {
 
 static void
 pollAdd(struct Cora *ctx) {
-	Obj conn = coraGet(ctx, 1);
+	Obj fd = coraGet(ctx, 1);
 	Obj mode = coraGet(ctx, 2);
-	int fd = vectorRef(conn, 2);
+	Obj conn = coraGet(ctx, 3);
+	/* printf("pollAdd ..%ld\n", fd); */
 	if (mode == intern("read")) {
 		pollReadAdd(pollfd, fixnum(fd), conn);
 	} else if (mode == intern("write")) {
@@ -253,6 +254,33 @@ pollAdd(struct Cora *ctx) {
 	} else {
 		printf("error argument for pollAdd\n");
 	}
+	coraReturn(ctx, Nil);
+}
+
+static void
+pollMod(struct Cora *ctx) {
+	Obj fd = coraGet(ctx, 1);
+	Obj modes = coraGet(ctx, 2);
+	Obj conn = coraGet(ctx, 3);
+	uint32_t newMode = 0;
+	while (modes != Nil) {
+		Obj val = car(modes);
+		if (val == intern("read")) {
+			newMode |= EPOLLIN;
+		} else if (val == intern("write")) {
+			newMode |= EPOLLOUT;
+		}
+		modes = cdr(modes);
+	}
+	/* printf("pollMod ..%ld ... new mode %d\n", fd, newMode); */
+	pollCtlMod(pollfd, fixnum(fd), newMode, conn);
+	coraReturn(ctx, Nil);
+}
+
+static void
+pollDel(struct Cora *ctx) {
+	Obj fd = coraGet(ctx, 1);
+	pollCtlDel(pollfd, fixnum(fd));
 	coraReturn(ctx, Nil);
 }
 
@@ -273,6 +301,8 @@ struct registerModule netModule = {
    {"net-dial", netDial, 1},
    {"net-poll", netPoll, 1},
    {"net-poll-add", pollAdd, 3},
+   {"net-poll-mod", pollMod, 3},
+   {"net-poll-del", pollDel, 1},
    {"net-send", netSend, 3},
    {"net-recv", netRecv, 3},
    {"net-listen", netListen, 1},

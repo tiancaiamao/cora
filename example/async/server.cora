@@ -17,16 +17,19 @@
 
   (defun handle-conn (fd)
     (let v (send fd "hello world")
-      (let buf (make-buffer 12)
-	(begin
-	  (recv fd buf)
-	  (display buf)
-	  (net-close fd)
-	  (display "after close fd!!!\n")))))
+	 (let buf (make-buffer 12)
+	      (begin
+	       ;; (display "send done and now recv --\n")
+	       (recv fd buf)
+	       (display buf)
+	       (conn-close fd)
+	       (display "after close fd!!!\n")))))
 
   (defun server-main ()
     (let ln (listen "127.0.0.1:8080")
-      (accept-loop ln)))
+	 (begin
+	  (display "listen 8080 success\n")
+	  (accept-loop ln))))
 
   (spawn server-main)
   (main)

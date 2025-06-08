@@ -29,10 +29,25 @@ pollWriteAdd(int pollfd, int fd, Obj conn) {
 	}
 }
 
-/* static void */
-/* pollDel(int pollfd, int fd) { */
-/*   epoll_ctl(pollfd, EPOLL_CTL_DEL, fd, NULL); */
-/* } */
+static void
+pollCtlMod(int pollfd, int fd, uint32_t events, Obj conn) {
+	struct epoll_event ev;
+	ev.events = events;
+	ev.data.u64 = conn;
+	/* printf("netSend, epoll_ctl add fd = %d\n", fd); */
+	if (epoll_ctl(pollfd, EPOLL_CTL_MOD, fd, &ev) < 0) {
+		// TODO
+		printf("epoll ctl mod fail\n");
+	}
+}
+
+static void
+pollCtlDel(int pollfd, int fd) {
+  int succ = epoll_ctl(pollfd, EPOLL_CTL_DEL, fd, NULL);
+  if (succ != 0) {
+	  perror("epoll_ctl EPOLL_CTL_DEL");
+  }
+}
 
 static Obj
 poll(int pollfd, int timeout) {
@@ -48,11 +63,14 @@ poll(int pollfd, int timeout) {
 
   Obj ret = Nil;
   for (int i=0; i<nfds; i++) {
-    Obj data = events[i].data.u64;
-    Obj fd = makeNumber(data);
-    ret = cons(fd, ret);
-    /* pollDel(pollfd, data); */
-    /* printf("netpoll del fd == %d\n", data); */
+	  if ((events[i].events & EPOLLIN) == EPOLLIN) {
+		  Obj conn = events[i].data.u64;
+		  ret = cons(cons(conn, intern("read")), ret);
+	  }
+	  if ((events[i].events & EPOLLOUT) == EPOLLOUT) {
+		  Obj conn = events[i].data.u64;
+		  ret = cons(cons(conn, intern("write")), ret);
+	  }
   }
   return ret;
 }

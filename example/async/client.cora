@@ -13,7 +13,7 @@
 	(display buf)
 	(display "\n")
 	(send conn "hello arthur")
-	(net-close conn))))
+	(conn-close conn))))
 
   (spawn client-main)
   (main)
