@@ -19,7 +19,7 @@
     (fd conn-fd)
     (read-callback conn-read-callback conn-set-read-callback!)
     (write-callback conn-write-callback conn-set-write-callback!)
-    (reserve))
+    (extra conn-extra conn-set-extra!))
 
   (defun conn-make (fd)
     (let c (conn-make-naive fd)
@@ -76,6 +76,7 @@
      (cond
        ((= mode 'read) (conn-set-read-callback! conn callback))
        ((= mode 'write) (conn-set-write-callback! conn callback)))
+     ;; (display mode)
      ;; (display "in event-loop-add \n")
      (if (conn-not-in-event-loop? conn)
 	 (begin
@@ -158,19 +159,32 @@
 						)
 				   res (begin
 					(conn-set-write-callback! conn ())
+					;; remove writable event registry from event loop,
+					;; because we'll get too noisy notifications, writable is almost always true
+					(let fd (conn-fd conn)
+					     old-mode (conn-mode conn)
+					     new-mode (filter
+						       (lambda (m) (not (= 'write m)))
+						       old-mode)
+					     (net-poll-mod fd new-mode conn))
 					(spawn (lambda () (k res)))))
 	_ k => (display "wrong argument for send-handler\n"))
 
   (defun send-op (conn buf pos)
     (let try (lambda ()
-	       false)
+	       (match (net-send (conn-fd conn) buf pos)
+		      [block pos] (begin
+				   (conn-set-extra! conn pos)
+				   false)
+		      res res))
 	 block (lambda (k wrap)
 		 (begin
 		  ;; (display "send-op\n")
-		  (event-loop-add conn 'write (lambda (conn)
-						(begin
-						 ;; (display "in send callback\n")
-						 (send-handler [conn buf pos] k))))))
+		  (let pos1 (conn-extra conn)
+		       (event-loop-add conn 'write (lambda (conn)
+						     (begin
+						      ;; (display "in send callback\n")
+						      (send-handler [conn buf pos1] k)))))))
 	 [try block default-wrap]))
 
   (defun send (conn buf)
@@ -193,6 +207,7 @@
 						   new-fd (net-accept fd)
 						   new-conn (conn-make new-fd)
 						   (begin
+						    ;; (display new-fd)
 						    ;; (display "before accept spawn\n")
 						    (spawn (lambda ()
 							     (begin
@@ -223,16 +238,19 @@
 		  ;; (display "scheduler handle ready events\n")
 		  (for-each (lambda (events)
 			      (let conn (car events)
-				    mode (cdr events)
-				    read-handler (conn-read-callback conn)
-				    write-handler (conn-write-callback conn)
-				    (cond
-				      ((and (= mode 'read) (not (null? read-handler))) (read-handler conn))
-				      ((and (= mode 'write) (not (null? write-handler))) (write-handler conn))
-				      (true (begin
-					     (display "poll get event ")
-					     (display mode)
-					     (display "but callback is not set\n"))))))
+				   mode (cdr events)
+				   read-handler (conn-read-callback conn)
+				   write-handler (conn-write-callback conn)
+				   (cond
+				     ((and (= mode 'read) (not (null? read-handler))) (read-handler conn))
+				     ((and (= mode 'write) (not (null? write-handler))) (write-handler conn))
+				     (true (begin
+					    (display "poll get event ")
+					    (display mode)
+					    (display "but callback is not set")
+					    (display "fd=")
+					    (display (conn-fd conn))
+					    (display "\n"))))))
 			    events)
 		  true)))))
 
