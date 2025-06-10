@@ -1,0 +1,76 @@
+(package "cora/lib/parallel"
+
+	 (export new-proc mailbox-make mailbox-publish
+		 mailbox-queue-len mailbox-send mailbox-recv)
+
+	 (import "cora/lib/parallel/internal")
+	 (import "cora/lib/queue")
+	 (import "cora/lib/cml")
+	 (import "cora/lib/async")
+  	 (import "cora/lib/net")
+  	 (import "cora/lib/io")
+
+	 ;; new-proc is a thread + cora vm (with its own GC, event loop etc)
+	 ;; it's heavy, it's not lightweight like coroutine
+	 ;; it's parallel rather than concurrency
+	 ;; it's recommended to create N procs where N = CPU cores
+	 (def new-proc cora/lib/parallel/internal#new-proc)
+
+	 ;; mailbox is used to communiate across different procs
+	 ;; safe for parallel
+	 (def mailbox-make cora/lib/parallel/internal#mailbox-make)
+
+	 ;; mailbox 
+	 (defun mailbox-release (mb)
+	   42)
+
+	 ;; mailbox-publish bind a name for the mailbox, make it visible to other procs
+	 (defun mailbox-publish (name mb)
+	   ;; todo
+	   42)
+
+	 ;; (defun mailbox-queue-len (mb)
+	 ;;   (queue-len (mailbox-queue mb)))
+
+	 ;; (defun with-mailbox-locked (mb fn)
+	 ;;   (let mu (mailbox-mutex mb)
+	 ;; 	(begin
+	 ;; 	 (mutex-lock mu)
+	 ;; 	 (let res (fn mb)
+	 ;; 	      (begin (mutex-unlock mu)
+	 ;; 		     res)))))
+
+	 ;; mailbox-send will never block, mailbox queue size is unbounded
+	 (def mailbox-send cora/lib/parallel/internal#mailbox-send)
+
+	 (defun default-wrap (x) x)
+
+	 ;; mailbox is an operation, it may block if the mailbox is empty
+	 ;; (perform (mailbox-recv mb))
+	 (defun mailbox-recv (mb)
+	   (let try (lambda () (mailbox-recv-try mb))
+		block (lambda (k wrap)
+			(begin
+			 (mailbox-lock mb)
+			 ;; it may happen that there is no msg when try
+			 ;; but when block, the msg is available... so double check here.
+			 (if (> 0 (mailbox-queue-len mb))
+			     (let data (mailbox-dequeue mb)
+				  (begin
+				   (mailbox-unlock mb)
+				   data))
+			     ;; handle block branch
+			     (let fd (event-fd)
+				  conn (conn-make fd)
+				  (begin
+				   (event-loop-add conn 'read (lambda (conn)
+								(begin
+								 (display "wakeup callback\n")
+								 (let val (conn-extra conn)
+								      (begin
+								       (conn-close conn)
+								       (spawn (lambda () (k val))))))))
+				   (mailbox-enqueue-blocked mb conn)
+				   (mailbox-unlock mb))))))
+		[try block default-wrap]))
+	 )

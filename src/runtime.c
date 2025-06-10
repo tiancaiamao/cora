@@ -431,6 +431,7 @@ findTryMark(struct Cora *co) {
 	}
 	if (p < 0) {
 		// TODO: panic, not in any try-catch block!
+		printf("panic, not in any try-catch block!\n");
 		assert(false);
 	}
 	return p;

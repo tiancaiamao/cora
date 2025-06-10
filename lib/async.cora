@@ -8,7 +8,9 @@
   (import "cora/lib/cml")
   (import "cora/lib/define-record")
 
-  (export listen dial recv send accept conn-close)
+  (export listen dial recv send accept
+	  conn-close conn-make conn-extra
+	  event-loop-add)
 
   (define-record <conn>
       (conn-make-naive fd)
@@ -19,6 +21,8 @@
     (fd conn-fd)
     (read-callback conn-read-callback conn-set-read-callback!)
     (write-callback conn-write-callback conn-set-write-callback!)
+    ;; NOTE, extra is also used in parallel/internal.c,
+    ;; if it's changed here, they must be done together
     (extra conn-extra conn-set-extra!))
 
   (defun conn-make (fd)
