@@ -284,32 +284,41 @@ pollDel(struct Cora *ctx) {
 	coraReturn(ctx, Nil);
 }
 
-void
-eventLoopInit() {
-  pollfd = pollCreate();
-  // TODO
-  if (pollfd == -1) {
-    perror("epoll_create1");
-    return;
-  }
+static void
+netPollFDInit(struct Cora *co) {
+	if (pollfd > 0) {
+		printf("net poll fd init must be call only once!\n");
+		assert(false);
+	}
+
+	// init thread local variable
+	pollfd = pollCreate();
+	if (pollfd == -1) {
+		perror("epoll_create1");
+		// TODO
+	}
+	coraReturn(co, Nil);
+	return;
 }
 
 struct registerModule netModule = {
-  eventLoopInit,
-  {
-   {"make-buffer", makeBuffer, 1},
-   {"net-dial", netDial, 1},
-   {"net-poll", netPoll, 1},
-   {"net-poll-add", pollAdd, 3},
-   {"net-poll-mod", pollMod, 3},
-   {"net-poll-del", pollDel, 1},
-   {"net-send", netSend, 3},
-   {"net-recv", netRecv, 3},
-   {"net-listen", netListen, 1},
-   {"net-accept", netAccept, 1},
-   {"net-close", netClose, 1},
-   {NULL, NULL, 0}
-  }
+	NULL,
+	{
+		{"net-poll-fd-init", netPollFDInit, 0},
+		{"net-poll", netPoll, 1},
+		{"net-poll-add", pollAdd, 3},
+		{"net-poll-mod", pollMod, 3},
+		{"net-poll-del", pollDel, 1},
+
+		{"make-buffer", makeBuffer, 1},
+		{"net-dial", netDial, 1},
+		{"net-send", netSend, 3},
+		{"net-recv", netRecv, 3},
+		{"net-listen", netListen, 1},
+		{"net-accept", netAccept, 1},
+		{"net-close", netClose, 1},
+		{NULL, NULL, 0}
+	}
 };
 
 void

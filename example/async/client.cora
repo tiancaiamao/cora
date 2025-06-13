@@ -15,6 +15,5 @@
 	(send conn "hello arthur")
 	(conn-close conn))))
 
-  (spawn client-main)
-  (main)
+  (cml-entry client-main)
   )

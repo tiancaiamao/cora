@@ -872,6 +872,20 @@ makeClosureForEval(struct Cora *co) {
 	coraReturn(co, ret);
 }
 
+static Obj
+primVMSymbolForTLS(struct Cora *co) {
+	char dest[20];
+	int sz = sprintf(dest, "%p", co);
+	assert(sz < 20);
+	return intern(dest);
+}
+
+static void
+vmSymbolForTLS(struct Cora *co) {
+	Obj ret = primVMSymbolForTLS(co);
+	coraReturn(co, ret);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -962,8 +976,11 @@ coraInit(uintptr_t * mark) {
 			makeNative(0, builtinSymbolCooked, 1, 0));
 		primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
 			makeNative(0, makeClosureForEval, 3, 0));
+		primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
+			makeNative(0, vmSymbolForTLS, 0, 0));
 		initialized = true;
 	}
+	primSet(co, primVMSymbolForTLS(co), Nil);
 	return co;
 }
 

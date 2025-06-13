@@ -10,7 +10,7 @@
   	 (import "cora/lib/net")
   	 (import "cora/lib/io")
 
-	 ;; new-proc is a thread + cora vm (with its own GC, event loop etc)
+	 ;; new-proc is a thread + cora vm (with its own GC, event loop, scheduler etc)
 	 ;; it's heavy, it's not lightweight like coroutine
 	 ;; it's parallel rather than concurrency
 	 ;; it's recommended to create N procs where N = CPU cores

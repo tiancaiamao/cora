@@ -1,6 +1,18 @@
 (package "cora/lib/sys"
 
-  (export assq foldl for-each member)
+  (export assq foldl for-each member thread-local-get thread-local-set)
+
+  (defun thread-local-get (key)
+    (let find (assq key (value (vm-symbol-for-tls)))
+	 (if (null? find)
+	     (error "get non-exist key")
+	     (cdr find))))
+
+  (defun thread-local-set (key val)
+    (let var (vm-symbol-for-tls)
+	 old-val (value var)
+	 new-val (cons (cons key val) (filter (lambda (x) (not (= key (car x)))) old-val))
+	 (set var new-val)))
 
   (func assq
 	var [] => ()

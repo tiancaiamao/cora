@@ -41,19 +41,22 @@
     (next node-next node-set-next!)
     (prev node-prev node-set-prev!))
 
-  (def *event-loop-conns*
-      (let v (node-make)
-	   (begin
-	    (node-set-next! v ())
-	    (node-set-prev! v ())
-	    v)))
+  (defun create-event-loop-conns ()
+    (let v (node-make)
+	 (begin
+	  (node-set-next! v ())
+	  (node-set-prev! v ())
+	  v)))
+
+  (defun event-loop-conns ()
+    (thread-local-get 'cora/lib/async#event-loop))
 
   (defun conn-not-in-event-loop? (conn)
     (and (null? (conn-next conn))
 	 (null? (conn-prev conn))))
 
   (defun add-to-event-loop-conns (conn)
-    (let head *event-loop-conns*
+    (let head (event-loop-conns)
 	 (begin
 	  (conn-set-next! conn (node-next head)) ;; conn->next = head->next
 	  (if (not (null? (node-next head))) ;; if head->next != null
@@ -223,7 +226,7 @@
     (perform (accept-op ln)))
 
   (defun blocked-queue-empty? ()
-    (let-loop recur (conn (node-next *event-loop-conns*))
+    (let-loop recur (conn (node-next (event-loop-conns)))
 	      (cond
 		((null? conn) true)
 		((and (null? (conn-read-callback conn))
@@ -258,5 +261,14 @@
 			    events)
 		  true)))))
 
-  (register-scheduler scheduler)
+  ;; event-loop-init initializes the thread local event loop
+  ;; and register the event loop to scheduler
+  (defun event-loop-init ()
+    (let el (create-event-loop-conns)
+	 (begin
+	  (net-poll-fd-init)
+	  (display "event loop init!!!!!!\n")
+	  (thread-local-set 'cora/lib/async#event-loop el)
+	  (register-scheduler scheduler))))
+
   )
