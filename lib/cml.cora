@@ -15,7 +15,9 @@
     (thread-local-get 'cora/lib/cml#task-queue))
 
   (defun task-queue-init ()
-    (thread-local-set 'cora/lib/cml#task-queue (queue-make)))
+    (begin
+     (thread-local-set 'cora/lib/cml#external-schedulers ())
+     (thread-local-set 'cora/lib/cml#task-queue (queue-make))))
 
   ;; enqueue-task enqueue a task
   (defun enqueue-task (thunk)
@@ -28,16 +30,18 @@
 			 (lambda (v k)
 			   (v k))))))
 
-  (def external-schedulers ())
+  (defun external-schedulers ()
+    (thread-local-get 'cora/lib/cml#external-schedulers))
+
   (defun register-scheduler (fn)
-    (set 'cora/lib/cml#external-schedulers (cons fn external-schedulers)))
+    (thread-local-set 'cora/lib/cml#external-schedulers (cons fn (external-schedulers))))
 
   (defun run-external-schedulers (timeout)
     (foldl (lambda (succ sched)
 		 (let res (sched timeout)
 		      (or succ res)))
 	       false
-	       external-schedulers))
+	       (external-schedulers)))
 
   ;; schedule take a task out and execute it
   ;; return false if no more tasks
@@ -64,6 +68,7 @@
 	 ()
 	 (schedule-loop))))
 
+  ;; cml-entry can run only once within a thread
   (defun cml-entry (main)
     (begin
      (task-queue-init)
@@ -82,7 +87,7 @@
     (throw (lambda (k)
 	     (begin
 	       (enqueue (task-queue) (lambda () (k ())))
-	       (main)))))
+	       (schedule-loop)))))
 
 
   (defun default-wrap (x) x)
