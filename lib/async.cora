@@ -237,12 +237,12 @@
   (defun scheduler (timeout)
     (if (blocked-queue-empty?)
 	(begin
-	 ;; (display "block queue empty!!\n")
+	 (display "block queue empty --- return false!!\n")
 	 false) ;; no more task
 	(let events (net-poll timeout)
 	     (or (null? events)
 		 (begin
-		  ;; (display "scheduler handle ready events\n")
+		  (display "net-poll once, and scheduler handle ready events\n")
 		  (for-each (lambda (events)
 			      (let conn (car events)
 				   mode (cdr events)
@@ -259,6 +259,7 @@
 					    (display (conn-fd conn))
 					    (display "\n"))))))
 			    events)
+		  (display "handle net-poll events done, --- return true!\n")
 		  true)))))
 
   ;; event-loop-init initializes the thread local event loop

@@ -1,6 +1,6 @@
 (package "cora/lib/parallel"
 
-	 (export new-proc mailbox-make mailbox-publish
+	 (export new-proc mailbox-make mailbox-publish mailbox-resolve
 		 mailbox-queue-len mailbox-send mailbox-recv)
 
 	 (import "cora/lib/parallel/internal")
@@ -16,6 +16,11 @@
 	 ;; it's recommended to create N procs where N = CPU cores
 	 (def new-proc cora/lib/parallel/internal#new-proc)
 
+	 ;; ;; this is what new-proc really run!
+	 ;; (defun parallel-entry (file-path)
+	 ;;   (cml-entry (lambda ()
+	 ;; 		(load file-path))))
+
 	 ;; mailbox is used to communiate across different procs
 	 ;; safe for parallel
 	 (def mailbox-make cora/lib/parallel/internal#mailbox-make)
@@ -25,9 +30,10 @@
 	   42)
 
 	 ;; mailbox-publish bind a name for the mailbox, make it visible to other procs
-	 (defun mailbox-publish (name mb)
-	   ;; todo
-	   42)
+	 (def mailbox-publish cora/lib/parallel/internal#mailbox-publish)
+
+	 ;; mailbox-resolve is the opsite of mailbox-publish
+	 (def mailbox-resolve cora/lib/parallel/internal#mailbox-resolve)
 
 	 ;; (defun mailbox-queue-len (mb)
 	 ;;   (queue-len (mailbox-queue mb)))
@@ -69,7 +75,10 @@
 								 (let val (conn-extra conn)
 								      (begin
 								       (conn-close conn)
-								       (spawn (lambda () (k val))))))))
+								       (display val)
+								       (display "spawn and continue with\n")
+								       (spawn (lambda () (k val)))
+								       (display "here after spawn in callback\n"))))))
 				   (mailbox-enqueue-blocked mb conn)
 				   (mailbox-unlock mb))))))
 		[try block default-wrap]))

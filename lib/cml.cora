@@ -47,13 +47,14 @@
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-     ;; (display "schedule()\n")
+     (display "schedule()\n")
      (let more-work (run-external-schedulers 0)
 	  (if (queue-empty? (task-queue))
 	      (if more-work
 		  (begin
-		   ;; (display "schedule 2()\n")
+		   ;; (display "run external schedules no timeout\n")
 		   (run-external-schedulers -1))
+		  ;; (display "schedule no more task and empty task queue\n")
 		  ())
 	      (let task (dequeue (task-queue))
 		   (begin
@@ -62,10 +63,14 @@
 
   (defun schedule-loop ()
     (begin
+     (display "enter schedule-loop\n")
      (schedule)
+     (display "schedule-loop do one round, check next round\n")
      (if (and (queue-empty? (task-queue))
 	      (not (run-external-schedulers 0)))
-	 ()
+	 (begin
+	  ;; (display "task queue empty and no external schedulers, exit!\n")
+	  ())
 	 (schedule-loop))))
 
   ;; cml-entry can run only once within a thread
@@ -157,7 +162,9 @@
 			   (begin
 			    (block k wrap)
 			    ;; (display "perform called block, now schedule\n")
-			    (schedule))))
+			    (schedule)
+			    ;; (display "perform called block, schedule exit\n")
+			    )))
 		  (wrap v)))))
   )
 
