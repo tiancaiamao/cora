@@ -8,64 +8,91 @@
   (import "cora/lib/queue")
   (import "cora/lib/rand")
   (import "cora/lib/sys")
-  ;; (import "cora/lib/io")
-  (export spawn yield main wrap perform schedule enqueue-task register-scheduler)
+  (import "cora/lib/io")
+  (export cml-entry perform spawn yield wrap schedule enqueue-task register-scheduler)
 
-  (def task-queue (queue-make))
+  (defun task-queue ()
+    (thread-local-get 'cora/lib/cml#task-queue))
 
+  (defun task-queue-init ()
+    (begin
+     (thread-local-set 'cora/lib/cml#external-schedulers ())
+     (thread-local-set 'cora/lib/cml#task-queue (queue-make))))
+
+  ;; enqueue-task enqueue a task
   (defun enqueue-task (thunk)
-    (enqueue task-queue thunk))
+    (enqueue (task-queue) thunk))
 
+  ;; spawn wrap thunk in a resumble env and enqueue the task
   (defun spawn (thunk)
     (enqueue-task (lambda ()
 		    (try thunk
 			 (lambda (v k)
 			   (v k))))))
 
-  (def external-schedulers ())
+  (defun external-schedulers ()
+    (thread-local-get 'cora/lib/cml#external-schedulers))
+
   (defun register-scheduler (fn)
-    (set 'cora/lib/cml#external-schedulers (cons fn external-schedulers)))
+    (thread-local-set 'cora/lib/cml#external-schedulers (cons fn (external-schedulers))))
 
   (defun run-external-schedulers (timeout)
     (foldl (lambda (succ sched)
 		 (let res (sched timeout)
 		      (or succ res)))
 	       false
-	       external-schedulers))
+	       (external-schedulers)))
 
   ;; schedule take a task out and execute it
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-     ;; (display "schedule()\n")
+     (display "schedule()\n")
      (let more-work (run-external-schedulers 0)
-	  (if (queue-empty? task-queue)
+	  (if (queue-empty? (task-queue))
 	      (if more-work
 		  (begin
-		   ;; (display "schedule 2()\n")
+		   ;; (display "run external schedules no timeout\n")
 		   (run-external-schedulers -1))
+		  ;; (display "schedule no more task and empty task queue\n")
 		  ())
-	      (let task (dequeue task-queue)
+	      (let task (dequeue (task-queue))
 		   (begin
 		    ;; (display "dequeue and run task\n")
-		    (task)))))))
-
-  (defun main ()
-    (schedule-loop))
+		    (task))))))) 
 
   (defun schedule-loop ()
     (begin
+     (display "enter schedule-loop\n")
      (schedule)
-     (if (and (queue-empty? task-queue)
+     (display "schedule-loop do one round, check next round\n")
+     (if (and (queue-empty? (task-queue))
 	      (not (run-external-schedulers 0)))
-	 ()
+	 (begin
+	  ;; (display "task queue empty and no external schedulers, exit!\n")
+	  ())
 	 (schedule-loop))))
+
+  ;; cml-entry can run only once within a thread
+  (defun cml-entry (main)
+    (begin
+     (task-queue-init)
+     (if (member "cora/lib/async" cora/init#*imported*)
+	 (cora/lib/async#event-loop-init)
+	 (begin
+	  (display cora/init#*imported*)
+	  (display "cora/lib/async is not loaded!!\n")))
+
+     (display "cml-entry init done\n")
+
+     (spawn main)
+     (schedule-loop)))
 
   (defun yield ()
     (throw (lambda (k)
 	     (begin
-	       (enqueue task-queue (lambda () (k ())))
-	       (main)))))
+	       (enqueue (task-queue) (lambda () (k ())))
+	       (schedule-loop)))))
 
 
   (defun default-wrap (x) x)
@@ -135,7 +162,9 @@
 			   (begin
 			    (block k wrap)
 			    ;; (display "perform called block, now schedule\n")
-			    (schedule))))
+			    (schedule)
+			    ;; (display "perform called block, schedule exit\n")
+			    )))
 		  (wrap v)))))
   )
 

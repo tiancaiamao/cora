@@ -31,6 +31,5 @@
 	  (display "listen 8080 success\n")
 	  (accept-loop ln))))
 
-  (spawn server-main)
-  (main)
+  (cml-entry server-main)
 )

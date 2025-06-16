@@ -1,41 +1,43 @@
 (package "cora/test/benchmark/coroutine1m"
-;; create 1M coroutines and check:
-;;    1. how much memory it uses
-;;    2. how long it takes
+	 ;; create 1M coroutines and check:
+	 ;;    1. how much memory it uses
+	 ;;    2. how long it takes
 
-(import "cora/lib/let-loop")
-(import "cora/lib/cml")
-(import "cora/lib/io")
-(import "cora/lib/chan")
+	 (import "cora/lib/let-loop")
+	 (import "cora/lib/cml")
+	 (import "cora/lib/io")
+	 (import "cora/lib/chan")
 
-(let ch (chan-make)
-  N 1000000
-  (begin
-    
-    (defun create ()
-      (let-loop recur (i 0)
-		(if (> i N)
-		    (display "spawn finish\n")
-		    (begin
-		      (spawn (lambda ()
-				   (let v (perform (chan-recv ch))
-				     (begin
-				       (display "receive value")
-				       (display v)
-				       (display "\n")))))	
-		      (recur (+ i 1))))))
-    
-    (defun boot ()
-      (let-loop recur1 (i 0)
-		(if (> i N)
-		    (display "test finish\n")
-		    (begin
-		      (perform (chan-send ch i))
-		      (recur1 (+ i 1))))))))
+	 (cml-entry (lambda ()
 
-(create)
-(display "here???\n")
-(spawn boot)
-(main)
+		      (let ch (chan-make)
+			   N 1000000
+			   (begin
+			    
+			    (defun create ()
+			      (let-loop recur (i 0)
+					(if (> i N)
+					    (display "spawn finish\n")
+					    (begin
+					     (spawn (lambda ()
+						      (let v (perform (chan-recv ch))
+							   (begin
+							    (display "receive value")
+							    (display v)
+							    (display "\n")))))	
+					     (recur (+ i 1))))))
+			    
+			    (defun boot ()
+			      (let-loop recur1 (i 0)
+					(if (> i N)
+					    (display "test finish\n")
+					    (begin
+					     (perform (chan-send ch i))
+					     (recur1 (+ i 1))))))
 
-)
+			    (create)
+			    ;; (display "here???\n")
+
+			    (boot)))))
+
+	 )

@@ -8,7 +8,9 @@
   (import "cora/lib/cml")
   (import "cora/lib/define-record")
 
-  (export listen dial recv send accept conn-close)
+  (export listen dial recv send accept
+	  conn-close conn-make conn-extra
+	  event-loop-add)
 
   (define-record <conn>
       (conn-make-naive fd)
@@ -19,6 +21,8 @@
     (fd conn-fd)
     (read-callback conn-read-callback conn-set-read-callback!)
     (write-callback conn-write-callback conn-set-write-callback!)
+    ;; NOTE, extra is also used in parallel/internal.c,
+    ;; if it's changed here, they must be done together
     (extra conn-extra conn-set-extra!))
 
   (defun conn-make (fd)
@@ -37,19 +41,22 @@
     (next node-next node-set-next!)
     (prev node-prev node-set-prev!))
 
-  (def *event-loop-conns*
-      (let v (node-make)
-	   (begin
-	    (node-set-next! v ())
-	    (node-set-prev! v ())
-	    v)))
+  (defun create-event-loop-conns ()
+    (let v (node-make)
+	 (begin
+	  (node-set-next! v ())
+	  (node-set-prev! v ())
+	  v)))
+
+  (defun event-loop-conns ()
+    (thread-local-get 'cora/lib/async#event-loop))
 
   (defun conn-not-in-event-loop? (conn)
     (and (null? (conn-next conn))
 	 (null? (conn-prev conn))))
 
   (defun add-to-event-loop-conns (conn)
-    (let head *event-loop-conns*
+    (let head (event-loop-conns)
 	 (begin
 	  (conn-set-next! conn (node-next head)) ;; conn->next = head->next
 	  (if (not (null? (node-next head))) ;; if head->next != null
@@ -219,7 +226,7 @@
     (perform (accept-op ln)))
 
   (defun blocked-queue-empty? ()
-    (let-loop recur (conn (node-next *event-loop-conns*))
+    (let-loop recur (conn (node-next (event-loop-conns)))
 	      (cond
 		((null? conn) true)
 		((and (null? (conn-read-callback conn))
@@ -230,12 +237,12 @@
   (defun scheduler (timeout)
     (if (blocked-queue-empty?)
 	(begin
-	 ;; (display "block queue empty!!\n")
+	 (display "block queue empty --- return false!!\n")
 	 false) ;; no more task
 	(let events (net-poll timeout)
 	     (or (null? events)
 		 (begin
-		  ;; (display "scheduler handle ready events\n")
+		  (display "net-poll once, and scheduler handle ready events\n")
 		  (for-each (lambda (events)
 			      (let conn (car events)
 				   mode (cdr events)
@@ -252,7 +259,17 @@
 					    (display (conn-fd conn))
 					    (display "\n"))))))
 			    events)
+		  (display "handle net-poll events done, --- return true!\n")
 		  true)))))
 
-  (register-scheduler scheduler)
+  ;; event-loop-init initializes the thread local event loop
+  ;; and register the event loop to scheduler
+  (defun event-loop-init ()
+    (let el (create-event-loop-conns)
+	 (begin
+	  (net-poll-fd-init)
+	  (display "event loop init!!!!!!\n")
+	  (thread-local-set 'cora/lib/async#event-loop el)
+	  (register-scheduler scheduler))))
+
   )

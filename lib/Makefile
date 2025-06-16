@@ -1,4 +1,4 @@
-all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so trace.so
+all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so parallel/internal.so trace.so
 
 extra: md4c/include.so json.so
 
@@ -32,5 +32,8 @@ $(DEPDIR): ; @mkdir -p $@
 $(DEPS):
 include $(wildcard $(DEPS))
 
-toc/internal.so:
+toc/internal.so: toc/internal.c
 	make -C toc
+
+parallel/internal.so: parallel/internal.c
+	make -C parallel

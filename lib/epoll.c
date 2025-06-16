@@ -53,8 +53,13 @@ static Obj
 poll(int pollfd, int timeout) {
   const int MAX_EVENTS = 64;
   struct epoll_event events[MAX_EVENTS];
-  int nfds = epoll_wait(pollfd, events, MAX_EVENTS, timeout);
+  int nfds;
+ again:
+  nfds = epoll_wait(pollfd, events, MAX_EVENTS, timeout);
   if (nfds < 0) {
+	  if (errno == EINTR) {
+		  goto again;
+	  }
     // TODO
     printf("netpoll fail?????\n");
     perror("epoll_wait");
