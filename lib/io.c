@@ -42,6 +42,7 @@ ioReadAll(struct Cora *co) {
     }
   }
   Obj ret = makeString(toCStr(dest), strLen(toStr(dest)));
+  strFree(dest);
   coraReturn(co, ret);
 }
 

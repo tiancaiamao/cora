@@ -22,6 +22,7 @@ exec(struct Cora *co) {
   Obj args = co->args[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
+  strFree(cmd);
   coraReturn(co, makeNumber(exitCode));
 }
 
@@ -34,7 +35,7 @@ popenFn(struct Cora *co) {
 
   strBuf cmdStr = cmdListStr(cmd);
   FILE* f = popen(toCStr(cmdStr), type);
-
+  strFree(cmdStr);
   coraReturn(co, makeCObj(f));
   return;
 }

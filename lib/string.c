@@ -113,6 +113,7 @@ stringReplace(struct Cora *co) {
   buf = strCat(buf, strSub(raw, pos+strLen(from), strLen(raw)));
   str s = toStr(buf);
   Obj res = makeString(s.str, s.len);
+  strFree(buf);
   coraReturn(co, res);
 }
 

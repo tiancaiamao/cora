@@ -1,3 +1,5 @@
+(import "cora/lib/ukanren")
+
 (set 'a-and-b
   (conj 
    (call/fresh (lambda (a) (== a 7)))
@@ -15,25 +17,25 @@
          ((fives x) a/c)))))
 
 (defun appendo (l s out)
-    (disj
-     (conj (== '() l) (== s out))
-     (call/fresh
-      (lambda (a)
-        (call/fresh
-         (lambda (d)
-           (conj
-            (== [a . d] l)
-            (call/fresh
-             (lambda (res)
-               (conj
-                (== [a . res] out)
-                (lambda (s/c)
-                  (lambda ()
-                    ((appendo d s res) s/c)))))))))))))
+  (disj
+   (conj (== () l) (== s out))
+   (call/fresh
+    (lambda (a)
+      (call/fresh
+       (lambda (d)
+	 (conj
+	  (== [a . d] l)
+	  (call/fresh
+	   (lambda (res)
+	     (conj
+	      (== [a . res] out)
+	      (lambda (s/c)
+		(lambda ()
+		  ((appendo d s res) s/c)))))))))))))
 
 (defun appendo2 (l s out)
     (disj
-     (conj (== '() l) (== s out))
+     (conj (== () l) (== s out))
      (call/fresh
       (lambda (a)
         (call/fresh
@@ -87,9 +89,9 @@
                (== [l s out] q)
                (appendo l s out)))))))))))
 
-(set 'ground-appendo (appendo '(a) '(b) '(a b)))
+(set 'ground-appendo (appendo `(a) `(b) `(a b)))
 
-(set 'ground-appendo2 (appendo2 '(a) '(b) '(a b)))
+(set 'ground-appendo2 (appendo2 `(a) `(b) `(a b)))
 
 (defun relo (x)
     (call/fresh
@@ -132,74 +134,74 @@
 ;;    (((#(1) . 6) (#(0) . 7)) . 2)))
 
 ((call/empty-state ground-appendo))
-;;  '(((#(2) b) (#(1)) (#(0) . a)) . 3))
+;; ;;  '(((#(2) b) (#(1)) (#(0) . a)) . 3))
 
-((ground-appendo2 empty-state))
-;;  '(((#(2) b) (#(1)) (#(0) . a)) . 3))
+;; ((ground-appendo2 empty-state))
+;; ;;  '(((#(2) b) (#(1)) (#(0) . a)) . 3))
 
-(take 2 (call-appendo empty-state))
-;;  '((((#(0) #(1) #(2) #(3)) (#(2) . #(3)) (#(1))) . 4)
-;;    (((#(0) #(1) #(2) #(3)) (#(2) . #(6)) (#(5)) (#(3) #(4) . #(6)) (#(1) #(4) . #(5))) . 7)))
+;; (take 2 (call-appendo empty-state))
+;; ;;  '((((#(0) #(1) #(2) #(3)) (#(2) . #(3)) (#(1))) . 4)
+;; ;;    (((#(0) #(1) #(2) #(3)) (#(2) . #(6)) (#(5)) (#(3) #(4) . #(6)) (#(1) #(4) . #(5))) . 7)))
 
-(take 2 (call-appendo2 empty-state))
-;;  '((((#(0) #(1) #(2) #(3)) (#(2) . #(3)) (#(1))) . 4) (((#(0) #(1) #(2) #(3)) (#(3) #(4) . #(6)) (#(2) . #(6)) (#(5)) (#(1) #(4) . #(5))) . 7)))
+;; (take 2 (call-appendo2 empty-state))
+;; ;;  '((((#(0) #(1) #(2) #(3)) (#(2) . #(3)) (#(1))) . 4) (((#(0) #(1) #(2) #(3)) (#(3) #(4) . #(6)) (#(2) . #(6)) (#(5)) (#(1) #(4) . #(5))) . 7)))
 
-(reify (take 2 (call-appendo empty-state)))
-;;  '((() _.0 _.0) ((_.0) _.1 (_.0 . _.1))))
+;; (reify (take 2 (call-appendo empty-state)))
+;; ;;  '((() _.0 _.0) ((_.0) _.1 (_.0 . _.1))))
 
-(reify (take 2 (call-appendo2 empty-state)))
-;;  '((() _.0 _.0) ((_.0) _.1 (_.0 . _.1))))
+;; (reify (take 2 (call-appendo2 empty-state)))
+;; ;;  '((() _.0 _.0) ((_.0) _.1 (_.0 . _.1))))
 
-(take 1 (many-non-ans empty-state))
-;;  '((((#(0) . 3)) . 1)))
-
-
-(defun appendo (l s out)
-  (conde
-    ((== [] l) (== s out))
-    ((fresh (a d res)
-       (== [a . d] l)
-       (== [a . res] out)
-       (appendo d s res)))))
+;; (take 1 (many-non-ans empty-state))
+;; ;;  '((((#(0) . 3)) . 1)))
 
 
-(=  (run * (q) (fresh (x y) (== [x y] q) (appendo x y '(1 2 3 4 5))))
-  '((() (1 2 3 4 5))
-    ((1) (2 3 4 5))
-    ((1 2) (3 4 5))
-    ((1 2 3) (4 5))
-    ((1 2 3 4) (5))
-    ((1 2 3 4 5) ())))
+;; (defun appendo (l s out)
+;;   (conde
+;;     ((== [] l) (== s out))
+;;     ((fresh (a d res)
+;;        (== [a . d] l)
+;;        (== [a . res] out)
+;;        (appendo d s res)))))
 
 
-(=  (run * (q x y) (== [x y] q) (appendo x y '(1 2 3 4 5)))
-  '((() (1 2 3 4 5))
-    ((1) (2 3 4 5))
-    ((1 2) (3 4 5))
-    ((1 2 3) (4 5))
-    ((1 2 3 4) (5))
-    ((1 2 3 4 5) ())))
+;; (=  (run * (q) (fresh (x y) (== [x y] q) (appendo x y '(1 2 3 4 5))))
+;;   '((() (1 2 3 4 5))
+;;     ((1) (2 3 4 5))
+;;     ((1 2) (3 4 5))
+;;     ((1 2 3) (4 5))
+;;     ((1 2 3 4) (5))
+;;     ((1 2 3 4 5) ())))
+
+
+;; (=  (run * (q x y) (== [x y] q) (appendo x y '(1 2 3 4 5)))
+;;   '((() (1 2 3 4 5))
+;;     ((1) (2 3 4 5))
+;;     ((1 2) (3 4 5))
+;;     ((1 2 3) (4 5))
+;;     ((1 2 3 4) (5))
+;;     ((1 2 3 4 5) ())))
   
- (defun succ (state)
- 	(cons state ()))
+;;  (defun succ (state)
+;;  	(cons state ()))
  	
- (defun fail (state)
- 	())
+;;  (defun fail (state)
+;;  	())
  	
- (run * (x) succ) ;; (_.0)
- (run * (q) (== false q) (== true q))
- (run * (x)
- 	(conde
- 		((== 'olive x) succ)
- 		((== 'oil x) succ)))
+;;  (run * (x) succ) ;; (_.0)
+;;  (run * (q) (== false q) (== true q))
+;;  (run * (x)
+;;  	(conde
+;;  		((== 'olive x) succ)
+;;  		((== 'oil x) succ)))
 
- (run * (r)
- 	(fresh (x y)
- 		(== (cons x (cons y ())) r)))
+;;  (run * (r)
+;;  	(fresh (x y)
+;;  		(== (cons x (cons y ())) r)))
  		
-(run * (r)
-	(fresh (x y)
-		(conde
-			((== 'split x) (== 'pea y))
-			((== 'navy x) (== 'bean y)))
-		(== (cons x (cons y (cons 'soup ()))) r)))	
+;; (run * (r)
+;; 	(fresh (x y)
+;; 		(conde
+;; 			((== 'split x) (== 'pea y))
+;; 			((== 'navy x) (== 'bean y)))
+;; 		(== (cons x (cons y (cons 'soup ()))) r)))	

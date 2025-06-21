@@ -1,6 +1,7 @@
 #include "str.h"
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 struct _strBuf {
 	int cap;
@@ -141,6 +142,7 @@ fromCStr(char *s) {
 
 strBuf
 strNew(int cap) {
+	assert(cap > 0);
 	strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + cap);
 	ret->cap = cap;
 	ret->len = 0;

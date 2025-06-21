@@ -48,6 +48,11 @@ static void
 builtinEscapeStr(struct Cora *co) {
 	Obj s = co->args[1];
 	str str = stringStr(s);
+	if (strLen(str) == 0) {
+		coraReturn(co, s);
+		return;
+	}
+
 	strBuf dst = strNew(strLen(str));
 
 	for (int i = 0; i < strLen(str); i++) {
