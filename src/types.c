@@ -172,12 +172,12 @@ static void
 bytesGCFunc(struct GC *gc, void *f) {
 }
 
-struct trieNode gRoot = { };
+__thread struct trieNode *gRoot;
 
 Obj
 makeSymbol(const char *s) {
 	const char *old = s;
-	struct trieNode *p = &gRoot;
+	struct trieNode *p = gRoot;
 	for (; *s; s++) {
 		int offset = *s;
 		if (p->child[offset] == NULL) {
@@ -462,6 +462,8 @@ symbolGCFunc(struct GC *gc, void *f) {
 
 void
 typesInit() {
+	gRoot = malloc(sizeof(struct trieNode));
+	memset(gRoot, 0, sizeof(struct trieNode));
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);

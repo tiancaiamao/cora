@@ -7,10 +7,21 @@
 #include "str.h"
 #include "runtime.h"
 
+
+extern void builtinImport(struct Cora *co);
+
 static void*
 startRoutine(void* arg) {
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
+	co->args[1] = makeCString("cora/init");
+	co->nargs = 2;
+	trampoline(co, 0, builtinImport);
+  
+	co->args[1] = makeCString("cora/lib/toc");
+	co->nargs = 2;
+	trampoline(co, 0, builtinImport);
+
 	strBuf path1 = arg;
 	str path = toStr(path1);
 	Obj filePath = makeString(path.str, path.len);
