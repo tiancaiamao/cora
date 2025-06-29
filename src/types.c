@@ -173,6 +173,7 @@ bytesGCFunc(struct GC *gc, void *f) {
 }
 
 __thread struct trieNode *gRoot;
+extern  __thread struct Cora *gCo;
 
 Obj
 makeSymbol(const char *s) {
@@ -193,6 +194,10 @@ makeSymbol(const char *s) {
 		strcpy(tmp, old);
 		p->sym = tmp;
 		p->value = Undef;
+	} else {
+		if (p->value != Undef) {
+			assert(p->owner == gCo);
+		}
 	}
 
 	return (Obj) (p) | TAG_SYMBOL;

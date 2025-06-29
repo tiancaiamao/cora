@@ -10,6 +10,10 @@ ifeq ("${ENABLE_ASAN}", "1")
 	CFLAGS += -fsanitize=address
 endif
 
+ifeq ("${ENABLE_TSAN}", "1")
+	LD_FLAG = -ltsan -lcora -ldl
+endif
+
 all: libcora.so
 
 # test: reader_test bootstrap_test
@@ -26,12 +30,6 @@ gc.test: gc_test.o libcora.a
 
 gc_test: gc.test
 	./gc.test
-
-# eval_test: eval.test
-# 	./eval.test
-
-# eval.test: eval_test.o libcora.a
-# 	$(CC) -o $@ $^ -ldl
 
 # bootstrap_test:bootstrap.test
 # 	./bootstrap.test

@@ -139,7 +139,7 @@ coraGet(struct Cora *co, int idx) {
 }
 
 extern __thread struct trieNode *gRoot;
-struct Cora *gCo;
+ __thread struct Cora *gCo;
 
 static struct Cora *
 coraNew() {
@@ -163,6 +163,7 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	TRACE_SCOPE("coraGCFunc");
 	// The globals
 	for (struct trieNode * p = co->globals; p != gRoot; p = p->next) {
+		assert(p->owner == co);
 		gcMark(gc, p->value, 0);
 	}
 

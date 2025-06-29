@@ -6,9 +6,17 @@ ifeq ("${ENABLE_ASAN}", "1")
 	CFLAGS += -fsanitize=address
 endif
 
+ifeq ("${ENABLE_TSAN}", "1")
+	CFLAGS += -fsanitize=thread
+endif
+
 LD_FLAG	:=  -lcora -ldl
 ifeq ("${ENABLE_ASAN}", "1")
 	LD_FLAG = -lasan -lcora -ldl
+endif
+
+ifeq ("${ENABLE_TSAN}", "1")
+	LD_FLAG = -ltsan -lcora -ldl
 endif
 
 all: cora.bin lib
