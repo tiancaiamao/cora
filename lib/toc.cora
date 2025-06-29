@@ -231,6 +231,15 @@
 	  ()
 	  (set globals (cons sym val)))))
 
+  (defun symbol-offset-h (idx sym globals)
+    (cond
+      ((null? globals) -1)
+      ((= sym (car globals)) idx)
+      (true (symbol-offset-h (+ idx 1) sym (cdr globals)))))
+
+  (defun symbol-offset (sym globals)
+    (symbol-offset-h 0 sym globals))
+
   (defun generate-inst (globals self env1 w x1)
     (let generate-inst-h (gensym) 
 	 (begin
@@ -241,9 +250,9 @@
 		     (generate-sym w x2)
 		     (match x2
 			    ['%global x] (begin
-					  (generate-str w "globalRef(sym")
-					  (generate-sym w x)
-					  (generate-str w ")"))
+					  (generate-str w "globalRef(__symbolTable[")
+					  (generate-num w (symbol-offset x globals))
+					  (generate-str w "])"))
 			    ['%closure-ref idx] (begin
 						 (generate-str w "closureRef(co, ")
 						 (generate-num w idx)
@@ -254,8 +263,9 @@
 					       (generate-str w ")"))
 			    ['%const x] (cond
 					  ((symbol? x) (begin
-							(generate-str w "sym")
-							(generate-sym w x)))
+							(generate-str w "__symbolTable[")
+							(generate-num w (symbol-offset x globals))
+							(generate-str w "]")))
 					  ((number? x) (begin
 							(generate-str w "MAKE_NUMBER(")
 							(generate-num w x)
@@ -521,7 +531,7 @@
 
   (defun generate-entry (to globals)
     (begin
-     (generate-str to "__global static Obj* __symbolTable;\n\n")
+     (generate-str to "static __thread Obj* __symbolTable;\n\n")
       ;; (for-each (lambda (sym)
       ;; 		  (begin
       ;; 		    (generate-str to "static Obj sym")
@@ -556,7 +566,7 @@
 		      (generate-str to ";\n")))
 		  groups)
 	(generate-str to "\n\n")
-	(generate-entry to (value globals))
+	(generate-entry to globals)
 	(for-each (lambda (group)
 		    (generate-toplevel-group to group maxid globals))
 		  groups))))
@@ -630,7 +640,7 @@
 		    (compile globals))
 	  (let stream (open-output-file to)
 	    (begin
-	      (generate-c stream bc globals)
+	      (generate-c stream bc (value globals))
 	      (close-output-file stream)))))))
 
   )
