@@ -980,6 +980,19 @@ coraInit(uintptr_t * mark) {
 	return co;
 }
 
+void
+coraExit(struct Cora *co) {
+	// TODO
+	// release GC
+	// release event loop
+	// release scheduler
+	// release packages
+	// release symbol table
+
+	// release cora struct
+	free(co);
+}
+
 #ifdef ForTest
 
 extern void entry(struct Cora *co);
