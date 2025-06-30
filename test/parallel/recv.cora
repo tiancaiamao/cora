@@ -1,0 +1,22 @@
+(import "cora/lib/cml")
+(import "cora/lib/io")
+(import "cora/lib/parallel")
+
+(defun server (mb)
+  (begin
+   (display "run server here\n")
+   (perform
+    (wrap (mailbox-recv mb)
+	  (lambda (v)
+	    (begin
+	     (display "server recv:")
+	     (display v)
+	     (display "\n"))))
+    )
+   (server mb)))
+
+(cml-entry (lambda ()
+	     (begin
+	      (display "befor run client\n")
+	      (let mb (mailbox-resolve "test")
+		   (server mb)))))
