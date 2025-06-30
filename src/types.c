@@ -172,12 +172,13 @@ static void
 bytesGCFunc(struct GC *gc, void *f) {
 }
 
-struct trieNode gRoot = { };
+__thread struct trieNode *gRoot;
+extern  __thread struct Cora *gCo;
 
 Obj
 makeSymbol(const char *s) {
 	const char *old = s;
-	struct trieNode *p = &gRoot;
+	struct trieNode *p = gRoot;
 	for (; *s; s++) {
 		int offset = *s;
 		if (p->child[offset] == NULL) {
@@ -193,6 +194,10 @@ makeSymbol(const char *s) {
 		strcpy(tmp, old);
 		p->sym = tmp;
 		p->value = Undef;
+	} else {
+		if (p->value != Undef) {
+			assert(p->owner == gCo);
+		}
 	}
 
 	return (Obj) (p) | TAG_SYMBOL;
@@ -462,6 +467,8 @@ symbolGCFunc(struct GC *gc, void *f) {
 
 void
 typesInit() {
+	gRoot = malloc(sizeof(struct trieNode));
+	memset(gRoot, 0, sizeof(struct trieNode));
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);

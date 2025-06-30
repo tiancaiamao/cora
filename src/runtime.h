@@ -22,7 +22,6 @@ void trampoline(struct Cora *co, int label, basicBlock pc);
 void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
-/* void coraCall(struct Cora *co, int nargs, ...); */
 
 void pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...);
 Obj closureRef(struct Cora *co, int idx);
@@ -60,6 +59,7 @@ void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 
 
 struct Cora* coraInit(uintptr_t *mark);
+void coraExit(struct Cora *co);
 
 static inline void
 growCallStack(struct callStack *cs) {

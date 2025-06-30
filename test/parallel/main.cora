@@ -1,0 +1,27 @@
+(import "cora/lib/io")
+(import "cora/lib/async")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+
+(display "2222222\n")
+
+(defun client ()
+  (let mb (mailbox-resolve "test")
+       (client-h 99 mb)))
+
+(defun client-h (i mb)
+  (if (= i 0)
+      ()
+      (begin
+       (mailbox-send mb "ping")
+       (display "send a ping\n")
+       (client-h (- i 1) mb))))
+
+(display "333333\n")
+
+(cml-entry (lambda ()
+	      (let mb (mailbox-make)
+		   (begin
+		    (mailbox-publish "test" mb)
+		    (new-proc "test/parallel/recv.cora")
+		    (client)))))

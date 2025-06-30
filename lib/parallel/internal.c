@@ -7,20 +7,32 @@
 #include "str.h"
 #include "runtime.h"
 
+
+extern void builtinImport(struct Cora *co);
+
 static void*
 startRoutine(void* arg) {
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
+	co->args[1] = makeCString("cora/init");
+	co->nargs = 2;
+	trampoline(co, 0, builtinImport);
+  
+	co->args[1] = makeCString("cora/lib/toc");
+	co->nargs = 2;
+	trampoline(co, 0, builtinImport);
+
 	strBuf path1 = arg;
 	str path = toStr(path1);
 	Obj filePath = makeString(path.str, path.len);
 	strFree(path1);
 	co->nargs = 2;
-	/* co->args[0] = globalRef(intern("cora/lib/parallel#parallel-entry")); */
 	co->args[0] = globalRef(intern("load"));
 	co->args[1] = filePath;
 	trampoline(co, 0, coraDispatch);
 	printf("newProc exit\n");
+	coraExit(co);
+	return NULL;
 }
 
 static void
@@ -28,14 +40,25 @@ newProc(struct Cora *co) {
 	Obj arg = co->args[1];
 	str path1 = stringStr(arg);
 	strBuf path2 = strDup(path1);
-	pthread_t thread;
-	int ret = pthread_create(&thread, NULL, startRoutine, path2);
+	pthread_t* thread = malloc(sizeof(pthread_t));
+	int ret = pthread_create(thread, NULL, startRoutine, path2);
 	if (ret != 0) {
 		coraReturn(co, Nil);
 		return;
 	}
-	coraReturn(co, 42);
+	coraReturn(co, makeCObj(thread));
 	return;
+}
+
+static void
+procJoin(struct Cora *co) {
+	pthread_t *t = mustCObj(co->args[1]);
+	void* ignore;
+	int ret = pthread_join(*t, &ignore);
+	if (ret != 0) {
+		perror("pthread_join");
+	}
+	coraReturn(co, makeNumber(ret));
 }
 
 static void
@@ -307,6 +330,7 @@ static struct registerModule parallelModule = {
   NULL,
   {
     {"new-proc", newProc, 1},
+    {"proc-join", procJoin, 1},
     {"mailbox-make", mailboxMake, 0},
     {"mailbox-lock", mailboxLock, 1},
     {"mailbox-unlock", mailboxUnlock, 1},
