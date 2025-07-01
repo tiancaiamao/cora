@@ -1,6 +1,9 @@
-#include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 static int
 pollCreate() {
@@ -14,44 +17,84 @@ pollCreate() {
 }
 
 static void
-pollReadAdd(int pollfd, int fd) {
-  struct kevent ev;
-  EV_SET(&ev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-  kevent(pollfd, &ev, 1, NULL, 0, NULL);
+pollReadAdd(int kq, int fd, Obj conn) {
+    struct kevent ev;
+    EV_SET(&ev, fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*)conn);
+    if (kevent(kq, &ev, 1, NULL, 0, NULL) < 0) {
+        printf("kevent add read fail %d, err=%s\n", fd, strerror(errno));
+    }
 }
 
 static void
-pollWriteAdd(int pollfd, int fd) {
-  struct kevent ev;
-  EV_SET(&ev, pollfd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-  kevent(pollfd, &ev, 1, NULL, 0, NULL);
+pollWriteAdd(int kq, int fd, Obj conn) {
+    struct kevent ev;
+    EV_SET(&ev, fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, (void*)conn);
+    if (kevent(kq, &ev, 1, NULL, 0, NULL) < 0) {
+        printf("kevent add write fail %d, err=%s\n", fd, strerror(errno));
+    }
 }
 
-/* static void */
-/* pollDel(int pollfd, int fd) { */
-/*   struct kevent ev; */
-/*   EV_SET(&ev, pollfd, EVFILT_READ|EVFILT_WRITE, EV_DELETE, 0, 0, 0); */
-/*   kevent(pollfd, &ev, 1, NULL, 0, NULL); */
-/* } */
+// kqueue does not distinguish ADD and MOD，use EV_ADD | EV_ENABLE to overwrite the previous behavior
+static void
+pollCtlMod(int kq, int fd, Obj modes, Obj conn) {
+	struct kevent ev[2];
+	int n = 0;
+	while (modes != Nil) {
+		Obj val = car(modes);
+		if (val == intern("read")) {
+			EV_SET(&ev[n++], fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*)conn);
+		} else if (val == intern("write")) {
+			EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, (void*)conn);
+		}
+		modes = cdr(modes);
+	}
+	if (kevent(kq, ev, n, NULL, 0, NULL) < 0) {
+		printf("kevent mod fail %d, err=%s\n", fd, strerror(errno));
+	}
+}
+
+static void
+pollCtlDel(int kq, int fd) {
+    struct kevent ev[2];
+    EV_SET(&ev[0], fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    EV_SET(&ev[1], fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+    if (kevent(kq, ev, 2, NULL, 0, NULL) < 0) {
+        perror("kevent delete");
+    }
+}
 
 static Obj
-poll(int pollfd, int timeout) {
-  const int MAX_EVENTS = 10;
-  struct kevent events[MAX_EVENTS];
-  int nfds = kevent(pollfd, NULL, 0, events, MAX_EVENTS, NULL);
-  if (nfds < 0) {
-    // TODO
-    printf("netpoll fail?????\n");
-    perror("epoll_wait");
-    /* coraReturn(ctx, ) */
-  }
+poll(int kq, int timeout) {
+    const int MAX_EVENTS = 64;
+    struct kevent events[MAX_EVENTS];
+    struct timespec ts;
+    struct timespec *tsp = NULL;
 
-  Obj ret = Nil;
-  for (int i=0; i<nfds; i++) {
-    Obj udata = (Obj)events[i].udata;
-    Obj fd = cadr(udata);
-    ret = cons(fd, ret);
-    /* pollDel(pollfd, fd); */
-  }
-  return ret;
+    if (timeout >= 0) {
+        ts.tv_sec = timeout / 1000;
+        ts.tv_nsec = (timeout % 1000) * 1000000;
+        tsp = &ts;
+    }
+
+    int nfds;
+again:
+    nfds = kevent(kq, NULL, 0, events, MAX_EVENTS, tsp);
+    if (nfds < 0) {
+        if (errno == EINTR) goto again;
+        printf("kqueue wait fail?????\n");
+        perror("kevent");
+    }
+
+    Obj ret = Nil;
+    for (int i = 0; i < nfds; i++) {
+        struct kevent *e = &events[i];
+        Obj conn = (Obj)e->udata;
+        if (e->filter == EVFILT_READ) {
+            ret = cons(cons(conn, intern("read")), ret);
+        }
+        if (e->filter == EVFILT_WRITE) {
+            ret = cons(cons(conn, intern("write")), ret);
+        }
+    }
+    return ret;
 }

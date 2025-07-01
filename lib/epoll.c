@@ -30,9 +30,20 @@ pollWriteAdd(int pollfd, int fd, Obj conn) {
 }
 
 static void
-pollCtlMod(int pollfd, int fd, uint32_t events, Obj conn) {
+pollCtlMod(int pollfd, int fd, Obj modes, Obj conn) {
+	uint32_t newMode = 0;
+	while (modes != Nil) {
+		Obj val = car(modes);
+		if (val == intern("read")) {
+			newMode |= EPOLLIN;
+		} else if (val == intern("write")) {
+			newMode |= EPOLLOUT;
+		}
+		modes = cdr(modes);
+	}
+
 	struct epoll_event ev;
-	ev.events = events;
+	ev.events = newMode;
 	ev.data.u64 = conn;
 	/* printf("netSend, epoll_ctl add fd = %d\n", fd); */
 	if (epoll_ctl(pollfd, EPOLL_CTL_MOD, fd, &ev) < 0) {

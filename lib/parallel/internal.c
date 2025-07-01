@@ -7,7 +7,6 @@
 #include "str.h"
 #include "runtime.h"
 
-
 extern void builtinImport(struct Cora *co);
 
 static void*

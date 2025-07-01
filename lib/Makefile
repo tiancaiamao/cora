@@ -35,5 +35,10 @@ include $(wildcard $(DEPS))
 toc/internal.so: toc/internal.c
 	make -C toc
 
+OS_NAME := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+
 parallel/internal.so: parallel/internal.c
+ifeq ($(OS_NAME),linux)
 	make -C parallel
+else ifeq ($(OS_NAME),darwin) # macOS
+endif

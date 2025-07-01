@@ -262,18 +262,8 @@ pollMod(struct Cora *ctx) {
 	Obj fd = coraGet(ctx, 1);
 	Obj modes = coraGet(ctx, 2);
 	Obj conn = coraGet(ctx, 3);
-	uint32_t newMode = 0;
-	while (modes != Nil) {
-		Obj val = car(modes);
-		if (val == intern("read")) {
-			newMode |= EPOLLIN;
-		} else if (val == intern("write")) {
-			newMode |= EPOLLOUT;
-		}
-		modes = cdr(modes);
-	}
 	/* printf("pollMod ..%ld ... new mode %d\n", fd, newMode); */
-	pollCtlMod(pollfd, fixnum(fd), newMode, conn);
+	pollCtlMod(pollfd, fixnum(fd), modes, conn);
 	coraReturn(ctx, Nil);
 }
 
