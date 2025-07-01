@@ -63,7 +63,8 @@
 * [Monad](11.0.md)
     * [面向火车轨道编程（错误处理）](11.1.md)
     * [random 函数](11.2.md)
-	* [continuation monad 推导](11.3.md)
+    * [continuation monad 推导](11.3.md)
+    * [state monad 推导](11.4.md)
 
 * [解析器组合子（Parser Combinator）或 PEG](12.0.md)
     * [相关资料1](12.1.md)
@@ -73,10 +74,14 @@
     * [try 和 catch](13.1.md)
 
 * [并发模型](14.0.md)
-    * [spawn](14.1.md)
+    * [spawn 协程](14.1.md)
     * [chan](14.2.md)
+    * [CML](14.3.md)
+    * [从并行到并发](14.4.md)
 
 * [类型检查](15.0.md)
+    * [Hindley-Milner 类型推导](15.1.md)
+    * [自定义类型检查](15.1.md)
 
 ## 与 C 语言交互
 
