@@ -17,10 +17,11 @@ jobs:
       - name: Add custom binary to PATH
         run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
 
-      - name: Verify before run
-        run: which rlwrap
-        run: which cora
-        run: echo $PATH $PWD $GITHUB_WORKSPACE
+      - name: Verify env before run
+        run: |
+          which rlwrap
+          which cora
+          echo $PATH $PWD $GITHUB_WORKSPACE
 
       - name: Run the test
         run: make test
