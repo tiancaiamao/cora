@@ -11,6 +11,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Build cora binary
+        run: make
+
       - name: Install rlwrap
         run: sudo apt-get install -y rlwrap
 
