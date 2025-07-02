@@ -4,3 +4,5 @@
 (display *command-line-args*)
 
 (+ 4 7)
+
+(load "test/run-basic-test.cora")
