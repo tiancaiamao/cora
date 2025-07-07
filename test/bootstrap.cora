@@ -1,0 +1,5 @@
+#!/usr/bin/env cora
+
+(load "lib/toc.cora")
+(cora/lib/toc#compile-to-c "init.cora" "init.c.tmp")
+(cora/lib/toc#compile-to-c "lib/toc.cora" "lib/toc.c.tmp")

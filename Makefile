@@ -31,9 +31,6 @@ lib:
 	$(CC) $(CFLAGS) -c $< -I src
 
 cora.bin: libcora main.o init.so
-	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
-	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
-	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
 	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
@@ -49,3 +46,14 @@ fmt:
 
 test:
 	./test/script.cora
+
+FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
+
+bootstrap:
+	@make clean
+	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
+	@make
+	@./test/bootstrap.cora;
+	@diff init.c init.c.tmp | $(FAIL_ON_STDOUT)
+	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
+	rm -f init.c.tmp lib/toc.c.tmp
