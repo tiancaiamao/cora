@@ -50,8 +50,9 @@ test:
 FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
 
 bootstrap:
+	@make clean
 	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
-	@make cora.bin
+	@make
 	@./test/bootstrap.cora;
 	@diff init.c init.c.tmp | $(FAIL_ON_STDOUT)
 	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
