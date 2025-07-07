@@ -53,4 +53,6 @@ bootstrap:
 	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
 	@make cora.bin
 	@./test/bootstrap.cora;
-	@git diff init.c lib/toc.c | $(FAIL_ON_STDOUT)
+	@diff init.c init.c.tmp | $(FAIL_ON_STDOUT)
+	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
+	rm -f init.c.tmp lib/toc.c.tmp
