@@ -76,6 +76,9 @@ struct scmVector {
 
 struct scmSymbol {
 	scmHeadEx head;
+#ifdef _BOOTSTRAP_TEST_
+	int unique;
+#endif
 	Obj value;
 };
 

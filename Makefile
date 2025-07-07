@@ -49,3 +49,10 @@ fmt:
 
 test:
 	./test/script.cora
+
+FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
+
+bootstrap:
+	make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
+	./test/bootstrap.cora;
+	@git diff | $(FAIL_ON_STDOUT)

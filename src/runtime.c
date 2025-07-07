@@ -309,6 +309,10 @@ primMul(Obj x, Obj y) {
 	}
 }
 
+#ifdef _BOOTSTRAP_TEST_
+static uniqueIdx = 0;
+#endif
+
 Obj
 primGenSym() {
 	// The pointer is uniqueness and can be used as symbol->string
@@ -316,6 +320,10 @@ primGenSym() {
 	p->head.rset = NULL;
 	p->head.inRSet = false;
 	p->value = Nil;
+#ifdef _BOOTSTRAP_TEST_
+	p->unique = uniqueIdx;
+	uniqueIdx++;
+#endif
 	return ((Obj) (&p->head) | TAG_PTR);
 }
 
