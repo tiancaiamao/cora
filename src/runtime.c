@@ -1,32 +1,15 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <errno.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <inttypes.h>
 #include "runtime.h"
 #include "str.h"
 #include "gc.h"
 #include "trace.h"
-
-/* void */
-/* coraCall(struct Cora *co, int nargs, ...) { */
-/* 	TRACE_SCOPE("coraCall"); */
-/* 	co->nargs = nargs; */
-/* 	va_list ap; */
-/* 	va_start(ap, nargs); */
-/* 	for (int i = 0; i < nargs; i++) { */
-/* 		co->args[i] = va_arg(ap, Obj); */
-/* 	} */
-/* 	va_end(ap); */
-
-/* 	if (nativeRequired(co->args[0]) + 1 == nargs) { */
-/* 		co->ctx.pc = *nativeFuncPtr(co->args[0]); */
-/* 		co->ctx.frees = co->args[0]; */
-/* 	} else { */
-/* 		co->ctx.pc.func = coraDispatch; */
-/* 	} */
-/* } */
 
 const int INIT_STACK_SIZE = 254;
 
@@ -616,8 +599,6 @@ builtinLoadSo(struct Cora *co) {
 		return;
 	}
 
-	/* Call(1, makeNative(entry, 1, 0)); */
-	/* ctxReturn(ctx, path); */
 	trampoline(co, 0, entry);
 
 	popStack(co);
@@ -631,7 +612,6 @@ builtinLoad(struct Cora *co) {
 	TRACE_SCOPE("builtinLoad");
 	// (load "file-path.cora")
 	Obj filePath = co->args[1];
-
 	co->nargs = 3;
 	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c"));
 	co->args[1] = filePath;
@@ -647,10 +627,22 @@ builtinLoad(struct Cora *co) {
 	// TODO: check res?
 	// Obj res = co->args[1];
 
+	str filePathStr = stringStr(filePath);
+	strBuf tmp;
 	strBuf path = getCoraPath();
+	if (strCmp(filePathStr, toStr(path)) > 0) {
+		// The cora file is in $CORAPATH, it might be a import package
+		tmp = strNew(filePathStr.len - 5 + 3);
+		tmp = strCat(tmp, strSub(filePathStr, 0, strLen(filePathStr) - 5));
+		tmp = strCat(tmp, S(".so"));
+	} else {
+		tmp = strNew(30);
+		snprintf(toCStr(tmp), 30, "/tmp/cora-xxx-%d.so", cfileidx);
+	}
+
 	snprintf(buf, BUFSIZE,
-		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o /tmp/cora-xxx-%d.so -ldl -L%scora/src -lcora",
-		 toCStr(path), toCStr(path), cfileidx, cfileidx,
+		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o %s -ldl -L%scora/src -lcora",
+		 toCStr(path), toCStr(path), cfileidx, toCStr(tmp),
 		 toCStr(path));
 	strFree(path);
 	int exitCode = system(buf);
@@ -659,14 +651,48 @@ builtinLoad(struct Cora *co) {
 		return;
 	}
 
-	/* co->args[0] = globalRef(intern("load-so"));  */
-	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.so", cfileidx);
-	str tmpSoFile = cstr(buf);
 	co->nargs = 3;
-	co->args[1] = makeString(tmpSoFile.str, tmpSoFile.len);
+	co->args[1] = makeCString(toCStr(tmp));
 	co->args[2] = makeCString("");
 	co->ctx.pc.func = builtinLoadSo;
+	strFree(tmp);
 	return;
+}
+
+
+static bool
+safeToUseSo(strBuf soFilePath) {
+	if (0 != access(toCStr(soFilePath), R_OK)) {
+		// .so file not exist?
+		return false;
+	}
+
+	bool res = true;
+	strBuf tmp = strNew(strLen(toStr(soFilePath)) + 3);
+	tmp = strCpy(tmp, toStr(soFilePath));
+	tmp = strShrink(tmp, 3);
+	tmp = strCat(tmp, S(".cora"));
+	if (0 != access(toCStr(tmp), R_OK)) {
+		// .so file exist and .cora not exist
+		goto exit;
+	}
+
+	// both .so and .cora file exist, is .so newer than .cora?
+	struct stat soFileStat, coraFileStat;
+	if (stat(toCStr(tmp), &coraFileStat) < 0) {
+		printf("failed to get %s file stats: %s\n", toCStr(tmp), strerror(errno));
+		goto exit;
+	}
+	if (stat(toCStr(soFilePath), &soFileStat) < 0) {
+		printf("failed to get %s file stats: %s\n", toCStr(soFilePath), strerror(errno));
+		goto exit;
+	}
+	if (coraFileStat.st_mtime > soFileStat.st_mtime) {
+		res = false;
+	}
+exit:
+	strFree(tmp);
+	return res;
 }
 
 // import do more things than load:
@@ -690,15 +716,16 @@ builtinImport(struct Cora *co) {
 		}
 	}
 
-	// Set the *imported* variable to avlid repeated load.
+	// Set the *imported* variable to avoid repeated load.
 	primSet(co, sym, cons(pkg, imported));
 
 	// CORA PATH
 	strBuf tmp = getCoraPath();
-
 	tmp = strCat(tmp, pkgStr);
 	tmp = strCat(tmp, S(".so"));
-	if (0 == access(toCStr(tmp), R_OK)) {
+
+	// if the .so file exists, call (load-so "$CORAPATH/file-path.so" "package-path")
+	if (safeToUseSo(tmp)) {
 		// primLoadSo is a bit special, it requires the current stack of VM is
 		// (load-so "file-path.so" "package-path")
 		co->nargs = 3;
@@ -706,17 +733,17 @@ builtinImport(struct Cora *co) {
 		co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
 		co->args[2] = pkg;
 		trampoline(co, 0, coraDispatch);
-		/* co->ctx.pc.func = builtinLoadSo; */
 		strFree(tmp);
 		coraReturn(co, pkg);
 		return;
 	}
 
+	// otherwise call (load "$CORAPATH/file.cora")
 	tmp = strShrink(tmp, 3);
 	tmp = strCat(tmp, S(".cora"));
+	str tmp1 = toStr(tmp);
 	co->nargs = 3;
 	co->args[0] = makeNative(0, builtinLoad, 2, 0);
-	str tmp1 = toStr(tmp);
 	co->args[1] = makeString(tmp1.str, tmp1.len);
 	co->args[2] = pkg;
 	trampoline(co, 0, coraDispatch);
@@ -950,7 +977,8 @@ coraInit(uintptr_t * mark) {
 		makeNative(0, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"),
 		makeNative(0, builtinImport, 1, 0));
-	primSet(co, intern("load"), makeNative(0, builtinLoad, 1, 0));
+	primSet(co, intern("load"),
+		makeNative(0, builtinLoad, 1, 0));
 	primSet(co, intern("vector"),
 		makeNative(0, builtinVector, 1, 0));
 	primSet(co, intern("vector?"),
