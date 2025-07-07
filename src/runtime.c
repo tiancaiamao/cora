@@ -310,7 +310,7 @@ primMul(Obj x, Obj y) {
 }
 
 #ifdef _BOOTSTRAP_TEST_
-static uniqueIdx = 0;
+static int uniqueIdx = 0;
 #endif
 
 Obj

@@ -1,6 +1,4 @@
 #!/usr/bin/env cora
-;; (import "cora/lib/os")
-;; (exec ["make" "cora"])
 
 (load "lib/toc.cora")
 (cora/lib/toc#compile-to-c "init.cora" "init.c")

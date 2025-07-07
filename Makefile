@@ -53,6 +53,7 @@ test:
 FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
 
 bootstrap:
-	make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
-	./test/bootstrap.cora;
+	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
+	@make cora.bin
+	@./test/bootstrap.cora;
 	@git diff | $(FAIL_ON_STDOUT)
