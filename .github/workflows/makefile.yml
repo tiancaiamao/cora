@@ -29,3 +29,5 @@ jobs:
       - name: Run the test
         run: make test
 
+      - name: Run bootstrap test
+        run: make bootstrap

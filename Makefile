@@ -31,9 +31,6 @@ lib:
 	$(CC) $(CFLAGS) -c $< -I src
 
 cora.bin: libcora main.o init.so
-	# $(CC) main.o -Wl,-rpath src -Lsrc -lcora -ldl -o $@
-	# $(CC) main.o -Lsrc -l:libcora.a -ldl -o $@
-	# $(CC) main.o -Lsrc -l:libcora.a lib/lib.a -ldl -o $@
 	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
@@ -56,4 +53,4 @@ bootstrap:
 	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
 	@make cora.bin
 	@./test/bootstrap.cora;
-	@git diff | $(FAIL_ON_STDOUT)
+	@git diff init.c lib/toc.c | $(FAIL_ON_STDOUT)
