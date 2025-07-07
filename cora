@@ -34,6 +34,6 @@ case "$(uname -sr)" in
      ;;
 esac
 
-export CORAPATH=${HOME}/project/
+export CORAPATH=${BASE_DIR}/../
 
 exec rlwrap ${BIN_PATH} $*

@@ -1,4 +1,4 @@
-.PHONY: libcora lib fmt
+.PHONY: libcora lib fmt test
 
 CC = gcc
 CFLAGS := -g -Wall
@@ -46,3 +46,6 @@ init.so: init.c libcora
 
 fmt:
 	cd src; indent -npcs -bap -br -ce -brf -ut -i8 -nbbo -nhnl *.c
+
+test:
+	./test/script.cora
