@@ -129,13 +129,13 @@ struct pcState {
 };
 
 struct scmNative {
-  scmHead head;
-  struct pcState code;
-  // required is the argument number of the nativeFunc.
-  int required;
-  // captured is the size of the data, it's immutable after makeNative.
-  int captured;
-  Obj data[];
+	scmHead head;
+	struct pcState code;
+	// required is the argument number of the nativeFunc.
+	int required;
+	// captured is the size of the data, it's immutable after makeNative.
+	int captured;
+	Obj data[];
 };
 
 Obj makeNative(int label, basicBlock fn, int required, int captured, ...);
@@ -153,9 +153,12 @@ struct stackState {
 };
 
 struct frame {
-  struct stackState stk;
-  struct pcState pc;
-  Obj frees;
+	struct stackState stk;
+	struct pcState pc;
+	Obj frees;
+	// For debugging
+	char *debugFile;
+	int debugLine;
 };
 
 struct callStack {

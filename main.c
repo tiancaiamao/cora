@@ -84,16 +84,16 @@ shebang(struct Cora *co, int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 	uintptr_t dummy;
 	struct Cora* co = coraInit(&dummy);
-	co->args[1] = makeCString("cora/init");
 	co->nargs = 2;
+	co->args[1] = makeCString("cora/init");
 	trampoline(co, 0, builtinImport);
   
-	co->args[1] = makeCString("cora/lib/toc");
 	co->nargs = 2;
+	co->args[1] = makeCString("cora/lib/toc");
 	trampoline(co, 0, builtinImport);
 
-	co->args[1] = makeCString("cora/lib/eval");
 	co->nargs = 2;
+	co->args[1] = makeCString("cora/lib/eval");
 	trampoline(co, 0, builtinImport);
 
 	if (argc == 1) {
