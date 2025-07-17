@@ -15,7 +15,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 clean:
-	rm -rf *.o *.so toc/internal.so
+	rm -rf *.o *.so toc/internal.so parallel/internal.so
 
 json.so: json.c
 	gcc -shared -o json.so -g json.c -fPIC -I../src -L../src -lcora -ljansson

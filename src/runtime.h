@@ -23,7 +23,11 @@ void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
 
-void pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...);
+void pushContRaw(char* file, int line, struct Cora *co, int label, basicBlock cb, int nstack, ...);
+
+#define pushCont(co, label, cb, nstack, ...) \
+	pushContRaw(__FILE__, __LINE__, (co), (label), (cb), (nstack), ##__VA_ARGS__)
+
 Obj closureRef(struct Cora *co, int idx);
 
 Obj primEQ(Obj x, Obj y);
@@ -90,6 +94,8 @@ growCallStack(struct callStack *cs) {
     __addr->pc.func = (cb);				\
     __addr->pc.label = (lbl);				\
     __addr->stk = (co)->ctx.stk;			\
+    __addr->debugFile = __FILE__;			\
+    __addr->debugLine = __LINE__;			\
   } while (0)
 
 #define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))

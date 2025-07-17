@@ -34,7 +34,7 @@ cora.bin: libcora main.o init.so
 	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
-	rm -f *.o *.so *.bin
+	rm -f *.o *.so *.bin test/*.so
 	make clean -C src
 	make clean -C lib
 

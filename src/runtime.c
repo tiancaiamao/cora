@@ -14,7 +14,7 @@
 const int INIT_STACK_SIZE = 254;
 
 void
-pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
+pushContRaw(char* file, int line, struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	struct callStack *cs = &co->callstack;
 	if (unlikely(cs->len >= cs->cap)) {
 		growCallStack(cs);
@@ -24,6 +24,8 @@ pushCont(struct Cora *co, int label, basicBlock cb, int nstack, ...) {
 	addr->frees = co->ctx.frees;
 	addr->pc.func = cb;
 	addr->pc.label = label;
+	addr->debugFile = file;
+	addr->debugLine = line;
 
 	// Use segment stack
 	if (unlikely(co->ctx.stk.pos + nstack >= INIT_STACK_SIZE)) {
