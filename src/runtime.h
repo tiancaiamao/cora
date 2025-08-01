@@ -113,4 +113,51 @@ growCallStack(struct callStack *cs) {
 #define PRIM_SUB(x, y)    ((x) - (y))
 #define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
 
+
+#define JUMP_WITH_ARGS_1(clofun, x0) do {					\
+		__nargs = 1;						\
+		__arg0 = (x0);						\
+		co->ctx.frees = __arg0;					\
+		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
+		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
+		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
+		goto *jumpTable[ps.label];				\
+	} while (0)
+
+#define JUMP_WITH_ARGS_2(clofun, x0, x1) do {				\
+		__nargs = 2;						\
+		__arg0 = (x0);						\
+		__arg1 = (x1);						\
+		co->ctx.frees = __arg0;					\
+		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
+		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
+		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
+		goto *jumpTable[ps.label];				\
+	} while (0)
+
+#define JUMP_WITH_ARGS_3(clofun, x0, x1, x2) do {			\
+		__nargs = 3;						\
+		__arg0 = (x0);						\
+		__arg1 = (x1);						\
+		__arg2 = (x2);						\
+		co->ctx.frees = __arg0;					\
+		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
+		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
+		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
+		goto *jumpTable[ps.label];				\
+	} while (0)
+
+#define JUMP_WITH_ARGS_4(clofun, x0, x1, x2, x3) do {			\
+		__nargs = 4;						\
+		__arg0 = (x0);						\
+		__arg1 = (x1);						\
+		__arg2 = (x2);						\
+		__arg3 = (x3);						\
+		co->ctx.frees = __arg0;					\
+		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
+		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
+		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
+		goto *jumpTable[ps.label];				\
+	} while (0)
+
 #endif

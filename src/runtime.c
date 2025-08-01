@@ -600,6 +600,7 @@ builtinLoadSo(struct Cora *co) {
 		coraReturn(co, makeNumber(-1));
 		return;
 	}
+	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path, handle);
 
 	basicBlock entry = dlsym(handle, "entry");
 	char *error = dlerror();
