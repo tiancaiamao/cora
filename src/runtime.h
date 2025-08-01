@@ -160,4 +160,12 @@ growCallStack(struct callStack *cs) {
 		goto *jumpTable[ps.label];				\
 	} while (0)
 
+#define JUMP_RETURN(clofun, val) do {					\
+		__nargs = 2;						\
+		__arg1 = (val);						\
+		co->ctx = co->callstack.data[--co->callstack.len];	\
+		if (co->ctx.pc.func != (clofun)) { goto fail; }		\
+		goto *jumpTable[co->ctx.pc.label];			\
+	} while (0)
+
 #endif
