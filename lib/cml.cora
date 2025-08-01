@@ -47,7 +47,7 @@
   ;; return false if no more tasks
   (defun schedule ()
     (begin
-     (display "schedule()\n")
+     ;; (display "schedule()\n")
      (let more-work (run-external-schedulers 0)
 	  (if (queue-empty? (task-queue))
 	      (if more-work
@@ -63,9 +63,9 @@
 
   (defun schedule-loop ()
     (begin
-     (display "enter schedule-loop\n")
+     ;; (display "enter schedule-loop\n")
      (schedule)
-     (display "schedule-loop do one round, check next round\n")
+     ;; (display "schedule-loop do one round, check next round\n")
      (if (and (queue-empty? (task-queue))
 	      (not (run-external-schedulers 0)))
 	 (begin
