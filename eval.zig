@@ -1,0 +1,976 @@
+const std = @import("std");
+const Io = std.Io;
+const Allocator = std.mem.Allocator;
+const ArrayList = std.ArrayList;
+const StringHashMap = std.StringHashMap;
+
+// =======================================
+// Object representation
+// =======================================
+// FIXME
+pub const Obj = union(enum) {
+    integer: i64,
+    float: f64,
+    string: []const u8,
+    boolean: bool,
+    nil,
+    symbol: *Symbol,
+    cons: *Cons,
+    closure: *Closure,
+    vector: ArrayList(Obj),
+    primitive: *const Primitive,
+
+    // pub fn format(
+    //     self: Obj,
+    //     comptime fmt_str: []const u8,
+    //     options: std.fmt.FormatOptions,
+    //     writer: anytype,
+    // ) !void {
+    //     _ = fmt_str;
+    //     _ = options;
+    //     switch (self) {
+    //         .integer => |i| try writer.print("{d}", .{i}),
+    //         .float => |f| try writer.print("{d}", .{f}),
+    //         .string => |s| try writer.print("\"{s}\"", .{s}),
+    //         .boolean => |b| try writer.print("{s}", if (b) "true" else "false"),
+    //         .nil => try writer.print("()", .{}),
+    //         // .symbol => |s| try writer.writeAll(s.str),
+    //         .symbol => {},
+    //         .cons => |c| try c.format(writer),
+    //         .closure => |c| try writer.print("#closure({s})", .{c.name}),
+    //         .vector => try writer.print("#vector", .{}),
+    //         .primitive => try writer.print("#primitive", .{}),
+    //     }
+    // }
+
+    pub fn deinit(self: Obj, allocator: Allocator) void {
+        switch (self) {
+            .string => |s| allocator.free(s),
+            .cons => |c| c.deinit(allocator),
+            .closure => |c| c.deinit(allocator),
+            .vector => |v| v.deinit(),
+            // Other types are either primitives or managed by the arena.
+            else => {},
+        }
+    }
+};
+
+fn equal(a: Obj, b: Obj) bool {
+    if (!std.mem.eql(u8, @tagName(a), @tagName(b))) return false;
+    return switch (a) {
+        .integer => |a_val| b.integer == a_val,
+        .float => |a_val| b.float == a_val,
+        .string => |a_val| std.mem.eql(u8, b.string, a_val),
+        .boolean => |a_val| b.boolean == a_val,
+        .nil => true,
+        .symbol => |a_val| b.symbol == a_val,
+        .cons => |a_val| b.cons == a_val, // TODO
+        .closure => false, // TODO
+        .vector => false, // TODO
+        .primitive => false, // TODO
+    };
+}
+
+// isInteger determinate whether a float64 is actually a precise integer.
+// Judge is according to IEEE754 standard.
+fn isPreciseInteger(f: f64) bool {
+    if (f != @round(f)) return false;
+    const min_safe = -9007199254740991.0; // -(2^53 - 1)
+    const max_safe = 9007199254740991.0; // 2^53 - 1
+    return f >= min_safe and f <= max_safe;
+}
+
+pub fn makeNumber(f: f64) Obj {
+    if (isPreciseInteger(f)) {
+        return Obj{ .integer = @intFromFloat(f) };
+    }
+    return Obj{ .float = f };
+}
+
+pub const Symbol = struct {
+    str: []const u8,
+    val: Obj,
+};
+
+pub const String = []const u8;
+
+pub const Cons = struct {
+    car: Obj,
+    cdr: Obj,
+
+    pub fn deinit(self: *Cons, allocator: Allocator) void {
+        self.car.deinit(allocator);
+        self.cdr.deinit(allocator);
+        allocator.destroy(self);
+    }
+
+    // pub fn format(self: *const Cons, writer: anytype) !void {
+    //     try writer.writeAll("(");
+    //     try writer.print("{}", .{self.car});
+
+    //     var current = self.cdr;
+    //     while (true) {
+    //         switch (current) {
+    //             .cons => |cons_cell| {
+    //                 try writer.writeAll(" ");
+    //                 try writer.print("{}", .{cons_cell.car});
+    //                 current = cons_cell.cdr;
+    //             },
+    //             else => {
+    //                 if (current != .nil) {
+    //                     try writer.print(" . {}", .{current});
+    //                 }
+    //                 break;
+    //             },
+    //         }
+    //     }
+    //     try writer.writeAll(")");
+    // }
+};
+
+pub fn makeCons(allocator: Allocator, hd: Obj, tl: Obj) !Obj {
+    const c = try allocator.create(Cons);
+    c.* = .{ .car = hd, .cdr = tl };
+    return Obj{ .cons = c };
+}
+
+pub const Closure = struct {
+    closed: ArrayList(Obj),
+    code: ?*const Instr,
+    required: usize,
+    name: []const u8,
+
+    pub fn deinit(self: *Closure, allocator: Allocator) void {
+        self.closed.deinit();
+        // The instruction code is part of the arena, so it's not de-initialized here.
+        allocator.destroy(self);
+    }
+};
+
+pub const Vector = ArrayList(Obj);
+
+// =======================================
+// VM and instructions
+// =======================================
+
+pub const Frame = struct {
+    pc: ?*const Instr,
+    base: usize,
+    pos: usize,
+};
+
+pub const VM = struct {
+    allocator: Allocator,
+    arena: std.heap.ArenaAllocator,
+
+    next: ?*const Instr,
+    stack: ArrayList(Obj),
+    base: usize,
+    val: Obj,
+    call_stack: ArrayList(Frame),
+    symbol_map: StringHashMap(*Symbol),
+
+    // Symbols
+    sym_quote: Obj,
+    sym_if: Obj,
+    sym_do: Obj,
+    sym_lambda: Obj,
+    sym_macro_expand: *Symbol,
+    sym_let: Obj,
+
+    pub fn init(allocator: Allocator) !VM {
+        var arena = std.heap.ArenaAllocator.init(allocator);
+        const arena_allocator = arena.allocator();
+        var vm = VM{
+            .allocator = arena_allocator,
+            .arena = arena,
+            .next = null,
+            .stack = ArrayList(Obj).init(arena_allocator),
+            .base = 0,
+            .val = .nil,
+            .call_stack = ArrayList(Frame).init(arena_allocator),
+            .symbol_map = StringHashMap(*Symbol).init(arena_allocator),
+            .sym_quote = undefined,
+            .sym_if = undefined,
+            .sym_do = undefined,
+            .sym_lambda = undefined,
+            .sym_macro_expand = undefined,
+            .sym_let = undefined,
+        };
+
+        try vm.initSymbols();
+        return vm;
+    }
+
+    pub fn deinit(self: *VM) void {
+        self.arena.deinit();
+    }
+
+    fn initSymbols(self: *VM) !void {
+        self.sym_if = Obj{ .symbol = try self.makeSymbol("if") };
+        self.sym_do = Obj{ .symbol = try self.makeSymbol("do") };
+        self.sym_lambda = Obj{ .symbol = try self.makeSymbol("lambda") };
+        self.sym_quote = Obj{ .symbol = try self.makeSymbol("quote") };
+        const macro_sym = try self.makeSymbol("macroexpand");
+        self.sym_macro_expand = macro_sym;
+        self.sym_let = Obj{ .symbol = try self.makeSymbol("let") };
+    }
+
+    pub fn makeSymbol(self: *VM, str: []const u8) !*Symbol {
+        if (self.symbol_map.get(str)) |sym| {
+            return sym;
+        }
+        const s = try self.allocator.create(Symbol);
+        const str_copy = try self.allocator.dupe(u8, str);
+        s.* = .{ .str = str_copy, .val = .nil };
+        try self.symbol_map.put(str, s);
+        return s;
+    }
+
+    pub fn pop(self: *VM) Obj {
+        return self.stack.pop();
+    }
+
+    pub fn ret(self: *VM, x: Obj) void {
+        self.val = x;
+        const addr = self.call_stack.pop() orelse unreachable;
+        self.base = addr.base;
+        self.stack.shrinkRetainingCapacity(addr.pos);
+        self.next = addr.pc;
+    }
+
+    pub fn eval(self: *VM, exp: Obj) !Obj {
+        const compiled_code = try self.compile(exp, &[_]Obj{}, Obj.nil, &exit_instr);
+        try self.call_stack.append(.{ .pc = null, .base = self.base, .pos = self.stack.items.len });
+        self.trampoline(compiled_code);
+        return self.val;
+    }
+
+    fn trampoline(self: *VM, code: *const Instr) void {
+        self.next = code;
+        while (self.next) |current_instr| {
+            self.next = null;
+            current_instr.exec(self);
+        }
+    }
+
+    fn makeTheCall(self: *VM, nargs_provided_in_call: usize) void {
+        _ = nargs_provided_in_call; // Currying not implemented for simplicity
+        const fn_obj = self.stack.items[self.base];
+        switch (fn_obj) {
+            .closure => |c| self.next = c.code,
+            // .primitive => |p| p.func(self),
+            else => @panic("trying to call a non-callable object"),
+        }
+    }
+
+    // =====================================
+    // Compiler utilities
+    // =====================================
+    const ClosureConvertResult = struct { exp: Obj, nlets: usize };
+
+    pub fn closureConvert(self: *VM, exp: Obj) !ClosureConvertResult {
+        var frees = ArrayList(Obj).init(self.allocator);
+        defer frees.deinit();
+        var max_nlets: usize = 0;
+        const new_exp = try self.closureConvertRecursive(exp, .nil, .nil, &frees, &max_nlets);
+        return .{ .exp = new_exp, .nlets = max_nlets };
+    }
+
+    fn closureConvertRecursive(
+        self: *VM,
+        exp: Obj,
+        locals: Obj,
+        env: Obj,
+        frees: *ArrayList(Obj),
+        nlets: *usize,
+    ) !Obj {
+        switch (exp) {
+            .nil, .boolean, .integer, .string, .float => return exp,
+            .symbol => {
+                // If not in local args, check enclosing environments. If found, it's a free variable.
+                if (assq(exp, locals) < 0) {
+                    var current_env = env;
+                    while (current_env.cons) |c_env| {
+                        if (assq(exp, c_env.car) >= 0) {
+                            // Check for duplicates before adding
+                            var found = false;
+                            for (frees.items) |free_var| {
+                                if (free_var == exp) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) try frees.append(exp);
+                            break;
+                        }
+                        current_env = c_env.cdr;
+                    }
+                }
+                return exp;
+            },
+            .cons => |c| {
+                // Special Forms
+                if (c.car == self.sym_quote) return exp;
+                if (c.car == self.sym_if) {
+                    const tb = try self.closureConvertRecursive(cadr(exp), locals, env, frees, nlets);
+                    const succ = try self.closureConvertRecursive(caddr(exp), locals, env, frees, nlets);
+                    const fail = try self.closureConvertRecursive(cadr(cdr(cdr(exp))), locals, env, frees, nlets);
+                    return makeCons(self.allocator, self.sym_if, try makeCons(self.allocator, tb, try makeCons(self.allocator, succ, try makeCons(self.allocator, fail, .nil))));
+                }
+                if (c.car == self.sym_lambda) {
+                    const args = cadr(exp);
+                    const body = caddr(exp);
+
+                    var lambda_frees = ArrayList(Obj).init(self.allocator);
+                    defer lambda_frees.deinit();
+                    var lambda_nlets: usize = 0;
+
+                    const new_env = try makeCons(self.allocator, locals, env);
+                    const new_body = try self.closureConvertRecursive(body, args, new_env, &lambda_frees, &lambda_nlets);
+
+                    // Promote free vars that are not local to the current scope
+                    for (lambda_frees.items) |free_var| {
+                        if (assq(free_var, locals) < 0) {
+                            // Check for duplicates before adding
+                            var found = false;
+                            for (frees.items) |f| if (f == free_var) {
+                                found = true;
+                                break;
+                            };
+                            if (!found) try frees.append(free_var);
+                        }
+                    }
+
+                    // Annotate lambda: (lambda args free_vars nlets body)
+                    const frees_list = try sliceToList(self.allocator, lambda_frees.items);
+                    const nlets_obj = Obj{ .integer = @intCast(lambda_nlets) };
+
+                    return makeCons(self.allocator, self.sym_lambda, try makeCons(self.allocator, args, try makeCons(self.allocator, frees_list, try makeCons(self.allocator, nlets_obj, try makeCons(self.allocator, new_body, .nil)))));
+                }
+                if (c.car == self.sym_let) {
+                    const name = cadr(exp);
+                    const val = caddr(exp);
+                    const body = cadr(cdr(cdr(exp)));
+
+                    const new_val = try self.closureConvertRecursive(val, locals, env, frees, nlets);
+
+                    const current_nlets = nlets.*;
+                    nlets.* += 1;
+                    const new_locals = try makeCons(self.allocator, name, locals);
+                    const new_body = try self.closureConvertRecursive(body, new_locals, env, frees, nlets);
+                    nlets.* = @max(current_nlets + 1, nlets.*);
+
+                    return makeCons(self.allocator, self.sym_let, try makeCons(self.allocator, name, try makeCons(self.allocator, new_val, try makeCons(self.allocator, new_body, .nil))));
+                }
+
+                // Function application
+                var current = exp;
+                var result_list = Obj.nil;
+                while (current.cons) |cell| {
+                    const converted_item = try self.closureConvertRecursive(cell.car, locals, env, frees, nlets);
+                    result_list = try makeCons(self.allocator, converted_item, result_list);
+                    current = cell.cdr;
+                }
+                return try reverse(self.allocator, result_list);
+            },
+            else => return exp,
+        }
+    }
+
+    fn compile(
+        self: *VM,
+        exp: Obj,
+        locals: []const Obj,
+        frees: Obj,
+        next: ?*const Instr,
+    ) anyerror!*const Instr {
+        switch (exp) {
+            .nil, .boolean, .integer, .string, .float => {
+                const i = try self.allocator.create(Instr);
+                i.* = .{ .iconst = .{ .val = exp, .next = next } };
+                return i;
+            },
+            .symbol => |s| {
+                // Check locals
+                for (locals, 0..) |local, i| {
+                    if (local.symbol == s) {
+                        const instr = try self.allocator.create(Instr);
+                        instr.* = .{ .local_ref = .{ .idx = i, .next = next } };
+                        return instr;
+                    }
+                }
+                // Check free variables
+                const free_idx = assq(exp, frees);
+                if (free_idx >= 0) {
+                    const instr = try self.allocator.create(Instr);
+                    instr.* = .{ .closure_ref = .{ .idx = @intCast(free_idx), .next = next } };
+                    return instr;
+                }
+                // Global
+                const instr = try self.allocator.create(Instr);
+                instr.* = .{ .global_ref = .{ .sym = s, .next = next } };
+                return instr;
+            },
+            .cons => |c| {
+                if (equal(c.car, self.sym_quote)) {
+                    const i = try self.allocator.create(Instr);
+                    i.* = .{ .iconst = .{ .val = cadr(exp), .next = next } };
+                    return i;
+                }
+                if (equal(c.car, self.sym_if)) {
+                    const then_cont = try self.compile(caddr(exp), locals, frees, next);
+                    const else_cont = try self.compile(cadr(cdr(cdr(exp))), locals, frees, next);
+                    const if_instr = try self.allocator.create(Instr);
+                    if_instr.* = .{ .if_else = .{ .succ = then_cont, .fail = else_cont } };
+                    return self.compile(cadr(exp), locals, frees, if_instr);
+                }
+                if (equal(c.car, self.sym_lambda)) {
+                    const args = cadr(exp);
+                    const free_vars = caddr(exp);
+                    const nlets_obj = car(cddr(cdr(exp)));
+                    const body = cadr(cddr(cdr(exp)));
+
+                    const local_slice = try listToSlice(self.allocator, args);
+                    const code = try self.compile(body, local_slice, free_vars, &exit_instr);
+
+                    const nlets: usize = @intCast(nlets_obj.integer);
+                    const code_with_lets = try self.reserveForLetBinding(nlets, code);
+
+                    const make_closure_instr = try self.allocator.create(Instr);
+                    make_closure_instr.* = .{ .make_closure = .{
+                        .required = listLength(args),
+                        .nfrees = listLength(free_vars),
+                        .code = code_with_lets,
+                        .next = next,
+                    } };
+                    return self.compileList(free_vars, locals, frees, make_closure_instr);
+                }
+                if (equal(c.car, self.sym_let)) {
+                    const name = cadr(exp);
+                    const val = caddr(exp);
+                    const body = cadr(cdr(cdr(exp)));
+
+                    const new_locals = try self.allocator.alloc(Obj, locals.len + 1);
+                    @memcpy(new_locals[0..locals.len], locals);
+                    new_locals[locals.len] = name;
+
+                    const body_cont = try self.compile(body, new_locals, frees, next);
+                    const set_instr = try self.allocator.create(Instr);
+                    set_instr.* = .{ .local_set = .{ .idx = locals.len, .next = body_cont } };
+                    return try self.compile(val, locals, frees, set_instr);
+                }
+
+                // Function application
+                const nargs = listLength(exp);
+                const is_tail = (next == &exit_instr);
+
+                const cont = if (is_tail) blk: {
+                    const i = try self.allocator.create(Instr);
+                    i.* = .{ .tail_call = .{ .nargs = nargs } };
+                    break :blk i;
+                } else blk: {
+                    const i = try self.allocator.create(Instr);
+                    i.* = .{ .call = .{ .nargs = nargs, .next = next } };
+                    break :blk i;
+                };
+                return self.compileList(exp, locals, frees, cont);
+            },
+            else => @panic("uncompilable object"),
+        }
+    }
+
+    fn compileList(self: *VM, list: Obj, locals: []const Obj, frees: Obj, next: *const Instr) !*const Instr {
+        if (list == .nil) return next;
+        const push_instr = try self.allocator.create(Instr);
+        const remaining_cont = try self.compileList(cdr(list), locals, frees, next);
+        push_instr.* = .{ .push = .{ .next = remaining_cont } };
+        return self.compile(car(list), locals, frees, push_instr);
+    }
+
+    fn reserveForLetBinding(self: *VM, nlets: usize, code: *const Instr) !*const Instr {
+        if (nlets == 0) return code;
+        const i = try self.allocator.create(Instr);
+        i.* = .{ .reserve_locals = .{ .nlets = nlets, .next = code } };
+        return i;
+    }
+    const exit_instr = Instr{ .exit = {} };
+};
+
+pub const Instr = union(enum) {
+    exit: void,
+    iconst: struct {
+        val: Obj,
+        next: ?*const Instr,
+    },
+    local_ref: struct {
+        idx: usize,
+        next: ?*const Instr,
+    },
+    closure_ref: struct {
+        idx: usize,
+        next: ?*const Instr,
+    },
+    global_ref: struct {
+        sym: *Symbol,
+        next: ?*const Instr,
+    },
+    if_else: struct {
+        succ: *const Instr,
+        fail: *const Instr,
+    },
+    make_closure: struct {
+        required: usize,
+        nfrees: usize,
+        code: *const Instr,
+        next: ?*const Instr,
+    },
+    local_set: struct {
+        idx: usize,
+        next: ?*const Instr,
+    },
+    tail_call: struct {
+        nargs: usize,
+    },
+    call: struct {
+        nargs: usize,
+        next: ?*const Instr,
+    },
+    push: struct {
+        next: ?*const Instr,
+    },
+    reserve_locals: struct {
+        nlets: usize,
+        next: *const Instr,
+    },
+    arity_check,
+
+    pub fn exec(self: *const Instr, vm: *VM) void {
+        switch (self.*) {
+            .exit => {
+                vm.ret(vm.val);
+            },
+            .iconst => |i| {
+                vm.val = i.val;
+                vm.next = i.next;
+            },
+            .local_ref => |i| {
+                vm.val = vm.stack.items[vm.base + i.idx + 1];
+                vm.next = i.next;
+            },
+            .closure_ref => |i| {
+                const closure = vm.stack.items[vm.base].closure;
+                vm.val = closure.closed.items[i.idx];
+                vm.next = i.next;
+            },
+            .global_ref => |i| {
+                if (i.sym.val == .nil) {
+                    // In a real implementation, this should probably be an error
+                    @panic("undefined symbol");
+                }
+                vm.val = i.sym.val;
+                vm.next = i.next;
+            },
+            .if_else => |i| {
+                switch (vm.val) {
+                    .boolean => |b| {
+                        vm.next = if (b) i.succ else i.fail;
+                        if (vm.next) |next_instr| next_instr.exec(vm);
+                    },
+                    else => @panic("if condition must be a boolean"),
+                }
+            },
+            .make_closure => |i| {
+                // Simplified implementation
+                vm.next = i.next;
+            },
+            .local_set => |i| {
+                vm.stack.items[vm.base + i.idx + 1] = vm.val;
+                vm.next = i.next;
+            },
+            .tail_call => |i| {
+                // Simplified implementation
+                _ = i;
+            },
+            .call => |i| {
+                // Simplified implementation
+                _ = i;
+            },
+            .push => |i| {
+                vm.stack.append(vm.val) catch @panic("out of memory");
+                vm.next = i.next;
+            },
+            .reserve_locals => |i| {
+                // Simplified implementation
+                _ = i;
+            },
+            .arity_check => {},
+        }
+    }
+};
+
+// =======================================
+//   Forward Declarations & Helper Types
+// =======================================
+
+const Primitive = *const fn (*VM) void;
+
+// =======================================
+//      List (Cons) Helper Functions
+// =======================================
+fn car(obj: Obj) Obj {
+    return switch (obj) {
+        .cons => |c| c.car,
+        else => unreachable,
+    };
+}
+
+fn cdr(obj: Obj) Obj {
+    return switch (obj) {
+        .cons => |c| c.cdr,
+        else => unreachable,
+    };
+}
+
+fn cadr(obj: Obj) Obj {
+    return car(cdr(obj));
+}
+
+fn caddr(obj: Obj) Obj {
+    return car(cdr(cdr(obj)));
+}
+
+fn cddr(obj: Obj) Obj {
+    return cdr(cdr(obj));
+}
+
+fn printCons(c: *const Cons, writer: anytype) !void {
+    try writer.writeAll("(");
+    try writer.print("{}", .{c.car});
+    var current = c.cdr;
+    while (true) {
+        switch (current) {
+            .cons => |cell| {
+                try writer.writeAll(" ");
+                try writer.print("{}", .{cell.car});
+                current = cell.cdr;
+            },
+            .nil => break,
+            else => {
+                try writer.print(" . {}", .{current});
+                break;
+            },
+        }
+    }
+    try writer.writeAll(")");
+}
+
+fn listLength(list: Obj) usize {
+    var count: usize = 0;
+    var current = list;
+    while (true) {
+        switch (current) {
+            .cons => |cell| {
+                count += 1;
+                current = cell.cdr;
+            },
+            else => break,
+        }
+    }
+    return count;
+}
+
+// Finds a symbol in a Lisp association list and returns its index, or -1.
+fn assq(sym: Obj, list: Obj) i64 {
+    var current = list;
+    var i: i64 = 0;
+    while (true) {
+        switch (current) {
+            .cons => |cell| {
+                if (equal(cell.car, sym)) return i;
+                i += 1;
+                current = cell.cdr;
+            },
+            else => break,
+        }
+    }
+    return -1;
+}
+
+fn listToSlice(allocator: Allocator, list: Obj) ![]Obj {
+    const len = listLength(list);
+    const slice = try allocator.alloc(Obj, len);
+    var current = list;
+    for (slice, 0..) |*item, i| {
+        _ = i;
+        item.* = car(current);
+        current = cdr(current);
+    }
+    return slice;
+}
+
+fn sliceToList(allocator: Allocator, slice: []const Obj) !Obj {
+    var list = Obj.nil;
+    var i = slice.len;
+    while (i > 0) {
+        i -= 1;
+        list = try makeCons(allocator, slice[i], list);
+    }
+    return list;
+}
+
+fn reverse(allocator: Allocator, list: Obj) !Obj {
+    var reversed: Obj = Obj.nil;
+    var current: Obj = list;
+    while (true) {
+        switch (current) {
+            .cons => |c| {
+                reversed = try makeCons(allocator, c.car, reversed);
+                current = c.cdr;
+            },
+            else => break,
+        }
+    }
+    return reversed;
+}
+
+// =======================================
+// Peeking Reader for Unread support
+// =======================================
+const PeekingReader = struct {
+    reader: std.io.AnyReader,
+    // A single-rune buffer to support unread
+    lookahead: ?u8,
+
+    pub fn readRune(self: *PeekingReader) !u8 {
+        if (self.lookahead) |r| {
+            self.lookahead = null;
+            return r;
+        }
+
+        // Simple UTF-8 decoding from a byte stream
+        const first_byte = self.reader.readByte() catch |err| switch (err) {
+            error.EndOfStream => return err,
+            else => return err,
+        };
+        return first_byte;
+
+        // if (first_byte < 0x80) {
+        //     return first_byte;
+        // }
+
+        // var buf: [4]u8 = undefined;
+        // buf[0] = first_byte;
+        // const len = std.unicode.utf8_byte_sequence_length(first_byte) catch return ' ';
+
+        // if (len > 4 or len < 2) return ' ';
+
+        // try self.reader.readNoEof(&buf[1..len]);
+        // return std.unicode.utf8Decode(buf[0..len]) catch ' ';
+    }
+
+    pub fn unreadRune(self: *PeekingReader, r: u8) void {
+        std.debug.assert(self.lookahead == null); // Should not unread twice
+        self.lookahead = r;
+    }
+};
+
+// =======================================
+//   S-Expression Reader
+// =======================================
+pub const SexpReader = struct {
+    vm: *VM,
+    peeker: PeekingReader,
+    buf: std.ArrayList(u8),
+    pkg_mapping: std.StringHashMap([]const u8),
+
+    pub fn init(vm: *VM, reader: std.io.AnyReader) !SexpReader {
+        return SexpReader{
+            .vm = vm,
+            .peeker = PeekingReader{ .reader = reader, .lookahead = null },
+            .buf = std.ArrayList(u8).init(vm.allocator),
+            .pkg_mapping = std.StringHashMap([]const u8).init(vm.allocator),
+        };
+    }
+
+    pub fn deinit(self: *SexpReader) void {
+        self.buf.deinit();
+        self.pkg_mapping.deinit();
+    }
+
+    // Main entry point for reading one object
+    pub fn read(self: *SexpReader) !Obj {
+        const r = self.peekAndSkipWhitespace() catch |err| return switch (err) {
+            error.EndOfStream => err,
+            else => |e| return e,
+        };
+
+        switch (r) {
+            ';' => { // Comment
+                _ = try self.peeker.readRune(); // Consume the ';'
+                var current = try self.peeker.readRune();
+                while (current != '\n') {
+                    current = self.peeker.readRune() catch |err| switch (err) {
+                        error.EndOfStream => return err,
+                        else => |e| return e,
+                    };
+                }
+                return self.read(); // Recurse to read the next actual object
+            },
+            '\'' => {
+                _ = try self.peeker.readRune(); // Consume the '
+                const obj = try self.read();
+                const quoted = try makeCons(self.vm.allocator, obj, .nil);
+                return makeCons(self.vm.allocator, self.vm.sym_quote, quoted);
+            },
+            '[' => return self.readListMacro(),
+            '(' => return self.readSexp(),
+            '"' => return self.readString(),
+            else => { // Atom (symbol or number)
+                self.buf.clearRetainingCapacity();
+                var current = try self.peeker.readRune();
+                try self.buf.append(current);
+
+                while (true) {
+                    current = self.peeker.readRune() catch break;
+                    if (isSymbolTerminator(current)) {
+                        self.peeker.unreadRune(current);
+                        break;
+                    }
+                    try self.buf.append(current);
+                }
+                const token_str = self.buf.items;
+                // const token_str = std.unicode.utf8Alloc(self.vm.allocator, self.buf.items) catch @panic("OOM");
+                return self.tokenToObj(token_str);
+            },
+        }
+    }
+
+    fn readString(self: *SexpReader) !Obj {
+        _ = try self.peeker.readRune(); // consume opening "
+        self.buf.clearRetainingCapacity();
+        while (true) {
+            const r = try self.peeker.readRune();
+            if (r == '"') break;
+            // TODO: handle escape sequences
+            try self.buf.append(r);
+        }
+        // const str = try std.unicode.utf8Alloc(self.vm.allocator, self.buf.items);
+        return Obj{ .string = self.buf.items };
+    }
+
+    fn readSexp(self: *SexpReader) !Obj {
+        _ = try self.peeker.readRune(); // consume opening (
+        var head: Obj = Obj.nil;
+        while (true) {
+            const r = self.peekAndSkipWhitespace() catch |err| switch (err) {
+                error.EndOfStream => return error.UnmatchedParenthesis,
+                else => |e| return e,
+            };
+            if (r == ')') break;
+
+            const obj = try self.read();
+            head = try makeCons(self.vm.allocator, obj, head);
+        }
+        _ = try self.peeker.readRune(); // consume closing )
+
+        const reversed = try reverse(self.vm.allocator, head);
+
+        // Handle (@import "path" sym) reader macro
+        // if (reversed == .cons) |c| {
+        //     if (c.car.symbol) |s| {
+        //         if (std.mem.eql(u8, s.str, "@import")) {
+        //             const path_obj = cadr(reversed);
+        //             const sym_obj = caddr(reversed);
+        //             if (path_obj.string and sym_obj.symbol) {
+        //                 try self.pkg_mapping.put(sym_obj.symbol.str, path_obj.string);
+        //                 const import_sym = try self.vm.makeSymbol("import");
+        //                 return makeCons(self.vm.allocator, .{ .symbol = import_sym }, try makeCons(self.vm.allocator, path_obj, .nil));
+        //             }
+        //         }
+        //     }
+        // }
+
+        return reversed;
+    }
+
+    fn readListMacro(self: *SexpReader) !Obj {
+        _ = try self.peeker.readRune(); // consume opening [
+        var head_sym_str: []const u8 = "list";
+        var items_head: Obj = Obj.nil;
+        while (true) {
+            const r = self.peekAndSkipWhitespace() catch |err| switch (err) {
+                error.EndOfStream => return error.UnmatchedBracket,
+                else => |e| return e,
+            };
+            if (r == ']') break;
+
+            if (r == '.') {
+                _ = try self.peeker.readRune(); // consume '.'
+                head_sym_str = "list-rest";
+                continue;
+            }
+
+            const obj = try self.read();
+            items_head = try makeCons(self.vm.allocator, obj, items_head);
+        }
+        _ = try self.peeker.readRune(); // consume closing ]
+
+        const head_sym = try self.vm.makeSymbol(head_sym_str);
+        const reversed_items = try reverse(self.vm.allocator, items_head);
+        return makeCons(self.vm.allocator, Obj{ .symbol = head_sym }, reversed_items);
+    }
+
+    fn tokenToObj(self: *SexpReader, token: []const u8) !Obj {
+        if (std.mem.eql(u8, token, "true")) return Obj{ .boolean = true };
+        if (std.mem.eql(u8, token, "false")) return Obj{ .boolean = false };
+
+        if (std.fmt.parseFloat(f64, token)) |v| {
+            return makeNumber(v);
+        } else |_| {}
+
+        return Obj{ .symbol = try self.vm.makeSymbol(token) };
+    }
+
+    fn peekAndSkipWhitespace(self: *SexpReader) !u8 {
+        while (true) {
+            const r = self.peeker.readRune() catch |err| return err;
+            if (!std.ascii.isWhitespace(r)) {
+                self.peeker.unreadRune(r);
+                return r;
+            }
+        }
+    }
+};
+
+fn isSymbolTerminator(r: u8) bool {
+    if (std.ascii.isWhitespace(r)) return true;
+    return switch (r) {
+        '(', ')', '[', ']', '"', ';' => true,
+        else => false,
+    };
+}
+
+// Main function for demonstration
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var vm = try VM.init(allocator);
+    defer vm.deinit();
+
+    const stdin = std.io.getStdIn();
+    const reader = stdin.reader();
+    var sexp_reader = try SexpReader.init(&vm, reader.any());
+    defer sexp_reader.deinit();
+
+    var i: u64 = 0;
+    while (true) {
+        std.debug.print("{d} #> ", .{i});
+        const sexp = try sexp_reader.read();
+        const result = try vm.eval(sexp);
+        std.debug.print("{}", .{result});
+        i = i + 1;
+    }
+}
