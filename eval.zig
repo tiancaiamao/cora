@@ -20,28 +20,27 @@ pub const Obj = union(enum) {
     vector: ArrayList(Obj),
     primitive: *const Primitive,
 
-    // pub fn format(
-    //     self: Obj,
-    //     comptime fmt_str: []const u8,
-    //     options: std.fmt.FormatOptions,
-    //     writer: anytype,
-    // ) !void {
-    //     _ = fmt_str;
-    //     _ = options;
-    //     switch (self) {
-    //         .integer => |i| try writer.print("{d}", .{i}),
-    //         .float => |f| try writer.print("{d}", .{f}),
-    //         .string => |s| try writer.print("\"{s}\"", .{s}),
-    //         .boolean => |b| try writer.print("{s}", if (b) "true" else "false"),
-    //         .nil => try writer.print("()", .{}),
-    //         // .symbol => |s| try writer.writeAll(s.str),
-    //         .symbol => {},
-    //         .cons => |c| try c.format(writer),
-    //         .closure => |c| try writer.print("#closure({s})", .{c.name}),
-    //         .vector => try writer.print("#vector", .{}),
-    //         .primitive => try writer.print("#primitive", .{}),
-    //     }
-    // }
+    pub fn format(
+        self: Obj,
+        comptime fmt_str: []const u8,
+        options: std.fmt.FormatOptions,
+        writer: anytype,
+    ) !void {
+        _ = fmt_str;
+        _ = options;
+        switch (self) {
+            .integer => |i| try writer.print("{d}", .{i}),
+            .float => |f| try writer.print("{d}", .{f}),
+            .string => |s| try writer.print("\"{s}\"", .{s}),
+            .boolean => |b| try writer.print("{s}", .{if (b) "true" else "false"}),
+            .nil => try writer.print("()", .{}),
+            .symbol => |sym| try writer.print("{s}", .{sym.str}),
+            .cons => |c| try c.format(writer),
+            .closure => |c| try writer.print("#closure({s})", .{c.name}),
+            .vector => try writer.print("#vector", .{}),
+            .primitive => try writer.print("#primitive", .{}),
+        }
+    }
 
     pub fn deinit(self: Obj, allocator: Allocator) void {
         switch (self) {
@@ -104,28 +103,28 @@ pub const Cons = struct {
         allocator.destroy(self);
     }
 
-    // pub fn format(self: *const Cons, writer: anytype) !void {
-    //     try writer.writeAll("(");
-    //     try writer.print("{}", .{self.car});
+    pub fn format(self: *const Cons, writer: anytype) !void {
+        try writer.writeAll("(");
+        try writer.print("{}", .{self.car});
 
-    //     var current = self.cdr;
-    //     while (true) {
-    //         switch (current) {
-    //             .cons => |cons_cell| {
-    //                 try writer.writeAll(" ");
-    //                 try writer.print("{}", .{cons_cell.car});
-    //                 current = cons_cell.cdr;
-    //             },
-    //             else => {
-    //                 if (current != .nil) {
-    //                     try writer.print(" . {}", .{current});
-    //                 }
-    //                 break;
-    //             },
-    //         }
-    //     }
-    //     try writer.writeAll(")");
-    // }
+        var current = self.cdr;
+        while (true) {
+            switch (current) {
+                .cons => |cons_cell| {
+                    try writer.writeAll(" ");
+                    try writer.print("{}", .{cons_cell.car});
+                    current = cons_cell.cdr;
+                },
+                else => {
+                    if (current != .nil) {
+                        try writer.print(" . {}", .{current});
+                    }
+                    break;
+                },
+            }
+        }
+        try writer.writeAll(")");
+    }
 };
 
 pub fn makeCons(allocator: Allocator, hd: Obj, tl: Obj) !Obj {
@@ -161,7 +160,7 @@ pub const Frame = struct {
 
 pub const VM = struct {
     allocator: Allocator,
-    arena: std.heap.ArenaAllocator,
+    // arena: std.heap.ArenaAllocator,
 
     next: ?*const Instr,
     stack: ArrayList(Obj),
@@ -179,32 +178,30 @@ pub const VM = struct {
     sym_let: Obj,
 
     pub fn init(allocator: Allocator) !VM {
-        var arena = std.heap.ArenaAllocator.init(allocator);
-        const arena_allocator = arena.allocator();
-        var vm = VM{
-            .allocator = arena_allocator,
-            .arena = arena,
-            .next = null,
-            .stack = ArrayList(Obj).init(arena_allocator),
-            .base = 0,
-            .val = .nil,
-            .call_stack = ArrayList(Frame).init(arena_allocator),
-            .symbol_map = StringHashMap(*Symbol).init(arena_allocator),
-            .sym_quote = undefined,
-            .sym_if = undefined,
-            .sym_do = undefined,
-            .sym_lambda = undefined,
-            .sym_macro_expand = undefined,
-            .sym_let = undefined,
-        };
+        var vm: VM = undefined;
+        vm.allocator = allocator;
+        // vm.arena = std.heap.ArenaAllocator.init(allocator);
+        // vm.allocator = vm.arena.allocator();
+        vm.next = null;
+        vm.stack = ArrayList(Obj).init(vm.allocator);
+        vm.base = 0;
+        vm.val = .nil;
+        vm.call_stack = ArrayList(Frame).init(vm.allocator);
+        vm.symbol_map = StringHashMap(*Symbol).init(vm.allocator);
+        vm.sym_quote = undefined;
+        vm.sym_if = undefined;
+        vm.sym_do = undefined;
+        vm.sym_lambda = undefined;
+        vm.sym_macro_expand = undefined;
+        vm.sym_let = undefined;
 
         try vm.initSymbols();
         return vm;
     }
 
-    pub fn deinit(self: *VM) void {
-        self.arena.deinit();
-    }
+    // pub fn deinit(self: *VM) void {
+    //     self.arena.deinit();
+    // }
 
     fn initSymbols(self: *VM) !void {
         self.sym_if = Obj{ .symbol = try self.makeSymbol("if") };
@@ -240,7 +237,10 @@ pub const VM = struct {
     }
 
     pub fn eval(self: *VM, exp: Obj) !Obj {
-        const compiled_code = try self.compile(exp, &[_]Obj{}, Obj.nil, &exit_instr);
+        const converted = try self.closureConvert(exp);
+        std.debug.print("closure convert = {}\n", .{converted.exp});
+
+        const compiled_code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, &exit_instr);
         try self.call_stack.append(.{ .pc = null, .base = self.base, .pos = self.stack.items.len });
         self.trampoline(compiled_code);
         return self.val;
@@ -288,37 +288,43 @@ pub const VM = struct {
         switch (exp) {
             .nil, .boolean, .integer, .string, .float => return exp,
             .symbol => {
-                // If not in local args, check enclosing environments. If found, it's a free variable.
+                // If not in local args, check enclosing environments.
+                // If found, it's a free variable.
                 if (assq(exp, locals) < 0) {
                     var current_env = env;
-                    while (current_env.cons) |c_env| {
-                        if (assq(exp, c_env.car) >= 0) {
-                            // Check for duplicates before adding
-                            var found = false;
-                            for (frees.items) |free_var| {
-                                if (free_var == exp) {
-                                    found = true;
+                    while (true) {
+                        switch (current_env) {
+                            .cons => |c_env| {
+                                if (assq(exp, c_env.car) >= 0) {
+                                    // Check for duplicates before adding
+                                    var found = false;
+                                    for (frees.items) |free_var| {
+                                        if (equal(free_var, exp)) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) try frees.append(exp);
                                     break;
                                 }
-                            }
-                            if (!found) try frees.append(exp);
-                            break;
+                                current_env = c_env.cdr;
+                            },
+                            else => unreachable,
                         }
-                        current_env = c_env.cdr;
                     }
                 }
                 return exp;
             },
             .cons => |c| {
                 // Special Forms
-                if (c.car == self.sym_quote) return exp;
-                if (c.car == self.sym_if) {
+                if (equal(c.car, self.sym_quote)) return exp;
+                if (equal(c.car, self.sym_if)) {
                     const tb = try self.closureConvertRecursive(cadr(exp), locals, env, frees, nlets);
                     const succ = try self.closureConvertRecursive(caddr(exp), locals, env, frees, nlets);
                     const fail = try self.closureConvertRecursive(cadr(cdr(cdr(exp))), locals, env, frees, nlets);
                     return makeCons(self.allocator, self.sym_if, try makeCons(self.allocator, tb, try makeCons(self.allocator, succ, try makeCons(self.allocator, fail, .nil))));
                 }
-                if (c.car == self.sym_lambda) {
+                if (equal(c.car, self.sym_lambda)) {
                     const args = cadr(exp);
                     const body = caddr(exp);
 
@@ -334,7 +340,7 @@ pub const VM = struct {
                         if (assq(free_var, locals) < 0) {
                             // Check for duplicates before adding
                             var found = false;
-                            for (frees.items) |f| if (f == free_var) {
+                            for (frees.items) |f| if (equal(f, free_var)) {
                                 found = true;
                                 break;
                             };
@@ -348,7 +354,7 @@ pub const VM = struct {
 
                     return makeCons(self.allocator, self.sym_lambda, try makeCons(self.allocator, args, try makeCons(self.allocator, frees_list, try makeCons(self.allocator, nlets_obj, try makeCons(self.allocator, new_body, .nil)))));
                 }
-                if (c.car == self.sym_let) {
+                if (equal(c.car, self.sym_let)) {
                     const name = cadr(exp);
                     const val = caddr(exp);
                     const body = cadr(cdr(cdr(exp)));
@@ -366,11 +372,16 @@ pub const VM = struct {
 
                 // Function application
                 var current = exp;
-                var result_list = Obj.nil;
-                while (current.cons) |cell| {
-                    const converted_item = try self.closureConvertRecursive(cell.car, locals, env, frees, nlets);
-                    result_list = try makeCons(self.allocator, converted_item, result_list);
-                    current = cell.cdr;
+                var result_list: Obj = .nil;
+                while (true) {
+                    switch (current) {
+                        .cons => |cell| {
+                            const converted_item = try self.closureConvertRecursive(cell.car, locals, env, frees, nlets);
+                            result_list = try makeCons(self.allocator, converted_item, result_list);
+                            current = cell.cdr;
+                        },
+                        else => break,
+                    }
                 }
                 return try reverse(self.allocator, result_list);
             },
@@ -424,6 +435,10 @@ pub const VM = struct {
                     const if_instr = try self.allocator.create(Instr);
                     if_instr.* = .{ .if_else = .{ .succ = then_cont, .fail = else_cont } };
                     return self.compile(cadr(exp), locals, frees, if_instr);
+                }
+                if (equal(c.car, self.sym_do)) {
+                    const b = try self.compile(caddr(exp), locals, frees, next);
+                    return self.compile(cadr(exp), locals, frees, b);
                 }
                 if (equal(c.car, self.sym_lambda)) {
                     const args = cadr(exp);
@@ -710,7 +725,7 @@ fn listToSlice(allocator: Allocator, list: Obj) ![]Obj {
 }
 
 fn sliceToList(allocator: Allocator, slice: []const Obj) !Obj {
-    var list = Obj.nil;
+    var list: Obj = Obj.nil;
     var i = slice.len;
     while (i > 0) {
         i -= 1;
@@ -782,20 +797,18 @@ pub const SexpReader = struct {
     vm: *VM,
     peeker: PeekingReader,
     buf: std.ArrayList(u8),
-    pkg_mapping: std.StringHashMap([]const u8),
+    // pkg_mapping: std.StringHashMap([]const u8),
 
     pub fn init(vm: *VM, reader: std.io.AnyReader) !SexpReader {
         return SexpReader{
             .vm = vm,
             .peeker = PeekingReader{ .reader = reader, .lookahead = null },
             .buf = std.ArrayList(u8).init(vm.allocator),
-            .pkg_mapping = std.StringHashMap([]const u8).init(vm.allocator),
         };
     }
 
     pub fn deinit(self: *SexpReader) void {
         self.buf.deinit();
-        self.pkg_mapping.deinit();
     }
 
     // Main entry point for reading one object
@@ -840,7 +853,6 @@ pub const SexpReader = struct {
                     try self.buf.append(current);
                 }
                 const token_str = self.buf.items;
-                // const token_str = std.unicode.utf8Alloc(self.vm.allocator, self.buf.items) catch @panic("OOM");
                 return self.tokenToObj(token_str);
             },
         }
@@ -855,7 +867,6 @@ pub const SexpReader = struct {
             // TODO: handle escape sequences
             try self.buf.append(r);
         }
-        // const str = try std.unicode.utf8Alloc(self.vm.allocator, self.buf.items);
         return Obj{ .string = self.buf.items };
     }
 
@@ -875,22 +886,6 @@ pub const SexpReader = struct {
         _ = try self.peeker.readRune(); // consume closing )
 
         const reversed = try reverse(self.vm.allocator, head);
-
-        // Handle (@import "path" sym) reader macro
-        // if (reversed == .cons) |c| {
-        //     if (c.car.symbol) |s| {
-        //         if (std.mem.eql(u8, s.str, "@import")) {
-        //             const path_obj = cadr(reversed);
-        //             const sym_obj = caddr(reversed);
-        //             if (path_obj.string and sym_obj.symbol) {
-        //                 try self.pkg_mapping.put(sym_obj.symbol.str, path_obj.string);
-        //                 const import_sym = try self.vm.makeSymbol("import");
-        //                 return makeCons(self.vm.allocator, .{ .symbol = import_sym }, try makeCons(self.vm.allocator, path_obj, .nil));
-        //             }
-        //         }
-        //     }
-        // }
-
         return reversed;
     }
 
@@ -958,7 +953,7 @@ pub fn main() !void {
     const allocator = gpa.allocator();
 
     var vm = try VM.init(allocator);
-    defer vm.deinit();
+    // defer vm.deinit();
 
     const stdin = std.io.getStdIn();
     const reader = stdin.reader();
@@ -969,8 +964,9 @@ pub fn main() !void {
     while (true) {
         std.debug.print("{d} #> ", .{i});
         const sexp = try sexp_reader.read();
+        std.debug.print("read sexp = {}\n", .{sexp});
         const result = try vm.eval(sexp);
-        std.debug.print("{}", .{result});
+        std.debug.print("{}\n", .{result});
         i = i + 1;
     }
 }
