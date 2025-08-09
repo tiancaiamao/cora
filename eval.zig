@@ -273,11 +273,33 @@ pub const VM = struct {
         var frees = ArrayList(Obj).init(self.allocator);
         defer frees.deinit();
         var max_nlets: usize = 0;
-        const new_exp = try self.closureConvertRecursive(exp, .nil, .nil, &frees, &max_nlets);
+        const new_exp = try self.closureConvert1(exp, .nil, .nil, &frees, &max_nlets);
         return .{ .exp = new_exp, .nlets = max_nlets };
     }
 
-    fn closureConvertRecursive(
+    fn appendFreeVar(frees: *ArrayList(Obj), free_var: Obj) !void {
+        // Check for duplicates before adding
+        var found = false;
+        for (frees.items) |f| if (equal(f, free_var)) {
+            found = true;
+            break;
+        };
+        if (!found) try frees.append(free_var);
+    }
+
+    // closureConvert1 converts closure into flat representation.
+    // (lambda (x) body) => (lambda (x) frees nlet body)
+    // Input parameters:
+    //     exp: the expression to be converted
+    //     locals: local variables when handling this expression, it is a list from lambda exp
+    //     env: environment of the current expression, collecting all locals from lambda exp,
+    //     the format is ((a b) (c) (d e f))
+    // Return values:
+    //     the new expression, all expressions except for lambda get rewritten.
+    //     free variable in this expression,
+    //     nlets calculates the maxinum hight of let expression, which is used as the
+    //     count of local variables.
+    fn closureConvert1(
         self: *VM,
         exp: Obj,
         locals: Obj,
@@ -288,29 +310,31 @@ pub const VM = struct {
         switch (exp) {
             .nil, .boolean, .integer, .string, .float => return exp,
             .symbol => {
+                if (assq(exp, locals) >= 0) {
+                    return exp;
+                }
+
                 // If not in local args, check enclosing environments.
-                // If found, it's a free variable.
-                if (assq(exp, locals) < 0) {
-                    var current_env = env;
-                    while (true) {
-                        switch (current_env) {
-                            .cons => |c_env| {
-                                if (assq(exp, c_env.car) >= 0) {
-                                    // Check for duplicates before adding
-                                    var found = false;
-                                    for (frees.items) |free_var| {
-                                        if (equal(free_var, exp)) {
-                                            found = true;
-                                            break;
-                                        }
+                // If found, it's a free variable, otherwise, it's a global variable.
+                var current_env = env;
+                while (true) {
+                    switch (current_env) {
+                        .cons => |c_env| {
+                            if (assq(exp, c_env.car) >= 0) {
+                                // Check for duplicates before adding
+                                var found = false;
+                                for (frees.items) |free_var| {
+                                    if (equal(free_var, exp)) {
+                                        found = true;
+                                        break;
                                     }
-                                    if (!found) try frees.append(exp);
-                                    break;
                                 }
-                                current_env = c_env.cdr;
-                            },
-                            else => unreachable,
-                        }
+                                if (!found) try frees.append(exp);
+                                break;
+                            }
+                            current_env = c_env.cdr;
+                        },
+                        else => break,
                     }
                 }
                 return exp;
@@ -319,9 +343,9 @@ pub const VM = struct {
                 // Special Forms
                 if (equal(c.car, self.sym_quote)) return exp;
                 if (equal(c.car, self.sym_if)) {
-                    const tb = try self.closureConvertRecursive(cadr(exp), locals, env, frees, nlets);
-                    const succ = try self.closureConvertRecursive(caddr(exp), locals, env, frees, nlets);
-                    const fail = try self.closureConvertRecursive(cadr(cdr(cdr(exp))), locals, env, frees, nlets);
+                    const tb = try self.closureConvert1(cadr(exp), locals, env, frees, nlets);
+                    const succ = try self.closureConvert1(caddr(exp), locals, env, frees, nlets);
+                    const fail = try self.closureConvert1(cadr(cdr(cdr(exp))), locals, env, frees, nlets);
                     return makeCons(self.allocator, self.sym_if, try makeCons(self.allocator, tb, try makeCons(self.allocator, succ, try makeCons(self.allocator, fail, .nil))));
                 }
                 if (equal(c.car, self.sym_lambda)) {
@@ -333,18 +357,13 @@ pub const VM = struct {
                     var lambda_nlets: usize = 0;
 
                     const new_env = try makeCons(self.allocator, locals, env);
-                    const new_body = try self.closureConvertRecursive(body, args, new_env, &lambda_frees, &lambda_nlets);
+                    const new_body = try self.closureConvert1(body, args, new_env, &lambda_frees, &lambda_nlets);
 
-                    // Promote free vars that are not local to the current scope
+                    // The lambda body's free variables, minus the locals of the lambda,
+                    // become the free variables of the lambda expression.
                     for (lambda_frees.items) |free_var| {
                         if (assq(free_var, locals) < 0) {
-                            // Check for duplicates before adding
-                            var found = false;
-                            for (frees.items) |f| if (equal(f, free_var)) {
-                                found = true;
-                                break;
-                            };
-                            if (!found) try frees.append(free_var);
+                            try appendFreeVar(frees, free_var);
                         }
                     }
 
@@ -359,12 +378,12 @@ pub const VM = struct {
                     const val = caddr(exp);
                     const body = cadr(cdr(cdr(exp)));
 
-                    const new_val = try self.closureConvertRecursive(val, locals, env, frees, nlets);
+                    const new_val = try self.closureConvert1(val, locals, env, frees, nlets);
 
                     const current_nlets = nlets.*;
                     nlets.* += 1;
                     const new_locals = try makeCons(self.allocator, name, locals);
-                    const new_body = try self.closureConvertRecursive(body, new_locals, env, frees, nlets);
+                    const new_body = try self.closureConvert1(body, new_locals, env, frees, nlets);
                     nlets.* = @max(current_nlets + 1, nlets.*);
 
                     return makeCons(self.allocator, self.sym_let, try makeCons(self.allocator, name, try makeCons(self.allocator, new_val, try makeCons(self.allocator, new_body, .nil))));
@@ -376,7 +395,7 @@ pub const VM = struct {
                 while (true) {
                     switch (current) {
                         .cons => |cell| {
-                            const converted_item = try self.closureConvertRecursive(cell.car, locals, env, frees, nlets);
+                            const converted_item = try self.closureConvert1(cell.car, locals, env, frees, nlets);
                             result_list = try makeCons(self.allocator, converted_item, result_list);
                             current = cell.cdr;
                         },
