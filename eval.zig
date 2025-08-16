@@ -614,22 +614,23 @@ pub const Instr = union(enum) {
     arity_check,
 
     pub fn exec(self: *const Instr, vm: *VM) !void {
+        var val: Obj = vm.val;
         dispatch: switch (self.*) {
             .exit => {
-                vm.ret(vm.val);
+                vm.ret(val);
                 break :dispatch;
             },
             .iconst => |i| {
-                vm.val = i.val;
+                val = i.val;
                 continue :dispatch i.next.*;
             },
             .local_ref => |i| {
-                vm.val = vm.stack.items[vm.base + i.idx + 1];
+                val = vm.stack.items[vm.base + i.idx + 1];
                 continue :dispatch i.next.*;
             },
             .closure_ref => |i| {
                 const closure = vm.stack.items[vm.base].closure;
-                vm.val = closure.closed.items[i.idx];
+                val = closure.closed.items[i.idx];
                 continue :dispatch i.next.*;
             },
             .global_ref => |i| {
@@ -637,11 +638,11 @@ pub const Instr = union(enum) {
                     // In a real implementation, this should probably be an error
                     @panic("undefined symbol");
                 }
-                vm.val = i.sym.val;
+                val = i.sym.val;
                 continue :dispatch i.next.*;
             },
             .if_else => |i| {
-                switch (vm.val) {
+                switch (val) {
                     .boolean => |b| {
                         if (b) {
                             continue :dispatch i.succ.*;
@@ -661,11 +662,11 @@ pub const Instr = union(enum) {
                 closure.code = i.code;
                 closure.required = i.required;
                 const o: Obj = Obj{ .closure = closure };
-                vm.val = o;
+                val = o;
                 continue :dispatch i.next.*;
             },
             .local_set => |i| {
-                vm.stack.items[vm.base + i.idx + 1] = vm.val;
+                vm.stack.items[vm.base + i.idx + 1] = val;
                 continue :dispatch i.next.*;
             },
             .tail_call => |i| {
@@ -685,7 +686,7 @@ pub const Instr = union(enum) {
                 vm.makeTheCall(i.nargs);
             },
             .push => |i| {
-                vm.stack.append(vm.val) catch @panic("out of memory");
+                vm.stack.append(val) catch @panic("out of memory");
                 continue :dispatch i.next.*;
             },
             .reserve_locals => |i| {
