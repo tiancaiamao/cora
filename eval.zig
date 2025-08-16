@@ -38,7 +38,7 @@ pub const Obj = union(enum) {
             .cons => |c| try c.format(writer),
             .closure => try writer.print("#closure()", .{}),
             .vector => try writer.print("#vector", .{}),
-            .primitive => try writer.print("#primitive", .{}),
+            .primitive => |p| try writer.print("#primitive {s}", .{p.name}),
         }
     }
 
@@ -215,12 +215,12 @@ pub const VM = struct {
     }
 
     fn initPrimitive(self: *VM) !void {
-        const p = &primSet;
-        (try self.makeSymbol("set")).val = Obj{ .primitive = p };
-        (try self.makeSymbol("+")).val = Obj{ .primitive = &primAdd };
-        (try self.makeSymbol("-")).val = Obj{ .primitive = &primSub };
-        (try self.makeSymbol("*")).val = Obj{ .primitive = &primMul };
-        (try self.makeSymbol("=")).val = Obj{ .primitive = &primEQ };
+        (try self.makeSymbol("set")).val = makePrimitive("set", &primSet);
+        (try self.makeSymbol("+")).val = makePrimitive("+", &primAdd);
+        (try self.makeSymbol("-")).val = makePrimitive("-", &primSub);
+        (try self.makeSymbol("*")).val = makePrimitive("*", &primMul);
+        (try self.makeSymbol("=")).val = makePrimitive("=", &primEQ);
+        (try self.makeSymbol("<")).val = makePrimitive("<", &primLT);
     }
 
     fn makeSymbol(self: *VM, str: []const u8) !*Symbol {
@@ -275,11 +275,15 @@ pub const VM = struct {
     }
 
     fn makeTheCall(self: *VM, nargs_provided_in_call: usize) void {
-        _ = nargs_provided_in_call; // Currying not implemented for simplicity
+        // TODO: currying not implemented for simplicity
+        _ = nargs_provided_in_call;
+        // std.debug.print("============== now dumping ======{d}\n", .{nargs_provided_in_call});
+        // self.dump();
+
         const fn_obj = self.stack.items[self.base];
         switch (fn_obj) {
             .closure => |c| self.next = c.code,
-            .primitive => |p| p(self),
+            .primitive => |p| p.op(self),
             else => @panic("trying to call a non-callable object"),
         }
     }
@@ -433,7 +437,7 @@ pub const VM = struct {
         exp: Obj,
         locals: []const Obj,
         frees: Obj,
-        next: ?*const Instr,
+        next: *const Instr,
     ) anyerror!*const Instr {
         switch (exp) {
             .nil, .boolean, .integer, .string, .float => {
@@ -549,25 +553,35 @@ pub const VM = struct {
         return i;
     }
     const exit_instr = Instr{ .exit = {} };
+
+    pub fn dump(self: *VM) void {
+        for (self.stack.items) |item| {
+            std.debug.print("{any: <8}\n", .{item});
+        }
+        for (self.call_stack.items, 0..) |frame, i| {
+            std.debug.print("[{d}] base={d}, pos={d}\n", .{ i, frame.base, frame.pos });
+        }
+        std.debug.print("--------- finish dumping -------\n", .{});
+    }
 };
 
 pub const Instr = union(enum) {
     exit: void,
     iconst: struct {
         val: Obj,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     local_ref: struct {
         idx: usize,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     closure_ref: struct {
         idx: usize,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     global_ref: struct {
         sym: *Symbol,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     if_else: struct {
         succ: *const Instr,
@@ -577,21 +591,21 @@ pub const Instr = union(enum) {
         required: usize,
         nfrees: usize,
         code: *const Instr,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     local_set: struct {
         idx: usize,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     tail_call: struct {
         nargs: usize,
     },
     call: struct {
         nargs: usize,
-        next: ?*const Instr,
+        next: *const Instr,
     },
     push: struct {
-        next: ?*const Instr,
+        next: *const Instr,
     },
     reserve_locals: struct {
         nlets: usize,
@@ -600,22 +614,23 @@ pub const Instr = union(enum) {
     arity_check,
 
     pub fn exec(self: *const Instr, vm: *VM) !void {
-        switch (self.*) {
+        dispatch: switch (self.*) {
             .exit => {
                 vm.ret(vm.val);
+                break :dispatch;
             },
             .iconst => |i| {
                 vm.val = i.val;
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .local_ref => |i| {
                 vm.val = vm.stack.items[vm.base + i.idx + 1];
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .closure_ref => |i| {
                 const closure = vm.stack.items[vm.base].closure;
                 vm.val = closure.closed.items[i.idx];
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .global_ref => |i| {
                 if (i.sym.val == .nil) {
@@ -623,13 +638,16 @@ pub const Instr = union(enum) {
                     @panic("undefined symbol");
                 }
                 vm.val = i.sym.val;
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .if_else => |i| {
                 switch (vm.val) {
                     .boolean => |b| {
-                        vm.next = if (b) i.succ else i.fail;
-                        // if (vm.next) |next_instr| try next_instr.exec(vm);
+                        if (b) {
+                            continue :dispatch i.succ.*;
+                        } else {
+                            continue :dispatch i.fail.*;
+                        }
                     },
                     else => @panic("if condition must be a boolean"),
                 }
@@ -644,15 +662,15 @@ pub const Instr = union(enum) {
                 closure.required = i.required;
                 const o: Obj = Obj{ .closure = closure };
                 vm.val = o;
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .local_set => |i| {
                 vm.stack.items[vm.base + i.idx + 1] = vm.val;
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .tail_call => |i| {
                 const slice = vm.stack.items[vm.stack.items.len - i.nargs ..];
-                std.mem.copyBackwards(Obj, vm.stack.items[vm.base..], slice);
+                std.mem.copyForwards(Obj, vm.stack.items[vm.base..], slice);
                 vm.stack.items = vm.stack.items[0 .. vm.base + i.nargs];
                 vm.makeTheCall(i.nargs);
             },
@@ -668,7 +686,7 @@ pub const Instr = union(enum) {
             },
             .push => |i| {
                 vm.stack.append(vm.val) catch @panic("out of memory");
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .reserve_locals => |i| {
                 // The top level let differs from the let inside a lambda.
@@ -682,7 +700,7 @@ pub const Instr = union(enum) {
                 for (0..i.nlets) |_| {
                     try vm.stack.append(Obj.nil);
                 }
-                vm.next = i.next;
+                continue :dispatch i.next.*;
             },
             .arity_check => {},
         }
@@ -702,27 +720,19 @@ pub const Instr = union(enum) {
             },
             .iconst => |i| {
                 try writer.print("const {}\n", .{i.val});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .local_ref => |i| {
                 try writer.print("local_ref {d}\n", .{i.idx});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .closure_ref => |i| {
                 try writer.print("closure_ref {d}\n", .{i.idx});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .global_ref => |i| {
                 try writer.print("global_ref {s}\n", .{i.sym.str});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .if_else => |i| {
                 try writer.print("if_else {{\n{}}} {{\n{}}}\n", .{ i.succ, i.fail });
@@ -731,9 +741,7 @@ pub const Instr = union(enum) {
                 try writer.print("make_closure(\n", .{});
                 try writer.print("{}", .{c.code});
                 try writer.print(")\n", .{});
-                if (c.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{c.next});
             },
             .local_set => |i| {
                 try writer.print("local_set {d}\n", .{i.idx});
@@ -743,15 +751,11 @@ pub const Instr = union(enum) {
             },
             .call => |i| {
                 try writer.print("call {d}\n", .{i.nargs});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .push => |i| {
                 try writer.print("push\n", .{});
-                if (i.next) |ptr| {
-                    try writer.print("{}", .{ptr});
-                }
+                try writer.print("{}", .{i.next});
             },
             .reserve_locals => |i| {
                 try writer.print("reserve_locals {d}\n", .{i.nlets});
@@ -766,7 +770,21 @@ pub const Instr = union(enum) {
 //   Forward Declarations & Helper Types
 // =======================================
 
-const Primitive = *const fn (*VM) void;
+const Primitive = struct {
+    name: [:0]const u8,
+    op: *const fn (*VM) void,
+
+    pub fn init(name: [:0]const u8, op: *const fn (*VM) void) Primitive {
+        return Primitive{
+            .name = name,
+            .op = op,
+        };
+    }
+};
+
+fn makePrimitive(name: [:0]const u8, op: *const fn (*VM) void) Obj {
+    return Obj{ .primitive = Primitive.init(name, op) };
+}
 
 fn primSet(vm: *VM) void {
     const val = vm.pop();
@@ -803,7 +821,7 @@ fn primSub(vm: *VM) void {
             return;
         }
     }
-    @panic("add for non-integer");
+    @panic("sub for non-integer");
 }
 
 fn primMul(vm: *VM) void {
@@ -816,7 +834,7 @@ fn primMul(vm: *VM) void {
             return;
         }
     }
-    @panic("add for non-integer");
+    @panic("mul for non-integer");
 }
 
 fn primEQ(vm: *VM) void {
@@ -827,6 +845,19 @@ fn primEQ(vm: *VM) void {
     } else {
         vm.ret(Obj{ .boolean = false });
     }
+}
+
+fn primLT(vm: *VM) void {
+    const a = vm.pop();
+    const b = vm.pop();
+    if (a == .integer) {
+        if (b == .integer) {
+            const res: Obj = Obj{ .boolean = b.integer < a.integer };
+            vm.ret(res);
+            return;
+        }
+    }
+    @panic("< for non-integer");
 }
 
 // =======================================
