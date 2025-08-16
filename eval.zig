@@ -18,7 +18,7 @@ pub const Obj = union(enum) {
     cons: *Cons,
     closure: *Closure,
     vector: ArrayList(Obj),
-    primitive: *const Primitive,
+    primitive: Primitive,
 
     pub fn format(
         self: Obj,
@@ -36,7 +36,7 @@ pub const Obj = union(enum) {
             .nil => try writer.print("()", .{}),
             .symbol => |sym| try writer.print("{s}", .{sym.str}),
             .cons => |c| try c.format(writer),
-            .closure => |c| try writer.print("#closure({s})", .{c.name}),
+            .closure => try writer.print("#closure()", .{}),
             .vector => try writer.print("#vector", .{}),
             .primitive => try writer.print("#primitive", .{}),
         }
@@ -196,6 +196,7 @@ pub const VM = struct {
         vm.sym_let = undefined;
 
         try vm.initSymbols();
+        try vm.initPrimitive();
         return vm;
     }
 
@@ -213,19 +214,35 @@ pub const VM = struct {
         self.sym_let = Obj{ .symbol = try self.makeSymbol("let") };
     }
 
-    pub fn makeSymbol(self: *VM, str: []const u8) !*Symbol {
-        if (self.symbol_map.get(str)) |sym| {
-            return sym;
+    fn initPrimitive(self: *VM) !void {
+        const p = &primSet;
+        (try self.makeSymbol("set")).val = Obj{ .primitive = p };
+        (try self.makeSymbol("+")).val = Obj{ .primitive = &primAdd };
+        (try self.makeSymbol("-")).val = Obj{ .primitive = &primSub };
+        (try self.makeSymbol("*")).val = Obj{ .primitive = &primMul };
+        (try self.makeSymbol("=")).val = Obj{ .primitive = &primEQ };
+    }
+
+    fn makeSymbol(self: *VM, str: []const u8) !*Symbol {
+        // copy key, so the memory for hash key is stable
+        const owned_str = try self.allocator.dupe(u8, str);
+
+        // getOrPut to avoid duplicate caused panic
+        const gop = try self.symbol_map.getOrPut(owned_str);
+        if (gop.found_existing) {
+            self.allocator.free(owned_str);
+            return gop.value_ptr.*;
         }
+
+        // create new Symbol
         const s = try self.allocator.create(Symbol);
-        const str_copy = try self.allocator.dupe(u8, str);
-        s.* = .{ .str = str_copy, .val = .nil };
-        try self.symbol_map.put(str, s);
+        s.* = Symbol{ .str = owned_str, .val = .nil };
+        gop.value_ptr.* = s;
         return s;
     }
 
     pub fn pop(self: *VM) Obj {
-        return self.stack.pop();
+        return self.stack.pop() orelse unreachable;
     }
 
     pub fn ret(self: *VM, x: Obj) void {
@@ -240,17 +257,20 @@ pub const VM = struct {
         const converted = try self.closureConvert(exp);
         std.debug.print("closure convert = {}\n", .{converted.exp});
 
-        const compiled_code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, &exit_instr);
+        var code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, &exit_instr);
+        code = try self.reserveForLetBinding(converted.nlets, code);
+        std.debug.print("generated code = \n{}\n", .{code});
+
         try self.call_stack.append(.{ .pc = null, .base = self.base, .pos = self.stack.items.len });
-        self.trampoline(compiled_code);
+        try self.trampoline(code);
         return self.val;
     }
 
-    fn trampoline(self: *VM, code: *const Instr) void {
+    fn trampoline(self: *VM, code: *const Instr) !void {
         self.next = code;
         while (self.next) |current_instr| {
             self.next = null;
-            current_instr.exec(self);
+            try current_instr.exec(self);
         }
     }
 
@@ -259,7 +279,7 @@ pub const VM = struct {
         const fn_obj = self.stack.items[self.base];
         switch (fn_obj) {
             .closure => |c| self.next = c.code,
-            // .primitive => |p| p.func(self),
+            .primitive => |p| p(self),
             else => @panic("trying to call a non-callable object"),
         }
     }
@@ -579,7 +599,7 @@ pub const Instr = union(enum) {
     },
     arity_check,
 
-    pub fn exec(self: *const Instr, vm: *VM) void {
+    pub fn exec(self: *const Instr, vm: *VM) !void {
         switch (self.*) {
             .exit => {
                 vm.ret(vm.val);
@@ -609,13 +629,21 @@ pub const Instr = union(enum) {
                 switch (vm.val) {
                     .boolean => |b| {
                         vm.next = if (b) i.succ else i.fail;
-                        if (vm.next) |next_instr| next_instr.exec(vm);
+                        // if (vm.next) |next_instr| try next_instr.exec(vm);
                     },
                     else => @panic("if condition must be a boolean"),
                 }
             },
             .make_closure => |i| {
-                // Simplified implementation
+                var closure: *Closure = try vm.allocator.create(Closure);
+                const slice = vm.stack.items[vm.stack.items.len - i.nfrees ..];
+                var closed = try std.ArrayList(Obj).initCapacity(vm.allocator, i.nfrees);
+                try closed.appendSlice(slice);
+                closure.closed = closed;
+                closure.code = i.code;
+                closure.required = i.required;
+                const o: Obj = Obj{ .closure = closure };
+                vm.val = o;
                 vm.next = i.next;
             },
             .local_set => |i| {
@@ -623,22 +651,113 @@ pub const Instr = union(enum) {
                 vm.next = i.next;
             },
             .tail_call => |i| {
-                // Simplified implementation
-                _ = i;
+                const slice = vm.stack.items[vm.stack.items.len - i.nargs ..];
+                std.mem.copyBackwards(Obj, vm.stack.items[vm.base..], slice);
+                vm.stack.items = vm.stack.items[0 .. vm.base + i.nargs];
+                vm.makeTheCall(i.nargs);
             },
             .call => |i| {
-                // Simplified implementation
-                _ = i;
+                const new_base = vm.stack.items.len - i.nargs;
+                try vm.call_stack.append(Frame{
+                    .pc = i.next,
+                    .base = vm.base,
+                    .pos = new_base,
+                });
+                vm.base = new_base;
+                vm.makeTheCall(i.nargs);
             },
             .push => |i| {
                 vm.stack.append(vm.val) catch @panic("out of memory");
                 vm.next = i.next;
             },
             .reserve_locals => |i| {
-                // Simplified implementation
-                _ = i;
+                // The top level let differs from the let inside a lambda.
+                // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
+                if (vm.base == vm.stack.items.len) {
+                    try vm.stack.append(Obj.nil);
+                }
+                // reserve space for let bindings
+                // The layout looks like this:
+                // [fn arg1 arg2 .. let1 let2 ...]
+                for (0..i.nlets) |_| {
+                    try vm.stack.append(Obj.nil);
+                }
+                vm.next = i.next;
             },
             .arity_check => {},
+        }
+    }
+
+    pub fn format(
+        self: *const Instr,
+        comptime fmt_str: []const u8,
+        options: std.fmt.FormatOptions,
+        writer: anytype,
+    ) !void {
+        _ = fmt_str;
+        _ = options;
+        switch (self.*) {
+            .exit => {
+                try writer.print("exit\n", .{});
+            },
+            .iconst => |i| {
+                try writer.print("const {}\n", .{i.val});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .local_ref => |i| {
+                try writer.print("local_ref {d}\n", .{i.idx});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .closure_ref => |i| {
+                try writer.print("closure_ref {d}\n", .{i.idx});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .global_ref => |i| {
+                try writer.print("global_ref {s}\n", .{i.sym.str});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .if_else => |i| {
+                try writer.print("if_else {{\n{}}} {{\n{}}}\n", .{ i.succ, i.fail });
+            },
+            .make_closure => |c| {
+                try writer.print("make_closure(\n", .{});
+                try writer.print("{}", .{c.code});
+                try writer.print(")\n", .{});
+                if (c.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .local_set => |i| {
+                try writer.print("local_set {d}\n", .{i.idx});
+            },
+            .tail_call => |i| {
+                try writer.print("tail_call {d}\n", .{i.nargs});
+            },
+            .call => |i| {
+                try writer.print("call {d}\n", .{i.nargs});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .push => |i| {
+                try writer.print("push\n", .{});
+                if (i.next) |ptr| {
+                    try writer.print("{}", .{ptr});
+                }
+            },
+            .reserve_locals => |i| {
+                try writer.print("reserve_locals {d}\n", .{i.nlets});
+                try writer.print("{}", .{i.next});
+            },
+            .arity_check => try writer.print("arity_check", .{}),
         }
     }
 };
@@ -648,6 +767,67 @@ pub const Instr = union(enum) {
 // =======================================
 
 const Primitive = *const fn (*VM) void;
+
+fn primSet(vm: *VM) void {
+    const val = vm.pop();
+    const sym = vm.pop();
+    switch (sym) {
+        .symbol => |s| {
+            s.val = val;
+            vm.ret(val);
+        },
+        else => @panic("set on non symbol"),
+    }
+}
+
+fn primAdd(vm: *VM) void {
+    const a = vm.pop();
+    const b = vm.pop();
+    if (a == .integer) {
+        if (b == .integer) {
+            const res: Obj = Obj{ .integer = a.integer + b.integer };
+            vm.ret(res);
+            return;
+        }
+    }
+    @panic("add for non-integer");
+}
+
+fn primSub(vm: *VM) void {
+    const a = vm.pop();
+    const b = vm.pop();
+    if (a == .integer) {
+        if (b == .integer) {
+            const res: Obj = Obj{ .integer = b.integer - a.integer };
+            vm.ret(res);
+            return;
+        }
+    }
+    @panic("add for non-integer");
+}
+
+fn primMul(vm: *VM) void {
+    const a = vm.pop();
+    const b = vm.pop();
+    if (a == .integer) {
+        if (b == .integer) {
+            const res: Obj = Obj{ .integer = a.integer * b.integer };
+            vm.ret(res);
+            return;
+        }
+    }
+    @panic("add for non-integer");
+}
+
+fn primEQ(vm: *VM) void {
+    const a = vm.pop();
+    const b = vm.pop();
+    if (equal(a, b)) {
+        vm.ret(Obj{ .boolean = true });
+    } else {
+        vm.ret(Obj{ .boolean = false });
+    }
+}
 
 // =======================================
 //      List (Cons) Helper Functions
@@ -942,6 +1122,8 @@ pub const SexpReader = struct {
         if (std.fmt.parseFloat(f64, token)) |v| {
             return makeNumber(v);
         } else |_| {}
+
+        // std.debug.print("token to obj for token: {s}\n", .{token});
 
         return Obj{ .symbol = try self.vm.makeSymbol(token) };
     }
