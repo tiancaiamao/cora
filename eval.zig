@@ -154,18 +154,16 @@ pub const Vector = ArrayList(Obj);
 
 pub const Frame = struct {
     pc: ?*const Instr,
-    base: usize,
+    base: [*]Obj,
     pos: usize,
 };
 
 pub const VM = struct {
     allocator: Allocator,
-    // arena: std.heap.ArenaAllocator,
 
+    R: [*]Obj,
     next: ?*const Instr,
     stack: ArrayList(Obj),
-    base: usize,
-    val: Obj,
     call_stack: ArrayList(Frame),
     symbol_map: StringHashMap(*Symbol),
 
@@ -184,8 +182,9 @@ pub const VM = struct {
         // vm.allocator = vm.arena.allocator();
         vm.next = null;
         vm.stack = ArrayList(Obj).init(vm.allocator);
-        vm.base = 0;
-        vm.val = .nil;
+        try vm.stack.ensureTotalCapacity(200);
+        vm.R = vm.stack.items.ptr;
+        // vm.val = .nil;
         vm.call_stack = ArrayList(Frame).init(vm.allocator);
         vm.symbol_map = StringHashMap(*Symbol).init(vm.allocator);
         vm.sym_quote = undefined;
@@ -246,10 +245,11 @@ pub const VM = struct {
     }
 
     pub fn ret(self: *VM, x: Obj) void {
-        self.val = x;
+        self.R[0] = x;
         const addr = self.call_stack.pop() orelse unreachable;
-        self.base = addr.base;
-        self.stack.shrinkRetainingCapacity(addr.pos);
+        // self.base = addr.base;
+        // self.stack.shrinkRetainingCapacity(addr.pos);
+        self.R = addr.base;
         self.next = addr.pc;
     }
 
@@ -257,13 +257,15 @@ pub const VM = struct {
         const converted = try self.closureConvert(exp);
         std.debug.print("closure convert = {}\n", .{converted.exp});
 
-        var code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, &exit_instr);
-        code = try self.reserveForLetBinding(converted.nlets, code);
+        // const exit_instr: *Instr = try self.allocator.create(Instr);
+        // exit_instr.* = Instr{ .exit = .{ .tos = 0 } };
+        const code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, 0, null);
+        // code = try self.reserveForLetBinding(converted.nlets, code);
         std.debug.print("generated code = \n{}\n", .{code});
 
-        try self.call_stack.append(.{ .pc = null, .base = self.base, .pos = self.stack.items.len });
+        try self.call_stack.append(.{ .pc = null, .base = self.R, .pos = self.stack.items.len });
         try self.trampoline(code);
-        return self.val;
+        return self.R[0];
     }
 
     fn trampoline(self: *VM, code: *const Instr) !void {
@@ -280,7 +282,7 @@ pub const VM = struct {
         // std.debug.print("============== now dumping ======{d}\n", .{nargs_provided_in_call});
         // self.dump();
 
-        const fn_obj = self.stack.items[self.base];
+        const fn_obj = self.R[0];
         switch (fn_obj) {
             .closure => |c| self.next = c.code,
             .primitive => |p| p.op(self),
@@ -432,17 +434,26 @@ pub const VM = struct {
         }
     }
 
+    fn nextInstr(self: *VM, i: ?*const Instr, tos: usize) !*const Instr {
+        return i orelse {
+            const exit_instr: *Instr = try self.allocator.create(Instr);
+            exit_instr.* = Instr{ .exit = .{ .tos = tos } };
+            return exit_instr;
+        };
+    }
+
     fn compile(
         self: *VM,
         exp: Obj,
         locals: []const Obj,
         frees: Obj,
-        next: *const Instr,
+        tos: usize,
+        next: ?*const Instr,
     ) anyerror!*const Instr {
         switch (exp) {
             .nil, .boolean, .integer, .string, .float => {
                 const i = try self.allocator.create(Instr);
-                i.* = .{ .iconst = .{ .val = exp, .next = next } };
+                i.* = .{ .iconst = .{ .val = exp, .tos = tos, .next = try self.nextInstr(next, tos) } };
                 return i;
             },
             .symbol => |s| {
@@ -450,7 +461,7 @@ pub const VM = struct {
                 for (locals, 0..) |local, i| {
                     if (local.symbol == s) {
                         const instr = try self.allocator.create(Instr);
-                        instr.* = .{ .local_ref = .{ .idx = i, .next = next } };
+                        instr.* = .{ .local_ref = .{ .idx = i, .tos = tos, .next = try self.nextInstr(next, tos) } };
                         return instr;
                     }
                 }
@@ -458,101 +469,105 @@ pub const VM = struct {
                 const free_idx = assq(exp, frees);
                 if (free_idx >= 0) {
                     const instr = try self.allocator.create(Instr);
-                    instr.* = .{ .closure_ref = .{ .idx = @intCast(free_idx), .next = next } };
+                    instr.* = .{ .closure_ref = .{ .idx = @intCast(free_idx), .tos = tos, .next = try self.nextInstr(next, tos) } };
                     return instr;
                 }
                 // Global
                 const instr = try self.allocator.create(Instr);
-                instr.* = .{ .global_ref = .{ .sym = s, .next = next } };
+                instr.* = .{ .global_ref = .{ .sym = s, .tos = tos, .next = try self.nextInstr(next, tos) } };
                 return instr;
             },
             .cons => |c| {
                 if (equal(c.car, self.sym_quote)) {
                     const i = try self.allocator.create(Instr);
-                    i.* = .{ .iconst = .{ .val = cadr(exp), .next = next } };
+                    i.* = .{ .iconst = .{ .val = cadr(exp), .tos = tos, .next = try self.nextInstr(next, tos) } };
                     return i;
                 }
                 if (equal(c.car, self.sym_if)) {
-                    const then_cont = try self.compile(caddr(exp), locals, frees, next);
-                    const else_cont = try self.compile(cadr(cdr(cdr(exp))), locals, frees, next);
+                    const then_cont = try self.compile(caddr(exp), locals, frees, tos, next);
+                    const else_cont = try self.compile(cadr(cdr(cdr(exp))), locals, frees, tos, next);
                     const if_instr = try self.allocator.create(Instr);
-                    if_instr.* = .{ .if_else = .{ .succ = then_cont, .fail = else_cont } };
-                    return self.compile(cadr(exp), locals, frees, if_instr);
+                    if_instr.* = .{ .if_else = .{ .tos = tos, .succ = then_cont, .fail = else_cont } };
+                    return self.compile(cadr(exp), locals, frees, tos, if_instr);
                 }
                 if (equal(c.car, self.sym_do)) {
-                    const b = try self.compile(caddr(exp), locals, frees, next);
-                    return self.compile(cadr(exp), locals, frees, b);
+                    const b = try self.compile(caddr(exp), locals, frees, tos, try self.nextInstr(next, tos));
+                    return self.compile(cadr(exp), locals, frees, tos, b);
                 }
                 if (equal(c.car, self.sym_lambda)) {
                     const args = cadr(exp);
                     const free_vars = caddr(exp);
                     const nlets_obj = car(cddr(cdr(exp)));
                     const body = cadr(cddr(cdr(exp)));
+                    const nargs: usize = listLength(args);
+                    const nlets: usize = @intCast(nlets_obj.integer);
 
                     const local_slice = try listToSlice(self.allocator, args);
-                    const code = try self.compile(body, local_slice, free_vars, &exit_instr);
 
-                    const nlets: usize = @intCast(nlets_obj.integer);
-                    const code_with_lets = try self.reserveForLetBinding(nlets, code);
+                    const code = try self.compile(body, local_slice, free_vars, 1 + nargs + nlets, null);
+
+                    // const code_with_lets = try self.reserveForLetBinding(nlets, code);
 
                     const make_closure_instr = try self.allocator.create(Instr);
                     make_closure_instr.* = .{ .make_closure = .{
-                        .required = listLength(args),
+                        .required = nargs,
                         .nfrees = listLength(free_vars),
-                        .code = code_with_lets,
-                        .next = next,
+                        .tos = tos,
+                        .code = code,
+                        .next = try self.nextInstr(next, tos),
                     } };
-                    return self.compileList(free_vars, locals, frees, make_closure_instr);
+                    return self.compileList(free_vars, locals, frees, tos, make_closure_instr);
                 }
-                if (equal(c.car, self.sym_let)) {
-                    const name = cadr(exp);
-                    const val = caddr(exp);
-                    const body = cadr(cdr(cdr(exp)));
+                // FIXME
+                // if (equal(c.car, self.sym_let)) {
+                //     const name = cadr(exp);
+                //     const val = caddr(exp);
+                //     const body = cadr(cdr(cdr(exp)));
 
-                    const new_locals = try self.allocator.alloc(Obj, locals.len + 1);
-                    @memcpy(new_locals[0..locals.len], locals);
-                    new_locals[locals.len] = name;
+                //     const new_locals = try self.allocator.alloc(Obj, locals.len + 1);
+                //     @memcpy(new_locals[0..locals.len], locals);
+                //     new_locals[locals.len] = name;
 
-                    const body_cont = try self.compile(body, new_locals, frees, next);
-                    const set_instr = try self.allocator.create(Instr);
-                    set_instr.* = .{ .local_set = .{ .idx = locals.len, .next = body_cont } };
-                    return try self.compile(val, locals, frees, set_instr);
-                }
+                //     const body_cont = try self.compile(body, new_locals, frees, next);
+                //     const set_instr = try self.allocator.create(Instr);
+                //     set_instr.* = .{ .local_set = .{ .idx = locals.len, .next = body_cont } };
+                //     return try self.compile(val, locals, frees, set_instr);
+                // }
 
                 // Function application
                 const nargs = listLength(exp);
-                const is_tail = (next == &exit_instr);
-
+                const is_tail = next == null;
                 const cont = if (is_tail) blk: {
                     const i = try self.allocator.create(Instr);
-                    i.* = .{ .tail_call = .{ .nargs = nargs } };
+                    i.* = .{ .tail_call = .{ .base = tos, .nargs = nargs } };
                     break :blk i;
                 } else blk: {
                     const i = try self.allocator.create(Instr);
-                    i.* = .{ .call = .{ .nargs = nargs, .next = next } };
+                    i.* = .{ .call = .{ .tos = tos, .nargs = nargs, .next = try self.nextInstr(next, tos) } };
                     break :blk i;
                 };
-                return self.compileList(exp, locals, frees, cont);
+                return self.compileList(exp, locals, frees, tos, cont);
             },
             else => @panic("uncompilable object"),
         }
     }
 
-    fn compileList(self: *VM, list: Obj, locals: []const Obj, frees: Obj, next: *const Instr) !*const Instr {
+    fn compileList(self: *VM, list: Obj, locals: []const Obj, frees: Obj, tos: usize, next: *const Instr) !*const Instr {
         if (list == .nil) return next;
-        const push_instr = try self.allocator.create(Instr);
-        const remaining_cont = try self.compileList(cdr(list), locals, frees, next);
-        push_instr.* = .{ .push = .{ .next = remaining_cont } };
-        return self.compile(car(list), locals, frees, push_instr);
+        // const push_instr = try self.allocator.create(Instr);
+        const remaining_cont = try self.compileList(cdr(list), locals, frees, tos + 1, next);
+        // push_instr.* = .{ .push = .{ .next = remaining_cont } };
+        // return self.compile(car(list), locals, frees, tos, push_instr);
+        return self.compile(car(list), locals, frees, tos, remaining_cont);
     }
 
-    fn reserveForLetBinding(self: *VM, nlets: usize, code: *const Instr) !*const Instr {
-        if (nlets == 0) return code;
-        const i = try self.allocator.create(Instr);
-        i.* = .{ .reserve_locals = .{ .nlets = nlets, .next = code } };
-        return i;
-    }
-    const exit_instr = Instr{ .exit = {} };
+    // fn reserveForLetBinding(self: *VM, nlets: usize, code: *const Instr) !*const Instr {
+    //     if (nlets == 0) return code;
+    //     const i = try self.allocator.create(Instr);
+    //     i.* = .{ .reserve_locals = .{ .nlets = nlets, .next = code } };
+    //     return i;
+    // }
+    // const exit_instr = Instr{ .exit = {} };
 
     pub fn dump(self: *VM) void {
         for (self.stack.items) |item| {
@@ -566,71 +581,82 @@ pub const VM = struct {
 };
 
 pub const Instr = union(enum) {
-    exit: void,
+    exit: struct {
+        tos: usize,
+    },
     iconst: struct {
         val: Obj,
+        tos: usize,
         next: *const Instr,
     },
     local_ref: struct {
         idx: usize,
+        tos: usize,
         next: *const Instr,
     },
     closure_ref: struct {
         idx: usize,
+        tos: usize,
         next: *const Instr,
     },
     global_ref: struct {
         sym: *Symbol,
+        tos: usize,
         next: *const Instr,
     },
     if_else: struct {
+        tos: usize,
         succ: *const Instr,
         fail: *const Instr,
     },
     make_closure: struct {
         required: usize,
         nfrees: usize,
+        tos: usize,
         code: *const Instr,
         next: *const Instr,
     },
-    local_set: struct {
-        idx: usize,
-        next: *const Instr,
-    },
+    // local_set: struct {
+    //     idx: usize,
+    //     next: *const Instr,
+    // },
     tail_call: struct {
+        base: usize,
         nargs: usize,
     },
     call: struct {
+        tos: usize,
         nargs: usize,
         next: *const Instr,
     },
-    push: struct {
-        next: *const Instr,
-    },
-    reserve_locals: struct {
-        nlets: usize,
-        next: *const Instr,
-    },
-    arity_check,
+    // push: struct {
+    //     next: *const Instr,
+    // },
+    // reserve_locals: struct {
+    //     nlets: usize,
+    //     next: *const Instr,
+    // },
+    // arity_check,
 
     pub fn exec(self: *const Instr, vm: *VM) !void {
-        var val: Obj = vm.val;
+        // var val: Obj = vm.val;
         dispatch: switch (self.*) {
-            .exit => {
+            .exit => |i| {
+                const val = vm.R[i.tos];
                 vm.ret(val);
                 break :dispatch;
             },
             .iconst => |i| {
-                val = i.val;
+                vm.R[i.tos] = i.val;
                 continue :dispatch i.next.*;
             },
             .local_ref => |i| {
-                val = vm.stack.items[vm.base + i.idx + 1];
+                vm.R[i.tos] = vm.R[i.idx + 1];
                 continue :dispatch i.next.*;
             },
             .closure_ref => |i| {
-                const closure = vm.stack.items[vm.base].closure;
-                val = closure.closed.items[i.idx];
+                const closure = vm.R[0].closure;
+                vm.R[i.tos] = closure.closed.items[i.idx];
                 continue :dispatch i.next.*;
             },
             .global_ref => |i| {
@@ -638,11 +664,11 @@ pub const Instr = union(enum) {
                     // In a real implementation, this should probably be an error
                     @panic("undefined symbol");
                 }
-                val = i.sym.val;
+                vm.R[i.tos] = i.sym.val;
                 continue :dispatch i.next.*;
             },
             .if_else => |i| {
-                switch (val) {
+                switch (vm.R[i.tos]) {
                     .boolean => |b| {
                         if (b) {
                             continue :dispatch i.succ.*;
@@ -662,48 +688,51 @@ pub const Instr = union(enum) {
                 closure.code = i.code;
                 closure.required = i.required;
                 const o: Obj = Obj{ .closure = closure };
-                val = o;
+                vm.R[i.tos] = o;
                 continue :dispatch i.next.*;
             },
-            .local_set => |i| {
-                vm.stack.items[vm.base + i.idx + 1] = val;
-                continue :dispatch i.next.*;
-            },
+            // .local_set => |i| {
+            //     vm.stack.items[vm.base + i.idx + 1] = val;
+            //     continue :dispatch i.next.*;
+            // },
             .tail_call => |i| {
-                const slice = vm.stack.items[vm.stack.items.len - i.nargs ..];
-                std.mem.copyForwards(Obj, vm.stack.items[vm.base..], slice);
-                vm.stack.items = vm.stack.items[0 .. vm.base + i.nargs];
+                // const slice = vm.stack.items[vm.stack.items.len - i.nargs ..];
+                // std.mem.copyForwards(Obj, vm.stack.items[vm.base..], slice);
+                // vm.stack.items = vm.stack.items[0 .. vm.base + i.nargs];
+                if (i.base > 0) {
+                    std.mem.copyForwards(Obj, vm.R[0..i.nargs], vm.R[i.base .. i.base + i.nargs]);
+                }
                 vm.makeTheCall(i.nargs);
             },
             .call => |i| {
-                const new_base = vm.stack.items.len - i.nargs;
+                // const new_base = vm.stack.items.len - i.nargs;
                 try vm.call_stack.append(Frame{
                     .pc = i.next,
-                    .base = vm.base,
-                    .pos = new_base,
+                    .base = vm.R,
+                    .pos = i.tos,
                 });
-                vm.base = new_base;
+                vm.R = vm.R + i.tos;
                 vm.makeTheCall(i.nargs);
             },
-            .push => |i| {
-                vm.stack.append(val) catch @panic("out of memory");
-                continue :dispatch i.next.*;
-            },
-            .reserve_locals => |i| {
-                // The top level let differs from the let inside a lambda.
-                // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
-                if (vm.base == vm.stack.items.len) {
-                    try vm.stack.append(Obj.nil);
-                }
-                // reserve space for let bindings
-                // The layout looks like this:
-                // [fn arg1 arg2 .. let1 let2 ...]
-                for (0..i.nlets) |_| {
-                    try vm.stack.append(Obj.nil);
-                }
-                continue :dispatch i.next.*;
-            },
-            .arity_check => {},
+            // .push => |i| {
+            //     vm.stack.append(val) catch @panic("out of memory");
+            //     continue :dispatch i.next.*;
+            // },
+            // .reserve_locals => |i| {
+            //     // The top level let differs from the let inside a lambda.
+            //     // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
+            //     if (vm.base == vm.stack.items.len) {
+            //         try vm.stack.append(Obj.nil);
+            //     }
+            //     // reserve space for let bindings
+            //     // The layout looks like this:
+            //     // [fn arg1 arg2 .. let1 let2 ...]
+            //     for (0..i.nlets) |_| {
+            //         try vm.stack.append(Obj.nil);
+            //     }
+            //     continue :dispatch i.next.*;
+            // },
+            // .arity_check => {},
         }
     }
 
@@ -716,53 +745,53 @@ pub const Instr = union(enum) {
         _ = fmt_str;
         _ = options;
         switch (self.*) {
-            .exit => {
-                try writer.print("exit\n", .{});
+            .exit => |i| {
+                try writer.print("exit {}\n", .{i.tos});
             },
             .iconst => |i| {
-                try writer.print("const {}\n", .{i.val});
+                try writer.print("R{} = const {}\n", .{ i.tos, i.val });
                 try writer.print("{}", .{i.next});
             },
             .local_ref => |i| {
-                try writer.print("local_ref {d}\n", .{i.idx});
+                try writer.print("R{} = local_ref {d}\n", .{ i.tos, i.idx });
                 try writer.print("{}", .{i.next});
             },
             .closure_ref => |i| {
-                try writer.print("closure_ref {d}\n", .{i.idx});
+                try writer.print("R{} = closure_ref {d}\n", .{ i.tos, i.idx });
                 try writer.print("{}", .{i.next});
             },
             .global_ref => |i| {
-                try writer.print("global_ref {s}\n", .{i.sym.str});
+                try writer.print("R{} = global_ref {s}\n", .{ i.tos, i.sym.str });
                 try writer.print("{}", .{i.next});
             },
             .if_else => |i| {
-                try writer.print("if_else {{\n{}}} {{\n{}}}\n", .{ i.succ, i.fail });
+                try writer.print("if R{} {{\n{}}} else {{\n{}}}\n", .{ i.tos, i.succ, i.fail });
             },
             .make_closure => |c| {
-                try writer.print("make_closure(\n", .{});
+                try writer.print("R{} = make_closure(\n", .{c.tos});
                 try writer.print("{}", .{c.code});
                 try writer.print(")\n", .{});
                 try writer.print("{}", .{c.next});
             },
-            .local_set => |i| {
-                try writer.print("local_set {d}\n", .{i.idx});
-            },
+            // .local_set => |i| {
+            //     try writer.print("local_set {d}\n", .{i.idx});
+            // },
             .tail_call => |i| {
-                try writer.print("tail_call {d}\n", .{i.nargs});
+                try writer.print("tail_call {d} [{}]\n", .{ i.nargs, i.base });
             },
             .call => |i| {
-                try writer.print("call {d}\n", .{i.nargs});
+                try writer.print("call {d} [{}]\n", .{ i.nargs, i.tos });
                 try writer.print("{}", .{i.next});
             },
-            .push => |i| {
-                try writer.print("push\n", .{});
-                try writer.print("{}", .{i.next});
-            },
-            .reserve_locals => |i| {
-                try writer.print("reserve_locals {d}\n", .{i.nlets});
-                try writer.print("{}", .{i.next});
-            },
-            .arity_check => try writer.print("arity_check", .{}),
+            // .push => |i| {
+            //     try writer.print("push\n", .{});
+            //     try writer.print("{}", .{i.next});
+            // },
+            // .reserve_locals => |i| {
+            //     try writer.print("reserve_locals {d}\n", .{i.nlets});
+            //     try writer.print("{}", .{i.next});
+            // },
+            // .arity_check => try writer.print("arity_check", .{}),
         }
     }
 };
@@ -788,8 +817,8 @@ fn makePrimitive(name: [:0]const u8, op: *const fn (*VM) void) Obj {
 }
 
 fn primSet(vm: *VM) void {
-    const val = vm.pop();
-    const sym = vm.pop();
+    const sym = vm.R[1];
+    const val = vm.R[2];
     switch (sym) {
         .symbol => |s| {
             s.val = val;
@@ -800,8 +829,8 @@ fn primSet(vm: *VM) void {
 }
 
 fn primAdd(vm: *VM) void {
-    const a = vm.pop();
-    const b = vm.pop();
+    const a = vm.R[1];
+    const b = vm.R[2];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .integer = a.integer + b.integer };
@@ -813,11 +842,11 @@ fn primAdd(vm: *VM) void {
 }
 
 fn primSub(vm: *VM) void {
-    const a = vm.pop();
-    const b = vm.pop();
+    const a = vm.R[1];
+    const b = vm.R[2];
     if (a == .integer) {
         if (b == .integer) {
-            const res: Obj = Obj{ .integer = b.integer - a.integer };
+            const res: Obj = Obj{ .integer = a.integer - b.integer };
             vm.ret(res);
             return;
         }
@@ -826,8 +855,8 @@ fn primSub(vm: *VM) void {
 }
 
 fn primMul(vm: *VM) void {
-    const a = vm.pop();
-    const b = vm.pop();
+    const a = vm.R[1];
+    const b = vm.R[2];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .integer = a.integer * b.integer };
@@ -839,8 +868,8 @@ fn primMul(vm: *VM) void {
 }
 
 fn primEQ(vm: *VM) void {
-    const a = vm.pop();
-    const b = vm.pop();
+    const a = vm.R[1];
+    const b = vm.R[2];
     if (equal(a, b)) {
         vm.ret(Obj{ .boolean = true });
     } else {
@@ -849,11 +878,11 @@ fn primEQ(vm: *VM) void {
 }
 
 fn primLT(vm: *VM) void {
-    const a = vm.pop();
-    const b = vm.pop();
+    const a = vm.R[1];
+    const b = vm.R[2];
     if (a == .integer) {
         if (b == .integer) {
-            const res: Obj = Obj{ .boolean = b.integer < a.integer };
+            const res: Obj = Obj{ .boolean = a.integer < b.integer };
             vm.ret(res);
             return;
         }
