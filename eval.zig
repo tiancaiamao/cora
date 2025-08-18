@@ -457,7 +457,7 @@ pub const VM = struct {
                 for (locals, 0..) |local, i| {
                     if (local.symbol == s) {
                         const instr = try self.allocator.create(Instr);
-                        instr.* = .{ .local_ref = .{ .idx = i, .tos = tos, .next = try self.nextInstr(next, tos) } };
+                        instr.* = .{ .local_ref = .{ .idx = i + 1, .tos = tos, .next = try self.nextInstr(next, tos) } };
                         return instr;
                     }
                 }
@@ -643,7 +643,7 @@ pub const Instr = union(enum) {
                 continue :dispatch i.next.*;
             },
             .local_ref => |i| {
-                R[i.tos] = R[i.idx + 1];
+                R[i.tos] = R[i.idx];
                 continue :dispatch i.next.*;
             },
             .closure_ref => |i| {
