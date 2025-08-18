@@ -247,8 +247,6 @@ pub const VM = struct {
     pub fn ret(self: *VM, x: Obj) void {
         self.R[0] = x;
         const addr = self.call_stack.pop() orelse unreachable;
-        // self.base = addr.base;
-        // self.stack.shrinkRetainingCapacity(addr.pos);
         self.R = addr.base;
         self.next = addr.pc;
     }
@@ -257,8 +255,6 @@ pub const VM = struct {
         const converted = try self.closureConvert(exp);
         std.debug.print("closure convert = {}\n", .{converted.exp});
 
-        // const exit_instr: *Instr = try self.allocator.create(Instr);
-        // exit_instr.* = Instr{ .exit = .{ .tos = 0 } };
         const code = try self.compile(converted.exp, &[_]Obj{}, Obj.nil, 0, null);
         // code = try self.reserveForLetBinding(converted.nlets, code);
         std.debug.print("generated code = \n{}\n", .{code});
@@ -554,10 +550,7 @@ pub const VM = struct {
 
     fn compileList(self: *VM, list: Obj, locals: []const Obj, frees: Obj, tos: usize, next: *const Instr) !*const Instr {
         if (list == .nil) return next;
-        // const push_instr = try self.allocator.create(Instr);
         const remaining_cont = try self.compileList(cdr(list), locals, frees, tos + 1, next);
-        // push_instr.* = .{ .push = .{ .next = remaining_cont } };
-        // return self.compile(car(list), locals, frees, tos, push_instr);
         return self.compile(car(list), locals, frees, tos, remaining_cont);
     }
 
@@ -629,34 +622,33 @@ pub const Instr = union(enum) {
         nargs: usize,
         next: *const Instr,
     },
-    // push: struct {
-    //     next: *const Instr,
-    // },
     // reserve_locals: struct {
     //     nlets: usize,
     //     next: *const Instr,
     // },
-    // arity_check,
 
     pub fn exec(self: *const Instr, vm: *VM) !void {
-        // var val: Obj = vm.val;
+        const R = vm.R;
         dispatch: switch (self.*) {
             .exit => |i| {
-                const val = vm.R[i.tos];
-                vm.ret(val);
+                // inline VM.ret function
+                R[0] = R[i.tos];
+                const addr = vm.call_stack.pop() orelse unreachable;
+                vm.R = addr.base;
+                vm.next = addr.pc;
                 break :dispatch;
             },
             .iconst => |i| {
-                vm.R[i.tos] = i.val;
+                R[i.tos] = i.val;
                 continue :dispatch i.next.*;
             },
             .local_ref => |i| {
-                vm.R[i.tos] = vm.R[i.idx + 1];
+                R[i.tos] = R[i.idx + 1];
                 continue :dispatch i.next.*;
             },
             .closure_ref => |i| {
                 const closure = vm.R[0].closure;
-                vm.R[i.tos] = closure.closed.items[i.idx];
+                R[i.tos] = closure.closed.items[i.idx];
                 continue :dispatch i.next.*;
             },
             .global_ref => |i| {
@@ -664,11 +656,11 @@ pub const Instr = union(enum) {
                     // In a real implementation, this should probably be an error
                     @panic("undefined symbol");
                 }
-                vm.R[i.tos] = i.sym.val;
+                R[i.tos] = i.sym.val;
                 continue :dispatch i.next.*;
             },
             .if_else => |i| {
-                switch (vm.R[i.tos]) {
+                switch (R[i.tos]) {
                     .boolean => |b| {
                         if (b) {
                             continue :dispatch i.succ.*;
@@ -688,7 +680,7 @@ pub const Instr = union(enum) {
                 closure.code = i.code;
                 closure.required = i.required;
                 const o: Obj = Obj{ .closure = closure };
-                vm.R[i.tos] = o;
+                R[i.tos] = o;
                 continue :dispatch i.next.*;
             },
             // .local_set => |i| {
@@ -696,28 +688,20 @@ pub const Instr = union(enum) {
             //     continue :dispatch i.next.*;
             // },
             .tail_call => |i| {
-                // const slice = vm.stack.items[vm.stack.items.len - i.nargs ..];
-                // std.mem.copyForwards(Obj, vm.stack.items[vm.base..], slice);
-                // vm.stack.items = vm.stack.items[0 .. vm.base + i.nargs];
                 if (i.base > 0) {
-                    std.mem.copyForwards(Obj, vm.R[0..i.nargs], vm.R[i.base .. i.base + i.nargs]);
+                    std.mem.copyForwards(Obj, R[0..i.nargs], R[i.base .. i.base + i.nargs]);
                 }
                 vm.makeTheCall(i.nargs);
             },
             .call => |i| {
-                // const new_base = vm.stack.items.len - i.nargs;
                 try vm.call_stack.append(Frame{
                     .pc = i.next,
                     .base = vm.R,
                     .pos = i.tos,
                 });
-                vm.R = vm.R + i.tos;
+                vm.R = R + i.tos;
                 vm.makeTheCall(i.nargs);
             },
-            // .push => |i| {
-            //     vm.stack.append(val) catch @panic("out of memory");
-            //     continue :dispatch i.next.*;
-            // },
             // .reserve_locals => |i| {
             //     // The top level let differs from the let inside a lambda.
             //     // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
@@ -732,7 +716,6 @@ pub const Instr = union(enum) {
             //     }
             //     continue :dispatch i.next.*;
             // },
-            // .arity_check => {},
         }
     }
 
@@ -783,15 +766,10 @@ pub const Instr = union(enum) {
                 try writer.print("call {d} [{}]\n", .{ i.nargs, i.tos });
                 try writer.print("{}", .{i.next});
             },
-            // .push => |i| {
-            //     try writer.print("push\n", .{});
-            //     try writer.print("{}", .{i.next});
-            // },
             // .reserve_locals => |i| {
             //     try writer.print("reserve_locals {d}\n", .{i.nlets});
             //     try writer.print("{}", .{i.next});
             // },
-            // .arity_check => try writer.print("arity_check", .{}),
         }
     }
 };
