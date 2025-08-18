@@ -18,7 +18,7 @@ pub const Obj = union(enum) {
     cons: *Cons,
     closure: *Closure,
     vector: ArrayList(Obj),
-    primitive: Primitive,
+    // primitive: Primitive,
 
     pub fn format(
         self: Obj,
@@ -38,7 +38,7 @@ pub const Obj = union(enum) {
             .cons => |c| try c.format(writer),
             .closure => try writer.print("#closure()", .{}),
             .vector => try writer.print("#vector", .{}),
-            .primitive => |p| try writer.print("#primitive {s}", .{p.name}),
+            // .primitive => |p| try writer.print("#primitive {s}", .{p.name}),
         }
     }
 
@@ -66,7 +66,7 @@ fn equal(a: Obj, b: Obj) bool {
         .cons => |a_val| b.cons == a_val, // TODO
         .closure => false, // TODO
         .vector => false, // TODO
-        .primitive => false, // TODO
+        // .primitive => false, // TODO
     };
 }
 
@@ -195,7 +195,7 @@ pub const VM = struct {
         vm.sym_let = undefined;
 
         try vm.initSymbols();
-        try vm.initPrimitive();
+        // try vm.initPrimitive();
         return vm;
     }
 
@@ -213,13 +213,37 @@ pub const VM = struct {
         self.sym_let = Obj{ .symbol = try self.makeSymbol("let") };
     }
 
-    fn initPrimitive(self: *VM) !void {
-        (try self.makeSymbol("set")).val = makePrimitive("set", &primSet);
-        (try self.makeSymbol("+")).val = makePrimitive("+", &primAdd);
-        (try self.makeSymbol("-")).val = makePrimitive("-", &primSub);
-        (try self.makeSymbol("*")).val = makePrimitive("*", &primMul);
-        (try self.makeSymbol("=")).val = makePrimitive("=", &primEQ);
-        (try self.makeSymbol("<")).val = makePrimitive("<", &primLT);
+    // fn initPrimitive(self: *VM) !void {
+    //     (try self.makeSymbol("set")).val = makePrimitive("set", &primSet);
+    //     (try self.makeSymbol("+")).val = makePrimitive("+", &primAdd);
+    //     (try self.makeSymbol("-")).val = makePrimitive("-", &primSub);
+    //     (try self.makeSymbol("*")).val = makePrimitive("*", &primMul);
+    //     (try self.makeSymbol("=")).val = makePrimitive("=", &primEQ);
+    //     (try self.makeSymbol("<")).val = makePrimitive("<", &primLT);
+    // }
+
+    fn getPrimitive(self: *VM, p: Obj) ?*const fn (*VM, usize) void {
+        if (p == .symbol) {
+            if (p.symbol == self.makeSymbol("set") catch null) {
+                return &primSet;
+            }
+            if (p.symbol == self.makeSymbol("+") catch null) {
+                return &primAdd;
+            }
+            if (p.symbol == self.makeSymbol("-") catch null) {
+                return &primSub;
+            }
+            if (p.symbol == self.makeSymbol("*") catch null) {
+                return &primMul;
+            }
+            if (p.symbol == self.makeSymbol("<") catch null) {
+                return &primLT;
+            }
+            if (p.symbol == self.makeSymbol("=") catch null) {
+                return &primEQ;
+            }
+        }
+        return null;
     }
 
     fn makeSymbol(self: *VM, str: []const u8) !*Symbol {
@@ -281,7 +305,7 @@ pub const VM = struct {
         const fn_obj = self.R[0];
         switch (fn_obj) {
             .closure => |c| self.next = c.code,
-            .primitive => |p| p.op(self),
+            // .primitive => |p| p.op(self),
             else => @panic("trying to call a non-callable object"),
         }
     }
@@ -530,6 +554,13 @@ pub const VM = struct {
                 //     return try self.compile(val, locals, frees, set_instr);
                 // }
 
+                // primitive call
+                if (self.getPrimitive(c.car)) |op| {
+                    const cont = try self.allocator.create(Instr);
+                    cont.* = .{ .primitive = .{ .tos = tos, .op = op, .next = try self.nextInstr(next, tos) } };
+                    return self.compileList(c.cdr, locals, frees, tos, cont);
+                }
+
                 // Function application
                 const nargs = listLength(exp);
                 const is_tail = next == null;
@@ -617,6 +648,11 @@ pub const Instr = union(enum) {
         base: usize,
         nargs: usize,
     },
+    primitive: struct {
+        tos: usize,
+        op: *const fn (*VM, usize) void,
+        next: *const Instr,
+    },
     call: struct {
         tos: usize,
         nargs: usize,
@@ -702,6 +738,10 @@ pub const Instr = union(enum) {
                 vm.R = R + i.tos;
                 vm.makeTheCall(i.nargs);
             },
+            .primitive => |i| {
+                i.op(vm, i.tos);
+                continue :dispatch i.next.*;
+            },
             // .reserve_locals => |i| {
             //     // The top level let differs from the let inside a lambda.
             //     // There is no [fn arg1 arg2 ...], need to fill [fn] to make the offset correct.
@@ -766,6 +806,10 @@ pub const Instr = union(enum) {
                 try writer.print("call {d} [{}]\n", .{ i.nargs, i.tos });
                 try writer.print("{}", .{i.next});
             },
+            .primitive => |i| {
+                try writer.print("primitive {d}\n", .{i.tos});
+                try writer.print("{}", .{i.next});
+            },
             // .reserve_locals => |i| {
             //     try writer.print("reserve_locals {d}\n", .{i.nlets});
             //     try writer.print("{}", .{i.next});
@@ -778,90 +822,90 @@ pub const Instr = union(enum) {
 //   Forward Declarations & Helper Types
 // =======================================
 
-const Primitive = struct {
-    name: [:0]const u8,
-    op: *const fn (*VM) void,
+// const Primitive = struct {
+//     name: [:0]const u8,
+//     op: *const fn (*VM) void,
 
-    pub fn init(name: [:0]const u8, op: *const fn (*VM) void) Primitive {
-        return Primitive{
-            .name = name,
-            .op = op,
-        };
-    }
-};
+//     pub fn init(name: [:0]const u8, op: *const fn (*VM) void) Primitive {
+//         return Primitive{
+//             .name = name,
+//             .op = op,
+//         };
+//     }
+// };
 
-fn makePrimitive(name: [:0]const u8, op: *const fn (*VM) void) Obj {
-    return Obj{ .primitive = Primitive.init(name, op) };
-}
+// fn makePrimitive(name: [:0]const u8, op: *const fn (*VM) void) Obj {
+//     return Obj{ .primitive = Primitive.init(name, op) };
+// }
 
-fn primSet(vm: *VM) void {
-    const sym = vm.R[1];
-    const val = vm.R[2];
+fn primSet(vm: *VM, tos: usize) void {
+    const sym = vm.R[tos];
+    const val = vm.R[tos + 1];
     switch (sym) {
         .symbol => |s| {
             s.val = val;
-            vm.ret(val);
+            // vm.ret(val);
         },
         else => @panic("set on non symbol"),
     }
 }
 
-fn primAdd(vm: *VM) void {
-    const a = vm.R[1];
-    const b = vm.R[2];
+fn primAdd(vm: *VM, tos: usize) void {
+    const a = vm.R[tos];
+    const b = vm.R[tos + 1];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .integer = a.integer + b.integer };
-            vm.ret(res);
+            vm.R[tos] = res;
             return;
         }
     }
     @panic("add for non-integer");
 }
 
-fn primSub(vm: *VM) void {
-    const a = vm.R[1];
-    const b = vm.R[2];
+fn primSub(vm: *VM, tos: usize) void {
+    const a = vm.R[tos];
+    const b = vm.R[tos + 1];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .integer = a.integer - b.integer };
-            vm.ret(res);
+            vm.R[tos] = res;
             return;
         }
     }
     @panic("sub for non-integer");
 }
 
-fn primMul(vm: *VM) void {
-    const a = vm.R[1];
-    const b = vm.R[2];
+fn primMul(vm: *VM, tos: usize) void {
+    const a = vm.R[tos];
+    const b = vm.R[tos + 1];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .integer = a.integer * b.integer };
-            vm.ret(res);
+            vm.R[tos] = res;
             return;
         }
     }
     @panic("mul for non-integer");
 }
 
-fn primEQ(vm: *VM) void {
-    const a = vm.R[1];
-    const b = vm.R[2];
+fn primEQ(vm: *VM, tos: usize) void {
+    const a = vm.R[tos];
+    const b = vm.R[tos + 1];
     if (equal(a, b)) {
-        vm.ret(Obj{ .boolean = true });
+        vm.R[tos] = Obj{ .boolean = true };
     } else {
-        vm.ret(Obj{ .boolean = false });
+        vm.R[tos] = Obj{ .boolean = false };
     }
 }
 
-fn primLT(vm: *VM) void {
-    const a = vm.R[1];
-    const b = vm.R[2];
+fn primLT(vm: *VM, tos: usize) void {
+    const a = vm.R[tos];
+    const b = vm.R[tos + 1];
     if (a == .integer) {
         if (b == .integer) {
             const res: Obj = Obj{ .boolean = a.integer < b.integer };
-            vm.ret(res);
+            vm.R[tos] = res;
             return;
         }
     }
