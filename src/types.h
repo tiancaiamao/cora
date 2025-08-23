@@ -28,7 +28,6 @@ typedef uintptr_t Obj;
 // 011 cobj
 // 101 immediate const (boolean, null, undef...)
 // 111 general pointer (string, vector, number, error...)
-#define TAG_FIXNUM 0x0
 #define TAG_SYMBOL 0x1
 #define TAG_COBJ 0x3
 #define TAG_IMMEDIATE_CONST 0x5

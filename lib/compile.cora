@@ -1,0 +1,162 @@
+(package "cora/lib/compile"
+
+	 (import "cora/lib/sys")
+	 (export cc)
+
+	 (defun const? (x)
+	   (or (null? x)
+	       (boolean? x)
+	       (integer? x)
+	       (string? x)))
+
+	 (func index-h
+	       x [] pos res => res
+	       x [hd . tl] pos res => (index-h x tl (+ pos 1) (if (= x hd) pos res)))
+
+	 (defun index (x l)
+	   (index-h x l 0 -1))
+
+	 (func exist-in-env
+	       x [] => false
+	       x [hd . tl] => (if (< (index x hd) 0)
+				  (exist-in-env x tl)
+				  true))
+	 (func member
+	       x [] => false
+	       x [y . z] => (or (= x y)
+				(member x z)))
+
+	 (defun set-diff (s exclude)
+	   (filter (lambda (v) (not (member v exclude))) s))
+
+	 (func closure-convert-list
+	       [] locals env frees nlets res => [(reverse res) frees nlets]
+	       [x . more] locals env frees nlets res => (match (closure-convert x locals env frees nlets)
+							       [x1 frees1 nlets1]
+							       (closure-convert-list more locals env frees1 nlets1 (cons x1 res))))
+
+	 (def *builtin-prims*
+	      [['set . 2] ['car . 1] ['cdr . 1] ['cons . 2] ['cons? . 1] ['+ . 2] ['- . 2] ['* . 2] ['/ . 2]
+	      ['= . 2] ['> . 2] ['< . 2] ['gensym . 0] ['symbol? . 1] ['not . 1] ['integer? . 1] ['string? . 1]])
+
+	 (func temp-list
+	       0 res => res
+	       n res => (temp-list (- n 1) (cons (gensym) res)))
+
+	 (defun closure-convert (exp locals env frees nlets)
+	   (cond
+	     ((const? exp) [exp frees nlets])
+	     ((symbol? exp) (let idx (index exp locals)
+				 (if (< idx 0)
+				     (if (exist-in-env exp env)
+					 [exp (cons exp frees) nlets]    ;; free variable
+					 [exp frees nlets])               ;; global variable
+				     [exp frees nlets]    ;; local variable
+				     )))
+	     ((not (cons? exp)) (error "assert fail"))
+	     ((= 'quote (car exp)) [exp frees nlets])
+	     ((= 'lambda (car exp)) (let args (cadr exp)
+					 body (caddr exp)
+					 (match (closure-convert body args (cons locals env) () 0)
+						[body1 frees1 nlets1]
+						[['lambda args frees1 nlets1 body1] (append (set-diff frees1 locals) frees) nlets])))
+	     ((= 'let (car exp)) (let var (cadr exp)
+				      val (caddr exp)
+				      exp (cadddr exp)
+				      (match (closure-convert val locals env frees nlets)
+					     [val1 frees1 nlets1]
+					     (let nlets2 (if (> (+ nlets 1) nlets1) (+ nlets 1) nlets1)
+						  (match (closure-convert exp (cons var locals) env frees1 nlets2)
+							 [exp1 frees2 nlets3]
+							 [['let var val1 exp1] frees2 nlets3])))))
+	     ((symbol? (car exp)) (let f (car exp)
+				       args (cdr exp)
+				       (let find (cora/init#assq f *builtin-prims*)
+					    (if (and (not (null? find))
+						     (< (length args) (cdr find)))
+						;; rewrite partial apply of primitives
+						;; (+ x) => (lambda (tmp) (+ x tmp))
+						(let tmp (temp-list (- (cdr find) (length args)) ())
+						     (closure-convert ['lambda tmp (append [f . args] tmp)] locals env frees nlets))
+						(closure-convert-list [f . args] locals env frees nlets ())))))
+	     (true (let f (car exp)
+			args (cdr exp)
+			(closure-convert-list [f . args] locals env frees nlets ())))))
+
+	 (func compile
+	       exp locals frees next => (cons ['const exp] next) where (const? exp)
+	       exp locals frees next => (let idx (index exp locals)
+					     (if (< idx 0)
+						 (let idx1 (index exp frees)
+						      (if (< idx1 0)
+							  (cons ['global-ref exp] next)
+							  (cons ['closure-ref idx1] next)))
+						 (cons ['local-ref idx] next)))
+	       where (symbol? exp)
+	       ['quote x] locals frees next => (cons ['const x] next)
+	       ['if x y z] locals frees next => (let succ (compile y locals frees next)
+						     fail (compile z locals frees next)
+						     (compile x locals frees [['if succ fail]]))
+	       ['do x y] locals frees next => (compile x locals frees
+						       (compile y locals frees next))
+	       ['let var val exp] locals frees next => (let body (compile exp (append locals [var]) frees next)
+							    (compile val locals frees (cons ['local-set (length locals)] body)))
+	       ['lambda args frees1 nlets body] locals frees next => (let code (compile body args frees1 [['exit]])
+									  (let code1 (if (= nlets 0) code (cons ['reserve-locals nlets] code))
+									       (compile-list frees1 locals frees
+											     (cons ['make-closure (length args) (length frees1) code1] next))))
+	       [f . args] locals frees next => (compile-call [f . args] locals frees next))
+
+	 ;; (defun compile (exp locals frees next)
+	 ;;   (cond
+	 ;;     ((const? exp) (cons ['const exp] next))
+	 ;;     ((symbol? exp) (let idx (index exp locals)
+	 ;; 			 (if (< idx 0)
+	 ;; 			     (let idx1 (index exp frees)
+	 ;; 				  (if (< idx1 0)
+	 ;; 				      (cons ['global-ref exp] next)
+	 ;; 				      (cons ['closure-ref idx1] next)))
+	 ;; 			     (cons ['local-ref idx] next))))
+	 ;;     ((= 'quote (car exp)) (cons ['const (cadr exp)] next))
+	 ;;     ((= 'if (car exp)) (let x (cadr exp)
+	 ;; 			     y (caddr exp)
+	 ;; 			     z (cadddr exp)
+	 ;; 			     (let succ (compile y locals frees next)
+	 ;; 				  fail (compile z locals frees next)
+	 ;; 				  (compile x locals frees [['if succ fail]]))))
+	 ;;     ((= 'do (car exp)) (let x (cadr exp)
+	 ;; 			     y (caddr exp)
+	 ;; 			     (compile x locals frees
+	 ;; 				       (cons ['pop] (compile y locals frees next)))))
+	 ;;     ((= 'let (car exp)) (let var (cadr exp)
+	 ;; 			      val (caddr exp)
+	 ;; 			      exp (cadddr exp)
+	 ;; 			      (let body (compile exp (append locals [var]) frees next)
+	 ;; 				   (compile val locals frees (cons ['local-set (length locals)] body)))))
+	 ;;     ((= 'lambda (car exp)) (match exp
+	 ;; 				   ['lambda args frees1 nlets body]
+	 ;; 				   (let code (compile body args frees1 [['exit]])
+	 ;; 					(let code1 (if (= nlets 0) code (cons ['reserve-locals nlets] code))
+	 ;; 					     (compile-list frees1 locals frees
+	 ;; 							    (cons ['make-closure (length args) (length frees1) code1] next))))))
+	 ;;     (true (compile-call exp locals frees next))))
+
+	 (func compile-call
+	       [f . args] locals frees next => (compile-list args locals frees (cons ['primitive f] next))
+	       where (and (symbol? f) (not (null? (assq f *builtin-prims*))))
+	       exp locals frees [['exit]] => (compile-list exp locals frees [['tailcall (length exp)]])
+	       exp locals frees next => (compile-list exp locals frees (cons ['call (length exp)] next)))
+
+	 (func compile-list
+	       [] locals frees next => next
+	       [hd . tl] locals frees next => (compile hd locals frees
+							(compile-list tl locals frees next)))
+	 
+	 (defun cc (exp)
+	   (match (closure-convert exp () () () 0)
+		  [e1 _ nlets]
+		  (let res (compile e1 () () [['exit]])
+		       (if (= nlets 0)
+			   res
+			   (cons ['reserve-locals nlets] res)))))
+	 )

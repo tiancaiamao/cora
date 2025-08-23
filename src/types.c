@@ -110,7 +110,7 @@ makeNumber(int v) {
 
 bool
 isNumber(Obj o) {
-	if (tag(o) == TAG_FIXNUM) {
+	if (isfixnum(o)) {
 		return true;
 	}
 	if (tag(o) == TAG_PTR) {

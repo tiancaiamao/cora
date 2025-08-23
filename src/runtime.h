@@ -9,6 +9,9 @@
 #include "reader.h"
 #include "trace.h"
 
+
+typedef uint32_t Opcode;
+
 struct Cora {
 		struct frame ctx;
 		struct callStack callstack;
@@ -16,6 +19,12 @@ struct Cora {
 
 		Obj args[32];
 		int nargs;
+
+
+	
+	Obj *R;
+	Opcode *pc;
+
 };
 
 void trampoline(struct Cora *co, int label, basicBlock pc);
