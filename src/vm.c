@@ -317,10 +317,9 @@ exec(struct Cora *vm) {
 			growCallStack(cs);
 		}
 		struct frame *addr = &cs->data[cs->len++];
-		/* addr->frees = co->ctx.frees; */
 		addr->pc.func = exec;
-		/* addr->pc.label = label; */
 		addr->pc.data.v.opcode = pc + 1;
+		addr->pc.data.v.constant = constant;
 		/* addr->stk.stack = &vm->stack[0]; */
 		addr->stk.base = 0;
 		addr->stk.pos = R - vm->stack;
@@ -337,6 +336,7 @@ exec(struct Cora *vm) {
 		struct scmNative *fn = mustNative(R[base]);
 		R = R + base;
 		pc = fn->code.data.v.opcode;
+		constant = fn->code.data.v.constant;
 		goto *jumptable[OP_CODE(*pc)];
 	}
 
