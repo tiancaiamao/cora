@@ -23,7 +23,7 @@ pushContRaw(char* file, int line, struct Cora *co, int label, basicBlock cb, int
 	struct frame *addr = &cs->data[cs->len];
 	addr->frees = co->ctx.frees;
 	addr->pc.func = cb;
-	addr->pc.label = label;
+	addr->pc.data.label = label;
 	addr->debugFile = file;
 	addr->debugLine = line;
 
@@ -101,7 +101,7 @@ coraDispatch(struct Cora *co) {
 		memcpy(save, co->args + required + 1, sz);
 		// eval the first call and get the result;
 		co->nargs = required + 1;
-		trampoline(co, co->ctx.pc.label, co->ctx.pc.func);
+		trampoline(co, co->ctx.pc.data.label, co->ctx.pc.func);
 		// recover args and make the next call.
 		co->args[0] = co->args[1];
 		memcpy(co->args + 1, save, sz);
@@ -179,8 +179,13 @@ gcGlobal(struct GC *gc) {
 void
 trampoline(struct Cora *co, int label, basicBlock pc) {
 	pushCont(co, label, NULL, 0);
+	co->ctx.pc.data.label = label;
+	trampolineImpl(co, pc);
+}
+
+void
+trampolineImpl(struct Cora *co, basicBlock pc) {
 	co->ctx.pc.func = pc;
-	co->ctx.pc.label = label;
 	while (co->ctx.pc.func != NULL) {
 		co->ctx.pc.func(co);
 	}

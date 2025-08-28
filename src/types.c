@@ -86,6 +86,11 @@ cadr(Obj x) {
 }
 
 Obj
+cddr(Obj x) {
+	return cdr(cdr(x));
+}
+
+Obj
 caddr(Obj x) {
 	return car(cdr(cdr(x)));
 }
@@ -246,7 +251,7 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->code.func = fn;
-	clo->code.label = label;
+	clo->code.data.label = label;
 	clo->required = required;
 	clo->captured = captured;
 	if (captured > 0) {

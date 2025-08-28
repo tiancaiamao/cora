@@ -8,9 +8,7 @@
 #include "types.h"
 #include "reader.h"
 #include "trace.h"
-
-
-typedef uint32_t Opcode;
+#include "vector.h"
 
 struct Cora {
 		struct frame ctx;
@@ -22,12 +20,12 @@ struct Cora {
 
 
 	
+	Obj stack[200];
 	Obj *R;
-	Opcode *pc;
-
 };
 
 void trampoline(struct Cora *co, int label, basicBlock pc);
+void trampolineImpl(struct Cora *co, basicBlock pc);
 void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);

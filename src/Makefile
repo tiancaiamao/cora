@@ -18,6 +18,9 @@ all: libcora.so
 
 test: reader_test gc_test
 
+vm: vm.o libcora.a
+	$(CC) -o vm $^
+
 reader.test: reader_test.o libcora.a
 	$(CC) -o reader.test $^ -ldl
 

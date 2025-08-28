@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "gc.h"
 #include "str.h"
+#include "vector.h"
 
 #define assert(c) if (!(c)) __builtin_trap()
 
@@ -74,6 +75,7 @@ int symbolStr(Obj sym, char* dest, size_t sz);
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
+Obj cddr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
 #define car(v) (((struct scmCons*)(ptr(v)))->car)
@@ -122,14 +124,20 @@ struct Cora;
 
 typedef void (*basicBlock)(struct Cora *co);
 
+typedef uint32_t Opcode;
+
 struct pcState {
-  basicBlock func;
-  int label;
+	basicBlock func;
+	union {
+		int label;
+		Opcode *opcode;
+	} data;
 };
 
 struct scmNative {
 	scmHead head;
 	struct pcState code;
+	/* Opcode *opcode; // reference to opcode when it's a bytecode closure. */
 	// required is the argument number of the nativeFunc.
 	int required;
 	// captured is the size of the data, it's immutable after makeNative.
@@ -151,10 +159,15 @@ struct stackState {
 	int pos;
 };
 
+typedef vector(Obj) constantTable;
+
 struct frame {
 	struct stackState stk;
 	struct pcState pc;
+
 	Obj frees;
+	constantTable *constant;
+
 	// For debugging
 	char *debugFile;
 	int debugLine;
