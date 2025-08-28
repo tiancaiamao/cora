@@ -28,7 +28,7 @@ traceWrap(struct Cora *co) {
 	char name[256];
 	symbolStr(sym, name, 256);
 	TRACE_BEGIN(name);
-	trampoline(co, 0, coraDispatch);
+	trampoline(co, coraDispatch);
 	TRACE_END(name);
 	coraReturn(co, co->args[1]);
 }

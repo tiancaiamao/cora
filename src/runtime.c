@@ -101,7 +101,7 @@ coraDispatch(struct Cora *co) {
 		memcpy(save, co->args + required + 1, sz);
 		// eval the first call and get the result;
 		co->nargs = required + 1;
-		trampoline(co, co->ctx.pc.data.label, co->ctx.pc.func);
+		trampoline(co, co->ctx.pc.func);
 		// recover args and make the next call.
 		co->args[0] = co->args[1];
 		memcpy(co->args + 1, save, sz);
@@ -177,14 +177,8 @@ gcGlobal(struct GC *gc) {
 }
 
 void
-trampoline(struct Cora *co, int label, basicBlock pc) {
-	pushCont(co, label, NULL, 0);
-	co->ctx.pc.data.label = label;
-	trampolineImpl(co, pc);
-}
-
-void
-trampolineImpl(struct Cora *co, basicBlock pc) {
+trampoline(struct Cora *co, basicBlock pc) {
+	pushCont(co, co->ctx.pc.data.label, NULL, 0);
 	co->ctx.pc.func = pc;
 	while (co->ctx.pc.func != NULL) {
 		co->ctx.pc.func(co);
@@ -615,7 +609,8 @@ builtinLoadSo(struct Cora *co) {
 		return;
 	}
 
-	trampoline(co, 0, entry);
+	co->ctx.pc.data.label = 0;
+	trampoline(co, entry);
 
 	popStack(co);
 	return;
@@ -639,7 +634,7 @@ builtinLoad(struct Cora *co) {
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	co->args[2] = makeString(tmpCFile.str, tmpCFile.len);
-	trampoline(co, 0, coraDispatch);
+	trampoline(co, coraDispatch);
 	// TODO: check res?
 	// Obj res = co->args[1];
 
@@ -748,7 +743,7 @@ builtinImport(struct Cora *co) {
 		co->args[0] = makeNative(0, builtinLoadSo, 2, 0);
 		co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp)));
 		co->args[2] = pkg;
-		trampoline(co, 0, coraDispatch);
+		trampoline(co, coraDispatch);
 		strFree(tmp);
 		coraReturn(co, pkg);
 		return;
@@ -762,7 +757,7 @@ builtinImport(struct Cora *co) {
 	co->args[0] = makeNative(0, builtinLoad, 2, 0);
 	co->args[1] = makeString(tmp1.str, tmp1.len);
 	co->args[2] = pkg;
-	trampoline(co, 0, coraDispatch);
+	trampoline(co, coraDispatch);
 	strFree(tmp);
 	coraReturn(co, pkg);
 }
@@ -1045,7 +1040,7 @@ int
 main(int argc, char *argv[]) {
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
-	trampoline(co, 0, entry);
+	trampoline(co, entry);
 	printObj(stdout, co->args[1]);
 	return 0;
 }

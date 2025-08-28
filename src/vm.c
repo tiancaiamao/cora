@@ -10,19 +10,20 @@ callClosure(struct Cora *co) {
 	/* Obj b = clo->data[0]; */
 	/* Opcode *code = (Opcode *)bytesData(b); */
 	// TODO?
-	co->ctx.pc.data.opcode = clo->code.data.opcode;
+	co->ctx.pc = clo->code;
 	exec(co);
 }
 
 static Obj
-makeClosure(int nargs, Opcode *code, int len) {
+makeClosure(int nargs, Opcode *code, int len, constantTable tbl) {
 	/* int sz = len * sizeof(Opcode); */
 	/* Obj b = makeCObj(code); */
 	/* Obj b = makeBytes(sz); */
 	/* memcpy(bytesData(b), code, sz); */
 	Obj ret = makeNative(0, callClosure, nargs, 0);
 	struct scmNative* n = mustNative(ret);
-	n->code.data.opcode = code;
+	n->code.data.v.opcode = code;
+	n->code.data.v.constant = tbl;
 	return ret;
 }
 
@@ -213,7 +214,8 @@ emitSexpList(codeBuf *buf, Obj sexp, constantTable* tbl) {
 
 static void
 exec(struct Cora *vm) {
-	Opcode *pc = vm->ctx.pc.data.opcode;
+	Opcode *pc = vm->ctx.pc.data.v.opcode;
+	constantTable constant = vm->ctx.pc.data.v.constant;
 	Obj *R = vm->stack + vm->ctx.stk.pos;
 
 	static void* jumptable[] = {
@@ -240,7 +242,7 @@ exec(struct Cora *vm) {
 	{
 		uint8_t tos = OP_A(*pc);
 		uint8_t idx = OP_B(*pc);
-		R[tos] = vecGet(vm->ctx.constant, idx);
+		R[tos] = vecGet(&constant, idx);
 		NEXT();
 	}
 
@@ -256,7 +258,7 @@ exec(struct Cora *vm) {
 	{
 		uint8_t tos = OP_A(*pc);
 		uint16_t idx = OP_C(*pc);
-		R[tos] = globalRef(vecGet(vm->ctx.constant, idx));
+		R[tos] = globalRef(vecGet(&constant, idx));
 		NEXT();
 	}
 
@@ -287,7 +289,7 @@ exec(struct Cora *vm) {
 		/* uint8_t nfrees = OP_D(*pc); */
 		pc++;
 		uint32_t sz = *((uint32_t*)pc++);
-		R[tos] = makeClosure(nargs, pc, sz);
+		R[tos] = makeClosure(nargs, pc, sz, vm->ctx.pc.data.v.constant);
 		assert(sz > 1);
 		pc = pc + (sz - 1);
 		NEXT();
@@ -302,7 +304,8 @@ exec(struct Cora *vm) {
 		}
 		// TODO: support calling protocol
 		struct scmNative *fn = mustNative(R[0]);
-		pc = fn->code.data.opcode;
+		pc = fn->code.data.v.opcode;
+		constant = fn->code.data.v.constant;
 		goto *jumptable[OP_CODE(*pc)];
 	}
 
@@ -317,7 +320,7 @@ exec(struct Cora *vm) {
 		/* addr->frees = co->ctx.frees; */
 		addr->pc.func = exec;
 		/* addr->pc.label = label; */
-		addr->pc.data.opcode = pc + 1;
+		addr->pc.data.v.opcode = pc + 1;
 		/* addr->stk.stack = &vm->stack[0]; */
 		addr->stk.base = 0;
 		addr->stk.pos = R - vm->stack;
@@ -333,7 +336,7 @@ exec(struct Cora *vm) {
 		// TODO: support calling protocol
 		struct scmNative *fn = mustNative(R[base]);
 		R = R + base;
-		pc = fn->code.data.opcode;
+		pc = fn->code.data.v.opcode;
 		goto *jumptable[OP_CODE(*pc)];
 	}
 
@@ -363,7 +366,7 @@ exec(struct Cora *vm) {
  op_primitive_mul:
 	{
 		uint8_t tos = OP_A(*pc);
-		R[tos] = R[tos] + R[tos+1];
+		R[tos] = makeNumber(fixnum(R[tos]) * fixnum(R[tos+1]));
 		NEXT();
 	}
 
@@ -394,9 +397,11 @@ int main() {
 	uintptr_t dummy;
 	struct Cora* co = coraInit(&dummy);
 	co->R = &co->stack[0];
+	co->nargs = 0;
 
 	struct SexpReader r = { .co = co};
 	int errCode = 0;
+
 
 	for (int i=0; ; i++) {
 		printf("%d #> ", i);
@@ -413,9 +418,9 @@ int main() {
 
 		codeToExec(&buf, exp, &ct);
 
-		co->ctx.pc.data.opcode = buf.v.data;
-		co->ctx.constant = &ct;
-		trampolineImpl(co, exec);
+		co->ctx.pc.data.v.opcode = buf.v.data;
+		co->ctx.pc.data.v.constant = ct;
+		trampoline(co, exec);
 
 		sexpWrite(stdout, co->R[0]);
 		printf("\n");

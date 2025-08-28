@@ -186,7 +186,7 @@ Obj __arg3 = co->args[3];
 
 static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20, &&label21, &&label22, &&label23, &&label24, &&label25, &&label26, &&label27, &&label28, &&label29, &&label30, &&label31, &&label32, &&label33, &&label34, &&label35, &&label36, &&label37, &&label38, &&label39, &&label40, &&label41, &&label42, &&label43, &&label44, &&label45, &&label46, &&label47, &&label48, &&label49};
 
-goto *jumpTable[co->ctx.pc.label];
+goto *jumpTable[co->ctx.pc.data.label];
 
 label0:
 {
@@ -664,7 +664,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label23:
@@ -741,7 +741,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_1(clofun0, _3514997_37);
 }
@@ -791,7 +791,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label26:
@@ -904,7 +904,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_1(clofun0, _3514999_37);
 }
@@ -942,7 +942,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label33:
@@ -1005,7 +1005,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_1(clofun0, _3515000_37);
 }
@@ -1090,7 +1090,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun0) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label37:
@@ -1270,7 +1270,7 @@ Obj __arg3 = co->args[3];
 
 static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20, &&label21, &&label22, &&label23, &&label24, &&label25, &&label26, &&label27, &&label28, &&label29, &&label30, &&label31, &&label32, &&label33, &&label34, &&label35, &&label36, &&label37, &&label38, &&label39, &&label40, &&label41, &&label42, &&label43, &&label44, &&label45, &&label46, &&label47, &&label48, &&label49};
 
-goto *jumpTable[co->ctx.pc.label];
+goto *jumpTable[co->ctx.pc.data.label];
 
 label0:
 {
@@ -1460,7 +1460,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun1) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label19:
@@ -1505,7 +1505,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun1) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_1(clofun1, _3514976_37);
 }
@@ -1550,7 +1550,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun1) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_1(clofun1, _3514977_37);
 }
@@ -1852,7 +1852,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun1) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label46:
@@ -1907,7 +1907,7 @@ Obj __arg3 = co->args[3];
 
 static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20, &&label21, &&label22, &&label23, &&label24, &&label25, &&label26, &&label27, &&label28, &&label29, &&label30, &&label31, &&label32, &&label33, &&label34, &&label35, &&label36, &&label37, &&label38, &&label39, &&label40, &&label41, &&label42, &&label43, &&label44, &&label45, &&label46, &&label47, &&label48, &&label49};
 
-goto *jumpTable[co->ctx.pc.label];
+goto *jumpTable[co->ctx.pc.data.label];
 
 label0:
 {
@@ -2442,7 +2442,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun2) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label41:
@@ -2597,7 +2597,7 @@ Obj __arg3 = co->args[3];
 
 static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20, &&label21, &&label22, &&label23, &&label24, &&label25, &&label26, &&label27, &&label28, &&label29, &&label30, &&label31, &&label32, &&label33, &&label34, &&label35, &&label36, &&label37, &&label38, &&label39, &&label40, &&label41, &&label42, &&label43, &&label44, &&label45, &&label46, &&label47, &&label48, &&label49};
 
-goto *jumpTable[co->ctx.pc.label];
+goto *jumpTable[co->ctx.pc.data.label];
 
 label0:
 {
@@ -2633,7 +2633,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun3) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 } else {
 JUMP_WITH_ARGS_2(clofun3, globalRef(__symbolTable[127]), makeCString("no cond match"));
 }
@@ -2743,7 +2743,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun3) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 }
 
@@ -2763,7 +2763,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun3) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label9:
@@ -2802,7 +2802,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun3) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label12:
@@ -2819,7 +2819,7 @@ co->ctx.frees = __arg0;
 struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);
 if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };
 if (ps.func != clofun3) { co->ctx.pc = ps; goto fail; };
-goto *jumpTable[ps.label];
+goto *jumpTable[ps.data.label];
 }
 
 label13:
@@ -3267,7 +3267,7 @@ Obj __arg3 = co->args[3];
 
 static void* jumpTable[] = {&&label0, &&label1, &&label2, &&label3, &&label4, &&label5, &&label6, &&label7, &&label8, &&label9, &&label10, &&label11, &&label12, &&label13, &&label14, &&label15, &&label16, &&label17, &&label18, &&label19, &&label20};
 
-goto *jumpTable[co->ctx.pc.label];
+goto *jumpTable[co->ctx.pc.data.label];
 
 label0:
 {

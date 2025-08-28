@@ -124,13 +124,18 @@ struct Cora;
 
 typedef void (*basicBlock)(struct Cora *co);
 
+typedef vector(Obj) constantTable;
+
 typedef uint32_t Opcode;
 
 struct pcState {
 	basicBlock func;
 	union {
 		int label;
-		Opcode *opcode;
+		struct {
+			Opcode *opcode;
+			constantTable constant;
+		} v;
 	} data;
 };
 
@@ -159,14 +164,11 @@ struct stackState {
 	int pos;
 };
 
-typedef vector(Obj) constantTable;
-
 struct frame {
 	struct stackState stk;
 	struct pcState pc;
 
 	Obj frees;
-	constantTable *constant;
 
 	// For debugging
 	char *debugFile;

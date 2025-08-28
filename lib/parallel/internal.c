@@ -15,11 +15,11 @@ startRoutine(void* arg) {
 	struct Cora *co = coraInit(&dummy);
 	co->args[1] = makeCString("cora/init");
 	co->nargs = 2;
-	trampoline(co, 0, builtinImport);
+	trampoline(co, builtinImport);
   
 	co->args[1] = makeCString("cora/lib/toc");
 	co->nargs = 2;
-	trampoline(co, 0, builtinImport);
+	trampoline(co, builtinImport);
 
 	strBuf path1 = arg;
 	str path = toStr(path1);
@@ -28,7 +28,7 @@ startRoutine(void* arg) {
 	co->nargs = 2;
 	co->args[0] = globalRef(intern("load"));
 	co->args[1] = filePath;
-	trampoline(co, 0, coraDispatch);
+	trampoline(co, coraDispatch);
 	printf("newProc exit\n");
 	coraExit(co);
 	return NULL;

@@ -24,7 +24,7 @@ repl(struct Cora *co, FILE* stream) {
 		co->args[0] = globalRef(intern("macroexpand"));
 		co->args[1] = exp;
 		co->nargs = 2;
-		trampoline(co, 0, coraDispatch);
+		trampoline(co, coraDispatch);
 		exp = co->args[1];
 
 		/* printf("after macro expand =="); */
@@ -36,7 +36,7 @@ repl(struct Cora *co, FILE* stream) {
 		co->args[1] = exp;
 		co->args[2] = Nil;
 		co->nargs = 3;
-		trampoline(co, 0, coraDispatch);
+		trampoline(co, coraDispatch);
 
 		if (stream == stdin) {
 			sexpWrite(stdout, co->args[1]);
@@ -86,15 +86,15 @@ int main(int argc, char *argv[]) {
 	struct Cora* co = coraInit(&dummy);
 	co->nargs = 2;
 	co->args[1] = makeCString("cora/init");
-	trampoline(co, 0, builtinImport);
+	trampoline(co, builtinImport);
   
 	co->nargs = 2;
 	co->args[1] = makeCString("cora/lib/toc");
-	trampoline(co, 0, builtinImport);
+	trampoline(co, builtinImport);
 
 	co->nargs = 2;
 	co->args[1] = makeCString("cora/lib/eval");
-	trampoline(co, 0, builtinImport);
+	trampoline(co, builtinImport);
 
 	if (argc == 1) {
 		repl(co, stdin);

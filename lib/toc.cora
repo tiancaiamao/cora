@@ -350,7 +350,7 @@
 						 (generate-str w "if (ps.func != ")
 						 (generate-group-name w (cdr self) (car self))
 						 (generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
-						 (generate-str w "goto *jumpTable[ps.label];\n"))))))))
+						 (generate-str w "goto *jumpTable[ps.data.label];\n"))))))))
 
 	  ((value generate-inst-h) x1 env1))))
 
@@ -514,7 +514,7 @@
       (generate-str to "static void* jumpTable[] = {")
       (generate-jumptable to 0 (length group))
       (generate-str to "};\n\n")
-      (generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
+      (generate-str to "goto *jumpTable[co->ctx.pc.data.label];\n\n")
 
       (for-each (lambda (x) (code-gen-toplevel to x maxid globals)) group)
 

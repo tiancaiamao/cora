@@ -24,8 +24,7 @@ struct Cora {
 	Obj *R;
 };
 
-void trampoline(struct Cora *co, int label, basicBlock pc);
-void trampolineImpl(struct Cora *co, basicBlock pc);
+void trampoline(struct Cora *co, basicBlock pc);
 void coraDispatch(struct Cora *co);
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
@@ -99,7 +98,7 @@ growCallStack(struct callStack *cs) {
     struct frame *__addr = &__cs->data[__cs->len++];	\
     __addr->frees = (co)->ctx.frees;			\
     __addr->pc.func = (cb);				\
-    __addr->pc.label = (lbl);				\
+    __addr->pc.data.label = (lbl);				\
     __addr->stk = (co)->ctx.stk;			\
     __addr->debugFile = __FILE__;			\
     __addr->debugLine = __LINE__;			\
@@ -128,7 +127,7 @@ growCallStack(struct callStack *cs) {
 		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
 		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
 		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
-		goto *jumpTable[ps.label];				\
+		goto *jumpTable[ps.data.label];				\
 	} while (0)
 
 #define JUMP_WITH_ARGS_2(clofun, x0, x1) do {				\
@@ -139,7 +138,7 @@ growCallStack(struct callStack *cs) {
 		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
 		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
 		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
-		goto *jumpTable[ps.label];				\
+		goto *jumpTable[ps.data.label];				\
 	} while (0)
 
 #define JUMP_WITH_ARGS_3(clofun, x0, x1, x2) do {			\
@@ -151,7 +150,7 @@ growCallStack(struct callStack *cs) {
 		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
 		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
 		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
-		goto *jumpTable[ps.label];				\
+		goto *jumpTable[ps.data.label];				\
 	} while (0)
 
 #define JUMP_WITH_ARGS_4(clofun, x0, x1, x2, x3) do {			\
@@ -164,7 +163,7 @@ growCallStack(struct callStack *cs) {
 		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
 		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
 		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
-		goto *jumpTable[ps.label];				\
+		goto *jumpTable[ps.data.label];				\
 	} while (0)
 
 #define JUMP_RETURN(clofun, val) do {					\
@@ -172,7 +171,7 @@ growCallStack(struct callStack *cs) {
 		__arg1 = (val);						\
 		co->ctx = co->callstack.data[--co->callstack.len];	\
 		if (co->ctx.pc.func != (clofun)) { goto fail; }		\
-		goto *jumpTable[co->ctx.pc.label];			\
+		goto *jumpTable[co->ctx.pc.data.label];			\
 	} while (0)
 
 #endif
