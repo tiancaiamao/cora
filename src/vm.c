@@ -5,7 +5,7 @@ static void exec(struct Cora *co);
 
 static void
 callClosure(struct Cora *co) {
-	struct scmNative* clo = mustNative(co->R[0]);
+	struct scmNative* clo = mustNative(co->stack[co->ctx.stk.pos]);
 	co->ctx.pc = clo->code;
 	exec(co);
 }
@@ -290,9 +290,15 @@ exec(struct Cora *vm) {
 		// TODO: support calling protocol
 		struct scmNative *fn = ptr(R[0]);
 		assert(fn->head.type == scmHeadNative);
-		pc = fn->code.data.v.opcode;
-		constant = &fn->code.data.v.constant;
-		goto *jumptable[OP_CODE(*pc)];
+		if (fn->code.func == exec) {
+			pc = fn->code.data.v.opcode;
+			constant = &fn->code.data.v.constant;
+			goto *jumptable[OP_CODE(*pc)];
+		}
+
+		vm->ctx.stk.pos = R - vm->stack;
+		vm->ctx.pc = fn->code;
+		return;
 	}
 
  op_call:
@@ -313,13 +319,17 @@ exec(struct Cora *vm) {
 		// then goto the callee
 		uint8_t base = OP_A(*pc);
 		uint16_t nargs = OP_B(*pc);
-		// TODO: support calling protocol
 		struct scmNative *fn = ptr(R[base]);
-		assert(fn->head.type == scmHeadNative);
-		R = R + base;
-		pc = fn->code.data.v.opcode;
-		constant = &fn->code.data.v.constant;
-		goto *jumptable[OP_CODE(*pc)];
+		if (fn->code.func == exec) {
+			assert(fn->head.type == scmHeadNative);
+			R = R + base;
+			pc = fn->code.data.v.opcode;
+			constant = &fn->code.data.v.constant;
+			goto *jumptable[OP_CODE(*pc)];
+		}
+
+		printf("TODO: support calling protocol\n");
+		assert(false);
 	}
 
  op_exit:
@@ -334,7 +344,6 @@ exec(struct Cora *vm) {
 			R = vm->stack + vm->ctx.stk.pos;
 			goto *jumptable[OP_CODE(*pc)];
 		}
-		vm->R = R;
 		return;
 	}
 
@@ -384,14 +393,85 @@ exec(struct Cora *vm) {
 
 }
 
+static Obj symFib;
+
+static void
+labelBack2(struct Cora *co) {
+	Obj *R = co->stack + co->ctx.stk.pos;
+	R[2] = R[2] + R[3];
+	R[0] = R[2];
+	co->ctx = co->callstack.data[--co->callstack.len];
+	return;
+}
+
+static void
+labelBack1(struct Cora *co) {
+	Obj *R = co->stack + co->ctx.stk.pos;
+	R[3] = globalRef(symFib);
+	R[4] = R[1];
+	R[5] = 4;
+	R[4] = R[4] - R[5];
+
+	struct callStack *cs = &co->callstack;
+	if (unlikely(cs->len >= cs->cap)) {
+		growCallStack(cs);
+	}
+	struct frame *addr = &cs->data[cs->len++];
+	addr->stk.pos = R - co->stack;
+	addr->pc.func = labelBack2;
+
+	// then goto the callee
+	struct scmNative* fn = mustNative(R[3]);
+	co->ctx.stk.pos = R + 3 - co->stack;
+	co->ctx.pc = fn->code;
+	return;
+}
+
+static void
+fib40(struct Cora *co) {
+	Obj *R = co->stack + co->ctx.stk.pos;
+
+	R[2] = R[1];
+	R[3] = 4;
+	R[2] = (R[2] < R[3]) ? True: False;
+	if (R[2] == True) {
+		R[2] = R[1];
+		R[0] = R[2];
+		co->ctx = co->callstack.data[--co->callstack.len];
+		return;
+	} else {
+		R[2] = globalRef(symFib);
+		R[3] = R[1];
+		R[4] = 2;
+		R[3] = R[3] - R[4];
+
+		struct callStack *cs = &co->callstack;
+		if (unlikely(cs->len >= cs->cap)) {
+			growCallStack(cs);
+		}
+		struct frame *addr = &cs->data[cs->len++];
+		addr->stk.pos = R - co->stack;
+		addr->pc.func = labelBack1;
+
+		// then goto the callee
+		struct scmNative* fn = mustNative(R[2]);
+		co->ctx.stk.pos = R + 2 - co->stack;
+		co->ctx.pc = fn->code;
+		return;
+	}
+}
+
 int main() {
 	uintptr_t dummy;
 	struct Cora* co = coraInit(&dummy);
-	co->R = &co->stack[0];
 	co->nargs = 0;
 
 	struct SexpReader r = { .co = co};
 	int errCode = 0;
+
+	symFib = makeSymbol("fib");
+	Obj fib = makeNative(0, fib40, 1, 0);
+	primSet(co, symFib, fib);
 
 
 	for (int i=0; ; i++) {
@@ -413,7 +493,7 @@ int main() {
 		co->ctx.pc.data.v.constant = ct;
 		trampoline(co, exec);
 
-		sexpWrite(stdout, co->R[0]);
+		sexpWrite(stdout, co->stack[0]);
 		printf("\n");
 	}
 }

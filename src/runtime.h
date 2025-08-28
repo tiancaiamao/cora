@@ -21,7 +21,6 @@ struct Cora {
 
 	
 	Obj stack[200];
-	Obj *R;
 };
 
 void trampoline(struct Cora *co, basicBlock pc);
