@@ -6,20 +6,12 @@ static void exec(struct Cora *co);
 static void
 callClosure(struct Cora *co) {
 	struct scmNative* clo = mustNative(co->R[0]);
-	assert(clo->captured == 1);
-	/* Obj b = clo->data[0]; */
-	/* Opcode *code = (Opcode *)bytesData(b); */
-	// TODO?
 	co->ctx.pc = clo->code;
 	exec(co);
 }
 
 static Obj
 makeClosure(int nargs, Opcode *code, int len, constantTable tbl) {
-	/* int sz = len * sizeof(Opcode); */
-	/* Obj b = makeCObj(code); */
-	/* Obj b = makeBytes(sz); */
-	/* memcpy(bytesData(b), code, sz); */
 	Obj ret = makeNative(0, callClosure, nargs, 0);
 	struct scmNative* n = mustNative(ret);
 	n->code.data.v.opcode = code;
@@ -64,7 +56,6 @@ pack4(uint8_t op, uint8_t a, uint8_t b, uint8_t d) {
 
 static inline Opcode
 pack3(uint8_t op, uint8_t a, uint16_t c16) {
-	// C occupies bits [16..31]
 	return (Opcode)( ((uint32_t)op)
 			 | ((uint32_t)a << 8)
 			 | ((uint32_t)c16 << 16));
@@ -77,9 +68,6 @@ emitOp(codeBuf *buf, Opcode op) {
 	int ret = vecLen(buf);
 	vecAppend(buf, op);
 	return ret;
-	/* ensureCap(buf, 1); */
-	/* buf->code[buf->len] = op; */
-	/* return buf->len++; // return index where it was placed */
 }
 
 
@@ -87,9 +75,6 @@ static inline int
 emitU32(codeBuf *buf, uint32_t v) {
 	int ret = vecLen(buf);
 	vecAppend(buf, (Opcode)v);
-	/* ensureCap(buf, 1); */
-	/* buf->code[buf->len] = (Opcode)v; */
-	/* return buf->len++; */
 	return ret;
 }
 
@@ -215,10 +200,10 @@ emitSexpList(codeBuf *buf, Obj sexp, constantTable* tbl) {
 static void
 exec(struct Cora *vm) {
 	Opcode *pc = vm->ctx.pc.data.v.opcode;
-	constantTable constant = vm->ctx.pc.data.v.constant;
+	constantTable *constant = &vm->ctx.pc.data.v.constant;
 	Obj *R = vm->stack + vm->ctx.stk.pos;
 
-	static void* jumptable[] = {
+	static const void* jumptable[] = {
 		&&op_const,
 		&&op_local_ref,
 		&&op_global_ref,
@@ -242,7 +227,7 @@ exec(struct Cora *vm) {
 	{
 		uint8_t tos = OP_A(*pc);
 		uint8_t idx = OP_B(*pc);
-		R[tos] = vecGet(&constant, idx);
+		R[tos] = vecGet(constant, idx);
 		NEXT();
 	}
 
@@ -258,7 +243,7 @@ exec(struct Cora *vm) {
 	{
 		uint8_t tos = OP_A(*pc);
 		uint16_t idx = OP_C(*pc);
-		R[tos] = globalRef(vecGet(&constant, idx));
+		R[tos] = globalRef(vecGet(constant, idx));
 		NEXT();
 	}
 
@@ -289,7 +274,7 @@ exec(struct Cora *vm) {
 		/* uint8_t nfrees = OP_D(*pc); */
 		pc++;
 		uint32_t sz = *((uint32_t*)pc++);
-		R[tos] = makeClosure(nargs, pc, sz, vm->ctx.pc.data.v.constant);
+		R[tos] = makeClosure(nargs, pc, sz, *constant);
 		assert(sz > 1);
 		pc = pc + (sz - 1);
 		NEXT();
@@ -303,9 +288,10 @@ exec(struct Cora *vm) {
 			memcpy(R, R+base, sizeof(Obj) * nargs);
 		}
 		// TODO: support calling protocol
-		struct scmNative *fn = mustNative(R[0]);
+		struct scmNative *fn = ptr(R[0]);
+		assert(fn->head.type == scmHeadNative);
 		pc = fn->code.data.v.opcode;
-		constant = fn->code.data.v.constant;
+		constant = &fn->code.data.v.constant;
 		goto *jumptable[OP_CODE(*pc)];
 	}
 
@@ -319,24 +305,20 @@ exec(struct Cora *vm) {
 		struct frame *addr = &cs->data[cs->len++];
 		addr->pc.func = exec;
 		addr->pc.data.v.opcode = pc + 1;
-		addr->pc.data.v.constant = constant;
+		addr->pc.data.v.constant = *constant;
 		/* addr->stk.stack = &vm->stack[0]; */
 		addr->stk.base = 0;
 		addr->stk.pos = R - vm->stack;
-		/* addr->debugFile = file; */
-		/* addr->debugLine = line; */
 
 		// then goto the callee
 		uint8_t base = OP_A(*pc);
 		uint16_t nargs = OP_B(*pc);
-		/* if (base > 0) { */
-		/* 	memcpy(R, R+base, sizeof(Obj) * nargs); */
-		/* } */
 		// TODO: support calling protocol
-		struct scmNative *fn = mustNative(R[base]);
+		struct scmNative *fn = ptr(R[base]);
+		assert(fn->head.type == scmHeadNative);
 		R = R + base;
 		pc = fn->code.data.v.opcode;
-		constant = fn->code.data.v.constant;
+		constant = &fn->code.data.v.constant;
 		goto *jumptable[OP_CODE(*pc)];
 	}
 
@@ -345,6 +327,13 @@ exec(struct Cora *vm) {
 		uint8_t tos = OP_A(*pc);
 		R[0] = R[tos];
 		vm->ctx = vm->callstack.data[--vm->callstack.len];
+		if (vm->ctx.pc.func == exec) {
+			// short path without exit the exec function.
+			pc = vm->ctx.pc.data.v.opcode;
+			constant = &vm->ctx.pc.data.v.constant;
+			R = vm->stack + vm->ctx.stk.pos;
+			goto *jumptable[OP_CODE(*pc)];
+		}
 		vm->R = R;
 		return;
 	}
@@ -366,7 +355,9 @@ exec(struct Cora *vm) {
  op_primitive_mul:
 	{
 		uint8_t tos = OP_A(*pc);
-		R[tos] = makeNumber(fixnum(R[tos]) * fixnum(R[tos+1]));
+		Obj a = R[tos];
+		Obj b = R[tos+1];
+		R[tos] = (Obj)((fixnum(a) * fixnum(b)) << 1);
 		NEXT();
 	}
 
