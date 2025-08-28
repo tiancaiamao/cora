@@ -3,16 +3,9 @@
 
 static void exec(struct Cora *co);
 
-static void
-callClosure(struct Cora *co) {
-	struct scmNative* clo = mustNative(co->stack[co->ctx.stk.pos]);
-	co->ctx.pc = clo->code;
-	exec(co);
-}
-
 static Obj
 makeClosure(int nargs, Opcode *code, int len, constantTable tbl) {
-	Obj ret = makeNative(0, callClosure, nargs, 0);
+	Obj ret = makeNative(0, exec, nargs, 0);
 	struct scmNative* n = mustNative(ret);
 	n->code.data.v.opcode = code;
 	n->code.data.v.constant = tbl;
@@ -127,9 +120,6 @@ emitSexpList(codeBuf *buf, Obj sexp, constantTable* tbl) {
 			emitOp(buf, pack4(OP_CLOSURE_REF, (uint8_t)tos, (uint8_t)idx, 0));
 		} else if (tag == sym_if) {
 			// (if cond_reg then_list else_list)
-			// Encode an OP_IF_ELSE with skip = size(of then_list in opwords).
-			// Layout: [IF k] [then...] [else...]
-			// exec(): if True → fall-through to then; if False → pc += k → else.
 			int cond = fixnum(cadr(insn));
 			int if_pos = emitOp(buf, pack3(OP_IF_ELSE, (uint8_t)cond, 0 /*placeholder*/));
 			int then_start = vecLen(buf);
@@ -287,7 +277,6 @@ exec(struct Cora *vm) {
 		if (base > 0) {
 			memcpy(R, R+base, sizeof(Obj) * nargs);
 		}
-		// TODO: support calling protocol
 		struct scmNative *fn = ptr(R[0]);
 		assert(fn->head.type == scmHeadNative);
 		if (fn->code.func == exec) {
@@ -396,54 +385,59 @@ exec(struct Cora *vm) {
 static Obj symFib;
 
 static void
-labelBack2(struct Cora *co) {
-	Obj *R = co->stack + co->ctx.stk.pos;
-	R[2] = R[2] + R[3];
-	R[0] = R[2];
-	co->ctx = co->callstack.data[--co->callstack.len];
-	return;
-}
-
-static void
-labelBack1(struct Cora *co) {
-	Obj *R = co->stack + co->ctx.stk.pos;
-	R[3] = globalRef(symFib);
-	R[4] = R[1];
-	R[5] = 4;
-	R[4] = R[4] - R[5];
-
-	struct callStack *cs = &co->callstack;
-	if (unlikely(cs->len >= cs->cap)) {
-		growCallStack(cs);
-	}
-	struct frame *addr = &cs->data[cs->len++];
-	addr->stk.pos = R - co->stack;
-	addr->pc.func = labelBack2;
-
-	// then goto the callee
-	struct scmNative* fn = mustNative(R[3]);
-	co->ctx.stk.pos = R + 3 - co->stack;
-	co->ctx.pc = fn->code;
-	return;
-}
-
-static void
 fib40(struct Cora *co) {
 	Obj *R = co->stack + co->ctx.stk.pos;
 
-	R[2] = R[1];
-	R[3] = 4;
-	R[2] = (R[2] < R[3]) ? True: False;
-	if (R[2] == True) {
+	static const void* jumptable[] = {&&label0, &&label1, &&label2};
+	goto *jumptable[co->ctx.pc.data.label];
+
+ label0:
+	{
 		R[2] = R[1];
-		R[0] = R[2];
-		co->ctx = co->callstack.data[--co->callstack.len];
-		return;
-	} else {
-		R[2] = globalRef(symFib);
-		R[3] = R[1];
-		R[4] = 2;
-		R[3] = R[3] - R[4];
+		R[3] = 4;
+		R[2] = (R[2] < R[3]) ? True: False;
+		if (R[2] == True) {
+			R[2] = R[1];
+			R[0] = R[2];
+			co->ctx = co->callstack.data[--co->callstack.len];
+			if (co->ctx.pc.func == fib40) {
+				R = co->stack + co->ctx.stk.pos;
+				goto *jumptable[co->ctx.pc.data.label];
+			}
+			return;
+		} else {
+			R[2] = globalRef(symFib);
+			R[3] = R[1];
+			R[4] = 2;
+			R[3] = R[3] - R[4];
+
+			struct callStack *cs = &co->callstack;
+			if (unlikely(cs->len >= cs->cap)) {
+				growCallStack(cs);
+			}
+			struct frame *addr = &cs->data[cs->len++];
+			addr->stk.pos = R - co->stack;
+			addr->pc.func = fib40;
+			addr->pc.data.label = 1;
+
+			// then goto the callee
+			struct scmNative* fn = mustNative(R[2]);
+			co->ctx.pc = fn->code;
+			if (co->ctx.pc.func == fib40) {
+				R += 2;
+				goto *jumptable[co->ctx.pc.data.label];
+			}
+			co->ctx.stk.pos = R + 2 - co->stack;
+			return;
+		}
+	}
+
+ label1:
+	{
+		R[3] = globalRef(symFib);
+		R[4] = R[1];
+		R[5] = 4;
+		R[4] = R[4] - R[5];
 
 		struct callStack *cs = &co->callstack;
 		if (unlikely(cs->len >= cs->cap)) {
@@ -451,12 +445,29 @@ fib40(struct Cora *co) {
 		}
 		struct frame *addr = &cs->data[cs->len++];
 		addr->stk.pos = R - co->stack;
-		addr->pc.func = labelBack1;
+		addr->pc.func = fib40;
+		addr->pc.data.label = 2;
 
 		// then goto the callee
-		struct scmNative* fn = mustNative(R[2]);
-		co->ctx.stk.pos = R + 2 - co->stack;
+		struct scmNative* fn = mustNative(R[3]);
 		co->ctx.pc = fn->code;
+		if (co->ctx.pc.func == fib40) {
+			R += 3;
+			goto *jumptable[co->ctx.pc.data.label];
+		}
+		co->ctx.stk.pos = R + 3 - co->stack;
+		return;
+	}
+
+ label2:
+	{
+		R[2] = R[2] + R[3];
+		R[0] = R[2];
+		co->ctx = co->callstack.data[--co->callstack.len];
+		if (co->ctx.pc.func == fib40) {
+			R = co->stack + co->ctx.stk.pos;
+			goto *jumptable[co->ctx.pc.data.label];
+		}
 		return;
 	}
 }
