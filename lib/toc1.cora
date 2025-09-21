@@ -1,0 +1,674 @@
+(package "cora/lib/toc1"
+  (import "cora/lib/toc/internal")
+  (import "cora/lib/io")
+  (import "cora/lib/hash-h")
+
+  (func assq
+	var [] => ()
+	var [(cons x y) . _] => (cons x y) where (= var x)
+	var [_ . y] => (assq var y))
+
+  (func foldl
+	f acc [] => acc
+	f acc [x . y] => (foldl f (f acc x) y))
+
+  (func pos-in-list0
+	_ x [] => -1
+	pos x [a . b] => pos where (= x a)
+	pos x [a . b] => (pos-in-list0 (+ pos 1) x b))
+
+  (defun index (x l)
+    (pos-in-list0 0 x l))
+
+  (func exist-in-env
+	x [] => false
+	x [hd . tl] => (if (< (index x hd) 0)
+			   (exist-in-env x tl)
+			   true))
+
+  (def *builtin-prims*
+       [['set 2 "primSet"] ['car 1 "PRIM_CAR"] ['cdr 1 "PRIM_CDR"] ['cons 2 "makeCons"] ['cons? 1 "PRIM_ISCONS"]
+	['+ 2 "PRIM_ADD"] ['- 2 "PRIM_SUB"] ['* 2 "PRIM_MUL"] ['/ 2 "primDiv"]
+	['= 2 "PRIM_EQ"] ['> 2 "PRIM_GT"] ['< 2 "PRIM_LT"] ['gensym 0 "primGenSym"] ['symbol? 1 "primIsSymbol"]
+	['not 1 "primNot"] ['integer? 1 "primIsNumber"] ['string? 1 "primIsString"]])
+
+  (defun builtin? (x)
+    (not (null? (assq x *builtin-prims*))))
+
+  (defun builtin->name (x)
+    (let find (assq x *builtin-prims*)
+      (if (null? find)
+	  "ERROR"
+	  (caddr find))))
+
+  (defun builtin->args (x)
+    (let find (assq x *builtin-prims*)
+      (if (null? find)
+	  "ERROR"
+	  (cadr find))))
+
+  (func temp-list
+	0 res => res
+	n res => (temp-list (- n 1) (cons (gensym) res)))
+
+  (func parse
+	_ globals x => ['%const x] where (or (number? x) (string? x) (boolean? x) (null? x))
+	_ globals ['quote x] => (begin (add-symbol-to-list x globals) ['%const x])
+	env globals x => (if (elem? x env) x
+			     (begin
+			      (add-symbol-to-list x globals)
+			      ['%global x])) where (symbol? x)
+	env globals ['lambda args body] => ['lambda args (parse (append args env) globals body)]
+	;; macro rewrite to avoid code explosion during tailify-pass
+	env globals ['if ['if . exp1] . exp2] => (let f (gensym)
+						      v (gensym)
+						      (parse env globals ['let f ['lambda [v] ['if v . exp2]]
+							     [f ['if . exp1]]]))
+	env globals ['if . args] => ['if . (map (parse env globals) args)]
+	env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
+	env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
+	;; macro rewrite to avoid code explosion during tailify-pass
+	env globals [['lambda . exp1] ['if . exp2]] => (let f (gensym)
+							    (parse env globals ['let f ['lambda . exp1]
+								   [f ['if . exp2]]]))
+	env globals [op . args] => (let required (builtin->args op)
+					provided (length args)
+					(cond
+					  ((= required provided)  [['%builtin op] . (map (parse env globals) args)])
+					  ((> required provided)
+					   ;; rewrite partial apply of primitives
+					   ;; (+ x) => (lambda (tmp) (+ x tmp))
+					   (let tmp (temp-list (- required provided) ())
+						(parse env globals ['lambda tmp (append [op . args] tmp)])))
+					  (true (error "primitive call mismatch"))))
+	where (builtin? op)
+	env globals ls => (map (parse env globals) ls))
+
+  (func union
+	[] s2 => s2
+	[x . y] s2 => (union y s2) where (elem? x s2)
+	[x . y] s2 => (cons x (union y s2)))
+
+  (func diff
+	[] _ => []
+	[x . y] s2 => (diff y s2) where (elem? x s2)
+	[x . y] s2 => (cons x (diff y s2)))
+
+  (func convert-protect?
+	['%const x] => true
+	['%global x] => true
+	['%builtin op] => true
+	['quote x] => true
+	['%closure-ref _] => true
+	['%closure label . _] => true where (number? label)
+	x => false)
+
+  (func free-vars
+	x => [] where (convert-protect? x)
+	x => [x] where (symbol? x)
+	['lambda args body] => (diff (free-vars body) args)
+	['if x y z] => (foldl union [] (map free-vars [x y z]))
+	['do x y] => (foldl union [] (map free-vars [x y]))
+	['let a b c] => (union (free-vars b) (diff (free-vars c) [a]))
+
+	;; the following three rules are used by liveness-analyze, not by convert
+	['%closure lam . more] => (free-vars [lam . more])
+	['return x] => (free-vars x)
+	['call exp cont] => (foldl union [] (map free-vars [exp cont]))
+	['tailcall exp] => (free-vars exp)
+	['continuation arg body] => (diff (free-vars body) arg)
+
+	[f . args] => (foldl union [] (map free-vars [f . args])))
+
+  (func closure-convert
+	_ x => x where (convert-protect? x)
+	fvs var => (let pos (index var fvs)
+		     (if (= -1 pos)
+			 var
+			 ['%closure-ref pos])) where (symbol? var)
+			 ;; fvs ['do x y] => (cons 'do (map (convert fvs) [x y]))
+			 ;; fvs ['if a b c] => (cons 'if (map (convert fvs) [a b c]))
+			 fvs ['lambda args body] =>
+			 (let fvs1 (free-vars ['lambda args body])
+			   ['%closure ['lambda args (closure-convert fvs1 body)] .
+				      (map (closure-convert fvs) fvs1)])
+			 fvs ['let a b c] => ['let a (closure-convert fvs b) (closure-convert fvs c)]
+			 fvs [f . args] => (map (closure-convert fvs) [f . args]))
+
+  (defun id (x) ['return x])
+
+  ;; (+ (f g) 1) => (call (f g) (continuation (val) (+ val 1)))
+  ;; (f g) => (tailcall (f g))
+  ;; 42 => (return 42)
+  (func tailify
+	x next => (next x) where (or (symbol? x) (convert-protect? x))
+	x _ => x where (convert-protect? x)
+	['if a b c] next => (tailify a (lambda (ra)
+					 ['if ra
+					      (tailify b next)
+					      (tailify c next)]))
+	['do a b] next => (tailify a (lambda (ra)
+				       (if (symbol? ra)
+					   (tailify b next)
+					   ['do ra (tailify b next)])))
+	['let a b c] next => (tailify b (lambda (rb)
+					  ['let a rb (tailify c next)]))
+	['%closure ['lambda args body] . frees] next => (next ['%closure ['lambda args (tailify body id)] . frees])
+	[f . args] next => (tailify-list [f . args] [] next))
+
+  (func tailify-list
+	[] ls next => (let exp (reverse ls)
+			(cond
+			 ((and (pair? (car exp)) (= (caar exp) '%builtin)) (wrap-var exp next))
+			 ((= next id) ['tailcall exp])
+			 (true (let val (gensym)
+				 ['call exp ['continuation [val] (next val)]]))))
+	[hd . tl] ls next => (tailify hd (lambda (hd1)
+					   (tailify-list tl [hd1 . ls] next))))
+
+  ;; (continuation (val) body) => (continuation (val) body . live-vars)
+  ;; liveness-analyze find variables outlive a call, record them in continuation form.
+  ;; it is implemented by collecting "free variables" in continuation form.
+  (func liveness-analyze
+	_ x => x where (convert-protect? x)
+	fvs var => var where (symbol? var)
+	;; fvs ['do x y] => (cons 'do (map (liveness-analyze fvs) [x y]))
+	;; fvs ['if a b c] => (cons 'if (map (liveness-analyze fvs) [a b c]))
+	;; fvs ['let a b c] => ['let a (liveness-analyze fvs b) (liveness-analyze fvs c)]
+	;; fvs ['%closure lam . closed] => ['%closure (liveness-analyze fvs lam) . closed]
+	fvs ['lambda args body] => ['lambda args (liveness-analyze fvs body)]
+	fvs ['continuation val body] => (let fvs1 (diff (free-vars body) val)
+					  (let fvs2 (map (liveness-analyze fvs) fvs1)
+					    ['%continuation val (liveness-analyze fvs1 body) . fvs2]))
+	fvs ['call exp cont] => ['call (map (liveness-analyze fvs) exp) (liveness-analyze fvs cont)]
+	fvs [f . args] => (map (liveness-analyze fvs) [f . args]))
+
+  (func collect-cont
+	x idx conts k => (k x idx conts) where (or (symbol? x) (convert-protect? x))
+	['call exp cont] idx conts k => (collect-cont cont (+ idx 1) conts
+						      (lambda (cont1 idx1 conts1)
+							(collect-cont exp idx (cons cont1 conts1)
+								      (lambda (exp1 idx2 conts2)
+									(let fvs (cdddr cont1)
+									     (k ['call exp1 idx2 . fvs] idx2 conts2))))))
+	[f . args] idx conts k => (collect-cont-list [f . args] idx conts () k))
+
+  (func collect-cont-list
+	() idx conts ret k => (k (reverse ret) idx conts)
+	[f . args] idx conts ret k => (collect-cont f idx conts
+						    (lambda (f1 idx1 conts1)
+						      (collect-cont-list args idx1 conts1 ret
+									 (lambda (args1 idx2 conts2)
+									   (k [f1 . args1] idx2 conts2))))))
+
+  (defun rewrite-lambda-final (params body)
+    (collect-cont body 1 ()
+		  (lambda (body1 idx conts)
+		    ['lambda params body1 . conts])))
+
+  ;; (lambda (args...) first (%continuation (x4382183911) body . fvs) (%continuation ...))
+  (defun lambda-frame-size (lam)
+    (let nargs (length (cadr lam))
+	 (foldl (lambda (acc x)
+		  (let len (length (cdddr x))
+		       (+ 1 (if (> len nargs)
+				len
+				nargs))))
+		nargs (cdddr lam))))
+
+  ;; [%closure (lambda ..) . frees] => [%closure Label nargs nframe. frees]
+  ;; collect all the lambda form to v (vector count (lambda-list))
+  (func collect-lambda
+	v ['%closure ['lambda params body] . fvs] =>
+	(let body1 (collect-lambda v body)
+	     cur (vector-ref v 0)
+	     body2 (rewrite-lambda-final params body1)
+	     nframe (lambda-frame-size body2)
+	     (begin
+	      (append-result v body2)
+	      ['%closure cur (length params) nframe . fvs]))
+	v f-args => (map (collect-lambda v) f-args) where (cons? f-args)
+	v x => x)
+	     
+  (defun append-result (v val)
+    (let idx (vector-ref v 0)
+      cur (vector-ref v 1)
+      (let cur1 (cons [idx val] cur)
+	(begin
+	  (vector-set! v 0 (+ idx 1))
+	  (vector-set! v 1 cur1)))))
+
+  (defun wrap-var(x k)
+    (let tmp (gensym)
+      ['let tmp x
+	(k tmp)]))
+
+  ;; (func generate-call-list
+  ;; 	globals self w i [] => ()
+  ;; 	globals self w i [x . more] => (begin
+  ;; 					(if (not (> i 3))
+  ;; 					    (begin ( generate-str w "__arg")
+  ;; 						   (generate-num w i))
+  ;; 					    (begin (generate-str w "co->args[")
+  ;; 						   (generate-num w i)
+  ;; 						   (generate-str w "]")))
+  ;; 					(generate-str w " = ")
+  ;; 					(generate-inst globals self () w x)
+  ;; 					(generate-str w ";\n")
+  ;; 					(generate-call-list globals self w (+ i 1) more)))
+
+  (defun add-symbol-to-list (sym globals)
+    (let val (value globals)
+      (if (elem? sym val)
+	  ()
+	  (set globals (cons sym val)))))
+
+  (defun symbol-offset-h (idx sym globals)
+    (cond
+      ((null? globals) -1)
+      ((= sym (car globals)) idx)
+      (true (symbol-offset-h (+ idx 1) sym (cdr globals)))))
+
+  (defun symbol-offset (sym globals)
+    (symbol-offset-h 0 sym globals))
+
+  (defun save-to-frame (globals self env w ls)
+    (foldl (lambda (acc v)
+	     (begin
+	      (generate-str w "R[")
+	      (generate-num w acc)
+	      (generate-str w "] = ")
+	      (generate-inst globals self env w v)
+	      (generate-str w ";\n")
+	      (+ acc 1)))
+	   1 ls))
+
+  (defun recover-from-frame (globals self env w ls)
+    (foldl (lambda (acc v)
+	     (begin
+	      (generate-str w "Obj ")
+	      (generate-inst globals self env w v)
+	      (generate-str w " = R[")
+	      (generate-num w acc)
+	      (generate-str w "];\n")
+	      (+ acc 1)))
+	   1 ls))
+
+  (defun generate-inst (globals self env1 w x1)
+    (let generate-inst-h (gensym) 
+	 (begin
+
+	  (set generate-inst-h
+	       (lambda (x2 env)
+		 (if (symbol? x2)
+		     (generate-sym w x2)
+		     (match x2
+			    ['%global x] (begin
+					  (generate-str w "globalRef(__symbolTable[")
+					  (generate-num w (symbol-offset x globals))
+					  (generate-str w "])"))
+			    ['%closure-ref idx] (begin
+						 (generate-str w "closureRef(co, ")
+						 (generate-num w idx)
+						 (generate-str w ")"))
+			    ['%const x] (cond
+					  ((symbol? x) (begin
+							(generate-str w "__symbolTable[")
+							(generate-num w (symbol-offset x globals))
+							(generate-str w "]")))
+					  ((number? x) (begin
+							(generate-str w "MAKE_NUMBER(")
+							(generate-num w x)
+							(generate-str w ")")))
+					  ((string? x) (begin
+							(generate-str w "makeCString(\"")
+							(generate-str w (escape-str x))
+							(generate-str w "\")")))
+					  ((= x ()) (generate-str w "Nil"))
+					  ((= x true) (generate-str w "True"))
+					  ((= x false) (generate-str w "False")))
+			    ['let a b c] (let idx (index a env)
+					      (begin
+					       (if (< idx 0) (generate-str w "Obj ") ())
+					       (generate-sym w a)
+					       (generate-str w " = ")
+					       ((value generate-inst-h) b env)
+					       (generate-str w ";\n")
+					       ((value generate-inst-h) c (cons a env))))
+			    [['%builtin f] . args] (begin
+						    (generate-str w (builtin->name f))
+						    (if (= f 'set)
+							(generate-str w "(co, ")
+							(generate-str w "("))
+						    (generate-inst-list globals self env w args)
+						    (generate-str w ")"))
+			    ['if a b c] (begin
+					 (generate-str w "if (True == ")
+					 ((value generate-inst-h) a env)
+					 (generate-str w ") {\n")
+					 ((value generate-inst-h) b env)
+					 (generate-str w "} else {\n")
+					 ((value generate-inst-h) c env)
+					 (generate-str w "}\n"))
+			    ['%closure label nargs nframe . frees] (begin
+								    (generate-str w "makeNative1(")
+								    (generate-num w nframe)
+								    (generate-str w ", ")
+								    (generate-group-name w label)
+								    (generate-str w ", ")
+								    (generate-num w nargs)
+								    (generate-str w ", ")
+								    (generate-num w (length frees))
+								    (if (not (null? frees))
+									(begin
+									 (generate-str w ", ")
+									 (generate-inst-list globals self env w frees))
+									())
+								    (generate-str w ")"))
+			    ['do a b] (begin
+				       ((value generate-inst-h) a env)
+				       (generate-str w ";\n")
+				       ((value generate-inst-h) b env))
+			    ['return x] (begin
+					 (generate-str w "coraReturn(co, ")
+					 ((value generate-inst-h) x env)
+					 (generate-str w ");\n")
+					 (generate-str w "return;\n"))
+			    ['tailcall exp] (begin
+					     (generate-str w "stackUndo(&co->stk);\n")
+					     ((value generate-inst-h) exp env)
+					     (generate-str w "return;\n"))
+			    ['call exp label . fvs] (begin
+						     (save-to-frame globals self env w fvs)
+						     (generate-str w "struct frame1 __curr = {\n")
+						     (generate-str w ".fn = ")
+						     (generate-group-name w self)
+						     (generate-str w ",\n.label = ")
+						     (generate-num w label)
+						     (generate-str w ",\n.frame = R,\n")
+						     (generate-str w "};\n")
+						     (generate-str w "vecAppend(&co->callstack, __curr);\n")
+						     ((value generate-inst-h) exp env)
+						     (generate-str w "return;\n"))
+			    [f . args] (let nargs (length args)
+					    (begin
+					     (generate-str w "coraCall(co, ")
+					     ((value generate-inst-h) f env)
+					     (generate-str w ", ")
+					     (generate-num w nargs)
+					     (if (> nargs 0)
+						 (begin
+						  (generate-str w ", ")
+						  (generate-inst-list globals self env w args))
+						 ())
+					     (generate-str w ");\n")))))))
+
+	  ((value generate-inst-h) x1 env1))))
+
+  (defun generate-inst-list (globals self env w l)
+    (let generate-inst-list-h (gensym)
+	 (begin
+	  
+	  (set generate-inst-list-h
+	       (lambda (x)
+		 (match x
+			[] ()
+			[a . b] (begin
+				 (generate-inst globals self env w a)
+				 (if (not (null? b))
+				     (generate-str w ", ")
+				     ())
+				 ((value generate-inst-list-h) b)))))
+
+	  ((value generate-inst-list-h) l))))
+
+  (func generate-cont
+	globals self env w ['%continuation var body . fvs] =>
+	(begin
+	 (generate-str w "Obj ")
+	 (generate-sym w (car var))
+	 (generate-str w "= co->res;\n")
+	 (recover-from-frame globals self env w fvs)
+	 (generate-inst globals self env w body)
+	 ))
+
+  (defun generate-group-name (w label)
+    (begin
+     (generate-str w "clofun")
+     (generate-num w label)))
+
+  (defun code-gen-func-declare (w label)
+    (begin
+     (generate-str w "static void ")
+     (generate-group-name w label)
+     (generate-str w "(struct Cora* co, int label, Obj *R")
+     (generate-str w ")")))
+
+  ;; (defun local-from-params (w i var)
+  ;;   (begin
+  ;;     (generate-str w "Obj ")
+  ;;     (generate-inst () 'ignore () w var)
+  ;;     (if (< i 4)
+  ;; 	  (begin (generate-str w " = __arg")
+  ;; 		 (generate-num w i)
+  ;; 		 (generate-str w ";\n"))
+  ;; 	  (begin (generate-str w " = co->args[")
+  ;; 		 (generate-num w i)
+  ;; 		 (generate-str w "];\n")))))
+
+  ;; (defun local-from-cont (w i var)
+  ;;   (begin
+  ;;     (generate-str w "Obj ")
+  ;;     (generate-inst () 'ignore () w var)
+  ;;     (generate-str w  "= ((Obj*)bytesData(co->ctx.stk.stack))[co->ctx.stk.base + ")
+  ;;     (generate-num w i)
+  ;;     (generate-str w "];\n")))
+
+  ;; (func generate-call-args-reverse
+  ;; 	fn w idx [] => ()
+  ;; 	fn w idx [a . b] => (begin
+  ;; 			      (fn w idx a)
+  ;; 			      (generate-call-args-reverse fn w (+ idx 1) b)))
+
+  ;; (func code-gen-toplevel
+  ;; 	w [label ['lambda params actives body]] globals => (begin
+  ;; 								  (generate-str w "label")
+  ;; 								  (generate-num w label)
+  ;; 								  (generate-str w ":\n{\n")
+  ;; 								  (generate-call-args-reverse local-from-params w 1 params)
+  ;; 								  (generate-call-args-reverse local-from-cont w 0 actives)
+  ;; 								  (generate-inst globals label params w body)
+  ;; 								  (generate-str w "}\n\n"))
+  ;; 	w other globals =>  (begin (display "wrong format of toplevel\n")
+  ;; 					 (display other)
+  ;; 					 (display "\n")))
+
+  (defun parse-pass (globals exp)
+    (parse [] globals exp))
+
+  (defun closure-convert-pass (exp)
+    (closure-convert [] exp))
+
+  (defun tailify-pass (exp)
+    (tailify exp id))
+
+  (defun liveness-analyze-pass (exp)
+    (liveness-analyze [] exp))
+
+  (defun collect-lambda-pass (exp)
+    (let v (vector 2)
+	 (begin (vector-set! v 0 0)
+		(vector-set! v 1 ())
+		(let e1 (collect-lambda v exp)
+		     e2 (rewrite-lambda-final () e1)
+		     ;; nframe (lambda-frame-size e2)
+		     (begin
+		      (append-result v e2)
+		      ;; (append-result v (rewrite-lambda-final () e1))
+		      (vector-ref v 1))))))
+
+  (func rewrite-->macro
+	obj [] => obj
+	obj [hd . more] => (rewrite-->macro [hd obj] more))
+
+  (defmacro -> (exp)
+    (let obj (cadr exp)
+      (let fns (cddr exp)
+	(rewrite-->macro obj fns))))
+
+  (defun compile (globals exp)
+    (-> exp
+	(parse-pass globals)
+	closure-convert-pass
+	tailify-pass
+	liveness-analyze-pass
+	collect-lambda-pass))
+
+  (func for-each
+	fn [] => []
+	fn [x . y] => (begin
+			(fn x)
+			(for-each fn y)))
+
+  (defun generate-toplevel-lambda (to group globals)
+    (let label (car group)
+	 lam (cadr group)
+	 params (cadr lam)
+	 first-stmt (caddr lam)
+	 (begin
+	  (code-gen-func-declare to label)
+	  (generate-str to " {\n")
+	  ;; generate the first switch case
+	  (generate-str to " switch (label) {\n")
+	  (generate-str to "case 0:\n{\n")
+	  (recover-from-frame globals label () to params)
+	  (generate-inst globals label params to first-stmt)
+	  (generate-str to "}\n")
+	  ;; generate the continuation cases
+	  (foldl (lambda (acc cont)
+		   (begin
+		    (generate-str to "case ")
+		    (generate-num to acc)
+		    (generate-str to ":\n{\n")
+		    (generate-cont globals label (cadr lam) to cont)
+		    (generate-str to "}\n")
+		    (+ acc 1)))
+		 1 (cdddr lam))
+	  (generate-str to "}\n")
+	  (generate-str to "}\n\n")
+	  )))
+
+  (defun generate-entry (to globals label)
+    (begin
+     (generate-str to "static __thread Obj* __symbolTable;\n\n")
+     (generate-str to "void entry(struct Cora *co) {\n")
+     (generate-str to "__symbolTable = (Obj*)malloc(sizeof(Obj) * ")
+     (generate-num to (length globals))
+     (generate-str to ");\n")
+     (foldl (lambda (acc sym)
+	      (begin
+	       (generate-str to "__symbolTable[")
+	       (generate-num to acc)
+	       ;; (generate-str to "sym")
+	       ;; (generate-sym to sym)
+	       (generate-str to "] = intern(\"")
+	       (generate-str to (symbol->string sym))
+	       (generate-str to "\");\n")
+	       (+ acc 1)))
+	    0 globals)
+     (generate-str to "struct frame1 curr = {\n")
+     (generate-str to ".fn = ")
+     (generate-group-name to label)
+     (generate-str to ",\n.label = 0,\n")
+     (generate-str to ".frame = stackAlloc(&co->stk, 0),\n")
+     (generate-str to "};\n")
+     (generate-str to "co->ctx = curr;\n}\n\n")))
+
+  (defun generate-c (to bc globals)
+    (begin
+     (generate-str to "#include \"types.h\"\n")
+     (generate-str to "#include \"runtime1.h\"\n\n")
+     (for-each (lambda (group)
+		 (begin
+		  (code-gen-func-declare to (car group))
+		  (generate-str to ";\n")))
+	       bc)
+     (generate-str to "\n\n")
+     (generate-entry to globals (caar bc))
+     (for-each (lambda (group)
+		 (generate-toplevel-lambda to group globals))
+	       bc)))
+
+  (func handle-import-eagerly
+	['package _ . remain] => (handle-import-eagerly remain)
+	['begin . remain] => (handle-import-eagerly remain)
+	[['export . more] . remain] => (handle-import-eagerly remain)
+	[['import pkg] . remain] => (begin
+				      (import pkg)
+				      ;; (display "import ==")
+				      ;; (display pkg)
+				      ;; (display "\n\n")
+				      (handle-import-eagerly remain))
+	_ => ())
+
+  (func split-type-and-code
+	[] type code k => (k (reverse type) (reverse code))
+	[[':type . exp] . more] type code k => (split-type-and-code more (cons ['begin . exp] type) code k)
+	[[':declare . exp] . more] type code k => (split-type-and-code more (cons ['declare . exp] type) code k)
+	[exp . more] type code k => (split-type-and-code more
+							 (cons ['cora/lib/infer#check-type! ['macroexpand (cons 'backquote (cons exp ()))] ['cora/lib/infer#tvar]] type)
+							 (cons exp code) k))
+
+  (func extract-typecheck-body
+	['package name . more] k => ['package name . (extract-typecheck-body more k)]
+	[['import pkg] . more] k => [['import pkg] . (extract-typecheck-body more k)]
+	[['export . symbols] . more] k => [['export . symbols] . (extract-typecheck-body more k)]
+	['begin . more] k => ['begin . (extract-typecheck-body more k)]
+	other k => (k other))
+
+  (defun generate-typecheck-code (type code)
+    (if cora/lib/infer#*typecheck*
+	(append type code)
+	code))
+
+  (func split-type-and-code-toplevel
+	['package . more] =>
+	(extract-typecheck-body ['package . more]
+				(lambda (body)
+				  (split-type-and-code body () ()
+						       (lambda (type code)
+							 (generate-typecheck-code type code)))))
+	['begin . more] => (extract-typecheck-body ['begin . more]
+						   (lambda (body)
+						     (split-type-and-code body () ()
+									  (lambda (type code)
+									    (generate-typecheck-code type code)))))
+	single => (split-type-and-code [single] () ()
+				       (lambda (type code)
+					 ['begin . (generate-typecheck-code type code)])))
+
+  (set 'cora/lib/infer#*typecheck* false)
+
+  (defun preprocess (file-path)
+    (let sexp (read-file-as-sexp file-path)
+      (let sexp1 (if (and (pair? sexp) (= 'begin (car sexp)))
+		     (cdr sexp)
+		     (cons sexp ()))
+	(begin
+	  (handle-import-eagerly sexp)
+	  (split-type-and-code-toplevel sexp)))))
+
+  (defun compile-to-c (from to)
+    (let globals (gensym)
+      (begin
+	(set globals ())
+	(let bc (-> from
+		    preprocess
+		    macroexpand
+		    (compile globals))
+	  (let stream (open-output-file to)
+	    (begin
+	      (generate-c stream bc (value globals))
+	      (close-output-file stream)))))))
+
+  )

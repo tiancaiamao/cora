@@ -242,6 +242,24 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 }
 
 Obj
+makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...) {
+	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
+	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
+	clo->nframe = nframe;
+	clo->fn = fn;
+	clo->required = required;
+
+	return ((Obj) (&clo->head) | TAG_PTR);
+}
+
+struct scmNative1 *
+mustNative1(Obj o) {
+	struct scmNative1 *native = ptr(o);
+	assert(native->head.type == scmHeadNative1);
+	return native;
+}
+
+Obj
 makeNative(int label, basicBlock fn, int required, int captured, ...) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
@@ -268,6 +286,15 @@ nativeGCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->captured; i++) {
 		gcMark(gc, from->data[i], minv);
 	}
+}
+
+static void
+native1GCFunc(struct GC *gc, void *f) {
+	/* struct scmNative *from = f; */
+	/* version_t minv = from->head.version; */
+	/* for (int i = 0; i < from->captured; i++) { */
+	/* 	gcMark(gc, from->data[i], minv); */
+	/* } */
 }
 
 bool
@@ -480,4 +507,5 @@ typesInit() {
 	gcRegistForType(scmHeadNative, nativeGCFunc);
 	gcRegistForType(scmHeadContinuation, continuationGCFunc);
 	gcRegistForType(scmHeadSymbol, symbolGCFunc);
+	gcRegistForType(scmHeadNative1, native1GCFunc);
 }
