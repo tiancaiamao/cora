@@ -4,7 +4,8 @@
 SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c runtime1.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
-CFLAGS = -g -Wall -fPIC
+# CFLAGS = -g -Wall -fPIC
+CFLAGS = -g -O2 -Wall
 
 ifeq ("${ENABLE_ASAN}", "1")
 	CFLAGS += -fsanitize=address
@@ -34,11 +35,11 @@ LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
 LIBOBJS1 = str.o gc.o types.o reader.o runtime1.o trace.o
 
-test.o:
-	gcc -g -O2 -c ../test.c -I. -o test.o
+test.o: ../test.c
+	gcc -O2 -c ../test.c -I. -o test.o
 
 a.out: $(LIBOBJS1) test.o
-	gcc -o $@ $^ -ldl
+	gcc -o $@ $^
 # a.out:
 # 	gcc -g str.c gc.c types.c reader.c trace.c runtime1.c ../test.c -o a.out
 

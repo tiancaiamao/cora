@@ -22,9 +22,9 @@ static void clofun1(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4347998759 = primSet(co, __symbolTable[0], makeNative1(2, clofun0, 1, 0));
+Obj x140152817501991 = primSet(co, __symbolTable[0], makeNative1(2, clofun0, 1, 0));
 stackUndo(&co->stk);
-coraCall(co, globalRef(__symbolTable[0]), 1, MAKE_NUMBER(40));
+coraCall1(co, globalRef(__symbolTable[0]), MAKE_NUMBER(40));
 return;
 }
 }
@@ -35,12 +35,12 @@ static void clofun0(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj n = R[1];
-Obj x4347998247 = PRIM_LT(n, MAKE_NUMBER(2));
-if (True == x4347998247) {
+Obj x140152817501479 = PRIM_LT(n, MAKE_NUMBER(2));
+if (True == x140152817501479) {
 coraReturn(co, n);
 return;
 } else {
-Obj x4347998471 = PRIM_SUB(n, MAKE_NUMBER(1));
+Obj x140152817501703 = PRIM_SUB(n, MAKE_NUMBER(1));
 R[1] = n;
 struct frame1 __curr = {
 .fn = clofun0,
@@ -48,31 +48,31 @@ struct frame1 __curr = {
 .frame = R,
 };
 vecAppend(&co->callstack, __curr);
-coraCall(co, globalRef(__symbolTable[0]), 1, x4347998471);
+coraCall1(co, globalRef(__symbolTable[0]), x140152817501703);
 return;
 }
 }
 case 1:
 {
-Obj x4347998503= co->res;
+Obj x140152817501735= co->res;
 Obj n = R[1];
-Obj x4347998663 = PRIM_SUB(n, MAKE_NUMBER(2));
-R[1] = x4347998503;
+Obj x140152817501895 = PRIM_SUB(n, MAKE_NUMBER(2));
+R[1] = x140152817501735;
 struct frame1 __curr = {
 .fn = clofun0,
 .label = 2,
 .frame = R,
 };
 vecAppend(&co->callstack, __curr);
-coraCall(co, globalRef(__symbolTable[0]), 1, x4347998663);
+coraCall1(co, globalRef(__symbolTable[0]), x140152817501895);
 return;
 }
 case 2:
 {
-Obj x4347998695= co->res;
-Obj x4347998503 = R[1];
-Obj x4347998727 = PRIM_ADD(x4347998503, x4347998695);
-coraReturn(co, x4347998727);
+Obj x140152817501927= co->res;
+Obj x140152817501735 = R[1];
+Obj x140152817501959 = PRIM_ADD(x140152817501735, x140152817501927);
+coraReturn(co, x140152817501959);
 return;
 }
 }

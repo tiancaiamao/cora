@@ -392,10 +392,18 @@
 						     (generate-str w "return;\n"))
 			    [f . args] (let nargs (length args)
 					    (begin
-					     (generate-str w "coraCall(co, ")
+					     (cond
+					       ((= nargs 0) (generate-str w "coraCall0(co, "))
+					       ((= nargs 1) (generate-str w "coraCall1(co, "))
+					       ((= nargs 2) (generate-str w "coraCall2(co, "))
+					       ((= nargs 3) (generate-str w "coraCall3(co, "))
+					       (true (generate-str w "coraCall(co, ")))
 					     ((value generate-inst-h) f env)
-					     (generate-str w ", ")
-					     (generate-num w nargs)
+					     (if (> nargs 3)
+						 (begin
+						  (generate-str w ", ")
+						  (generate-num w nargs))
+						 ())
 					     (if (> nargs 0)
 						 (begin
 						  (generate-str w ", ")

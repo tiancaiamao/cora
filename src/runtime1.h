@@ -64,6 +64,77 @@ struct Cora {
 void coraCall(struct Cora *co, Obj fn, int nargs, ...);
 
 static inline void
+coraCall0(struct Cora *co, Obj fn) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	Obj *frame = stackAlloc(&co->stk, f->nframe);
+	struct frame1 __new = {
+		.fn = f->fn,
+		.label = 0,
+		.frame = frame,
+	};
+	co->ctx = __new;
+	frame[0] = fn;
+}
+
+static inline void
+coraCall1(struct Cora *co, Obj fn, Obj arg1) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 1) {
+		return coraCall(co, fn, 1, arg1);
+	}
+	Obj *frame = stackAlloc(&co->stk, f->nframe);
+	struct frame1 __new = {
+		.fn = f->fn,
+		.label = 0,
+		.frame = frame,
+	};
+	co->ctx = __new;
+	frame[0] = fn;
+	frame[1] = arg1;
+}
+
+static inline void
+coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 2) {
+		return coraCall(co, fn, 2, arg1);
+	}
+	Obj *frame = stackAlloc(&co->stk, f->nframe);
+	struct frame1 __new = {
+		.fn = f->fn,
+		.label = 0,
+		.frame = frame,
+	};
+	co->ctx = __new;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+}
+
+static inline void
+coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 3) {
+		return coraCall(co, fn, 3, arg1);
+	}
+	Obj *frame = stackAlloc(&co->stk, f->nframe);
+	struct frame1 __new = {
+		.fn = f->fn,
+		.label = 0,
+		.frame = frame,
+	};
+	co->ctx = __new;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+	frame[3] = arg3;
+}
+
+static inline void
 coraReturn(struct Cora *co, Obj val) {
 	// pop stack
 	stackUndo(&co->stk);
