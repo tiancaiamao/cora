@@ -72,11 +72,14 @@ trampoline(struct Cora *co) {
 	}
 }
 
-void
-coraCall(struct Cora *co, Obj fn, int nargs, ...) {
+static void coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap);
+
+static void
+coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
 	struct scmNative1* f = mustNative1(fn);
 	if (f->required != nargs) {
 		// curry or partial, goto dispatch function
+		coraDispatch(co, fn, nargs, ap);
 		return;
 	}
 	int nframe = f->nframe;
@@ -86,12 +89,9 @@ coraCall(struct Cora *co, Obj fn, int nargs, ...) {
 	// prepare for callee's arguments
 	frame[0] = fn;
 	if (nargs > 0) {
-		va_list ap;
-		va_start(ap, nargs);
 		for (int i = 1; i <= nargs; i++) {
 			frame[i] = va_arg(ap, Obj);
 		}
-		va_end(ap);
 	}
 	// set the new ctx
 	struct frame1 curr = {
@@ -100,6 +100,81 @@ coraCall(struct Cora *co, Obj fn, int nargs, ...) {
 		.frame = frame,
 	};
 	co->ctx = curr;
+	return;
+}
+
+void
+coraCall(struct Cora *co, Obj fn, int nargs, ...) {
+	va_list ap;
+	va_start(ap, nargs);
+	coraCallv(co, fn, nargs, ap);
+	va_end(ap);
+}
+
+static void
+callCurry(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("callCurry");
+	Obj fn = R[0];
+	int captured = native1Captured(fn);
+	int nargs = native1Required(fn);
+	memmove(R + captured, R + 1, nargs * sizeof(Obj));
+	memcpy(R, native1Data(fn), captured * sizeof(Obj));
+	struct frame1 ctx = {
+		.fn = native1Fn(R[0]),
+		.label = 0,
+		.frame = R,
+	};
+	co->ctx = ctx;
+}
+
+Obj
+makeCurry(Obj fn, int nargs, va_list ap) {
+	int sz = sizeof(struct scmNative1) + (nargs + 1) * sizeof(Obj);
+	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
+	clo->fn = callCurry;
+	struct scmNative1* f = mustNative1(fn);
+	assert(f->required > nargs);
+	clo->nframe = f->nframe;
+	clo->required = f->required - nargs;
+	clo->captured = nargs + 1; 
+	// fn + args
+	clo->data[0] = fn;
+	for (int i = 0; i < nargs; i++) {
+		clo->data[i+1] = va_arg(ap, Obj);
+	}
+	return ((Obj) (&clo->head) | TAG_PTR);
+}
+
+static void
+coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
+	struct scmNative1 *f = mustNative1(fn);
+	int required = f->required;
+	if (nargs == required) {
+		// TODO?
+		assert(false);
+	} else if (nargs < required) {
+		Obj ret = makeCurry(fn, nargs, ap);
+		coraReturn(co, ret);
+	} else {
+		// eval the first call and get the result;
+		struct frame1 ctx = {.fn = NULL};
+		vecAppend(&co->callstack, ctx);
+		Obj *R = stackAlloc(&co->stk, f->nframe);
+		R[0] = fn;
+		for (int i=0; i<required; i++) {
+			R[i+1] = va_arg(ap, Obj);
+		}
+		struct frame1 ctx1 = {
+			.fn = f->fn,
+			.label = 0,
+			.frame = R,
+		};
+		co->ctx = ctx1;
+		trampoline(co);
+
+		// make the next call.
+		coraCallv(co, co->res, nargs - required, ap);
+	}
 	return;
 }
 

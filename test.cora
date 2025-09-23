@@ -1,6 +1,7 @@
-(defun fib (n)
-  (if (< n 2)
-      n
-      (+ (fib (- n 1)) (fib (- n 2)))))
-
-(fib 40)
+(do (set (quote fib) (lambda (i) 
+		       (if (= i 0) 
+			   1 
+			   (if (= i 1) 
+			       1 
+			       (+ (fib (- i 1)) (fib (- i 2))))))) 
+    (fib 40))

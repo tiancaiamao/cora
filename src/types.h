@@ -172,10 +172,17 @@ struct scmNative1 {
 	int required;
 	int nframe;
 	basicBlock1 fn;
+
+	int captured;
+	Obj data[];
 };
 
 struct scmNative1* mustNative1(Obj o);
 Obj makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...);
+int native1Captured(Obj o);
+int native1Required(Obj o);
+Obj* native1Data(Obj o);
+basicBlock1 native1Fn(Obj o);
 
 struct stackState {
 	Obj stack;

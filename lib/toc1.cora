@@ -308,7 +308,7 @@
 					  (generate-num w (symbol-offset x globals))
 					  (generate-str w "])"))
 			    ['%closure-ref idx] (begin
-						 (generate-str w "closureRef(co, ")
+						 (generate-str w "closureRef(R[0], ")
 						 (generate-num w idx)
 						 (generate-str w ")"))
 			    ['%const x] (cond

@@ -22,7 +22,7 @@ static void clofun1(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x140152817501991 = primSet(co, __symbolTable[0], makeNative1(2, clofun0, 1, 0));
+Obj x4313456359 = primSet(co, __symbolTable[0], makeNative1(2, clofun0, 1, 0));
 stackUndo(&co->stk);
 coraCall1(co, globalRef(__symbolTable[0]), MAKE_NUMBER(40));
 return;
@@ -34,45 +34,51 @@ static void clofun0(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj n = R[1];
-Obj x140152817501479 = PRIM_LT(n, MAKE_NUMBER(2));
-if (True == x140152817501479) {
-coraReturn(co, n);
+Obj i = R[1];
+Obj x4313454855 = PRIM_EQ(i, MAKE_NUMBER(0));
+if (True == x4313454855) {
+coraReturn(co, MAKE_NUMBER(1));
 return;
 } else {
-Obj x140152817501703 = PRIM_SUB(n, MAKE_NUMBER(1));
-R[1] = n;
+Obj x4313455207 = PRIM_EQ(i, MAKE_NUMBER(1));
+if (True == x4313455207) {
+coraReturn(co, MAKE_NUMBER(1));
+return;
+} else {
+Obj x4313455719 = PRIM_SUB(i, MAKE_NUMBER(1));
+R[1] = i;
 struct frame1 __curr = {
 .fn = clofun0,
 .label = 1,
 .frame = R,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[0]), x140152817501703);
+coraCall1(co, globalRef(__symbolTable[0]), x4313455719);
 return;
+}
 }
 }
 case 1:
 {
-Obj x140152817501735= co->res;
-Obj n = R[1];
-Obj x140152817501895 = PRIM_SUB(n, MAKE_NUMBER(2));
-R[1] = x140152817501735;
+Obj x4313455879= co->res;
+Obj i = R[1];
+Obj x4313456231 = PRIM_SUB(i, MAKE_NUMBER(2));
+R[1] = x4313455879;
 struct frame1 __curr = {
 .fn = clofun0,
 .label = 2,
 .frame = R,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[0]), x140152817501895);
+coraCall1(co, globalRef(__symbolTable[0]), x4313456231);
 return;
 }
 case 2:
 {
-Obj x140152817501927= co->res;
-Obj x140152817501735 = R[1];
-Obj x140152817501959 = PRIM_ADD(x140152817501735, x140152817501927);
-coraReturn(co, x140152817501959);
+Obj x4313456263= co->res;
+Obj x4313455879 = R[1];
+Obj x4313456327 = PRIM_ADD(x4313455879, x4313456263);
+coraReturn(co, x4313456327);
 return;
 }
 }

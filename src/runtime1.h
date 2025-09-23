@@ -60,6 +60,16 @@ struct Cora {
 	struct trieNode *globals;
 };
 
+static inline void
+coraReturn(struct Cora *co, Obj val) {
+	// pop stack
+	stackUndo(&co->stk);
+	// set return value
+	co->res = val;
+	// recover continuation
+	co->ctx = vecPop(&co->callstack);
+	return;
+}
 
 void coraCall(struct Cora *co, Obj fn, int nargs, ...);
 
@@ -67,6 +77,10 @@ static inline void
 coraCall0(struct Cora *co, Obj fn) {
 	struct scmNative1 *f = ptr(fn);
 	assert(f->head.type == scmHeadNative1);
+	if (f->required != 0) {
+		coraReturn(co, fn);
+		return;
+	}
 	Obj *frame = stackAlloc(&co->stk, f->nframe);
 	struct frame1 __new = {
 		.fn = f->fn,
@@ -100,7 +114,7 @@ coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
 	struct scmNative1 *f = ptr(fn);
 	assert(f->head.type == scmHeadNative1);
 	if (f->required != 2) {
-		return coraCall(co, fn, 2, arg1);
+		return coraCall(co, fn, 2, arg1, arg2);
 	}
 	Obj *frame = stackAlloc(&co->stk, f->nframe);
 	struct frame1 __new = {
@@ -119,7 +133,7 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 	struct scmNative1 *f = ptr(fn);
 	assert(f->head.type == scmHeadNative1);
 	if (f->required != 3) {
-		return coraCall(co, fn, 3, arg1);
+		return coraCall(co, fn, 3, arg1, arg2, arg3);
 	}
 	Obj *frame = stackAlloc(&co->stk, f->nframe);
 	struct frame1 __new = {
@@ -134,17 +148,15 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 	frame[3] = arg3;
 }
 
-static inline void
-coraReturn(struct Cora *co, Obj val) {
-	// pop stack
-	stackUndo(&co->stk);
-	// set return value
-	co->res = val;
-	// recover continuation
-	co->ctx = vecPop(&co->callstack);
-	return;
-}
-
 Obj primSet(struct Cora *co, Obj key, Obj val);
+
+static inline Obj
+closureRef(Obj clo, int idx) {
+#ifndef NDEBUG
+	struct scmNative1 *ntv = mustNative1(clo);
+	assert(ntv->captured > idx);
+#endif
+	return OBJ_FIELD(clo, scmNative1, data)[idx];
+}
 
 #endif
