@@ -10,48 +10,28 @@
 
 const int INIT_STACK_SIZE = 256;
 
-
-Obj*
-stackAllocSlowPath(struct stackAllocator *sa, int n) {
-	assert(false);
-	/* fixSizedSegStack* s = vectorGet(&sa->data, sa->curr); */
-	/* if (s->pos + n > INIT_STACK_SIZE) { */
-	/* 	if (sa->curr < vecLen(&sa->data)) { */
-	/* 		sa->curr++; */
-	/* 		s = vectorGet(&sa->data, sa->curr); */
-	/* 	} else { */
-	/* 		s = (struct fixSizedSegStack*)malloc(sizeof(struct fixSizedSegStack)); */
-	/* 		vecAppend(&sa->data, s); */
-	/* 		sa->curr++; */
-	/* 	} */
-
-	/* } */
-	/* Obj* ret = s->stack + s->pos; */
-	/* s->pos += n; */
-	/* return ret; */
-}
-
-/* static inline void */
-/* stackAllocUndo(struct stackAllocator *sa, struct stackPos r) { */
-/* } */
-
 static void
-stackAllocatorInit(struct stackAllocator *alloc) {
-	alloc->pos = 0;
-	vecInit(&alloc->data, 8);
+segmentStackAlloc(struct segmentStack *alloc) {
 	Obj *fixSized = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
 	vecAppend(&alloc->data, fixSized);
-
-	alloc->base = fixSized;
-	alloc->start = 0;
-	alloc->end = INIT_STACK_SIZE;
+	alloc->begin = fixSized;
+	alloc->end = fixSized + INIT_STACK_SIZE;
 }
 
-
-static void objStackInit(struct objStack *os) {
-	stackAllocatorInit(&os->alloc);
-	vecInit(&os->history, 32);
+static void
+segmentStackInit(struct segmentStack *alloc) {
+	vecInit(&alloc->data, 8);
+	segmentStackAlloc(alloc);
 }
+
+/* Obj* */
+/* stackAllocSlowPath(struct stackAllocator *alloc, int n) { */
+/* 	assert(n < INIT_STACK_SIZE); */
+/* 	stackAllocatorNewSegment(alloc); */
+/* 	Obj *ret = alloc->sp; */
+/* 	alloc->sp += n; */
+/* 	return ret; */
+/* } */
 
 
 extern __thread struct trieNode *gRoot;
@@ -61,14 +41,16 @@ static struct Cora *
 coraNew() {
 	struct Cora *co = malloc(sizeof(struct Cora));
 	vecInit(&co->callstack, 64);
-	objStackInit(&co->stk);
+	segmentStackInit(&co->stk);
+	co->ctx.sp = co->stk.begin;
+	vecInit(&co->trystack, 4);
 	return co;
 }
 
 void
 trampoline(struct Cora *co) {
 	while(co->ctx.fn != NULL) {
-		co->ctx.fn(co, co->ctx.label, co->ctx.frame);
+		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
 	}
 }
 
@@ -78,14 +60,14 @@ static void
 coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
 	struct scmNative1* f = mustNative1(fn);
 	if (f->required != nargs) {
-		// curry or partial, goto dispatch function
+		// spy or partial, goto dispatch function
 		coraDispatch(co, fn, nargs, ap);
 		return;
 	}
 	int nframe = f->nframe;
 	assert(nframe >= nargs);
 	// prepare for callee's frame
-	Obj *frame = stackAlloc(&co->stk, nframe);
+	Obj *frame = stackAlloc(co, nframe);
 	// prepare for callee's arguments
 	frame[0] = fn;
 	if (nargs > 0) {
@@ -94,12 +76,8 @@ coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
 		}
 	}
 	// set the new ctx
-	struct frame1 curr = {
-		.fn = f->fn,
-		.label = 0,
-		.frame = frame,
-	};
-	co->ctx = curr;
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
 	return;
 }
 
@@ -119,12 +97,8 @@ callCurry(struct Cora *co, int label, Obj *R) {
 	int nargs = native1Required(fn);
 	memmove(R + captured, R + 1, nargs * sizeof(Obj));
 	memcpy(R, native1Data(fn), captured * sizeof(Obj));
-	struct frame1 ctx = {
-		.fn = native1Fn(R[0]),
-		.label = 0,
-		.frame = R,
-	};
-	co->ctx = ctx;
+	co->ctx.fn = native1Fn(R[0]);
+	co->ctx.label = 0;
 }
 
 Obj
@@ -136,7 +110,7 @@ makeCurry(Obj fn, int nargs, va_list ap) {
 	assert(f->required > nargs);
 	clo->nframe = f->nframe;
 	clo->required = f->required - nargs;
-	clo->captured = nargs + 1; 
+	clo->captured = nargs + 1;
 	// fn + args
 	clo->data[0] = fn;
 	for (int i = 0; i < nargs; i++) {
@@ -159,17 +133,13 @@ coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
 		// eval the first call and get the result;
 		struct frame1 ctx = {.fn = NULL};
 		vecAppend(&co->callstack, ctx);
-		Obj *R = stackAlloc(&co->stk, f->nframe);
+		Obj *R = stackAlloc(co, f->nframe);
 		R[0] = fn;
 		for (int i=0; i<required; i++) {
 			R[i+1] = va_arg(ap, Obj);
 		}
-		struct frame1 ctx1 = {
-			.fn = f->fn,
-			.label = 0,
-			.frame = R,
-		};
-		co->ctx = ctx1;
+		co->ctx.fn = f->fn;
+		co->ctx.label = 0;
 		trampoline(co);
 
 		// make the next call.
@@ -418,7 +388,7 @@ builtinValueOr(struct Cora *co, int label, Obj *R) {
 
 /* 	// if the .so file exists, call (load-so "$CORAPATH/file-path.so" "package-path") */
 /* 	if (safeToUseSo(tmp)) { */
-/* 		// primLoadSo is a bit special, it requires the current stack of VM is */
+/* 		// primLoadSo is a bit special, it requires the spent stack of VM is */
 /* 		// (load-so "file-path.so" "package-path") */
 /* 		co->nargs = 3; */
 /* 		co->args[0] = makeNative(0, builtinLoadSo, 2, 0); */
@@ -551,6 +521,98 @@ builtinValueOr(struct Cora *co, int label, Obj *R) {
 /* 	coraReturn(co, False); */
 /* } */
 
+
+// (try (lambda () (+ (throw 42) 1))
+//      (lambda (v resume) (resume (+ v 66))))
+/* static void */
+/* builtinTryCatch(struct Cora *co, int label, Obj *R) { */
+/* 	TRACE_SCOPE("builtinTryCatch"); */
+
+/* 	switch(label) { */
+/* 	case 0: */
+/* 		{ */
+/* 			Obj chunk = R[1]; */
+/* 			Obj handler = R[2]; */
+
+/* 			// Conceptually, (try chunk handler), thunk belongs to the try block, while handler does not. */
+/* 			// In chunk, we can throw twice, they will be handled by the same try, so chunk belongs to the try. */
+/* 			//     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42))) */
+/* 			// If we throw in handler however, it's panic in panic and cannot be catch by this try. */
+/* 			//     (try (lambda () (throw 1)) (lambda (v k) (throw 2))) */
+
+/* 			// Prepare a new stack for the chunk to run, segment stack! */
+/* 			/\* vecAppend(&os->history, os->alloc.sp); *\/ */
+/* 			segmentStackAlloc(&os); */
+
+/* 			// Save the old cont. */
+/* 			// This save can make the chunk and handler available to the recovering process. */
+/* 			// Use a call protocol instead of tail call protocol. */
+/* 			struct frame1 __sp = { */
+/* 				.fn = builtinTryCatch, */
+/* 				.label = 1, */
+/* 				.frame = R, */
+/* 			}; */
+/* 			vecAppend(&co->callstack, __sp); */
+
+/* 			struct tryMark mark = { */
+/* 				.callstackPos = vecLen(&co->callstack), */
+/* 				.segmentStackPos = vecLen(&co->stk.alloc.data); */
+/* 			}; */
+/* 			vecAppend(&co->tryStack, mark); */
+
+/* 			// Call the chunk in the new segment stack. */
+/* 			struct scmNative1 *f = ptr(chunk); */
+/* 			assert(f->nframe = 1); */
+/* 			Obj *frame = stackAlloc(&co->stk, 1); */
+/* 			struct frame1 __new = { */
+/* 				.fn = f->fn, */
+/* 				.label = 0, */
+/* 				.frame = frame, */
+/* 			}; */
+/* 			co->ctx = __new; */
+/* 			frame[0] = fn; */
+/* 			return; */
+/* 		} */
+/* 	case 1: */
+/* 		{ */
+/* 			// just like non-tail call thunk and after it return here */
+/* 			// now try itself return */
+/* 			vecPop(&co->tryStack); */
+/* 			coraReturn(co, co->res); */
+/* 			return; */
+/* 		} */
+/* 	} */
+/* } */
+
+/* static void */
+/* builtinThrow(struct Cora *co, int label, Obj *R) { */
+/* 	TRACE_SCOPE("builtinThrow"); */
+/* 	struct tryMark mark = vecPop(&co->trystack); */
+/* 	Obj v = R[1]; */
+
+/* 	// Capture the call stack as continuation. */
+/* 	Obj cont = makeContinuation(&co->callstack.data[p], */
+/* 				    co->callstack.len - p); */
+
+/* 	// Now that we get the spent continuation, disguise as a closure. */
+/* 	Obj clo = makeNative(0, continuationAsClosure, 1, 1, cont); */
+
+/* 	// Reset to the stack before try. */
+/* 	co->callstack.len = p; */
+/* 	struct frame *addr = &co->callstack.data[p - 1]; */
+/* 	co->ctx.stk = addr->stk; */
+
+/* 	// Find the handler, invoke it, passing the continuation. */
+/* 	Obj *stk = (Obj *) bytesData(try->stk.stack); */
+/* 	Obj handler = stk[try->stk.base]; */
+
+/* 	co->nargs = 3; */
+/* 	co->args[0] = handler; */
+/* 	co->args[1] = v; */
+/* 	co->args[2] = clo; */
+/* 	co->ctx.pc.func = coraDispatch; */
+/* } */
+
 struct Cora *
 coraInit(uintptr_t * mark) {
 	gcInit(mark);
@@ -645,8 +707,8 @@ int main() {
 	uintptr_t dummy;
 	struct Cora * co = coraInit(&dummy);
 
-	struct frame1 curr = {.fn = NULL};
-	vecAppend(&co->callstack, curr);
+	struct frame1 sp = {.fn = NULL};
+	vecAppend(&co->callstack, sp);
 	entry(co);
 	trampoline(co);
 

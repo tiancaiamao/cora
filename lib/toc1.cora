@@ -375,7 +375,7 @@
 					 (generate-str w ");\n")
 					 (generate-str w "return;\n"))
 			    ['tailcall exp] (begin
-					     (generate-str w "stackUndo(&co->stk);\n")
+					     (generate-str w "co->ctx.sp = R;\n")
 					     ((value generate-inst-h) exp env)
 					     (generate-str w "return;\n"))
 			    ['call exp label . fvs] (begin
@@ -385,7 +385,8 @@
 						     (generate-group-name w self)
 						     (generate-str w ",\n.label = ")
 						     (generate-num w label)
-						     (generate-str w ",\n.frame = R,\n")
+						     (generate-str w ",\n.bp = R,\n")
+						     (generate-str w ".sp = co->ctx.sp,\n")
 						     (generate-str w "};\n")
 						     (generate-str w "vecAppend(&co->callstack, __curr);\n")
 						     ((value generate-inst-h) exp env)
@@ -588,7 +589,7 @@
      (generate-str to ".fn = ")
      (generate-group-name to label)
      (generate-str to ",\n.label = 0,\n")
-     (generate-str to ".frame = stackAlloc(&co->stk, 0),\n")
+     (generate-str to ".bp = co->ctx.sp,\n")
      (generate-str to "};\n")
      (generate-str to "co->ctx = curr;\n}\n\n")))
 
