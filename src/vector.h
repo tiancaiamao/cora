@@ -55,6 +55,9 @@ _vector_free(Vector *v) {
 
 #define vecLen(ptr) ((ptr)->v.len)
 
+#define vecRef(ptr, idx) \
+	(((typeof((ptr)->type) *)((ptr)->v.data))+(idx))
+
 #define vecGet(ptr, idx) \
 	(((typeof((ptr)->type) *)((ptr)->v.data))[idx])
 

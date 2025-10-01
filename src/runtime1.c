@@ -24,15 +24,14 @@ segmentStackInit(struct segmentStack *alloc) {
 	segmentStackAlloc(alloc);
 }
 
-/* Obj* */
-/* stackAllocSlowPath(struct stackAllocator *alloc, int n) { */
-/* 	assert(n < INIT_STACK_SIZE); */
-/* 	stackAllocatorNewSegment(alloc); */
-/* 	Obj *ret = alloc->sp; */
-/* 	alloc->sp += n; */
-/* 	return ret; */
-/* } */
-
+Obj*
+stackAllocSlowPath(struct Cora *co, int n) {
+	assert(n < INIT_STACK_SIZE);
+	segmentStackAlloc(&co->stk);
+	co->ctx.bp = co->stk.begin;
+	co->ctx.sp = co->stk.begin + n;
+	return co->ctx.bp;
+}
 
 extern __thread struct trieNode *gRoot;
  __thread struct Cora *gCo;
@@ -44,6 +43,8 @@ coraNew() {
 	segmentStackInit(&co->stk);
 	co->ctx.sp = co->stk.begin;
 	vecInit(&co->trystack, 4);
+
+	gCo = co;
 	return co;
 }
 
@@ -524,94 +525,138 @@ builtinValueOr(struct Cora *co, int label, Obj *R) {
 
 // (try (lambda () (+ (throw 42) 1))
 //      (lambda (v resume) (resume (+ v 66))))
-/* static void */
-/* builtinTryCatch(struct Cora *co, int label, Obj *R) { */
-/* 	TRACE_SCOPE("builtinTryCatch"); */
+static void
+builtinTryCatch(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinTryCatch");
 
-/* 	switch(label) { */
-/* 	case 0: */
-/* 		{ */
-/* 			Obj chunk = R[1]; */
-/* 			Obj handler = R[2]; */
+	switch(label) {
+	case 0:
+		{
+			// Conceptually, (try chunk handler), thunk belongs to the try block, while handler does not.
+			// In chunk, we can throw twice, they will be handled by the same try, so chunk belongs to the try.
+			//     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42)))
+			// If we throw in handler however, it's panic in panic and cannot be catch by this try.
+			//     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
-/* 			// Conceptually, (try chunk handler), thunk belongs to the try block, while handler does not. */
-/* 			// In chunk, we can throw twice, they will be handled by the same try, so chunk belongs to the try. */
-/* 			//     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42))) */
-/* 			// If we throw in handler however, it's panic in panic and cannot be catch by this try. */
-/* 			//     (try (lambda () (throw 1)) (lambda (v k) (throw 2))) */
 
-/* 			// Prepare a new stack for the chunk to run, segment stack! */
-/* 			/\* vecAppend(&os->history, os->alloc.sp); *\/ */
-/* 			segmentStackAlloc(&os); */
+			// Prepare a new stack for the chunk to use, segment stack!
+			Obj* frame = stackAllocSlowPath(co, 3);
 
-/* 			// Save the old cont. */
-/* 			// This save can make the chunk and handler available to the recovering process. */
-/* 			// Use a call protocol instead of tail call protocol. */
-/* 			struct frame1 __sp = { */
-/* 				.fn = builtinTryCatch, */
-/* 				.label = 1, */
-/* 				.frame = R, */
-/* 			}; */
-/* 			vecAppend(&co->callstack, __sp); */
+			// Copy the try's frame to the new segment stack, pretend try is called on the new stack
+			frame[0] = R[0];
+			frame[1] = R[1];
+			frame[2] = R[2];
+			R = frame;
 
-/* 			struct tryMark mark = { */
-/* 				.callstackPos = vecLen(&co->callstack), */
-/* 				.segmentStackPos = vecLen(&co->stk.alloc.data); */
-/* 			}; */
-/* 			vecAppend(&co->tryStack, mark); */
+			// Save the try cont.
+			// This save can make the chunk and handler available to the recovering process.
+			// Use a call protocol instead of tail call protocol.
+			struct frame1 cont = {
+				.fn = builtinTryCatch,
+				.label = 1,
+				.bp = co->ctx.bp,
+				.sp = co->ctx.sp,
+			};
 
-/* 			// Call the chunk in the new segment stack. */
-/* 			struct scmNative1 *f = ptr(chunk); */
-/* 			assert(f->nframe = 1); */
-/* 			Obj *frame = stackAlloc(&co->stk, 1); */
-/* 			struct frame1 __new = { */
-/* 				.fn = f->fn, */
-/* 				.label = 0, */
-/* 				.frame = frame, */
-/* 			}; */
-/* 			co->ctx = __new; */
-/* 			frame[0] = fn; */
-/* 			return; */
-/* 		} */
-/* 	case 1: */
-/* 		{ */
-/* 			// just like non-tail call thunk and after it return here */
-/* 			// now try itself return */
-/* 			vecPop(&co->tryStack); */
-/* 			coraReturn(co, co->res); */
-/* 			return; */
-/* 		} */
-/* 	} */
-/* } */
+			struct tryMark mark = {
+				.callstackPos = vecLen(&co->callstack),
+				.segmentStackPos = vecLen(&co->stk.data),
+			};
+			vecAppend(&co->trystack, mark);
+			vecAppend(&co->callstack, cont);
 
-/* static void */
-/* builtinThrow(struct Cora *co, int label, Obj *R) { */
-/* 	TRACE_SCOPE("builtinThrow"); */
-/* 	struct tryMark mark = vecPop(&co->trystack); */
-/* 	Obj v = R[1]; */
+			// Call the chunk in the new segment stack.
+			Obj chunk = R[1];
+			coraCall0(co, chunk);
+			return;
+		}
+	case 1:
+		{
+			// just like non-tail call thunk and after it return here
+			// now try itself return
+			vecPop(&co->trystack);
+			coraReturn(co, co->res);
+			return;
+		}
+	}
+}
 
-/* 	// Capture the call stack as continuation. */
-/* 	Obj cont = makeContinuation(&co->callstack.data[p], */
-/* 				    co->callstack.len - p); */
+struct scmContinuation1 {
+	scmHead head;
+	vector(Obj*)segstack;
+	int len;
+	struct frame1 callstack[];
+};
 
-/* 	// Now that we get the spent continuation, disguise as a closure. */
-/* 	Obj clo = makeNative(0, continuationAsClosure, 1, 1, cont); */
+Obj
+makeContinuation1(struct frame1 *callstack, int len, Obj** stk, int count) {
+	struct scmContinuation1 *cont = newObj(scmHeadContinuation1,
+					       sizeof(struct scmContinuation1) +
+					       len * sizeof(struct frame1));
+	for (int i = 0; i < len; i++) {
+		cont->callstack[i] = callstack[i];
+	}
+	cont->len = len;
 
-/* 	// Reset to the stack before try. */
-/* 	co->callstack.len = p; */
-/* 	struct frame *addr = &co->callstack.data[p - 1]; */
-/* 	co->ctx.stk = addr->stk; */
+	vecInit(&cont->segstack, 1);
+	for (int i=0; i<count; i++) {
+		vecAppend(&cont->segstack, stk[i]);
+	}
 
-/* 	// Find the handler, invoke it, passing the continuation. */
-/* 	Obj *stk = (Obj *) bytesData(try->stk.stack); */
-/* 	Obj handler = stk[try->stk.base]; */
+	return ((Obj) (&cont->head) | TAG_PTR);
+}
 
-/* 	co->nargs = 3; */
-/* 	co->args[0] = handler; */
-/* 	co->args[1] = v; */
-/* 	co->args[2] = clo; */
-/* 	co->ctx.pc.func = coraDispatch; */
-/* } */
+static void
+continuation1AsClosure(struct Cora *co, int label, Obj *R) {
+	Obj this = R[0];
+	Obj contObj = native1Data(this)[0];
+
+	// Replace the current stack with the delimited continuation.
+	struct scmContinuation1 *cont = (struct scmContinuation1*)ptr(contObj);
+	for (int i = 0; i < cont->len; i++) {
+		vecAppend(&co->callstack, cont->callstack[i]);
+	}
+	for (int i=0; i<vecLen(&cont->segstack); i++) {
+		vecAppend(&co->stk.data, vecGet(&cont->segstack, i));
+	}
+	Obj* stack = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
+	co->stk.begin = stack;
+	co->stk.end = stack + INIT_STACK_SIZE;
+
+	Obj val = R[1];
+	coraReturn(co, val);
+}
+
+static void
+builtinThrow(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinThrow");
+	/* struct tryMark mark = vecPop(&co->trystack); */
+	struct tryMark mark = vecGet(&co->trystack, vecLen(&co->trystack)-1);
+	Obj v = R[1];
+
+	// Capture the call stack as continuation.
+	Obj cont = makeContinuation1(vecRef(&co->callstack, mark.callstackPos),
+				     vecLen(&co->callstack) - mark.callstackPos,
+				     vecRef(&co->stk.data, mark.segmentStackPos),
+				     vecLen(&co->stk.data) - mark.segmentStackPos);
+
+	// Now that we get the spent continuation, disguise as a closure.
+	Obj clo = makeNative1(2, continuation1AsClosure, 1, 1, cont);
+
+	// Reset to the stack before try.
+	for (int i=mark.segmentStackPos; i<vecLen(&co->stk.data); i++) {
+		vecSet(&co->stk.data, i, NULL);
+	}
+	co->stk.data.v.len = mark.segmentStackPos;
+	struct frame1 try = vecGet(&co->callstack, mark.callstackPos);
+	co->ctx.bp = try.bp;
+	co->ctx.sp = try.sp;
+	co->callstack.v.len = mark.callstackPos;
+
+	// Find the handler from the try stack, invoke it, passing the continuation.
+	Obj handler = try.bp[2];
+	coraCall2(co, handler, v, clo);
+}
 
 struct Cora *
 coraInit(uintptr_t * mark) {
@@ -657,10 +702,10 @@ coraInit(uintptr_t * mark) {
 	/* 	makeNative(0, builtinBytes, 1, 0)); */
 	/* primSet(co, intern("bytes-length"), */
 	/* 	makeNative(0, builtinBytesLength, 1, 0)); */
-	/* primSet(co, intern("try"), */
-	/* 	makeNative(0, builtinTryCatch, 2, 0)); */
-	/* primSet(co, intern("throw"), */
-	/* 	makeNative(0, builtinThrow, 1, 0)); */
+	primSet(co, intern("try"),
+		makeNative1(3, builtinTryCatch, 2, 0));
+	primSet(co, intern("throw"),
+		makeNative1(2, builtinThrow, 1, 0));
 	/* primSet(co, intern("cora/init#*imported*"), Nil); */
 	/* primSet(co, intern("symbol-cooked?"), */
 	/* 	makeNative(0, builtinSymbolCooked, 1, 0)); */

@@ -37,6 +37,8 @@ struct Cora {
 	vector(struct tryMark) trystack;
 };
 
+Obj* stackAllocSlowPath(struct Cora *co, int n);
+
 static inline Obj*
 stackAlloc(struct Cora *co, int n) {
 	// fast path
@@ -45,8 +47,7 @@ stackAlloc(struct Cora *co, int n) {
 		co->ctx.sp += n;
 		return co->ctx.bp;
 	}
-	/* return stackAllocSlowPath(&stk->alloc, n); */
-	assert(false);
+	return stackAllocSlowPath(co, n);
 }
 
 static inline void
