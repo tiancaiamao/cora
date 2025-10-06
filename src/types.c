@@ -27,8 +27,8 @@ const char *typeNameX[8] = {
 
 void *
 newObj(scmHeadType tp, int sz) {
-	/* scmHead* p = malloc(sz); */
-	scmHead *p = gcAlloc(getGC(), sz);
+	scmHead* p = malloc(sz);
+	/* scmHead *p = gcAlloc(getGC(), sz); */
 	assert(((Obj) p & TAG_PTR) == 0);
 	p->type = tp;
 	/* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */

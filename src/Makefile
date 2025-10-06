@@ -35,7 +35,7 @@ LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
 LIBOBJS1 = str.o gc.o types.o reader.o runtime1.o trace.o
 
-test.o: ../test.c
+test.o: ../test.c runtime1.h
 	gcc -g -c ../test.c -I. -o test.o
 	# gcc -O2 -c ../test.c -I. -o test.o
 

@@ -210,11 +210,11 @@
   (defun lambda-frame-size (lam)
     (let nargs (length (cadr lam))
 	 (foldl (lambda (acc x)
-		  (let len (length (cdddr x))
-		       (+ 1 (if (> len nargs)
-				len
-				nargs))))
-		nargs (cdddr lam))))
+		  (let len (+ (length (cdddr x)) 1)
+		       (if (> len acc)
+			   len
+			   acc)))
+		(+ nargs 1) (cdddr lam))))
 
   ;; [%closure (lambda ..) . frees] => [%closure Label nargs nframe. frees]
   ;; collect all the lambda form to v (vector count (lambda-list))
@@ -510,10 +510,8 @@
 		(vector-set! v 1 ())
 		(let e1 (collect-lambda v exp)
 		     e2 (rewrite-lambda-final () e1)
-		     ;; nframe (lambda-frame-size e2)
 		     (begin
 		      (append-result v e2)
-		      ;; (append-result v (rewrite-lambda-final () e1))
 		      (vector-ref v 1))))))
 
   (func rewrite-->macro
@@ -585,13 +583,11 @@
 	       (generate-str to "\");\n")
 	       (+ acc 1)))
 	    0 globals)
-     (generate-str to "struct frame1 curr = {\n")
-     (generate-str to ".fn = ")
+
+     (generate-str to "co->ctx.fn = ")
      (generate-group-name to label)
-     (generate-str to ",\n.label = 0,\n")
-     (generate-str to ".bp = co->ctx.sp,\n")
-     (generate-str to "};\n")
-     (generate-str to "co->ctx = curr;\n}\n\n")))
+     (generate-str to ";\n")
+     (generate-str to "co->ctx.label = 0;\n}\n\n")))
 
   (defun generate-c (to bc globals)
     (begin

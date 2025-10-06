@@ -1108,6 +1108,7 @@ gcRunSweep(struct GC *gc) {
 
 static void
 gcRun(struct GC *gc) {
+	return;
 	TRACE_SCOPE("gcRun");
 	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
 	// | ---         | --          | --                 | --          | --         |

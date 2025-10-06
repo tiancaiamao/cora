@@ -11,7 +11,8 @@
 #include "gc.h"
 #include "trace.h"
 
-const int INIT_STACK_SIZE = 254;
+/* const int INIT_STACK_SIZE = 254; */
+const int INIT_STACK_SIZE = 512;
 
 void
 pushContRaw(char* file, int line, struct Cora *co, int label, basicBlock cb, int nstack, ...) {

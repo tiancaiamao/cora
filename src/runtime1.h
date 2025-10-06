@@ -38,11 +38,13 @@ struct Cora {
 };
 
 Obj* stackAllocSlowPath(struct Cora *co, int n);
+void coraReturnSlowPath(struct Cora *co);
 
 static inline Obj*
 stackAlloc(struct Cora *co, int n) {
 	// fast path
-	if (co->ctx.sp + n <= co->stk.end) {
+	assert(n > 0);
+	if (co->ctx.sp + n < co->stk.end) {
 		co->ctx.bp = co->ctx.sp;
 		co->ctx.sp += n;
 		return co->ctx.bp;
@@ -52,10 +54,19 @@ stackAlloc(struct Cora *co, int n) {
 
 static inline void
 coraReturn(struct Cora *co, Obj val) {
+	/* Obj *sp = co->ctx.sp; */
 	// set return value
 	co->res = val;
 	// recover continuation
 	co->ctx = vecPop(&co->callstack);
+	if (co->ctx.sp < co->stk.begin) {
+		coraReturnSlowPath(co);
+	}
+	if (co->ctx.sp >= co->stk.end) {
+		printf("abnormal!!!!\n");
+		coraReturnSlowPath(co);
+	}
+	/* printf("coraReturn SP: %p => %p\n", sp, co->ctx.sp); */
 	return;
 }
 

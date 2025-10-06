@@ -33,6 +33,22 @@ stackAllocSlowPath(struct Cora *co, int n) {
 	return co->ctx.bp;
 }
 
+void
+coraReturnSlowPath(struct Cora *co) {
+	assert(vecGet(&co->stk.data, vecLen(&co->stk.data)-1) == co->stk.begin);
+	free(co->stk.begin);
+	vecSet(&co->stk.data, vecLen(&co->stk.data)-1, NULL);
+	co->stk.data.v.len--;
+
+	co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data)-1);
+	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
+
+	/* printf("coraReturn after = [%p, %p) sp=%p\n", */
+	/*        co->stk.begin, co->stk.end, co->ctx.sp); */
+
+	assert(co->ctx.sp >= co->stk.begin && co->ctx.sp < co->stk.end);
+}
+
 extern __thread struct trieNode *gRoot;
  __thread struct Cora *gCo;
 
@@ -41,6 +57,7 @@ coraNew() {
 	struct Cora *co = malloc(sizeof(struct Cora));
 	vecInit(&co->callstack, 64);
 	segmentStackInit(&co->stk);
+	co->ctx.bp = co->stk.begin;
 	co->ctx.sp = co->stk.begin;
 	vecInit(&co->trystack, 4);
 
@@ -132,7 +149,11 @@ coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
 		coraReturn(co, ret);
 	} else {
 		// eval the first call and get the result;
-		struct frame1 ctx = {.fn = NULL};
+		struct frame1 ctx = {
+			.fn = NULL,
+			.bp = co->ctx.bp,
+			.sp = co->ctx.sp,
+		};
 		vecAppend(&co->callstack, ctx);
 		Obj *R = stackAlloc(co, f->nframe);
 		R[0] = fn;
@@ -560,7 +581,7 @@ builtinTryCatch(struct Cora *co, int label, Obj *R) {
 
 			struct tryMark mark = {
 				.callstackPos = vecLen(&co->callstack),
-				.segmentStackPos = vecLen(&co->stk.data),
+				.segmentStackPos = vecLen(&co->stk.data) - 1,
 			};
 			vecAppend(&co->trystack, mark);
 			vecAppend(&co->callstack, cont);
@@ -611,6 +632,13 @@ continuation1AsClosure(struct Cora *co, int label, Obj *R) {
 	Obj this = R[0];
 	Obj contObj = native1Data(this)[0];
 
+	// Don't forget the try mark.
+	struct tryMark mark = {
+		.callstackPos = vecLen(&co->callstack),
+		.segmentStackPos = vecLen(&co->stk.data),
+	};
+	vecAppend(&co->trystack, mark);
+
 	// Replace the current stack with the delimited continuation.
 	struct scmContinuation1 *cont = (struct scmContinuation1*)ptr(contObj);
 	for (int i = 0; i < cont->len; i++) {
@@ -630,8 +658,7 @@ continuation1AsClosure(struct Cora *co, int label, Obj *R) {
 static void
 builtinThrow(struct Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinThrow");
-	/* struct tryMark mark = vecPop(&co->trystack); */
-	struct tryMark mark = vecGet(&co->trystack, vecLen(&co->trystack)-1);
+	struct tryMark mark = vecPop(&co->trystack);
 	Obj v = R[1];
 
 	// Capture the call stack as continuation.
@@ -643,18 +670,22 @@ builtinThrow(struct Cora *co, int label, Obj *R) {
 	// Now that we get the spent continuation, disguise as a closure.
 	Obj clo = makeNative1(2, continuation1AsClosure, 1, 1, cont);
 
+	// Find the handler from the try stack, invoke it, passing the continuation.
+	struct frame1 try = vecGet(&co->callstack, mark.callstackPos);
+	Obj handler = try.bp[2];
+
 	// Reset to the stack before try.
 	for (int i=mark.segmentStackPos; i<vecLen(&co->stk.data); i++) {
 		vecSet(&co->stk.data, i, NULL);
 	}
 	co->stk.data.v.len = mark.segmentStackPos;
-	struct frame1 try = vecGet(&co->callstack, mark.callstackPos);
-	co->ctx.bp = try.bp;
-	co->ctx.sp = try.sp;
+	co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
+	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
 	co->callstack.v.len = mark.callstackPos;
 
-	// Find the handler from the try stack, invoke it, passing the continuation.
-	Obj handler = try.bp[2];
+	struct frame1 beforeTry = vecGet(&co->callstack, vecLen(&co->callstack) - 1);
+	co->ctx.bp = beforeTry.bp;
+	co->ctx.sp = beforeTry.sp;
 	coraCall2(co, handler, v, clo);
 }
 
@@ -752,8 +783,13 @@ int main() {
 	uintptr_t dummy;
 	struct Cora * co = coraInit(&dummy);
 
-	struct frame1 sp = {.fn = NULL};
-	vecAppend(&co->callstack, sp);
+	struct frame1 exit = {
+		.fn = NULL,
+		.label = 0,
+		.bp = co->ctx.bp,
+		.sp = co->ctx.sp,
+	};
+	vecAppend(&co->callstack, exit);
 	entry(co);
 	trampoline(co);
 
