@@ -8,7 +8,7 @@ md4c/include.so:
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
-SRCS := toc.c string.c os.c io.c hash-h.c net.c rand.c trace.c
+SRCS := toc.c string.c os.c io.c hash-h.c net.c rand.c trace.c toc1.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
@@ -19,6 +19,9 @@ clean:
 
 json.so: json.c
 	gcc -shared -o json.so -g json.c -fPIC -I../src -L../src -lcora -ljansson
+
+toc1.so: toc1.c
+	gcc -shared -o toc1.so -g toc1.c -fPIC -I../src -L../src -lcora1
 
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora

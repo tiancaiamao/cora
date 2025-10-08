@@ -4,9 +4,15 @@
 #include "reader.h"
 #include "trace.h"
 #include "runtime1.h"
+#include "str.h"
+#include <unistd.h>
+#include <errno.h>
+#include <pwd.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <dlfcn.h>
+#include <sys/stat.h>
 
 const int INIT_STACK_SIZE = 256;
 
@@ -72,13 +78,25 @@ trampoline(struct Cora *co) {
 	}
 }
 
+void
+coraRun(struct Cora *co) {
+	struct frame1 exit = {
+		.fn = NULL,
+		.label = 0,
+		.bp = co->ctx.bp,
+		.sp = co->ctx.sp,
+	};
+	vecAppend(&co->callstack, exit);
+	trampoline(co);
+}
+
 static void coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap);
 
 static void
 coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
 	struct scmNative1* f = mustNative1(fn);
 	if (f->required != nargs) {
-		// spy or partial, goto dispatch function
+		// curry or partial, goto dispatch function
 		coraDispatch(co, fn, nargs, ap);
 		return;
 	}
@@ -193,6 +211,24 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	return val;
 }
 
+Obj
+primIsString(Obj x) {
+	if (isBytes(x)) {
+		return True;
+	} else {
+		return False;
+	}
+}
+
+void
+symbolToString(struct Cora *co, int lable, Obj *R) {
+	Obj sym = R[1];
+	char dest[256];
+	symbolStr(sym, dest, 256);
+	Obj val = makeCString(dest);
+	coraReturn(co, val);
+}
+
 void
 builtinBytes(struct Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinBytes");
@@ -201,12 +237,12 @@ builtinBytes(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, val);
 }
 
-/* static void */
-/* builtinBytesLength(struct Cora *co, int label, Obj *R) { */
-/* 	Obj o = R[1]; */
-/* 	int res = bytesLen(o); */
-/* 	coraReturn(co, makeNumber(res)); */
-/* } */
+static void
+builtinBytesLength(struct Cora *co, int label, Obj *R) {
+	Obj o = R[1];
+	int res = bytesLen(o);
+	coraReturn(co, makeNumber(res));
+}
 
 void
 builtinIntern(struct Cora *co, int label, Obj *R) {
@@ -278,271 +314,351 @@ builtinValueOr(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, ret);
 }
 
-/* void */
-/* builtinApply(struct Cora *co, int label, Obj *R) { */
-/* 	TRACE_SCOPE("builtinApply"); */
-/* 	Obj fn = R[1]; */
-/* 	Obj args = R[2]; */
+void
+builtinLoadSo(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinLoadSo");
+	// (load-so "file-path.so" "package-path")
+	Obj filePath = R[1];
+	str str = stringStr(filePath);
+	char *path = str.str;
+	void *handle = dlopen(path, RTLD_LAZY);
+	if (!handle) {
+		fprintf(stderr, "%s\n", dlerror());
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path, handle);
 
-/* 	R[0] = fn; */
-/* 	int p = 1; */
-/* 	while (args != Nil) { */
-/* 		Obj tmp = car(args); */
-/* 		co->args[p++] = tmp; */
-/* 		args = cdr(args); */
-/* 	} */
-/* 	co->nargs = p; */
-/* 	co->ctx.pc.func = coraDispatch; */
-/* } */
+	basicBlock1 entry = dlsym(handle, "entry");
+	char *error = dlerror();
+	if (error != NULL) {
+		// TODO
+		coraReturn(co, makeString(error, strlen(error)));
+		return;
+	}
+	struct frame1 exit = {
+		.fn = NULL,
+		.label = 0,
+		.bp = co->ctx.bp,
+		.sp = co->ctx.sp,
+	};
+	vecAppend(&co->callstack, exit);
+	entry(co, 0, R);
+	trampoline(co);
 
+	coraReturn(co, co->res);
+	return;
+}
 
-/* void */
-/* builtinLoadSo(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinLoadSo"); */
-/* 	// (load-so "file-path.so" "package-path") */
-/* 	Obj filePath = co->args[1]; */
-/* 	str str = stringStr(filePath); */
-/* 	char *path = str.str; */
-/* 	void *handle = dlopen(path, RTLD_LAZY); */
-/* 	if (!handle) { */
-/* 		fprintf(stderr, "%s\n", dlerror()); */
-/* 		coraReturn(co, makeNumber(-1)); */
-/* 		return; */
-/* 	} */
-/* 	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path, handle); */
+static int
+listLen(Obj l) {
+	int c = 0;
+	while (iscons(l) && l != Nil) {
+		c++;
+		l = cdr(l);
+	}
+	return c;
+}
 
-/* 	basicBlock entry = dlsym(handle, "entry"); */
-/* 	char *error = dlerror(); */
-/* 	if (error != NULL) { */
-/* 		// TODO */
-/* 		coraReturn(co, makeString(error, strlen(error))); */
-/* 		return; */
-/* 	} */
+static void
+builtinApply(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinApply");
+	Obj fn = R[1];
+	Obj args = R[2];
+	int nargs = listLen(args);
 
-/* 	trampoline(co, 0, entry); */
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != nargs) {
+		// TODO
+		assert(false);
+	}
 
-/* 	popStack(co); */
-/* 	return; */
-/* } */
+	Obj *frame = stackAlloc(co, f->nframe);
+	frame[0] = fn;
+	int p = 1;
+	while (args != Nil) {
+		Obj tmp = car(args);
+		frame[p++] = tmp;
+		args = cdr(args);
+	}
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+}
 
-/* static int unique = 1; */
+strBuf
+getCoraPath() {
+	strBuf tmp = strNew(512);
+	char *coraPath = getenv("CORAPATH");
+	if (coraPath == NULL) {
+		struct passwd *pw = getpwuid(getuid());
+		char *homeDir = pw->pw_dir;
+		tmp = strCpy(tmp, cstr(homeDir));
+		tmp = strCat(tmp, S("/.corapath/"));
+	} else {
+		tmp = strCpy(tmp, cstr(coraPath));
+		if (toCStr(tmp)[strLen(toStr(tmp)) - 1] != '/') {
+			tmp = strCat(tmp, S("/"));
+		}
+	}
+	return tmp;
+}
 
-/* void */
-/* builtinLoad(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinLoad"); */
-/* 	// (load "file-path.cora") */
-/* 	Obj filePath = co->args[1]; */
-/* 	co->nargs = 3; */
-/* 	co->args[0] = globalRef(intern("cora/lib/toc#compile-to-c")); */
-/* 	co->args[1] = filePath; */
+static int unique = 1;
 
-/* 	const int BUFSIZE = 512; */
-/* 	char buf[BUFSIZE]; */
-/* 	int cfileidx = unique; */
-/* 	unique++; */
-/* 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx); */
-/* 	str tmpCFile = cstr(buf); */
-/* 	co->args[2] = makeString(tmpCFile.str, tmpCFile.len); */
-/* 	trampoline(co, 0, coraDispatch); */
-/* 	// TODO: check res? */
-/* 	// Obj res = co->args[1]; */
+static void
+builtinLoad(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinLoad");
+	// (load "file-path.cora")
+	Obj filePath = R[1];
+	Obj arg1 = filePath;
+	str filePathStr = stringStr(filePath);
+	const int BUFSIZE = 512;
+	char buf[BUFSIZE];
+	int cfileidx = unique;
+	unique++;
+	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
+	str tmpCFile = cstr(buf);
+	Obj arg2 = makeString(tmpCFile.str, tmpCFile.len);
+	Obj fn = globalRef(intern("cora/lib/toc1#compile-to-c"));
+	coraCall2(co, fn, arg1, arg2);
+	coraRun(co);
+	// TODO: check res?
+	// Obj res = co->args[1];
 
-/* 	str filePathStr = stringStr(filePath); */
-/* 	strBuf tmp; */
-/* 	strBuf path = getCoraPath(); */
-/* 	if (strCmp(filePathStr, toStr(path)) > 0) { */
-/* 		// The cora file is in $CORAPATH, it might be a import package */
-/* 		tmp = strNew(filePathStr.len - 5 + 3); */
-/* 		tmp = strCat(tmp, strSub(filePathStr, 0, strLen(filePathStr) - 5)); */
-/* 		tmp = strCat(tmp, S(".so")); */
-/* 	} else { */
-/* 		tmp = strNew(30); */
-/* 		snprintf(toCStr(tmp), 30, "/tmp/cora-xxx-%d.so", cfileidx); */
-/* 	} */
+	strBuf tmp;
+	strBuf path = getCoraPath();
+	if (strCmp(filePathStr, toStr(path)) > 0) {
+		// The cora file is in $CORAPATH, it might be a import package
+		tmp = strNew(filePathStr.len - 5 + 3);
+		tmp = strCat(tmp, strSub(filePathStr, 0, strLen(filePathStr) - 5));
+		tmp = strCat(tmp, S(".so"));
+	} else {
+		tmp = strNew(30);
+		snprintf(toCStr(tmp), 30, "/tmp/cora-xxx-%d.so", cfileidx);
+	}
 
-/* 	snprintf(buf, BUFSIZE, */
-/* 		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o %s -ldl -L%scora/src -lcora", */
-/* 		 toCStr(path), toCStr(path), cfileidx, toCStr(tmp), */
-/* 		 toCStr(path)); */
-/* 	strFree(path); */
-/* 	int exitCode = system(buf); */
-/* 	if (exitCode != 0) { */
-/* 		coraReturn(co, makeNumber(exitCode)); */
-/* 		return; */
-/* 	} */
+	snprintf(buf, BUFSIZE,
+		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o %s -ldl -L%scora/src -lcora",
+		 toCStr(path), toCStr(path), cfileidx, toCStr(tmp),
+		 toCStr(path));
+	strFree(path);
+	int exitCode = system(buf);
+	if (exitCode != 0) {
+		coraReturn(co, makeNumber(exitCode));
+		return;
+	}
 
-/* 	co->nargs = 3; */
-/* 	co->args[1] = makeCString(toCStr(tmp)); */
-/* 	co->args[2] = makeCString(""); */
-/* 	co->ctx.pc.func = builtinLoadSo; */
-/* 	strFree(tmp); */
-/* 	return; */
-/* } */
+	arg1 = makeCString(toCStr(tmp));
+	strFree(tmp);
+	arg2 = makeCString("");
+	fn = globalRef(intern("load-so"));
+	co->ctx.sp = R;
+	coraCall2(co, fn, arg1, arg2);
+	return;
+}
+
+static bool
+safeToUseSo(strBuf soFilePath) {
+	if (0 != access(toCStr(soFilePath), R_OK)) {
+		// .so file not exist?
+		return false;
+	}
+
+	bool res = true;
+	strBuf tmp = strNew(strLen(toStr(soFilePath)) + 3);
+	tmp = strCpy(tmp, toStr(soFilePath));
+	tmp = strShrink(tmp, 3);
+	tmp = strCat(tmp, S(".cora"));
+	if (0 != access(toCStr(tmp), R_OK)) {
+		// .so file exist and .cora not exist
+		goto exit;
+	}
+
+	// both .so and .cora file exist, is .so newer than .cora?
+	struct stat soFileStat, coraFileStat;
+	if (stat(toCStr(tmp), &coraFileStat) < 0) {
+		printf("failed to get %s file stats: %s\n", toCStr(tmp), strerror(errno));
+		goto exit;
+	}
+	if (stat(toCStr(soFilePath), &soFileStat) < 0) {
+		printf("failed to get %s file stats: %s\n", toCStr(soFilePath), strerror(errno));
+		goto exit;
+	}
+	if (coraFileStat.st_mtime > soFileStat.st_mtime) {
+		res = false;
+	}
+exit:
+	strFree(tmp);
+	return res;
+}
 
 // import do more things than load:
 // 1. avoid repeated import for imported libraries
 // 2. convert from library path to .cora or .so file
 // 3. call load or load-so for the actual work
-/* void */
-/* builtinImport(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinImport"); */
-/* 	Obj pkg = co->args[1]; */
-/* 	str pkgStr = stringStr(pkg); */
-/* 	Obj sym = intern("cora/init#*imported*"); */
-/* 	Obj imported = symbolGet(sym); */
+void
+builtinImport(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinImport");
+	Obj pkg = R[1];
+	str pkgStr = stringStr(pkg);
+	Obj sym = intern("cora/init#*imported*");
+	Obj imported = symbolGet(sym);
 
-/* 	// Avoid repeated load. */
-/* 	for (Obj p = imported; p != Nil; p = cdr(p)) { */
-/* 		Obj elem = car(p); */
-/* 		if (eq(elem, pkg)) { */
-/* 			coraReturn(co, sym); */
-/* 			return; */
-/* 		} */
-/* 	} */
+	// Avoid repeated load.
+	for (Obj p = imported; p != Nil; p = cdr(p)) {
+		Obj elem = car(p);
+		if (eq(elem, pkg)) {
+			coraReturn(co, sym);
+			return;
+		}
+	}
 
-/* 	// Set the *imported* variable to avoid repeated load. */
-/* 	primSet(co, sym, cons(pkg, imported)); */
+	// Set the *imported* variable to avoid repeated load.
+	primSet(co, sym, cons(pkg, imported));
 
-/* 	// CORA PATH */
-/* 	strBuf tmp = getCoraPath(); */
-/* 	tmp = strCat(tmp, pkgStr); */
-/* 	tmp = strCat(tmp, S(".so")); */
+	// CORA PATH
+	strBuf tmp = getCoraPath();
+	tmp = strCat(tmp, pkgStr);
+	tmp = strCat(tmp, S(".so"));
 
-/* 	// if the .so file exists, call (load-so "$CORAPATH/file-path.so" "package-path") */
-/* 	if (safeToUseSo(tmp)) { */
-/* 		// primLoadSo is a bit special, it requires the spent stack of VM is */
-/* 		// (load-so "file-path.so" "package-path") */
-/* 		co->nargs = 3; */
-/* 		co->args[0] = makeNative(0, builtinLoadSo, 2, 0); */
-/* 		co->args[1] = makeString(toCStr(tmp), strLen(toStr(tmp))); */
-/* 		co->args[2] = pkg; */
-/* 		trampoline(co, 0, coraDispatch); */
-/* 		strFree(tmp); */
-/* 		coraReturn(co, pkg); */
-/* 		return; */
-/* 	} */
+	// if the .so file exists, call (load-so "$CORAPATH/file-path.so" "package-path")
+	if (safeToUseSo(tmp)) {
+		// builtinLoadSo is a bit special, it requires the spent stack of VM is
+		// (load-so "file-path.so" "package-path")
+		Obj arg0 = makeNative1(3, builtinLoadSo, 2, 0);
+		Obj arg1 = makeString(toCStr(tmp), strLen(toStr(tmp)));
+		Obj arg2 = pkg;
+		coraCall2(co, arg0, arg1, arg2);
+		coraRun(co);
+		strFree(tmp);
+		coraReturn(co, pkg);
+		return;
+	}
 
-/* 	// otherwise call (load "$CORAPATH/file.cora") */
-/* 	tmp = strShrink(tmp, 3); */
-/* 	tmp = strCat(tmp, S(".cora")); */
-/* 	str tmp1 = toStr(tmp); */
-/* 	co->nargs = 3; */
-/* 	co->args[0] = makeNative(0, builtinLoad, 2, 0); */
-/* 	co->args[1] = makeString(tmp1.str, tmp1.len); */
-/* 	co->args[2] = pkg; */
-/* 	trampoline(co, 0, coraDispatch); */
-/* 	strFree(tmp); */
-/* 	coraReturn(co, pkg); */
-/* } */
+	// otherwise call (load "$CORAPATH/file.cora")
+	tmp = strShrink(tmp, 3);
+	tmp = strCat(tmp, S(".cora"));
+	str tmp1 = toStr(tmp);
 
-/* static void */
-/* builtinIsVector(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinIsVector"); */
-/* 	Obj o = co->args[1]; */
-/* 	if (isvector(o)) { */
-/* 		coraReturn(co, True); */
-/* 	} else { */
-/* 		coraReturn(co, False); */
-/* 	} */
-/* } */
+	coraCall2(co, makeNative1(3, builtinLoad, 2, 0), makeString(tmp1.str, tmp1.len), pkg);
 
-/* static void */
-/* builtinVector(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinVector"); */
-/* 	Obj o = co->args[1]; */
-/* 	int n = fixnum(o); */
-/* 	Obj res = makeVector(n, n); */
-/* 	coraReturn(co, res); */
-/* } */
+	/* co->nargs = 3; */
+	/* co->args[0] = makeNative(0, builtinLoad, 2, 0); */
+	/* co->args[1] = makeString(tmp1.str, tmp1.len); */
+	/* co->args[2] = pkg; */
+	/* trampoline(co, 0, coraDispatch); */
+	strFree(tmp);
+	/* coraReturn(co, pkg); */
+}
 
-/* static void */
-/* builtinVectorRef(struct Cora *co) { */
-/* 	Obj v = co->args[1]; */
-/* 	Obj idx = co->args[2]; */
-/* 	coraReturn(co, vectorRef(v, fixnum(idx))); */
-/* } */
+static void
+builtinIsVector(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinIsVector");
+	Obj o = R[1];
+	if (isvector(o)) {
+		coraReturn(co, True);
+	} else {
+		coraReturn(co, False);
+	}
+}
 
-/* static void */
-/* builtinVectorSet(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinVectorSet"); */
-/* 	Obj v = co->args[1]; */
-/* 	Obj idx = co->args[2]; */
-/* 	Obj o = co->args[3]; */
-/* 	coraReturn(co, vectorSet(v, fixnum(idx), o)); */
-/* } */
+static void
+builtinVector(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinVector");
+	Obj o = R[1];
+	int n = fixnum(o);
+	Obj res = makeVector(n, n);
+	coraReturn(co, res);
+}
 
-/* static void */
-/* builtinVectorLength(struct Cora *co) { */
-/* 	Obj o = co->args[1]; */
-/* 	int res = vectorLength(o); */
-/* 	coraReturn(co, makeNumber(res)); */
-/* } */
+static void
+builtinVectorRef(struct Cora *co, int label, Obj *R) {
+	Obj v = R[1];
+	Obj idx = R[2];
+	coraReturn(co, vectorRef(v, fixnum(idx)));
+}
 
-/* void */
-/* builtinReadFileAsSexp(struct Cora *co) { */
-/* 	Obj arg = co->args[1]; */
-/* 	assert(isBytes(arg)); */
-/* 	Obj result = Nil; */
-/* 	char *fileName = stringStr(arg).str; */
-/* 	FILE *f = fopen(fileName, "r"); */
-/* 	if (f == NULL) { */
-/* 		printf("open file fail %s\n", fileName); */
-/* 		goto exit0; */
-/* 	} */
+static void
+builtinVectorSet(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinVectorSet");
+	Obj v = R[1];
+	Obj idx = R[2];
+	Obj o = R[3];
+	coraReturn(co, vectorSet(v, fixnum(idx), o));
+}
 
-/* 	struct SexpReader r = {.co = co }; */
-/* 	int err = 0; */
-/* 	int count = 0; */
-/* 	while (true) { */
-/* 		Obj ast = sexpRead(&r, f, &err); */
-/* 		if (err != 0) { */
-/* 			break; */
-/* 		} */
-/* 		result = cons(ast, result); */
-/* 		count++; */
-/* 	} */
-/* 	if (count > 1) { */
-/* 		result = reverse(result); */
-/* 		result = cons(makeSymbol("begin"), result); */
-/* 	} else { */
-/* 		result = car(result); */
-/* 	} */
-/* 	fclose(f); */
+static void
+builtinVectorLength(struct Cora *co, int label, Obj *R) {
+	Obj o = R[1];
+	int res = vectorLength(o);
+	coraReturn(co, makeNumber(res));
+}
 
-/*       exit0: */
-/* 	coraReturn(co, result); */
-/* } */
+void
+builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
+	Obj arg = R[1];
+	assert(isBytes(arg));
+	Obj result = Nil;
+	char *fileName = stringStr(arg).str;
+	FILE *f = fopen(fileName, "r");
+	if (f == NULL) {
+		printf("open file fail %s\n", fileName);
+		goto exit0;
+	}
 
-/* static void */
-/* builtinStringAppend(struct Cora *co) { */
-/* 	TRACE_SCOPE("builtinStringAppend"); */
-/* 	Obj str1 = co->args[1]; */
-/* 	Obj str2 = co->args[2]; */
-/* 	str x = stringStr(str1); */
-/* 	str y = stringStr(str2); */
-/* 	strBuf tmp = strNew(x.len + y.len); */
-/* 	tmp = strCpy(tmp, x); */
-/* 	tmp = strCat(tmp, y); */
-/* 	str s = toStr(tmp); */
-/* 	Obj val = makeString(s.str, s.len); */
-/* 	strFree(tmp); */
-/* 	coraReturn(co, val); */
-/* } */
+	struct SexpReader r = {.co = co };
+	int err = 0;
+	int count = 0;
+	while (true) {
+		Obj ast = sexpRead(&r, f, &err);
+		if (err != 0) {
+			break;
+		}
+		result = cons(ast, result);
+		count++;
+	}
+	if (count > 1) {
+		result = reverse(result);
+		result = cons(makeSymbol("begin"), result);
+	} else {
+		result = car(result);
+	}
+	fclose(f);
 
-/* static void */
-/* builtinSymbolCooked(struct Cora *co) { */
-/* 	Obj sym = co->args[1]; */
-/* 	char dst[256]; */
-/* 	symbolStr(sym, dst, 256); */
-/* 	for (char *s = dst; *s != 0; s++) { */
-/* 		if (*s == '#') { */
-/* 			coraReturn(co, True); */
-/* 			return; */
-/* 		} */
-/* 	} */
-/* 	coraReturn(co, False); */
-/* } */
+      exit0:
+	coraReturn(co, result);
+}
 
+static void
+builtinStringAppend(struct Cora *co, int label, Obj *R) {
+	TRACE_SCOPE("builtinStringAppend");
+	Obj str1 = R[1];
+	Obj str2 = R[2];
+	str x = stringStr(str1);
+	str y = stringStr(str2);
+	strBuf tmp = strNew(x.len + y.len);
+	tmp = strCpy(tmp, x);
+	tmp = strCat(tmp, y);
+	str s = toStr(tmp);
+	Obj val = makeString(s.str, s.len);
+	strFree(tmp);
+	coraReturn(co, val);
+}
+
+static void
+builtinSymbolCooked(struct Cora *co, int label, Obj *R) {
+	Obj sym = R[1];
+	char dst[256];
+	symbolStr(sym, dst, 256);
+	for (char *s = dst; *s != 0; s++) {
+		if (*s == '#') {
+			coraReturn(co, True);
+			return;
+		}
+	}
+	coraReturn(co, False);
+}
 
 // (try (lambda () (+ (throw 42) 1))
 //      (lambda (v resume) (resume (+ v 66))))
@@ -689,6 +805,79 @@ builtinThrow(struct Cora *co, int label, Obj *R) {
 	coraCall2(co, handler, v, clo);
 }
 
+#ifdef _BOOTSTRAP_TEST_
+static int uniqueIdx = 0;
+#endif
+
+Obj
+primNot(Obj x) {
+	if (x == True) {
+		return False;
+	} else if (x == False) {
+		return True;
+	} else {
+		assert(false);
+	}
+}
+
+Obj
+primGenSym() {
+	// The pointer is uniqueness and can be used as symbol->string
+	struct scmSymbol *p = newObj(scmHeadSymbol, sizeof(struct scmSymbol));
+	p->head.rset = NULL;
+	p->head.inRSet = false;
+	p->value = Nil;
+#ifdef _BOOTSTRAP_TEST_
+	p->unique = uniqueIdx;
+	uniqueIdx++;
+#endif
+	return ((Obj) (&p->head) | TAG_PTR);
+}
+
+Obj
+primIsSymbol(Obj x) {
+	if (issymbol(x)) {
+		return True;
+	} else {
+		return False;
+	}
+}
+
+void
+registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
+	if (m->init != NULL) {
+		m->init();
+	}
+
+	Obj exports = Nil;
+	for (int i = 0;; i++) {
+		struct registerEntry entry = m->entries[i];
+		if (entry.func == NULL) {
+			break;
+		}
+
+		Obj sym;
+		if (strLen(pkg) > 0) {
+			strBuf tmp = strDup(pkg);
+			tmp = strAppend(tmp, '#');
+			tmp = strCat(tmp, cstr(entry.name));
+			sym = intern(toCStr(tmp));
+			strFree(tmp);
+		} else {
+			sym = intern(entry.name);
+		}
+		primSet(co, sym, makeNative1(entry.args + 1, entry.func, entry.args, 0));
+		exports = cons(intern(entry.name), exports);
+	}
+	if (strLen(pkg) > 0) {
+		strBuf tmp = strDup(pkg);
+		tmp = strCat(tmp, S("#*ns-export*"));
+		Obj sym = intern(toCStr(tmp));
+		strFree(tmp);
+		primSet(co, sym, exports);
+	}
+}
+
 struct Cora *
 coraInit(uintptr_t * mark) {
 	gcInit(mark);
@@ -697,49 +886,49 @@ coraInit(uintptr_t * mark) {
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
 	struct Cora *co = coraNew();
-	/* primSet(co, intern("symbol->string"), */
-	/* 	makeNative1(0, symbolToString, 1, 0)); */
-	/* primSet(co, intern("intern"), */
-	/* 	makeNative1(0, builtinIntern, 1, 0)); */
-	/* primSet(co, intern("number?"), */
-	/* 	makeNative1(0, builtinIsNumber, 1, 0)); */
-	/* primSet(co, intern("read-file-as-sexp"), */
-	/* 	makeNative1(0, builtinReadFileAsSexp, 1, 0)); */
-	/* primSet(co, intern("string-append"), */
-	/* 	makeNative(0, builtinStringAppend, 2, 0)); */
-	/* primSet(co, intern("value"), */
-	/* 	makeNative(0, builtinValue, 1, 0)); */
-	/* primSet(co, intern("value-or"), */
-	/* 	makeNative(0, builtinValueOr, 2, 0)); */
-	/* primSet(co, intern("apply"), */
-	/* 	makeNative(0, builtinApply, 2, 0)); */
-	/* primSet(co, intern("load-so"), */
-	/* 	makeNative(0, builtinLoadSo, 2, 0)); */
-	/* primSet(co, intern("import"), */
-	/* 	makeNative(0, builtinImport, 1, 0)); */
-	/* primSet(co, intern("load"), */
-	/* 	makeNative(0, builtinLoad, 1, 0)); */
-	/* primSet(co, intern("vector"), */
-	/* 	makeNative(0, builtinVector, 1, 0)); */
-	/* primSet(co, intern("vector?"), */
-	/* 	makeNative(0, builtinIsVector, 1, 0)); */
-	/* primSet(co, intern("vector-set!"), */
-	/* 	makeNative(0, builtinVectorSet, 3, 0)); */
-	/* primSet(co, intern("vector-ref"), */
-	/* 	makeNative(0, builtinVectorRef, 2, 0)); */
-	/* primSet(co, intern("vector-length"), */
-	/* 	makeNative(0, builtinVectorLength, 1, 0)); */
-	/* primSet(co, intern("bytes"), */
-	/* 	makeNative(0, builtinBytes, 1, 0)); */
-	/* primSet(co, intern("bytes-length"), */
-	/* 	makeNative(0, builtinBytesLength, 1, 0)); */
+	primSet(co, intern("symbol->string"),
+		makeNative1(2, symbolToString, 1, 0));
+	primSet(co, intern("intern"),
+		makeNative1(2, builtinIntern, 1, 0));
+	primSet(co, intern("number?"),
+		makeNative1(2, builtinIsNumber, 1, 0));
+	primSet(co, intern("read-file-as-sexp"),
+		makeNative1(2, builtinReadFileAsSexp, 1, 0));
+	primSet(co, intern("string-append"),
+		makeNative1(3, builtinStringAppend, 2, 0));
+	primSet(co, intern("value"),
+		makeNative1(2, builtinValue, 1, 0));
+	primSet(co, intern("value-or"),
+		makeNative1(3, builtinValueOr, 2, 0));
+	primSet(co, intern("apply"),
+		makeNative1(3, builtinApply, 2, 0));
+	primSet(co, intern("load-so"),
+		makeNative1(3, builtinLoadSo, 2, 0));
+	primSet(co, intern("import"),
+		makeNative1(2, builtinImport, 1, 0));
+	primSet(co, intern("load"),
+		makeNative1(2, builtinLoad, 1, 0));
+	primSet(co, intern("vector"),
+		makeNative1(2, builtinVector, 1, 0));
+	primSet(co, intern("vector?"),
+		makeNative1(2, builtinIsVector, 1, 0));
+	primSet(co, intern("vector-set!"),
+		makeNative1(4, builtinVectorSet, 3, 0));
+	primSet(co, intern("vector-ref"),
+		makeNative1(3, builtinVectorRef, 2, 0));
+	primSet(co, intern("vector-length"),
+		makeNative1(2, builtinVectorLength, 1, 0));
+	primSet(co, intern("bytes"),
+		makeNative1(2, builtinBytes, 1, 0));
+	primSet(co, intern("bytes-length"),
+		makeNative1(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"),
 		makeNative1(3, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"),
 		makeNative1(2, builtinThrow, 1, 0));
-	/* primSet(co, intern("cora/init#*imported*"), Nil); */
-	/* primSet(co, intern("symbol-cooked?"), */
-	/* 	makeNative(0, builtinSymbolCooked, 1, 0)); */
+	primSet(co, intern("cora/init#*imported*"), Nil);
+	primSet(co, intern("symbol-cooked?"),
+		makeNative1(2, builtinSymbolCooked, 1, 0));
 	/* primSet(co, intern("cora/lib/eval#make-closure-for-eval"), */
 	/* 	makeNative(0, makeClosureForEval, 3, 0)); */
 	/* primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"), */
@@ -775,25 +964,4 @@ void
 gcGlobal(struct GC *gc) {
 	TRACE_SCOPE("gcGlobal");
 	coraGCFunc(gc, gCo);
-}
-
-extern void entry(struct Cora *co);
-
-int main() {
-	uintptr_t dummy;
-	struct Cora * co = coraInit(&dummy);
-
-	struct frame1 exit = {
-		.fn = NULL,
-		.label = 0,
-		.bp = co->ctx.bp,
-		.sp = co->ctx.sp,
-	};
-	vecAppend(&co->callstack, exit);
-	entry(co);
-	trampoline(co);
-
-	sexpWrite(stdout, co->res);
-	printf("\n");
-	return 0;
 }

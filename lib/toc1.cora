@@ -398,6 +398,7 @@
 					       ((= nargs 1) (generate-str w "coraCall1(co, "))
 					       ((= nargs 2) (generate-str w "coraCall2(co, "))
 					       ((= nargs 3) (generate-str w "coraCall3(co, "))
+					       ((= nargs 4) (generate-str w "coraCall4(co, "))
 					       (true (generate-str w "coraCall(co, ")))
 					     ((value generate-inst-h) f env)
 					     (if (> nargs 3)
@@ -568,7 +569,7 @@
   (defun generate-entry (to globals label)
     (begin
      (generate-str to "static __thread Obj* __symbolTable;\n\n")
-     (generate-str to "void entry(struct Cora *co) {\n")
+     (generate-str to "void entry(struct Cora *co, int label, Obj *R) {\n")
      (generate-str to "__symbolTable = (Obj*)malloc(sizeof(Obj) * ")
      (generate-num to (length globals))
      (generate-str to ");\n")

@@ -24,6 +24,9 @@ all: cora.bin lib
 libcora:
 	make -C src
 
+libcora1:
+	make -C src libcora1.so
+
 lib:
 	make -C lib
 
@@ -31,7 +34,11 @@ lib:
 	$(CC) $(CFLAGS) -c $< -I src
 
 cora.bin: libcora main.o init.so
-	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
+	# $(CC) main.o -Lsrc $(LD_FLAG) -o $@
+	$(CC) main1.o -Lsrc $(LD_FLAG) -o $@
+
+# a.out: libcora1 main1.o init1.so lib/toc1.so
+# 	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
 	rm -f *.o *.so *.bin test/*.so
@@ -40,6 +47,9 @@ clean:
 
 init.so: init.c libcora
 	gcc -shared -o init.so -g -fPIC init.c -Isrc -I. -Lsrc -lcora
+
+# init1.so: init1.c libcora1
+# 	gcc -shared -o init1.so -g -fPIC init1.c -Isrc -I. -Lsrc -lcora1
 
 fmt:
 	cd src; indent -npcs -bap -br -ce -brf -ut -i8 -nbbo -nhnl *.c

@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "types.h"
+#include "reader.h"
 
 typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
 
@@ -54,19 +55,13 @@ stackAlloc(struct Cora *co, int n) {
 
 static inline void
 coraReturn(struct Cora *co, Obj val) {
-	/* Obj *sp = co->ctx.sp; */
 	// set return value
 	co->res = val;
 	// recover continuation
 	co->ctx = vecPop(&co->callstack);
-	if (co->ctx.sp < co->stk.begin) {
+	if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
 		coraReturnSlowPath(co);
 	}
-	if (co->ctx.sp >= co->stk.end) {
-		printf("abnormal!!!!\n");
-		coraReturnSlowPath(co);
-	}
-	/* printf("coraReturn SP: %p => %p\n", sp, co->ctx.sp); */
 	return;
 }
 
@@ -131,6 +126,29 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 	frame[3] = arg3;
 }
 
+// x86-64 sysv ABI has 6 registers (RDI, RSI, RDX, RCX, R8, R9) available
+// x86-64 Win has 4 registers (RCX, RDX, R8, R9) available
+// ARM64 has even more registers
+// Anyway, static inline should not care about parameter count.
+static inline void
+coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 3) {
+		return coraCall(co, fn, 3, arg1, arg2, arg3);
+	}
+	Obj *frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+	frame[3] = arg3;
+	frame[4] = arg4;
+}
+
+void coraRun(struct Cora *co);
+
 Obj primSet(struct Cora *co, Obj key, Obj val);
 
 static inline Obj
@@ -141,5 +159,41 @@ closureRef(Obj clo, int idx) {
 #endif
 	return OBJ_FIELD(clo, scmNative1, data)[idx];
 }
+
+void builtinImport(struct Cora *co, int label, Obj *R);
+
+Obj primEQ(Obj x, Obj y);
+Obj primLT(Obj x, Obj y);
+Obj primGT(Obj x, Obj y);
+Obj primAdd(Obj x, Obj y);
+Obj primCons(Obj x, Obj y);
+Obj primNot(Obj x);
+Obj primCar(Obj x);
+Obj primCdr(Obj x);
+Obj primIsCons(Obj x);
+Obj primSet(struct Cora *co, Obj key, Obj val);
+Obj primSub(Obj x, Obj y);
+Obj primMul(Obj x, Obj y);
+Obj primDiv(Obj x, Obj y);
+Obj primGenSym();
+Obj primIsSymbol(Obj x);
+Obj primIsString(Obj x);
+Obj primIsNumber(Obj x);
+
+struct Cora * coraInit(uintptr_t * mark);
+
+
+struct registerEntry {
+  char *name;
+  basicBlock1 func;
+  int args;
+};
+
+struct registerModule {
+  void (*init)();
+  struct registerEntry entries[];
+};
+
+void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
 
 #endif

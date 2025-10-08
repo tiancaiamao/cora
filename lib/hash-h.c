@@ -1,4 +1,4 @@
-#include "runtime.h"
+#include "runtime1.h"
 
 static int
 hashForString(const char *str) {
@@ -55,17 +55,17 @@ hashToNumberHelp(Obj key) {
 }
 
 void
-hashToNumber(struct Cora *ctx) {
-  // See types.h for tags definitions
-  Obj key = coraGet(ctx, 1);
-  Obj ret = hashToNumberHelp(key);
-  coraReturn(ctx, ret);
+hashToNumber(struct Cora *ctx, int label, Obj *R) {
+	// See types.h for tags definitions
+	Obj key = R[1];
+	Obj ret = hashToNumberHelp(key);
+	coraReturn(ctx, ret);
 }
 
 void
-builtinMod(struct Cora *co) {
-  Obj x = co->args[1];
-  Obj y = co->args[2];
+builtinMod(struct Cora *co, int label, Obj *R) {
+  Obj x = R[1];
+  Obj y = R[2];
   Obj ret = makeNumber(fixnum(x) % fixnum(y));
   coraReturn(co, ret);
 }
@@ -80,8 +80,8 @@ struct registerModule hashModule = {
 };
 
 void
-entry(struct Cora *co) {
-  Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+  Obj pkg = R[2];
   registerAPI(co, &hashModule, stringStr(pkg));
   coraReturn(co, intern("hash"));
 }

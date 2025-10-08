@@ -1,22 +1,22 @@
 #include <stdio.h>
-#include "runtime.h"
+#include "runtime1.h"
 #include "str.h"
 
 static void
-builtinGenerateStr(struct Cora *co) {
-	Obj to = co->args[1];
+builtinGenerateStr(struct Cora *co, int label, Obj *R) {
+	Obj to = R[1];
 	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
+	Obj exp = R[2];
 	str s = stringStr(exp);
 	fprintf(out, "%s", s.str);
 	coraReturn(co, Nil);
 }
 
 static void
-builtinGenerateSym(struct Cora *co) {
-	Obj to = co->args[1];
+builtinGenerateSym(struct Cora *co, int label, Obj *R) {
+	Obj to = R[1];
 	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
+	Obj exp = R[2];
 	char s[256];
 	symbolStr(exp, s, 256);
 	if (s[0] >= '0' && s[0] <= '9') {
@@ -36,17 +36,17 @@ builtinGenerateSym(struct Cora *co) {
 }
 
 static void
-builtinGenerateNum(struct Cora *co) {
-	Obj to = co->args[1];
+builtinGenerateNum(struct Cora *co, int label, Obj *R) {
+	Obj to = R[1];
 	FILE *out = mustCObj(to);
-	Obj exp = co->args[2];
+	Obj exp = R[2];
 	fprintf(out, "%ld", fixnum(exp));
 	coraReturn(co, Nil);
 }
 
 static void
-builtinEscapeStr(struct Cora *co) {
-	Obj s = co->args[1];
+builtinEscapeStr(struct Cora *co, int label, Obj *R) {
+	Obj s = R[1];
 	str str = stringStr(s);
 	if (strLen(str) == 0) {
 		coraReturn(co, s);
@@ -91,8 +91,8 @@ static struct registerModule module = {
 };
 
 void
-entry(struct Cora *co) {
-  Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+  Obj pkg = R[2];
   registerAPI(co, &module, stringStr(pkg));
   coraReturn(co, intern("internal"));
 }
