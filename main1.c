@@ -41,7 +41,7 @@ repl(struct Cora *co, FILE* stream) {
 }
 
 
-extern void entry(struct Cora *co, int label, Obj *R);
+/* extern void entry(struct Cora *co, int label, Obj *R); */
 
 
 int main() {
@@ -53,7 +53,7 @@ int main() {
 	coraCall1(co, fn, arg1);
 	coraRun(co);
 
-	arg1 = makeCString("cora/lib/toc1");
+	arg1 = makeCString("cora/lib/toc");
 	coraCall1(co, fn, arg1);
 	coraRun(co);
 

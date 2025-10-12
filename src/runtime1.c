@@ -420,7 +420,7 @@ builtinLoad(struct Cora *co, int label, Obj *R) {
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	Obj arg2 = makeString(tmpCFile.str, tmpCFile.len);
-	Obj fn = globalRef(intern("cora/lib/toc1#compile-to-c"));
+	Obj fn = globalRef(intern("cora/lib/toc#compile-to-c"));
 	coraCall2(co, fn, arg1, arg2);
 	coraRun(co);
 	// TODO: check res?
@@ -1049,3 +1049,21 @@ gcGlobal(struct GC *gc) {
 	TRACE_SCOPE("gcGlobal");
 	coraGCFunc(gc, gCo);
 }
+
+
+#ifdef ForTest
+
+extern void entry(struct Cora *co, int label, Obj *R);
+
+int
+main(int argc, char *argv[]) {
+	uintptr_t dummy;
+	struct Cora *co = coraInit(&dummy);
+
+	entry(co, 0, NULL);
+	coraRun(co);
+	printObj(stdout, co->res);
+	return 0;
+}
+
+#endif
