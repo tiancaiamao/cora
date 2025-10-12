@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 	trampoline(co, 0, builtinImport);
   
 	co->nargs = 2;
-	co->args[1] = makeCString("cora/lib/toc");
+	co->args[1] = makeCString("cora/lib/toc1");
 	trampoline(co, 0, builtinImport);
 
 	co->nargs = 2;

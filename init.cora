@@ -403,17 +403,17 @@
 					   ['set ['quote var1] (cora/init#parse env ns import val)])
       env ns import ls => (map (cora/init#parse env ns import) ls))
 
-(set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
-				   boolean? number? null?
-				   string-append
-				   intern symbol->string
-				   vector vector? vector-set! vector-ref vector-length
-				   bytes bytes-length
-				   read-file-as-sexp
-				   value value-or
-				   apply load-so import load
-				   try throw
-				   reverse map macroexpand elem?  length filter append))
+;; (set 'cora/init#*ns-export* `(cadr caar cdar cddr caddr cadddr cdddr pair? atom?
+;; 				   boolean? number? null?
+;; 				   string-append
+;; 				   intern symbol->string
+;; 				   vector vector? vector-set! vector-ref vector-length
+;; 				   bytes bytes-length
+;; 				   read-file-as-sexp
+;; 				   value value-or
+;; 				   apply load-so import load
+;; 				   try throw
+;; 				   reverse map macroexpand elem? length filter append))
 
 (set 'cora/init#cadr cadr)
 (set 'cora/init#caar caar)

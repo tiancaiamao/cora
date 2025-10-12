@@ -134,8 +134,8 @@ static inline void
 coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 	struct scmNative1 *f = ptr(fn);
 	assert(f->head.type == scmHeadNative1);
-	if (f->required != 3) {
-		return coraCall(co, fn, 3, arg1, arg2, arg3);
+	if (f->required != 4) {
+		return coraCall(co, fn, 4, arg1, arg2, arg3, arg4);
 	}
 	Obj *frame = stackAlloc(co, f->nframe);
 	co->ctx.fn = f->fn;

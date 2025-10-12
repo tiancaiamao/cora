@@ -810,12 +810,96 @@ static int uniqueIdx = 0;
 #endif
 
 Obj
+primEQ(Obj x, Obj y) {
+	return eq(x, y) ? True : False;
+}
+
+Obj
+primGT(Obj x, Obj y) {
+	assert(isfixnum(x));
+	assert(isfixnum(y));
+	return fixnum(x) > fixnum(y) ? True : False;
+}
+
+Obj
+primLT(Obj x, Obj y) {
+	assert(isfixnum(x));
+	assert(isfixnum(y));
+	return fixnum(x) < fixnum(y) ? True : False;
+}
+
+Obj
+primDiv(Obj x, Obj y) {
+	if (isfixnum(x) && isfixnum(y)) {
+		return makeNumber(x / y);
+	} else {
+		// TODO
+		assert(false);
+	}
+}
+
+Obj
+primAdd(Obj x, Obj y) {
+	if (isfixnum(x) && isfixnum(y)) {
+		return x + y;
+	} else {
+		// TODO
+		assert(false);
+	}
+}
+
+Obj
+primCons(Obj x, Obj y) {
+	return cons(x, y);
+}
+
+Obj
 primNot(Obj x) {
 	if (x == True) {
 		return False;
 	} else if (x == False) {
 		return True;
 	} else {
+		assert(false);
+	}
+}
+
+Obj
+primCar(Obj x) {
+	return car(x);
+}
+
+Obj
+primCdr(Obj x) {
+	assert(iscons(x));
+	return cdr(x);
+}
+
+Obj
+primIsCons(Obj x) {
+	if (iscons(x)) {
+		return True;
+	} else {
+		return False;
+	}
+}
+
+Obj
+primSub(Obj x, Obj y) {
+	if (isfixnum(x) && isfixnum(y)) {
+		return x - y;
+	} else {
+		// TODO
+		assert(false);
+	}
+}
+
+Obj
+primMul(Obj x, Obj y) {
+	if (isfixnum(x) && isfixnum(y)) {
+		return makeNumber(fixnum(x) * fixnum(y));
+	} else {
+		// TODO
 		assert(false);
 	}
 }

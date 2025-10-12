@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include "types.h"
 #include "str.h"
-#include "runtime.h"
+#include "runtime1.h"
 
 static strBuf
 cmdListStr(Obj args) {
@@ -18,8 +18,8 @@ cmdListStr(Obj args) {
 }
 
 static void
-exec(struct Cora *co) {
-  Obj args = co->args[1];
+exec(struct Cora *co, int label, Obj *R) {
+  Obj args = R[1];
   strBuf cmd = cmdListStr(args);
   int exitCode = system(toCStr(cmd));
   strFree(cmd);
@@ -27,9 +27,9 @@ exec(struct Cora *co) {
 }
 
 static void
-popenFn(struct Cora *co) {
-  Obj cmd = co->args[1];
-  Obj mode = co->args[2];
+popenFn(struct Cora *co, int label, Obj *R) {
+  Obj cmd = R[1];
+  Obj mode = R[2];
   char type[256];
   symbolStr(mode, type, 256);
 
@@ -41,8 +41,8 @@ popenFn(struct Cora *co) {
 }
 
 static void
-pcloseFn(struct Cora *co) {
-  Obj arg = co->args[1];
+pcloseFn(struct Cora *co, int label, Obj *R) {
+  Obj arg = R[1];
   FILE *f = mustCObj(arg);
   int res = pclose(f);
   coraReturn(co, res);
@@ -59,8 +59,8 @@ static struct registerModule osModule = {
 };
 
 void
-entry(struct Cora *co) {
-  Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+  Obj pkg = R[2];
   registerAPI(co, &osModule, stringStr(pkg));
   coraReturn(co, intern("os"));
 }

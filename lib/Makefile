@@ -1,4 +1,4 @@
-all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so parallel/internal.so trace.so
+all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so trace.so
 
 extra: md4c/include.so json.so
 
@@ -19,9 +19,6 @@ clean:
 
 json.so: json.c
 	gcc -shared -o json.so -g json.c -fPIC -I../src -L../src -lcora -ljansson
-
-toc1.so: toc1.c
-	gcc -shared -o toc1.so -g toc1.c -fPIC -I../src -L../src -lcora1
 
 %.so : %.o
 	gcc -shared -o $@ $^ -fPIC -I../src -L../src -lcora
