@@ -98,6 +98,20 @@ growCallStack(struct callStack *cs) {
     __addr->debugLine = __LINE__;			\
   } while (0)
 
+#define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
+#define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
+#define PRIM_ISCONS(obj) (iscons(obj)? True: False)
+
+#define PRIM_EQ(x, y) (eq(x, y) ? True : False)
+#define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
+#define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
+
+#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
+
+// assuming x and y are both fixnum
+#define PRIM_ADD(x, y)    ((x) + (y))
+#define PRIM_SUB(x, y)    ((x) - (y))
+#define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
 
 
 #define JUMP_WITH_ARGS_1(clofun, x0) do {					\

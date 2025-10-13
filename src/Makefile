@@ -35,18 +35,12 @@ LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
 LIBOBJS1 = str.o gc.o types.o reader.o runtime1.o trace.o
 
-test.o: ../test.c runtime1.h
-	gcc -g -c ../test.c -I. -o test.o
-	# gcc -O2 -c ../test.c -I. -o test.o
+
+libcora.a: $(LIBOBJS1)
+	ar -rc $@ $^
 
 libcora.so: $(LIBOBJS1)
 	gcc -shared -o $@ $^ -ldl
-
-libcora.a: $(LIBOBJS)
-	ar -rc $@ $^
-
-# libcora.so: $(LIBOBJS)
-# 	gcc -shared -o $@ $^ -ldl
 
 clean:
 	rm -rf *.o libcora.a libcora.so cora *.test
