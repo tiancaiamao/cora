@@ -100,6 +100,7 @@
 	['%builtin op] => true
 	['quote x] => true
 	['%closure-ref _] => true
+	['%closure label . _] => true where (number? label)
 	x => false)
 
   (func free-vars
@@ -110,7 +111,7 @@
 	['do x y] => (foldl union [] (map free-vars [x y]))
 	['let a b c] => (union (free-vars b) (diff (free-vars c) [a]))
 
-	;; the following three rules are used by explicit-stack, not by convert
+	;; the following three rules are used by liveness-analyze, not by convert
 	['%closure lam . more] => (free-vars [lam . more])
 	['return x] => (free-vars x)
 	['call exp cont] => (foldl union [] (map free-vars [exp cont]))
@@ -165,39 +166,67 @@
 	[hd . tl] ls next => (tailify hd (lambda (hd1)
 					   (tailify-list tl [hd1 . ls] next))))
 
-  ;; (continuation (val) body) => (continuation (lambda (vm val) body) . stacks)
-  (func explicit-stack
+  ;; (continuation (val) body) => (continuation (val) body . live-vars)
+  ;; liveness-analyze find variables outlive a call, record them in continuation form.
+  ;; it is implemented by collecting "free variables" in continuation form.
+  (func liveness-analyze
 	_ x => x where (convert-protect? x)
 	fvs var => var where (symbol? var)
-	;; fvs ['do x y] => (cons 'do (map (explicit-stack fvs) [x y]))
-	;; fvs ['if a b c] => (cons 'if (map (explicit-stack fvs) [a b c]))
-	;; fvs ['let a b c] => ['let a (explicit-stack fvs b) (explicit-stack fvs c)]
-	;; fvs ['%closure lam . closed] => ['%closure (explicit-stack fvs lam) . closed]
-	fvs ['lambda args body] => ['lambda args (explicit-stack fvs body)]
+	;; fvs ['do x y] => (cons 'do (map (liveness-analyze fvs) [x y]))
+	;; fvs ['if a b c] => (cons 'if (map (liveness-analyze fvs) [a b c]))
+	;; fvs ['let a b c] => ['let a (liveness-analyze fvs b) (liveness-analyze fvs c)]
+	;; fvs ['%closure lam . closed] => ['%closure (liveness-analyze fvs lam) . closed]
+	fvs ['lambda args body] => ['lambda args (liveness-analyze fvs body)]
 	fvs ['continuation val body] => (let fvs1 (diff (free-vars body) val)
-					  (let fvs2 (map (explicit-stack fvs) fvs1)
-					    ['%continuation ['lambda val (explicit-stack fvs1 body)] . fvs2]))
-	fvs ['call exp cont] => ['call (map (explicit-stack fvs) exp) (explicit-stack fvs cont)]
-	fvs [f . args] => (map (explicit-stack fvs) [f . args]))
+					  (let fvs2 (map (liveness-analyze fvs) fvs1)
+					    ['%continuation val (liveness-analyze fvs1 body) . fvs2]))
+	fvs ['call exp cont] => ['call (map (liveness-analyze fvs) exp) (liveness-analyze fvs cont)]
+	fvs [f . args] => (map (liveness-analyze fvs) [f . args]))
 
-  ;; [%closure (lambda ..) . frees] => [%closure Label . frees]
-  ;; [%continuation (lambda ..) . stacks] => [%continuation Label . stacks]
-  ;; collect the result to v (vector idx cur final)
+  (func collect-cont
+	x conts k => (k x conts) where (or (symbol? x) (convert-protect? x))
+	['call exp cont] conts k => (collect-cont cont conts
+						  (lambda (cont1 conts1)
+						    (let fvs (cdddr cont1)
+							 (k ['call exp (+ (length conts1) 1) . fvs] (cons cont1 conts1)))))
+	[f . args] conts k => (collect-cont-list [f . args] conts () k))
+
+  (func collect-cont-list
+	() conts ret k => (k ret conts)
+	[f . args] conts ret k => (collect-cont f conts
+						(lambda (f1 conts1)
+						  (collect-cont-list args conts1 ret
+								     (lambda (args1 conts2)
+								       (k [f1 . args1] conts2))))))
+  (defun rewrite-lambda-final (params body)
+    (collect-cont body ()
+		  (lambda (body1 conts)
+		    ['lambda params body1 . (reverse conts)])))
+
+  ;; (lambda (args...) first (%continuation (x4382183911) body . fvs) (%continuation ...))
+  (defun lambda-frame-size (lam)
+    (let nargs (length (cadr lam))
+	 (foldl (lambda (acc x)
+		  (let len (+ (length (cdddr x)) 1)
+		       (if (> len acc)
+			   len
+			   acc)))
+		(+ nargs 1) (cdddr lam))))
+
+  ;; [%closure (lambda ..) . frees] => [%closure Label nargs nframe. frees]
+  ;; collect all the lambda form to v (vector count (lambda-list))
   (func collect-lambda
-	v [clo-or-cont ['lambda params body] . fvs] => (let body1 (collect-lambda v body)
-							 cur (vector-ref v 0)
-							 (if (= clo-or-cont '%closure)
-							     (begin
-							       (append-result v ['lambda params () body1])
-							       [clo-or-cont cur (length params) . fvs])
-							     (begin
-							       (append-result v ['lambda params fvs body1])
-							       [clo-or-cont cur . fvs])))
-	where (or (= clo-or-cont '%closure) (= clo-or-cont '%continuation))
-	v f-args => (map (lambda (e)
-			   (collect-lambda v e)) f-args) where (cons? f-args)
-			   v x => x)
-
+	v ['%closure ['lambda params body] . fvs] =>
+	(let body1 (collect-lambda v body)
+	     cur (vector-ref v 0)
+	     body2 (rewrite-lambda-final params body1)
+	     nframe (lambda-frame-size body2)
+	     (begin
+	      (append-result v body2)
+	      ['%closure cur (length params) nframe . fvs]))
+	v f-args => (map (collect-lambda v) f-args) where (cons? f-args)
+	v x => x)
+	     
   (defun append-result (v val)
     (let idx (vector-ref v 0)
       cur (vector-ref v 1)
@@ -211,19 +240,19 @@
       ['let tmp x
 	(k tmp)]))
 
-  (func generate-call-list
-	globals self w i [] => ()
-	globals self w i [x . more] => (begin
-					(if (not (> i 3))
-					    (begin ( generate-str w "__arg")
-						   (generate-num w i))
-					    (begin (generate-str w "co->args[")
-						   (generate-num w i)
-						   (generate-str w "]")))
-					(generate-str w " = ")
-					(generate-inst globals self () w x)
-					(generate-str w ";\n")
-					(generate-call-list globals self w (+ i 1) more)))
+  ;; (func generate-call-list
+  ;; 	globals self w i [] => ()
+  ;; 	globals self w i [x . more] => (begin
+  ;; 					(if (not (> i 3))
+  ;; 					    (begin ( generate-str w "__arg")
+  ;; 						   (generate-num w i))
+  ;; 					    (begin (generate-str w "co->args[")
+  ;; 						   (generate-num w i)
+  ;; 						   (generate-str w "]")))
+  ;; 					(generate-str w " = ")
+  ;; 					(generate-inst globals self () w x)
+  ;; 					(generate-str w ";\n")
+  ;; 					(generate-call-list globals self w (+ i 1) more)))
 
   (defun add-symbol-to-list (sym globals)
     (let val (value globals)
@@ -240,6 +269,28 @@
   (defun symbol-offset (sym globals)
     (symbol-offset-h 0 sym globals))
 
+  (defun save-to-frame (globals self env w ls)
+    (foldl (lambda (acc v)
+	     (begin
+	      (generate-str w "R[")
+	      (generate-num w acc)
+	      (generate-str w "] = ")
+	      (generate-inst globals self env w v)
+	      (generate-str w ";\n")
+	      (+ acc 1)))
+	   1 ls))
+
+  (defun recover-from-frame (globals self env w ls)
+    (foldl (lambda (acc v)
+	     (begin
+	      (generate-str w "Obj ")
+	      (generate-inst globals self env w v)
+	      (generate-str w " = R[")
+	      (generate-num w acc)
+	      (generate-str w "];\n")
+	      (+ acc 1)))
+	   1 ls))
+
   (defun generate-inst (globals self env1 w x1)
     (let generate-inst-h (gensym) 
 	 (begin
@@ -254,13 +305,9 @@
 					  (generate-num w (symbol-offset x globals))
 					  (generate-str w "])"))
 			    ['%closure-ref idx] (begin
-						 (generate-str w "closureRef(co, ")
+						 (generate-str w "closureRef(R[0], ")
 						 (generate-num w idx)
 						 (generate-str w ")"))
-			    ['%stack-ref idx] (begin
-					       (generate-str w "stackRef(co, ")
-					       (generate-num w idx)
-					       (generate-str w ")"))
 			    ['%const x] (cond
 					  ((symbol? x) (begin
 							(generate-str w "__symbolTable[")
@@ -300,57 +347,68 @@
 					 (generate-str w "} else {\n")
 					 ((value generate-inst-h) c env)
 					 (generate-str w "}\n"))
-			    ['%closure label nargs . frees] (begin
-							     (generate-str w "makeNative(")
-							     (generate-num w (mod (- (car self) label) *mod-num*))
-							     (generate-str w ", ")
-							     (generate-group-name w label (car self))
-							     (generate-str w ", ")
-							     (generate-num w nargs)
-							     (generate-str w ", ")
-							     (generate-num w (length frees))
-							     (if (not (null? frees))
-								 (begin
-								  (generate-str w ", ")
-								  (generate-inst-list globals self env w frees))
-								 ())
-							     (generate-str w ")"))
+			    ['%closure label nargs nframe . frees] (begin
+								    (generate-str w "makeNative1(")
+								    (generate-num w nframe)
+								    (generate-str w ", ")
+								    (generate-group-name w label)
+								    (generate-str w ", ")
+								    (generate-num w nargs)
+								    (generate-str w ", ")
+								    (generate-num w (length frees))
+								    (if (not (null? frees))
+									(begin
+									 (generate-str w ", ")
+									 (generate-inst-list globals self env w frees))
+									())
+								    (generate-str w ")"))
 			    ['do a b] (begin
 				       ((value generate-inst-h) a env)
 				       (generate-str w ";\n")
 				       ((value generate-inst-h) b env))
 			    ['return x] (begin
-					 (generate-str w "JUMP_RETURN(")
-					 (generate-group-name w (cdr self) (car self))
-					 (generate-str w ", ")
+					 (generate-str w "coraReturn(co, ")
 					 ((value generate-inst-h) x env)
-					 (generate-str w ");\n"))
-			    ['tailcall exp] ((value generate-inst-h) exp env)
-			    ['call exp cont] (begin
-					      (generate-cont globals self env w cont)
-					      ((value generate-inst-h) exp env))
-			    [f . args] (let nargs (+ 1 (length args))
-					    (if (< nargs 5)
-						(begin
-						 (generate-str w "JUMP_WITH_ARGS_")
-						 (generate-num w nargs)
-						 (generate-str w "(")
-						 (generate-group-name w (cdr self) (car self))
-						 (generate-str w ", ")
-						 (generate-inst-list globals self env w [f . args])
-						 (generate-str w ");\n"))
-						(begin
-						 (generate-str w "__nargs = ")
-						 (generate-num w nargs)
-						 (generate-str w ";\n")
-						 (generate-call-list globals self w 0 [f . args])
-						 (generate-str w "co->ctx.frees = __arg0;\n")
-						 (generate-str w "struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);\n")
-						 (generate-str w "if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; };\n")
-						 (generate-str w "if (ps.func != ")
-						 (generate-group-name w (cdr self) (car self))
-						 (generate-str w ") { co->ctx.pc = ps; goto fail; };\n")
-						 (generate-str w "goto *jumpTable[ps.label];\n"))))))))
+					 (generate-str w ");\n")
+					 (generate-str w "return;\n"))
+			    ['tailcall exp] (begin
+					     (generate-str w "co->ctx.sp = R;\n")
+					     ((value generate-inst-h) exp env)
+					     (generate-str w "return;\n"))
+			    ['call exp label . fvs] (begin
+						     (save-to-frame globals self env w fvs)
+						     (generate-str w "struct frame1 __curr = {\n")
+						     (generate-str w ".fn = ")
+						     (generate-group-name w self)
+						     (generate-str w ",\n.label = ")
+						     (generate-num w label)
+						     (generate-str w ",\n.bp = R,\n")
+						     (generate-str w ".sp = co->ctx.sp,\n")
+						     (generate-str w "};\n")
+						     (generate-str w "vecAppend(&co->callstack, __curr);\n")
+						     ((value generate-inst-h) exp env)
+						     (generate-str w "return;\n"))
+			    [f . args] (let nargs (length args)
+					    (begin
+					     (cond
+					       ((= nargs 0) (generate-str w "coraCall0(co, "))
+					       ((= nargs 1) (generate-str w "coraCall1(co, "))
+					       ((= nargs 2) (generate-str w "coraCall2(co, "))
+					       ((= nargs 3) (generate-str w "coraCall3(co, "))
+					       ((= nargs 4) (generate-str w "coraCall4(co, "))
+					       (true (generate-str w "coraCall(co, ")))
+					     ((value generate-inst-h) f env)
+					     (if (> nargs 4)
+						 (begin
+						  (generate-str w ", ")
+						  (generate-num w nargs))
+						 ())
+					     (if (> nargs 0)
+						 (begin
+						  (generate-str w ", ")
+						  (generate-inst-list globals self env w args))
+						 ())
+					     (generate-str w ");\n")))))))
 
 	  ((value generate-inst-h) x1 env1))))
 
@@ -372,78 +430,65 @@
 	  ((value generate-inst-list-h) l))))
 
   (func generate-cont
-	globals self env w ['%continuation label . stacks] => (begin
-							       (if (= stacks ())
-								   (generate-str w "PUSH_CONT_0(co, ")
-								   (generate-str w "pushCont(co, "))
-							       (generate-num w (mod (- (car self) label) *mod-num*))
-							       (generate-str w ", ")
-							       (generate-group-name w label (car self))
-							       (if (= stacks ())
-								   ()
-								   (begin
-								    (generate-str w ", ")
-								    (generate-num w (length stacks))
-								    (for-each (lambda (x)
-										(begin
-										 (generate-str w ", ")
-										 (generate-inst globals self () w x)))
-									      stacks)))
-							       (generate-str w ");\n")))
+	globals self env w ['%continuation var body . fvs] =>
+	(begin
+	 (generate-str w "Obj ")
+	 (generate-sym w (car var))
+	 (generate-str w "= co->res;\n")
+	 (recover-from-frame globals self env w fvs)
+	 (generate-inst globals self env w body)
+	 ))
 
-  (def *mod-num* 50)
-
-  (defun generate-group-name (w label maxid)
-    (let gid (/ (- maxid label) *mod-num*)
-      (begin
-        (generate-str w "clofun")
-        (generate-num w gid))))
-
-  (defun code-gen-func-declare (w label maxid)
+  (defun generate-group-name (w label)
     (begin
-      (generate-str w "static void ")
-      (generate-group-name w label maxid)
-      (generate-str w "(struct Cora* co")
-      (generate-str w ")")))
+     (generate-str w "clofun")
+     (generate-num w label)))
 
-  (defun local-from-params (w i var)
+  (defun code-gen-func-declare (w label)
     (begin
-      (generate-str w "Obj ")
-      (generate-inst () 'ignore () w var)
-      (if (< i 4)
-	  (begin (generate-str w " = __arg")
-		 (generate-num w i)
-		 (generate-str w ";\n"))
-	  (begin (generate-str w " = co->args[")
-		 (generate-num w i)
-		 (generate-str w "];\n")))))
+     (generate-str w "static void ")
+     (generate-group-name w label)
+     (generate-str w "(struct Cora* co, int label, Obj *R")
+     (generate-str w ")")))
 
-  (defun local-from-cont (w i var)
-    (begin
-      (generate-str w "Obj ")
-      (generate-inst () 'ignore () w var)
-      (generate-str w  "= ((Obj*)bytesData(co->ctx.stk.stack))[co->ctx.stk.base + ")
-      (generate-num w i)
-      (generate-str w "];\n")))
+  ;; (defun local-from-params (w i var)
+  ;;   (begin
+  ;;     (generate-str w "Obj ")
+  ;;     (generate-inst () 'ignore () w var)
+  ;;     (if (< i 4)
+  ;; 	  (begin (generate-str w " = __arg")
+  ;; 		 (generate-num w i)
+  ;; 		 (generate-str w ";\n"))
+  ;; 	  (begin (generate-str w " = co->args[")
+  ;; 		 (generate-num w i)
+  ;; 		 (generate-str w "];\n")))))
 
-  (func generate-call-args-reverse
-	fn w idx [] => ()
-	fn w idx [a . b] => (begin
-			      (fn w idx a)
-			      (generate-call-args-reverse fn w (+ idx 1) b)))
+  ;; (defun local-from-cont (w i var)
+  ;;   (begin
+  ;;     (generate-str w "Obj ")
+  ;;     (generate-inst () 'ignore () w var)
+  ;;     (generate-str w  "= ((Obj*)bytesData(co->ctx.stk.stack))[co->ctx.stk.base + ")
+  ;;     (generate-num w i)
+  ;;     (generate-str w "];\n")))
 
-  (func code-gen-toplevel
-	w [label ['lambda params actives body]] maxid globals => (begin
-								  (generate-str w "label")
-								  (generate-num w (mod (- maxid label) *mod-num*))
-								  (generate-str w ":\n{\n")
-								  (generate-call-args-reverse local-from-params w 1 params)
-								  (generate-call-args-reverse local-from-cont w 0 actives)
-								  (generate-inst globals (cons maxid label) params w body)
-								  (generate-str w "}\n\n"))
-	w other maxid globals =>  (begin (display "wrong format of toplevel\n")
-					 (display other)
-					 (display "\n")))
+  ;; (func generate-call-args-reverse
+  ;; 	fn w idx [] => ()
+  ;; 	fn w idx [a . b] => (begin
+  ;; 			      (fn w idx a)
+  ;; 			      (generate-call-args-reverse fn w (+ idx 1) b)))
+
+  ;; (func code-gen-toplevel
+  ;; 	w [label ['lambda params actives body]] globals => (begin
+  ;; 								  (generate-str w "label")
+  ;; 								  (generate-num w label)
+  ;; 								  (generate-str w ":\n{\n")
+  ;; 								  (generate-call-args-reverse local-from-params w 1 params)
+  ;; 								  (generate-call-args-reverse local-from-cont w 0 actives)
+  ;; 								  (generate-inst globals label params w body)
+  ;; 								  (generate-str w "}\n\n"))
+  ;; 	w other globals =>  (begin (display "wrong format of toplevel\n")
+  ;; 					 (display other)
+  ;; 					 (display "\n")))
 
   (defun parse-pass (globals exp)
     (parse [] globals exp))
@@ -454,17 +499,18 @@
   (defun tailify-pass (exp)
     (tailify exp id))
 
-  (defun explicit-stack-pass (exp)
-    (explicit-stack [] exp))
+  (defun liveness-analyze-pass (exp)
+    (liveness-analyze [] exp))
 
   (defun collect-lambda-pass (exp)
     (let v (vector 2)
-      (begin (vector-set! v 0 0)
-	     (vector-set! v 1 ())
-	     (let e1 (collect-lambda v exp)
-	       (begin
-		 (append-result v ['lambda () () e1])
-		 (vector-ref v 1))))))
+	 (begin (vector-set! v 0 0)
+		(vector-set! v 1 ())
+		(let e1 (collect-lambda v exp)
+		     e2 (rewrite-lambda-final () e1)
+		     (begin
+		      (append-result v e2)
+		      (vector-ref v 1))))))
 
   (func rewrite-->macro
 	obj [] => obj
@@ -480,7 +526,7 @@
 	(parse-pass globals)
 	closure-convert-pass
 	tailify-pass
-	explicit-stack-pass
+	liveness-analyze-pass
 	collect-lambda-pass))
 
   (func for-each
@@ -489,93 +535,72 @@
 			(fn x)
 			(for-each fn y)))
 
-  (defun generate-jumptable (to i n)
-    (cond
-     ((= i 0) (begin
-		(generate-str to "&&label0")
-		(generate-jumptable to 1 n)))
-     ((< i n) (begin
-		(generate-str to ", &&label")
-		(generate-num to i)
-		(generate-jumptable to (+ i 1) n)))
-     (true ())))
+  (defun generate-toplevel-lambda (to group globals)
+    (let label (car group)
+	 lam (cadr group)
+	 params (cadr lam)
+	 first-stmt (caddr lam)
+	 (begin
+	  (code-gen-func-declare to label)
+	  (generate-str to " {\n")
+	  ;; generate the first switch case
+	  (generate-str to " switch (label) {\n")
+	  (generate-str to "case 0:\n{\n")
+	  (recover-from-frame globals label () to params)
+	  (generate-inst globals label params to first-stmt)
+	  (generate-str to "}\n")
+	  ;; generate the continuation cases
+	  (foldl (lambda (acc cont)
+		   (begin
+		    (generate-str to "case ")
+		    (generate-num to acc)
+		    (generate-str to ":\n{\n")
+		    (generate-cont globals label (cadr lam) to cont)
+		    (generate-str to "}\n")
+		    (+ acc 1)))
+		 1 (cdddr lam))
+	  (generate-str to "}\n")
+	  (generate-str to "}\n\n")
+	  )))
 
-  (defun generate-toplevel-group (to group maxid globals)
-    (begin
-      (code-gen-func-declare to (caar group) maxid)
-      (generate-str to "{\n")
-
-      (generate-str to "int __nargs = co->nargs;\n")
-      (generate-str to "Obj __arg0 = co->args[0];\n")
-      (generate-str to "Obj __arg1 = co->args[1];\n")
-      (generate-str to "Obj __arg2 = co->args[2];\n")
-      (generate-str to "Obj __arg3 = co->args[3];\n\n")
-
-      (generate-str to "static void* jumpTable[] = {")
-      (generate-jumptable to 0 (length group))
-      (generate-str to "};\n\n")
-      (generate-str to "goto *jumpTable[co->ctx.pc.label];\n\n")
-
-      (for-each (lambda (x) (code-gen-toplevel to x maxid globals)) group)
-
-      (generate-str to "fail:\n")
-      (generate-str to "co->nargs = __nargs;\n")
-      (generate-str to "co->args[0] = __arg0;\n")
-      (generate-str to "co->args[1] = __arg1;\n")
-      (generate-str to "co->args[2] = __arg2;\n")
-      (generate-str to "co->args[3] = __arg3;\n")
-
-      (generate-str to "\n}\n\n")))
-
-  (func group-by-mod-h
-	res idx acc [] => (reverse (if (not (null? acc))
-				       (cons (reverse acc) res)
-				       res))
-	res idx acc [bc . more] => (if (= idx *mod-num*)
-				       (group-by-mod-h (cons (reverse acc) res) 0 [] [bc . more])
-				       (group-by-mod-h res (+ idx 1) (cons bc acc) more)))
-
-  (defun generate-entry (to globals)
+  (defun generate-entry (to globals label)
     (begin
      (generate-str to "static __thread Obj* __symbolTable;\n\n")
-      ;; (for-each (lambda (sym)
-      ;; 		  (begin
-      ;; 		    (generate-str to "static Obj sym")
-      ;; 		    (generate-sym to sym)
-      ;; 		    (generate-str to ";\n"))) globals)
-      (generate-str to "void entry(struct Cora *co) {\n")
-      (generate-str to "__symbolTable = (Obj*)malloc(sizeof(Obj) * ")
-      (generate-num to (length globals))
-      (generate-str to ");\n")
-      (foldl (lambda (acc sym)
-		  (begin
-		   (generate-str to "__symbolTable[")
-		   (generate-num to acc)
-		    ;; (generate-str to "sym")
-		    ;; (generate-sym to sym)
-		    (generate-str to "] = intern(\"")
-		    (generate-str to (symbol->string sym))
-		    (generate-str to "\");\n")
-		    (+ acc 1)))
-	     0 globals)
-      (generate-str to "clofun0(co);\n}\n\n")))
+     (generate-str to "void entry(struct Cora *co, int label, Obj *R) {\n")
+     (generate-str to "__symbolTable = (Obj*)malloc(sizeof(Obj) * ")
+     (generate-num to (length globals))
+     (generate-str to ");\n")
+     (foldl (lambda (acc sym)
+	      (begin
+	       (generate-str to "__symbolTable[")
+	       (generate-num to acc)
+	       ;; (generate-str to "sym")
+	       ;; (generate-sym to sym)
+	       (generate-str to "] = intern(\"")
+	       (generate-str to (symbol->string sym))
+	       (generate-str to "\");\n")
+	       (+ acc 1)))
+	    0 globals)
+
+     (generate-str to "co->ctx.fn = ")
+     (generate-group-name to label)
+     (generate-str to ";\n")
+     (generate-str to "co->ctx.label = 0;\n}\n\n")))
 
   (defun generate-c (to bc globals)
-    (let groups (group-by-mod-h [] 0 [] bc)
-      maxid (caar bc)
-      (begin
-	(generate-str to "#include \"types.h\"\n")
-	(generate-str to "#include \"runtime.h\"\n\n")
-	(for-each (lambda (group)
-		    (begin
-		      (code-gen-func-declare to (caar group) maxid)
-		      (generate-str to ";\n")))
-		  groups)
-	(generate-str to "\n\n")
-	(generate-entry to globals)
-	(for-each (lambda (group)
-		    (generate-toplevel-group to group maxid globals))
-		  groups))))
+    (begin
+     (generate-str to "#include \"types.h\"\n")
+     (generate-str to "#include \"runtime1.h\"\n\n")
+     (for-each (lambda (group)
+		 (begin
+		  (code-gen-func-declare to (car group))
+		  (generate-str to ";\n")))
+	       bc)
+     (generate-str to "\n\n")
+     (generate-entry to globals (caar bc))
+     (for-each (lambda (group)
+		 (generate-toplevel-lambda to group globals))
+	       bc)))
 
   (func handle-import-eagerly
 	['package _ . remain] => (handle-import-eagerly remain)

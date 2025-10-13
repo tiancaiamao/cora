@@ -1,20 +1,20 @@
 #include "types.h"
 #include "str.h"
-#include "runtime.h"
+#include "runtime1.h"
 #include "reader.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
 static void
-stringSlice(struct Cora *co) {
-  Obj str1 = co->args[1];
+stringSlice(struct Cora *co, int label, Obj *R) {
+  Obj str1 = R[1];
   int len = bytesLen(str1);
-  int beg = fixnum(co->args[2]);
+  int beg = fixnum(R[2]);
   if (beg < 0) {
     beg = len + beg;
   }
-  int end = fixnum(co->args[3]);
+  int end = fixnum(R[3]);
   if (end < 0) {
     end = len + end;
   }
@@ -30,12 +30,12 @@ stringSlice(struct Cora *co) {
 }
 
 static void
-stringHasPrefix(struct Cora *co) {
-  char* str1 = bytesData(co->args[1]);
-  char* prefix1 = bytesData(co->args[2]);
+stringHasPrefix(struct Cora *co, int label, Obj *R) {
+  char* str1 = bytesData(R[1]);
+  char* prefix1 = bytesData(R[2]);
 
-  int lPrefix = bytesLen(co->args[2]);
-  if (lPrefix > bytesLen(co->args[1])) {
+  int lPrefix = bytesLen(R[2]);
+  if (lPrefix > bytesLen(R[1])) {
     coraReturn(co, False);
     return;
   }
@@ -51,17 +51,17 @@ stringHasPrefix(struct Cora *co) {
 }
 
 static void
-bytesLength(struct Cora *co) {
-  Obj o = co->args[1];
+bytesLength(struct Cora *co, int label, Obj *R) {
+  Obj o = R[1];
   int l = bytesLen(o);
 
   coraReturn(co, makeNumber(l));
 }
 
 static void
-stringIndex(struct Cora *co) {
-  Obj x = co->args[1];
-  Obj y = co->args[2];
+stringIndex(struct Cora *co, int label, Obj *R) {
+  Obj x = R[1];
+  Obj y = R[2];
 
   char* str = bytesData(x);
   int idx = fixnum(y);
@@ -70,9 +70,9 @@ stringIndex(struct Cora *co) {
 }
 
 static void
-stringCompare(struct Cora *co) {
-  Obj x = co->args[1];
-  Obj y = co->args[2];
+stringCompare(struct Cora *co, int label, Obj *R) {
+  Obj x = R[1];
+  Obj y = R[2];
 
   str x1 = stringStr(x);
   str y1 = stringStr(y);
@@ -81,8 +81,8 @@ stringCompare(struct Cora *co) {
 }
 
 static void
-numberToString(struct Cora *co) {
-  Obj n = co->args[1];
+numberToString(struct Cora *co, int label, Obj *R) {
+  Obj n = R[1];
   assert(isfixnum(n));
 
   char tmp[32];
@@ -91,10 +91,10 @@ numberToString(struct Cora *co) {
 }
 
 static void
-stringReplace(struct Cora *co) {
-  Obj arg1 = co->args[1];
-  Obj arg2 = co->args[2];
-  Obj arg3 = co->args[3];
+stringReplace(struct Cora *co, int label, Obj *R) {
+  Obj arg1 = R[1];
+  Obj arg2 = R[2];
+  Obj arg3 = R[3];
 
   str raw = stringStr(arg1);
   str from = stringStr(arg2);
@@ -118,9 +118,9 @@ stringReplace(struct Cora *co) {
 }
 
 static void
-stringContain(struct Cora *co) {
-		Obj arg1 = co->args[1];
-		Obj arg2 = co->args[2];
+stringContain(struct Cora *co, int label, Obj *R) {
+		Obj arg1 = R[1];
+		Obj arg2 = R[2];
 
 		str raw = stringStr(arg1);
 		str from = stringStr(arg2);
@@ -135,9 +135,9 @@ stringContain(struct Cora *co) {
 }
 
 static void
-stringSplit(struct Cora *co) {
-  Obj arg1 = co->args[1];
-  Obj arg2 = co->args[2];
+stringSplit(struct Cora *co, int label, Obj *R) {
+  Obj arg1 = R[1];
+  Obj arg2 = R[2];
   str from = stringStr(arg1);
   str split = stringStr(arg2);
 
@@ -158,12 +158,12 @@ stringSplit(struct Cora *co) {
 }
 
 static void
-bytesMemCpy(struct Cora *co) {
-		Obj to = co->args[1];
-		Obj off1 = co->args[2];
-		Obj from = co->args[3];
-		Obj off2 = co->args[4];
-		Obj size = co->args[5];
+bytesMemCpy(struct Cora *co, int label, Obj *R) {
+		Obj to = R[1];
+		Obj off1 = R[2];
+		Obj from = R[3];
+		Obj off2 = R[4];
+		Obj size = R[5];
 
 		char *dst = bytesData(to) + fixnum(off1);
 		char *src = bytesData(from) + fixnum(off2);
@@ -172,17 +172,17 @@ bytesMemCpy(struct Cora *co) {
 }
 
 static void
-bytesRef(struct Cora *co) {
-  Obj str = co->args[1];
-  Obj idx = fixnum(co->args[2]);
+bytesRef(struct Cora *co, int label, Obj *R) {
+  Obj str = R[1];
+  Obj idx = fixnum(R[2]);
   assert(idx < bytesLen(str));
   Obj ret = makeNumber(bytesData(str)[idx]);
   coraReturn(co, ret);
 }
 
 static void
-stringToList(struct Cora *co) {
-	Obj str = co->args[1];
+stringToList(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
 	char *bs = bytesData(str);
 	int len = bytesLen(str);
 	Obj res = Nil;
@@ -212,8 +212,8 @@ static struct registerModule stringModule = {
 };
 
 void
-entry(struct Cora *co) {
-  Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+  Obj pkg = R[2];
   registerAPI(co, &stringModule, stringStr(pkg));
   coraReturn(co, intern("string"));
 }

@@ -1,10 +1,11 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c
+SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c runtime1.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
+# CFLAGS = -g -DNDEBUG -O2 -Wall
 
 ifeq ("${ENABLE_ASAN}", "1")
 	CFLAGS += -fsanitize=address
@@ -32,10 +33,13 @@ gc_test: gc.test
 
 LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
-libcora.a: $(LIBOBJS)
+LIBOBJS1 = str.o gc.o types.o reader.o runtime1.o trace.o
+
+
+libcora.a: $(LIBOBJS1)
 	ar -rc $@ $^
 
-libcora.so: $(LIBOBJS)
+libcora.so: $(LIBOBJS1)
 	gcc -shared -o $@ $^ -ldl
 
 clean:

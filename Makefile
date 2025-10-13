@@ -28,7 +28,7 @@ lib:
 	make -C lib
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -I src
+	$(CC) $(CFLAGS) -c -g $< -I src
 
 cora.bin: libcora main.o init.so
 	$(CC) main.o -Lsrc $(LD_FLAG) -o $@

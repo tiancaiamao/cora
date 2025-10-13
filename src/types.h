@@ -89,6 +89,24 @@ int bytesLen(Obj o);
 Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
 str stringStr(Obj o);
+
+#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
+
+#define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
+#define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
+#define PRIM_ISCONS(obj) (iscons(obj)? True: False)
+
+#define PRIM_EQ(x, y) (eq(x, y) ? True : False)
+#define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
+#define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
+
+#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
+
+// assuming x and y are both fixnum
+#define PRIM_ADD(x, y)    ((x) + (y))
+#define PRIM_SUB(x, y)    ((x) - (y))
+#define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
+
 Obj makeNumber(int v);
 #define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
 bool isNumber(Obj o);
@@ -145,6 +163,26 @@ int nativeRequired(Obj o);
 struct pcState* nativeFuncPtr(Obj o);
 struct scmNative* mustNative(Obj o);
 bool isNative(Obj o);
+
+
+typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
+
+struct scmNative1 {
+	scmHead head;
+	int required;
+	int nframe;
+	basicBlock1 fn;
+
+	int captured;
+	Obj data[];
+};
+
+struct scmNative1* mustNative1(Obj o);
+Obj makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...);
+int native1Captured(Obj o);
+int native1Required(Obj o);
+Obj* native1Data(Obj o);
+basicBlock1 native1Fn(Obj o);
 
 struct stackState {
 	Obj stack;

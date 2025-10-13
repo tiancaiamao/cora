@@ -1,4 +1,4 @@
-all: toc.so os.so string.so io.so net.so hash-h.so rand.so toc/internal.so parallel/internal.so trace.so
+all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so
 
 extra: md4c/include.so json.so
 
