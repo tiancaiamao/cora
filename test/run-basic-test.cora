@@ -28,7 +28,7 @@
       outfile-path (get-exec-file file-path)
       (begin
 	(cora/lib/toc#compile-to-c file-path c-file-path)
-	(exec ["gcc" "-g" "-DForTest -Isrc src/runtime1.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" "./src/trace.c" c-file-path
+	(exec ["gcc" "-g" "-DForTest -Isrc src/runtime.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" "./src/trace.c" c-file-path
 		  "-o" outfile-path "-ldl"]))))
 
   (defun run (file-path)

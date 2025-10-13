@@ -1,6 +1,6 @@
 #include "types.h"
 #include "str.h"
-#include "runtime1.h"
+#include "runtime.h"
 #include "reader.h"
 #include <stdio.h>
 #include <string.h>

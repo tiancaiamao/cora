@@ -139,76 +139,26 @@ eq(Obj x, Obj y) {
 
 struct Cora;
 
-typedef void (*basicBlock)(struct Cora *co);
-
-struct pcState {
-  basicBlock func;
-  int label;
-};
+typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
 struct scmNative {
 	scmHead head;
-	struct pcState code;
-	// required is the argument number of the nativeFunc.
-	int required;
-	// captured is the size of the data, it's immutable after makeNative.
-	int captured;
-	Obj data[];
-};
-
-Obj makeNative(int label, basicBlock fn, int required, int captured, ...);
-Obj* nativeData(Obj o);
-int nativeCaptured(Obj o);
-int nativeRequired(Obj o);
-struct pcState* nativeFuncPtr(Obj o);
-struct scmNative* mustNative(Obj o);
-bool isNative(Obj o);
-
-
-typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
-
-struct scmNative1 {
-	scmHead head;
 	int required;
 	int nframe;
-	basicBlock1 fn;
+	basicBlock fn;
 
 	int captured;
 	Obj data[];
 };
 
-struct scmNative1* mustNative1(Obj o);
-Obj makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...);
-int native1Captured(Obj o);
-int native1Required(Obj o);
-Obj* native1Data(Obj o);
-basicBlock1 native1Fn(Obj o);
+struct scmNative* mustNative(Obj o);
+Obj makeNative(int nframe, basicBlock fn, int required, int captured, ...);
+int nativeCaptured(Obj o);
+int nativeRequired(Obj o);
+Obj* nativeData(Obj o);
+basicBlock nativeFn(Obj o);
 
-struct stackState {
-	Obj stack;
-	int base;
-	int pos;
-};
-
-struct frame {
-	struct stackState stk;
-	struct pcState pc;
-	Obj frees;
-	// For debugging
-	char *debugFile;
-	int debugLine;
-};
-
-struct callStack {
-  struct frame *data;
-  int len;
-  int cap;
-};
-
-Obj makeContinuation(struct frame *data, int len);
-struct callStack contCallStack(Obj cont);
-
-void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv);
+/* void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv); */
 
 extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 

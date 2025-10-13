@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c runtime1.c
+SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
@@ -33,13 +33,10 @@ gc_test: gc.test
 
 LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
 
-LIBOBJS1 = str.o gc.o types.o reader.o runtime1.o trace.o
-
-
-libcora.a: $(LIBOBJS1)
+libcora.a: $(LIBOBJS)
 	ar -rc $@ $^
 
-libcora.so: $(LIBOBJS1)
+libcora.so: $(LIBOBJS)
 	gcc -shared -o $@ $^ -ldl
 
 clean:

@@ -293,9 +293,6 @@ printObj(FILE *to, Obj o) {
 		case scmHeadNative:
 			fprintf(to, "native");
 			break;
-		case scmHeadNative1:
-			fprintf(to, "native1");
-			break;
 		default:
 			fprintf(to, "ptr unknown type = %d\n", h->type);
 		};

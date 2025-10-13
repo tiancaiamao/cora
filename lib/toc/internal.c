@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "runtime1.h"
+#include "runtime.h"
 #include "str.h"
 
 static void

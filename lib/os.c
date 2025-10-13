@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include "types.h"
 #include "str.h"
-#include "runtime1.h"
+#include "runtime.h"
 
 static strBuf
 cmdListStr(Obj args) {
