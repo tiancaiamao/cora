@@ -290,8 +290,8 @@ printObj(FILE *to, Obj o) {
 		case scmHeadBoolean:
 			fprintf(to, "boolean");
 			break;
-		case scmHeadNative1:
-			fprintf(to, "native1");
+		case scmHeadNative:
+			fprintf(to, "native");
 			break;
 		default:
 			fprintf(to, "ptr unknown type = %d\n", h->type);

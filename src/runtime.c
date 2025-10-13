@@ -80,7 +80,7 @@ trampoline(struct Cora *co) {
 
 void
 coraRun(struct Cora *co) {
-	struct frame1 exit = {
+	struct frame exit = {
 		.fn = NULL,
 		.label = 0,
 		.bp = co->ctx.bp,
@@ -94,7 +94,7 @@ static void coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap);
 
 static void
 coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
-	struct scmNative1* f = mustNative1(fn);
+	struct scmNative* f = mustNative(fn);
 	if (f->required != nargs) {
 		// curry or partial, goto dispatch function
 		coraDispatch(co, fn, nargs, ap);
@@ -129,20 +129,20 @@ static void
 callCurry(struct Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("callCurry");
 	Obj fn = R[0];
-	int captured = native1Captured(fn);
-	int nargs = native1Required(fn);
+	int captured = nativeCaptured(fn);
+	int nargs = nativeRequired(fn);
 	memmove(R + captured, R + 1, nargs * sizeof(Obj));
-	memcpy(R, native1Data(fn), captured * sizeof(Obj));
-	co->ctx.fn = native1Fn(R[0]);
+	memcpy(R, nativeData(fn), captured * sizeof(Obj));
+	co->ctx.fn = nativeFn(R[0]);
 	co->ctx.label = 0;
 }
 
 Obj
 makeCurry(Obj fn, int nargs, va_list ap) {
-	int sz = sizeof(struct scmNative1) + (nargs + 1) * sizeof(Obj);
-	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
+	int sz = sizeof(struct scmNative) + (nargs + 1) * sizeof(Obj);
+	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->fn = callCurry;
-	struct scmNative1* f = mustNative1(fn);
+	struct scmNative* f = mustNative(fn);
 	assert(f->required > nargs);
 	clo->nframe = f->nframe;
 	clo->required = f->required - nargs;
@@ -157,7 +157,7 @@ makeCurry(Obj fn, int nargs, va_list ap) {
 
 static void
 coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
-	struct scmNative1 *f = mustNative1(fn);
+	struct scmNative *f = mustNative(fn);
 	int required = f->required;
 	if (nargs == required) {
 		// TODO?
@@ -167,7 +167,7 @@ coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
 		coraReturn(co, ret);
 	} else {
 		// eval the first call and get the result;
-		struct frame1 ctx = {
+		struct frame ctx = {
 			.fn = NULL,
 			.bp = co->ctx.bp,
 			.sp = co->ctx.sp,
@@ -336,7 +336,7 @@ builtinLoadSo(struct Cora *co, int label, Obj *R) {
 		coraReturn(co, makeString(error, strlen(error)));
 		return;
 	}
-	struct frame1 exit = {
+	struct frame exit = {
 		.fn = NULL,
 		.label = 0,
 		.bp = co->ctx.bp,
@@ -367,8 +367,8 @@ builtinApply(struct Cora *co, int label, Obj *R) {
 	Obj args = R[2];
 	int nargs = listLen(args);
 
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != nargs) {
 		// TODO
 		assert(false);
@@ -526,7 +526,7 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	if (safeToUseSo(tmp)) {
 		// builtinLoadSo is a bit special, it requires the spent stack of VM is
 		// (load-so "file-path.so" "package-path")
-		Obj arg0 = makeNative1(3, builtinLoadSo, 2, 0);
+		Obj arg0 = makeNative(3, builtinLoadSo, 2, 0);
 		Obj arg1 = makeString(toCStr(tmp), strLen(toStr(tmp)));
 		Obj arg2 = pkg;
 		coraCall2(co, arg0, arg1, arg2);
@@ -541,7 +541,7 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	tmp = strCat(tmp, S(".cora"));
 	str tmp1 = toStr(tmp);
 
-	coraCall2(co, makeNative1(3, builtinLoad, 2, 0), makeString(tmp1.str, tmp1.len), pkg);
+	coraCall2(co, makeNative(3, builtinLoad, 2, 0), makeString(tmp1.str, tmp1.len), pkg);
 
 	/* co->nargs = 3; */
 	/* co->args[0] = makeNative(0, builtinLoad, 2, 0); */
@@ -688,7 +688,7 @@ builtinTryCatch(struct Cora *co, int label, Obj *R) {
 			// Save the try cont.
 			// This save can make the chunk and handler available to the recovering process.
 			// Use a call protocol instead of tail call protocol.
-			struct frame1 cont = {
+			struct frame cont = {
 				.fn = builtinTryCatch,
 				.label = 1,
 				.bp = co->ctx.bp,
@@ -722,14 +722,14 @@ struct scmContinuation {
 	scmHead head;
 	vector(Obj*)segstack;
 	int len;
-	struct frame1 callstack[];
+	struct frame callstack[];
 };
 
 Obj
-makeContinuation1(struct frame1 *callstack, int len, Obj** stk, int count) {
+makeContinuation1(struct frame *callstack, int len, Obj** stk, int count) {
 	struct scmContinuation *cont = newObj(scmHeadContinuation1,
 					       sizeof(struct scmContinuation) +
-					       len * sizeof(struct frame1));
+					       len * sizeof(struct frame));
 	for (int i = 0; i < len; i++) {
 		cont->callstack[i] = callstack[i];
 	}
@@ -746,7 +746,7 @@ makeContinuation1(struct frame1 *callstack, int len, Obj** stk, int count) {
 static void
 continuation1AsClosure(struct Cora *co, int label, Obj *R) {
 	Obj this = R[0];
-	Obj contObj = native1Data(this)[0];
+	Obj contObj = nativeData(this)[0];
 
 	// Don't forget the try mark.
 	struct tryMark mark = {
@@ -784,10 +784,10 @@ builtinThrow(struct Cora *co, int label, Obj *R) {
 				     vecLen(&co->stk.data) - mark.segmentStackPos);
 
 	// Now that we get the spent continuation, disguise as a closure.
-	Obj clo = makeNative1(2, continuation1AsClosure, 1, 1, cont);
+	Obj clo = makeNative(2, continuation1AsClosure, 1, 1, cont);
 
 	// Find the handler from the try stack, invoke it, passing the continuation.
-	struct frame1 try = vecGet(&co->callstack, mark.callstackPos);
+	struct frame try = vecGet(&co->callstack, mark.callstackPos);
 	Obj handler = try.bp[2];
 
 	// Reset to the stack before try.
@@ -799,7 +799,7 @@ builtinThrow(struct Cora *co, int label, Obj *R) {
 	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
 	co->callstack.v.len = mark.callstackPos;
 
-	struct frame1 beforeTry = vecGet(&co->callstack, vecLen(&co->callstack) - 1);
+	struct frame beforeTry = vecGet(&co->callstack, vecLen(&co->callstack) - 1);
 	co->ctx.bp = beforeTry.bp;
 	co->ctx.sp = beforeTry.sp;
 	coraCall2(co, handler, v, clo);
@@ -950,7 +950,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		} else {
 			sym = intern(entry.name);
 		}
-		primSet(co, sym, makeNative1(entry.args + 1, entry.func, entry.args, 0));
+		primSet(co, sym, makeNative(entry.args + 1, entry.func, entry.args, 0));
 		exports = cons(intern(entry.name), exports);
 	}
 	if (strLen(pkg) > 0) {
@@ -971,48 +971,48 @@ coraInit(uintptr_t * mark) {
 	symUnQuote = intern("unquote");
 	struct Cora *co = coraNew();
 	primSet(co, intern("symbol->string"),
-		makeNative1(2, symbolToString, 1, 0));
+		makeNative(2, symbolToString, 1, 0));
 	primSet(co, intern("intern"),
-		makeNative1(2, builtinIntern, 1, 0));
+		makeNative(2, builtinIntern, 1, 0));
 	primSet(co, intern("number?"),
-		makeNative1(2, builtinIsNumber, 1, 0));
+		makeNative(2, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
-		makeNative1(2, builtinReadFileAsSexp, 1, 0));
+		makeNative(2, builtinReadFileAsSexp, 1, 0));
 	primSet(co, intern("string-append"),
-		makeNative1(3, builtinStringAppend, 2, 0));
+		makeNative(3, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"),
-		makeNative1(2, builtinValue, 1, 0));
+		makeNative(2, builtinValue, 1, 0));
 	primSet(co, intern("value-or"),
-		makeNative1(3, builtinValueOr, 2, 0));
+		makeNative(3, builtinValueOr, 2, 0));
 	primSet(co, intern("apply"),
-		makeNative1(3, builtinApply, 2, 0));
+		makeNative(3, builtinApply, 2, 0));
 	primSet(co, intern("load-so"),
-		makeNative1(3, builtinLoadSo, 2, 0));
+		makeNative(3, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"),
-		makeNative1(2, builtinImport, 1, 0));
+		makeNative(2, builtinImport, 1, 0));
 	primSet(co, intern("load"),
-		makeNative1(2, builtinLoad, 1, 0));
+		makeNative(2, builtinLoad, 1, 0));
 	primSet(co, intern("vector"),
-		makeNative1(2, builtinVector, 1, 0));
+		makeNative(2, builtinVector, 1, 0));
 	primSet(co, intern("vector?"),
-		makeNative1(2, builtinIsVector, 1, 0));
+		makeNative(2, builtinIsVector, 1, 0));
 	primSet(co, intern("vector-set!"),
-		makeNative1(4, builtinVectorSet, 3, 0));
+		makeNative(4, builtinVectorSet, 3, 0));
 	primSet(co, intern("vector-ref"),
-		makeNative1(3, builtinVectorRef, 2, 0));
+		makeNative(3, builtinVectorRef, 2, 0));
 	primSet(co, intern("vector-length"),
-		makeNative1(2, builtinVectorLength, 1, 0));
+		makeNative(2, builtinVectorLength, 1, 0));
 	primSet(co, intern("bytes"),
-		makeNative1(2, builtinBytes, 1, 0));
+		makeNative(2, builtinBytes, 1, 0));
 	primSet(co, intern("bytes-length"),
-		makeNative1(0, builtinBytesLength, 1, 0));
+		makeNative(0, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"),
-		makeNative1(3, builtinTryCatch, 2, 0));
+		makeNative(3, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"),
-		makeNative1(2, builtinThrow, 1, 0));
+		makeNative(2, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
-		makeNative1(2, builtinSymbolCooked, 1, 0));
+		makeNative(2, builtinSymbolCooked, 1, 0));
 	/* primSet(co, intern("cora/lib/eval#make-closure-for-eval"), */
 	/* 	makeNative(0, makeClosureForEval, 3, 0)); */
 	/* primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"), */

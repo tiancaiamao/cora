@@ -242,9 +242,9 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 }
 
 Obj
-makeNative1(int nframe, basicBlock fn, int required, int captured, ...) {
-	int sz = sizeof(struct scmNative1) + captured * sizeof(Obj);
-	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
+makeNative(int nframe, basicBlock fn, int required, int captured, ...) {
+	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
+	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->nframe = nframe;
 	clo->fn = fn;
 	clo->required = required;
@@ -261,16 +261,16 @@ makeNative1(int nframe, basicBlock fn, int required, int captured, ...) {
 	return ((Obj) (&clo->head) | TAG_PTR);
 }
 
-struct scmNative1 *
-mustNative1(Obj o) {
-	struct scmNative1 *native = ptr(o);
-	assert(native->head.type == scmHeadNative1);
+struct scmNative *
+mustNative(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
 	return native;
 }
 
 static void
-native1GCFunc(struct GC *gc, void *f) {
-	struct scmNative1 *from = f;
+nativeGCFunc(struct GC *gc, void *f) {
+	struct scmNative *from = f;
 	version_t minv = from->head.version;
 	for (int i = 0; i < from->captured; i++) {
 		gcMark(gc, from->data[i], minv);
@@ -278,9 +278,9 @@ native1GCFunc(struct GC *gc, void *f) {
 }
 
 Obj *
-native1Data(Obj o) {
-	struct scmNative1 *native = ptr(o);
-	assert(native->head.type == scmHeadNative1);
+nativeData(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
 	if (native->captured == 0) {
 		return NULL;
 	}
@@ -288,23 +288,23 @@ native1Data(Obj o) {
 }
 
 int
-native1Captured(Obj o) {
-	struct scmNative1 *native = ptr(o);
-	assert(native->head.type == scmHeadNative1);
+nativeCaptured(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
 	return native->captured;
 }
 
 basicBlock
-native1Fn(Obj o) {
-	struct scmNative1 *native = ptr(o);
-	assert(native->head.type == scmHeadNative1);
+nativeFn(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
 	return native->fn;
 }
 
 int
-native1Required(Obj o) {
-	struct scmNative1 *native = ptr(o);
-	assert(native->head.type == scmHeadNative1);
+nativeRequired(Obj o) {
+	struct scmNative *native = ptr(o);
+	assert(native->head.type == scmHeadNative);
 	return native->required;
 }
 
@@ -469,5 +469,5 @@ typesInit() {
 	gcRegistForType(scmHeadVector, vectorGCFunc);
 	/* gcRegistForType(scmHeadContinuation, continuationGCFunc); */
 	gcRegistForType(scmHeadSymbol, symbolGCFunc);
-	gcRegistForType(scmHeadNative1, native1GCFunc);
+	gcRegistForType(scmHeadNative, nativeGCFunc);
 }

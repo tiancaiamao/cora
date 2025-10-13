@@ -141,7 +141,7 @@ struct Cora;
 
 typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
-struct scmNative1 {
+struct scmNative {
 	scmHead head;
 	int required;
 	int nframe;
@@ -151,12 +151,12 @@ struct scmNative1 {
 	Obj data[];
 };
 
-struct scmNative1* mustNative1(Obj o);
-Obj makeNative1(int nframe, basicBlock fn, int required, int captured, ...);
-int native1Captured(Obj o);
-int native1Required(Obj o);
-Obj* native1Data(Obj o);
-basicBlock native1Fn(Obj o);
+struct scmNative* mustNative(Obj o);
+Obj makeNative(int nframe, basicBlock fn, int required, int captured, ...);
+int nativeCaptured(Obj o);
+int nativeRequired(Obj o);
+Obj* nativeData(Obj o);
+basicBlock nativeFn(Obj o);
 
 /* void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv); */
 

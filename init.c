@@ -273,18 +273,18 @@ static void clofun95(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512865_37 = primSet(co, __symbolTable[161], makeNative1(2, clofun0, 1, 0));
-Obj _3512868_37 = primSet(co, __symbolTable[160], makeNative1(2, clofun1, 1, 0));
-Obj _3512871_37 = primSet(co, __symbolTable[159], makeNative1(2, clofun2, 1, 0));
-Obj _3512874_37 = primSet(co, __symbolTable[158], makeNative1(2, clofun3, 1, 0));
-Obj _3512877_37 = primSet(co, __symbolTable[157], makeNative1(2, clofun4, 1, 0));
-Obj _3512881_37 = primSet(co, __symbolTable[156], makeNative1(2, clofun5, 1, 0));
-Obj _3512886_37 = primSet(co, __symbolTable[155], makeNative1(2, clofun6, 1, 0));
-Obj _3512890_37 = primSet(co, __symbolTable[154], makeNative1(2, clofun7, 1, 0));
-Obj _3512898_37 = primSet(co, __symbolTable[153], makeNative1(2, clofun8, 1, 0));
-Obj _3512900_37 = primSet(co, __symbolTable[151], makeNative1(2, clofun9, 1, 0));
-Obj _3512905_37 = primSet(co, __symbolTable[150], makeNative1(3, clofun10, 2, 0));
-struct frame1 __curr = {
+Obj _3512865_37 = primSet(co, __symbolTable[161], makeNative(2, clofun0, 1, 0));
+Obj _3512868_37 = primSet(co, __symbolTable[160], makeNative(2, clofun1, 1, 0));
+Obj _3512871_37 = primSet(co, __symbolTable[159], makeNative(2, clofun2, 1, 0));
+Obj _3512874_37 = primSet(co, __symbolTable[158], makeNative(2, clofun3, 1, 0));
+Obj _3512877_37 = primSet(co, __symbolTable[157], makeNative(2, clofun4, 1, 0));
+Obj _3512881_37 = primSet(co, __symbolTable[156], makeNative(2, clofun5, 1, 0));
+Obj _3512886_37 = primSet(co, __symbolTable[155], makeNative(2, clofun6, 1, 0));
+Obj _3512890_37 = primSet(co, __symbolTable[154], makeNative(2, clofun7, 1, 0));
+Obj _3512898_37 = primSet(co, __symbolTable[153], makeNative(2, clofun8, 1, 0));
+Obj _3512900_37 = primSet(co, __symbolTable[151], makeNative(2, clofun9, 1, 0));
+Obj _3512905_37 = primSet(co, __symbolTable[150], makeNative(3, clofun10, 2, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 15,
 .bp = R,
@@ -297,8 +297,8 @@ return;
 case 1:
 {
 Obj _3513385_37= co->res;
-Obj _3513391_37 = primSet(co, __symbolTable[76], makeNative1(3, clofun80, 2, 0));
-Obj _3513403_37 = primSet(co, __symbolTable[71], makeNative1(5, clofun81, 3, 0));
+Obj _3513391_37 = primSet(co, __symbolTable[76], makeNative(3, clofun80, 2, 0));
+Obj _3513403_37 = primSet(co, __symbolTable[71], makeNative(5, clofun81, 3, 0));
 Obj _3513404_37 = makeCons(makeCString("primSet"), Nil);
 Obj _3513405_37 = makeCons(MAKE_NUMBER(2), _3513404_37);
 Obj _3513406_37 = makeCons(__symbolTable[68], _3513405_37);
@@ -368,9 +368,9 @@ Obj _3513469_37 = makeCons(_3513412_37, _3513468_37);
 Obj _3513470_37 = makeCons(_3513409_37, _3513469_37);
 Obj _3513471_37 = makeCons(_3513406_37, _3513470_37);
 Obj _3513472_37 = primSet(co, __symbolTable[69], _3513471_37);
-Obj _3513487_37 = primSet(co, __symbolTable[56], makeNative1(3, clofun83, 2, 0));
-Obj _3513491_37 = primSet(co, __symbolTable[55], makeNative1(2, clofun84, 1, 0));
-Obj _3513669_37 = primSet(co, __symbolTable[93], makeNative1(5, clofun94, 4, 0));
+Obj _3513487_37 = primSet(co, __symbolTable[56], makeNative(3, clofun83, 2, 0));
+Obj _3513491_37 = primSet(co, __symbolTable[55], makeNative(2, clofun84, 1, 0));
+Obj _3513669_37 = primSet(co, __symbolTable[93], makeNative(5, clofun94, 4, 0));
 Obj _3513670_37 = makeCons(__symbolTable[98], Nil);
 Obj _3513671_37 = makeCons(__symbolTable[99], _3513670_37);
 Obj _3513672_37 = makeCons(__symbolTable[101], _3513671_37);
@@ -455,218 +455,218 @@ return;
 case 2:
 {
 Obj _3513335_37= co->res;
-Obj _3513364_37 = primSet(co, __symbolTable[83], makeNative1(5, clofun75, 4, 0));
-Obj _3513365_37 = primSet(co, __symbolTable[80], makeNative1(3, clofun76, 2, 0));
-struct frame1 __curr = {
+Obj _3513364_37 = primSet(co, __symbolTable[83], makeNative(5, clofun75, 4, 0));
+Obj _3513365_37 = primSet(co, __symbolTable[80], makeNative(3, clofun76, 2, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 1,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[79], makeNative1(2, clofun79, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[79], makeNative(2, clofun79, 1, 0));
 return;
 }
 case 3:
 {
 Obj _3513318_37= co->res;
-Obj _3513332_37 = primSet(co, __symbolTable[85], makeNative1(3, clofun71, 2, 0));
-struct frame1 __curr = {
+Obj _3513332_37 = primSet(co, __symbolTable[85], makeNative(3, clofun71, 2, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 2,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[84], makeNative1(2, clofun72, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[84], makeNative(2, clofun72, 1, 0));
 return;
 }
 case 4:
 {
 Obj _3513296_37= co->res;
-Obj _3513316_37 = primSet(co, __symbolTable[88], makeNative1(2, clofun69, 1, 0));
-struct frame1 __curr = {
+Obj _3513316_37 = primSet(co, __symbolTable[88], makeNative(2, clofun69, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 3,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[86], makeNative1(2, clofun70, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[86], makeNative(2, clofun70, 1, 0));
 return;
 }
 case 5:
 {
 Obj _3513265_37= co->res;
-Obj _3513266_37 = primSet(co, __symbolTable[94], makeNative1(2, clofun61, 1, 0));
-Obj _3513267_37 = primSet(co, __symbolTable[92], makeNative1(2, clofun62, 1, 0));
-Obj _3513270_37 = primSet(co, __symbolTable[138], makeNative1(2, clofun63, 1, 0));
-Obj _3513294_37 = primSet(co, __symbolTable[91], makeNative1(2, clofun66, 1, 0));
-struct frame1 __curr = {
+Obj _3513266_37 = primSet(co, __symbolTable[94], makeNative(2, clofun61, 1, 0));
+Obj _3513267_37 = primSet(co, __symbolTable[92], makeNative(2, clofun62, 1, 0));
+Obj _3513270_37 = primSet(co, __symbolTable[138], makeNative(2, clofun63, 1, 0));
+Obj _3513294_37 = primSet(co, __symbolTable[91], makeNative(2, clofun66, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 4,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[89], makeNative1(2, clofun67, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[89], makeNative(2, clofun67, 1, 0));
 return;
 }
 case 6:
 {
 Obj _3513157_37= co->res;
-Obj _3513209_37 = primSet(co, __symbolTable[106], makeNative1(5, clofun48, 3, 0));
-Obj _3513210_37 = primSet(co, __symbolTable[104], makeNative1(2, clofun49, 1, 0));
-Obj _3513215_37 = primSet(co, __symbolTable[103], makeNative1(3, clofun50, 2, 0));
-Obj _3513219_37 = primSet(co, __symbolTable[102], makeNative1(3, clofun51, 2, 0));
-Obj _3513220_37 = primSet(co, __symbolTable[101], makeNative1(2, clofun52, 1, 0));
-Obj _3513228_37 = primSet(co, __symbolTable[100], makeNative1(4, clofun53, 3, 0));
-Obj _3513229_37 = primSet(co, __symbolTable[99], makeNative1(3, clofun54, 2, 0));
-Obj _3513235_37 = primSet(co, __symbolTable[98], makeNative1(3, clofun55, 2, 0));
-Obj _3513246_37 = primSet(co, __symbolTable[97], makeNative1(2, clofun58, 1, 0));
-Obj _3513252_37 = primSet(co, __symbolTable[96], makeNative1(2, clofun59, 1, 0));
-struct frame1 __curr = {
+Obj _3513209_37 = primSet(co, __symbolTable[106], makeNative(5, clofun48, 3, 0));
+Obj _3513210_37 = primSet(co, __symbolTable[104], makeNative(2, clofun49, 1, 0));
+Obj _3513215_37 = primSet(co, __symbolTable[103], makeNative(3, clofun50, 2, 0));
+Obj _3513219_37 = primSet(co, __symbolTable[102], makeNative(3, clofun51, 2, 0));
+Obj _3513220_37 = primSet(co, __symbolTable[101], makeNative(2, clofun52, 1, 0));
+Obj _3513228_37 = primSet(co, __symbolTable[100], makeNative(4, clofun53, 3, 0));
+Obj _3513229_37 = primSet(co, __symbolTable[99], makeNative(3, clofun54, 2, 0));
+Obj _3513235_37 = primSet(co, __symbolTable[98], makeNative(3, clofun55, 2, 0));
+Obj _3513246_37 = primSet(co, __symbolTable[97], makeNative(2, clofun58, 1, 0));
+Obj _3513252_37 = primSet(co, __symbolTable[96], makeNative(2, clofun59, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 5,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[95], makeNative1(3, clofun60, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[95], makeNative(3, clofun60, 1, 0));
 return;
 }
 case 7:
 {
 Obj _3513052_37= co->res;
-Obj _3513074_37 = primSet(co, __symbolTable[118], makeNative1(5, clofun36, 4, 0));
-Obj _3513107_37 = primSet(co, __symbolTable[117], makeNative1(5, clofun38, 4, 0));
-Obj _3513120_37 = primSet(co, __symbolTable[111], makeNative1(3, clofun40, 2, 0));
-Obj _3513142_37 = primSet(co, __symbolTable[109], makeNative1(3, clofun42, 2, 0));
-Obj _3513156_37 = primSet(co, __symbolTable[108], makeNative1(2, clofun44, 1, 0));
-struct frame1 __curr = {
+Obj _3513074_37 = primSet(co, __symbolTable[118], makeNative(5, clofun36, 4, 0));
+Obj _3513107_37 = primSet(co, __symbolTable[117], makeNative(5, clofun38, 4, 0));
+Obj _3513120_37 = primSet(co, __symbolTable[111], makeNative(3, clofun40, 2, 0));
+Obj _3513142_37 = primSet(co, __symbolTable[109], makeNative(3, clofun42, 2, 0));
+Obj _3513156_37 = primSet(co, __symbolTable[108], makeNative(2, clofun44, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 6,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[107], makeNative1(2, clofun45, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[107], makeNative(2, clofun45, 1, 0));
 return;
 }
 case 8:
 {
 Obj _3513037_37= co->res;
-Obj _3513040_37 = primSet(co, __symbolTable[121], makeNative1(2, clofun32, 1, 0));
-Obj _3513050_37 = primSet(co, __symbolTable[120], makeNative1(2, clofun33, 1, 0));
-struct frame1 __curr = {
+Obj _3513040_37 = primSet(co, __symbolTable[121], makeNative(2, clofun32, 1, 0));
+Obj _3513050_37 = primSet(co, __symbolTable[120], makeNative(2, clofun33, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 7,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[119], makeNative1(2, clofun34, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[119], makeNative(2, clofun34, 1, 0));
 return;
 }
 case 9:
 {
 Obj _3513023_37= co->res;
-Obj _3513035_37 = primSet(co, __symbolTable[123], makeNative1(2, clofun30, 1, 0));
-struct frame1 __curr = {
+Obj _3513035_37 = primSet(co, __symbolTable[123], makeNative(2, clofun30, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 8,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[122], makeNative1(2, clofun31, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[122], makeNative(2, clofun31, 1, 0));
 return;
 }
 case 10:
 {
 Obj _3513009_37= co->res;
-Obj _3513021_37 = primSet(co, __symbolTable[125], makeNative1(2, clofun28, 1, 0));
-struct frame1 __curr = {
+Obj _3513021_37 = primSet(co, __symbolTable[125], makeNative(2, clofun28, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 9,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[124], makeNative1(2, clofun29, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[124], makeNative(2, clofun29, 1, 0));
 return;
 }
 case 11:
 {
 Obj _3512995_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun95,
 .label = 10,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[128], makeNative1(3, clofun27, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[128], makeNative(3, clofun27, 1, 0));
 return;
 }
 case 12:
 {
 Obj _3512973_37= co->res;
-Obj _3512978_37 = primSet(co, __symbolTable[132], makeNative1(3, clofun23, 2, 0));
-Obj _3512981_37 = primSet(co, __symbolTable[131], makeNative1(2, clofun24, 1, 0));
-Obj _3512993_37 = primSet(co, __symbolTable[130], makeNative1(3, clofun25, 1, 0));
-struct frame1 __curr = {
+Obj _3512978_37 = primSet(co, __symbolTable[132], makeNative(3, clofun23, 2, 0));
+Obj _3512981_37 = primSet(co, __symbolTable[131], makeNative(2, clofun24, 1, 0));
+Obj _3512993_37 = primSet(co, __symbolTable[130], makeNative(3, clofun25, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 11,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[129], makeNative1(2, clofun26, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[129], makeNative(2, clofun26, 1, 0));
 return;
 }
 case 13:
 {
 Obj _3512963_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun95,
 .label = 12,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[134], makeNative1(3, clofun22, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[134], makeNative(3, clofun22, 1, 0));
 return;
 }
 case 14:
 {
 Obj _3512961_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun95,
 .label = 13,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[135], makeNative1(2, clofun21, 1, 0));
+coraCall2(co, globalRef(__symbolTable[144]), __symbolTable[135], makeNative(2, clofun21, 1, 0));
 return;
 }
 case 15:
 {
 Obj _3512906_37= co->res;
 Obj _3512907_37 = primSet(co, __symbolTable[149], _3512906_37);
-Obj _3512913_37 = primSet(co, __symbolTable[148], makeNative1(4, clofun11, 3, 0));
-Obj _3512914_37 = primSet(co, __symbolTable[147], makeNative1(3, clofun12, 2, 0));
+Obj _3512913_37 = primSet(co, __symbolTable[148], makeNative(4, clofun11, 3, 0));
+Obj _3512914_37 = primSet(co, __symbolTable[147], makeNative(3, clofun12, 2, 0));
 Obj _3512915_37 = primSet(co, __symbolTable[146], Nil);
 Obj _3512916_37 = primGenSym();
 Obj _3512917_37 = primSet(co, __symbolTable[145], _3512916_37);
-Obj _3512921_37 = primSet(co, __symbolTable[144], makeNative1(3, clofun13, 2, 0));
-Obj _3512930_37 = primSet(co, __symbolTable[143], makeNative1(3, clofun16, 2, 0));
-Obj _3512931_37 = primSet(co, __symbolTable[142], makeNative1(2, clofun17, 1, 0));
-Obj _3512948_37 = primSet(co, __symbolTable[141], makeNative1(2, clofun19, 1, 0));
+Obj _3512921_37 = primSet(co, __symbolTable[144], makeNative(3, clofun13, 2, 0));
+Obj _3512930_37 = primSet(co, __symbolTable[143], makeNative(3, clofun16, 2, 0));
+Obj _3512931_37 = primSet(co, __symbolTable[142], makeNative(2, clofun17, 1, 0));
+Obj _3512948_37 = primSet(co, __symbolTable[141], makeNative(2, clofun19, 1, 0));
 Obj _3512949_37 = primSet(co, __symbolTable[138], globalRef(__symbolTable[141]));
-Obj _3512960_37 = primSet(co, __symbolTable[137], makeNative1(3, clofun20, 1, 0));
-struct frame1 __curr = {
+Obj _3512960_37 = primSet(co, __symbolTable[137], makeNative(3, clofun20, 1, 0));
+struct frame __curr = {
 .fn = clofun95,
 .label = 14,
 .bp = R,
@@ -687,10 +687,10 @@ Obj _3512836_37 = R[1];
 Obj _3512837_37 = R[2];
 Obj _3512838_37 = R[3];
 Obj _3512839_37 = R[4];
-Obj _3512860_37 = makeNative1(2, clofun93, 1, 4, _3512836_37, _3512837_37, _3512838_37, _3512839_37);
+Obj _3512860_37 = makeNative(2, clofun93, 1, 4, _3512836_37, _3512837_37, _3512838_37, _3512839_37);
 R[1] = _3512839_37;
 R[2] = _3512860_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun94,
 .label = 3,
 .bp = R,
@@ -725,7 +725,7 @@ coraCall1(co, _3512860_37, True);
 return;
 } else {
 R[1] = _3512860_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun94,
 .label = 1,
 .bp = R,
@@ -754,7 +754,7 @@ return;
 } else {
 R[1] = _3512839_37;
 R[2] = _3512860_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun94,
 .label = 2,
 .bp = R,
@@ -778,7 +778,7 @@ if (True == _3512861_37) {
 coraReturn(co, closureRef(R[0], 3));
 return;
 } else {
-Obj _3512841_37 = makeNative1(3, clofun92, 0, 4, closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3512841_37 = makeNative(3, clofun92, 0, 4, closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
 Obj _3513653_37 = PRIM_ISCONS(closureRef(R[0], 3));
 if (True == _3513653_37) {
 Obj _3513654_37 = PRIM_CAR(closureRef(R[0], 3));
@@ -829,7 +829,7 @@ case 0:
 {
 Obj _3513492_37 = primIsSymbol(closureRef(R[0], 0));
 if (True == _3513492_37) {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun92,
 .label = 2,
 .bp = R,
@@ -839,7 +839,7 @@ vecAppend(&co->callstack, __curr);
 coraCall2(co, globalRef(__symbolTable[132]), closureRef(R[0], 0), closureRef(R[0], 1));
 return;
 } else {
-Obj _3512843_37 = makeNative1(3, clofun91, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3512843_37 = makeNative(3, clofun91, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
 Obj _3513631_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513631_37) {
 Obj _3513632_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -866,7 +866,7 @@ Obj _3513647_37 = PRIM_EQ(Nil, _3513646_37);
 if (True == _3513647_37) {
 R[1] = body;
 R[2] = args;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun92,
 .label = 4,
 .bp = R,
@@ -921,7 +921,7 @@ if (True == _3513493_37) {
 coraReturn(co, closureRef(R[0], 0));
 return;
 } else {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun92,
 .label = 1,
 .bp = R,
@@ -948,7 +948,7 @@ Obj _3513648_37= co->res;
 Obj body = R[1];
 Obj args = R[2];
 R[1] = args;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun92,
 .label = 3,
 .bp = R,
@@ -965,7 +965,7 @@ static void clofun91(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512844_37 = makeNative1(1, clofun90, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3512844_37 = makeNative(1, clofun90, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
 Obj _3513587_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513587_37) {
 Obj _3513588_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -1018,7 +1018,7 @@ Obj _3513623_37 = makeCons(pkg, Nil);
 Obj _3513624_37 = makeCons(__symbolTable[81], _3513623_37);
 R[1] = pkg;
 R[2] = y;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun91,
 .label = 2,
 .bp = R,
@@ -1095,7 +1095,7 @@ Obj pkg = R[1];
 Obj y = R[2];
 Obj _3513626_37 = makeCons(pkg, closureRef(R[0], 3));
 R[1] = _3513625_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun91,
 .label = 1,
 .bp = R,
@@ -1112,14 +1112,14 @@ static void clofun90(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512845_37 = makeNative1(3, clofun88, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3512845_37 = makeNative(3, clofun88, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
 Obj _3513579_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513579_37) {
 Obj _3513580_37 = PRIM_CAR(closureRef(R[0], 0));
 Obj op = _3513580_37;
 Obj _3513581_37 = PRIM_CDR(closureRef(R[0], 0));
 Obj args = _3513581_37;
-Obj _3512862_37 = makeNative1(2, clofun89, 1, 6, op, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), args, _3512845_37);
+Obj _3512862_37 = makeNative(2, clofun89, 1, 6, op, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), args, _3512845_37);
 Obj _3513585_37 = PRIM_EQ(op, __symbolTable[126]);
 if (True == _3513585_37) {
 co->ctx.sp = R;
@@ -1152,7 +1152,7 @@ case 0:
 {
 Obj _3512863_37 = R[1];
 if (True == _3512863_37) {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun89,
 .label = 2,
 .bp = R,
@@ -1177,7 +1177,7 @@ return;
 case 2:
 {
 Obj _3513582_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun89,
 .label = 1,
 .bp = R,
@@ -1194,7 +1194,7 @@ static void clofun88(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512846_37 = makeNative1(1, clofun87, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3512846_37 = makeNative(1, clofun87, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
 Obj _3513546_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513546_37) {
 Obj _3513547_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -1232,7 +1232,7 @@ Obj _3513571_37 = PRIM_EQ(Nil, _3513570_37);
 if (True == _3513571_37) {
 R[1] = c;
 R[2] = a;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun88,
 .label = 2,
 .bp = R,
@@ -1292,7 +1292,7 @@ Obj a = R[2];
 Obj _3513573_37 = makeCons(a, closureRef(R[0], 1));
 R[1] = _3513572_37;
 R[2] = a;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun88,
 .label = 1,
 .bp = R,
@@ -1309,7 +1309,7 @@ static void clofun87(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512847_37 = makeNative1(2, clofun86, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3512847_37 = makeNative(2, clofun86, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
 Obj _3513520_37 = PRIM_ISCONS(closureRef(R[0], 2));
 if (True == _3513520_37) {
 Obj _3513521_37 = PRIM_CAR(closureRef(R[0], 2));
@@ -1386,7 +1386,7 @@ static void clofun86(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512848_37 = makeNative1(1, clofun85, 0, 4, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0));
+Obj _3512848_37 = makeNative(1, clofun85, 0, 4, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0));
 Obj _3513496_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513496_37) {
 Obj _3513497_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -1412,7 +1412,7 @@ Obj _3513511_37 = PRIM_CDR(_3513510_37);
 Obj _3513512_37 = PRIM_EQ(Nil, _3513511_37);
 if (True == _3513512_37) {
 R[1] = val;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun86,
 .label = 2,
 .bp = R,
@@ -1465,7 +1465,7 @@ Obj var1 = _3513513_37;
 Obj _3513514_37 = makeCons(var1, Nil);
 Obj _3513515_37 = makeCons(__symbolTable[139], _3513514_37);
 R[1] = _3513515_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun86,
 .label = 1,
 .bp = R,
@@ -1482,7 +1482,7 @@ static void clofun85(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun85,
 .label = 1,
 .bp = R,
@@ -1507,7 +1507,7 @@ static void clofun84(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun84,
 .label = 2,
 .bp = R,
@@ -1527,7 +1527,7 @@ return;
 case 2:
 {
 Obj _3513488_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun84,
 .label = 1,
 .bp = R,
@@ -1551,7 +1551,7 @@ if (True == _3513473_37) {
 coraReturn(co, Nil);
 return;
 } else {
-Obj _3512834_37 = makeNative1(1, clofun82, 0, 2, _3512832_37, _3512831_37);
+Obj _3512834_37 = makeNative(1, clofun82, 0, 2, _3512832_37, _3512831_37);
 Obj _3513477_37 = PRIM_ISCONS(_3512832_37);
 if (True == _3513477_37) {
 Obj _3513478_37 = PRIM_CAR(_3512832_37);
@@ -1633,7 +1633,7 @@ R[1] = import;
 R[2] = _3512826_37;
 R[3] = _3512827_37;
 R[4] = more;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 7,
 .bp = R,
@@ -1660,7 +1660,7 @@ case 2:
 {
 Obj _3513401_37= co->res;
 Obj import = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 1,
 .bp = R,
@@ -1675,7 +1675,7 @@ case 3:
 Obj _3513400_37= co->res;
 Obj import = R[1];
 R[1] = import;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 2,
 .bp = R,
@@ -1694,7 +1694,7 @@ Obj _3512827_37 = R[3];
 Obj more = R[4];
 if (True == _3513399_37) {
 R[1] = import;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 3,
 .bp = R,
@@ -1721,7 +1721,7 @@ R[1] = import;
 R[2] = _3512826_37;
 R[3] = _3512827_37;
 R[4] = more;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 4,
 .bp = R,
@@ -1742,7 +1742,7 @@ R[1] = import;
 R[2] = _3512826_37;
 R[3] = _3512827_37;
 R[4] = more;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 5,
 .bp = R,
@@ -1763,7 +1763,7 @@ R[1] = import;
 R[2] = _3512826_37;
 R[3] = _3512827_37;
 R[4] = more;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun81,
 .label = 6,
 .bp = R,
@@ -1789,7 +1789,7 @@ return;
 } else {
 R[1] = var;
 R[2] = ns;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun80,
 .label = 4,
 .bp = R,
@@ -1811,7 +1811,7 @@ case 2:
 {
 Obj _3513389_37= co->res;
 Obj ns = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun80,
 .label = 1,
 .bp = R,
@@ -1826,7 +1826,7 @@ case 3:
 Obj _3513388_37= co->res;
 Obj ns = R[1];
 R[1] = ns;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun80,
 .label = 2,
 .bp = R,
@@ -1846,7 +1846,7 @@ coraReturn(co, var);
 return;
 } else {
 R[1] = ns;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun80,
 .label = 3,
 .bp = R,
@@ -1866,7 +1866,7 @@ case 0:
 {
 Obj sexp = R[1];
 R[1] = sexp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun79,
 .label = 3,
 .bp = R,
@@ -1881,7 +1881,7 @@ case 1:
 Obj _3513368_37= co->res;
 Obj path = R[1];
 co->ctx.sp = R;
-coraCall1(co, _3513368_37, makeNative1(4, clofun78, 3, 1, path));
+coraCall1(co, _3513368_37, makeNative(4, clofun78, 3, 1, path));
 return;
 }
 case 2:
@@ -1889,7 +1889,7 @@ case 2:
 Obj _3513367_37= co->res;
 Obj path = R[1];
 R[1] = path;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun79,
 .label = 1,
 .bp = R,
@@ -1905,7 +1905,7 @@ Obj _3513366_37= co->res;
 Obj sexp = R[1];
 Obj path = _3513366_37;
 R[1] = path;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun79,
 .label = 2,
 .bp = R,
@@ -1929,14 +1929,14 @@ Obj _3513369_37 = makeCons(makeCString("cora/init"), import);
 R[1] = export;
 R[2] = body;
 R[3] = _3513369_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun78,
 .label = 2,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[147]), makeNative1(2, clofun77, 1, 0), import);
+coraCall2(co, globalRef(__symbolTable[147]), makeNative(2, clofun77, 1, 0), import);
 return;
 }
 case 1:
@@ -1964,7 +1964,7 @@ Obj _3513376_37 = makeCons(__symbolTable[77], _3513375_37);
 Obj _3513377_37 = makeCons(__symbolTable[133], _3513376_37);
 Obj _3513378_37 = makeCons(_3513377_37, body);
 R[1] = _3513369_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun78,
 .label = 1,
 .bp = R,
@@ -2011,7 +2011,7 @@ Obj _3512819_37 = R[1];
 Obj _3512820_37 = R[2];
 Obj _3512821_37 = R[3];
 Obj _3512822_37 = R[4];
-Obj _3512823_37 = makeNative1(1, clofun74, 0, 4, _3512821_37, _3512819_37, _3512820_37, _3512822_37);
+Obj _3512823_37 = makeNative(1, clofun74, 0, 4, _3512821_37, _3512819_37, _3512820_37, _3512822_37);
 Obj _3513346_37 = PRIM_ISCONS(_3512819_37);
 if (True == _3513346_37) {
 Obj _3513347_37 = PRIM_CAR(_3512819_37);
@@ -2073,7 +2073,7 @@ static void clofun74(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512824_37 = makeNative1(1, clofun73, 0, 4, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3512824_37 = makeNative(1, clofun73, 0, 4, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
 Obj _3513337_37 = PRIM_ISCONS(closureRef(R[0], 1));
 if (True == _3513337_37) {
 Obj _3513338_37 = PRIM_CAR(closureRef(R[0], 1));
@@ -2114,7 +2114,7 @@ static void clofun73(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun73,
 .label = 1,
 .bp = R,
@@ -2140,7 +2140,7 @@ case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun72,
 .label = 2,
 .bp = R,
@@ -2163,7 +2163,7 @@ case 2:
 Obj _3513333_37= co->res;
 Obj exp = R[1];
 R[1] = _3513333_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun72,
 .label = 1,
 .bp = R,
@@ -2184,7 +2184,7 @@ Obj fn = R[1];
 Obj arglist = R[2];
 R[1] = arglist;
 R[2] = fn;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun71,
 .label = 4,
 .bp = R,
@@ -2225,7 +2225,7 @@ if (True == _3513320_37) {
 Obj _3513321_37 = PRIM_CAR(arglist);
 R[1] = _3513321_37;
 R[2] = fn;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun71,
 .label = 1,
 .bp = R,
@@ -2239,7 +2239,7 @@ Obj _3513326_37 = PRIM_CAR(arglist);
 Obj _3513327_37 = PRIM_CDR(arglist);
 R[1] = _3513326_37;
 R[2] = fn;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun71,
 .label = 2,
 .bp = R,
@@ -2257,7 +2257,7 @@ Obj arglist = R[1];
 Obj fn = R[2];
 R[1] = arglist;
 R[2] = fn;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun71,
 .label = 3,
 .bp = R,
@@ -2275,7 +2275,7 @@ static void clofun70(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun70,
 .label = 1,
 .bp = R,
@@ -2307,7 +2307,7 @@ Obj _3513299_37 = makeCons(__symbolTable[139], _3513298_37);
 coraReturn(co, _3513299_37);
 return;
 } else {
-Obj _3512816_37 = makeNative1(1, clofun68, 0, 1, _3512814_37);
+Obj _3512816_37 = makeNative(1, clofun68, 0, 1, _3512814_37);
 Obj _3513306_37 = PRIM_ISCONS(_3512814_37);
 if (True == _3513306_37) {
 Obj _3513307_37 = PRIM_CAR(_3512814_37);
@@ -2361,7 +2361,7 @@ Obj x = _3513301_37;
 Obj _3513302_37 = PRIM_CDR(closureRef(R[0], 0));
 Obj more = _3513302_37;
 Obj _3513303_37 = makeCons(x, more);
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun68,
 .label = 1,
 .bp = R,
@@ -2403,7 +2403,7 @@ static void clofun66(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj _3512810_37 = R[1];
-Obj _3512811_37 = makeNative1(1, clofun65, 0, 1, _3512810_37);
+Obj _3512811_37 = makeNative(1, clofun65, 0, 1, _3512810_37);
 Obj _3513290_37 = PRIM_ISCONS(_3512810_37);
 if (True == _3513290_37) {
 Obj _3513291_37 = PRIM_CAR(_3512810_37);
@@ -2431,7 +2431,7 @@ static void clofun65(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512812_37 = makeNative1(2, clofun64, 0, 1, closureRef(R[0], 0));
+Obj _3512812_37 = makeNative(2, clofun64, 0, 1, closureRef(R[0], 0));
 Obj _3513278_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513278_37) {
 Obj _3513279_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -2481,7 +2481,7 @@ Obj x = _3513272_37;
 Obj _3513273_37 = PRIM_CDR(closureRef(R[0], 0));
 Obj y = _3513273_37;
 R[1] = x;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun64,
 .label = 1,
 .bp = R,
@@ -2514,7 +2514,7 @@ static void clofun63(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun63,
 .label = 2,
 .bp = R,
@@ -2534,7 +2534,7 @@ return;
 case 2:
 {
 Obj _3513268_37= co->res;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun63,
 .label = 1,
 .bp = R,
@@ -2576,7 +2576,7 @@ case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun60,
 .label = 5,
 .bp = R,
@@ -2609,7 +2609,7 @@ Obj body = R[2];
 Obj args = _3513256_37;
 R[1] = body;
 R[2] = args;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun60,
 .label = 1,
 .bp = R,
@@ -2627,7 +2627,7 @@ Obj body = R[2];
 Obj nargs = _3513255_37;
 R[1] = exp;
 R[2] = body;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun60,
 .label = 2,
 .bp = R,
@@ -2644,7 +2644,7 @@ Obj exp = R[1];
 Obj body = _3513254_37;
 R[1] = exp;
 R[2] = body;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun60,
 .label = 3,
 .bp = R,
@@ -2659,7 +2659,7 @@ case 5:
 Obj _3513253_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun60,
 .label = 4,
 .bp = R,
@@ -2685,7 +2685,7 @@ return;
 Obj _3513248_37 = primGenSym();
 Obj _3513249_37 = PRIM_SUB(n, MAKE_NUMBER(1));
 R[1] = _3513248_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun59,
 .label = 1,
 .bp = R,
@@ -2712,7 +2712,7 @@ static void clofun58(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj rules = R[1];
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun58,
 .label = 4,
 .bp = R,
@@ -2741,7 +2741,7 @@ case 2:
 Obj _3513243_37= co->res;
 Obj n = R[1];
 R[1] = n;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun58,
 .label = 1,
 .bp = R,
@@ -2759,28 +2759,28 @@ Obj _3513239_37 = PRIM_CAR(counts);
 Obj n = _3513239_37;
 Obj _3513242_37 = PRIM_CDR(counts);
 R[1] = n;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun58,
 .label = 2,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[99]), makeNative1(2, clofun57, 1, 1, n), _3513242_37);
+coraCall2(co, globalRef(__symbolTable[99]), makeNative(2, clofun57, 1, 1, n), _3513242_37);
 return;
 }
 case 4:
 {
 Obj _3513236_37= co->res;
 Obj pats = _3513236_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun58,
 .label = 3,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[147]), makeNative1(2, clofun56, 1, 0), pats);
+coraCall2(co, globalRef(__symbolTable[147]), makeNative(2, clofun56, 1, 0), pats);
 return;
 }
 }
@@ -2826,7 +2826,7 @@ return;
 Obj _3513231_37 = PRIM_CAR(l1);
 Obj _3513232_37 = PRIM_CDR(l1);
 R[1] = _3513231_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun55,
 .label = 1,
 .bp = R,
@@ -2874,7 +2874,7 @@ Obj _3513222_37 = PRIM_CAR(l);
 R[1] = l;
 R[2] = res;
 R[3] = fn;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun53,
 .label = 1,
 .bp = R,
@@ -2953,7 +2953,7 @@ Obj res = R[1];
 Obj rules = R[2];
 R[1] = res;
 R[2] = rules;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun50,
 .label = 2,
 .bp = R,
@@ -2984,7 +2984,7 @@ return;
 Obj _3513212_37 = PRIM_CAR(rules);
 Obj _3513213_37 = makeCons(_3513212_37, res);
 R[1] = _3513213_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun50,
 .label = 1,
 .bp = R,
@@ -3023,7 +3023,7 @@ co->ctx.sp = R;
 coraCall1(co, globalRef(__symbolTable[149]), result);
 return;
 } else {
-Obj _3512807_37 = makeNative1(3, clofun47, 0, 3, input, current, result);
+Obj _3512807_37 = makeNative(3, clofun47, 0, 3, input, current, result);
 Obj _3513176_37 = PRIM_ISCONS(input);
 if (True == _3513176_37) {
 Obj _3513177_37 = PRIM_CAR(input);
@@ -3063,7 +3063,7 @@ R[1] = act;
 R[2] = pred;
 R[3] = result;
 R[4] = remain;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun48,
 .label = 1,
 .bp = R,
@@ -3129,7 +3129,7 @@ static void clofun47(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj _3512808_37 = makeNative1(1, clofun46, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3512808_37 = makeNative(1, clofun46, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
 Obj _3513163_37 = PRIM_ISCONS(closureRef(R[0], 0));
 if (True == _3513163_37) {
 Obj _3513164_37 = PRIM_CAR(closureRef(R[0], 0));
@@ -3146,7 +3146,7 @@ Obj _3513171_37 = PRIM_CDR(_3513170_37);
 Obj remain = _3513171_37;
 R[1] = act;
 R[2] = remain;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun47,
 .label = 1,
 .bp = R,
@@ -3228,7 +3228,7 @@ case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun44,
 .label = 3,
 .bp = R,
@@ -3243,7 +3243,7 @@ case 1:
 Obj _3513145_37= co->res;
 Obj value = R[1];
 Obj rules = _3513145_37;
-Obj _3512858_37 = makeNative1(2, clofun43, 1, 2, value, rules);
+Obj _3512858_37 = makeNative(2, clofun43, 1, 2, value, rules);
 Obj _3513152_37 = PRIM_ISCONS(value);
 if (True == _3513152_37) {
 Obj _3513153_37 = PRIM_CAR(value);
@@ -3270,7 +3270,7 @@ Obj _3513144_37= co->res;
 Obj exp = R[1];
 Obj value = _3513144_37;
 R[1] = value;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun44,
 .label = 1,
 .bp = R,
@@ -3285,7 +3285,7 @@ case 3:
 Obj _3513143_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun44,
 .label = 2,
 .bp = R,
@@ -3307,7 +3307,7 @@ if (True == _3512859_37) {
 Obj _3513146_37 = primGenSym();
 Obj val = _3513146_37;
 R[1] = val;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun43,
 .label = 1,
 .bp = R,
@@ -3344,7 +3344,7 @@ Obj value = R[1];
 Obj rules = R[2];
 R[1] = value;
 R[2] = rules;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun42,
 .label = 3,
 .bp = R,
@@ -3376,7 +3376,7 @@ Obj _3512856_37 = R[2];
 if (True == _3513139_37) {
 Obj _3513140_37 = PRIM_CDR(rules);
 R[1] = _3512856_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun42,
 .label = 1,
 .bp = R,
@@ -3402,10 +3402,10 @@ Obj _3513123_37 = makeCons(__symbolTable[127], _3513122_37);
 coraReturn(co, _3513123_37);
 return;
 } else {
-Obj _3512856_37 = makeNative1(3, clofun41, 1, 2, value, rules);
+Obj _3512856_37 = makeNative(3, clofun41, 1, 2, value, rules);
 R[1] = rules;
 R[2] = _3512856_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun42,
 .label = 2,
 .bp = R,
@@ -3431,7 +3431,7 @@ Obj _3513125_37 = primGenSym();
 Obj cc = _3513125_37;
 R[1] = pat;
 R[2] = cc;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun41,
 .label = 4,
 .bp = R,
@@ -3471,7 +3471,7 @@ Obj _3513129_37 = PRIM_CDR(closureRef(R[0], 1));
 Obj _3513130_37 = PRIM_CDR(_3513129_37);
 R[1] = curr;
 R[2] = cc;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun41,
 .label = 1,
 .bp = R,
@@ -3487,7 +3487,7 @@ Obj _3513127_37= co->res;
 Obj action = R[1];
 Obj cc = R[2];
 R[1] = cc;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun41,
 .label = 2,
 .bp = R,
@@ -3505,7 +3505,7 @@ Obj cc = R[2];
 Obj action = _3513126_37;
 R[1] = action;
 R[2] = cc;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun41,
 .label = 3,
 .bp = R,
@@ -3527,10 +3527,10 @@ Obj cc = R[2];
 Obj _3513108_37 = PRIM_CDR(rules);
 Obj _3513109_37 = PRIM_CAR(_3513108_37);
 Obj action = _3513109_37;
-Obj _3512854_37 = makeNative1(2, clofun39, 1, 2, cc, action);
+Obj _3512854_37 = makeNative(2, clofun39, 1, 2, cc, action);
 R[1] = action;
 R[2] = _3512854_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun40,
 .label = 1,
 .bp = R,
@@ -3572,7 +3572,7 @@ case 0:
 {
 Obj _3512855_37 = R[1];
 if (True == _3512855_37) {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun39,
 .label = 2,
 .bp = R,
@@ -3602,7 +3602,7 @@ case 2:
 {
 Obj _3513110_37= co->res;
 R[1] = _3513110_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun39,
 .label = 1,
 .bp = R,
@@ -3627,14 +3627,14 @@ R[1] = expr;
 R[2] = body;
 R[3] = cc;
 R[4] = pat;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun38,
 .label = 3,
 .bp = R,
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, makeNative1(2, clofun37, 1, 0), pat);
+coraCall1(co, makeNative(2, clofun37, 1, 0), pat);
 return;
 }
 case 1:
@@ -3679,7 +3679,7 @@ return;
 }
 }
 } else {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun38,
 .label = 1,
 .bp = R,
@@ -3728,7 +3728,7 @@ R[1] = expr;
 R[2] = body;
 R[3] = cc;
 R[4] = pat;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun38,
 .label = 2,
 .bp = R,
@@ -3749,7 +3749,7 @@ case 0:
 {
 Obj x = R[1];
 R[1] = x;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun37,
 .label = 1,
 .bp = R,
@@ -3793,7 +3793,7 @@ R[1] = pat;
 R[2] = body;
 R[3] = cc;
 R[4] = expr;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun36,
 .label = 2,
 .bp = R,
@@ -3811,7 +3811,7 @@ Obj body = R[2];
 Obj cc = R[3];
 Obj expr = R[4];
 Obj y = _3513054_37;
-Obj _3512852_37 = makeNative1(3, clofun35, 1, 5, x, y, expr, body, cc);
+Obj _3512852_37 = makeNative(3, clofun35, 1, 5, x, y, expr, body, cc);
 Obj _3513071_37 = PRIM_ISCONS(expr);
 if (True == _3513071_37) {
 Obj _3513072_37 = PRIM_CAR(expr);
@@ -3843,7 +3843,7 @@ R[1] = x;
 R[2] = body;
 R[3] = cc;
 R[4] = expr;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun36,
 .label = 1,
 .bp = R,
@@ -3862,7 +3862,7 @@ case 0:
 {
 Obj _3512853_37 = R[1];
 if (True == _3512853_37) {
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun35,
 .label = 3,
 .bp = R,
@@ -3880,7 +3880,7 @@ Obj _3513062_37 = makeCons(closureRef(R[0], 2), Nil);
 Obj _3513063_37 = makeCons(__symbolTable[114], _3513062_37);
 R[1] = _3513061_37;
 R[2] = _3513059_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun35,
 .label = 5,
 .bp = R,
@@ -3905,7 +3905,7 @@ Obj _3513056_37= co->res;
 Obj e1 = R[1];
 Obj e2 = _3513056_37;
 R[1] = e1;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun35,
 .label = 1,
 .bp = R,
@@ -3920,7 +3920,7 @@ case 3:
 Obj _3513055_37= co->res;
 Obj e1 = _3513055_37;
 R[1] = e1;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun35,
 .label = 2,
 .bp = R,
@@ -3948,7 +3948,7 @@ Obj _3513064_37= co->res;
 Obj _3513061_37 = R[1];
 Obj _3513059_37 = R[2];
 R[1] = _3513059_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun35,
 .label = 4,
 .bp = R,
@@ -3981,7 +3981,7 @@ case 0:
 Obj pat = R[1];
 Obj _3513041_37 = PRIM_CDR(pat);
 R[1] = pat;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun33,
 .label = 2,
 .bp = R,
@@ -4013,7 +4013,7 @@ return;
 Obj _3513044_37 = PRIM_CAR(pat);
 Obj _3513045_37 = PRIM_CDR(pat);
 R[1] = _3513044_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun33,
 .label = 1,
 .bp = R,
@@ -4081,7 +4081,7 @@ return;
 } else {
 Obj _3513027_37 = PRIM_CDR(l);
 R[1] = l;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun30,
 .label = 1,
 .bp = R,
@@ -4146,7 +4146,7 @@ return;
 } else {
 Obj _3513013_37 = PRIM_CDR(l);
 R[1] = l;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun28,
 .label = 1,
 .bp = R,
@@ -4194,7 +4194,7 @@ coraReturn(co, _3512999_37);
 return;
 } else {
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun27,
 .label = 3,
 .bp = R,
@@ -4225,7 +4225,7 @@ Obj exp = R[1];
 Obj _3513001_37 = R[2];
 R[1] = _3513002_37;
 R[2] = _3513001_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun27,
 .label = 1,
 .bp = R,
@@ -4243,7 +4243,7 @@ Obj curr = _3513000_37;
 Obj _3513001_37 = PRIM_CAR(curr);
 R[1] = exp;
 R[2] = _3513001_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun27,
 .label = 2,
 .bp = R,
@@ -4276,7 +4276,7 @@ case 0:
 Obj exp = R[1];
 Obj _3512982_37 = PRIM_CDR(exp);
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun25,
 .label = 4,
 .bp = R,
@@ -4305,7 +4305,7 @@ Obj _3512986_37 = R[1];
 Obj _3512985_37 = R[2];
 R[1] = _3512986_37;
 R[2] = _3512985_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun25,
 .label = 1,
 .bp = R,
@@ -4322,7 +4322,7 @@ Obj exp = R[1];
 Obj _3512985_37 = R[2];
 R[1] = _3512986_37;
 R[2] = _3512985_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun25,
 .label = 2,
 .bp = R,
@@ -4344,7 +4344,7 @@ return;
 Obj _3512985_37 = PRIM_CAR(exp);
 R[1] = exp;
 R[2] = _3512985_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun25,
 .label = 3,
 .bp = R,
@@ -4404,7 +4404,7 @@ case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun22,
 .label = 3,
 .bp = R,
@@ -4435,7 +4435,7 @@ Obj exp = R[1];
 Obj _3512964_37 = R[2];
 R[1] = _3512965_37;
 R[2] = _3512964_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun22,
 .label = 1,
 .bp = R,
@@ -4451,7 +4451,7 @@ Obj _3512964_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
 R[2] = _3512964_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun22,
 .label = 2,
 .bp = R,
@@ -4483,7 +4483,7 @@ case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun20,
 .label = 3,
 .bp = R,
@@ -4513,7 +4513,7 @@ Obj exp = R[1];
 Obj _3512952_37 = R[2];
 R[1] = _3512953_37;
 R[2] = _3512952_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun20,
 .label = 1,
 .bp = R,
@@ -4531,7 +4531,7 @@ Obj _3512951_37 = makeCons(_3512950_37, Nil);
 Obj _3512952_37 = makeCons(__symbolTable[139], _3512951_37);
 R[1] = exp;
 R[2] = _3512952_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun20,
 .label = 2,
 .bp = R,
@@ -4562,7 +4562,7 @@ Obj _3512936_37 = PRIM_CAR(exp);
 Obj _3512937_37 = PRIM_EQ(_3512936_37, __symbolTable[140]);
 if (True == _3512937_37) {
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun19,
 .label = 3,
 .bp = R,
@@ -4579,7 +4579,7 @@ coraReturn(co, exp);
 return;
 } else {
 R[1] = exp;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun19,
 .label = 4,
 .bp = R,
@@ -4611,7 +4611,7 @@ case 2:
 Obj _3512939_37= co->res;
 Obj _3512938_37 = R[1];
 R[1] = _3512938_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun19,
 .label = 1,
 .bp = R,
@@ -4626,7 +4626,7 @@ case 3:
 Obj _3512938_37= co->res;
 Obj exp = R[1];
 R[1] = _3512938_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun19,
 .label = 2,
 .bp = R,
@@ -4641,7 +4641,7 @@ case 4:
 Obj _3512947_37= co->res;
 Obj exp = R[1];
 co->ctx.sp = R;
-coraCall1(co, makeNative1(2, clofun18, 1, 1, exp), _3512947_37);
+coraCall1(co, makeNative(2, clofun18, 1, 1, exp), _3512947_37);
 return;
 }
 }
@@ -4691,7 +4691,7 @@ return;
 } else {
 Obj _3512929_37 = PRIM_CAR(macros);
 co->ctx.sp = R;
-coraCall1(co, makeNative1(2, clofun15, 1, 2, macros, exp), _3512929_37);
+coraCall1(co, makeNative(2, clofun15, 1, 2, macros, exp), _3512929_37);
 return;
 }
 }
@@ -4703,7 +4703,7 @@ static void clofun15(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj item = R[1];
-Obj _3512850_37 = makeNative1(2, clofun14, 1, 3, item, closureRef(R[0], 1), closureRef(R[0], 0));
+Obj _3512850_37 = makeNative(2, clofun14, 1, 3, item, closureRef(R[0], 1), closureRef(R[0], 0));
 Obj _3512925_37 = PRIM_ISCONS(closureRef(R[0], 1));
 if (True == _3512925_37) {
 Obj _3512926_37 = PRIM_CAR(closureRef(R[0], 1));
@@ -4788,7 +4788,7 @@ Obj _3512909_37 = PRIM_CAR(l);
 R[1] = res;
 R[2] = l;
 R[3] = f;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun11,
 .label = 1,
 .bp = R,
@@ -4862,7 +4862,7 @@ if (True == _3512891_37) {
 Obj _3512892_37 = PRIM_CAR(exp);
 Obj _3512893_37 = PRIM_CDR(exp);
 R[1] = _3512892_37;
-struct frame1 __curr = {
+struct frame __curr = {
 .fn = clofun8,
 .label = 1,
 .bp = R,

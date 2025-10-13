@@ -348,7 +348,7 @@
 					 ((value generate-inst-h) c env)
 					 (generate-str w "}\n"))
 			    ['%closure label nargs nframe . frees] (begin
-								    (generate-str w "makeNative1(")
+								    (generate-str w "makeNative(")
 								    (generate-num w nframe)
 								    (generate-str w ", ")
 								    (generate-group-name w label)
@@ -377,7 +377,7 @@
 					     (generate-str w "return;\n"))
 			    ['call exp label . fvs] (begin
 						     (save-to-frame globals self env w fvs)
-						     (generate-str w "struct frame1 __curr = {\n")
+						     (generate-str w "struct frame __curr = {\n")
 						     (generate-str w ".fn = ")
 						     (generate-group-name w self)
 						     (generate-str w ",\n.label = ")

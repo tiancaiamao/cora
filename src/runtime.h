@@ -7,7 +7,7 @@
 
 typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
-struct frame1 {
+struct frame {
 	// fn + label = pc register
 	basicBlock fn;
 	int label;
@@ -29,8 +29,8 @@ struct tryMark {
 };
 
 struct Cora {
-	struct frame1 ctx;
-	vector(struct frame1) callstack;
+	struct frame ctx;
+	vector(struct frame) callstack;
 	struct segmentStack stk;
 
 	Obj res;
@@ -69,8 +69,8 @@ void coraCall(struct Cora *co, Obj fn, int nargs, ...);
 
 static inline void
 coraCall0(struct Cora *co, Obj fn) {
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != 0) {
 		coraReturn(co, fn);
 		return;
@@ -83,8 +83,8 @@ coraCall0(struct Cora *co, Obj fn) {
 
 static inline void
 coraCall1(struct Cora *co, Obj fn, Obj arg1) {
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != 1) {
 		return coraCall(co, fn, 1, arg1);
 	}
@@ -97,8 +97,8 @@ coraCall1(struct Cora *co, Obj fn, Obj arg1) {
 
 static inline void
 coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != 2) {
 		return coraCall(co, fn, 2, arg1, arg2);
 	}
@@ -112,8 +112,8 @@ coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
 
 static inline void
 coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != 3) {
 		return coraCall(co, fn, 3, arg1, arg2, arg3);
 	}
@@ -132,8 +132,8 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 // Anyway, static inline should not care about parameter count.
 static inline void
 coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
-	struct scmNative1 *f = ptr(fn);
-	assert(f->head.type == scmHeadNative1);
+	struct scmNative *f = ptr(fn);
+	assert(f->head.type == scmHeadNative);
 	if (f->required != 4) {
 		return coraCall(co, fn, 4, arg1, arg2, arg3, arg4);
 	}
@@ -154,10 +154,10 @@ Obj primSet(struct Cora *co, Obj key, Obj val);
 static inline Obj
 closureRef(Obj clo, int idx) {
 #ifndef NDEBUG
-	struct scmNative1 *ntv = mustNative1(clo);
+	struct scmNative *ntv = mustNative(clo);
 	assert(ntv->captured > idx);
 #endif
-	return OBJ_FIELD(clo, scmNative1, data)[idx];
+	return OBJ_FIELD(clo, scmNative, data)[idx];
 }
 
 void builtinImport(struct Cora *co, int label, Obj *R);
