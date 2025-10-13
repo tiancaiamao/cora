@@ -22,7 +22,6 @@ enum {
   scmHeadVector,
   scmHeadContinuation,
   scmHeadNative,
-  scmHeadContinuation1,
 
   scmHeadMax,
 };

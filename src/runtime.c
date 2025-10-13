@@ -67,6 +67,7 @@ coraNew() {
 	co->ctx.sp = co->stk.begin;
 	vecInit(&co->trystack, 4);
 
+	co->globals = gRoot;
 	gCo = co;
 	return co;
 }
@@ -711,13 +712,14 @@ builtinTryCatch(struct Cora *co, int label, Obj *R) {
 		{
 			// just like non-tail call thunk and after it return here
 			// now try itself return
-			vecPop(&co->trystack);
+			co->trystack.v.len--;
 			coraReturn(co, co->res);
 			return;
 		}
 	}
 }
 
+// scmContinuation is much too implementation dependent, put it here rather than type.c
 struct scmContinuation {
 	scmHead head;
 	vector(Obj*)segstack;
@@ -726,8 +728,8 @@ struct scmContinuation {
 };
 
 Obj
-makeContinuation1(struct frame *callstack, int len, Obj** stk, int count) {
-	struct scmContinuation *cont = newObj(scmHeadContinuation1,
+makeContinuation(struct frame *callstack, int len, Obj** stk, int count) {
+	struct scmContinuation *cont = newObj(scmHeadContinuation,
 					       sizeof(struct scmContinuation) +
 					       len * sizeof(struct frame));
 	for (int i = 0; i < len; i++) {
@@ -744,7 +746,19 @@ makeContinuation1(struct frame *callstack, int len, Obj** stk, int count) {
 }
 
 static void
-continuation1AsClosure(struct Cora *co, int label, Obj *R) {
+continuationGCFunc(struct GC *gc, void *f) {
+	struct scmContinuation *from = f;
+	version_t minv = from->head.version;
+	for (int i = 0; i < from->len; i++) {
+		struct frame *addr = &from->callstack[i];
+		for (Obj *p = addr->bp; p < addr->sp; p++) {
+			gcMark(gc, *p, minv);
+		}
+	}
+}
+
+static void
+continuationAsClosure(struct Cora *co, int label, Obj *R) {
 	Obj this = R[0];
 	Obj contObj = nativeData(this)[0];
 
@@ -778,13 +792,13 @@ builtinThrow(struct Cora *co, int label, Obj *R) {
 	Obj v = R[1];
 
 	// Capture the call stack as continuation.
-	Obj cont = makeContinuation1(vecRef(&co->callstack, mark.callstackPos),
+	Obj cont = makeContinuation(vecRef(&co->callstack, mark.callstackPos),
 				     vecLen(&co->callstack) - mark.callstackPos,
 				     vecRef(&co->stk.data, mark.segmentStackPos),
 				     vecLen(&co->stk.data) - mark.segmentStackPos);
 
 	// Now that we get the spent continuation, disguise as a closure.
-	Obj clo = makeNative(2, continuation1AsClosure, 1, 1, cont);
+	Obj clo = makeNative(2, continuationAsClosure, 1, 1, cont);
 
 	// Find the handler from the try stack, invoke it, passing the continuation.
 	struct frame try = vecGet(&co->callstack, mark.callstackPos);
@@ -927,6 +941,20 @@ primIsSymbol(Obj x) {
 	}
 }
 
+static Obj
+primVMSymbolForTLS(struct Cora *co) {
+	char dest[20];
+	int sz = sprintf(dest, "%p", co);
+	assert(sz < 20);
+	return intern(dest);
+}
+
+static void
+vmSymbolForTLS(struct Cora *co, int label, Obj *R) {
+	Obj ret = primVMSymbolForTLS(co);
+	coraReturn(co, ret);
+}
+
 void
 registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
@@ -966,6 +994,7 @@ struct Cora *
 coraInit(uintptr_t * mark) {
 	gcInit(mark);
 	typesInit();
+	gcRegistForType(scmHeadContinuation, continuationGCFunc);
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
@@ -1005,7 +1034,7 @@ coraInit(uintptr_t * mark) {
 	primSet(co, intern("bytes"),
 		makeNative(2, builtinBytes, 1, 0));
 	primSet(co, intern("bytes-length"),
-		makeNative(0, builtinBytesLength, 1, 0));
+		makeNative(2, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"),
 		makeNative(3, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"),
@@ -1015,9 +1044,9 @@ coraInit(uintptr_t * mark) {
 		makeNative(2, builtinSymbolCooked, 1, 0));
 	/* primSet(co, intern("cora/lib/eval#make-closure-for-eval"), */
 	/* 	makeNative(0, makeClosureForEval, 3, 0)); */
-	/* primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"), */
-	/* 	makeNative(0, vmSymbolForTLS, 0, 0)); */
-	/* primSet(co, primVMSymbolForTLS(co), Nil); */
+	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
+		makeNative(1, vmSymbolForTLS, 0, 0));
+	primSet(co, primVMSymbolForTLS(co), Nil);
 	return co;
 }
 
@@ -1030,18 +1059,21 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 		gcMark(gc, p->value, 0);
 	}
 
-	// The stack.
-	/* gcMark(gc, co->ctx.stk.stack, 0); */
-	/* Obj *p = (Obj *) bytesData(co->ctx.stk.stack); */
-	/* for (int i = co->ctx.stk.base; i < co->ctx.stk.pos; i++) { */
-	/* 	gcMark(gc, p[i], 0); */
-	/* } */
+	// The current frame.
+	for (Obj *p = co->ctx.bp; p < co->ctx.sp; p++) {
+		gcMark(gc, *p, 0);
+	}
 
 	// The res register.
 	gcMark(gc, co->res, 0);
 
 	// All call stack frames.
-	/* gcMarkCallStack(gc, &co->callstack, 0); */
+	for (int i = 0; i < vecLen(&co->callstack); i++) {
+		struct frame *addr = vecRef(&co->callstack, i);
+		for (Obj *p = addr->bp; p < addr->sp; p++) {
+			gcMark(gc, *p, 0);
+		}
+	}
 }
 
 void

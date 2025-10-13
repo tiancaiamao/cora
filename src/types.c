@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "gc.h"
 #include "types.h"
+#include "vector.h"
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -27,8 +28,8 @@ const char *typeNameX[8] = {
 
 void *
 newObj(scmHeadType tp, int sz) {
-	scmHead* p = malloc(sz);
-	/* scmHead *p = gcAlloc(getGC(), sz); */
+	/* scmHead* p = malloc(sz); */
+	scmHead *p = gcAlloc(getGC(), sz);
 	assert(((Obj) p & TAG_PTR) == 0);
 	p->type = tp;
 	/* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -332,12 +333,6 @@ vectorRef(Obj v, int idx) {
 	return vec->data[idx];
 }
 
-/* struct scmContinuation { */
-/* 	scmHead head; */
-/* 	int len; */
-/* 	struct frame data[]; */
-/* }; */
-
 Obj
 vectorSet(Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
@@ -398,7 +393,6 @@ isvector(Obj o) {
 	return false;
 }
 
-
 static void
 vectorGCFunc(struct GC *gc, void *f) {
 	struct scmVector *from = f;
@@ -407,51 +401,6 @@ vectorGCFunc(struct GC *gc, void *f) {
 		gcMark(gc, from->data[i], minv);
 	}
 }
-
-/* Obj */
-/* makeContinuation(struct frame *data, int len) { */
-/* 	struct scmContinuation *cont = newObj(scmHeadContinuation, */
-/* 					      sizeof(struct scmContinuation) + */
-/* 					      len * sizeof(struct frame)); */
-/* 	for (int i = 0; i < len; i++) { */
-/* 		cont->data[i] = data[i]; */
-/* 	} */
-/* 	cont->len = len; */
-/* 	return ((Obj) (&cont->head) | TAG_PTR); */
-/* } */
-
-/* struct callStack */
-/* contCallStack(Obj cont) { */
-/* 	struct scmContinuation *v = ptr(cont); */
-/* 	assert(v->head.type == scmHeadContinuation); */
-/* 	struct callStack cs; */
-/* 	cs.data = v->data; */
-/* 	cs.len = v->len; */
-/* 	cs.cap = v->len; */
-/* 	return cs; */
-/* } */
-
-/* void */
-/* gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv) { */
-/* 	for (int i = 0; i < stack->len; i++) { */
-/* 		struct frame *addr = &stack->data[i]; */
-/* 		gcMark(gc, addr->stk.stack, minv); */
-/* 		Obj *p = (Obj *) bytesData(addr->stk.stack); */
-/* 		for (int j = addr->stk.base; j < addr->stk.pos; j++) { */
-/* 			gcMark(gc, p[j], minv); */
-/* 		} */
-/* 		// Don't forget this one! */
-/* 		gcMark(gc, addr->frees, minv); */
-/* 	} */
-/* } */
-
-/* static void */
-/* continuationGCFunc(struct GC *gc, void *f) { */
-/* 	struct scmContinuation *from = f; */
-/* 	version_t minv = from->head.version; */
-/* 	struct callStack cs = contCallStack((Obj) (&from->head) | TAG_PTR); */
-/* 	gcMarkCallStack(gc, &cs, minv); */
-/* } */
 
 static void
 symbolGCFunc(struct GC *gc, void *f) {
@@ -467,7 +416,6 @@ typesInit() {
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);
-	/* gcRegistForType(scmHeadContinuation, continuationGCFunc); */
 	gcRegistForType(scmHeadSymbol, symbolGCFunc);
 	gcRegistForType(scmHeadNative, nativeGCFunc);
 }

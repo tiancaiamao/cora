@@ -712,9 +712,9 @@ checkPointer(struct GC *gc, uintptr_t p, struct Block **block) {
 	assert(pos >= 0);
 	scmHead *from = (scmHead *) (b->base + (pos * b->sizeClass));
 
-	if (from != addr) {
-		printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version);
-	}
+	/* if (from != addr) { */
+	/* 	printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version); */
+	/* } */
 
 	return inuse(gc, from) ? from : NULL;
 }
@@ -858,23 +858,23 @@ gcRunMark(struct GC *gc) {
 	gc->state = gcStateIncremental;
 }
 
-static void
-checkBlockAssert(struct GC *gc, struct Block *b) {
-	int live = 0;
-	for (int i=0; i<MEM_BLOCK_SIZE; i+=b->sizeClass) {
-		scmHead *h = (scmHead*)(b->base+i);
-		if(inuse(gc, h) == 2) {
-			live++;
-		}
-	}
-	if (b->touch == false && live != 0) {
-		/* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); */
-		assert(false);
-	}
-	if (live == 0 && b->touch != 0) {
-		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass);
-	}
-}
+/* static void */
+/* checkBlockAssert(struct GC *gc, struct Block *b) { */
+/* 	int live = 0; */
+/* 	for (int i=0; i<MEM_BLOCK_SIZE; i+=b->sizeClass) { */
+/* 		scmHead *h = (scmHead*)(b->base+i); */
+/* 		if(inuse(gc, h) == 2) { */
+/* 			live++; */
+/* 		} */
+/* 	} */
+/* 	if (b->touch == false && live != 0) { */
+/* 		/\* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); *\/ */
+/* 		assert(false); */
+/* 	} */
+/* 	if (live == 0 && b->touch != 0) { */
+/* 		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass); */
+/* 	} */
+/* } */
 
 static void
 gcFlip(struct GC *gc) {
@@ -1108,7 +1108,6 @@ gcRunSweep(struct GC *gc) {
 
 static void
 gcRun(struct GC *gc) {
-	return;
 	TRACE_SCOPE("gcRun");
 	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
 	// | ---         | --          | --                 | --          | --         |

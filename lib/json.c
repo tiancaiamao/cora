@@ -4,8 +4,8 @@
 #include <jansson.h>
 
 static void
-jsonLoadFile(struct Cora *co) {
-  str path = stringStr(co->args[1]);
+jsonLoadFile(struct Cora *co, int label, Obj *R) {
+  str path = stringStr(R[1]);
   json_error_t err;
   json_t *json = json_load_file(path.str, 0, &err);
   if (!json) {
@@ -17,12 +17,12 @@ jsonLoadFile(struct Cora *co) {
 }
 
 static void
-jsonTypeOf(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonTypeOf(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, Nil);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_typeof(json);
   switch (v) {
   case JSON_OBJECT:
@@ -54,127 +54,127 @@ jsonTypeOf(struct Cora *co) {
 }
 
 static void
-jsonIsArray(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsArray(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_array(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsObject(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsObject(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_object(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsString(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsString(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_string(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonStringValue(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonStringValue(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, makeCString(""));
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   const char *s = json_string_value(json);
   size_t len = json_string_length(json);
   coraReturn(co, makeString(s, len));
 }
 
 static void
-jsonIntegerValue(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIntegerValue(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, makeNumber(0));
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   json_int_t v = json_integer_value(json);
   coraReturn(co, makeNumber(v));
 }
 
 static void
-jsonIsInteger(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsInteger(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_integer(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsReal(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsReal(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_real(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsNull(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsNull(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_null(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsTrue(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsTrue(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_true(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonIsFalse(struct Cora *co) {
-  if (!iscobj(co->args[1])) {
+jsonIsFalse(struct Cora *co, int label, Obj *R) {
+  if (!iscobj(R[1])) {
     coraReturn(co, False);
     return;
   }
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+  json_t* json = (json_t*)mustCObj(R[1]);
   int v = json_is_false(json);
   coraReturn(co, v > 0 ? True : False);
 }
 
 static void
-jsonArraySize(struct Cora *co) {
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+jsonArraySize(struct Cora *co, int label, Obj *R) {
+  json_t* json = (json_t*)mustCObj(R[1]);
   size_t v = json_array_size(json);
   coraReturn(co, makeNumber(v));
 }
 
 static void
-jsonArrayGet(struct Cora *co) {
-  json_t* json = (json_t*)mustCObj(co->args[1]);
-  int idx = fixnum(co->args[2]);
+jsonArrayGet(struct Cora *co, int label, Obj *R) {
+  json_t* json = (json_t*)mustCObj(R[1]);
+  int idx = fixnum(R[2]);
   json_t *v = json_array_get(json, idx);
   if (v == NULL) {
     coraReturn(co, Nil);
@@ -184,16 +184,16 @@ jsonArrayGet(struct Cora *co) {
 }
 
 static void
-jsonObjectSize(struct Cora *co) {
-  json_t* json = (json_t*)mustCObj(co->args[1]);
+jsonObjectSize(struct Cora *co, int label, Obj *R) {
+  json_t* json = (json_t*)mustCObj(R[1]);
   size_t v = json_object_size(json);
   coraReturn(co, makeNumber(v));
 }
 
 static void
-jsonObjectGet(struct Cora *co) {
-  json_t* json = (json_t*)mustCObj(co->args[1]);
-  str key = stringStr(co->args[2]);
+jsonObjectGet(struct Cora *co, int label, Obj *R) {
+  json_t* json = (json_t*)mustCObj(R[1]);
+  str key = stringStr(R[2]);
   json_t *v = json_object_get(json, key.str);
   if (v == NULL) {
     coraReturn(co, Nil);
@@ -226,8 +226,8 @@ struct registerModule jsonModule = {
 };
 
 void
-entry(struct Cora *co) {
-	Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+	Obj pkg = R[2];
 	registerAPI(co, &jsonModule, stringStr(pkg));
 	coraReturn(co, intern("json"));
 }

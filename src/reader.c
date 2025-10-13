@@ -293,6 +293,9 @@ printObj(FILE *to, Obj o) {
 		case scmHeadNative:
 			fprintf(to, "native");
 			break;
+		case scmHeadContinuation:
+			fprintf(to, "continuation");
+			break;
 		default:
 			fprintf(to, "ptr unknown type = %d\n", h->type);
 		};

@@ -706,8 +706,8 @@ process_file(struct Cora *co, FILE * in, Obj * sxml) {
 }
 
 static void
-md2sxml(struct Cora *co) {
-	Obj tmp = co->args[1];
+md2sxml(struct Cora *co, int label, Obj *R) {
+	Obj tmp = R[1];
 	char *filePath = stringStr(tmp).str;
 	FILE *in = fopen(filePath, "rb");
 	if (in == NULL) {
@@ -734,8 +734,8 @@ struct registerModule md4cModule = {
 };
 
 void
-entry(struct Cora *co) {
-	Obj pkg = co->args[2];
+entry(struct Cora *co, int label, Obj *R) {
+	Obj pkg = R[2];
 	registerAPI(co, &md4cModule, stringStr(pkg));
 	coraReturn(co, intern("md4c"));
 }
