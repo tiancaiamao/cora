@@ -20,7 +20,6 @@ enum {
   scmHeadCons,
   scmHeadBytes,
   scmHeadVector,
-  scmHeadNative,
   scmHeadContinuation,
   scmHeadNative1,
   scmHeadContinuation1,

@@ -243,7 +243,7 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 
 Obj
 makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...) {
-	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
+	int sz = sizeof(struct scmNative1) + captured * sizeof(Obj);
 	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
 	clo->nframe = nframe;
 	clo->fn = fn;
@@ -268,35 +268,6 @@ mustNative1(Obj o) {
 	return native;
 }
 
-Obj
-makeNative(int label, basicBlock fn, int required, int captured, ...) {
-	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
-	struct scmNative *clo = newObj(scmHeadNative, sz);
-	clo->code.func = fn;
-	clo->code.label = label;
-	clo->required = required;
-	clo->captured = captured;
-	if (captured > 0) {
-		va_list ap;
-		va_start(ap, captured);
-		for (int i = 0; i < captured; i++) {
-			clo->data[i] = va_arg(ap, Obj);
-		}
-		va_end(ap);
-	}
-
-	return ((Obj) (&clo->head) | TAG_PTR);
-}
-
-static void
-nativeGCFunc(struct GC *gc, void *f) {
-	struct scmNative *from = f;
-	version_t minv = from->head.version;
-	for (int i = 0; i < from->captured; i++) {
-		gcMark(gc, from->data[i], minv);
-	}
-}
-
 static void
 native1GCFunc(struct GC *gc, void *f) {
 	struct scmNative1 *from = f;
@@ -304,33 +275,6 @@ native1GCFunc(struct GC *gc, void *f) {
 	for (int i = 0; i < from->captured; i++) {
 		gcMark(gc, from->data[i], minv);
 	}
-}
-
-bool
-isNative(Obj c) {
-	if ((c & TAG_MASK) != TAG_PTR) {
-		return false;
-	}
-	scmHead *h = ptr(c);
-	return h->type == scmHeadNative;
-}
-
-
-struct scmNative *
-mustNative(Obj o) {
-	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
-	return native;
-}
-
-Obj *
-nativeData(Obj o) {
-	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
-	if (native->captured == 0) {
-		return NULL;
-	}
-	return native->data;
 }
 
 Obj *
@@ -350,32 +294,11 @@ native1Captured(Obj o) {
 	return native->captured;
 }
 
-int
-nativeCaptured(Obj o) {
-	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
-	return native->captured;
-}
-
 basicBlock1
 native1Fn(Obj o) {
 	struct scmNative1 *native = ptr(o);
 	assert(native->head.type == scmHeadNative1);
 	return native->fn;
-}
-
-struct pcState *
-nativeFuncPtr(Obj o) {
-	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
-	return &native->code;
-}
-
-int
-nativeRequired(Obj o) {
-	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
-	return native->required;
 }
 
 int
@@ -409,11 +332,11 @@ vectorRef(Obj v, int idx) {
 	return vec->data[idx];
 }
 
-struct scmContinuation {
-	scmHead head;
-	int len;
-	struct frame data[];
-};
+/* struct scmContinuation { */
+/* 	scmHead head; */
+/* 	int len; */
+/* 	struct frame data[]; */
+/* }; */
 
 Obj
 vectorSet(Obj vec, int idx, Obj val) {
@@ -485,50 +408,50 @@ vectorGCFunc(struct GC *gc, void *f) {
 	}
 }
 
-Obj
-makeContinuation(struct frame *data, int len) {
-	struct scmContinuation *cont = newObj(scmHeadContinuation,
-					      sizeof(struct scmContinuation) +
-					      len * sizeof(struct frame));
-	for (int i = 0; i < len; i++) {
-		cont->data[i] = data[i];
-	}
-	cont->len = len;
-	return ((Obj) (&cont->head) | TAG_PTR);
-}
+/* Obj */
+/* makeContinuation(struct frame *data, int len) { */
+/* 	struct scmContinuation *cont = newObj(scmHeadContinuation, */
+/* 					      sizeof(struct scmContinuation) + */
+/* 					      len * sizeof(struct frame)); */
+/* 	for (int i = 0; i < len; i++) { */
+/* 		cont->data[i] = data[i]; */
+/* 	} */
+/* 	cont->len = len; */
+/* 	return ((Obj) (&cont->head) | TAG_PTR); */
+/* } */
 
-struct callStack
-contCallStack(Obj cont) {
-	struct scmContinuation *v = ptr(cont);
-	assert(v->head.type == scmHeadContinuation);
-	struct callStack cs;
-	cs.data = v->data;
-	cs.len = v->len;
-	cs.cap = v->len;
-	return cs;
-}
+/* struct callStack */
+/* contCallStack(Obj cont) { */
+/* 	struct scmContinuation *v = ptr(cont); */
+/* 	assert(v->head.type == scmHeadContinuation); */
+/* 	struct callStack cs; */
+/* 	cs.data = v->data; */
+/* 	cs.len = v->len; */
+/* 	cs.cap = v->len; */
+/* 	return cs; */
+/* } */
 
-void
-gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv) {
-	for (int i = 0; i < stack->len; i++) {
-		struct frame *addr = &stack->data[i];
-		gcMark(gc, addr->stk.stack, minv);
-		Obj *p = (Obj *) bytesData(addr->stk.stack);
-		for (int j = addr->stk.base; j < addr->stk.pos; j++) {
-			gcMark(gc, p[j], minv);
-		}
-		// Don't forget this one!
-		gcMark(gc, addr->frees, minv);
-	}
-}
+/* void */
+/* gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv) { */
+/* 	for (int i = 0; i < stack->len; i++) { */
+/* 		struct frame *addr = &stack->data[i]; */
+/* 		gcMark(gc, addr->stk.stack, minv); */
+/* 		Obj *p = (Obj *) bytesData(addr->stk.stack); */
+/* 		for (int j = addr->stk.base; j < addr->stk.pos; j++) { */
+/* 			gcMark(gc, p[j], minv); */
+/* 		} */
+/* 		// Don't forget this one! */
+/* 		gcMark(gc, addr->frees, minv); */
+/* 	} */
+/* } */
 
-static void
-continuationGCFunc(struct GC *gc, void *f) {
-	struct scmContinuation *from = f;
-	version_t minv = from->head.version;
-	struct callStack cs = contCallStack((Obj) (&from->head) | TAG_PTR);
-	gcMarkCallStack(gc, &cs, minv);
-}
+/* static void */
+/* continuationGCFunc(struct GC *gc, void *f) { */
+/* 	struct scmContinuation *from = f; */
+/* 	version_t minv = from->head.version; */
+/* 	struct callStack cs = contCallStack((Obj) (&from->head) | TAG_PTR); */
+/* 	gcMarkCallStack(gc, &cs, minv); */
+/* } */
 
 static void
 symbolGCFunc(struct GC *gc, void *f) {
@@ -544,8 +467,7 @@ typesInit() {
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);
-	gcRegistForType(scmHeadNative, nativeGCFunc);
-	gcRegistForType(scmHeadContinuation, continuationGCFunc);
+	/* gcRegistForType(scmHeadContinuation, continuationGCFunc); */
 	gcRegistForType(scmHeadSymbol, symbolGCFunc);
 	gcRegistForType(scmHeadNative1, native1GCFunc);
 }
