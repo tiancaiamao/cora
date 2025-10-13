@@ -326,7 +326,8 @@
 					  ((= x false) (generate-str w "False")))
 			    ['let a b c] (let idx (index a env)
 					      (begin
-					       (if (< idx 0) (generate-str w "Obj ") ())
+					       ;; TODO: (if (< idx 0) "variable redefine by let" ())?
+					       (generate-str w "Obj ")
 					       (generate-sym w a)
 					       (generate-str w " = ")
 					       ((value generate-inst-h) b env)

@@ -941,6 +941,37 @@ primIsSymbol(Obj x) {
 	}
 }
 
+static void
+applyClosureForEval(struct Cora *co, int label, Obj *R) {
+	Obj self = R[0];
+	Obj *data = nativeData(self);
+	Obj params = data[0];
+	Obj body = data[1];
+	Obj env = data[2];
+	for (int i = 1; params != Nil; i++) {
+		Obj var = car(params);
+		Obj val = R[i];
+		env = cons(cons(var, val), env);
+		params = cdr(params);
+	}
+	co->ctx.sp = R;
+	coraCall2(co, globalRef(intern("cora/lib/eval#eval")), body, env);
+	/* R[0] = globalRef(intern("cora/lib/eval#eval")); */
+	/* R[1] = body; */
+	/* R[2] = env; */
+	/* co->ctx.pc.func = coraDispatch; */
+}
+
+static void
+makeClosureForEval(struct Cora *co, int label, Obj *R) {
+	Obj params = R[1];
+	Obj body = R[2];
+	Obj env = R[3];
+	int len = listLen(params);
+	Obj ret = makeNative(4, applyClosureForEval, len, 3, params, body, env);
+	coraReturn(co, ret);
+}
+
 static Obj
 primVMSymbolForTLS(struct Cora *co) {
 	char dest[20];
@@ -1042,8 +1073,8 @@ coraInit(uintptr_t * mark) {
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(2, builtinSymbolCooked, 1, 0));
-	/* primSet(co, intern("cora/lib/eval#make-closure-for-eval"), */
-	/* 	makeNative(0, makeClosureForEval, 3, 0)); */
+	primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
+		makeNative(0, makeClosureForEval, 3, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
 		makeNative(1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);

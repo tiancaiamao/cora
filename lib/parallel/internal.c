@@ -346,7 +346,7 @@ static struct registerModule parallelModule = {
 };
 
 void
-entry(struct Cora *co) {
+entry(struct Cora *co, int label, Obj *R) {
   Obj pkg = co->args[2];
   registerAPI(co, &parallelModule, stringStr(pkg));
   coraReturn(co, intern("internal"));
