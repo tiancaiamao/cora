@@ -1,4 +1,4 @@
-#include "runtime1.h"
+#include "runtime.h"
 #include <stdlib.h>
 
 static void

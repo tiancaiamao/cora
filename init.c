@@ -1,5 +1,5 @@
 #include "types.h"
-#include "runtime1.h"
+#include "runtime.h"
 
 static void clofun95(struct Cora* co, int label, Obj *R);
 static void clofun94(struct Cora* co, int label, Obj *R);

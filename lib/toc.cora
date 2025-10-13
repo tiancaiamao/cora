@@ -590,7 +590,7 @@
   (defun generate-c (to bc globals)
     (begin
      (generate-str to "#include \"types.h\"\n")
-     (generate-str to "#include \"runtime1.h\"\n\n")
+     (generate-str to "#include \"runtime.h\"\n\n")
      (for-each (lambda (group)
 		 (begin
 		  (code-gen-func-declare to (car group))

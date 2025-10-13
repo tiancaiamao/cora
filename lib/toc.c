@@ -1,5 +1,5 @@
 #include "types.h"
-#include "runtime1.h"
+#include "runtime.h"
 
 static void clofun144(struct Cora* co, int label, Obj *R);
 static void clofun143(struct Cora* co, int label, Obj *R);
@@ -1676,7 +1676,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[48]), to, makeCString("#include \"runtime1.h\"\n\n"));
+coraCall2(co, globalRef(__symbolTable[48]), to, makeCString("#include \"runtime.h\"\n\n"));
 return;
 }
 }

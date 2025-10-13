@@ -1,4 +1,4 @@
-#include "runtime1.h"
+#include "runtime.h"
 
 static void
 repl(struct Cora *co, FILE* stream) {

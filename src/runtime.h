@@ -1,34 +1,166 @@
 #ifndef _RUNTIME_H
 #define _RUNTIME_H
 
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include "vector.h"
 #include "types.h"
 #include "reader.h"
-#include "trace.h"
 
-struct Cora {
-		struct frame ctx;
-		struct callStack callstack;
-		struct trieNode *globals;
+typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
 
-		Obj args[32];
-		int nargs;
+struct frame1 {
+	// fn + label = pc register
+	basicBlock1 fn;
+	int label;
+	// ebp and esp register
+	Obj *bp;
+	Obj *sp;
 };
 
-void trampoline(struct Cora *co, int label, basicBlock pc);
-void coraDispatch(struct Cora *co);
-void coraReturn(struct Cora *co, Obj val);
-Obj coraGet(struct Cora *co, int i);
+struct segmentStack {
+	// [begin ... sp ... end)
+	Obj *begin;
+	Obj *end;
+	vector(Obj*) data;
+};
 
-void pushContRaw(char* file, int line, struct Cora *co, int label, basicBlock cb, int nstack, ...);
+struct tryMark {
+	int callstackPos;
+	int segmentStackPos;
+};
 
-#define pushCont(co, label, cb, nstack, ...) \
-	pushContRaw(__FILE__, __LINE__, (co), (label), (cb), (nstack), ##__VA_ARGS__)
+struct Cora {
+	struct frame1 ctx;
+	vector(struct frame1) callstack;
+	struct segmentStack stk;
 
-Obj closureRef(struct Cora *co, int idx);
+	Obj res;
+	struct trieNode *globals;
+	vector(struct tryMark) trystack;
+};
+
+Obj* stackAllocSlowPath(struct Cora *co, int n);
+void coraReturnSlowPath(struct Cora *co);
+
+static inline Obj*
+stackAlloc(struct Cora *co, int n) {
+	// fast path
+	assert(n > 0);
+	if (co->ctx.sp + n < co->stk.end) {
+		co->ctx.bp = co->ctx.sp;
+		co->ctx.sp += n;
+		return co->ctx.bp;
+	}
+	return stackAllocSlowPath(co, n);
+}
+
+static inline void
+coraReturn(struct Cora *co, Obj val) {
+	// set return value
+	co->res = val;
+	// recover continuation
+	co->ctx = vecPop(&co->callstack);
+	if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
+		coraReturnSlowPath(co);
+	}
+	return;
+}
+
+void coraCall(struct Cora *co, Obj fn, int nargs, ...);
+
+static inline void
+coraCall0(struct Cora *co, Obj fn) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 0) {
+		coraReturn(co, fn);
+		return;
+	}
+	Obj *frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+}
+
+static inline void
+coraCall1(struct Cora *co, Obj fn, Obj arg1) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 1) {
+		return coraCall(co, fn, 1, arg1);
+	}
+	Obj *frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+	frame[1] = arg1;
+}
+
+static inline void
+coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 2) {
+		return coraCall(co, fn, 2, arg1, arg2);
+	}
+	Obj* frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+}
+
+static inline void
+coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 3) {
+		return coraCall(co, fn, 3, arg1, arg2, arg3);
+	}
+	Obj *frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+	frame[3] = arg3;
+}
+
+// x86-64 sysv ABI has 6 registers (RDI, RSI, RDX, RCX, R8, R9) available
+// x86-64 Win has 4 registers (RCX, RDX, R8, R9) available
+// ARM64 has even more registers
+// Anyway, static inline should not care about parameter count.
+static inline void
+coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
+	struct scmNative1 *f = ptr(fn);
+	assert(f->head.type == scmHeadNative1);
+	if (f->required != 4) {
+		return coraCall(co, fn, 4, arg1, arg2, arg3, arg4);
+	}
+	Obj *frame = stackAlloc(co, f->nframe);
+	co->ctx.fn = f->fn;
+	co->ctx.label = 0;
+	frame[0] = fn;
+	frame[1] = arg1;
+	frame[2] = arg2;
+	frame[3] = arg3;
+	frame[4] = arg4;
+}
+
+void coraRun(struct Cora *co);
+
+Obj primSet(struct Cora *co, Obj key, Obj val);
+
+static inline Obj
+closureRef(Obj clo, int idx) {
+#ifndef NDEBUG
+	struct scmNative1 *ntv = mustNative1(clo);
+	assert(ntv->captured > idx);
+#endif
+	return OBJ_FIELD(clo, scmNative1, data)[idx];
+}
+
+void builtinImport(struct Cora *co, int label, Obj *R);
 
 Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);
@@ -48,9 +180,12 @@ Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
+struct Cora * coraInit(uintptr_t * mark);
+
+
 struct registerEntry {
   char *name;
-  basicBlock func;
+  basicBlock1 func;
   int args;
 };
 
@@ -60,112 +195,5 @@ struct registerModule {
 };
 
 void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
-
-
-struct Cora* coraInit(uintptr_t *mark);
-void coraExit(struct Cora *co);
-
-static inline void
-growCallStack(struct callStack *cs) {
-	TRACE_SCOPE("growCallStack");
-	size_t new_cap = cs->cap * 2;
-	struct frame *new_data = malloc(new_cap * sizeof(struct frame));
-	memcpy(new_data, cs->data, cs->len * sizeof(struct frame));
-	free(cs->data);
-	cs->data = new_data;
-	cs->cap = new_cap;
-}
-
-#ifdef __GNUC__
-#define likely(x)    __builtin_expect(!!(x), 1)
-#define unlikely(x)  __builtin_expect(!!(x), 0)
-#else
-#define likely(x)    (x)
-#define unlikely(x)  (x)
-#endif
-
-#define PUSH_CONT_0(co, lbl, cb) do {			\
-    struct callStack *__cs = &(co)->callstack;		\
-    if (unlikely(__cs->len >= __cs->cap)) {		\
-      growCallStack(__cs);				\
-    }							\
-    struct frame *__addr = &__cs->data[__cs->len++];	\
-    __addr->frees = (co)->ctx.frees;			\
-    __addr->pc.func = (cb);				\
-    __addr->pc.label = (lbl);				\
-    __addr->stk = (co)->ctx.stk;			\
-    __addr->debugFile = __FILE__;			\
-    __addr->debugLine = __LINE__;			\
-  } while (0)
-
-#define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
-#define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
-#define PRIM_ISCONS(obj) (iscons(obj)? True: False)
-
-#define PRIM_EQ(x, y) (eq(x, y) ? True : False)
-#define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
-#define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
-
-#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
-
-// assuming x and y are both fixnum
-#define PRIM_ADD(x, y)    ((x) + (y))
-#define PRIM_SUB(x, y)    ((x) - (y))
-#define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
-
-
-#define JUMP_WITH_ARGS_1(clofun, x0) do {					\
-		__nargs = 1;						\
-		__arg0 = (x0);						\
-		co->ctx.frees = __arg0;					\
-		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
-		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
-		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
-		goto *jumpTable[ps.label];				\
-	} while (0)
-
-#define JUMP_WITH_ARGS_2(clofun, x0, x1) do {				\
-		__nargs = 2;						\
-		__arg0 = (x0);						\
-		__arg1 = (x1);						\
-		co->ctx.frees = __arg0;					\
-		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
-		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
-		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; };	\
-		goto *jumpTable[ps.label];				\
-	} while (0)
-
-#define JUMP_WITH_ARGS_3(clofun, x0, x1, x2) do {			\
-		__nargs = 3;						\
-		__arg0 = (x0);						\
-		__arg1 = (x1);						\
-		__arg2 = (x2);						\
-		co->ctx.frees = __arg0;					\
-		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
-		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
-		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
-		goto *jumpTable[ps.label];				\
-	} while (0)
-
-#define JUMP_WITH_ARGS_4(clofun, x0, x1, x2, x3) do {			\
-		__nargs = 4;						\
-		__arg0 = (x0);						\
-		__arg1 = (x1);						\
-		__arg2 = (x2);						\
-		__arg3 = (x3);						\
-		co->ctx.frees = __arg0;					\
-		struct pcState ps = OBJ_FIELD(__arg0, scmNative, code);	\
-		if (OBJ_FIELD(__arg0, scmNative, required)+1 != __nargs) { co->ctx.pc.func = coraDispatch; goto fail; }; \
-		if (ps.func != (clofun)) { co->ctx.pc = ps; goto fail; }; \
-		goto *jumpTable[ps.label];				\
-	} while (0)
-
-#define JUMP_RETURN(clofun, val) do {					\
-		__nargs = 2;						\
-		__arg1 = (val);						\
-		co->ctx = co->callstack.data[--co->callstack.len];	\
-		if (co->ctx.pc.func != (clofun)) { goto fail; }		\
-		goto *jumpTable[co->ctx.pc.label];			\
-	} while (0)
 
 #endif
