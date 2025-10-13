@@ -1,6 +1,4 @@
-#include "runtime.h"
-
-extern void builtinImport(struct Cora *co);
+#include "runtime1.h"
 
 static void
 repl(struct Cora *co, FILE* stream) {
@@ -21,25 +19,22 @@ repl(struct Cora *co, FILE* stream) {
 		/* sexpWrite(stdout, exp); */
 		/* printf("\n"); */
 
-		co->args[0] = globalRef(intern("macroexpand"));
-		co->args[1] = exp;
-		co->nargs = 2;
-		trampoline(co, 0, coraDispatch);
-		exp = co->args[1];
+		Obj fn = globalRef(intern("macroexpand"));
+		coraCall1(co, fn, exp);
+		coraRun(co);
+		exp = co->res;
 
 		/* printf("after macro expand =="); */
 		/* sexpWrite(stdout, exp); */
 		/* printf(" --- %d %d\n", co->base, co->pos); */
 		/* printf("\n"); */
 
-		co->args[0] = globalRef(intern("cora/lib/eval#eval"));
-		co->args[1] = exp;
-		co->args[2] = Nil;
-		co->nargs = 3;
-		trampoline(co, 0, coraDispatch);
+		fn = globalRef(intern("cora/lib/eval#eval"));
+		coraCall2(co, fn, exp, Nil);
+		coraRun(co);
 
 		if (stream == stdin) {
-			sexpWrite(stdout, co->args[1]);
+			sexpWrite(stdout, co->res);
 			printf("\n");
 		}
 	}
@@ -81,25 +76,34 @@ shebang(struct Cora *co, int argc, char *argv[]) {
 	repl(co, f);
 }
 
+/* extern void entry(struct Cora *co, int label, Obj *R); */
+
 int main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	struct Cora* co = coraInit(&dummy);
-	co->nargs = 2;
-	co->args[1] = makeCString("cora/init");
-	trampoline(co, 0, builtinImport);
-  
-	co->nargs = 2;
-	co->args[1] = makeCString("cora/lib/toc1");
-	trampoline(co, 0, builtinImport);
+	struct Cora * co = coraInit(&dummy);
 
-	co->nargs = 2;
-	co->args[1] = makeCString("cora/lib/eval");
-	trampoline(co, 0, builtinImport);
+	Obj fn = globalRef(intern("import"));
+	Obj arg1 = makeCString("cora/init");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
+	arg1 = makeCString("cora/lib/toc");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
+	arg1 = makeCString("cora/lib/eval");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
 
 	if (argc == 1) {
 		repl(co, stdin);
 	} else {
 		shebang(co, argc, argv);
 	}
-}
 
+	/* entry(co, 0, NULL); */
+	/* coraRun(co); */
+	/* printf("check macroexpand result:\n"); */
+	/* printObj(stderr, co->res); */
+}

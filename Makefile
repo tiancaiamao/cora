@@ -30,9 +30,8 @@ lib:
 .c.o:
 	$(CC) $(CFLAGS) -c -g $< -I src
 
-cora.bin: libcora main1.o init.so
-	# $(CC) main.o -Lsrc $(LD_FLAG) -o $@
-	$(CC) main1.o -Lsrc $(LD_FLAG) -o $@
+cora.bin: libcora main.o init.so
+	$(CC) main.o -Lsrc $(LD_FLAG) -o $@
 
 clean:
 	rm -f *.o *.so *.bin test/*.so
