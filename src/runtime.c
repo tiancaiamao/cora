@@ -329,7 +329,7 @@ builtinLoadSo(struct Cora *co, int label, Obj *R) {
 	}
 	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path, handle);
 
-	basicBlock1 entry = dlsym(handle, "entry");
+	basicBlock entry = dlsym(handle, "entry");
 	char *error = dlerror();
 	if (error != NULL) {
 		// TODO
@@ -718,7 +718,7 @@ builtinTryCatch(struct Cora *co, int label, Obj *R) {
 	}
 }
 
-struct scmContinuation1 {
+struct scmContinuation {
 	scmHead head;
 	vector(Obj*)segstack;
 	int len;
@@ -727,8 +727,8 @@ struct scmContinuation1 {
 
 Obj
 makeContinuation1(struct frame1 *callstack, int len, Obj** stk, int count) {
-	struct scmContinuation1 *cont = newObj(scmHeadContinuation1,
-					       sizeof(struct scmContinuation1) +
+	struct scmContinuation *cont = newObj(scmHeadContinuation1,
+					       sizeof(struct scmContinuation) +
 					       len * sizeof(struct frame1));
 	for (int i = 0; i < len; i++) {
 		cont->callstack[i] = callstack[i];
@@ -756,7 +756,7 @@ continuation1AsClosure(struct Cora *co, int label, Obj *R) {
 	vecAppend(&co->trystack, mark);
 
 	// Replace the current stack with the delimited continuation.
-	struct scmContinuation1 *cont = (struct scmContinuation1*)ptr(contObj);
+	struct scmContinuation *cont = (struct scmContinuation*)ptr(contObj);
 	for (int i = 0; i < cont->len; i++) {
 		vecAppend(&co->callstack, cont->callstack[i]);
 	}

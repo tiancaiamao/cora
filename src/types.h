@@ -139,24 +139,24 @@ eq(Obj x, Obj y) {
 
 struct Cora;
 
-typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
+typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
 struct scmNative1 {
 	scmHead head;
 	int required;
 	int nframe;
-	basicBlock1 fn;
+	basicBlock fn;
 
 	int captured;
 	Obj data[];
 };
 
 struct scmNative1* mustNative1(Obj o);
-Obj makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...);
+Obj makeNative1(int nframe, basicBlock fn, int required, int captured, ...);
 int native1Captured(Obj o);
 int native1Required(Obj o);
 Obj* native1Data(Obj o);
-basicBlock1 native1Fn(Obj o);
+basicBlock native1Fn(Obj o);
 
 /* void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv); */
 

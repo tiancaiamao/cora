@@ -242,7 +242,7 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 }
 
 Obj
-makeNative1(int nframe, basicBlock1 fn, int required, int captured, ...) {
+makeNative1(int nframe, basicBlock fn, int required, int captured, ...) {
 	int sz = sizeof(struct scmNative1) + captured * sizeof(Obj);
 	struct scmNative1 *clo = newObj(scmHeadNative1, sz);
 	clo->nframe = nframe;
@@ -294,7 +294,7 @@ native1Captured(Obj o) {
 	return native->captured;
 }
 
-basicBlock1
+basicBlock
 native1Fn(Obj o) {
 	struct scmNative1 *native = ptr(o);
 	assert(native->head.type == scmHeadNative1);

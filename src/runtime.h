@@ -5,11 +5,11 @@
 #include "types.h"
 #include "reader.h"
 
-typedef void (*basicBlock1) (struct Cora *co, int label, Obj *R);
+typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
 struct frame1 {
 	// fn + label = pc register
-	basicBlock1 fn;
+	basicBlock fn;
 	int label;
 	// ebp and esp register
 	Obj *bp;
@@ -185,7 +185,7 @@ struct Cora * coraInit(uintptr_t * mark);
 
 struct registerEntry {
   char *name;
-  basicBlock1 func;
+  basicBlock func;
   int args;
 };
 
