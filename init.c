@@ -273,17 +273,17 @@ static void clofun95(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4309801927 = primSet(co, __symbolTable[161], makeNative1(2, clofun0, 1, 0));
-Obj x4309802343 = primSet(co, __symbolTable[160], makeNative1(2, clofun1, 1, 0));
-Obj x4309802759 = primSet(co, __symbolTable[159], makeNative1(2, clofun2, 1, 0));
-Obj x4309794983 = primSet(co, __symbolTable[158], makeNative1(2, clofun3, 1, 0));
-Obj x4309795399 = primSet(co, __symbolTable[157], makeNative1(2, clofun4, 1, 0));
-Obj x4309795911 = primSet(co, __symbolTable[156], makeNative1(2, clofun5, 1, 0));
-Obj x4309796519 = primSet(co, __symbolTable[155], makeNative1(2, clofun6, 1, 0));
-Obj x4309797031 = primSet(co, __symbolTable[154], makeNative1(2, clofun7, 1, 0));
-Obj x4309797991 = primSet(co, __symbolTable[153], makeNative1(2, clofun8, 1, 0));
-Obj x4309798311 = primSet(co, __symbolTable[151], makeNative1(2, clofun9, 1, 0));
-Obj x4309749895 = primSet(co, __symbolTable[150], makeNative1(3, clofun10, 2, 0));
+Obj _3512865_37 = primSet(co, __symbolTable[161], makeNative1(2, clofun0, 1, 0));
+Obj _3512868_37 = primSet(co, __symbolTable[160], makeNative1(2, clofun1, 1, 0));
+Obj _3512871_37 = primSet(co, __symbolTable[159], makeNative1(2, clofun2, 1, 0));
+Obj _3512874_37 = primSet(co, __symbolTable[158], makeNative1(2, clofun3, 1, 0));
+Obj _3512877_37 = primSet(co, __symbolTable[157], makeNative1(2, clofun4, 1, 0));
+Obj _3512881_37 = primSet(co, __symbolTable[156], makeNative1(2, clofun5, 1, 0));
+Obj _3512886_37 = primSet(co, __symbolTable[155], makeNative1(2, clofun6, 1, 0));
+Obj _3512890_37 = primSet(co, __symbolTable[154], makeNative1(2, clofun7, 1, 0));
+Obj _3512898_37 = primSet(co, __symbolTable[153], makeNative1(2, clofun8, 1, 0));
+Obj _3512900_37 = primSet(co, __symbolTable[151], makeNative1(2, clofun9, 1, 0));
+Obj _3512905_37 = primSet(co, __symbolTable[150], makeNative1(3, clofun10, 2, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 15,
@@ -296,167 +296,167 @@ return;
 }
 case 1:
 {
-Obj x4308445223= co->res;
-Obj x4308446567 = primSet(co, __symbolTable[76], makeNative1(3, clofun80, 2, 0));
-Obj x4308371271 = primSet(co, __symbolTable[71], makeNative1(5, clofun81, 3, 0));
-Obj x4308371687 = makeCons(makeCString("primSet"), Nil);
-Obj x4308371719 = makeCons(MAKE_NUMBER(2), x4308371687);
-Obj x4308371751 = makeCons(__symbolTable[68], x4308371719);
-Obj x4308372039 = makeCons(makeCString("PRIM_CAR"), Nil);
-Obj x4308372071 = makeCons(MAKE_NUMBER(1), x4308372039);
-Obj x4308372103 = makeCons(__symbolTable[115], x4308372071);
-Obj x4308372391 = makeCons(makeCString("PRIM_CDR"), Nil);
-Obj x4308372423 = makeCons(MAKE_NUMBER(1), x4308372391);
-Obj x4308372455 = makeCons(__symbolTable[114], x4308372423);
-Obj x4308372743 = makeCons(makeCString("makeCons"), Nil);
-Obj x4308372775 = makeCons(MAKE_NUMBER(2), x4308372743);
-Obj x4308372807 = makeCons(__symbolTable[152], x4308372775);
-Obj x4308373095 = makeCons(makeCString("PRIM_ISCONS"), Nil);
-Obj x4308373127 = makeCons(MAKE_NUMBER(1), x4308373095);
-Obj x4308373159 = makeCons(__symbolTable[116], x4308373127);
-Obj x4308373447 = makeCons(makeCString("PRIM_ADD"), Nil);
-Obj x4308373479 = makeCons(MAKE_NUMBER(2), x4308373447);
-Obj x4308299783 = makeCons(__symbolTable[67], x4308373479);
-Obj x4308300071 = makeCons(makeCString("PRIM_SUB"), Nil);
-Obj x4308300103 = makeCons(MAKE_NUMBER(2), x4308300071);
-Obj x4308300135 = makeCons(__symbolTable[66], x4308300103);
-Obj x4308300423 = makeCons(makeCString("PRIM_MUL"), Nil);
-Obj x4308300455 = makeCons(MAKE_NUMBER(2), x4308300423);
-Obj x4308300487 = makeCons(__symbolTable[65], x4308300455);
-Obj x4308300775 = makeCons(makeCString("primDiv"), Nil);
-Obj x4308300807 = makeCons(MAKE_NUMBER(2), x4308300775);
-Obj x4308300839 = makeCons(__symbolTable[64], x4308300807);
-Obj x4308301127 = makeCons(makeCString("PRIM_EQ"), Nil);
-Obj x4308301159 = makeCons(MAKE_NUMBER(2), x4308301127);
-Obj x4308301191 = makeCons(__symbolTable[113], x4308301159);
-Obj x4308301479 = makeCons(makeCString("PRIM_GT"), Nil);
-Obj x4308301511 = makeCons(MAKE_NUMBER(2), x4308301479);
-Obj x4308301543 = makeCons(__symbolTable[63], x4308301511);
-Obj x4308301831 = makeCons(makeCString("PRIM_LT"), Nil);
-Obj x4308301863 = makeCons(MAKE_NUMBER(2), x4308301831);
-Obj x4308301895 = makeCons(__symbolTable[62], x4308301863);
-Obj x4308302183 = makeCons(makeCString("primGenSym"), Nil);
-Obj x4308302215 = makeCons(MAKE_NUMBER(0), x4308302183);
-Obj x4308302247 = makeCons(__symbolTable[61], x4308302215);
-Obj x4308302535 = makeCons(makeCString("primIsSymbol"), Nil);
-Obj x4308302567 = makeCons(MAKE_NUMBER(1), x4308302535);
-Obj x4308302599 = makeCons(__symbolTable[60], x4308302567);
-Obj x4308302887 = makeCons(makeCString("primNot"), Nil);
-Obj x4308302919 = makeCons(MAKE_NUMBER(1), x4308302887);
-Obj x4308302951 = makeCons(__symbolTable[59], x4308302919);
-Obj x4308303239 = makeCons(makeCString("primIsNumber"), Nil);
-Obj x4308303271 = makeCons(MAKE_NUMBER(1), x4308303239);
-Obj x4308303303 = makeCons(__symbolTable[58], x4308303271);
-Obj x4308303591 = makeCons(makeCString("primIsString"), Nil);
-Obj x4308303623 = makeCons(MAKE_NUMBER(1), x4308303591);
-Obj x4308303655 = makeCons(__symbolTable[57], x4308303623);
-Obj x4308303687 = makeCons(x4308303655, Nil);
-Obj x4308303719 = makeCons(x4308303303, x4308303687);
-Obj x4308303751 = makeCons(x4308302951, x4308303719);
-Obj x4308303783 = makeCons(x4308302599, x4308303751);
-Obj x4308303815 = makeCons(x4308302247, x4308303783);
-Obj x4308303847 = makeCons(x4308301895, x4308303815);
-Obj x4307972103 = makeCons(x4308301543, x4308303847);
-Obj x4307972135 = makeCons(x4308301191, x4307972103);
-Obj x4307972167 = makeCons(x4308300839, x4307972135);
-Obj x4307972199 = makeCons(x4308300487, x4307972167);
-Obj x4307972231 = makeCons(x4308300135, x4307972199);
-Obj x4307972263 = makeCons(x4308299783, x4307972231);
-Obj x4307972295 = makeCons(x4308373159, x4307972263);
-Obj x4307972327 = makeCons(x4308372807, x4307972295);
-Obj x4307972359 = makeCons(x4308372455, x4307972327);
-Obj x4307972391 = makeCons(x4308372103, x4307972359);
-Obj x4307972423 = makeCons(x4308371751, x4307972391);
-Obj x4307972455 = primSet(co, __symbolTable[69], x4307972423);
-Obj x4307975111 = primSet(co, __symbolTable[56], makeNative1(3, clofun83, 2, 0));
-Obj x4307975623 = primSet(co, __symbolTable[55], makeNative1(2, clofun84, 1, 0));
-Obj x4309752519 = primSet(co, __symbolTable[93], makeNative1(5, clofun94, 4, 0));
-Obj x4309711559 = makeCons(__symbolTable[98], Nil);
-Obj x4309711591 = makeCons(__symbolTable[99], x4309711559);
-Obj x4309711623 = makeCons(__symbolTable[101], x4309711591);
-Obj x4309711751 = makeCons(__symbolTable[132], x4309711623);
-Obj x4309711783 = makeCons(__symbolTable[138], x4309711751);
-Obj x4309711815 = makeCons(__symbolTable[147], x4309711783);
-Obj x4309711847 = makeCons(__symbolTable[149], x4309711815);
-Obj x4309711879 = makeCons(__symbolTable[39], x4309711847);
-Obj x4309711911 = makeCons(__symbolTable[40], x4309711879);
-Obj x4309711943 = makeCons(__symbolTable[41], x4309711911);
-Obj x4309711975 = makeCons(__symbolTable[81], x4309711943);
-Obj x4309712039 = makeCons(__symbolTable[42], x4309711975);
-Obj x4309712071 = makeCons(__symbolTable[43], x4309712039);
-Obj x4309712103 = makeCons(__symbolTable[70], x4309712071);
-Obj x4309712135 = makeCons(__symbolTable[44], x4309712103);
-Obj x4309712199 = makeCons(__symbolTable[45], x4309712135);
-Obj x4309712327 = makeCons(__symbolTable[46], x4309712199);
-Obj x4309712359 = makeCons(__symbolTable[47], x4309712327);
-Obj x4309712391 = makeCons(__symbolTable[48], x4309712359);
-Obj x4309712455 = makeCons(__symbolTable[49], x4309712391);
-Obj x4309712487 = makeCons(__symbolTable[50], x4309712455);
-Obj x4309712519 = makeCons(__symbolTable[51], x4309712487);
-Obj x4309712551 = makeCons(__symbolTable[52], x4309712519);
-Obj x4309712615 = makeCons(__symbolTable[72], x4309712551);
-Obj x4309712647 = makeCons(__symbolTable[74], x4309712615);
-Obj x4308521063 = makeCons(__symbolTable[73], x4309712647);
-Obj x4308521127 = makeCons(__symbolTable[161], x4308521063);
-Obj x4308521159 = makeCons(__symbolTable[54], x4308521127);
-Obj x4308521191 = makeCons(__symbolTable[121], x4308521159);
-Obj x4308521255 = makeCons(__symbolTable[131], x4308521191);
-Obj x4308521287 = makeCons(__symbolTable[151], x4308521255);
-Obj x4308521319 = makeCons(__symbolTable[154], x4308521287);
-Obj x4308521351 = makeCons(__symbolTable[155], x4308521319);
-Obj x4308521383 = makeCons(__symbolTable[156], x4308521351);
-Obj x4308521415 = makeCons(__symbolTable[157], x4308521383);
-Obj x4308521575 = makeCons(__symbolTable[158], x4308521415);
-Obj x4308521607 = makeCons(__symbolTable[159], x4308521575);
-Obj x4308521639 = makeCons(__symbolTable[160], x4308521607);
-Obj x4308521671 = primSet(co, __symbolTable[53], x4308521639);
-Obj x4308521927 = primSet(co, __symbolTable[38], globalRef(__symbolTable[160]));
-Obj x4308522151 = primSet(co, __symbolTable[37], globalRef(__symbolTable[159]));
-Obj x4308522599 = primSet(co, __symbolTable[36], globalRef(__symbolTable[158]));
-Obj x4308522855 = primSet(co, __symbolTable[35], globalRef(__symbolTable[157]));
-Obj x4308523079 = primSet(co, __symbolTable[34], globalRef(__symbolTable[156]));
-Obj x4308523303 = primSet(co, __symbolTable[33], globalRef(__symbolTable[155]));
-Obj x4308523591 = primSet(co, __symbolTable[32], globalRef(__symbolTable[154]));
-Obj x4308523847 = primSet(co, __symbolTable[31], globalRef(__symbolTable[151]));
-Obj x4308524007 = primSet(co, __symbolTable[30], globalRef(__symbolTable[131]));
-Obj x4308524295 = primSet(co, __symbolTable[29], globalRef(__symbolTable[121]));
-Obj x4308524519 = primSet(co, __symbolTable[28], globalRef(__symbolTable[161]));
-Obj x4308524871 = primSet(co, __symbolTable[27], globalRef(__symbolTable[54]));
-Obj x4308467847 = primSet(co, __symbolTable[26], globalRef(__symbolTable[73]));
-Obj x4308468199 = primSet(co, __symbolTable[25], globalRef(__symbolTable[74]));
-Obj x4308468359 = primSet(co, __symbolTable[24], globalRef(__symbolTable[72]));
-Obj x4308468647 = primSet(co, __symbolTable[23], globalRef(__symbolTable[52]));
-Obj x4308468871 = primSet(co, __symbolTable[22], globalRef(__symbolTable[51]));
-Obj x4308469095 = primSet(co, __symbolTable[21], globalRef(__symbolTable[50]));
-Obj x4308469255 = primSet(co, __symbolTable[20], globalRef(__symbolTable[49]));
-Obj x4308469447 = primSet(co, __symbolTable[19], globalRef(__symbolTable[48]));
-Obj x4308469767 = primSet(co, __symbolTable[18], globalRef(__symbolTable[47]));
-Obj x4308470023 = primSet(co, __symbolTable[17], globalRef(__symbolTable[46]));
-Obj x4308470215 = primSet(co, __symbolTable[16], globalRef(__symbolTable[44]));
-Obj x4308470727 = primSet(co, __symbolTable[15], globalRef(__symbolTable[70]));
-Obj x4308470951 = primSet(co, __symbolTable[14], globalRef(__symbolTable[45]));
-Obj x4308471175 = primSet(co, __symbolTable[13], globalRef(__symbolTable[43]));
-Obj x4308471399 = primSet(co, __symbolTable[12], globalRef(__symbolTable[41]));
-Obj x4308471655 = primSet(co, __symbolTable[11], globalRef(__symbolTable[42]));
-Obj x4308459655 = primSet(co, __symbolTable[10], globalRef(__symbolTable[81]));
-Obj x4308459975 = primSet(co, __symbolTable[9], globalRef(__symbolTable[40]));
-Obj x4308460231 = primSet(co, __symbolTable[8], globalRef(__symbolTable[39]));
-Obj x4308460455 = primSet(co, __symbolTable[7], globalRef(__symbolTable[149]));
-Obj x4308460743 = primSet(co, __symbolTable[6], globalRef(__symbolTable[147]));
-Obj x4308461063 = primSet(co, __symbolTable[5], globalRef(__symbolTable[138]));
-Obj x4308461287 = primSet(co, __symbolTable[4], globalRef(__symbolTable[132]));
-Obj x4308461639 = primSet(co, __symbolTable[3], globalRef(__symbolTable[101]));
-Obj x4308461991 = primSet(co, __symbolTable[2], globalRef(__symbolTable[99]));
-Obj x4308462247 = primSet(co, __symbolTable[1], globalRef(__symbolTable[98]));
-Obj x4308462343 = primSet(co, __symbolTable[0], globalRef(__symbolTable[56]));
-coraReturn(co, x4308462343);
+Obj _3513385_37= co->res;
+Obj _3513391_37 = primSet(co, __symbolTable[76], makeNative1(3, clofun80, 2, 0));
+Obj _3513403_37 = primSet(co, __symbolTable[71], makeNative1(5, clofun81, 3, 0));
+Obj _3513404_37 = makeCons(makeCString("primSet"), Nil);
+Obj _3513405_37 = makeCons(MAKE_NUMBER(2), _3513404_37);
+Obj _3513406_37 = makeCons(__symbolTable[68], _3513405_37);
+Obj _3513407_37 = makeCons(makeCString("PRIM_CAR"), Nil);
+Obj _3513408_37 = makeCons(MAKE_NUMBER(1), _3513407_37);
+Obj _3513409_37 = makeCons(__symbolTable[115], _3513408_37);
+Obj _3513410_37 = makeCons(makeCString("PRIM_CDR"), Nil);
+Obj _3513411_37 = makeCons(MAKE_NUMBER(1), _3513410_37);
+Obj _3513412_37 = makeCons(__symbolTable[114], _3513411_37);
+Obj _3513413_37 = makeCons(makeCString("makeCons"), Nil);
+Obj _3513414_37 = makeCons(MAKE_NUMBER(2), _3513413_37);
+Obj _3513415_37 = makeCons(__symbolTable[152], _3513414_37);
+Obj _3513416_37 = makeCons(makeCString("PRIM_ISCONS"), Nil);
+Obj _3513417_37 = makeCons(MAKE_NUMBER(1), _3513416_37);
+Obj _3513418_37 = makeCons(__symbolTable[116], _3513417_37);
+Obj _3513419_37 = makeCons(makeCString("PRIM_ADD"), Nil);
+Obj _3513420_37 = makeCons(MAKE_NUMBER(2), _3513419_37);
+Obj _3513421_37 = makeCons(__symbolTable[67], _3513420_37);
+Obj _3513422_37 = makeCons(makeCString("PRIM_SUB"), Nil);
+Obj _3513423_37 = makeCons(MAKE_NUMBER(2), _3513422_37);
+Obj _3513424_37 = makeCons(__symbolTable[66], _3513423_37);
+Obj _3513425_37 = makeCons(makeCString("PRIM_MUL"), Nil);
+Obj _3513426_37 = makeCons(MAKE_NUMBER(2), _3513425_37);
+Obj _3513427_37 = makeCons(__symbolTable[65], _3513426_37);
+Obj _3513428_37 = makeCons(makeCString("primDiv"), Nil);
+Obj _3513429_37 = makeCons(MAKE_NUMBER(2), _3513428_37);
+Obj _3513430_37 = makeCons(__symbolTable[64], _3513429_37);
+Obj _3513431_37 = makeCons(makeCString("PRIM_EQ"), Nil);
+Obj _3513432_37 = makeCons(MAKE_NUMBER(2), _3513431_37);
+Obj _3513433_37 = makeCons(__symbolTable[113], _3513432_37);
+Obj _3513434_37 = makeCons(makeCString("PRIM_GT"), Nil);
+Obj _3513435_37 = makeCons(MAKE_NUMBER(2), _3513434_37);
+Obj _3513436_37 = makeCons(__symbolTable[63], _3513435_37);
+Obj _3513437_37 = makeCons(makeCString("PRIM_LT"), Nil);
+Obj _3513438_37 = makeCons(MAKE_NUMBER(2), _3513437_37);
+Obj _3513439_37 = makeCons(__symbolTable[62], _3513438_37);
+Obj _3513440_37 = makeCons(makeCString("primGenSym"), Nil);
+Obj _3513441_37 = makeCons(MAKE_NUMBER(0), _3513440_37);
+Obj _3513442_37 = makeCons(__symbolTable[61], _3513441_37);
+Obj _3513443_37 = makeCons(makeCString("primIsSymbol"), Nil);
+Obj _3513444_37 = makeCons(MAKE_NUMBER(1), _3513443_37);
+Obj _3513445_37 = makeCons(__symbolTable[60], _3513444_37);
+Obj _3513446_37 = makeCons(makeCString("primNot"), Nil);
+Obj _3513447_37 = makeCons(MAKE_NUMBER(1), _3513446_37);
+Obj _3513448_37 = makeCons(__symbolTable[59], _3513447_37);
+Obj _3513449_37 = makeCons(makeCString("primIsNumber"), Nil);
+Obj _3513450_37 = makeCons(MAKE_NUMBER(1), _3513449_37);
+Obj _3513451_37 = makeCons(__symbolTable[58], _3513450_37);
+Obj _3513452_37 = makeCons(makeCString("primIsString"), Nil);
+Obj _3513453_37 = makeCons(MAKE_NUMBER(1), _3513452_37);
+Obj _3513454_37 = makeCons(__symbolTable[57], _3513453_37);
+Obj _3513455_37 = makeCons(_3513454_37, Nil);
+Obj _3513456_37 = makeCons(_3513451_37, _3513455_37);
+Obj _3513457_37 = makeCons(_3513448_37, _3513456_37);
+Obj _3513458_37 = makeCons(_3513445_37, _3513457_37);
+Obj _3513459_37 = makeCons(_3513442_37, _3513458_37);
+Obj _3513460_37 = makeCons(_3513439_37, _3513459_37);
+Obj _3513461_37 = makeCons(_3513436_37, _3513460_37);
+Obj _3513462_37 = makeCons(_3513433_37, _3513461_37);
+Obj _3513463_37 = makeCons(_3513430_37, _3513462_37);
+Obj _3513464_37 = makeCons(_3513427_37, _3513463_37);
+Obj _3513465_37 = makeCons(_3513424_37, _3513464_37);
+Obj _3513466_37 = makeCons(_3513421_37, _3513465_37);
+Obj _3513467_37 = makeCons(_3513418_37, _3513466_37);
+Obj _3513468_37 = makeCons(_3513415_37, _3513467_37);
+Obj _3513469_37 = makeCons(_3513412_37, _3513468_37);
+Obj _3513470_37 = makeCons(_3513409_37, _3513469_37);
+Obj _3513471_37 = makeCons(_3513406_37, _3513470_37);
+Obj _3513472_37 = primSet(co, __symbolTable[69], _3513471_37);
+Obj _3513487_37 = primSet(co, __symbolTable[56], makeNative1(3, clofun83, 2, 0));
+Obj _3513491_37 = primSet(co, __symbolTable[55], makeNative1(2, clofun84, 1, 0));
+Obj _3513669_37 = primSet(co, __symbolTable[93], makeNative1(5, clofun94, 4, 0));
+Obj _3513670_37 = makeCons(__symbolTable[98], Nil);
+Obj _3513671_37 = makeCons(__symbolTable[99], _3513670_37);
+Obj _3513672_37 = makeCons(__symbolTable[101], _3513671_37);
+Obj _3513673_37 = makeCons(__symbolTable[132], _3513672_37);
+Obj _3513674_37 = makeCons(__symbolTable[138], _3513673_37);
+Obj _3513675_37 = makeCons(__symbolTable[147], _3513674_37);
+Obj _3513676_37 = makeCons(__symbolTable[149], _3513675_37);
+Obj _3513677_37 = makeCons(__symbolTable[39], _3513676_37);
+Obj _3513678_37 = makeCons(__symbolTable[40], _3513677_37);
+Obj _3513679_37 = makeCons(__symbolTable[41], _3513678_37);
+Obj _3513680_37 = makeCons(__symbolTable[81], _3513679_37);
+Obj _3513681_37 = makeCons(__symbolTable[42], _3513680_37);
+Obj _3513682_37 = makeCons(__symbolTable[43], _3513681_37);
+Obj _3513683_37 = makeCons(__symbolTable[70], _3513682_37);
+Obj _3513684_37 = makeCons(__symbolTable[44], _3513683_37);
+Obj _3513685_37 = makeCons(__symbolTable[45], _3513684_37);
+Obj _3513686_37 = makeCons(__symbolTable[46], _3513685_37);
+Obj _3513687_37 = makeCons(__symbolTable[47], _3513686_37);
+Obj _3513688_37 = makeCons(__symbolTable[48], _3513687_37);
+Obj _3513689_37 = makeCons(__symbolTable[49], _3513688_37);
+Obj _3513690_37 = makeCons(__symbolTable[50], _3513689_37);
+Obj _3513691_37 = makeCons(__symbolTable[51], _3513690_37);
+Obj _3513692_37 = makeCons(__symbolTable[52], _3513691_37);
+Obj _3513693_37 = makeCons(__symbolTable[72], _3513692_37);
+Obj _3513694_37 = makeCons(__symbolTable[74], _3513693_37);
+Obj _3513695_37 = makeCons(__symbolTable[73], _3513694_37);
+Obj _3513696_37 = makeCons(__symbolTable[161], _3513695_37);
+Obj _3513697_37 = makeCons(__symbolTable[54], _3513696_37);
+Obj _3513698_37 = makeCons(__symbolTable[121], _3513697_37);
+Obj _3513699_37 = makeCons(__symbolTable[131], _3513698_37);
+Obj _3513700_37 = makeCons(__symbolTable[151], _3513699_37);
+Obj _3513701_37 = makeCons(__symbolTable[154], _3513700_37);
+Obj _3513702_37 = makeCons(__symbolTable[155], _3513701_37);
+Obj _3513703_37 = makeCons(__symbolTable[156], _3513702_37);
+Obj _3513704_37 = makeCons(__symbolTable[157], _3513703_37);
+Obj _3513705_37 = makeCons(__symbolTable[158], _3513704_37);
+Obj _3513706_37 = makeCons(__symbolTable[159], _3513705_37);
+Obj _3513707_37 = makeCons(__symbolTable[160], _3513706_37);
+Obj _3513708_37 = primSet(co, __symbolTable[53], _3513707_37);
+Obj _3513709_37 = primSet(co, __symbolTable[38], globalRef(__symbolTable[160]));
+Obj _3513710_37 = primSet(co, __symbolTable[37], globalRef(__symbolTable[159]));
+Obj _3513711_37 = primSet(co, __symbolTable[36], globalRef(__symbolTable[158]));
+Obj _3513712_37 = primSet(co, __symbolTable[35], globalRef(__symbolTable[157]));
+Obj _3513713_37 = primSet(co, __symbolTable[34], globalRef(__symbolTable[156]));
+Obj _3513714_37 = primSet(co, __symbolTable[33], globalRef(__symbolTable[155]));
+Obj _3513715_37 = primSet(co, __symbolTable[32], globalRef(__symbolTable[154]));
+Obj _3513716_37 = primSet(co, __symbolTable[31], globalRef(__symbolTable[151]));
+Obj _3513717_37 = primSet(co, __symbolTable[30], globalRef(__symbolTable[131]));
+Obj _3513718_37 = primSet(co, __symbolTable[29], globalRef(__symbolTable[121]));
+Obj _3513719_37 = primSet(co, __symbolTable[28], globalRef(__symbolTable[161]));
+Obj _3513720_37 = primSet(co, __symbolTable[27], globalRef(__symbolTable[54]));
+Obj _3513721_37 = primSet(co, __symbolTable[26], globalRef(__symbolTable[73]));
+Obj _3513722_37 = primSet(co, __symbolTable[25], globalRef(__symbolTable[74]));
+Obj _3513723_37 = primSet(co, __symbolTable[24], globalRef(__symbolTable[72]));
+Obj _3513724_37 = primSet(co, __symbolTable[23], globalRef(__symbolTable[52]));
+Obj _3513725_37 = primSet(co, __symbolTable[22], globalRef(__symbolTable[51]));
+Obj _3513726_37 = primSet(co, __symbolTable[21], globalRef(__symbolTable[50]));
+Obj _3513727_37 = primSet(co, __symbolTable[20], globalRef(__symbolTable[49]));
+Obj _3513728_37 = primSet(co, __symbolTable[19], globalRef(__symbolTable[48]));
+Obj _3513729_37 = primSet(co, __symbolTable[18], globalRef(__symbolTable[47]));
+Obj _3513730_37 = primSet(co, __symbolTable[17], globalRef(__symbolTable[46]));
+Obj _3513731_37 = primSet(co, __symbolTable[16], globalRef(__symbolTable[44]));
+Obj _3513732_37 = primSet(co, __symbolTable[15], globalRef(__symbolTable[70]));
+Obj _3513733_37 = primSet(co, __symbolTable[14], globalRef(__symbolTable[45]));
+Obj _3513734_37 = primSet(co, __symbolTable[13], globalRef(__symbolTable[43]));
+Obj _3513735_37 = primSet(co, __symbolTable[12], globalRef(__symbolTable[41]));
+Obj _3513736_37 = primSet(co, __symbolTable[11], globalRef(__symbolTable[42]));
+Obj _3513737_37 = primSet(co, __symbolTable[10], globalRef(__symbolTable[81]));
+Obj _3513738_37 = primSet(co, __symbolTable[9], globalRef(__symbolTable[40]));
+Obj _3513739_37 = primSet(co, __symbolTable[8], globalRef(__symbolTable[39]));
+Obj _3513740_37 = primSet(co, __symbolTable[7], globalRef(__symbolTable[149]));
+Obj _3513741_37 = primSet(co, __symbolTable[6], globalRef(__symbolTable[147]));
+Obj _3513742_37 = primSet(co, __symbolTable[5], globalRef(__symbolTable[138]));
+Obj _3513743_37 = primSet(co, __symbolTable[4], globalRef(__symbolTable[132]));
+Obj _3513744_37 = primSet(co, __symbolTable[3], globalRef(__symbolTable[101]));
+Obj _3513745_37 = primSet(co, __symbolTable[2], globalRef(__symbolTable[99]));
+Obj _3513746_37 = primSet(co, __symbolTable[1], globalRef(__symbolTable[98]));
+Obj _3513747_37 = primSet(co, __symbolTable[0], globalRef(__symbolTable[56]));
+coraReturn(co, _3513747_37);
 return;
 }
 case 2:
 {
-Obj x4308468711= co->res;
-Obj x4308462471 = primSet(co, __symbolTable[83], makeNative1(5, clofun75, 4, 0));
-Obj x4308462855 = primSet(co, __symbolTable[80], makeNative1(3, clofun76, 2, 0));
+Obj _3513335_37= co->res;
+Obj _3513364_37 = primSet(co, __symbolTable[83], makeNative1(5, clofun75, 4, 0));
+Obj _3513365_37 = primSet(co, __symbolTable[80], makeNative1(3, clofun76, 2, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 1,
@@ -469,8 +469,8 @@ return;
 }
 case 3:
 {
-Obj x4308523559= co->res;
-Obj x4308468135 = primSet(co, __symbolTable[85], makeNative1(3, clofun71, 2, 0));
+Obj _3513318_37= co->res;
+Obj _3513332_37 = primSet(co, __symbolTable[85], makeNative1(3, clofun71, 2, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 2,
@@ -483,8 +483,8 @@ return;
 }
 case 4:
 {
-Obj x4309711047= co->res;
-Obj x4308523047 = primSet(co, __symbolTable[88], makeNative1(2, clofun69, 1, 0));
+Obj _3513296_37= co->res;
+Obj _3513316_37 = primSet(co, __symbolTable[88], makeNative1(2, clofun69, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 3,
@@ -497,11 +497,11 @@ return;
 }
 case 5:
 {
-Obj x4309798695= co->res;
-Obj x4309749959 = primSet(co, __symbolTable[94], makeNative1(2, clofun61, 1, 0));
-Obj x4309750247 = primSet(co, __symbolTable[92], makeNative1(2, clofun62, 1, 0));
-Obj x4309750759 = primSet(co, __symbolTable[138], makeNative1(2, clofun63, 1, 0));
-Obj x4309710439 = primSet(co, __symbolTable[91], makeNative1(2, clofun66, 1, 0));
+Obj _3513265_37= co->res;
+Obj _3513266_37 = primSet(co, __symbolTable[94], makeNative1(2, clofun61, 1, 0));
+Obj _3513267_37 = primSet(co, __symbolTable[92], makeNative1(2, clofun62, 1, 0));
+Obj _3513270_37 = primSet(co, __symbolTable[138], makeNative1(2, clofun63, 1, 0));
+Obj _3513294_37 = primSet(co, __symbolTable[91], makeNative1(2, clofun66, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 4,
@@ -514,17 +514,17 @@ return;
 }
 case 6:
 {
-Obj x4310359143= co->res;
-Obj x4309805543 = primSet(co, __symbolTable[106], makeNative1(5, clofun48, 3, 0));
-Obj x4309805831 = primSet(co, __symbolTable[104], makeNative1(2, clofun49, 1, 0));
-Obj x4309806631 = primSet(co, __symbolTable[103], makeNative1(3, clofun50, 2, 0));
-Obj x4309799079 = primSet(co, __symbolTable[102], makeNative1(3, clofun51, 2, 0));
-Obj x4309799367 = primSet(co, __symbolTable[101], makeNative1(2, clofun52, 1, 0));
-Obj x4309800583 = primSet(co, __symbolTable[100], makeNative1(4, clofun53, 3, 0));
-Obj x4309800871 = primSet(co, __symbolTable[99], makeNative1(3, clofun54, 2, 0));
-Obj x4309801639 = primSet(co, __symbolTable[98], makeNative1(3, clofun55, 2, 0));
-Obj x4309795591 = primSet(co, __symbolTable[97], makeNative1(2, clofun58, 1, 0));
-Obj x4309796647 = primSet(co, __symbolTable[96], makeNative1(2, clofun59, 1, 0));
+Obj _3513157_37= co->res;
+Obj _3513209_37 = primSet(co, __symbolTable[106], makeNative1(5, clofun48, 3, 0));
+Obj _3513210_37 = primSet(co, __symbolTable[104], makeNative1(2, clofun49, 1, 0));
+Obj _3513215_37 = primSet(co, __symbolTable[103], makeNative1(3, clofun50, 2, 0));
+Obj _3513219_37 = primSet(co, __symbolTable[102], makeNative1(3, clofun51, 2, 0));
+Obj _3513220_37 = primSet(co, __symbolTable[101], makeNative1(2, clofun52, 1, 0));
+Obj _3513228_37 = primSet(co, __symbolTable[100], makeNative1(4, clofun53, 3, 0));
+Obj _3513229_37 = primSet(co, __symbolTable[99], makeNative1(3, clofun54, 2, 0));
+Obj _3513235_37 = primSet(co, __symbolTable[98], makeNative1(3, clofun55, 2, 0));
+Obj _3513246_37 = primSet(co, __symbolTable[97], makeNative1(2, clofun58, 1, 0));
+Obj _3513252_37 = primSet(co, __symbolTable[96], makeNative1(2, clofun59, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 5,
@@ -537,12 +537,12 @@ return;
 }
 case 7:
 {
-Obj x4308443815= co->res;
-Obj x4308446759 = primSet(co, __symbolTable[118], makeNative1(5, clofun36, 4, 0));
-Obj x4310580679 = primSet(co, __symbolTable[117], makeNative1(5, clofun38, 4, 0));
-Obj x4310512999 = primSet(co, __symbolTable[111], makeNative1(3, clofun40, 2, 0));
-Obj x4310356711 = primSet(co, __symbolTable[109], makeNative1(3, clofun42, 2, 0));
-Obj x4310358855 = primSet(co, __symbolTable[108], makeNative1(2, clofun44, 1, 0));
+Obj _3513052_37= co->res;
+Obj _3513074_37 = primSet(co, __symbolTable[118], makeNative1(5, clofun36, 4, 0));
+Obj _3513107_37 = primSet(co, __symbolTable[117], makeNative1(5, clofun38, 4, 0));
+Obj _3513120_37 = primSet(co, __symbolTable[111], makeNative1(3, clofun40, 2, 0));
+Obj _3513142_37 = primSet(co, __symbolTable[109], makeNative1(3, clofun42, 2, 0));
+Obj _3513156_37 = primSet(co, __symbolTable[108], makeNative1(2, clofun44, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 6,
@@ -555,9 +555,9 @@ return;
 }
 case 8:
 {
-Obj x4308462215= co->res;
-Obj x4308462759 = primSet(co, __symbolTable[121], makeNative1(2, clofun32, 1, 0));
-Obj x4308443431 = primSet(co, __symbolTable[120], makeNative1(2, clofun33, 1, 0));
+Obj _3513037_37= co->res;
+Obj _3513040_37 = primSet(co, __symbolTable[121], makeNative1(2, clofun32, 1, 0));
+Obj _3513050_37 = primSet(co, __symbolTable[120], makeNative1(2, clofun33, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 7,
@@ -570,8 +570,8 @@ return;
 }
 case 9:
 {
-Obj x4308460295= co->res;
-Obj x4308461831 = primSet(co, __symbolTable[123], makeNative1(2, clofun30, 1, 0));
+Obj _3513023_37= co->res;
+Obj _3513035_37 = primSet(co, __symbolTable[123], makeNative1(2, clofun30, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 8,
@@ -584,8 +584,8 @@ return;
 }
 case 10:
 {
-Obj x4308470663= co->res;
-Obj x4308459911 = primSet(co, __symbolTable[125], makeNative1(2, clofun28, 1, 0));
+Obj _3513009_37= co->res;
+Obj _3513021_37 = primSet(co, __symbolTable[125], makeNative1(2, clofun28, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 9,
@@ -598,7 +598,7 @@ return;
 }
 case 11:
 {
-Obj x4308469063= co->res;
+Obj _3512995_37= co->res;
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 10,
@@ -611,10 +611,10 @@ return;
 }
 case 12:
 {
-Obj x4308522567= co->res;
-Obj x4308523367 = primSet(co, __symbolTable[132], makeNative1(3, clofun23, 2, 0));
-Obj x4308523783 = primSet(co, __symbolTable[131], makeNative1(2, clofun24, 1, 0));
-Obj x4308468583 = primSet(co, __symbolTable[130], makeNative1(3, clofun25, 1, 0));
+Obj _3512973_37= co->res;
+Obj _3512978_37 = primSet(co, __symbolTable[132], makeNative1(3, clofun23, 2, 0));
+Obj _3512981_37 = primSet(co, __symbolTable[131], makeNative1(2, clofun24, 1, 0));
+Obj _3512993_37 = primSet(co, __symbolTable[130], makeNative1(3, clofun25, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 11,
@@ -627,7 +627,7 @@ return;
 }
 case 13:
 {
-Obj x4308521479= co->res;
+Obj _3512963_37= co->res;
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 12,
@@ -640,7 +640,7 @@ return;
 }
 case 14:
 {
-Obj x4308521095= co->res;
+Obj _3512961_37= co->res;
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 13,
@@ -653,19 +653,19 @@ return;
 }
 case 15:
 {
-Obj x4309750119= co->res;
-Obj x4309750151 = primSet(co, __symbolTable[149], x4309750119);
-Obj x4309751047 = primSet(co, __symbolTable[148], makeNative1(4, clofun11, 3, 0));
-Obj x4309751335 = primSet(co, __symbolTable[147], makeNative1(3, clofun12, 2, 0));
-Obj x4309751495 = primSet(co, __symbolTable[146], Nil);
-Obj x4309751719 = primGenSym();
-Obj x4309751751 = primSet(co, __symbolTable[145], x4309751719);
-Obj x4309752263 = primSet(co, __symbolTable[144], makeNative1(3, clofun13, 2, 0));
-Obj x4309708903 = primSet(co, __symbolTable[143], makeNative1(3, clofun16, 2, 0));
-Obj x4309709191 = primSet(co, __symbolTable[142], makeNative1(2, clofun17, 1, 0));
-Obj x4309711527 = primSet(co, __symbolTable[141], makeNative1(2, clofun19, 1, 0));
-Obj x4309711687 = primSet(co, __symbolTable[138], globalRef(__symbolTable[141]));
-Obj x4309712871 = primSet(co, __symbolTable[137], makeNative1(3, clofun20, 1, 0));
+Obj _3512906_37= co->res;
+Obj _3512907_37 = primSet(co, __symbolTable[149], _3512906_37);
+Obj _3512913_37 = primSet(co, __symbolTable[148], makeNative1(4, clofun11, 3, 0));
+Obj _3512914_37 = primSet(co, __symbolTable[147], makeNative1(3, clofun12, 2, 0));
+Obj _3512915_37 = primSet(co, __symbolTable[146], Nil);
+Obj _3512916_37 = primGenSym();
+Obj _3512917_37 = primSet(co, __symbolTable[145], _3512916_37);
+Obj _3512921_37 = primSet(co, __symbolTable[144], makeNative1(3, clofun13, 2, 0));
+Obj _3512930_37 = primSet(co, __symbolTable[143], makeNative1(3, clofun16, 2, 0));
+Obj _3512931_37 = primSet(co, __symbolTable[142], makeNative1(2, clofun17, 1, 0));
+Obj _3512948_37 = primSet(co, __symbolTable[141], makeNative1(2, clofun19, 1, 0));
+Obj _3512949_37 = primSet(co, __symbolTable[138], globalRef(__symbolTable[141]));
+Obj _3512960_37 = primSet(co, __symbolTable[137], makeNative1(3, clofun20, 1, 0));
 struct frame1 __curr = {
 .fn = clofun95,
 .label = 14,
@@ -683,13 +683,13 @@ static void clofun94(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310356007 = R[1];
-Obj x4310356039 = R[2];
-Obj x4310356071 = R[3];
-Obj x4310356103 = R[4];
-Obj x4310577191 = makeNative1(2, clofun93, 1, 4, x4310356007, x4310356039, x4310356071, x4310356103);
-R[1] = x4310356103;
-R[2] = x4310577191;
+Obj _3512836_37 = R[1];
+Obj _3512837_37 = R[2];
+Obj _3512838_37 = R[3];
+Obj _3512839_37 = R[4];
+Obj _3512860_37 = makeNative1(2, clofun93, 1, 4, _3512836_37, _3512837_37, _3512838_37, _3512839_37);
+R[1] = _3512839_37;
+R[2] = _3512860_37;
 struct frame1 __curr = {
 .fn = clofun94,
 .label = 3,
@@ -697,34 +697,34 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[54]), x4310356103);
+coraCall1(co, globalRef(__symbolTable[54]), _3512839_37);
 return;
 }
 case 1:
 {
-Obj x4309752359= co->res;
-Obj x4310577191 = R[1];
-if (True == x4309752359) {
+Obj _3513668_37= co->res;
+Obj _3512860_37 = R[1];
+if (True == _3513668_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577191, True);
+coraCall1(co, _3512860_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4310577191, False);
+coraCall1(co, _3512860_37, False);
 return;
 }
 }
 case 2:
 {
-Obj x4309752071= co->res;
-Obj x4310356103 = R[1];
-Obj x4310577191 = R[2];
-if (True == x4309752071) {
+Obj _3513667_37= co->res;
+Obj _3512839_37 = R[1];
+Obj _3512860_37 = R[2];
+if (True == _3513667_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577191, True);
+coraCall1(co, _3512860_37, True);
 return;
 } else {
-R[1] = x4310577191;
+R[1] = _3512860_37;
 struct frame1 __curr = {
 .fn = clofun94,
 .label = 1,
@@ -732,28 +732,28 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4310356103);
+coraCall1(co, globalRef(__symbolTable[161]), _3512839_37);
 return;
 }
 }
 case 3:
 {
-Obj x4309751623= co->res;
-Obj x4310356103 = R[1];
-Obj x4310577191 = R[2];
-if (True == x4309751623) {
+Obj _3513665_37= co->res;
+Obj _3512839_37 = R[1];
+Obj _3512860_37 = R[2];
+if (True == _3513665_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577191, True);
+coraCall1(co, _3512860_37, True);
 return;
 } else {
-Obj x4309751879 = primIsString(x4310356103);
-if (True == x4309751879) {
+Obj _3513666_37 = primIsString(_3512839_37);
+if (True == _3513666_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577191, True);
+coraCall1(co, _3512860_37, True);
 return;
 } else {
-R[1] = x4310356103;
-R[2] = x4310577191;
+R[1] = _3512839_37;
+R[2] = _3512860_37;
 struct frame1 __curr = {
 .fn = clofun94,
 .label = 2,
@@ -761,7 +761,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[121]), x4310356103);
+coraCall1(co, globalRef(__symbolTable[121]), _3512839_37);
 return;
 }
 }
@@ -773,49 +773,49 @@ static void clofun93(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310577223 = R[1];
-if (True == x4310577223) {
+Obj _3512861_37 = R[1];
+if (True == _3512861_37) {
 coraReturn(co, closureRef(R[0], 3));
 return;
 } else {
-Obj x4310356775 = makeNative1(3, clofun92, 0, 4, closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj x4309797767 = PRIM_ISCONS(closureRef(R[0], 3));
-if (True == x4309797767) {
-Obj x4309798215 = PRIM_CAR(closureRef(R[0], 3));
-Obj x4309798247 = PRIM_EQ(__symbolTable[139], x4309798215);
-if (True == x4309798247) {
-Obj x4309798823 = PRIM_CDR(closureRef(R[0], 3));
-Obj x4309798855 = PRIM_ISCONS(x4309798823);
-if (True == x4309798855) {
-Obj x4309750087 = PRIM_CDR(closureRef(R[0], 3));
-Obj x4309750183 = PRIM_CAR(x4309750087);
-Obj x = x4309750183;
-Obj x4309750535 = PRIM_CDR(closureRef(R[0], 3));
-Obj x4309750567 = PRIM_CDR(x4309750535);
-Obj x4309750599 = PRIM_EQ(Nil, x4309750567);
-if (True == x4309750599) {
-Obj x4309750983 = makeCons(x, Nil);
-Obj x4309751015 = makeCons(__symbolTable[139], x4309750983);
-coraReturn(co, x4309751015);
+Obj _3512841_37 = makeNative1(3, clofun92, 0, 4, closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3513653_37 = PRIM_ISCONS(closureRef(R[0], 3));
+if (True == _3513653_37) {
+Obj _3513654_37 = PRIM_CAR(closureRef(R[0], 3));
+Obj _3513655_37 = PRIM_EQ(__symbolTable[139], _3513654_37);
+if (True == _3513655_37) {
+Obj _3513656_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3513657_37 = PRIM_ISCONS(_3513656_37);
+if (True == _3513657_37) {
+Obj _3513658_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3513659_37 = PRIM_CAR(_3513658_37);
+Obj x = _3513659_37;
+Obj _3513660_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3513661_37 = PRIM_CDR(_3513660_37);
+Obj _3513662_37 = PRIM_EQ(Nil, _3513661_37);
+if (True == _3513662_37) {
+Obj _3513663_37 = makeCons(x, Nil);
+Obj _3513664_37 = makeCons(__symbolTable[139], _3513663_37);
+coraReturn(co, _3513664_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310356775);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x4310356775);
+coraCall0(co, _3512841_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310356775);
+coraCall0(co, _3512841_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310356775);
+coraCall0(co, _3512841_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3512841_37);
 return;
 }
 }
@@ -827,8 +827,8 @@ static void clofun92(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4307906663 = primIsSymbol(closureRef(R[0], 0));
-if (True == x4307906663) {
+Obj _3513492_37 = primIsSymbol(closureRef(R[0], 0));
+if (True == _3513492_37) {
 struct frame1 __curr = {
 .fn = clofun92,
 .label = 2,
@@ -839,31 +839,31 @@ vecAppend(&co->callstack, __curr);
 coraCall2(co, globalRef(__symbolTable[132]), closureRef(R[0], 0), closureRef(R[0], 1));
 return;
 } else {
-Obj x4310578343 = makeNative1(3, clofun91, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x4309801319 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309801319) {
-Obj x4309801703 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4309801735 = PRIM_EQ(__symbolTable[140], x4309801703);
-if (True == x4309801735) {
-Obj x4309802023 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309802087 = PRIM_ISCONS(x4309802023);
-if (True == x4309802087) {
-Obj x4309802407 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309802439 = PRIM_CAR(x4309802407);
-Obj args = x4309802439;
-Obj x4309802919 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309802951 = PRIM_CDR(x4309802919);
-Obj x4309802983 = PRIM_ISCONS(x4309802951);
-if (True == x4309802983) {
-Obj x4309795239 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309795271 = PRIM_CDR(x4309795239);
-Obj x4309795527 = PRIM_CAR(x4309795271);
-Obj body = x4309795527;
-Obj x4309796039 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309796103 = PRIM_CDR(x4309796039);
-Obj x4309796135 = PRIM_CDR(x4309796103);
-Obj x4309796167 = PRIM_EQ(Nil, x4309796135);
-if (True == x4309796167) {
+Obj _3512843_37 = makeNative1(3, clofun91, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3513631_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513631_37) {
+Obj _3513632_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513633_37 = PRIM_EQ(__symbolTable[140], _3513632_37);
+if (True == _3513633_37) {
+Obj _3513634_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513635_37 = PRIM_ISCONS(_3513634_37);
+if (True == _3513635_37) {
+Obj _3513636_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513637_37 = PRIM_CAR(_3513636_37);
+Obj args = _3513637_37;
+Obj _3513638_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513639_37 = PRIM_CDR(_3513638_37);
+Obj _3513640_37 = PRIM_ISCONS(_3513639_37);
+if (True == _3513640_37) {
+Obj _3513641_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513642_37 = PRIM_CDR(_3513641_37);
+Obj _3513643_37 = PRIM_CAR(_3513642_37);
+Obj body = _3513643_37;
+Obj _3513644_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513645_37 = PRIM_CDR(_3513644_37);
+Obj _3513646_37 = PRIM_CDR(_3513645_37);
+Obj _3513647_37 = PRIM_EQ(Nil, _3513646_37);
+if (True == _3513647_37) {
 R[1] = body;
 R[2] = args;
 struct frame1 __curr = {
@@ -877,35 +877,35 @@ coraCall2(co, globalRef(__symbolTable[98]), args, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578343);
+coraCall0(co, _3512843_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578343);
+coraCall0(co, _3512843_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578343);
+coraCall0(co, _3512843_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578343);
+coraCall0(co, _3512843_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578343);
+coraCall0(co, _3512843_37);
 return;
 }
 }
 }
 case 1:
 {
-Obj x4307906983= co->res;
-if (True == x4307906983) {
+Obj _3513494_37= co->res;
+if (True == _3513494_37) {
 coraReturn(co, closureRef(R[0], 0));
 return;
 } else {
@@ -916,8 +916,8 @@ return;
 }
 case 2:
 {
-Obj x4307906823= co->res;
-if (True == x4307906823) {
+Obj _3513493_37= co->res;
+if (True == _3513493_37) {
 coraReturn(co, closureRef(R[0], 0));
 return;
 } else {
@@ -934,17 +934,17 @@ return;
 }
 case 3:
 {
-Obj x4309796871= co->res;
+Obj _3513649_37= co->res;
 Obj args = R[1];
-Obj x4309796903 = makeCons(x4309796871, Nil);
-Obj x4309797063 = makeCons(args, x4309796903);
-Obj x4309797095 = makeCons(__symbolTable[140], x4309797063);
-coraReturn(co, x4309797095);
+Obj _3513650_37 = makeCons(_3513649_37, Nil);
+Obj _3513651_37 = makeCons(args, _3513650_37);
+Obj _3513652_37 = makeCons(__symbolTable[140], _3513651_37);
+coraReturn(co, _3513652_37);
 return;
 }
 case 4:
 {
-Obj x4309796839= co->res;
+Obj _3513648_37= co->res;
 Obj body = R[1];
 Obj args = R[2];
 R[1] = args;
@@ -955,7 +955,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[93]), x4309796839, closureRef(R[0], 2), closureRef(R[0], 3), body);
+coraCall4(co, globalRef(__symbolTable[93]), _3513648_37, closureRef(R[0], 2), closureRef(R[0], 3), body);
 return;
 }
 }
@@ -965,57 +965,57 @@ static void clofun91(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310579207 = makeNative1(1, clofun90, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x4309835111 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309835111) {
-Obj x4309835431 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4309835463 = PRIM_EQ(__symbolTable[90], x4309835431);
-if (True == x4309835463) {
-Obj x4309803047 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309803079 = PRIM_ISCONS(x4309803047);
-if (True == x4309803079) {
-Obj x4309803495 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309803527 = PRIM_CAR(x4309803495);
-Obj x4309803559 = PRIM_ISCONS(x4309803527);
-if (True == x4309803559) {
-Obj x4309804039 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309804071 = PRIM_CAR(x4309804039);
-Obj x4309804103 = PRIM_CAR(x4309804071);
-Obj x4309804135 = PRIM_EQ(__symbolTable[81], x4309804103);
-if (True == x4309804135) {
-Obj x4309804679 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309804711 = PRIM_CAR(x4309804679);
-Obj x4309804743 = PRIM_CDR(x4309804711);
-Obj x4309804775 = PRIM_ISCONS(x4309804743);
-if (True == x4309804775) {
-Obj x4309805287 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309805319 = PRIM_CAR(x4309805287);
-Obj x4309805351 = PRIM_CDR(x4309805319);
-Obj x4309805383 = PRIM_CAR(x4309805351);
-Obj pkg = x4309805383;
-Obj x4309805863 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309805895 = PRIM_CAR(x4309805863);
-Obj x4309805927 = PRIM_CDR(x4309805895);
-Obj x4309805959 = PRIM_CDR(x4309805927);
-Obj x4309805991 = PRIM_EQ(Nil, x4309805959);
-if (True == x4309805991) {
-Obj x4309806311 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309806343 = PRIM_CDR(x4309806311);
-Obj x4309806375 = PRIM_ISCONS(x4309806343);
-if (True == x4309806375) {
-Obj x4309806791 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309806823 = PRIM_CDR(x4309806791);
-Obj x4309806855 = PRIM_CAR(x4309806823);
-Obj y = x4309806855;
-Obj x4309799143 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309799175 = PRIM_CDR(x4309799143);
-Obj x4309799207 = PRIM_CDR(x4309799175);
-Obj x4309799239 = PRIM_EQ(Nil, x4309799207);
-if (True == x4309799239) {
-Obj x4309799431 = primIsString(pkg);
-if (True == x4309799431) {
-Obj x4309799815 = makeCons(pkg, Nil);
-Obj x4309799847 = makeCons(__symbolTable[81], x4309799815);
+Obj _3512844_37 = makeNative1(1, clofun90, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3513587_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513587_37) {
+Obj _3513588_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513589_37 = PRIM_EQ(__symbolTable[90], _3513588_37);
+if (True == _3513589_37) {
+Obj _3513590_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513591_37 = PRIM_ISCONS(_3513590_37);
+if (True == _3513591_37) {
+Obj _3513592_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513593_37 = PRIM_CAR(_3513592_37);
+Obj _3513594_37 = PRIM_ISCONS(_3513593_37);
+if (True == _3513594_37) {
+Obj _3513595_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513596_37 = PRIM_CAR(_3513595_37);
+Obj _3513597_37 = PRIM_CAR(_3513596_37);
+Obj _3513598_37 = PRIM_EQ(__symbolTable[81], _3513597_37);
+if (True == _3513598_37) {
+Obj _3513599_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513600_37 = PRIM_CAR(_3513599_37);
+Obj _3513601_37 = PRIM_CDR(_3513600_37);
+Obj _3513602_37 = PRIM_ISCONS(_3513601_37);
+if (True == _3513602_37) {
+Obj _3513603_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513604_37 = PRIM_CAR(_3513603_37);
+Obj _3513605_37 = PRIM_CDR(_3513604_37);
+Obj _3513606_37 = PRIM_CAR(_3513605_37);
+Obj pkg = _3513606_37;
+Obj _3513607_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513608_37 = PRIM_CAR(_3513607_37);
+Obj _3513609_37 = PRIM_CDR(_3513608_37);
+Obj _3513610_37 = PRIM_CDR(_3513609_37);
+Obj _3513611_37 = PRIM_EQ(Nil, _3513610_37);
+if (True == _3513611_37) {
+Obj _3513612_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513613_37 = PRIM_CDR(_3513612_37);
+Obj _3513614_37 = PRIM_ISCONS(_3513613_37);
+if (True == _3513614_37) {
+Obj _3513615_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513616_37 = PRIM_CDR(_3513615_37);
+Obj _3513617_37 = PRIM_CAR(_3513616_37);
+Obj y = _3513617_37;
+Obj _3513618_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513619_37 = PRIM_CDR(_3513618_37);
+Obj _3513620_37 = PRIM_CDR(_3513619_37);
+Obj _3513621_37 = PRIM_EQ(Nil, _3513620_37);
+if (True == _3513621_37) {
+Obj _3513622_37 = primIsString(pkg);
+if (True == _3513622_37) {
+Obj _3513623_37 = makeCons(pkg, Nil);
+Obj _3513624_37 = makeCons(__symbolTable[81], _3513623_37);
 R[1] = pkg;
 R[2] = y;
 struct frame1 __curr = {
@@ -1025,76 +1025,76 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), x4309799847);
+coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), _3513624_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579207);
+coraCall0(co, _3512844_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3512844_37);
 return;
 }
 }
 case 1:
 {
-Obj x4309800263= co->res;
-Obj x4309799879 = R[1];
-Obj x4309800295 = makeCons(x4309800263, Nil);
-Obj x4309800359 = makeCons(x4309799879, x4309800295);
-Obj x4309800391 = makeCons(__symbolTable[90], x4309800359);
-coraReturn(co, x4309800391);
+Obj _3513627_37= co->res;
+Obj _3513625_37 = R[1];
+Obj _3513628_37 = makeCons(_3513627_37, Nil);
+Obj _3513629_37 = makeCons(_3513625_37, _3513628_37);
+Obj _3513630_37 = makeCons(__symbolTable[90], _3513629_37);
+coraReturn(co, _3513630_37);
 return;
 }
 case 2:
 {
-Obj x4309799879= co->res;
+Obj _3513625_37= co->res;
 Obj pkg = R[1];
 Obj y = R[2];
-Obj x4309800167 = makeCons(pkg, closureRef(R[0], 3));
-R[1] = x4309799879;
+Obj _3513626_37 = makeCons(pkg, closureRef(R[0], 3));
+R[1] = _3513625_37;
 struct frame1 __curr = {
 .fn = clofun91,
 .label = 1,
@@ -1102,7 +1102,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 1), closureRef(R[0], 2), x4309800167, y);
+coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 1), closureRef(R[0], 2), _3513626_37, y);
 return;
 }
 }
@@ -1112,34 +1112,34 @@ static void clofun90(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310580391 = makeNative1(3, clofun88, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x4309833223 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309833223) {
-Obj x4309833447 = PRIM_CAR(closureRef(R[0], 0));
-Obj op = x4309833447;
-Obj x4309833671 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x4309833671;
-Obj x4310577255 = makeNative1(2, clofun89, 1, 6, op, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), args, x4310580391);
-Obj x4309834599 = PRIM_EQ(op, __symbolTable[126]);
-if (True == x4309834599) {
+Obj _3512845_37 = makeNative1(3, clofun88, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3513579_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513579_37) {
+Obj _3513580_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj op = _3513580_37;
+Obj _3513581_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3513581_37;
+Obj _3512862_37 = makeNative1(2, clofun89, 1, 6, op, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), args, _3512845_37);
+Obj _3513585_37 = PRIM_EQ(op, __symbolTable[126]);
+if (True == _3513585_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577255, True);
+coraCall1(co, _3512862_37, True);
 return;
 } else {
-Obj x4309834823 = PRIM_EQ(op, __symbolTable[90]);
-if (True == x4309834823) {
+Obj _3513586_37 = PRIM_EQ(op, __symbolTable[90]);
+if (True == _3513586_37) {
 co->ctx.sp = R;
-coraCall1(co, x4310577255, True);
+coraCall1(co, _3512862_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4310577255, False);
+coraCall1(co, _3512862_37, False);
 return;
 }
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310580391);
+coraCall0(co, _3512845_37);
 return;
 }
 }
@@ -1150,8 +1150,8 @@ static void clofun89(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310577319 = R[1];
-if (True == x4310577319) {
+Obj _3512863_37 = R[1];
+if (True == _3512863_37) {
 struct frame1 __curr = {
 .fn = clofun89,
 .label = 2,
@@ -1169,14 +1169,14 @@ return;
 }
 case 1:
 {
-Obj x4309834215= co->res;
-Obj x4309834247 = makeCons(closureRef(R[0], 0), x4309834215);
-coraReturn(co, x4309834247);
+Obj _3513583_37= co->res;
+Obj _3513584_37 = makeCons(closureRef(R[0], 0), _3513583_37);
+coraReturn(co, _3513584_37);
 return;
 }
 case 2:
 {
-Obj x4309834151= co->res;
+Obj _3513582_37= co->res;
 struct frame1 __curr = {
 .fn = clofun89,
 .label = 1,
@@ -1184,7 +1184,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[147]), x4309834151, closureRef(R[0], 4));
+coraCall2(co, globalRef(__symbolTable[147]), _3513582_37, closureRef(R[0], 4));
 return;
 }
 }
@@ -1194,42 +1194,42 @@ static void clofun88(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310581127 = makeNative1(1, clofun87, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x4310356487 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4310356487) {
-Obj x4310356839 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4310356871 = PRIM_EQ(__symbolTable[129], x4310356839);
-if (True == x4310356871) {
-Obj x4310357095 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310357127 = PRIM_ISCONS(x4310357095);
-if (True == x4310357127) {
-Obj x4310357447 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310357479 = PRIM_CAR(x4310357447);
-Obj a = x4310357479;
-Obj x4310357799 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310357831 = PRIM_CDR(x4310357799);
-Obj x4310357863 = PRIM_ISCONS(x4310357831);
-if (True == x4310357863) {
-Obj x4310358311 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310358343 = PRIM_CDR(x4310358311);
-Obj x4310358375 = PRIM_CAR(x4310358343);
-Obj b = x4310358375;
-Obj x4310358887 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310358919 = PRIM_CDR(x4310358887);
-Obj x4310358951 = PRIM_CDR(x4310358919);
-Obj x4310358983 = PRIM_ISCONS(x4310358951);
-if (True == x4310358983) {
-Obj x4310359367 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310359399 = PRIM_CDR(x4310359367);
-Obj x4310359431 = PRIM_CDR(x4310359399);
-Obj x4310359463 = PRIM_CAR(x4310359431);
-Obj c = x4310359463;
-Obj x4310359911 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310359943 = PRIM_CDR(x4310359911);
-Obj x4310360007 = PRIM_CDR(x4310359943);
-Obj x4310360039 = PRIM_CDR(x4310360007);
-Obj x4309831687 = PRIM_EQ(Nil, x4310360039);
-if (True == x4309831687) {
+Obj _3512846_37 = makeNative1(1, clofun87, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3513546_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513546_37) {
+Obj _3513547_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513548_37 = PRIM_EQ(__symbolTable[129], _3513547_37);
+if (True == _3513548_37) {
+Obj _3513549_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513550_37 = PRIM_ISCONS(_3513549_37);
+if (True == _3513550_37) {
+Obj _3513551_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513552_37 = PRIM_CAR(_3513551_37);
+Obj a = _3513552_37;
+Obj _3513553_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513554_37 = PRIM_CDR(_3513553_37);
+Obj _3513555_37 = PRIM_ISCONS(_3513554_37);
+if (True == _3513555_37) {
+Obj _3513556_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513557_37 = PRIM_CDR(_3513556_37);
+Obj _3513558_37 = PRIM_CAR(_3513557_37);
+Obj b = _3513558_37;
+Obj _3513559_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513560_37 = PRIM_CDR(_3513559_37);
+Obj _3513561_37 = PRIM_CDR(_3513560_37);
+Obj _3513562_37 = PRIM_ISCONS(_3513561_37);
+if (True == _3513562_37) {
+Obj _3513563_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513564_37 = PRIM_CDR(_3513563_37);
+Obj _3513565_37 = PRIM_CDR(_3513564_37);
+Obj _3513566_37 = PRIM_CAR(_3513565_37);
+Obj c = _3513566_37;
+Obj _3513567_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513568_37 = PRIM_CDR(_3513567_37);
+Obj _3513569_37 = PRIM_CDR(_3513568_37);
+Obj _3513570_37 = PRIM_CDR(_3513569_37);
+Obj _3513571_37 = PRIM_EQ(Nil, _3513570_37);
+if (True == _3513571_37) {
 R[1] = c;
 R[2] = a;
 struct frame1 __curr = {
@@ -1243,54 +1243,54 @@ coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 1), closureRef(R[0]
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310581127);
+coraCall0(co, _3512846_37);
 return;
 }
 }
 case 1:
 {
-Obj x4309832359= co->res;
-Obj x4309832039 = R[1];
+Obj _3513574_37= co->res;
+Obj _3513572_37 = R[1];
 Obj a = R[2];
-Obj x4309832391 = makeCons(x4309832359, Nil);
-Obj x4309832423 = makeCons(x4309832039, x4309832391);
-Obj x4309832455 = makeCons(a, x4309832423);
-Obj x4309832487 = makeCons(__symbolTable[129], x4309832455);
-coraReturn(co, x4309832487);
+Obj _3513575_37 = makeCons(_3513574_37, Nil);
+Obj _3513576_37 = makeCons(_3513572_37, _3513575_37);
+Obj _3513577_37 = makeCons(a, _3513576_37);
+Obj _3513578_37 = makeCons(__symbolTable[129], _3513577_37);
+coraReturn(co, _3513578_37);
 return;
 }
 case 2:
 {
-Obj x4309832039= co->res;
+Obj _3513572_37= co->res;
 Obj c = R[1];
 Obj a = R[2];
-Obj x4309832327 = makeCons(a, closureRef(R[0], 1));
-R[1] = x4309832039;
+Obj _3513573_37 = makeCons(a, closureRef(R[0], 1));
+R[1] = _3513572_37;
 R[2] = a;
 struct frame1 __curr = {
 .fn = clofun88,
@@ -1299,7 +1299,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[93]), x4309832327, closureRef(R[0], 2), closureRef(R[0], 3), c);
+coraCall4(co, globalRef(__symbolTable[93]), _3513573_37, closureRef(R[0], 2), closureRef(R[0], 3), c);
 return;
 }
 }
@@ -1309,73 +1309,73 @@ static void clofun87(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310512423 = makeNative1(2, clofun86, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x4310580807 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x4310580807) {
-Obj x4310581063 = PRIM_CAR(closureRef(R[0], 2));
-Obj x4310581095 = PRIM_EQ(__symbolTable[78], x4310581063);
-if (True == x4310581095) {
-Obj x4310511783 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310511815 = PRIM_ISCONS(x4310511783);
-if (True == x4310511815) {
-Obj x4310512103 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310512135 = PRIM_CAR(x4310512103);
-Obj path = x4310512135;
-Obj x4310512647 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310512679 = PRIM_CDR(x4310512647);
-Obj x4310512743 = PRIM_ISCONS(x4310512679);
-if (True == x4310512743) {
-Obj x4310513127 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310513159 = PRIM_CDR(x4310513127);
-Obj x4310513191 = PRIM_CAR(x4310513159);
-Obj import = x4310513191;
-Obj x4310513767 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310513799 = PRIM_CDR(x4310513767);
-Obj x4310513831 = PRIM_CDR(x4310513799);
-Obj x4310513863 = PRIM_ISCONS(x4310513831);
-if (True == x4310513863) {
-Obj x4310514279 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310514311 = PRIM_CDR(x4310514279);
-Obj x4310514439 = PRIM_CDR(x4310514311);
-Obj x4310514471 = PRIM_CAR(x4310514439);
-Obj body = x4310514471;
-Obj x4310515079 = PRIM_CDR(closureRef(R[0], 2));
-Obj x4310515111 = PRIM_CDR(x4310515079);
-Obj x4310515143 = PRIM_CDR(x4310515111);
-Obj x4310515175 = PRIM_CDR(x4310515143);
-Obj x4310515207 = PRIM_EQ(Nil, x4310515175);
-if (True == x4310515207) {
+Obj _3512847_37 = makeNative1(2, clofun86, 0, 4, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3513520_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3513520_37) {
+Obj _3513521_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3513522_37 = PRIM_EQ(__symbolTable[78], _3513521_37);
+if (True == _3513522_37) {
+Obj _3513523_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513524_37 = PRIM_ISCONS(_3513523_37);
+if (True == _3513524_37) {
+Obj _3513525_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513526_37 = PRIM_CAR(_3513525_37);
+Obj path = _3513526_37;
+Obj _3513527_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513528_37 = PRIM_CDR(_3513527_37);
+Obj _3513529_37 = PRIM_ISCONS(_3513528_37);
+if (True == _3513529_37) {
+Obj _3513530_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513531_37 = PRIM_CDR(_3513530_37);
+Obj _3513532_37 = PRIM_CAR(_3513531_37);
+Obj import = _3513532_37;
+Obj _3513533_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513534_37 = PRIM_CDR(_3513533_37);
+Obj _3513535_37 = PRIM_CDR(_3513534_37);
+Obj _3513536_37 = PRIM_ISCONS(_3513535_37);
+if (True == _3513536_37) {
+Obj _3513537_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513538_37 = PRIM_CDR(_3513537_37);
+Obj _3513539_37 = PRIM_CDR(_3513538_37);
+Obj _3513540_37 = PRIM_CAR(_3513539_37);
+Obj body = _3513540_37;
+Obj _3513541_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3513542_37 = PRIM_CDR(_3513541_37);
+Obj _3513543_37 = PRIM_CDR(_3513542_37);
+Obj _3513544_37 = PRIM_CDR(_3513543_37);
+Obj _3513545_37 = PRIM_EQ(Nil, _3513544_37);
+if (True == _3513545_37) {
 co->ctx.sp = R;
 coraCall4(co, globalRef(__symbolTable[93]), closureRef(R[0], 3), path, import, body);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512423);
+coraCall0(co, _3512847_37);
 return;
 }
 }
@@ -1386,31 +1386,31 @@ static void clofun86(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310513511 = makeNative1(1, clofun85, 0, 4, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0));
-Obj x4307908135 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4307908135) {
-Obj x4307908359 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4307908391 = PRIM_EQ(__symbolTable[133], x4307908359);
-if (True == x4307908391) {
-Obj x4307908615 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4307908647 = PRIM_ISCONS(x4307908615);
-if (True == x4307908647) {
-Obj x4307908871 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4307908903 = PRIM_CAR(x4307908871);
-Obj var = x4307908903;
-Obj x4310577415 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310577447 = PRIM_CDR(x4310577415);
-Obj x4310577479 = PRIM_ISCONS(x4310577447);
-if (True == x4310577479) {
-Obj x4310578055 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310578087 = PRIM_CDR(x4310578055);
-Obj x4310578119 = PRIM_CAR(x4310578087);
-Obj val = x4310578119;
-Obj x4310578759 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4310578791 = PRIM_CDR(x4310578759);
-Obj x4310578855 = PRIM_CDR(x4310578791);
-Obj x4310578887 = PRIM_EQ(Nil, x4310578855);
-if (True == x4310578887) {
+Obj _3512848_37 = makeNative1(1, clofun85, 0, 4, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 0));
+Obj _3513496_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513496_37) {
+Obj _3513497_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513498_37 = PRIM_EQ(__symbolTable[133], _3513497_37);
+if (True == _3513498_37) {
+Obj _3513499_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513500_37 = PRIM_ISCONS(_3513499_37);
+if (True == _3513500_37) {
+Obj _3513501_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513502_37 = PRIM_CAR(_3513501_37);
+Obj var = _3513502_37;
+Obj _3513503_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513504_37 = PRIM_CDR(_3513503_37);
+Obj _3513505_37 = PRIM_ISCONS(_3513504_37);
+if (True == _3513505_37) {
+Obj _3513506_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513507_37 = PRIM_CDR(_3513506_37);
+Obj _3513508_37 = PRIM_CAR(_3513507_37);
+Obj val = _3513508_37;
+Obj _3513509_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513510_37 = PRIM_CDR(_3513509_37);
+Obj _3513511_37 = PRIM_CDR(_3513510_37);
+Obj _3513512_37 = PRIM_EQ(Nil, _3513511_37);
+if (True == _3513512_37) {
 R[1] = val;
 struct frame1 __curr = {
 .fn = clofun86,
@@ -1423,48 +1423,48 @@ coraCall2(co, globalRef(__symbolTable[76]), var, closureRef(R[0], 2));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310513511);
+coraCall0(co, _3512848_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310513511);
+coraCall0(co, _3512848_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310513511);
+coraCall0(co, _3512848_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310513511);
+coraCall0(co, _3512848_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310513511);
+coraCall0(co, _3512848_37);
 return;
 }
 }
 case 1:
 {
-Obj x4310579783= co->res;
-Obj x4310579591 = R[1];
-Obj x4310579975 = makeCons(x4310579783, Nil);
-Obj x4310580007 = makeCons(x4310579591, x4310579975);
-Obj x4310580039 = makeCons(__symbolTable[68], x4310580007);
-coraReturn(co, x4310580039);
+Obj _3513516_37= co->res;
+Obj _3513515_37 = R[1];
+Obj _3513517_37 = makeCons(_3513516_37, Nil);
+Obj _3513518_37 = makeCons(_3513515_37, _3513517_37);
+Obj _3513519_37 = makeCons(__symbolTable[68], _3513518_37);
+coraReturn(co, _3513519_37);
 return;
 }
 case 2:
 {
-Obj x4310579111= co->res;
+Obj _3513513_37= co->res;
 Obj val = R[1];
-Obj var1 = x4310579111;
-Obj x4310579463 = makeCons(var1, Nil);
-Obj x4310579591 = makeCons(__symbolTable[139], x4310579463);
-R[1] = x4310579591;
+Obj var1 = _3513513_37;
+Obj _3513514_37 = makeCons(var1, Nil);
+Obj _3513515_37 = makeCons(__symbolTable[139], _3513514_37);
+R[1] = _3513515_37;
 struct frame1 __curr = {
 .fn = clofun86,
 .label = 1,
@@ -1494,9 +1494,9 @@ return;
 }
 case 1:
 {
-Obj x4307907975= co->res;
+Obj _3513495_37= co->res;
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[147]), x4307907975, closureRef(R[0], 3));
+coraCall2(co, globalRef(__symbolTable[147]), _3513495_37, closureRef(R[0], 3));
 return;
 }
 }
@@ -1519,14 +1519,14 @@ return;
 }
 case 1:
 {
-Obj x4307975559= co->res;
-Obj x4307975591 = primNot(x4307975559);
-coraReturn(co, x4307975591);
+Obj _3513489_37= co->res;
+Obj _3513490_37 = primNot(_3513489_37);
+coraReturn(co, _3513490_37);
 return;
 }
 case 2:
 {
-Obj x4307975527= co->res;
+Obj _3513488_37= co->res;
 struct frame1 __curr = {
 .fn = clofun84,
 .label = 1,
@@ -1534,7 +1534,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4307975527);
+coraCall1(co, globalRef(__symbolTable[161]), _3513488_37);
 return;
 }
 }
@@ -1544,44 +1544,44 @@ static void clofun83(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310514375 = R[1];
-Obj x4310514407 = R[2];
-Obj x4307972807 = PRIM_EQ(Nil, x4310514407);
-if (True == x4307972807) {
+Obj _3512831_37 = R[1];
+Obj _3512832_37 = R[2];
+Obj _3513473_37 = PRIM_EQ(Nil, _3512832_37);
+if (True == _3513473_37) {
 coraReturn(co, Nil);
 return;
 } else {
-Obj x4310514855 = makeNative1(1, clofun82, 0, 2, x4310514407, x4310514375);
-Obj x4307973703 = PRIM_ISCONS(x4310514407);
-if (True == x4307973703) {
-Obj x4307973927 = PRIM_CAR(x4310514407);
-Obj x4307973959 = PRIM_ISCONS(x4307973927);
-if (True == x4307973959) {
-Obj x4307974183 = PRIM_CAR(x4310514407);
-Obj x4307974215 = PRIM_CAR(x4307974183);
-Obj x = x4307974215;
-Obj x4307974439 = PRIM_CAR(x4310514407);
-Obj x4307974471 = PRIM_CDR(x4307974439);
-Obj y = x4307974471;
-Obj x4307974631 = PRIM_CDR(x4310514407);
-Obj x4307974791 = PRIM_EQ(x4310514375, x);
-if (True == x4307974791) {
-Obj x4307974887 = makeCons(x, y);
-coraReturn(co, x4307974887);
+Obj _3512834_37 = makeNative1(1, clofun82, 0, 2, _3512832_37, _3512831_37);
+Obj _3513477_37 = PRIM_ISCONS(_3512832_37);
+if (True == _3513477_37) {
+Obj _3513478_37 = PRIM_CAR(_3512832_37);
+Obj _3513479_37 = PRIM_ISCONS(_3513478_37);
+if (True == _3513479_37) {
+Obj _3513480_37 = PRIM_CAR(_3512832_37);
+Obj _3513481_37 = PRIM_CAR(_3513480_37);
+Obj x = _3513481_37;
+Obj _3513482_37 = PRIM_CAR(_3512832_37);
+Obj _3513483_37 = PRIM_CDR(_3513482_37);
+Obj y = _3513483_37;
+Obj _3513484_37 = PRIM_CDR(_3512832_37);
+Obj _3513485_37 = PRIM_EQ(_3512831_37, x);
+if (True == _3513485_37) {
+Obj _3513486_37 = makeCons(x, y);
+coraReturn(co, _3513486_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310514855);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x4310514855);
+coraCall0(co, _3512834_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310514855);
+coraCall0(co, _3512834_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3512834_37);
 return;
 }
 }
@@ -1593,11 +1593,11 @@ static void clofun82(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4307973095 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4307973095) {
-Obj x4307973255 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4307973415 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x4307973415;
+Obj _3513474_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513474_37) {
+Obj _3513475_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513476_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3513476_37;
 co->ctx.sp = R;
 coraCall2(co, globalRef(__symbolTable[56]), closureRef(R[0], 1), y);
 return;
@@ -1614,24 +1614,24 @@ static void clofun81(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310513223 = R[1];
-Obj x4310513255 = R[2];
-Obj x4310513287 = R[3];
-Obj x4308447015 = PRIM_EQ(Nil, x4310513287);
-if (True == x4308447015) {
+Obj _3512826_37 = R[1];
+Obj _3512827_37 = R[2];
+Obj _3512828_37 = R[3];
+Obj _3513392_37 = PRIM_EQ(Nil, _3512828_37);
+if (True == _3513392_37) {
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[76]), x4310513223, x4310513255);
+coraCall2(co, globalRef(__symbolTable[76]), _3512826_37, _3512827_37);
 return;
 } else {
-Obj x4308369415 = PRIM_ISCONS(x4310513287);
-if (True == x4308369415) {
-Obj x4308370087 = PRIM_CAR(x4310513287);
-Obj import = x4308370087;
-Obj x4308370247 = PRIM_CDR(x4310513287);
-Obj more = x4308370247;
+Obj _3513393_37 = PRIM_ISCONS(_3512828_37);
+if (True == _3513393_37) {
+Obj _3513394_37 = PRIM_CAR(_3512828_37);
+Obj import = _3513394_37;
+Obj _3513395_37 = PRIM_CDR(_3512828_37);
+Obj more = _3513395_37;
 R[1] = import;
-R[2] = x4310513223;
-R[3] = x4310513255;
+R[2] = _3512826_37;
+R[3] = _3512827_37;
 R[4] = more;
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1651,14 +1651,14 @@ return;
 }
 case 1:
 {
-Obj x4308371111= co->res;
+Obj _3513402_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[74]), x4308371111);
+coraCall1(co, globalRef(__symbolTable[74]), _3513402_37);
 return;
 }
 case 2:
 {
-Obj x4308371079= co->res;
+Obj _3513401_37= co->res;
 Obj import = R[1];
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1667,12 +1667,12 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[73]), import, x4308371079);
+coraCall2(co, globalRef(__symbolTable[73]), import, _3513401_37);
 return;
 }
 case 3:
 {
-Obj x4308371047= co->res;
+Obj _3513400_37= co->res;
 Obj import = R[1];
 R[1] = import;
 struct frame1 __curr = {
@@ -1682,17 +1682,17 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[73]), makeCString("#"), x4308371047);
+coraCall2(co, globalRef(__symbolTable[73]), makeCString("#"), _3513400_37);
 return;
 }
 case 4:
 {
-Obj x4308370759= co->res;
+Obj _3513399_37= co->res;
 Obj import = R[1];
-Obj x4310513223 = R[2];
-Obj x4310513255 = R[3];
+Obj _3512826_37 = R[2];
+Obj _3512827_37 = R[3];
 Obj more = R[4];
-if (True == x4308370759) {
+if (True == _3513399_37) {
 R[1] = import;
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1701,25 +1701,25 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[72]), x4310513223);
+coraCall1(co, globalRef(__symbolTable[72]), _3512826_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[71]), x4310513223, x4310513255, more);
+coraCall3(co, globalRef(__symbolTable[71]), _3512826_37, _3512827_37, more);
 return;
 }
 }
 case 5:
 {
-Obj x4308370599= co->res;
+Obj _3513398_37= co->res;
 Obj import = R[1];
-Obj x4310513223 = R[2];
-Obj x4310513255 = R[3];
+Obj _3512826_37 = R[2];
+Obj _3512827_37 = R[3];
 Obj more = R[4];
-Obj export = x4308370599;
+Obj export = _3513398_37;
 R[1] = import;
-R[2] = x4310513223;
-R[3] = x4310513255;
+R[2] = _3512826_37;
+R[3] = _3512827_37;
 R[4] = more;
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1728,19 +1728,19 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[132]), x4310513223, export);
+coraCall2(co, globalRef(__symbolTable[132]), _3512826_37, export);
 return;
 }
 case 6:
 {
-Obj x4308370567= co->res;
+Obj _3513397_37= co->res;
 Obj import = R[1];
-Obj x4310513223 = R[2];
-Obj x4310513255 = R[3];
+Obj _3512826_37 = R[2];
+Obj _3512827_37 = R[3];
 Obj more = R[4];
 R[1] = import;
-R[2] = x4310513223;
-R[3] = x4310513255;
+R[2] = _3512826_37;
+R[3] = _3512827_37;
 R[4] = more;
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1749,19 +1749,19 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[70]), x4308370567, Nil);
+coraCall2(co, globalRef(__symbolTable[70]), _3513397_37, Nil);
 return;
 }
 case 7:
 {
-Obj x4308370535= co->res;
+Obj _3513396_37= co->res;
 Obj import = R[1];
-Obj x4310513223 = R[2];
-Obj x4310513255 = R[3];
+Obj _3512826_37 = R[2];
+Obj _3512827_37 = R[3];
 Obj more = R[4];
 R[1] = import;
-R[2] = x4310513223;
-R[3] = x4310513255;
+R[2] = _3512826_37;
+R[3] = _3512827_37;
 R[4] = more;
 struct frame1 __curr = {
 .fn = clofun81,
@@ -1770,7 +1770,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[74]), x4308370535);
+coraCall1(co, globalRef(__symbolTable[74]), _3513396_37);
 return;
 }
 }
@@ -1782,8 +1782,8 @@ case 0:
 {
 Obj var = R[1];
 Obj ns = R[2];
-Obj x4308445703 = PRIM_EQ(ns, makeCString(""));
-if (True == x4308445703) {
+Obj _3513386_37 = PRIM_EQ(ns, makeCString(""));
+if (True == _3513386_37) {
 coraReturn(co, var);
 return;
 } else {
@@ -1802,14 +1802,14 @@ return;
 }
 case 1:
 {
-Obj x4308446535= co->res;
+Obj _3513390_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[74]), x4308446535);
+coraCall1(co, globalRef(__symbolTable[74]), _3513390_37);
 return;
 }
 case 2:
 {
-Obj x4308446503= co->res;
+Obj _3513389_37= co->res;
 Obj ns = R[1];
 struct frame1 __curr = {
 .fn = clofun80,
@@ -1818,12 +1818,12 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[73]), ns, x4308446503);
+coraCall2(co, globalRef(__symbolTable[73]), ns, _3513389_37);
 return;
 }
 case 3:
 {
-Obj x4308446439= co->res;
+Obj _3513388_37= co->res;
 Obj ns = R[1];
 R[1] = ns;
 struct frame1 __curr = {
@@ -1833,15 +1833,15 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[73]), makeCString("#"), x4308446439);
+coraCall2(co, globalRef(__symbolTable[73]), makeCString("#"), _3513388_37);
 return;
 }
 case 4:
 {
-Obj x4308445991= co->res;
+Obj _3513387_37= co->res;
 Obj var = R[1];
 Obj ns = R[2];
-if (True == x4308445991) {
+if (True == _3513387_37) {
 coraReturn(co, var);
 return;
 } else {
@@ -1878,15 +1878,15 @@ return;
 }
 case 1:
 {
-Obj x4308463591= co->res;
+Obj _3513368_37= co->res;
 Obj path = R[1];
 co->ctx.sp = R;
-coraCall1(co, x4308463591, makeNative1(4, clofun78, 3, 1, path));
+coraCall1(co, _3513368_37, makeNative1(4, clofun78, 3, 1, path));
 return;
 }
 case 2:
 {
-Obj x4308463559= co->res;
+Obj _3513367_37= co->res;
 Obj path = R[1];
 R[1] = path;
 struct frame1 __curr = {
@@ -1896,14 +1896,14 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[80]), x4308463559);
+coraCall1(co, globalRef(__symbolTable[80]), _3513367_37);
 return;
 }
 case 3:
 {
-Obj x4308463271= co->res;
+Obj _3513366_37= co->res;
 Obj sexp = R[1];
-Obj path = x4308463271;
+Obj path = _3513366_37;
 R[1] = path;
 struct frame1 __curr = {
 .fn = clofun79,
@@ -1925,10 +1925,10 @@ case 0:
 Obj import = R[1];
 Obj export = R[2];
 Obj body = R[3];
-Obj x4308443655 = makeCons(makeCString("cora/init"), import);
+Obj _3513369_37 = makeCons(makeCString("cora/init"), import);
 R[1] = export;
 R[2] = body;
-R[3] = x4308443655;
+R[3] = _3513369_37;
 struct frame1 __curr = {
 .fn = clofun78,
 .label = 2,
@@ -1941,29 +1941,29 @@ return;
 }
 case 1:
 {
-Obj x4308445031= co->res;
-Obj x4308443655 = R[1];
-Obj x4308445063 = makeCons(__symbolTable[89], x4308445031);
-Obj x4308445095 = makeCons(x4308445063, Nil);
-Obj x4308445127 = makeCons(x4308443655, x4308445095);
-Obj x4308445159 = makeCons(closureRef(R[0], 0), x4308445127);
-Obj x4308445191 = makeCons(__symbolTable[78], x4308445159);
-coraReturn(co, x4308445191);
+Obj _3513379_37= co->res;
+Obj _3513369_37 = R[1];
+Obj _3513380_37 = makeCons(__symbolTable[89], _3513379_37);
+Obj _3513381_37 = makeCons(_3513380_37, Nil);
+Obj _3513382_37 = makeCons(_3513369_37, _3513381_37);
+Obj _3513383_37 = makeCons(closureRef(R[0], 0), _3513382_37);
+Obj _3513384_37 = makeCons(__symbolTable[78], _3513383_37);
+coraReturn(co, _3513384_37);
 return;
 }
 case 2:
 {
-Obj x4308444295= co->res;
+Obj _3513372_37= co->res;
 Obj export = R[1];
 Obj body = R[2];
-Obj x4308443655 = R[3];
-Obj x4308444775 = makeCons(export, Nil);
-Obj x4308444807 = makeCons(__symbolTable[86], x4308444775);
-Obj x4308444871 = makeCons(x4308444807, Nil);
-Obj x4308444903 = makeCons(__symbolTable[77], x4308444871);
-Obj x4308444935 = makeCons(__symbolTable[133], x4308444903);
-Obj x4308444967 = makeCons(x4308444935, body);
-R[1] = x4308443655;
+Obj _3513369_37 = R[3];
+Obj _3513373_37 = makeCons(export, Nil);
+Obj _3513374_37 = makeCons(__symbolTable[86], _3513373_37);
+Obj _3513375_37 = makeCons(_3513374_37, Nil);
+Obj _3513376_37 = makeCons(__symbolTable[77], _3513375_37);
+Obj _3513377_37 = makeCons(__symbolTable[133], _3513376_37);
+Obj _3513378_37 = makeCons(_3513377_37, body);
+R[1] = _3513369_37;
 struct frame1 __curr = {
 .fn = clofun78,
 .label = 1,
@@ -1971,7 +1971,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[98]), x4308444295, x4308444967);
+coraCall2(co, globalRef(__symbolTable[98]), _3513372_37, _3513378_37);
 return;
 }
 }
@@ -1982,9 +1982,9 @@ static void clofun77(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj imp = R[1];
-Obj x4308444231 = makeCons(imp, Nil);
-Obj x4308444263 = makeCons(__symbolTable[81], x4308444231);
-coraReturn(co, x4308444263);
+Obj _3513370_37 = makeCons(imp, Nil);
+Obj _3513371_37 = makeCons(__symbolTable[81], _3513370_37);
+coraReturn(co, _3513371_37);
 return;
 }
 }
@@ -2007,62 +2007,62 @@ static void clofun75(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310580551 = R[1];
-Obj x4310580583 = R[2];
-Obj x4310580615 = R[3];
-Obj x4310580647 = R[4];
-Obj x4310580839 = makeNative1(1, clofun74, 0, 4, x4310580615, x4310580551, x4310580583, x4310580647);
-Obj x4308471591 = PRIM_ISCONS(x4310580551);
-if (True == x4308471591) {
-Obj x4308459559 = PRIM_CAR(x4310580551);
-Obj x4308459591 = PRIM_ISCONS(x4308459559);
-if (True == x4308459591) {
-Obj x4308460071 = PRIM_CAR(x4310580551);
-Obj x4308460103 = PRIM_CAR(x4308460071);
-Obj x4308460135 = PRIM_EQ(__symbolTable[81], x4308460103);
-if (True == x4308460135) {
-Obj x4308460487 = PRIM_CAR(x4310580551);
-Obj x4308460519 = PRIM_CDR(x4308460487);
-Obj x4308460551 = PRIM_ISCONS(x4308460519);
-if (True == x4308460551) {
-Obj x4308460935 = PRIM_CAR(x4310580551);
-Obj x4308460967 = PRIM_CDR(x4308460935);
-Obj x4308460999 = PRIM_CAR(x4308460967);
-Obj lib = x4308460999;
-Obj x4308461447 = PRIM_CAR(x4310580551);
-Obj x4308461479 = PRIM_CDR(x4308461447);
-Obj x4308461511 = PRIM_CDR(x4308461479);
-Obj x4308461575 = PRIM_EQ(Nil, x4308461511);
-if (True == x4308461575) {
-Obj x4308461895 = PRIM_CDR(x4310580551);
-Obj rest = x4308461895;
-Obj x4308462055 = makeCons(lib, x4310580583);
+Obj _3512819_37 = R[1];
+Obj _3512820_37 = R[2];
+Obj _3512821_37 = R[3];
+Obj _3512822_37 = R[4];
+Obj _3512823_37 = makeNative1(1, clofun74, 0, 4, _3512821_37, _3512819_37, _3512820_37, _3512822_37);
+Obj _3513346_37 = PRIM_ISCONS(_3512819_37);
+if (True == _3513346_37) {
+Obj _3513347_37 = PRIM_CAR(_3512819_37);
+Obj _3513348_37 = PRIM_ISCONS(_3513347_37);
+if (True == _3513348_37) {
+Obj _3513349_37 = PRIM_CAR(_3512819_37);
+Obj _3513350_37 = PRIM_CAR(_3513349_37);
+Obj _3513351_37 = PRIM_EQ(__symbolTable[81], _3513350_37);
+if (True == _3513351_37) {
+Obj _3513352_37 = PRIM_CAR(_3512819_37);
+Obj _3513353_37 = PRIM_CDR(_3513352_37);
+Obj _3513354_37 = PRIM_ISCONS(_3513353_37);
+if (True == _3513354_37) {
+Obj _3513355_37 = PRIM_CAR(_3512819_37);
+Obj _3513356_37 = PRIM_CDR(_3513355_37);
+Obj _3513357_37 = PRIM_CAR(_3513356_37);
+Obj lib = _3513357_37;
+Obj _3513358_37 = PRIM_CAR(_3512819_37);
+Obj _3513359_37 = PRIM_CDR(_3513358_37);
+Obj _3513360_37 = PRIM_CDR(_3513359_37);
+Obj _3513361_37 = PRIM_EQ(Nil, _3513360_37);
+if (True == _3513361_37) {
+Obj _3513362_37 = PRIM_CDR(_3512819_37);
+Obj rest = _3513362_37;
+Obj _3513363_37 = makeCons(lib, _3512820_37);
 co->ctx.sp = R;
-coraCall4(co, globalRef(__symbolTable[83]), rest, x4308462055, x4310580615, x4310580647);
+coraCall4(co, globalRef(__symbolTable[83]), rest, _3513363_37, _3512821_37, _3512822_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310580839);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x4310580839);
+coraCall0(co, _3512823_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310580839);
+coraCall0(co, _3512823_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310580839);
+coraCall0(co, _3512823_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310580839);
+coraCall0(co, _3512823_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3512823_37);
 return;
 }
 }
@@ -2073,37 +2073,37 @@ static void clofun74(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310512007 = makeNative1(1, clofun73, 0, 4, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x4308469607 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x4308469607) {
-Obj x4308469927 = PRIM_CAR(closureRef(R[0], 1));
-Obj x4308469959 = PRIM_ISCONS(x4308469927);
-if (True == x4308469959) {
-Obj x4308470311 = PRIM_CAR(closureRef(R[0], 1));
-Obj x4308470343 = PRIM_CAR(x4308470311);
-Obj x4308470375 = PRIM_EQ(__symbolTable[82], x4308470343);
-if (True == x4308470375) {
-Obj x4308470823 = PRIM_CAR(closureRef(R[0], 1));
-Obj x4308470855 = PRIM_CDR(x4308470823);
-Obj more = x4308470855;
-Obj x4308471047 = PRIM_CDR(closureRef(R[0], 1));
-Obj rest = x4308471047;
+Obj _3512824_37 = makeNative1(1, clofun73, 0, 4, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3513337_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3513337_37) {
+Obj _3513338_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3513339_37 = PRIM_ISCONS(_3513338_37);
+if (True == _3513339_37) {
+Obj _3513340_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3513341_37 = PRIM_CAR(_3513340_37);
+Obj _3513342_37 = PRIM_EQ(__symbolTable[82], _3513341_37);
+if (True == _3513342_37) {
+Obj _3513343_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3513344_37 = PRIM_CDR(_3513343_37);
+Obj more = _3513344_37;
+Obj _3513345_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj rest = _3513345_37;
 co->ctx.sp = R;
 coraCall4(co, globalRef(__symbolTable[83]), rest, closureRef(R[0], 2), more, closureRef(R[0], 3));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512007);
+coraCall0(co, _3512824_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512007);
+coraCall0(co, _3512824_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310512007);
+coraCall0(co, _3512824_37);
 return;
 }
 }
@@ -2126,9 +2126,9 @@ return;
 }
 case 1:
 {
-Obj x4308469383= co->res;
+Obj _3513336_37= co->res;
 co->ctx.sp = R;
-coraCall3(co, closureRef(R[0], 0), x4308469383, closureRef(R[0], 2), closureRef(R[0], 3));
+coraCall3(co, closureRef(R[0], 0), _3513336_37, closureRef(R[0], 2), closureRef(R[0], 3));
 return;
 }
 }
@@ -2152,17 +2152,17 @@ return;
 }
 case 1:
 {
-Obj x4308468679= co->res;
-Obj x4308468487 = R[1];
+Obj _3513334_37= co->res;
+Obj _3513333_37 = R[1];
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[85]), x4308468487, x4308468679);
+coraCall2(co, globalRef(__symbolTable[85]), _3513333_37, _3513334_37);
 return;
 }
 case 2:
 {
-Obj x4308468487= co->res;
+Obj _3513333_37= co->res;
 Obj exp = R[1];
-R[1] = x4308468487;
+R[1] = _3513333_37;
 struct frame1 __curr = {
 .fn = clofun72,
 .label = 1,
@@ -2196,34 +2196,34 @@ return;
 }
 case 1:
 {
-Obj x4308524615= co->res;
-Obj x4308524423 = R[1];
+Obj _3513322_37= co->res;
+Obj _3513321_37 = R[1];
 Obj fn = R[2];
-Obj x4308524647 = makeCons(x4308524615, Nil);
-Obj x4308524679 = makeCons(x4308524423, x4308524647);
-Obj x4308524743 = makeCons(fn, x4308524679);
-coraReturn(co, x4308524743);
+Obj _3513323_37 = makeCons(_3513322_37, Nil);
+Obj _3513324_37 = makeCons(_3513321_37, _3513323_37);
+Obj _3513325_37 = makeCons(fn, _3513324_37);
+coraReturn(co, _3513325_37);
 return;
 }
 case 2:
 {
-Obj x4308468007= co->res;
-Obj x4308467751 = R[1];
+Obj _3513328_37= co->res;
+Obj _3513326_37 = R[1];
 Obj fn = R[2];
-Obj x4308468039 = makeCons(x4308468007, Nil);
-Obj x4308468071 = makeCons(x4308467751, x4308468039);
-Obj x4308468103 = makeCons(fn, x4308468071);
-coraReturn(co, x4308468103);
+Obj _3513329_37 = makeCons(_3513328_37, Nil);
+Obj _3513330_37 = makeCons(_3513326_37, _3513329_37);
+Obj _3513331_37 = makeCons(fn, _3513330_37);
+coraReturn(co, _3513331_37);
 return;
 }
 case 3:
 {
-Obj x4308524103= co->res;
+Obj _3513320_37= co->res;
 Obj arglist = R[1];
 Obj fn = R[2];
-if (True == x4308524103) {
-Obj x4308524423 = PRIM_CAR(arglist);
-R[1] = x4308524423;
+if (True == _3513320_37) {
+Obj _3513321_37 = PRIM_CAR(arglist);
+R[1] = _3513321_37;
 R[2] = fn;
 struct frame1 __curr = {
 .fn = clofun71,
@@ -2235,9 +2235,9 @@ vecAppend(&co->callstack, __curr);
 coraCall1(co, globalRef(__symbolTable[160]), arglist);
 return;
 } else {
-Obj x4308467751 = PRIM_CAR(arglist);
-Obj x4308467975 = PRIM_CDR(arglist);
-R[1] = x4308467751;
+Obj _3513326_37 = PRIM_CAR(arglist);
+Obj _3513327_37 = PRIM_CDR(arglist);
+R[1] = _3513326_37;
 R[2] = fn;
 struct frame1 __curr = {
 .fn = clofun71,
@@ -2246,13 +2246,13 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[85]), fn, x4308467975);
+coraCall2(co, globalRef(__symbolTable[85]), fn, _3513327_37);
 return;
 }
 }
 case 4:
 {
-Obj x4308524071= co->res;
+Obj _3513319_37= co->res;
 Obj arglist = R[1];
 Obj fn = R[2];
 R[1] = arglist;
@@ -2264,7 +2264,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4308524071);
+coraCall1(co, globalRef(__symbolTable[161]), _3513319_37);
 return;
 }
 }
@@ -2287,9 +2287,9 @@ return;
 }
 case 1:
 {
-Obj x4308523527= co->res;
+Obj _3513317_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[88]), x4308523527);
+coraCall1(co, globalRef(__symbolTable[88]), _3513317_37);
 return;
 }
 }
@@ -2299,50 +2299,50 @@ static void clofun69(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310579335 = R[1];
-Obj x4309711431 = primIsSymbol(x4310579335);
-if (True == x4309711431) {
-Obj x4309711655 = makeCons(x4310579335, Nil);
-Obj x4309711719 = makeCons(__symbolTable[139], x4309711655);
-coraReturn(co, x4309711719);
+Obj _3512814_37 = R[1];
+Obj _3513297_37 = primIsSymbol(_3512814_37);
+if (True == _3513297_37) {
+Obj _3513298_37 = makeCons(_3512814_37, Nil);
+Obj _3513299_37 = makeCons(__symbolTable[139], _3513298_37);
+coraReturn(co, _3513299_37);
 return;
 } else {
-Obj x4310579623 = makeNative1(1, clofun68, 0, 1, x4310579335);
-Obj x4308521223 = PRIM_ISCONS(x4310579335);
-if (True == x4308521223) {
-Obj x4308521511 = PRIM_CAR(x4310579335);
-Obj x4308521543 = PRIM_EQ(__symbolTable[87], x4308521511);
-if (True == x4308521543) {
-Obj x4308521767 = PRIM_CDR(x4310579335);
-Obj x4308521799 = PRIM_ISCONS(x4308521767);
-if (True == x4308521799) {
-Obj x4308522055 = PRIM_CDR(x4310579335);
-Obj x4308522087 = PRIM_CAR(x4308522055);
-Obj x = x4308522087;
-Obj x4308522663 = PRIM_CDR(x4310579335);
-Obj x4308522695 = PRIM_CDR(x4308522663);
-Obj x4308522727 = PRIM_EQ(Nil, x4308522695);
-if (True == x4308522727) {
+Obj _3512816_37 = makeNative1(1, clofun68, 0, 1, _3512814_37);
+Obj _3513306_37 = PRIM_ISCONS(_3512814_37);
+if (True == _3513306_37) {
+Obj _3513307_37 = PRIM_CAR(_3512814_37);
+Obj _3513308_37 = PRIM_EQ(__symbolTable[87], _3513307_37);
+if (True == _3513308_37) {
+Obj _3513309_37 = PRIM_CDR(_3512814_37);
+Obj _3513310_37 = PRIM_ISCONS(_3513309_37);
+if (True == _3513310_37) {
+Obj _3513311_37 = PRIM_CDR(_3512814_37);
+Obj _3513312_37 = PRIM_CAR(_3513311_37);
+Obj x = _3513312_37;
+Obj _3513313_37 = PRIM_CDR(_3512814_37);
+Obj _3513314_37 = PRIM_CDR(_3513313_37);
+Obj _3513315_37 = PRIM_EQ(Nil, _3513314_37);
+if (True == _3513315_37) {
 coraReturn(co, x);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579623);
+coraCall0(co, _3512816_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579623);
+coraCall0(co, _3512816_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579623);
+coraCall0(co, _3512816_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310579623);
+coraCall0(co, _3512816_37);
 return;
 }
 }
@@ -2354,13 +2354,13 @@ static void clofun68(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4309712007 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309712007) {
-Obj x4309712167 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x4309712167;
-Obj x4309712423 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x4309712423;
-Obj x4308520967 = makeCons(x, more);
+Obj _3513300_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513300_37) {
+Obj _3513301_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3513301_37;
+Obj _3513302_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3513302_37;
+Obj _3513303_37 = makeCons(x, more);
 struct frame1 __curr = {
 .fn = clofun68,
 .label = 1,
@@ -2368,7 +2368,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[147]), globalRef(__symbolTable[88]), x4308520967);
+coraCall2(co, globalRef(__symbolTable[147]), globalRef(__symbolTable[88]), _3513303_37);
 return;
 } else {
 coraReturn(co, closureRef(R[0], 0));
@@ -2377,9 +2377,9 @@ return;
 }
 case 1:
 {
-Obj x4308520999= co->res;
-Obj x4308521031 = makeCons(__symbolTable[135], x4308520999);
-coraReturn(co, x4308521031);
+Obj _3513304_37= co->res;
+Obj _3513305_37 = makeCons(__symbolTable[135], _3513304_37);
+coraReturn(co, _3513305_37);
 return;
 }
 }
@@ -2390,9 +2390,9 @@ static void clofun67(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4309711015 = PRIM_CDR(exp);
+Obj _3513295_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[91]), x4309711015);
+coraCall1(co, globalRef(__symbolTable[91]), _3513295_37);
 return;
 }
 }
@@ -2402,25 +2402,25 @@ static void clofun66(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310578183 = R[1];
-Obj x4310578279 = makeNative1(1, clofun65, 0, 1, x4310578183);
-Obj x4309709671 = PRIM_ISCONS(x4310578183);
-if (True == x4309709671) {
-Obj x4309709927 = PRIM_CAR(x4310578183);
-Obj x = x4309709927;
-Obj x4309710215 = PRIM_CDR(x4310578183);
-Obj x4309710247 = PRIM_EQ(Nil, x4309710215);
-if (True == x4309710247) {
+Obj _3512810_37 = R[1];
+Obj _3512811_37 = makeNative1(1, clofun65, 0, 1, _3512810_37);
+Obj _3513290_37 = PRIM_ISCONS(_3512810_37);
+if (True == _3513290_37) {
+Obj _3513291_37 = PRIM_CAR(_3512810_37);
+Obj x = _3513291_37;
+Obj _3513292_37 = PRIM_CDR(_3512810_37);
+Obj _3513293_37 = PRIM_EQ(Nil, _3513292_37);
+if (True == _3513293_37) {
 coraReturn(co, x);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578279);
+coraCall0(co, _3512811_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578279);
+coraCall0(co, _3512811_37);
 return;
 }
 }
@@ -2431,39 +2431,39 @@ static void clofun65(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310578599 = makeNative1(2, clofun64, 0, 1, closureRef(R[0], 0));
-Obj x4309752743 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309752743) {
-Obj x4309752903 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x4309752903;
-Obj x4309753159 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309753191 = PRIM_ISCONS(x4309753159);
-if (True == x4309753191) {
-Obj x4309753447 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309753511 = PRIM_CAR(x4309753447);
-Obj y = x4309753511;
-Obj x4309708839 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309708935 = PRIM_CDR(x4309708839);
-Obj x4309708967 = PRIM_EQ(Nil, x4309708935);
-if (True == x4309708967) {
-Obj x4309709223 = makeCons(y, Nil);
-Obj x4309709255 = makeCons(x, x4309709223);
-Obj x4309709287 = makeCons(__symbolTable[90], x4309709255);
-coraReturn(co, x4309709287);
+Obj _3512812_37 = makeNative1(2, clofun64, 0, 1, closureRef(R[0], 0));
+Obj _3513278_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513278_37) {
+Obj _3513279_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3513279_37;
+Obj _3513280_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513281_37 = PRIM_ISCONS(_3513280_37);
+if (True == _3513281_37) {
+Obj _3513282_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513283_37 = PRIM_CAR(_3513282_37);
+Obj y = _3513283_37;
+Obj _3513284_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513285_37 = PRIM_CDR(_3513284_37);
+Obj _3513286_37 = PRIM_EQ(Nil, _3513285_37);
+if (True == _3513286_37) {
+Obj _3513287_37 = makeCons(y, Nil);
+Obj _3513288_37 = makeCons(x, _3513287_37);
+Obj _3513289_37 = makeCons(__symbolTable[90], _3513288_37);
+coraReturn(co, _3513289_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578599);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x4310578599);
+coraCall0(co, _3512812_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310578599);
+coraCall0(co, _3512812_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3512812_37);
 return;
 }
 }
@@ -2474,12 +2474,12 @@ static void clofun64(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4309751591 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309751591) {
-Obj x4309751815 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x4309751815;
-Obj x4309751975 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x4309751975;
+Obj _3513271_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513271_37) {
+Obj _3513272_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3513272_37;
+Obj _3513273_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3513273_37;
 R[1] = x;
 struct frame1 __curr = {
 .fn = clofun64,
@@ -2498,12 +2498,12 @@ return;
 }
 case 1:
 {
-Obj x4309752391= co->res;
+Obj _3513274_37= co->res;
 Obj x = R[1];
-Obj x4309752423 = makeCons(x4309752391, Nil);
-Obj x4309752455 = makeCons(x, x4309752423);
-Obj x4309752487 = makeCons(__symbolTable[90], x4309752455);
-coraReturn(co, x4309752487);
+Obj _3513275_37 = makeCons(_3513274_37, Nil);
+Obj _3513276_37 = makeCons(x, _3513275_37);
+Obj _3513277_37 = makeCons(__symbolTable[90], _3513276_37);
+coraReturn(co, _3513277_37);
 return;
 }
 }
@@ -2526,14 +2526,14 @@ return;
 }
 case 1:
 {
-Obj x4309750727= co->res;
+Obj _3513269_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[92]), x4309750727);
+coraCall1(co, globalRef(__symbolTable[92]), _3513269_37);
 return;
 }
 case 2:
 {
-Obj x4309750695= co->res;
+Obj _3513268_37= co->res;
 struct frame1 __curr = {
 .fn = clofun63,
 .label = 1,
@@ -2541,7 +2541,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[94]), x4309750695);
+coraCall1(co, globalRef(__symbolTable[94]), _3513268_37);
 return;
 }
 }
@@ -2588,25 +2588,25 @@ return;
 }
 case 1:
 {
-Obj x4309798023= co->res;
+Obj _3513257_37= co->res;
 Obj body = R[1];
 Obj args = R[2];
-Obj x4309798439 = makeCons(__symbolTable[135], args);
-Obj x4309798471 = makeCons(x4309798439, body);
-Obj x4309798503 = makeCons(__symbolTable[107], x4309798471);
-Obj x4309798535 = makeCons(x4309798503, Nil);
-Obj x4309798567 = makeCons(args, x4309798535);
-Obj x4309798599 = makeCons(x4309798023, x4309798567);
-Obj x4309798631 = makeCons(__symbolTable[134], x4309798599);
-coraReturn(co, x4309798631);
+Obj _3513258_37 = makeCons(__symbolTable[135], args);
+Obj _3513259_37 = makeCons(_3513258_37, body);
+Obj _3513260_37 = makeCons(__symbolTable[107], _3513259_37);
+Obj _3513261_37 = makeCons(_3513260_37, Nil);
+Obj _3513262_37 = makeCons(args, _3513261_37);
+Obj _3513263_37 = makeCons(_3513257_37, _3513262_37);
+Obj _3513264_37 = makeCons(__symbolTable[134], _3513263_37);
+coraReturn(co, _3513264_37);
 return;
 }
 case 2:
 {
-Obj x4309797575= co->res;
+Obj _3513256_37= co->res;
 Obj exp = R[1];
 Obj body = R[2];
-Obj args = x4309797575;
+Obj args = _3513256_37;
 R[1] = body;
 R[2] = args;
 struct frame1 __curr = {
@@ -2621,10 +2621,10 @@ return;
 }
 case 3:
 {
-Obj x4309797415= co->res;
+Obj _3513255_37= co->res;
 Obj exp = R[1];
 Obj body = R[2];
-Obj nargs = x4309797415;
+Obj nargs = _3513255_37;
 R[1] = exp;
 R[2] = body;
 struct frame1 __curr = {
@@ -2639,9 +2639,9 @@ return;
 }
 case 4:
 {
-Obj x4309797223= co->res;
+Obj _3513254_37= co->res;
 Obj exp = R[1];
-Obj body = x4309797223;
+Obj body = _3513254_37;
 R[1] = exp;
 R[2] = body;
 struct frame1 __curr = {
@@ -2656,7 +2656,7 @@ return;
 }
 case 5:
 {
-Obj x4309797191= co->res;
+Obj _3513253_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
 struct frame1 __curr = {
@@ -2666,7 +2666,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[104]), x4309797191);
+coraCall1(co, globalRef(__symbolTable[104]), _3513253_37);
 return;
 }
 }
@@ -2677,14 +2677,14 @@ static void clofun59(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj n = R[1];
-Obj x4309796071 = PRIM_EQ(n, MAKE_NUMBER(0));
-if (True == x4309796071) {
+Obj _3513247_37 = PRIM_EQ(n, MAKE_NUMBER(0));
+if (True == _3513247_37) {
 coraReturn(co, Nil);
 return;
 } else {
-Obj x4309796231 = primGenSym();
-Obj x4309796551 = PRIM_SUB(n, MAKE_NUMBER(1));
-R[1] = x4309796231;
+Obj _3513248_37 = primGenSym();
+Obj _3513249_37 = PRIM_SUB(n, MAKE_NUMBER(1));
+R[1] = _3513248_37;
 struct frame1 __curr = {
 .fn = clofun59,
 .label = 1,
@@ -2692,16 +2692,16 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[96]), x4309796551);
+coraCall1(co, globalRef(__symbolTable[96]), _3513249_37);
 return;
 }
 }
 case 1:
 {
-Obj x4309796583= co->res;
-Obj x4309796231 = R[1];
-Obj x4309796615 = makeCons(x4309796231, x4309796583);
-coraReturn(co, x4309796615);
+Obj _3513250_37= co->res;
+Obj _3513248_37 = R[1];
+Obj _3513251_37 = makeCons(_3513248_37, _3513250_37);
+coraReturn(co, _3513251_37);
 return;
 }
 }
@@ -2724,10 +2724,10 @@ return;
 }
 case 1:
 {
-Obj x4309795463= co->res;
+Obj _3513244_37= co->res;
 Obj n = R[1];
-Obj x4309795495 = primNot(x4309795463);
-if (True == x4309795495) {
+Obj _3513245_37 = primNot(_3513244_37);
+if (True == _3513245_37) {
 co->ctx.sp = R;
 coraCall1(co, globalRef(__symbolTable[127]), makeCString("inconsistent func rule args count"));
 return;
@@ -2738,7 +2738,7 @@ return;
 }
 case 2:
 {
-Obj x4309795431= co->res;
+Obj _3513243_37= co->res;
 Obj n = R[1];
 R[1] = n;
 struct frame1 __curr = {
@@ -2748,16 +2748,16 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4309795431);
+coraCall1(co, globalRef(__symbolTable[161]), _3513243_37);
 return;
 }
 case 3:
 {
-Obj x4309802535= co->res;
-Obj counts = x4309802535;
-Obj x4309802791 = PRIM_CAR(counts);
-Obj n = x4309802791;
-Obj x4309795303 = PRIM_CDR(counts);
+Obj _3513238_37= co->res;
+Obj counts = _3513238_37;
+Obj _3513239_37 = PRIM_CAR(counts);
+Obj n = _3513239_37;
+Obj _3513242_37 = PRIM_CDR(counts);
 R[1] = n;
 struct frame1 __curr = {
 .fn = clofun58,
@@ -2766,13 +2766,13 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[99]), makeNative1(2, clofun57, 1, 1, n), x4309795303);
+coraCall2(co, globalRef(__symbolTable[99]), makeNative1(2, clofun57, 1, 1, n), _3513242_37);
 return;
 }
 case 4:
 {
-Obj x4309802055= co->res;
-Obj pats = x4309802055;
+Obj _3513236_37= co->res;
+Obj pats = _3513236_37;
 struct frame1 __curr = {
 .fn = clofun58,
 .label = 3,
@@ -2791,9 +2791,9 @@ static void clofun57(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309795175 = PRIM_EQ(closureRef(R[0], 0), x);
-Obj x4309795207 = primNot(x4309795175);
-coraReturn(co, x4309795207);
+Obj _3513240_37 = PRIM_EQ(closureRef(R[0], 0), x);
+Obj _3513241_37 = primNot(_3513240_37);
+coraReturn(co, _3513241_37);
 return;
 }
 }
@@ -2804,9 +2804,9 @@ static void clofun56(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309802503 = PRIM_CDR(x);
+Obj _3513237_37 = PRIM_CDR(x);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[101]), x4309802503);
+coraCall1(co, globalRef(__symbolTable[101]), _3513237_37);
 return;
 }
 }
@@ -2818,14 +2818,14 @@ case 0:
 {
 Obj l1 = R[1];
 Obj l2 = R[2];
-Obj x4309801223 = PRIM_EQ(l1, Nil);
-if (True == x4309801223) {
+Obj _3513230_37 = PRIM_EQ(l1, Nil);
+if (True == _3513230_37) {
 coraReturn(co, l2);
 return;
 } else {
-Obj x4309801383 = PRIM_CAR(l1);
-Obj x4309801543 = PRIM_CDR(l1);
-R[1] = x4309801383;
+Obj _3513231_37 = PRIM_CAR(l1);
+Obj _3513232_37 = PRIM_CDR(l1);
+R[1] = _3513231_37;
 struct frame1 __curr = {
 .fn = clofun55,
 .label = 1,
@@ -2833,16 +2833,16 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[98]), x4309801543, l2);
+coraCall2(co, globalRef(__symbolTable[98]), _3513232_37, l2);
 return;
 }
 }
 case 1:
 {
-Obj x4309801575= co->res;
-Obj x4309801383 = R[1];
-Obj x4309801607 = makeCons(x4309801383, x4309801575);
-coraReturn(co, x4309801607);
+Obj _3513233_37= co->res;
+Obj _3513231_37 = R[1];
+Obj _3513234_37 = makeCons(_3513231_37, _3513233_37);
+coraReturn(co, _3513234_37);
 return;
 }
 }
@@ -2868,9 +2868,9 @@ case 0:
 Obj res = R[1];
 Obj fn = R[2];
 Obj l = R[3];
-Obj x4309799719 = PRIM_ISCONS(l);
-if (True == x4309799719) {
-Obj x4309799943 = PRIM_CAR(l);
+Obj _3513221_37 = PRIM_ISCONS(l);
+if (True == _3513221_37) {
+Obj _3513222_37 = PRIM_CAR(l);
 R[1] = l;
 R[2] = res;
 R[3] = fn;
@@ -2881,7 +2881,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, fn, x4309799943);
+coraCall1(co, fn, _3513222_37);
 return;
 } else {
 co->ctx.sp = R;
@@ -2891,21 +2891,21 @@ return;
 }
 case 1:
 {
-Obj x4309799975= co->res;
+Obj _3513223_37= co->res;
 Obj l = R[1];
 Obj res = R[2];
 Obj fn = R[3];
-if (True == x4309799975) {
-Obj x4309800199 = PRIM_CAR(l);
-Obj x4309800231 = makeCons(x4309800199, res);
-Obj x4309800327 = PRIM_CDR(l);
+if (True == _3513223_37) {
+Obj _3513224_37 = PRIM_CAR(l);
+Obj _3513225_37 = makeCons(_3513224_37, res);
+Obj _3513226_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[100]), x4309800231, fn, x4309800327);
+coraCall3(co, globalRef(__symbolTable[100]), _3513225_37, fn, _3513226_37);
 return;
 } else {
-Obj x4309800487 = PRIM_CDR(l);
+Obj _3513227_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[100]), res, fn, x4309800487);
+coraCall3(co, globalRef(__symbolTable[100]), res, fn, _3513227_37);
 return;
 }
 }
@@ -2930,15 +2930,15 @@ case 0:
 {
 Obj i = R[1];
 Obj l = R[2];
-Obj x4309806983 = PRIM_EQ(l, Nil);
-if (True == x4309806983) {
+Obj _3513216_37 = PRIM_EQ(l, Nil);
+if (True == _3513216_37) {
 coraReturn(co, i);
 return;
 } else {
-Obj x4309798951 = PRIM_ADD(i, MAKE_NUMBER(1));
-Obj x4309799047 = PRIM_CDR(l);
+Obj _3513217_37 = PRIM_ADD(i, MAKE_NUMBER(1));
+Obj _3513218_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[102]), x4309798951, x4309799047);
+coraCall2(co, globalRef(__symbolTable[102]), _3513217_37, _3513218_37);
 return;
 }
 }
@@ -2965,25 +2965,25 @@ return;
 }
 case 1:
 {
-Obj x4309806599= co->res;
-Obj x4309806503 = R[1];
+Obj _3513214_37= co->res;
+Obj _3513213_37 = R[1];
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[103]), x4309806503, x4309806599);
+coraCall2(co, globalRef(__symbolTable[103]), _3513213_37, _3513214_37);
 return;
 }
 case 2:
 {
-Obj x4309806183= co->res;
+Obj _3513211_37= co->res;
 Obj res = R[1];
 Obj rules = R[2];
-if (True == x4309806183) {
+if (True == _3513211_37) {
 co->ctx.sp = R;
 coraCall1(co, globalRef(__symbolTable[149]), res);
 return;
 } else {
-Obj x4309806471 = PRIM_CAR(rules);
-Obj x4309806503 = makeCons(x4309806471, res);
-R[1] = x4309806503;
+Obj _3513212_37 = PRIM_CAR(rules);
+Obj _3513213_37 = makeCons(_3513212_37, res);
+R[1] = _3513213_37;
 struct frame1 __curr = {
 .fn = clofun50,
 .label = 1,
@@ -3017,48 +3017,48 @@ case 0:
 Obj input = R[1];
 Obj current = R[2];
 Obj result = R[3];
-Obj x4310359495 = PRIM_EQ(Nil, input);
-if (True == x4310359495) {
+Obj _3513158_37 = PRIM_EQ(Nil, input);
+if (True == _3513158_37) {
 co->ctx.sp = R;
 coraCall1(co, globalRef(__symbolTable[149]), result);
 return;
 } else {
-Obj x4310577287 = makeNative1(3, clofun47, 0, 3, input, current, result);
-Obj x4309834183 = PRIM_ISCONS(input);
-if (True == x4309834183) {
-Obj x4309834407 = PRIM_CAR(input);
-Obj x4309834439 = PRIM_EQ(__symbolTable[105], x4309834407);
-if (True == x4309834439) {
-Obj x4309834663 = PRIM_CDR(input);
-Obj x4309834695 = PRIM_ISCONS(x4309834663);
-if (True == x4309834695) {
-Obj x4309834919 = PRIM_CDR(input);
-Obj x4309834951 = PRIM_CAR(x4309834919);
-Obj act = x4309834951;
-Obj x4309835239 = PRIM_CDR(input);
-Obj x4309835271 = PRIM_CDR(x4309835239);
-Obj x4309835303 = PRIM_ISCONS(x4309835271);
-if (True == x4309835303) {
-Obj x4309835655 = PRIM_CDR(input);
-Obj x4309835687 = PRIM_CDR(x4309835655);
-Obj x4309835719 = PRIM_CAR(x4309835687);
-Obj x4309835751 = PRIM_EQ(__symbolTable[110], x4309835719);
-if (True == x4309835751) {
-Obj x4309803335 = PRIM_CDR(input);
-Obj x4309803367 = PRIM_CDR(x4309803335);
-Obj x4309803399 = PRIM_CDR(x4309803367);
-Obj x4309803431 = PRIM_ISCONS(x4309803399);
-if (True == x4309803431) {
-Obj x4309803783 = PRIM_CDR(input);
-Obj x4309803815 = PRIM_CDR(x4309803783);
-Obj x4309803847 = PRIM_CDR(x4309803815);
-Obj x4309803879 = PRIM_CAR(x4309803847);
-Obj pred = x4309803879;
-Obj x4309804231 = PRIM_CDR(input);
-Obj x4309804263 = PRIM_CDR(x4309804231);
-Obj x4309804295 = PRIM_CDR(x4309804263);
-Obj x4309804327 = PRIM_CDR(x4309804295);
-Obj remain = x4309804327;
+Obj _3512807_37 = makeNative1(3, clofun47, 0, 3, input, current, result);
+Obj _3513176_37 = PRIM_ISCONS(input);
+if (True == _3513176_37) {
+Obj _3513177_37 = PRIM_CAR(input);
+Obj _3513178_37 = PRIM_EQ(__symbolTable[105], _3513177_37);
+if (True == _3513178_37) {
+Obj _3513179_37 = PRIM_CDR(input);
+Obj _3513180_37 = PRIM_ISCONS(_3513179_37);
+if (True == _3513180_37) {
+Obj _3513181_37 = PRIM_CDR(input);
+Obj _3513182_37 = PRIM_CAR(_3513181_37);
+Obj act = _3513182_37;
+Obj _3513183_37 = PRIM_CDR(input);
+Obj _3513184_37 = PRIM_CDR(_3513183_37);
+Obj _3513185_37 = PRIM_ISCONS(_3513184_37);
+if (True == _3513185_37) {
+Obj _3513186_37 = PRIM_CDR(input);
+Obj _3513187_37 = PRIM_CDR(_3513186_37);
+Obj _3513188_37 = PRIM_CAR(_3513187_37);
+Obj _3513189_37 = PRIM_EQ(__symbolTable[110], _3513188_37);
+if (True == _3513189_37) {
+Obj _3513190_37 = PRIM_CDR(input);
+Obj _3513191_37 = PRIM_CDR(_3513190_37);
+Obj _3513192_37 = PRIM_CDR(_3513191_37);
+Obj _3513193_37 = PRIM_ISCONS(_3513192_37);
+if (True == _3513193_37) {
+Obj _3513194_37 = PRIM_CDR(input);
+Obj _3513195_37 = PRIM_CDR(_3513194_37);
+Obj _3513196_37 = PRIM_CDR(_3513195_37);
+Obj _3513197_37 = PRIM_CAR(_3513196_37);
+Obj pred = _3513197_37;
+Obj _3513198_37 = PRIM_CDR(input);
+Obj _3513199_37 = PRIM_CDR(_3513198_37);
+Obj _3513200_37 = PRIM_CDR(_3513199_37);
+Obj _3513201_37 = PRIM_CDR(_3513200_37);
+Obj remain = _3513201_37;
 R[1] = act;
 R[2] = pred;
 R[3] = result;
@@ -3074,52 +3074,52 @@ coraCall1(co, globalRef(__symbolTable[149]), current);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577287);
+coraCall0(co, _3512807_37);
 return;
 }
 }
 }
 case 1:
 {
-Obj x4309804551= co->res;
+Obj _3513202_37= co->res;
 Obj act = R[1];
 Obj pred = R[2];
 Obj result = R[3];
 Obj remain = R[4];
-Obj x4309804583 = makeCons(__symbolTable[135], x4309804551);
-Obj pat = x4309804583;
-Obj x4309804935 = makeCons(act, Nil);
-Obj x4309804967 = makeCons(pred, x4309804935);
-Obj x4309804999 = makeCons(__symbolTable[110], x4309804967);
-Obj x4309805095 = makeCons(pat, result);
-Obj x4309805127 = makeCons(x4309804999, x4309805095);
+Obj _3513203_37 = makeCons(__symbolTable[135], _3513202_37);
+Obj pat = _3513203_37;
+Obj _3513204_37 = makeCons(act, Nil);
+Obj _3513205_37 = makeCons(pred, _3513204_37);
+Obj _3513206_37 = makeCons(__symbolTable[110], _3513205_37);
+Obj _3513207_37 = makeCons(pat, result);
+Obj _3513208_37 = makeCons(_3513206_37, _3513207_37);
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[106]), remain, Nil, x4309805127);
+coraCall3(co, globalRef(__symbolTable[106]), remain, Nil, _3513208_37);
 return;
 }
 }
@@ -3129,21 +3129,21 @@ static void clofun47(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310577735 = makeNative1(1, clofun46, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj x4309832295 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4309832295) {
-Obj x4309832519 = PRIM_CAR(closureRef(R[0], 0));
-Obj x4309832551 = PRIM_EQ(__symbolTable[105], x4309832519);
-if (True == x4309832551) {
-Obj x4309832775 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309832807 = PRIM_ISCONS(x4309832775);
-if (True == x4309832807) {
-Obj x4309833031 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309833063 = PRIM_CAR(x4309833031);
-Obj act = x4309833063;
-Obj x4309833287 = PRIM_CDR(closureRef(R[0], 0));
-Obj x4309833319 = PRIM_CDR(x4309833287);
-Obj remain = x4309833319;
+Obj _3512808_37 = makeNative1(1, clofun46, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3513163_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513163_37) {
+Obj _3513164_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3513165_37 = PRIM_EQ(__symbolTable[105], _3513164_37);
+if (True == _3513165_37) {
+Obj _3513166_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513167_37 = PRIM_ISCONS(_3513166_37);
+if (True == _3513167_37) {
+Obj _3513168_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513169_37 = PRIM_CAR(_3513168_37);
+Obj act = _3513169_37;
+Obj _3513170_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3513171_37 = PRIM_CDR(_3513170_37);
+Obj remain = _3513171_37;
 R[1] = act;
 R[2] = remain;
 struct frame1 __curr = {
@@ -3157,31 +3157,31 @@ coraCall1(co, globalRef(__symbolTable[149]), closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577735);
+coraCall0(co, _3512808_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577735);
+coraCall0(co, _3512808_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x4310577735);
+coraCall0(co, _3512808_37);
 return;
 }
 }
 case 1:
 {
-Obj x4309833543= co->res;
+Obj _3513172_37= co->res;
 Obj act = R[1];
 Obj remain = R[2];
-Obj x4309833575 = makeCons(__symbolTable[135], x4309833543);
-Obj pat = x4309833575;
-Obj x4309833799 = makeCons(pat, closureRef(R[0], 2));
-Obj x4309833831 = makeCons(act, x4309833799);
+Obj _3513173_37 = makeCons(__symbolTable[135], _3513172_37);
+Obj pat = _3513173_37;
+Obj _3513174_37 = makeCons(pat, closureRef(R[0], 2));
+Obj _3513175_37 = makeCons(act, _3513174_37);
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[106]), remain, Nil, x4309833831);
+coraCall3(co, globalRef(__symbolTable[106]), remain, Nil, _3513175_37);
 return;
 }
 }
@@ -3191,15 +3191,15 @@ static void clofun46(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4310359975 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x4310359975) {
-Obj x4309831751 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x4309831751;
-Obj x4309831911 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x4309831911;
-Obj x4309832071 = makeCons(x, closureRef(R[0], 1));
+Obj _3513159_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3513159_37) {
+Obj _3513160_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3513160_37;
+Obj _3513161_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3513161_37;
+Obj _3513162_37 = makeCons(x, closureRef(R[0], 1));
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[106]), y, x4309832071, closureRef(R[0], 2));
+coraCall3(co, globalRef(__symbolTable[106]), y, _3513162_37, closureRef(R[0], 2));
 return;
 } else {
 co->ctx.sp = R;
@@ -3240,35 +3240,35 @@ return;
 }
 case 1:
 {
-Obj x4310357351= co->res;
+Obj _3513145_37= co->res;
 Obj value = R[1];
-Obj rules = x4310357351;
-Obj x4306760007 = makeNative1(2, clofun43, 1, 2, value, rules);
-Obj x4310358471 = PRIM_ISCONS(value);
-if (True == x4310358471) {
-Obj x4310358759 = PRIM_CAR(value);
-Obj x4310358791 = PRIM_EQ(__symbolTable[152], x4310358759);
-Obj x4310358823 = primNot(x4310358791);
-if (True == x4310358823) {
+Obj rules = _3513145_37;
+Obj _3512858_37 = makeNative1(2, clofun43, 1, 2, value, rules);
+Obj _3513152_37 = PRIM_ISCONS(value);
+if (True == _3513152_37) {
+Obj _3513153_37 = PRIM_CAR(value);
+Obj _3513154_37 = PRIM_EQ(__symbolTable[152], _3513153_37);
+Obj _3513155_37 = primNot(_3513154_37);
+if (True == _3513155_37) {
 co->ctx.sp = R;
-coraCall1(co, x4306760007, True);
+coraCall1(co, _3512858_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306760007, False);
+coraCall1(co, _3512858_37, False);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306760007, False);
+coraCall1(co, _3512858_37, False);
 return;
 }
 }
 case 2:
 {
-Obj x4310357191= co->res;
+Obj _3513144_37= co->res;
 Obj exp = R[1];
-Obj value = x4310357191;
+Obj value = _3513144_37;
 R[1] = value;
 struct frame1 __curr = {
 .fn = clofun44,
@@ -3282,7 +3282,7 @@ return;
 }
 case 3:
 {
-Obj x4310357159= co->res;
+Obj _3513143_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
 struct frame1 __curr = {
@@ -3292,7 +3292,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[138]), x4310357159);
+coraCall1(co, globalRef(__symbolTable[138]), _3513143_37);
 return;
 }
 }
@@ -3302,10 +3302,10 @@ static void clofun43(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4306760167 = R[1];
-if (True == x4306760167) {
-Obj x4310357703 = primGenSym();
-Obj val = x4310357703;
+Obj _3512859_37 = R[1];
+if (True == _3512859_37) {
+Obj _3513146_37 = primGenSym();
+Obj val = _3513146_37;
 R[1] = val;
 struct frame1 __curr = {
 .fn = clofun43,
@@ -3324,13 +3324,13 @@ return;
 }
 case 1:
 {
-Obj x4310358055= co->res;
+Obj _3513147_37= co->res;
 Obj val = R[1];
-Obj x4310358087 = makeCons(x4310358055, Nil);
-Obj x4310358119 = makeCons(closureRef(R[0], 0), x4310358087);
-Obj x4310358151 = makeCons(val, x4310358119);
-Obj x4310358183 = makeCons(__symbolTable[129], x4310358151);
-coraReturn(co, x4310358183);
+Obj _3513148_37 = makeCons(_3513147_37, Nil);
+Obj _3513149_37 = makeCons(closureRef(R[0], 0), _3513148_37);
+Obj _3513150_37 = makeCons(val, _3513149_37);
+Obj _3513151_37 = makeCons(__symbolTable[129], _3513150_37);
+coraReturn(co, _3513151_37);
 return;
 }
 }
@@ -3356,26 +3356,26 @@ return;
 }
 case 1:
 {
-Obj x4310356679= co->res;
-Obj x4306759847 = R[1];
-if (True == x4310356679) {
+Obj _3513141_37= co->res;
+Obj _3512856_37 = R[1];
+if (True == _3513141_37) {
 co->ctx.sp = R;
-coraCall1(co, x4306759847, True);
+coraCall1(co, _3512856_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306759847, False);
+coraCall1(co, _3512856_37, False);
 return;
 }
 }
 case 2:
 {
-Obj x4310356423= co->res;
+Obj _3513139_37= co->res;
 Obj rules = R[1];
-Obj x4306759847 = R[2];
-if (True == x4310356423) {
-Obj x4310356647 = PRIM_CDR(rules);
-R[1] = x4306759847;
+Obj _3512856_37 = R[2];
+if (True == _3513139_37) {
+Obj _3513140_37 = PRIM_CDR(rules);
+R[1] = _3512856_37;
 struct frame1 __curr = {
 .fn = clofun42,
 .label = 1,
@@ -3383,28 +3383,28 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[151]), x4310356647);
+coraCall1(co, globalRef(__symbolTable[151]), _3513140_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306759847, False);
+coraCall1(co, _3512856_37, False);
 return;
 }
 }
 case 3:
 {
-Obj x4310513447= co->res;
+Obj _3513121_37= co->res;
 Obj value = R[1];
 Obj rules = R[2];
-if (True == x4310513447) {
-Obj x4310513639 = makeCons(makeCString("no match-help found!"), Nil);
-Obj x4310513671 = makeCons(__symbolTable[127], x4310513639);
-coraReturn(co, x4310513671);
+if (True == _3513121_37) {
+Obj _3513122_37 = makeCons(makeCString("no match-help found!"), Nil);
+Obj _3513123_37 = makeCons(__symbolTable[127], _3513122_37);
+coraReturn(co, _3513123_37);
 return;
 } else {
-Obj x4306759847 = makeNative1(3, clofun41, 1, 2, value, rules);
+Obj _3512856_37 = makeNative1(3, clofun41, 1, 2, value, rules);
 R[1] = rules;
-R[2] = x4306759847;
+R[2] = _3512856_37;
 struct frame1 __curr = {
 .fn = clofun42,
 .label = 2,
@@ -3423,12 +3423,12 @@ static void clofun41(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4306759879 = R[1];
-if (True == x4306759879) {
-Obj x4310514023 = PRIM_CAR(closureRef(R[0], 1));
-Obj pat = x4310514023;
-Obj x4310514183 = primGenSym();
-Obj cc = x4310514183;
+Obj _3512857_37 = R[1];
+if (True == _3512857_37) {
+Obj _3513124_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj pat = _3513124_37;
+Obj _3513125_37 = primGenSym();
+Obj cc = _3513125_37;
 R[1] = pat;
 R[2] = cc;
 struct frame1 __curr = {
@@ -3448,27 +3448,27 @@ return;
 }
 case 1:
 {
-Obj x4310515047= co->res;
+Obj _3513131_37= co->res;
 Obj curr = R[1];
 Obj cc = R[2];
-Obj rest = x4310515047;
-Obj x4310515463 = makeCons(rest, Nil);
-Obj x4310515495 = makeCons(Nil, x4310515463);
-Obj x4310515527 = makeCons(__symbolTable[140], x4310515495);
-Obj x4310515623 = makeCons(curr, Nil);
-Obj x4310515655 = makeCons(x4310515527, x4310515623);
-Obj x4310515687 = makeCons(cc, x4310515655);
-Obj x4310355975 = makeCons(__symbolTable[129], x4310515687);
-coraReturn(co, x4310355975);
+Obj rest = _3513131_37;
+Obj _3513132_37 = makeCons(rest, Nil);
+Obj _3513133_37 = makeCons(Nil, _3513132_37);
+Obj _3513134_37 = makeCons(__symbolTable[140], _3513133_37);
+Obj _3513135_37 = makeCons(curr, Nil);
+Obj _3513136_37 = makeCons(_3513134_37, _3513135_37);
+Obj _3513137_37 = makeCons(cc, _3513136_37);
+Obj _3513138_37 = makeCons(__symbolTable[129], _3513137_37);
+coraReturn(co, _3513138_37);
 return;
 }
 case 2:
 {
-Obj x4310514663= co->res;
+Obj _3513128_37= co->res;
 Obj cc = R[1];
-Obj curr = x4310514663;
-Obj x4310514983 = PRIM_CDR(closureRef(R[0], 1));
-Obj x4310515015 = PRIM_CDR(x4310514983);
+Obj curr = _3513128_37;
+Obj _3513129_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3513130_37 = PRIM_CDR(_3513129_37);
 R[1] = curr;
 R[2] = cc;
 struct frame1 __curr = {
@@ -3478,12 +3478,12 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall2(co, globalRef(__symbolTable[109]), closureRef(R[0], 0), x4310515015);
+coraCall2(co, globalRef(__symbolTable[109]), closureRef(R[0], 0), _3513130_37);
 return;
 }
 case 3:
 {
-Obj x4310514631= co->res;
+Obj _3513127_37= co->res;
 Obj action = R[1];
 Obj cc = R[2];
 R[1] = cc;
@@ -3494,15 +3494,15 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[117]), x4310514631, closureRef(R[0], 0), action, cc);
+coraCall4(co, globalRef(__symbolTable[117]), _3513127_37, closureRef(R[0], 0), action, cc);
 return;
 }
 case 4:
 {
-Obj x4310514343= co->res;
+Obj _3513126_37= co->res;
 Obj pat = R[1];
 Obj cc = R[2];
-Obj action = x4310514343;
+Obj action = _3513126_37;
 R[1] = action;
 R[2] = cc;
 struct frame1 __curr = {
@@ -3524,12 +3524,12 @@ case 0:
 {
 Obj rules = R[1];
 Obj cc = R[2];
-Obj x4310581159 = PRIM_CDR(rules);
-Obj x4310581191 = PRIM_CAR(x4310581159);
-Obj action = x4310581191;
-Obj x4306759783 = makeNative1(2, clofun39, 1, 2, cc, action);
+Obj _3513108_37 = PRIM_CDR(rules);
+Obj _3513109_37 = PRIM_CAR(_3513108_37);
+Obj action = _3513109_37;
+Obj _3512854_37 = makeNative1(2, clofun39, 1, 2, cc, action);
 R[1] = action;
-R[2] = x4306759783;
+R[2] = _3512854_37;
 struct frame1 __curr = {
 .fn = clofun40,
 .label = 1,
@@ -3542,24 +3542,24 @@ return;
 }
 case 1:
 {
-Obj x4310512711= co->res;
+Obj _3513117_37= co->res;
 Obj action = R[1];
-Obj x4306759783 = R[2];
-if (True == x4310512711) {
-Obj x4310512935 = PRIM_CAR(action);
-Obj x4310512967 = PRIM_EQ(x4310512935, __symbolTable[110]);
-if (True == x4310512967) {
+Obj _3512854_37 = R[2];
+if (True == _3513117_37) {
+Obj _3513118_37 = PRIM_CAR(action);
+Obj _3513119_37 = PRIM_EQ(_3513118_37, __symbolTable[110]);
+if (True == _3513119_37) {
 co->ctx.sp = R;
-coraCall1(co, x4306759783, True);
+coraCall1(co, _3512854_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306759783, False);
+coraCall1(co, _3512854_37, False);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306759783, False);
+coraCall1(co, _3512854_37, False);
 return;
 }
 }
@@ -3570,8 +3570,8 @@ static void clofun39(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4306759815 = R[1];
-if (True == x4306759815) {
+Obj _3512855_37 = R[1];
+if (True == _3512855_37) {
 struct frame1 __curr = {
 .fn = clofun39,
 .label = 2,
@@ -3588,20 +3588,20 @@ return;
 }
 case 1:
 {
-Obj x4310512167= co->res;
-Obj x4310511975 = R[1];
-Obj x4310512327 = makeCons(closureRef(R[0], 0), Nil);
-Obj x4310512359 = makeCons(x4310512327, Nil);
-Obj x4310512391 = makeCons(x4310512167, x4310512359);
-Obj x4310512455 = makeCons(x4310511975, x4310512391);
-Obj x4310512487 = makeCons(__symbolTable[126], x4310512455);
-coraReturn(co, x4310512487);
+Obj _3513111_37= co->res;
+Obj _3513110_37 = R[1];
+Obj _3513112_37 = makeCons(closureRef(R[0], 0), Nil);
+Obj _3513113_37 = makeCons(_3513112_37, Nil);
+Obj _3513114_37 = makeCons(_3513111_37, _3513113_37);
+Obj _3513115_37 = makeCons(_3513110_37, _3513114_37);
+Obj _3513116_37 = makeCons(__symbolTable[126], _3513115_37);
+coraReturn(co, _3513116_37);
 return;
 }
 case 2:
 {
-Obj x4310511975= co->res;
-R[1] = x4310511975;
+Obj _3513110_37= co->res;
+R[1] = _3513110_37;
 struct frame1 __curr = {
 .fn = clofun39,
 .label = 1,
@@ -3639,36 +3639,36 @@ return;
 }
 case 1:
 {
-Obj x4310580519= co->res;
+Obj _3513106_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[127]), x4310580519);
+coraCall1(co, globalRef(__symbolTable[127]), _3513106_37);
 return;
 }
 case 2:
 {
-Obj x4310578823= co->res;
+Obj _3513093_37= co->res;
 Obj expr = R[1];
 Obj body = R[2];
 Obj cc = R[3];
 Obj pat = R[4];
-if (True == x4310578823) {
-Obj x4310579047 = PRIM_CAR(pat);
-Obj x4310579079 = PRIM_EQ(x4310579047, __symbolTable[139]);
-if (True == x4310579079) {
-Obj x4310579495 = makeCons(expr, Nil);
-Obj x4310579527 = makeCons(pat, x4310579495);
-Obj x4310579559 = makeCons(__symbolTable[113], x4310579527);
-Obj x4310579815 = makeCons(cc, Nil);
-Obj x4310579847 = makeCons(x4310579815, Nil);
-Obj x4310579879 = makeCons(body, x4310579847);
-Obj x4310579911 = makeCons(x4310579559, x4310579879);
-Obj x4310579943 = makeCons(__symbolTable[126], x4310579911);
-coraReturn(co, x4310579943);
+if (True == _3513093_37) {
+Obj _3513094_37 = PRIM_CAR(pat);
+Obj _3513095_37 = PRIM_EQ(_3513094_37, __symbolTable[139]);
+if (True == _3513095_37) {
+Obj _3513096_37 = makeCons(expr, Nil);
+Obj _3513097_37 = makeCons(pat, _3513096_37);
+Obj _3513098_37 = makeCons(__symbolTable[113], _3513097_37);
+Obj _3513099_37 = makeCons(cc, Nil);
+Obj _3513100_37 = makeCons(_3513099_37, Nil);
+Obj _3513101_37 = makeCons(body, _3513100_37);
+Obj _3513102_37 = makeCons(_3513098_37, _3513101_37);
+Obj _3513103_37 = makeCons(__symbolTable[126], _3513102_37);
+coraReturn(co, _3513103_37);
 return;
 } else {
-Obj x4310580167 = PRIM_CAR(pat);
-Obj x4310580199 = PRIM_EQ(x4310580167, __symbolTable[152]);
-if (True == x4310580199) {
+Obj _3513104_37 = PRIM_CAR(pat);
+Obj _3513105_37 = PRIM_EQ(_3513104_37, __symbolTable[152]);
+if (True == _3513105_37) {
 co->ctx.sp = R;
 coraCall4(co, globalRef(__symbolTable[118]), pat, expr, body, cc);
 return;
@@ -3692,36 +3692,36 @@ return;
 }
 case 3:
 {
-Obj x4308369767= co->res;
+Obj _3513078_37= co->res;
 Obj expr = R[1];
 Obj body = R[2];
 Obj cc = R[3];
 Obj pat = R[4];
-if (True == x4308369767) {
-Obj x4308369927 = PRIM_EQ(pat, expr);
-if (True == x4308369927) {
+if (True == _3513078_37) {
+Obj _3513079_37 = PRIM_EQ(pat, expr);
+if (True == _3513079_37) {
 coraReturn(co, body);
 return;
 } else {
-Obj x4310577543 = makeCons(expr, Nil);
-Obj x4310577575 = makeCons(pat, x4310577543);
-Obj x4310577607 = makeCons(__symbolTable[113], x4310577575);
-Obj x4310577863 = makeCons(cc, Nil);
-Obj x4310577895 = makeCons(x4310577863, Nil);
-Obj x4310577927 = makeCons(body, x4310577895);
-Obj x4310577959 = makeCons(x4310577607, x4310577927);
-Obj x4310577991 = makeCons(__symbolTable[126], x4310577959);
-coraReturn(co, x4310577991);
+Obj _3513080_37 = makeCons(expr, Nil);
+Obj _3513081_37 = makeCons(pat, _3513080_37);
+Obj _3513082_37 = makeCons(__symbolTable[113], _3513081_37);
+Obj _3513083_37 = makeCons(cc, Nil);
+Obj _3513084_37 = makeCons(_3513083_37, Nil);
+Obj _3513085_37 = makeCons(body, _3513084_37);
+Obj _3513086_37 = makeCons(_3513082_37, _3513085_37);
+Obj _3513087_37 = makeCons(__symbolTable[126], _3513086_37);
+coraReturn(co, _3513087_37);
 return;
 }
 } else {
-Obj x4310578151 = primIsSymbol(pat);
-if (True == x4310578151) {
-Obj x4310578535 = makeCons(body, Nil);
-Obj x4310578567 = makeCons(expr, x4310578535);
-Obj x4310578631 = makeCons(pat, x4310578567);
-Obj x4310578663 = makeCons(__symbolTable[129], x4310578631);
-coraReturn(co, x4310578663);
+Obj _3513088_37 = primIsSymbol(pat);
+if (True == _3513088_37) {
+Obj _3513089_37 = makeCons(body, Nil);
+Obj _3513090_37 = makeCons(expr, _3513089_37);
+Obj _3513091_37 = makeCons(pat, _3513090_37);
+Obj _3513092_37 = makeCons(__symbolTable[129], _3513091_37);
+coraReturn(co, _3513092_37);
 return;
 } else {
 R[1] = expr;
@@ -3761,12 +3761,12 @@ return;
 }
 case 1:
 {
-Obj x4308369479= co->res;
+Obj _3513075_37= co->res;
 Obj x = R[1];
-if (True == x4308369479) {
-Obj x4308369703 = primIsSymbol(x);
-Obj x4308369735 = primNot(x4308369703);
-if (True == x4308369735) {
+if (True == _3513075_37) {
+Obj _3513076_37 = primIsSymbol(x);
+Obj _3513077_37 = primNot(_3513076_37);
+if (True == _3513077_37) {
 coraReturn(co, True);
 return;
 } else {
@@ -3805,40 +3805,40 @@ return;
 }
 case 1:
 {
-Obj x4308444327= co->res;
+Obj _3513054_37= co->res;
 Obj x = R[1];
 Obj body = R[2];
 Obj cc = R[3];
 Obj expr = R[4];
-Obj y = x4308444327;
-Obj x4306804711 = makeNative1(3, clofun35, 1, 5, x, y, expr, body, cc);
-Obj x4308446471 = PRIM_ISCONS(expr);
-if (True == x4308446471) {
-Obj x4308446695 = PRIM_CAR(expr);
-Obj x4308446727 = PRIM_EQ(x4308446695, __symbolTable[152]);
-if (True == x4308446727) {
+Obj y = _3513054_37;
+Obj _3512852_37 = makeNative1(3, clofun35, 1, 5, x, y, expr, body, cc);
+Obj _3513071_37 = PRIM_ISCONS(expr);
+if (True == _3513071_37) {
+Obj _3513072_37 = PRIM_CAR(expr);
+Obj _3513073_37 = PRIM_EQ(_3513072_37, __symbolTable[152]);
+if (True == _3513073_37) {
 co->ctx.sp = R;
-coraCall1(co, x4306804711, True);
+coraCall1(co, _3512852_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306804711, False);
+coraCall1(co, _3512852_37, False);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306804711, False);
+coraCall1(co, _3512852_37, False);
 return;
 }
 }
 case 2:
 {
-Obj x4308444167= co->res;
+Obj _3513053_37= co->res;
 Obj pat = R[1];
 Obj body = R[2];
 Obj cc = R[3];
 Obj expr = R[4];
-Obj x = x4308444167;
+Obj x = _3513053_37;
 R[1] = x;
 R[2] = body;
 R[3] = cc;
@@ -3860,8 +3860,8 @@ static void clofun35(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4306759751 = R[1];
-if (True == x4306759751) {
+Obj _3512853_37 = R[1];
+if (True == _3512853_37) {
 struct frame1 __curr = {
 .fn = clofun35,
 .label = 3,
@@ -3872,14 +3872,14 @@ vecAppend(&co->callstack, __curr);
 coraCall1(co, globalRef(__symbolTable[160]), closureRef(R[0], 2));
 return;
 } else {
-Obj x4308445287 = makeCons(closureRef(R[0], 2), Nil);
-Obj x4308445319 = makeCons(__symbolTable[116], x4308445287);
-Obj x4308445607 = makeCons(closureRef(R[0], 2), Nil);
-Obj x4308445639 = makeCons(__symbolTable[115], x4308445607);
-Obj x4308445863 = makeCons(closureRef(R[0], 2), Nil);
-Obj x4308445895 = makeCons(__symbolTable[114], x4308445863);
-R[1] = x4308445639;
-R[2] = x4308445319;
+Obj _3513058_37 = makeCons(closureRef(R[0], 2), Nil);
+Obj _3513059_37 = makeCons(__symbolTable[116], _3513058_37);
+Obj _3513060_37 = makeCons(closureRef(R[0], 2), Nil);
+Obj _3513061_37 = makeCons(__symbolTable[115], _3513060_37);
+Obj _3513062_37 = makeCons(closureRef(R[0], 2), Nil);
+Obj _3513063_37 = makeCons(__symbolTable[114], _3513062_37);
+R[1] = _3513061_37;
+R[2] = _3513059_37;
 struct frame1 __curr = {
 .fn = clofun35,
 .label = 5,
@@ -3887,23 +3887,23 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 1), x4308445895, closureRef(R[0], 3), closureRef(R[0], 4));
+coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 1), _3513063_37, closureRef(R[0], 3), closureRef(R[0], 4));
 return;
 }
 }
 case 1:
 {
-Obj x4308444999= co->res;
+Obj _3513057_37= co->res;
 Obj e1 = R[1];
 co->ctx.sp = R;
-coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 0), e1, x4308444999, closureRef(R[0], 4));
+coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 0), e1, _3513057_37, closureRef(R[0], 4));
 return;
 }
 case 2:
 {
-Obj x4308444839= co->res;
+Obj _3513056_37= co->res;
 Obj e1 = R[1];
-Obj e2 = x4308444839;
+Obj e2 = _3513056_37;
 R[1] = e1;
 struct frame1 __curr = {
 .fn = clofun35,
@@ -3917,8 +3917,8 @@ return;
 }
 case 3:
 {
-Obj x4308444679= co->res;
-Obj e1 = x4308444679;
+Obj _3513055_37= co->res;
+Obj e1 = _3513055_37;
 R[1] = e1;
 struct frame1 __curr = {
 .fn = clofun35,
@@ -3932,22 +3932,22 @@ return;
 }
 case 4:
 {
-Obj x4308445959= co->res;
-Obj x4308445319 = R[1];
-Obj x4308446119 = makeCons(closureRef(R[0], 4), Nil);
-Obj x4308446151 = makeCons(x4308446119, Nil);
-Obj x4308446183 = makeCons(x4308445959, x4308446151);
-Obj x4308446215 = makeCons(x4308445319, x4308446183);
-Obj x4308446247 = makeCons(__symbolTable[126], x4308446215);
-coraReturn(co, x4308446247);
+Obj _3513065_37= co->res;
+Obj _3513059_37 = R[1];
+Obj _3513066_37 = makeCons(closureRef(R[0], 4), Nil);
+Obj _3513067_37 = makeCons(_3513066_37, Nil);
+Obj _3513068_37 = makeCons(_3513065_37, _3513067_37);
+Obj _3513069_37 = makeCons(_3513059_37, _3513068_37);
+Obj _3513070_37 = makeCons(__symbolTable[126], _3513069_37);
+coraReturn(co, _3513070_37);
 return;
 }
 case 5:
 {
-Obj x4308445927= co->res;
-Obj x4308445639 = R[1];
-Obj x4308445319 = R[2];
-R[1] = x4308445319;
+Obj _3513064_37= co->res;
+Obj _3513061_37 = R[1];
+Obj _3513059_37 = R[2];
+R[1] = _3513059_37;
 struct frame1 __curr = {
 .fn = clofun35,
 .label = 4,
@@ -3955,7 +3955,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 0), x4308445639, x4308445927, closureRef(R[0], 4));
+coraCall4(co, globalRef(__symbolTable[117]), closureRef(R[0], 0), _3513061_37, _3513064_37, closureRef(R[0], 4));
 return;
 }
 }
@@ -3966,9 +3966,9 @@ static void clofun34(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308443783 = PRIM_CDR(exp);
+Obj _3513051_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[120]), x4308443783);
+coraCall1(co, globalRef(__symbolTable[120]), _3513051_37);
 return;
 }
 }
@@ -3979,7 +3979,7 @@ static void clofun33(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj pat = R[1];
-Obj x4308463175 = PRIM_CDR(pat);
+Obj _3513041_37 = PRIM_CDR(pat);
 R[1] = pat;
 struct frame1 __curr = {
 .fn = clofun33,
@@ -3988,31 +3988,31 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4308463175);
+coraCall1(co, globalRef(__symbolTable[161]), _3513041_37);
 return;
 }
 case 1:
 {
-Obj x4308443303= co->res;
-Obj x4308463527 = R[1];
-Obj x4308443335 = makeCons(x4308443303, Nil);
-Obj x4308443367 = makeCons(x4308463527, x4308443335);
-Obj x4308443399 = makeCons(__symbolTable[152], x4308443367);
-coraReturn(co, x4308443399);
+Obj _3513046_37= co->res;
+Obj _3513044_37 = R[1];
+Obj _3513047_37 = makeCons(_3513046_37, Nil);
+Obj _3513048_37 = makeCons(_3513044_37, _3513047_37);
+Obj _3513049_37 = makeCons(__symbolTable[152], _3513048_37);
+coraReturn(co, _3513049_37);
 return;
 }
 case 2:
 {
-Obj x4308463207= co->res;
+Obj _3513042_37= co->res;
 Obj pat = R[1];
-if (True == x4308463207) {
-Obj x4308463303 = PRIM_CAR(pat);
-coraReturn(co, x4308463303);
+if (True == _3513042_37) {
+Obj _3513043_37 = PRIM_CAR(pat);
+coraReturn(co, _3513043_37);
 return;
 } else {
-Obj x4308463527 = PRIM_CAR(pat);
-Obj x4308443271 = PRIM_CDR(pat);
-R[1] = x4308463527;
+Obj _3513044_37 = PRIM_CAR(pat);
+Obj _3513045_37 = PRIM_CDR(pat);
+R[1] = _3513044_37;
 struct frame1 __curr = {
 .fn = clofun33,
 .label = 1,
@@ -4020,7 +4020,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[120]), x4308443271);
+coraCall1(co, globalRef(__symbolTable[120]), _3513045_37);
 return;
 }
 }
@@ -4032,13 +4032,13 @@ static void clofun32(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4308462567 = PRIM_EQ(x, True);
-if (True == x4308462567) {
+Obj _3513038_37 = PRIM_EQ(x, True);
+if (True == _3513038_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x4308462727 = PRIM_EQ(x, False);
-if (True == x4308462727) {
+Obj _3513039_37 = PRIM_EQ(x, False);
+if (True == _3513039_37) {
 coraReturn(co, True);
 return;
 } else {
@@ -4055,9 +4055,9 @@ static void clofun31(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308462183 = PRIM_CDR(exp);
+Obj _3513036_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[123]), x4308462183);
+coraCall1(co, globalRef(__symbolTable[123]), _3513036_37);
 return;
 }
 }
@@ -4068,18 +4068,18 @@ static void clofun30(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj l = R[1];
-Obj x4308460647 = PRIM_EQ(Nil, l);
-if (True == x4308460647) {
+Obj _3513024_37 = PRIM_EQ(Nil, l);
+if (True == _3513024_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x4308460871 = PRIM_CAR(l);
-Obj x4308460903 = PRIM_EQ(x4308460871, False);
-if (True == x4308460903) {
+Obj _3513025_37 = PRIM_CAR(l);
+Obj _3513026_37 = PRIM_EQ(_3513025_37, False);
+if (True == _3513026_37) {
 coraReturn(co, False);
 return;
 } else {
-Obj x4308461127 = PRIM_CDR(l);
+Obj _3513027_37 = PRIM_CDR(l);
 R[1] = l;
 struct frame1 __curr = {
 .fn = clofun30,
@@ -4088,27 +4088,27 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[123]), x4308461127);
+coraCall1(co, globalRef(__symbolTable[123]), _3513027_37);
 return;
 }
 }
 }
 case 1:
 {
-Obj x4308461159= co->res;
+Obj _3513028_37= co->res;
 Obj l = R[1];
-Obj more = x4308461159;
-Obj x4308461319 = PRIM_EQ(more, False);
-if (True == x4308461319) {
+Obj more = _3513028_37;
+Obj _3513029_37 = PRIM_EQ(more, False);
+if (True == _3513029_37) {
 coraReturn(co, False);
 return;
 } else {
-Obj x4308461543 = PRIM_CAR(l);
-Obj x4308461703 = makeCons(False, Nil);
-Obj x4308461735 = makeCons(more, x4308461703);
-Obj x4308461767 = makeCons(x4308461543, x4308461735);
-Obj x4308461799 = makeCons(__symbolTable[126], x4308461767);
-coraReturn(co, x4308461799);
+Obj _3513030_37 = PRIM_CAR(l);
+Obj _3513031_37 = makeCons(False, Nil);
+Obj _3513032_37 = makeCons(more, _3513031_37);
+Obj _3513033_37 = makeCons(_3513030_37, _3513032_37);
+Obj _3513034_37 = makeCons(__symbolTable[126], _3513033_37);
+coraReturn(co, _3513034_37);
 return;
 }
 }
@@ -4120,9 +4120,9 @@ static void clofun29(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308460263 = PRIM_CDR(exp);
+Obj _3513022_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[125]), x4308460263);
+coraCall1(co, globalRef(__symbolTable[125]), _3513022_37);
 return;
 }
 }
@@ -4133,18 +4133,18 @@ static void clofun28(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj l = R[1];
-Obj x4308471015 = PRIM_EQ(l, Nil);
-if (True == x4308471015) {
+Obj _3513010_37 = PRIM_EQ(l, Nil);
+if (True == _3513010_37) {
 coraReturn(co, False);
 return;
 } else {
-Obj x4308471239 = PRIM_CAR(l);
-Obj x4308471271 = PRIM_EQ(x4308471239, True);
-if (True == x4308471271) {
+Obj _3513011_37 = PRIM_CAR(l);
+Obj _3513012_37 = PRIM_EQ(_3513011_37, True);
+if (True == _3513012_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x4308471495 = PRIM_CDR(l);
+Obj _3513013_37 = PRIM_CDR(l);
 R[1] = l;
 struct frame1 __curr = {
 .fn = clofun28,
@@ -4153,27 +4153,27 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[125]), x4308471495);
+coraCall1(co, globalRef(__symbolTable[125]), _3513013_37);
 return;
 }
 }
 }
 case 1:
 {
-Obj x4308471527= co->res;
+Obj _3513014_37= co->res;
 Obj l = R[1];
-Obj more = x4308471527;
-Obj x4308471687 = PRIM_EQ(more, True);
-if (True == x4308471687) {
+Obj more = _3513014_37;
+Obj _3513015_37 = PRIM_EQ(more, True);
+if (True == _3513015_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x4308459623 = PRIM_CAR(l);
-Obj x4308459783 = makeCons(more, Nil);
-Obj x4308459815 = makeCons(True, x4308459783);
-Obj x4308459847 = makeCons(x4308459623, x4308459815);
-Obj x4308459879 = makeCons(__symbolTable[126], x4308459847);
-coraReturn(co, x4308459879);
+Obj _3513016_37 = PRIM_CAR(l);
+Obj _3513017_37 = makeCons(more, Nil);
+Obj _3513018_37 = makeCons(True, _3513017_37);
+Obj _3513019_37 = makeCons(_3513016_37, _3513018_37);
+Obj _3513020_37 = makeCons(__symbolTable[126], _3513019_37);
+coraReturn(co, _3513020_37);
 return;
 }
 }
@@ -4185,12 +4185,12 @@ static void clofun27(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308469479 = PRIM_CDR(exp);
-Obj x4308469511 = PRIM_EQ(Nil, x4308469479);
-if (True == x4308469511) {
-Obj x4308469671 = makeCons(makeCString("no cond match"), Nil);
-Obj x4308469703 = makeCons(__symbolTable[127], x4308469671);
-coraReturn(co, x4308469703);
+Obj _3512996_37 = PRIM_CDR(exp);
+Obj _3512997_37 = PRIM_EQ(Nil, _3512996_37);
+if (True == _3512997_37) {
+Obj _3512998_37 = makeCons(makeCString("no cond match"), Nil);
+Obj _3512999_37 = makeCons(__symbolTable[127], _3512998_37);
+coraReturn(co, _3512999_37);
 return;
 } else {
 R[1] = exp;
@@ -4207,24 +4207,24 @@ return;
 }
 case 1:
 {
-Obj x4308470471= co->res;
-Obj x4308470247 = R[1];
-Obj x4308470087 = R[2];
-Obj x4308470503 = makeCons(__symbolTable[128], x4308470471);
-Obj x4308470535 = makeCons(x4308470503, Nil);
-Obj x4308470567 = makeCons(x4308470247, x4308470535);
-Obj x4308470599 = makeCons(x4308470087, x4308470567);
-Obj x4308470631 = makeCons(__symbolTable[126], x4308470599);
-coraReturn(co, x4308470631);
+Obj _3513003_37= co->res;
+Obj _3513002_37 = R[1];
+Obj _3513001_37 = R[2];
+Obj _3513004_37 = makeCons(__symbolTable[128], _3513003_37);
+Obj _3513005_37 = makeCons(_3513004_37, Nil);
+Obj _3513006_37 = makeCons(_3513002_37, _3513005_37);
+Obj _3513007_37 = makeCons(_3513001_37, _3513006_37);
+Obj _3513008_37 = makeCons(__symbolTable[126], _3513007_37);
+coraReturn(co, _3513008_37);
 return;
 }
 case 2:
 {
-Obj x4308470247= co->res;
+Obj _3513002_37= co->res;
 Obj exp = R[1];
-Obj x4308470087 = R[2];
-R[1] = x4308470247;
-R[2] = x4308470087;
+Obj _3513001_37 = R[2];
+R[1] = _3513002_37;
+R[2] = _3513001_37;
 struct frame1 __curr = {
 .fn = clofun27,
 .label = 1,
@@ -4237,12 +4237,12 @@ return;
 }
 case 3:
 {
-Obj x4308469863= co->res;
+Obj _3513000_37= co->res;
 Obj exp = R[1];
-Obj curr = x4308469863;
-Obj x4308470087 = PRIM_CAR(curr);
+Obj curr = _3513000_37;
+Obj _3513001_37 = PRIM_CAR(curr);
 R[1] = exp;
-R[2] = x4308470087;
+R[2] = _3513001_37;
 struct frame1 __curr = {
 .fn = clofun27,
 .label = 2,
@@ -4261,9 +4261,9 @@ static void clofun26(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308469031 = PRIM_CDR(exp);
+Obj _3512994_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[130]), x4308469031);
+coraCall1(co, globalRef(__symbolTable[130]), _3512994_37);
 return;
 }
 }
@@ -4274,7 +4274,7 @@ static void clofun25(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308524199 = PRIM_CDR(exp);
+Obj _3512982_37 = PRIM_CDR(exp);
 R[1] = exp;
 struct frame1 __curr = {
 .fn = clofun25,
@@ -4283,28 +4283,28 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[161]), x4308524199);
+coraCall1(co, globalRef(__symbolTable[161]), _3512982_37);
 return;
 }
 case 1:
 {
-Obj x4308524967= co->res;
-Obj x4308524711 = R[1];
-Obj x4308524551 = R[2];
-Obj x4308524999 = makeCons(x4308524967, Nil);
-Obj x4308525031 = makeCons(x4308524711, x4308524999);
-Obj x4308468519 = makeCons(x4308524551, x4308525031);
-Obj x4308468551 = makeCons(__symbolTable[129], x4308468519);
-coraReturn(co, x4308468551);
+Obj _3512988_37= co->res;
+Obj _3512986_37 = R[1];
+Obj _3512985_37 = R[2];
+Obj _3512989_37 = makeCons(_3512988_37, Nil);
+Obj _3512990_37 = makeCons(_3512986_37, _3512989_37);
+Obj _3512991_37 = makeCons(_3512985_37, _3512990_37);
+Obj _3512992_37 = makeCons(__symbolTable[129], _3512991_37);
+coraReturn(co, _3512992_37);
 return;
 }
 case 2:
 {
-Obj x4308524935= co->res;
-Obj x4308524711 = R[1];
-Obj x4308524551 = R[2];
-R[1] = x4308524711;
-R[2] = x4308524551;
+Obj _3512987_37= co->res;
+Obj _3512986_37 = R[1];
+Obj _3512985_37 = R[2];
+R[1] = _3512986_37;
+R[2] = _3512985_37;
 struct frame1 __curr = {
 .fn = clofun25,
 .label = 1,
@@ -4312,16 +4312,16 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[130]), x4308524935);
+coraCall1(co, globalRef(__symbolTable[130]), _3512987_37);
 return;
 }
 case 3:
 {
-Obj x4308524711= co->res;
+Obj _3512986_37= co->res;
 Obj exp = R[1];
-Obj x4308524551 = R[2];
-R[1] = x4308524711;
-R[2] = x4308524551;
+Obj _3512985_37 = R[2];
+R[1] = _3512986_37;
+R[2] = _3512985_37;
 struct frame1 __curr = {
 .fn = clofun25,
 .label = 2,
@@ -4334,16 +4334,16 @@ return;
 }
 case 4:
 {
-Obj x4308524231= co->res;
+Obj _3512983_37= co->res;
 Obj exp = R[1];
-if (True == x4308524231) {
-Obj x4308524327 = PRIM_CAR(exp);
-coraReturn(co, x4308524327);
+if (True == _3512983_37) {
+Obj _3512984_37 = PRIM_CAR(exp);
+coraReturn(co, _3512984_37);
 return;
 } else {
-Obj x4308524551 = PRIM_CAR(exp);
+Obj _3512985_37 = PRIM_CAR(exp);
 R[1] = exp;
-R[2] = x4308524551;
+R[2] = _3512985_37;
 struct frame1 __curr = {
 .fn = clofun25,
 .label = 3,
@@ -4363,9 +4363,9 @@ static void clofun24(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4308523719 = PRIM_ISCONS(x);
-Obj x4308523751 = primNot(x4308523719);
-coraReturn(co, x4308523751);
+Obj _3512979_37 = PRIM_ISCONS(x);
+Obj _3512980_37 = primNot(_3512979_37);
+coraReturn(co, _3512980_37);
 return;
 }
 }
@@ -4377,17 +4377,17 @@ case 0:
 {
 Obj x = R[1];
 Obj l = R[2];
-Obj x4308522919 = PRIM_ISCONS(l);
-if (True == x4308522919) {
-Obj x4308523143 = PRIM_CAR(l);
-Obj x4308523175 = PRIM_EQ(x4308523143, x);
-if (True == x4308523175) {
+Obj _3512974_37 = PRIM_ISCONS(l);
+if (True == _3512974_37) {
+Obj _3512975_37 = PRIM_CAR(l);
+Obj _3512976_37 = PRIM_EQ(_3512975_37, x);
+if (True == _3512976_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x4308523335 = PRIM_CDR(l);
+Obj _3512977_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[132]), x, x4308523335);
+coraCall2(co, globalRef(__symbolTable[132]), x, _3512977_37);
 return;
 }
 } else {
@@ -4416,25 +4416,25 @@ return;
 }
 case 1:
 {
-Obj x4308522343= co->res;
-Obj x4308522183 = R[1];
-Obj x4308521895 = R[2];
-Obj x4308522375 = makeCons(x4308522343, Nil);
-Obj x4308522407 = makeCons(x4308522183, x4308522375);
-Obj x4308522439 = makeCons(__symbolTable[140], x4308522407);
-Obj x4308522471 = makeCons(x4308522439, Nil);
-Obj x4308522503 = makeCons(x4308521895, x4308522471);
-Obj x4308522535 = makeCons(__symbolTable[133], x4308522503);
-coraReturn(co, x4308522535);
+Obj _3512966_37= co->res;
+Obj _3512965_37 = R[1];
+Obj _3512964_37 = R[2];
+Obj _3512967_37 = makeCons(_3512966_37, Nil);
+Obj _3512968_37 = makeCons(_3512965_37, _3512967_37);
+Obj _3512969_37 = makeCons(__symbolTable[140], _3512968_37);
+Obj _3512970_37 = makeCons(_3512969_37, Nil);
+Obj _3512971_37 = makeCons(_3512964_37, _3512970_37);
+Obj _3512972_37 = makeCons(__symbolTable[133], _3512971_37);
+coraReturn(co, _3512972_37);
 return;
 }
 case 2:
 {
-Obj x4308522183= co->res;
+Obj _3512965_37= co->res;
 Obj exp = R[1];
-Obj x4308521895 = R[2];
-R[1] = x4308522183;
-R[2] = x4308521895;
+Obj _3512964_37 = R[2];
+R[1] = _3512965_37;
+R[2] = _3512964_37;
 struct frame1 __curr = {
 .fn = clofun22,
 .label = 1,
@@ -4447,10 +4447,10 @@ return;
 }
 case 3:
 {
-Obj x4308521895= co->res;
+Obj _3512964_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-R[2] = x4308521895;
+R[2] = _3512964_37;
 struct frame1 __curr = {
 .fn = clofun22,
 .label = 2,
@@ -4469,9 +4469,9 @@ static void clofun21(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4308521447 = PRIM_CDR(exp);
+Obj _3512962_37 = PRIM_CDR(exp);
 co->ctx.sp = R;
-coraCall1(co, globalRef(__symbolTable[153]), x4308521447);
+coraCall1(co, globalRef(__symbolTable[153]), _3512962_37);
 return;
 }
 }
@@ -4495,24 +4495,24 @@ return;
 }
 case 1:
 {
-Obj x4309712679= co->res;
-Obj x4309712583 = R[1];
-Obj x4309712295 = R[2];
-Obj x4309712711 = makeCons(x4309712583, x4309712679);
-Obj x4309712743 = makeCons(__symbolTable[140], x4309712711);
-Obj x4309712775 = makeCons(x4309712743, Nil);
-Obj x4309712807 = makeCons(x4309712295, x4309712775);
-Obj x4309712839 = makeCons(__symbolTable[144], x4309712807);
-coraReturn(co, x4309712839);
+Obj _3512954_37= co->res;
+Obj _3512953_37 = R[1];
+Obj _3512952_37 = R[2];
+Obj _3512955_37 = makeCons(_3512953_37, _3512954_37);
+Obj _3512956_37 = makeCons(__symbolTable[140], _3512955_37);
+Obj _3512957_37 = makeCons(_3512956_37, Nil);
+Obj _3512958_37 = makeCons(_3512952_37, _3512957_37);
+Obj _3512959_37 = makeCons(__symbolTable[144], _3512958_37);
+coraReturn(co, _3512959_37);
 return;
 }
 case 2:
 {
-Obj x4309712583= co->res;
+Obj _3512953_37= co->res;
 Obj exp = R[1];
-Obj x4309712295 = R[2];
-R[1] = x4309712583;
-R[2] = x4309712295;
+Obj _3512952_37 = R[2];
+R[1] = _3512953_37;
+R[2] = _3512952_37;
 struct frame1 __curr = {
 .fn = clofun20,
 .label = 1,
@@ -4525,12 +4525,12 @@ return;
 }
 case 3:
 {
-Obj x4309712231= co->res;
+Obj _3512950_37= co->res;
 Obj exp = R[1];
-Obj x4309712263 = makeCons(x4309712231, Nil);
-Obj x4309712295 = makeCons(__symbolTable[139], x4309712263);
+Obj _3512951_37 = makeCons(_3512950_37, Nil);
+Obj _3512952_37 = makeCons(__symbolTable[139], _3512951_37);
 R[1] = exp;
-R[2] = x4309712295;
+R[2] = _3512952_37;
 struct frame1 __curr = {
 .fn = clofun20,
 .label = 2,
@@ -4549,18 +4549,18 @@ static void clofun19(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4309709543 = PRIM_ISCONS(exp);
-if (True == x4309709543) {
-Obj x4309709767 = PRIM_CAR(exp);
-Obj x4309709799 = PRIM_EQ(x4309709767, globalRef(__symbolTable[145]));
-if (True == x4309709799) {
-Obj x4309709895 = PRIM_CDR(exp);
-coraReturn(co, x4309709895);
+Obj _3512932_37 = PRIM_ISCONS(exp);
+if (True == _3512932_37) {
+Obj _3512933_37 = PRIM_CAR(exp);
+Obj _3512934_37 = PRIM_EQ(_3512933_37, globalRef(__symbolTable[145]));
+if (True == _3512934_37) {
+Obj _3512935_37 = PRIM_CDR(exp);
+coraReturn(co, _3512935_37);
 return;
 } else {
-Obj x4309710119 = PRIM_CAR(exp);
-Obj x4309710151 = PRIM_EQ(x4309710119, __symbolTable[140]);
-if (True == x4309710151) {
+Obj _3512936_37 = PRIM_CAR(exp);
+Obj _3512937_37 = PRIM_EQ(_3512936_37, __symbolTable[140]);
+if (True == _3512937_37) {
 R[1] = exp;
 struct frame1 __curr = {
 .fn = clofun19,
@@ -4572,9 +4572,9 @@ vecAppend(&co->callstack, __curr);
 coraCall1(co, globalRef(__symbolTable[160]), exp);
 return;
 } else {
-Obj x4309710951 = PRIM_CAR(exp);
-Obj x4309710983 = PRIM_EQ(x4309710951, __symbolTable[139]);
-if (True == x4309710983) {
+Obj _3512944_37 = PRIM_CAR(exp);
+Obj _3512945_37 = PRIM_EQ(_3512944_37, __symbolTable[139]);
+if (True == _3512945_37) {
 coraReturn(co, exp);
 return;
 } else {
@@ -4598,19 +4598,19 @@ return;
 }
 case 1:
 {
-Obj x4309710631= co->res;
-Obj x4309710375 = R[1];
-Obj x4309710663 = makeCons(x4309710631, Nil);
-Obj x4309710695 = makeCons(x4309710375, x4309710663);
-Obj x4309710727 = makeCons(__symbolTable[140], x4309710695);
-coraReturn(co, x4309710727);
+Obj _3512940_37= co->res;
+Obj _3512938_37 = R[1];
+Obj _3512941_37 = makeCons(_3512940_37, Nil);
+Obj _3512942_37 = makeCons(_3512938_37, _3512941_37);
+Obj _3512943_37 = makeCons(__symbolTable[140], _3512942_37);
+coraReturn(co, _3512943_37);
 return;
 }
 case 2:
 {
-Obj x4309710599= co->res;
-Obj x4309710375 = R[1];
-R[1] = x4309710375;
+Obj _3512939_37= co->res;
+Obj _3512938_37 = R[1];
+R[1] = _3512938_37;
 struct frame1 __curr = {
 .fn = clofun19,
 .label = 1,
@@ -4618,14 +4618,14 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[141]), x4309710599);
+coraCall1(co, globalRef(__symbolTable[141]), _3512939_37);
 return;
 }
 case 3:
 {
-Obj x4309710375= co->res;
+Obj _3512938_37= co->res;
 Obj exp = R[1];
-R[1] = x4309710375;
+R[1] = _3512938_37;
 struct frame1 __curr = {
 .fn = clofun19,
 .label = 2,
@@ -4638,10 +4638,10 @@ return;
 }
 case 4:
 {
-Obj x4309711495= co->res;
+Obj _3512947_37= co->res;
 Obj exp = R[1];
 co->ctx.sp = R;
-coraCall1(co, makeNative1(2, clofun18, 1, 1, exp), x4309711495);
+coraCall1(co, makeNative1(2, clofun18, 1, 1, exp), _3512947_37);
 return;
 }
 }
@@ -4652,8 +4652,8 @@ static void clofun18(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp1 = R[1];
-Obj x4309711271 = PRIM_EQ(exp1, closureRef(R[0], 0));
-if (True == x4309711271) {
+Obj _3512946_37 = PRIM_EQ(exp1, closureRef(R[0], 0));
+if (True == _3512946_37) {
 co->ctx.sp = R;
 coraCall2(co, globalRef(__symbolTable[147]), globalRef(__symbolTable[141]), exp1);
 return;
@@ -4684,14 +4684,14 @@ case 0:
 {
 Obj exp = R[1];
 Obj macros = R[2];
-Obj x4309752615 = PRIM_EQ(Nil, macros);
-if (True == x4309752615) {
+Obj _3512922_37 = PRIM_EQ(Nil, macros);
+if (True == _3512922_37) {
 coraReturn(co, exp);
 return;
 } else {
-Obj x4309708871 = PRIM_CAR(macros);
+Obj _3512929_37 = PRIM_CAR(macros);
 co->ctx.sp = R;
-coraCall1(co, makeNative1(2, clofun15, 1, 2, macros, exp), x4309708871);
+coraCall1(co, makeNative1(2, clofun15, 1, 2, macros, exp), _3512929_37);
 return;
 }
 }
@@ -4703,24 +4703,24 @@ static void clofun15(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj item = R[1];
-Obj x4306804519 = makeNative1(2, clofun14, 1, 3, item, closureRef(R[0], 1), closureRef(R[0], 0));
-Obj x4309753479 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x4309753479) {
-Obj x4309753703 = PRIM_CAR(closureRef(R[0], 1));
-Obj x4309753799 = PRIM_CAR(item);
-Obj x4309753831 = PRIM_EQ(x4309753703, x4309753799);
-if (True == x4309753831) {
+Obj _3512850_37 = makeNative1(2, clofun14, 1, 3, item, closureRef(R[0], 1), closureRef(R[0], 0));
+Obj _3512925_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3512925_37) {
+Obj _3512926_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3512927_37 = PRIM_CAR(item);
+Obj _3512928_37 = PRIM_EQ(_3512926_37, _3512927_37);
+if (True == _3512928_37) {
 co->ctx.sp = R;
-coraCall1(co, x4306804519, True);
+coraCall1(co, _3512850_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306804519, False);
+coraCall1(co, _3512850_37, False);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall1(co, x4306804519, False);
+coraCall1(co, _3512850_37, False);
 return;
 }
 }
@@ -4731,16 +4731,16 @@ static void clofun14(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x4306804583 = R[1];
-if (True == x4306804583) {
-Obj x4309753095 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3512851_37 = R[1];
+if (True == _3512851_37) {
+Obj _3512923_37 = PRIM_CDR(closureRef(R[0], 0));
 co->ctx.sp = R;
-coraCall1(co, x4309753095, closureRef(R[0], 1));
+coraCall1(co, _3512923_37, closureRef(R[0], 1));
 return;
 } else {
-Obj x4309753255 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3512924_37 = PRIM_CDR(closureRef(R[0], 2));
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[143]), closureRef(R[0], 1), x4309753255);
+coraCall2(co, globalRef(__symbolTable[143]), closureRef(R[0], 1), _3512924_37);
 return;
 }
 }
@@ -4753,10 +4753,10 @@ case 0:
 {
 Obj n = R[1];
 Obj v = R[2];
-Obj x4309752167 = makeCons(n, v);
-Obj x4309752199 = makeCons(x4309752167, globalRef(__symbolTable[146]));
-Obj x4309752231 = primSet(co, __symbolTable[146], x4309752199);
-coraReturn(co, x4309752231);
+Obj _3512918_37 = makeCons(n, v);
+Obj _3512919_37 = makeCons(_3512918_37, globalRef(__symbolTable[146]));
+Obj _3512920_37 = primSet(co, __symbolTable[146], _3512919_37);
+coraReturn(co, _3512920_37);
 return;
 }
 }
@@ -4782,9 +4782,9 @@ case 0:
 Obj res = R[1];
 Obj f = R[2];
 Obj l = R[3];
-Obj x4309750503 = PRIM_ISCONS(l);
-if (True == x4309750503) {
-Obj x4309750791 = PRIM_CAR(l);
+Obj _3512908_37 = PRIM_ISCONS(l);
+if (True == _3512908_37) {
+Obj _3512909_37 = PRIM_CAR(l);
 R[1] = res;
 R[2] = l;
 R[3] = f;
@@ -4795,7 +4795,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, f, x4309750791);
+coraCall1(co, f, _3512909_37);
 return;
 } else {
 co->ctx.sp = R;
@@ -4805,14 +4805,14 @@ return;
 }
 case 1:
 {
-Obj x4309750823= co->res;
+Obj _3512910_37= co->res;
 Obj res = R[1];
 Obj l = R[2];
 Obj f = R[3];
-Obj x4309750855 = makeCons(x4309750823, res);
-Obj x4309750951 = PRIM_CDR(l);
+Obj _3512911_37 = makeCons(_3512910_37, res);
+Obj _3512912_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall3(co, globalRef(__symbolTable[148]), x4309750855, f, x4309750951);
+coraCall3(co, globalRef(__symbolTable[148]), _3512911_37, f, _3512912_37);
 return;
 }
 }
@@ -4824,13 +4824,13 @@ case 0:
 {
 Obj res = R[1];
 Obj l = R[2];
-Obj x4309798663 = PRIM_ISCONS(l);
-if (True == x4309798663) {
-Obj x4309798887 = PRIM_CAR(l);
-Obj x4309749767 = makeCons(x4309798887, res);
-Obj x4309749863 = PRIM_CDR(l);
+Obj _3512901_37 = PRIM_ISCONS(l);
+if (True == _3512901_37) {
+Obj _3512902_37 = PRIM_CAR(l);
+Obj _3512903_37 = makeCons(_3512902_37, res);
+Obj _3512904_37 = PRIM_CDR(l);
 co->ctx.sp = R;
-coraCall2(co, globalRef(__symbolTable[150]), x4309749767, x4309749863);
+coraCall2(co, globalRef(__symbolTable[150]), _3512903_37, _3512904_37);
 return;
 } else {
 coraReturn(co, res);
@@ -4845,8 +4845,8 @@ static void clofun9(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309798279 = PRIM_ISCONS(x);
-coraReturn(co, x4309798279);
+Obj _3512899_37 = PRIM_ISCONS(x);
+coraReturn(co, _3512899_37);
 return;
 }
 }
@@ -4857,11 +4857,11 @@ static void clofun8(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj exp = R[1];
-Obj x4309797383 = PRIM_ISCONS(exp);
-if (True == x4309797383) {
-Obj x4309797607 = PRIM_CAR(exp);
-Obj x4309797831 = PRIM_CDR(exp);
-R[1] = x4309797607;
+Obj _3512891_37 = PRIM_ISCONS(exp);
+if (True == _3512891_37) {
+Obj _3512892_37 = PRIM_CAR(exp);
+Obj _3512893_37 = PRIM_CDR(exp);
+R[1] = _3512892_37;
 struct frame1 __curr = {
 .fn = clofun8,
 .label = 1,
@@ -4869,7 +4869,7 @@ struct frame1 __curr = {
 .sp = co->ctx.sp,
 };
 vecAppend(&co->callstack, __curr);
-coraCall1(co, globalRef(__symbolTable[153]), x4309797831);
+coraCall1(co, globalRef(__symbolTable[153]), _3512893_37);
 return;
 } else {
 coraReturn(co, Nil);
@@ -4878,12 +4878,12 @@ return;
 }
 case 1:
 {
-Obj x4309797863= co->res;
-Obj x4309797607 = R[1];
-Obj x4309797895 = makeCons(x4309797863, Nil);
-Obj x4309797927 = makeCons(x4309797607, x4309797895);
-Obj x4309797959 = makeCons(__symbolTable[152], x4309797927);
-coraReturn(co, x4309797959);
+Obj _3512894_37= co->res;
+Obj _3512892_37 = R[1];
+Obj _3512895_37 = makeCons(_3512894_37, Nil);
+Obj _3512896_37 = makeCons(_3512892_37, _3512895_37);
+Obj _3512897_37 = makeCons(__symbolTable[152], _3512896_37);
+coraReturn(co, _3512897_37);
 return;
 }
 }
@@ -4894,10 +4894,10 @@ static void clofun7(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309796935 = PRIM_CDR(x);
-Obj x4309796967 = PRIM_CDR(x4309796935);
-Obj x4309796999 = PRIM_CDR(x4309796967);
-coraReturn(co, x4309796999);
+Obj _3512887_37 = PRIM_CDR(x);
+Obj _3512888_37 = PRIM_CDR(_3512887_37);
+Obj _3512889_37 = PRIM_CDR(_3512888_37);
+coraReturn(co, _3512889_37);
 return;
 }
 }
@@ -4908,11 +4908,11 @@ static void clofun6(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309796391 = PRIM_CDR(x);
-Obj x4309796423 = PRIM_CDR(x4309796391);
-Obj x4309796455 = PRIM_CDR(x4309796423);
-Obj x4309796487 = PRIM_CAR(x4309796455);
-coraReturn(co, x4309796487);
+Obj _3512882_37 = PRIM_CDR(x);
+Obj _3512883_37 = PRIM_CDR(_3512882_37);
+Obj _3512884_37 = PRIM_CDR(_3512883_37);
+Obj _3512885_37 = PRIM_CAR(_3512884_37);
+coraReturn(co, _3512885_37);
 return;
 }
 }
@@ -4923,10 +4923,10 @@ static void clofun5(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309795815 = PRIM_CDR(x);
-Obj x4309795847 = PRIM_CDR(x4309795815);
-Obj x4309795879 = PRIM_CAR(x4309795847);
-coraReturn(co, x4309795879);
+Obj _3512878_37 = PRIM_CDR(x);
+Obj _3512879_37 = PRIM_CDR(_3512878_37);
+Obj _3512880_37 = PRIM_CAR(_3512879_37);
+coraReturn(co, _3512880_37);
 return;
 }
 }
@@ -4937,9 +4937,9 @@ static void clofun4(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309795335 = PRIM_CDR(x);
-Obj x4309795367 = PRIM_CDR(x4309795335);
-coraReturn(co, x4309795367);
+Obj _3512875_37 = PRIM_CDR(x);
+Obj _3512876_37 = PRIM_CDR(_3512875_37);
+coraReturn(co, _3512876_37);
 return;
 }
 }
@@ -4950,9 +4950,9 @@ static void clofun3(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309794919 = PRIM_CAR(x);
-Obj x4309794951 = PRIM_CDR(x4309794919);
-coraReturn(co, x4309794951);
+Obj _3512872_37 = PRIM_CAR(x);
+Obj _3512873_37 = PRIM_CDR(_3512872_37);
+coraReturn(co, _3512873_37);
 return;
 }
 }
@@ -4963,9 +4963,9 @@ static void clofun2(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309802695 = PRIM_CAR(x);
-Obj x4309802727 = PRIM_CAR(x4309802695);
-coraReturn(co, x4309802727);
+Obj _3512869_37 = PRIM_CAR(x);
+Obj _3512870_37 = PRIM_CAR(_3512869_37);
+coraReturn(co, _3512870_37);
 return;
 }
 }
@@ -4976,9 +4976,9 @@ static void clofun1(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309802279 = PRIM_CDR(x);
-Obj x4309802311 = PRIM_CAR(x4309802279);
-coraReturn(co, x4309802311);
+Obj _3512866_37 = PRIM_CDR(x);
+Obj _3512867_37 = PRIM_CAR(_3512866_37);
+coraReturn(co, _3512867_37);
 return;
 }
 }
@@ -4989,8 +4989,8 @@ static void clofun0(struct Cora* co, int label, Obj *R) {
 case 0:
 {
 Obj x = R[1];
-Obj x4309801895 = PRIM_EQ(x, Nil);
-coraReturn(co, x4309801895);
+Obj _3512864_37 = PRIM_EQ(x, Nil);
+coraReturn(co, _3512864_37);
 return;
 }
 }
