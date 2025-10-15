@@ -1,8 +1,10 @@
-#include "runtime.h"
+#include "cora.h"
+#include "reader.h"
+#include <stdlib.h>
+#include <string.h>
 
 static void
-repl(struct Cora *co, FILE* stream) {
-	struct SexpReader r = { .co = co};
+repl(Cora *co, FILE* stream) {
 	int errCode = 0;
 
 	for (int i=0; ; i++) {
@@ -10,7 +12,7 @@ repl(struct Cora *co, FILE* stream) {
 			printf("%d #> ", i);
 		}
 
-		Obj exp = sexpRead(&r, stream, &errCode);
+		Obj exp = sexpRead(stream, &errCode);
 		if (errCode != 0) {
 			break;
 		}
@@ -19,29 +21,31 @@ repl(struct Cora *co, FILE* stream) {
 		/* sexpWrite(stdout, exp); */
 		/* printf("\n"); */
 
-		Obj fn = globalRef(intern("macroexpand"));
-		coraCall1(co, fn, exp);
+		Obj fn = coraSymbolGet(coraMakeSymbol("macroexpand"));
+		Obj args[1] = {exp};
+		coraCall(co, fn, 1, args);
 		coraRun(co);
-		exp = co->res;
+		exp = coraGetResult(co);
 
 		/* printf("after macro expand =="); */
 		/* sexpWrite(stdout, exp); */
 		/* printf(" --- %d %d\n", co->base, co->pos); */
 		/* printf("\n"); */
 
-		fn = globalRef(intern("cora/lib/eval#eval"));
-		coraCall2(co, fn, exp, Nil);
+		fn = coraSymbolGet(coraMakeSymbol("cora/lib/eval#eval"));
+		Obj _args[2] = {exp, Nil};
+		coraCall(co, fn, 2, _args);
 		coraRun(co);
 
 		if (stream == stdin) {
-			sexpWrite(stdout, co->res);
+			sexpWrite(stdout, coraGetResult(co));
 			printf("\n");
 		}
 	}
 }
 
 static void
-shebang(struct Cora *co, int argc, char *argv[]) {
+shebang(Cora *co, int argc, char *argv[]) {
 	FILE *f = fopen(argv[1], "r");
 	if (f == NULL) {
 		// TODO: what the fuck?
@@ -67,32 +71,33 @@ shebang(struct Cora *co, int argc, char *argv[]) {
 
 	Obj args = Nil;
 	for (int i=1; i<argc; i++) {
-		Obj arg = makeString(argv[i], strlen(argv[i]));
-		args = cons(arg, args);
+		Obj arg = coraMakeString(argv[i], strlen(argv[i]));
+		args = coraMakeCons(arg, args);
 	}
 	args = reverse(args);
-	primSet(co, intern("*command-line-args*"), args);
+	coraPrimSet(co, coraMakeSymbol("*command-line-args*"), args);
 
 	repl(co, f);
 }
 
-/* extern void entry(struct Cora *co, int label, Obj *R); */
-
 int main(int argc, char *argv[]) {
 	uintptr_t dummy;
-	struct Cora * co = coraInit(&dummy);
+	Cora* co = coraInit(&dummy);
 
-	Obj fn = globalRef(intern("import"));
+	Obj fn = coraSymbolGet(coraMakeSymbol("import"));
 	Obj arg1 = makeCString("cora/init");
-	coraCall1(co, fn, arg1);
+	Obj args[1] = {arg1};
+	coraCall(co, fn, 1, args);
 	coraRun(co);
 
 	arg1 = makeCString("cora/lib/toc");
-	coraCall1(co, fn, arg1);
+	Obj _args[1] = {arg1};
+	coraCall(co, fn, 1, _args);
 	coraRun(co);
 
 	arg1 = makeCString("cora/lib/eval");
-	coraCall1(co, fn, arg1);
+	Obj __args[1] = {arg1};
+	coraCall(co, fn, 1, __args);
 	coraRun(co);
 
 
@@ -101,9 +106,4 @@ int main(int argc, char *argv[]) {
 	} else {
 		shebang(co, argc, argv);
 	}
-
-	/* entry(co, 0, NULL); */
-	/* coraRun(co); */
-	/* printf("check macroexpand result:\n"); */
-	/* printObj(stderr, co->res); */
 }

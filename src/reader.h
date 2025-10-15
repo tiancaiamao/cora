@@ -4,12 +4,7 @@
 #include "types.h"
 #include <stdio.h>
 
-struct SexpReader {
-		struct Cora *co;
-};
-
-struct VM;
-Obj sexpRead(struct SexpReader *r, FILE *in, int *errCode);
+Obj sexpRead(FILE *in, int *errCode);
 void sexpWrite(FILE *out, Obj obj);
 
 void printObj(FILE* f, Obj o);

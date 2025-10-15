@@ -53,6 +53,7 @@ stackAlloc(struct Cora *co, int n) {
 	return stackAllocSlowPath(co, n);
 }
 
+#ifndef CORA_IMPLEMENTATION
 static inline void
 coraReturn(struct Cora *co, Obj val) {
 	// set return value
@@ -64,6 +65,9 @@ coraReturn(struct Cora *co, Obj val) {
 	}
 	return;
 }
+#else 
+void coraReturn(struct Cora *co, Obj val);
+#endif
 
 void coraCall(struct Cora *co, Obj fn, int nargs, Obj *args);
 
@@ -153,8 +157,6 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 
 void coraRun(struct Cora *co);
 
-Obj primSet(struct Cora *co, Obj key, Obj val);
-
 static inline Obj
 closureRef(Obj clo, int idx) {
 #ifndef NDEBUG
@@ -164,7 +166,7 @@ closureRef(Obj clo, int idx) {
 	return OBJ_FIELD(clo, scmNative, data)[idx];
 }
 
-void builtinImport(struct Cora *co, int label, Obj *R);
+/* void builtinImport(struct Cora *co, int label, Obj *R); */
 
 Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);

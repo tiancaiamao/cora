@@ -93,6 +93,11 @@ coraRun(struct Cora *co) {
 
 static void coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args);
 
+// Usage:
+//     Obj args[3] = {arg1, arg2, arg3};
+//     coraCall(co, fn, 3, args);
+// This funcation will copy args twice, once on C stack for temparary array
+// and once after stackAlloc() copy the the frame.
 void
 coraCall(struct Cora *co, Obj fn, int nargs, Obj *args) {
 	struct scmNative* f = mustNative(fn);
@@ -152,10 +157,8 @@ static void
 coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args) {
 	struct scmNative *f = mustNative(fn);
 	int required = f->required;
-	if (nargs == required) {
-		// TODO?
-		assert(false);
-	} else if (nargs < required) {
+	assert(nargs != required);
+	if (nargs < required) {
 		Obj ret = makeCurry(fn, nargs, args);
 		coraReturn(co, ret);
 	} else {
@@ -593,11 +596,10 @@ builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
 		goto exit0;
 	}
 
-	struct SexpReader r = {.co = co };
 	int err = 0;
 	int count = 0;
 	while (true) {
-		Obj ast = sexpRead(&r, f, &err);
+		Obj ast = sexpRead(f, &err);
 		if (err != 0) {
 			break;
 		}

@@ -52,7 +52,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(struct SexpReader *r, FILE *in, int *errCode) {
+readCons(FILE *in, int *errCode) {
 	int c = getc(in);
 	if (c == ')') {
 		// read the empty list
@@ -60,13 +60,13 @@ readCons(struct SexpReader *r, FILE *in, int *errCode) {
 	}
 
 	ungetc(c, in);
-	Obj hd = sexpRead(r, in, errCode);
+	Obj hd = sexpRead(in, errCode);
 
 	c = peekFirstChar(in);
 	ungetc(c, in);
 
 	/* read list */
-	Obj tl = readCons(r, in, errCode);
+	Obj tl = readCons(in, errCode);
 	return cons(hd, tl);
 }
 
@@ -81,7 +81,7 @@ reverse(Obj o) {
 }
 
 static Obj
-readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
+readListMacro(FILE *in, int *errCode) {
 	Obj hd = intern("list");
 	Obj ret = Nil;
 	char b = peekFirstChar(in);
@@ -90,7 +90,7 @@ readListMacro(struct SexpReader *r, FILE *in, int *errCode) {
 			hd = intern("list-rest");
 		} else {
 			ungetc(b, in);
-			Obj o = sexpRead(r, in, errCode);
+			Obj o = sexpRead(in, errCode);
 			ret = cons(o, ret);
 		}
 		b = peekFirstChar(in);
@@ -118,7 +118,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(struct SexpReader *r, FILE *in, int *errCode) {
+sexpRead(FILE *in, int *errCode) {
 	int c;
 	int i;
 	char buffer[512];
@@ -133,25 +133,25 @@ sexpRead(struct SexpReader *r, FILE *in, int *errCode) {
 	}
 	// read quote
 	if (c == '\'') {
-		Obj o = sexpRead(r, in, errCode);
+		Obj o = sexpRead(in, errCode);
 		return cons(symQuote, cons(o, Nil));
 	}
 	// read the empty list or pair
 	if (c == '(') {
-		return readCons(r, in, errCode);
+		return readCons(in, errCode);
 	}
 	// read list macro
 	if (c == '[') {
-		return readListMacro(r, in, errCode);
+		return readListMacro(in, errCode);
 	}
 	// read backquote macro
 	if (c == '`') {
-		Obj o = sexpRead(r, in, errCode);
+		Obj o = sexpRead(in, errCode);
 		return cons(symBackQuote, cons(o, Nil));
 	}
 	// read unquote macro
 	if (c == ',') {
-		Obj o = sexpRead(r, in, errCode);
+		Obj o = sexpRead(in, errCode);
 		return cons(symUnQuote, cons(o, Nil));
 	}
 	// read a string
