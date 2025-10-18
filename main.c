@@ -80,9 +80,17 @@ shebang(Cora *co, int argc, char *argv[]) {
 	repl(co, f);
 }
 
+/* extern void entry(struct Cora *co, int label, Obj *R); */
+
 int main(int argc, char *argv[]) {
 	uintptr_t dummy;
 	Cora* co = coraInit(&dummy);
+
+	/* entry(co, 0, NULL); */
+	/* coraRun(co); */
+	/* printf("check result:\n"); */
+	/* printObj(stderr, coraGetResult(co)); */
+	/* return 0; */
 
 	Obj fn = coraSymbolGet(coraMakeSymbol("import"));
 	Obj arg1 = makeCString("cora/init");

@@ -155,6 +155,17 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 	frame[4] = arg4;
 }
 
+static inline void
+saveCont(struct Cora *co, basicBlock fn, int label, Obj *bp) {
+	struct frame __curr = {
+		.fn = fn,
+		.label = label,
+		.bp = bp,
+		.sp = co->ctx.sp,
+	};
+	vecAppend(&co->callstack, __curr);
+}
+
 void coraRun(struct Cora *co);
 
 static inline Obj

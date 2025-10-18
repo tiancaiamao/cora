@@ -90,7 +90,7 @@ Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
 str stringStr(Obj o);
 
-#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
+#define MAKE_NUMBER(v) (((Obj)v) << 1)
 
 #define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
 #define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
@@ -99,8 +99,6 @@ str stringStr(Obj o);
 #define PRIM_EQ(x, y) (eq(x, y) ? True : False)
 #define PRIM_GT(x, y) (fixnum(x) > fixnum(y) ? True : False)
 #define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
-
-#define MAKE_NUMBER(v) ((Obj) ((intptr_t) (v) << 1))
 
 // assuming x and y are both fixnum
 #define PRIM_ADD(x, y)    ((x) + (y))
