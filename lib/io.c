@@ -84,30 +84,15 @@ ioWrite(struct Cora *co, int label, Obj *R) {
   coraReturn(co, makeNumber(len));
 }
 
-/* struct registerModule ioModule = { */
-/*   NULL, */
-/*   { */
-/*     {"display", builtinDisplay, 1}, */
-/*     {"open-output-file", builtinOpenOutputFile, 1}, */
-/*     {"close-output-file", builtinCloseOutputFile, 1}, */
-/*     {"read-all", ioReadAll, 1}, */
-/*     {"copy", ioCopy, 2}, */
-/*     {"write-bytes", ioWrite, 2}, */
-/*     {NULL, NULL, 0}, */
-/*   } */
-/* }; */
-
 void
 entry(struct Cora *co, int label, Obj *R) {
-  Obj pkg = R[2];
-  char* module = coraBytesData(pkg);
-  coraRegisterAPI(co, module, "display", builtinDisplay, 1);
-  coraRegisterAPI(co, module, "open-output-file", builtinOpenOutputFile, 1);
-  coraRegisterAPI(co, module, "close-output-file", builtinCloseOutputFile, 1);
-  coraRegisterAPI(co, module, "read-all", ioReadAll, 1);
-  coraRegisterAPI(co, module, "copy", ioCopy, 2);
-  coraRegisterAPI(co, module, "write-bytes", ioWrite, 2);
-
-  /* registerAPI(co, &ioModule, stringStr(pkg)); */
-  coraReturn(co, intern("io"));
+	Obj pkg = R[2];
+	char* module = coraBytesData(pkg);
+	coraRegisterAPI(co, module, "display", builtinDisplay, 1);
+	coraRegisterAPI(co, module, "open-output-file", builtinOpenOutputFile, 1);
+	coraRegisterAPI(co, module, "close-output-file", builtinCloseOutputFile, 1);
+	coraRegisterAPI(co, module, "read-all", ioReadAll, 1);
+	coraRegisterAPI(co, module, "copy", ioCopy, 2);
+	coraRegisterAPI(co, module, "write-bytes", ioWrite, 2);
+	coraReturn(co, intern("io"));
 }

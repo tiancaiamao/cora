@@ -166,8 +166,6 @@ closureRef(Obj clo, int idx) {
 	return OBJ_FIELD(clo, scmNative, data)[idx];
 }
 
-/* void builtinImport(struct Cora *co, int label, Obj *R); */
-
 Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);
 Obj primGT(Obj x, Obj y);
