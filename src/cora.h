@@ -29,6 +29,7 @@ extern "C" {
 
 	Obj coraMakeNumber(int v);
 	bool coraIsNumber(Obj o);
+	int coraFixnum(Obj o);
 
 	Obj coraMakeBytes(int len);
 	char *coraBytesData(Obj o);
