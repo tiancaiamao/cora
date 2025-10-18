@@ -709,24 +709,31 @@ builtinTryCatch(struct Cora *co, int label, Obj *R) {
 // scmContinuation is much too implementation dependent, put it here rather than type.c
 struct scmContinuation {
 	scmHead head;
-	vector(Obj*)segstack;
+	/* vector(Obj*)segstack; */
+	int count;
 	int len;
-	struct frame callstack[];
+	// | scmContinuation struct |
+	// | callstack[len]          |
+	// | segstack.data[count]    |
+	char data[];
 };
 
 Obj
 makeContinuation(struct frame *callstack, int len, Obj** stk, int count) {
+	size_t callstackBytes = len * sizeof(struct frame);
+	size_t segstackBytes  = count * sizeof(Obj*);
 	struct scmContinuation *cont = newObj(scmHeadContinuation,
-					       sizeof(struct scmContinuation) +
-					       len * sizeof(struct frame));
-	for (int i = 0; i < len; i++) {
-		cont->callstack[i] = callstack[i];
-	}
+					      sizeof(struct scmContinuation) +
+					      callstackBytes + segstackBytes);
 	cont->len = len;
-
-	vecInit(&cont->segstack, 1);
+	cont->count = count;
+	struct frame *p = (struct frame *)cont->data;
+	for (int i = 0; i < len; i++) {
+		p[i] = callstack[i];
+	}
+	Obj** q = (Obj**)(cont->data + callstackBytes);
 	for (int i=0; i<count; i++) {
-		vecAppend(&cont->segstack, stk[i]);
+		q[i] = stk[i];
 	}
 
 	return ((Obj) (&cont->head) | TAG_PTR);
@@ -736,8 +743,9 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	version_t minv = from->head.version;
+	struct frame *stack = (struct frame *)from->data;
 	for (int i = 0; i < from->len; i++) {
-		struct frame *addr = &from->callstack[i];
+		struct frame *addr = stack + i;
 		for (Obj *p = addr->bp; p < addr->sp; p++) {
 			gcMark(gc, *p, minv);
 		}
@@ -758,11 +766,13 @@ continuationAsClosure(struct Cora *co, int label, Obj *R) {
 
 	// Replace the current stack with the delimited continuation.
 	struct scmContinuation *cont = (struct scmContinuation*)ptr(contObj);
+	struct frame *p = (struct frame *)cont->data;
 	for (int i = 0; i < cont->len; i++) {
-		vecAppend(&co->callstack, cont->callstack[i]);
+		vecAppend(&co->callstack, p[i]);
 	}
-	for (int i=0; i<vecLen(&cont->segstack); i++) {
-		vecAppend(&co->stk.data, vecGet(&cont->segstack, i));
+	Obj** stk = (Obj**)(cont->data + (sizeof(struct frame) * cont->len));
+	for (int i=0; i< cont->count; i++) {
+		vecAppend(&co->stk.data, stk[i]);
 	}
 	Obj* stack = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
 	co->stk.begin = stack;
