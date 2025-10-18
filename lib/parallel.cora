@@ -14,12 +14,13 @@
 	 ;; it's heavy, it's not lightweight like coroutine
 	 ;; it's parallel rather than concurrency
 	 ;; it's recommended to create N procs where N = CPU cores
-	 (def new-proc cora/lib/parallel/internal#new-proc)
-
+	 ;;
 	 ;; ;; this is what new-proc really run!
 	 ;; (defun parallel-entry (file-path)
 	 ;;   (cml-entry (lambda ()
 	 ;; 		(load file-path))))
+	 (def new-proc cora/lib/parallel/internal#new-proc)
+
 
 	 ;; mailbox is used to communiate across different procs
 	 ;; safe for parallel
@@ -34,17 +35,6 @@
 
 	 ;; mailbox-resolve is the opsite of mailbox-publish
 	 (def mailbox-resolve cora/lib/parallel/internal#mailbox-resolve)
-
-	 ;; (defun mailbox-queue-len (mb)
-	 ;;   (queue-len (mailbox-queue mb)))
-
-	 ;; (defun with-mailbox-locked (mb fn)
-	 ;;   (let mu (mailbox-mutex mb)
-	 ;; 	(begin
-	 ;; 	 (mutex-lock mu)
-	 ;; 	 (let res (fn mb)
-	 ;; 	      (begin (mutex-unlock mu)
-	 ;; 		     res)))))
 
 	 ;; mailbox-send will never block, mailbox queue size is unbounded
 	 (def mailbox-send cora/lib/parallel/internal#mailbox-send)
@@ -66,10 +56,11 @@
 				   (mailbox-unlock mb)
 				   data))
 			     ;; handle block branch
-			     (let fd (event-fd)
-				  conn (conn-make fd)
+			     (let fds (pipe)
+				  read-conn (conn-make (car fds))
+				  write-conn (conn-make (cdr fds))
 				  (begin
-				   (event-loop-add conn 'read (lambda (conn)
+				   (event-loop-add read-conn 'read (lambda (conn)
 								(begin
 								 (display "wakeup callback\n")
 								 (let val (conn-extra conn)
@@ -79,7 +70,7 @@
 								       (display "spawn and continue with\n")
 								       (spawn (lambda () (k val)))
 								       (display "here after spawn in callback\n"))))))
-				   (mailbox-enqueue-blocked mb conn)
+				   (mailbox-enqueue-blocked mb write-conn)
 				   (mailbox-unlock mb))))))
 		[try block default-wrap]))
 	 )

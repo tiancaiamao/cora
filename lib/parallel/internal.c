@@ -2,41 +2,42 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/eventfd.h>
+#include <pthread.h>
+#include <fcntl.h>
 #include "types.h"
 #include "str.h"
 #include "runtime.h"
-
-extern void builtinImport(struct Cora *co);
 
 static void*
 startRoutine(void* arg) {
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
-	co->args[1] = makeCString("cora/init");
-	co->nargs = 2;
-	trampoline(co, 0, builtinImport);
-  
-	co->args[1] = makeCString("cora/lib/toc");
-	co->nargs = 2;
-	trampoline(co, 0, builtinImport);
+	Obj fn = globalRef(intern("import"));
+	Obj arg1 = makeCString("cora/init");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
+	arg1 = makeCString("cora/lib/toc");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
 
 	strBuf path1 = arg;
 	str path = toStr(path1);
 	Obj filePath = makeString(path.str, path.len);
 	strFree(path1);
-	co->nargs = 2;
-	co->args[0] = globalRef(intern("load"));
-	co->args[1] = filePath;
-	trampoline(co, 0, coraDispatch);
+
+	fn = globalRef(intern("load"));
+	arg1 = filePath;
+	coraCall1(co, fn, arg1);
+	coraRun(co);
 	printf("newProc exit\n");
 	coraExit(co);
 	return NULL;
 }
 
 static void
-newProc(struct Cora *co) {
-	Obj arg = co->args[1];
+newProc(struct Cora *co, int label, Obj *R) {
+	Obj arg = R[1];
 	str path1 = stringStr(arg);
 	strBuf path2 = strDup(path1);
 	pthread_t* thread = malloc(sizeof(pthread_t));
@@ -50,8 +51,8 @@ newProc(struct Cora *co) {
 }
 
 static void
-procJoin(struct Cora *co) {
-	pthread_t *t = mustCObj(co->args[1]);
+procJoin(struct Cora *co, int label, Obj *R) {
+	pthread_t *t = mustCObj(R[1]);
 	void* ignore;
 	int ret = pthread_join(*t, &ignore);
 	if (ret != 0) {
@@ -61,14 +62,17 @@ procJoin(struct Cora *co) {
 }
 
 static void
-eventFD(struct Cora *co) {
-	int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-	if (fd < 0) {
-		perror("eventfd");
+pipeImpl(struct Cora *co, int label, Obj *R) {
+	int fds[2];
+	int succ = pipe(fds);
+	if (succ < 0) {
+		perror("pipe");
 		coraReturn(co, Nil);
 		return;
 	}
-	coraReturn(co, makeNumber(fd));
+	fcntl(fds[0], F_SETFL, O_NONBLOCK);
+	fcntl(fds[1], F_SETFL, O_NONBLOCK);
+	coraReturn(co, cons(makeNumber(fds[0]), makeNumber(fds[1])));
 	return;
 }
 
@@ -137,29 +141,29 @@ struct mailbox {
 };
 
 static void
-mailboxQueueLen(struct Cora *co) {
-	struct mailbox *m = mustCObj(co->args[1]);
+mailboxQueueLen(struct Cora *co, int label, Obj *R) {
+	struct mailbox *m = mustCObj(R[1]);
 	int len = queueLen(&m->data);
 	coraReturn(co, makeNumber(len));
 }
 
 static void
-mailboxLock(struct Cora *co) {
-	struct mailbox *m = mustCObj(co->args[1]);
+mailboxLock(struct Cora *co, int label, Obj *R) {
+	struct mailbox *m = mustCObj(R[1]);
 	pthread_mutex_lock(&m->mu);
 	coraReturn(co, True);
 }
 
 static void
-mailboxUnlock(struct Cora *co) {
-	struct mailbox *m = mustCObj(co->args[1]);
+mailboxUnlock(struct Cora *co, int label, Obj *R) {
+	struct mailbox *m = mustCObj(R[1]);
 	pthread_mutex_unlock(&m->mu);
 	coraReturn(co, True);
 }
 
 static void
-mailboxDequeue(struct Cora *co) {
-	struct mailbox *m = mustCObj(co->args[1]);
+mailboxDequeue(struct Cora *co, int label, Obj *R) {
+	struct mailbox *m = mustCObj(R[1]);
 	struct nodeData* data = dequeueData(&m->data);
 	coraReturn(co, data->v);
 }
@@ -179,9 +183,9 @@ enqueueBlocked(struct queue *q, struct nodeBlocked *n) {
 }
 
 static void
-mailboxEnqueueBlocked(struct Cora *co) {
-	struct mailbox* m = mustCObj(co->args[1]);
-	Obj conn = co->args[2];
+mailboxEnqueueBlocked(struct Cora *co, int label, Obj *R) {
+	struct mailbox* m = mustCObj(R[1]);
+	Obj conn = R[2];
 	struct nodeBlocked *n = (struct nodeBlocked*)malloc(sizeof(struct nodeBlocked));
 	n->conn = conn;
 	enqueueBlocked(&m->blocked, n);
@@ -210,10 +214,11 @@ wakeupBlocked(struct nodeBlocked* n, Obj val) {
 	if (ret < 0) {
 		printf("wakeupBlocked failed on %ld: %s\n", fixnum(fd), strerror(errno));
 	}
+	// TODO: close write conn here?
 }
 
 static void
-mailboxMake(struct Cora *co) {
+mailboxMake(struct Cora *co, int label, Obj *R) {
 	struct mailbox* m = (struct mailbox*)malloc(sizeof(struct mailbox));
 	pthread_mutex_init(&m->mu, NULL);
 	queueInit(&m->data);
@@ -222,9 +227,9 @@ mailboxMake(struct Cora *co) {
 }
 
 static void
-mailboxSend(struct Cora *co) {
-	struct mailbox* m = mustCObj(co->args[1]);
-	Obj val = co->args[2];
+mailboxSend(struct Cora *co, int label, Obj *R) {
+	struct mailbox* m = mustCObj(R[1]);
+	Obj val = R[2];
 	pthread_mutex_lock(&m->mu);
 	if (queueLen(&m->blocked) > 0) {
 		struct nodeBlocked* co = dequeueBlocked(&m->blocked);
@@ -237,8 +242,8 @@ mailboxSend(struct Cora *co) {
 }
 
 static void
-mailboxRecvTry(struct Cora *co) {
-	struct mailbox *m = mustCObj(co->args[1]);
+mailboxRecvTry(struct Cora *co, int label, Obj *R) {
+	struct mailbox *m = mustCObj(R[1]);
 	Obj v;
 	pthread_mutex_lock(&m->mu);
 	if (queueLen(&m->data) > 0) {
@@ -280,9 +285,9 @@ mailboxRegistryInit(struct mailboxRegistry *registry) {
 }
 
 static void
-mailboxPublish(struct Cora *co) {
-	Obj arg1 = co->args[1];
-	Obj m = co->args[2];
+mailboxPublish(struct Cora *co, int label, Obj *R) {
+	Obj arg1 = R[1];
+	Obj m = R[2];
 	str name = stringStr(arg1);
 	int idx = fnv1aHash(name.str) % NUM_SLOTS;
 	struct mailboxRegistrySlot *slot = &registry.slots[idx];
@@ -303,8 +308,8 @@ mailboxPublish(struct Cora *co) {
 }
 
 static void
-mailboxResolve(struct Cora *co) {
-	Obj arg1 = co->args[1];
+mailboxResolve(struct Cora *co, int label, Obj *R) {
+	Obj arg1 = R[1];
 	str name = stringStr(arg1);
 	int idx = fnv1aHash(name.str) % NUM_SLOTS;
 	struct mailboxRegistrySlot *slot = &registry.slots[idx];
@@ -325,29 +330,22 @@ mailboxResolve(struct Cora *co) {
 	return;
 }
 
-static struct registerModule parallelModule = {
-  NULL,
-  {
-    {"new-proc", newProc, 1},
-    {"proc-join", procJoin, 1},
-    {"mailbox-make", mailboxMake, 0},
-    {"mailbox-lock", mailboxLock, 1},
-    {"mailbox-unlock", mailboxUnlock, 1},
-    {"event-fd", eventFD, 0},
-    {"mailbox-send", mailboxSend, 2},
-    {"mailbox-recv-try", mailboxRecvTry, 1},
-    {"mailbox-queue-len", mailboxQueueLen, 1},
-    {"mailbox-dequeue", mailboxDequeue, 1},
-    {"mailbox-enqueue-blocked", mailboxEnqueueBlocked, 2},
-    {"mailbox-publish", mailboxPublish, 2},
-    {"mailbox-resolve", mailboxResolve, 1},
-    {NULL, NULL, 0},
-  }
-};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
-  Obj pkg = co->args[2];
-  registerAPI(co, &parallelModule, stringStr(pkg));
-  coraReturn(co, intern("internal"));
+	Obj pkg = R[2];
+	char* module = bytesData(pkg);
+	coraRegisterAPI(co, module, "new-proc", newProc, 1);
+	coraRegisterAPI(co, module, "proc-join", procJoin, 1);
+	coraRegisterAPI(co, module, "mailbox-make", mailboxMake, 0);
+	coraRegisterAPI(co, module, "mailbox-lock", mailboxLock, 1);
+	coraRegisterAPI(co, module, "mailbox-unlock", mailboxUnlock, 1);
+	coraRegisterAPI(co, module, "pipe", pipeImpl, 0);
+	coraRegisterAPI(co, module, "mailbox-send", mailboxSend, 2);
+	coraRegisterAPI(co, module, "mailbox-recv-try", mailboxRecvTry, 1);
+	coraRegisterAPI(co, module, "mailbox-queue-len", mailboxQueueLen, 1);
+	coraRegisterAPI(co, module, "mailbox-dequeue", mailboxDequeue, 1);
+	coraRegisterAPI(co, module, "mailbox-enqueue-blocked", mailboxEnqueueBlocked, 2);
+	coraRegisterAPI(co, module, "mailbox-publish", mailboxPublish, 2);
+	coraRegisterAPI(co, module, "mailbox-resolve", mailboxResolve, 1);
+	coraReturn(co, intern("internal"));
 }

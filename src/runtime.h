@@ -185,7 +185,7 @@ Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
 struct Cora * coraInit(uintptr_t * mark);
-
+void coraExit(struct Cora *co);
 
 struct registerEntry {
   char *name;
@@ -199,5 +199,6 @@ struct registerModule {
 };
 
 void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
+void coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int argc);
 
 #endif

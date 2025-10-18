@@ -1004,6 +1004,33 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 	}
 }
 
+void
+coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int argc) {
+	Obj sym;
+	if (pkg != NULL) {
+		strBuf tmp = strDup(cstr(pkg));
+		tmp = strAppend(tmp, '#');
+		tmp = strCat(tmp, cstr(name));
+		sym = intern(toCStr(tmp));
+		strFree(tmp);
+	} else {
+		sym = intern(name);
+	}
+	primSet(co, sym, makeNative(argc + 1, func, argc, 0));
+	if (pkg != NULL) {
+		strBuf tmp = strDup(cstr(pkg));
+		tmp = strCat(tmp, S("#*ns-export*"));
+		Obj sym = intern(toCStr(tmp));
+		strFree(tmp);
+		Obj exports = symbolGet(sym);
+		if (exports == Undef) {
+			exports = Nil;
+		}
+		exports = cons(intern(name), exports);
+		primSet(co, sym, exports);
+	}
+}
+
 struct Cora *
 coraInit(uintptr_t * mark) {
 	gcInit(mark);
@@ -1062,6 +1089,18 @@ coraInit(uintptr_t * mark) {
 		makeNative(1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);
 	return co;
+}
+
+void
+coraExit(struct Cora *co) {
+	// TODO
+	// release GC
+	// release event loop
+	// release scheduler
+	// release packages
+	// release symbol table
+	// release cora struct
+	free(co);
 }
 
 static void

@@ -1,5 +1,4 @@
-# all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so
-all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so
+all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so
 
 extra: md4c/include.so json.so
 
@@ -39,7 +38,4 @@ toc/internal.so: toc/internal.c
 OS_NAME := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 parallel/internal.so: parallel/internal.c
-ifeq ($(OS_NAME),linux)
 	make -C parallel
-else ifeq ($(OS_NAME),darwin) # macOS
-endif
