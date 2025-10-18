@@ -91,14 +91,19 @@ coraRun(struct Cora *co) {
 	trampoline(co);
 }
 
-static void coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap);
+static void coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args);
 
-static void
-coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
+// Usage:
+//     Obj args[3] = {arg1, arg2, arg3};
+//     coraCall(co, fn, 3, args);
+// This funcation will copy args twice, once on C stack for temparary array
+// and once after stackAlloc() copy the the frame.
+void
+coraCall(struct Cora *co, Obj fn, int nargs, Obj *args) {
 	struct scmNative* f = mustNative(fn);
 	if (f->required != nargs) {
 		// curry or partial, goto dispatch function
-		coraDispatch(co, fn, nargs, ap);
+		coraDispatch(co, fn, nargs, args);
 		return;
 	}
 	int nframe = f->nframe;
@@ -109,21 +114,13 @@ coraCallv(struct Cora *co, Obj fn, int nargs, va_list ap) {
 	frame[0] = fn;
 	if (nargs > 0) {
 		for (int i = 1; i <= nargs; i++) {
-			frame[i] = va_arg(ap, Obj);
+			frame[i] = args[i-1];
 		}
 	}
 	// set the new ctx
 	co->ctx.fn = f->fn;
 	co->ctx.label = 0;
 	return;
-}
-
-void
-coraCall(struct Cora *co, Obj fn, int nargs, ...) {
-	va_list ap;
-	va_start(ap, nargs);
-	coraCallv(co, fn, nargs, ap);
-	va_end(ap);
 }
 
 static void
@@ -139,7 +136,7 @@ callCurry(struct Cora *co, int label, Obj *R) {
 }
 
 Obj
-makeCurry(Obj fn, int nargs, va_list ap) {
+makeCurry(Obj fn, int nargs, Obj *args) {
 	int sz = sizeof(struct scmNative) + (nargs + 1) * sizeof(Obj);
 	struct scmNative *clo = newObj(scmHeadNative, sz);
 	clo->fn = callCurry;
@@ -151,20 +148,18 @@ makeCurry(Obj fn, int nargs, va_list ap) {
 	// fn + args
 	clo->data[0] = fn;
 	for (int i = 0; i < nargs; i++) {
-		clo->data[i+1] = va_arg(ap, Obj);
+		clo->data[i+1] = args[i];
 	}
 	return ((Obj) (&clo->head) | TAG_PTR);
 }
 
 static void
-coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
+coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args) {
 	struct scmNative *f = mustNative(fn);
 	int required = f->required;
-	if (nargs == required) {
-		// TODO?
-		assert(false);
-	} else if (nargs < required) {
-		Obj ret = makeCurry(fn, nargs, ap);
+	assert(nargs != required);
+	if (nargs < required) {
+		Obj ret = makeCurry(fn, nargs, args);
 		coraReturn(co, ret);
 	} else {
 		// eval the first call and get the result;
@@ -177,14 +172,14 @@ coraDispatch(struct Cora *co, Obj fn, int nargs, va_list ap) {
 		Obj *R = stackAlloc(co, f->nframe);
 		R[0] = fn;
 		for (int i=0; i<required; i++) {
-			R[i+1] = va_arg(ap, Obj);
+			R[i+1] = args[i];
 		}
 		co->ctx.fn = f->fn;
 		co->ctx.label = 0;
 		trampoline(co);
 
 		// make the next call.
-		coraCallv(co, co->res, nargs - required, ap);
+		coraCall(co, co->res, nargs - required, args + required);
 	}
 	return;
 }
@@ -543,14 +538,7 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	str tmp1 = toStr(tmp);
 
 	coraCall2(co, makeNative(3, builtinLoad, 2, 0), makeString(tmp1.str, tmp1.len), pkg);
-
-	/* co->nargs = 3; */
-	/* co->args[0] = makeNative(0, builtinLoad, 2, 0); */
-	/* co->args[1] = makeString(tmp1.str, tmp1.len); */
-	/* co->args[2] = pkg; */
-	/* trampoline(co, 0, coraDispatch); */
 	strFree(tmp);
-	/* coraReturn(co, pkg); */
 }
 
 static void
@@ -608,11 +596,10 @@ builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
 		goto exit0;
 	}
 
-	struct SexpReader r = {.co = co };
 	int err = 0;
 	int count = 0;
 	while (true) {
-		Obj ast = sexpRead(&r, f, &err);
+		Obj ast = sexpRead(f, &err);
 		if (err != 0) {
 			break;
 		}
@@ -941,6 +928,33 @@ primIsSymbol(Obj x) {
 	}
 }
 
+static void
+applyClosureForEval(struct Cora *co, int label, Obj *R) {
+	Obj self = R[0];
+	Obj *data = nativeData(self);
+	Obj params = data[0];
+	Obj body = data[1];
+	Obj env = data[2];
+	for (int i = 1; params != Nil; i++) {
+		Obj var = car(params);
+		Obj val = R[i];
+		env = cons(cons(var, val), env);
+		params = cdr(params);
+	}
+	co->ctx.sp = R;
+	coraCall2(co, globalRef(intern("cora/lib/eval#eval")), body, env);
+}
+
+static void
+makeClosureForEval(struct Cora *co, int label, Obj *R) {
+	Obj params = R[1];
+	Obj body = R[2];
+	Obj env = R[3];
+	int len = listLen(params);
+	Obj ret = makeNative(4, applyClosureForEval, len, 3, params, body, env);
+	coraReturn(co, ret);
+}
+
 static Obj
 primVMSymbolForTLS(struct Cora *co) {
 	char dest[20];
@@ -1042,8 +1056,8 @@ coraInit(uintptr_t * mark) {
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(2, builtinSymbolCooked, 1, 0));
-	/* primSet(co, intern("cora/lib/eval#make-closure-for-eval"), */
-	/* 	makeNative(0, makeClosureForEval, 3, 0)); */
+	primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
+		makeNative(0, makeClosureForEval, 3, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
 		makeNative(1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);

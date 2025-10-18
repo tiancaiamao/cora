@@ -326,7 +326,8 @@
 					  ((= x false) (generate-str w "False")))
 			    ['let a b c] (let idx (index a env)
 					      (begin
-					       (if (< idx 0) (generate-str w "Obj ") ())
+					       ;; TODO: (if (< idx 0) "variable redefine by let" ())?
+					       (generate-str w "Obj ")
 					       (generate-sym w a)
 					       (generate-str w " = ")
 					       ((value generate-inst-h) b env)
@@ -389,26 +390,29 @@
 						     ((value generate-inst-h) exp env)
 						     (generate-str w "return;\n"))
 			    [f . args] (let nargs (length args)
-					    (begin
-					     (cond
-					       ((= nargs 0) (generate-str w "coraCall0(co, "))
-					       ((= nargs 1) (generate-str w "coraCall1(co, "))
-					       ((= nargs 2) (generate-str w "coraCall2(co, "))
-					       ((= nargs 3) (generate-str w "coraCall3(co, "))
-					       ((= nargs 4) (generate-str w "coraCall4(co, "))
-					       (true (generate-str w "coraCall(co, ")))
-					     ((value generate-inst-h) f env)
-					     (if (> nargs 4)
-						 (begin
-						  (generate-str w ", ")
-						  (generate-num w nargs))
-						 ())
-					     (if (> nargs 0)
-						 (begin
-						  (generate-str w ", ")
-						  (generate-inst-list globals self env w args))
-						 ())
-					     (generate-str w ");\n")))))))
+					    (if (> nargs 4)
+						(begin
+						 (generate-str w "Obj __args[")
+						 (generate-num w nargs)
+						 (generate-str w "] = {")
+						 (generate-inst-list globals self env w args)
+						 (generate-str w "};\n")
+						 (generate-str w "coraCall(co, ")
+						 ((value generate-inst-h) f env)
+						 (generate-str w ", ")
+						 (generate-num w nargs)
+						 (generate-str w ", __args);\n"))
+						(begin
+						 (generate-str w "coraCall")
+						 (generate-num w nargs)
+						 (generate-str w "(co, ")
+						 ((value generate-inst-h) f env)
+						 (if (> nargs 0)
+						     (begin
+						      (generate-str w ", ")
+						      (generate-inst-list globals self env w args))
+						     ())
+						 (generate-str w ");\n"))))))))
 
 	  ((value generate-inst-h) x1 env1))))
 

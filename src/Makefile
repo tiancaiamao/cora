@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c
+SRCS = str.c gc.c types.c reader.c runtime.c trace.c reader_test.c eval_test.c gc_test.c export.c
 OBJS = $(SRCS:%.c=%.o)
 CC = gcc
 CFLAGS = -g -Wall -fPIC
@@ -31,7 +31,7 @@ gc.test: gc_test.o libcora.a
 gc_test: gc.test
 	./gc.test
 
-LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o
+LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o export.o
 
 libcora.a: $(LIBOBJS)
 	ar -rc $@ $^

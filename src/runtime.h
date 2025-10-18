@@ -53,6 +53,7 @@ stackAlloc(struct Cora *co, int n) {
 	return stackAllocSlowPath(co, n);
 }
 
+#ifndef CORA_IMPLEMENTATION
 static inline void
 coraReturn(struct Cora *co, Obj val) {
 	// set return value
@@ -64,8 +65,11 @@ coraReturn(struct Cora *co, Obj val) {
 	}
 	return;
 }
+#else 
+void coraReturn(struct Cora *co, Obj val);
+#endif
 
-void coraCall(struct Cora *co, Obj fn, int nargs, ...);
+void coraCall(struct Cora *co, Obj fn, int nargs, Obj *args);
 
 static inline void
 coraCall0(struct Cora *co, Obj fn) {
@@ -86,7 +90,8 @@ coraCall1(struct Cora *co, Obj fn, Obj arg1) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 1) {
-		return coraCall(co, fn, 1, arg1);
+		Obj args[1] = {arg1};
+		return coraCall(co, fn, 1, args);
 	}
 	Obj *frame = stackAlloc(co, f->nframe);
 	co->ctx.fn = f->fn;
@@ -100,7 +105,8 @@ coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 2) {
-		return coraCall(co, fn, 2, arg1, arg2);
+		Obj args[2] = {arg1, arg2};
+		return coraCall(co, fn, 2, args);
 	}
 	Obj* frame = stackAlloc(co, f->nframe);
 	co->ctx.fn = f->fn;
@@ -115,7 +121,8 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 3) {
-		return coraCall(co, fn, 3, arg1, arg2, arg3);
+		Obj args[3] = {arg1, arg2, arg3};
+		return coraCall(co, fn, 3, args);
 	}
 	Obj *frame = stackAlloc(co, f->nframe);
 	co->ctx.fn = f->fn;
@@ -135,7 +142,8 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 4) {
-		return coraCall(co, fn, 4, arg1, arg2, arg3, arg4);
+		Obj args[4] = {arg1, arg2, arg3, arg4};
+		return coraCall(co, fn, 4, args);
 	}
 	Obj *frame = stackAlloc(co, f->nframe);
 	co->ctx.fn = f->fn;
@@ -149,8 +157,6 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 
 void coraRun(struct Cora *co);
 
-Obj primSet(struct Cora *co, Obj key, Obj val);
-
 static inline Obj
 closureRef(Obj clo, int idx) {
 #ifndef NDEBUG
@@ -159,8 +165,6 @@ closureRef(Obj clo, int idx) {
 #endif
 	return OBJ_FIELD(clo, scmNative, data)[idx];
 }
-
-void builtinImport(struct Cora *co, int label, Obj *R);
 
 Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);
