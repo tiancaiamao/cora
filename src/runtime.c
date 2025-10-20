@@ -125,7 +125,6 @@ coraCall(struct Cora *co, Obj fn, int nargs, Obj *args) {
 
 static void
 callCurry(struct Cora *co, int label, Obj *R) {
-	TRACE_SCOPE("callCurry");
 	Obj fn = R[0];
 	int captured = nativeCaptured(fn);
 	int nargs = nativeRequired(fn);
@@ -570,7 +569,7 @@ builtinVectorRef(struct Cora *co, int label, Obj *R) {
 
 static void
 builtinVectorSet(struct Cora *co, int label, Obj *R) {
-	TRACE_SCOPE("builtinVectorSet");
+	/* TRACE_SCOPE("builtinVectorSet"); */
 	Obj v = R[1];
 	Obj idx = R[2];
 	Obj o = R[3];

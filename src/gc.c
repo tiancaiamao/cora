@@ -578,7 +578,6 @@ blockAlloc(struct GC *gc, struct Block *block) {
 
 void *
 gcAlloc(struct GC *gc, int size) {
-	TRACE_SCOPE("gcAlloc");
 	assert(size > sizeof(scmHead));
 
 	// If GC is in progress, continue GC steps
@@ -1003,7 +1002,7 @@ gcFlip(struct GC *gc) {
 static void
 gcRunIncremental(struct GC *gc) {
 	TRACE_SCOPE("gcRunIncremental");
-	const int STEPS_PER_INCREMENT = 20;
+	const int STEPS_PER_INCREMENT = 200;
 	int steps = STEPS_PER_INCREMENT;
 
 	while (steps > 0) {
