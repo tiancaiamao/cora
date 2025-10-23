@@ -4,51 +4,47 @@
 #include "trace.h"
 
 static void
-traceEnable(struct Cora *co) {
-	str filePath = stringStr(co->args[1]);
+traceEnable(struct Cora *co, int label, Obj *R) {
+	str filePath = stringStr(R[1]);
 	traceInit(filePath.str);
 	coraReturn(co, True);
 }
 
 static void
-traceDisable(struct Cora *co) {
+traceDisable(struct Cora *co, int label, Obj *R) {
 	traceClose();
 	coraReturn(co, True);
 }
 
 static void
-traceWrap(struct Cora *co) {
-	assert(nativeCaptured(co->args[0]) == 2);
-	Obj* data = nativeData(co->args[0]);
-	Obj origin = data[0];
+traceWrap(struct Cora *co, int label, Obj *R) {
+	assert(nativeCaptured(R[0]) == 2);
+	Obj* data = nativeData(R[0]);
+	struct scmNative* origin = mustNative(data[0]);
 	Obj sym = data[1];
-	assert(isNative(origin));
-	co->args[0] = origin;
-
-	char name[256];
-	symbolStr(sym, name, 256);
-	TRACE_BEGIN(name);
-	trampoline(co, 0, coraDispatch);
-	TRACE_END(name);
-	coraReturn(co, co->args[1]);
+	char dest[256];
+	symbolStr(sym, dest, 256);
+	TRACE_SCOPE(dest);
+	R[0] = data[0];
+	origin->fn(co, label, R);
 }
 
 static void
-builtinTrace(struct Cora *co) {
-	Obj sym = co->args[1];
+builtinTrace(struct Cora *co, int label, Obj *R) {
+	Obj sym = R[1];
 	Obj fn = symbolGet(sym);
 	struct scmNative *old = mustNative(fn);
-	Obj wrap = makeNative(0, traceWrap, old->required, 2, fn, sym);
+	Obj wrap = makeNative(old->nframe, traceWrap, old->required, 2, fn, sym);
 	Obj ret = primSet(co, sym, wrap);
 	coraReturn(co, ret);
 }
 
 static void
-builtinUntrace(struct Cora *co) {
-	Obj sym = co->args[1];
+builtinUntrace(struct Cora *co, int label, Obj *R) {
+	Obj sym = R[1];
 	Obj fn = symbolGet(sym);
 	struct scmNative *n = mustNative(fn);
-	if (n->captured == 2 && n->code.func == traceWrap && n->data[1] == sym) {
+	if (n->captured == 2 && n->fn == traceWrap && n->data[1] == sym) {
 		Obj ret = primSet(co, sym, n->data[0]);
 		coraReturn(co, ret);
 		return;
@@ -56,20 +52,13 @@ builtinUntrace(struct Cora *co) {
 	coraReturn(co, Nil);
 }
 
-struct registerModule ioModule = {
-  NULL,
-  {
-    {"trace-enable", traceEnable, 1},
-    {"trace-disable", traceDisable, 0},
-    {"trace", builtinTrace, 1},
-    {"untrace", builtinUntrace, 1},
-    {NULL, NULL, 0},
-  }
-};
-
 void
-entry(struct Cora *co) {
-  Obj pkg = co->args[2];
-  registerAPI(co, &ioModule, stringStr(pkg));
-  coraReturn(co, intern("trace"));
+entry(struct Cora *co, int label, Obj *R) {
+	Obj pkg = R[2];
+	char *module = bytesData(pkg);
+	coraRegisterAPI(co, module, "trace-enable", traceEnable, 1);
+	coraRegisterAPI(co, module, "trace-disable", traceDisable, 0);
+	coraRegisterAPI(co, module, "trace", builtinTrace, 1);
+	coraRegisterAPI(co, module, "untrace", builtinUntrace, 1);
+	coraReturn(co, intern("trace"));
 }
