@@ -9,47 +9,35 @@ hashForString(const char *str) {
     return sum;
 }
 
-static Obj
-hashToNumberHelp(Obj key) {
+static Obj hashToNumberHelp(Obj key) {
   if (isfixnum(key)) {
     return key;
   }
 
-  switch (tag(key)) {
-  case TAG_SYMBOL:
-	  {
-		  char str[256];
-		  symbolStr(key, str, 256);
-		  int sum = hashForString(str);
-		  return makeNumber(sum);
-	  }
-
-  case TAG_IMMEDIATE_CONST:
-    if (key == True) {
-      return makeNumber(17);
-    } else if (key == False) {
-      return makeNumber(37);
-    } else if (key == Nil) {
-      return makeNumber(41);
-    } else if (key == Undef) {
-      return makeNumber(47);
-    }
-
-  case TAG_PTR:
-    if (isNumber(key)) {
-      return key;
-    } else if (isBytes(key)) {
-      char* s = bytesData(key);
-      int sum = 7671 + hashForString(s);
-      return makeNumber(sum);
-    } else if (isvector(key)) {
-    } else if (iscons(key)) {
-      Obj v1 = hashToNumberHelp(car(key));
-      Obj v2 = hashToNumberHelp(cdr(key));
-      return makeNumber(fixnum(v1) + fixnum(v2));
-    }
+  if (issymbol(key)) {
+    char str[256];
+    symbolStr(key, str, 256);
+    int sum = hashForString(str);
+    return makeNumber(sum);
+  } else if (key == True) {
+    return makeNumber(17);
+  } else if (key == False) {
+    return makeNumber(37);
+  } else if (key == Nil) {
+    return makeNumber(41);
+  } else if (key == Undef) {
+    return makeNumber(47);
+  } else if (isNumber(key)) {
+    return key;
+  } else if (isbytes(key)) {
+    char *s = bytesData(key);
+    int sum = 7671 + hashForString(s);
+    return makeNumber(sum);
+  } else if (iscons(key)) {
+    Obj v1 = hashToNumberHelp(car(key));
+    Obj v2 = hashToNumberHelp(cdr(key));
+    return makeNumber(fixnum(v1) + fixnum(v2));
   }
-
   // what the fuck?
   return makeNumber(42);
 }

@@ -5,10 +5,11 @@
 #include <string.h>
 #include <setjmp.h>
 #include <stddef.h>
-#include <assert.h>
+// #include <assert.h>
 #include <inttypes.h>
 #include "gc.h"
 #include "trace.h"
+#include "types.h"
 
 enum gcState {
 	gcStateNone = 0,
@@ -473,7 +474,7 @@ heapArenaAllocLarge(struct heapArena *ha, struct GC *gc, int slots) {
 				slots1 = slots;
 				break;
 			}
-			// Try to merge n with the adjacent one 
+			// Try to merge n with the adjacent one
 			scmHead *next =
 				(scmHead *) (ha->ptr +
 					     ((ha->curr +
@@ -858,23 +859,23 @@ gcRunMark(struct GC *gc) {
 	gc->state = gcStateIncremental;
 }
 
-static void
-checkBlockAssert(struct GC *gc, struct Block *b) {
-	int live = 0;
-	for (int i=0; i<MEM_BLOCK_SIZE; i+=b->sizeClass) {
-		scmHead *h = (scmHead*)(b->base+i);
-		if(inuse(gc, h) == 2) {
-			live++;
-		}
-	}
-	if (b->touch == false && live != 0) {
-		/* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); */
-		assert(false);
-	}
-	if (live == 0 && b->touch != 0) {
-		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass);
-	}
-}
+// static void
+// checkBlockAssert(struct GC *gc, struct Block *b) {
+// 	int live = 0;
+// 	for (int i=0; i<MEM_BLOCK_SIZE; i+=b->sizeClass) {
+// 		scmHead *h = (scmHead*)(b->base+i);
+// 		if(inuse(gc, h) == 2) {
+// 			live++;
+// 		}
+// 	}
+// 	if (b->touch == false && live != 0) {
+// 		/* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); */
+// 		assert(false);
+// 	}
+// 	if (live == 0 && b->touch != 0) {
+// 		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass);
+// 	}
+// }
 
 static void
 gcFlip(struct GC *gc) {
@@ -1148,10 +1149,18 @@ writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val) {
 void
 writeBarrierForGeneration(struct GC *gc, scmHeadEx *v, uintptr_t val) {
 	// skip if not a pointer
-	if (tag(val) != TAG_PTR) {
+	if (!isobj(val)) {
 		return;
 	}
-
+	switch (tag(val)) {
+		case TAG_CONS:
+		case TAG_BYTES:
+		case TAG_NATIVE:
+		case TAG_PTR:
+			break;
+		default:
+			return;
+	}
 	scmHead *h = ptr(val);
 	if (versionCmp(v->version % 64, h->version % 64) <= 0) {
 		return;

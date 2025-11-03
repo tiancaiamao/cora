@@ -18,8 +18,8 @@ all: libcora.so
 
 test: reader_test gc_test
 
-vm.o: vm.c vector.h runtime.h
-	$(CC) -o $@ -g -O3 -Wall -c $<
+# vm.o: vm.c vector.h runtime.h
+# 	$(CC) -o $@ -g -O3 -Wall -c $<
 
 vm: vm.o libcora.a
 	$(CC) -o vm $^ -ldl

@@ -1,3 +1,4 @@
+#include "reader.h"
 #include "runtime.h"
 #include "vector.h"
 
@@ -109,7 +110,8 @@ emitSexpList(codeBuf *buf, Obj sexp, constantTable* tbl) {
 			emitOp(buf, pack4(OP_LOCAL_REF, (uint8_t)tos, (uint8_t)idx, 0));
 		} else if (tag == sym_global_ref) {
 			// (global-ref tos idx16)
-			int tos = fixnum(cadr(insn));
+			Obj x = cadr(insn);
+			int tos = fixnum(x);
 			int idx = vecLen(tbl);
 			vecAppend(tbl, caddr(insn));
 			emitOp(buf, pack3(OP_GLOBAL_REF, (uint8_t)tos, (uint16_t)idx));
@@ -307,7 +309,7 @@ exec(struct Cora *vm) {
 
 		// then goto the callee
 		uint8_t base = OP_A(*pc);
-		uint16_t nargs = OP_B(*pc);
+		// uint16_t nargs = OP_B(*pc);
 		struct scmNative *fn = ptr(R[base]);
 		if (fn->code.func == exec) {
 			assert(fn->head.type == scmHeadNative);
@@ -339,14 +341,14 @@ exec(struct Cora *vm) {
  op_primitive_add:
 	{
 		uint8_t tos = OP_A(*pc);
-		R[tos] = R[tos+1] + R[tos];
+		R[tos] = makeNumber(fixnum(R[tos+1]) + fixnum(R[tos]));
 		NEXT();
 	}
 
  op_primitive_sub:
 	{
 		uint8_t tos = OP_A(*pc);
-		R[tos] = R[tos] - R[tos+1];
+		R[tos] = makeNumber(fixnum(R[tos]) - fixnum(R[tos+1]));
 		NEXT();
 	}
 
@@ -355,7 +357,7 @@ exec(struct Cora *vm) {
 		uint8_t tos = OP_A(*pc);
 		Obj a = R[tos];
 		Obj b = R[tos+1];
-		R[tos] = (Obj)((fixnum(a) * fixnum(b)) << 1);
+		R[tos] = makeNumber(fixnum(a) * fixnum(b));
 		NEXT();
 	}
 
@@ -369,7 +371,7 @@ exec(struct Cora *vm) {
  op_primitive_lt:
 	{
 		uint8_t tos = OP_A(*pc);
-		R[tos] = (R[tos] < R[tos+1]) ? True: False;
+		R[tos] = (fixnum(R[tos]) < fixnum(R[tos+1])) ? True: False;
 		NEXT();
 	}
 
@@ -394,8 +396,8 @@ fib40(struct Cora *co) {
  label0:
 	{
 		R[2] = R[1];
-		R[3] = 4;
-		R[2] = (R[2] < R[3]) ? True: False;
+		R[3] = makeNumber(2);
+		R[2] = primLT(R[2], R[3]) ? True: False;
 		if (R[2] == True) {
 			R[2] = R[1];
 			R[0] = R[2];
@@ -408,8 +410,8 @@ fib40(struct Cora *co) {
 		} else {
 			R[2] = globalRef(symFib);
 			R[3] = R[1];
-			R[4] = 2;
-			R[3] = R[3] - R[4];
+			R[4] = makeNumber(1);
+			R[3] = primSub(R[3], R[4]);
 
 			struct callStack *cs = &co->callstack;
 			if (unlikely(cs->len >= cs->cap)) {
@@ -436,8 +438,8 @@ fib40(struct Cora *co) {
 	{
 		R[3] = globalRef(symFib);
 		R[4] = R[1];
-		R[5] = 4;
-		R[4] = R[4] - R[5];
+		R[5] = makeNumber(2);
+		R[4] = primSub(R[4], R[5]);
 
 		struct callStack *cs = &co->callstack;
 		if (unlikely(cs->len >= cs->cap)) {
@@ -461,7 +463,7 @@ fib40(struct Cora *co) {
 
  label2:
 	{
-		R[2] = R[2] + R[3];
+		R[2] = primAdd(R[2], R[3]);
 		R[0] = R[2];
 		co->ctx = co->callstack.data[--co->callstack.len];
 		if (co->ctx.pc.func == fib40) {
@@ -508,4 +510,3 @@ int main() {
 		printf("\n");
 	}
 }
-

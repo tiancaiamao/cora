@@ -6,13 +6,13 @@
 #include "gc.h"
 #include "types.h"
 
+const Obj Undef = ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 0);
+const Obj Nil =  ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 1);
+const Obj True =  (((((uint64_t)TAG_IMMED) << 48) | OBJ_MASK) | 2);
+const Obj False =  ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 3);
+
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
-
-const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
-const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
-const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
-const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
 
 const char *typeNameX[8] = {
 	"unused",
@@ -27,9 +27,9 @@ const char *typeNameX[8] = {
 
 void *
 newObj(scmHeadType tp, int sz) {
-	/* scmHead* p = malloc(sz); */
-	scmHead *p = gcAlloc(getGC(), sz);
-	assert(((Obj) p & TAG_PTR) == 0);
+	scmHead* p = malloc(sz);
+	// scmHead *p = gcAlloc(getGC(), sz);
+	// assert(((Obj) p & TAG_PTR) == 0);
 	p->type = tp;
 	/* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
 	return (void *) p;
@@ -45,14 +45,12 @@ getScmHead(Obj o) {
 
 Obj
 makeCObj(void *ptr) {
-	// The pointer must be aligned to be used as c object.
-	assert(((Obj) ptr & TAG_PTR) == 0);
-	return ((Obj) (ptr) | TAG_COBJ);
+	return makePtr(ptr, TAG_COBJ);
 }
 
 void *
 mustCObj(Obj o) {
-	assert(tag(o) == TAG_COBJ);
+	assert(iscobj(o));
 	return ptr(o);
 }
 
@@ -61,7 +59,7 @@ makeCons(Obj car, Obj cdr) {
 	struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons));
 	p->car = car;
 	p->cdr = cdr;
-	return ((Obj) (&p->head) | TAG_PTR);
+	return makePtr(&p->head, TAG_CONS);
 }
 
 static void
@@ -101,38 +99,12 @@ cdddr(Obj x) {
 }
 
 Obj
-makeNumber(int v) {
-	if (v < 99999999) {
-		// The type of a fixnum is actually intptr_t, although stored as uintptr.
-		// Be careful with the sign digit.
-		Obj res = (Obj) (((intptr_t) (v) << 1));
-		assert((res & 1) == 0);
-		return res;
-	}
-	// TODO
-	return (Obj) (99999999);
-}
-
-bool
-isNumber(Obj o) {
-	if (isfixnum(o)) {
-		return true;
-	}
-	if (tag(o) == TAG_PTR) {
-		if (((scmHead *) ptr(o))->type == scmHeadNumber) {
-			return true;
-		}
-	}
-	return false;
-}
-
-Obj
 makeBytes(int len) {
 	// sz is the actural length but we malloc a extra byte to be compatible with C.
 	int alloc = len + sizeof(struct scmBytes) + 1;
 	struct scmBytes *str = newObj(scmHeadBytes, alloc);
 	str->len = len;
-	return ((Obj) (&str->head) | TAG_PTR);
+	return makePtr(&str->head, TAG_BYTES);
 }
 
 char *
@@ -205,7 +177,7 @@ makeSymbol(const char *s) {
 		}
 	}
 
-	return (Obj) (p) | TAG_SYMBOL;
+	return makePtr(p, TAG_SYMBOL);
 }
 
 Obj
@@ -238,8 +210,8 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 #ifdef _BOOTSTRAP_TEST_
 		struct scmSymbol* s = ptr(sym);
 		snprintf(dest, sz, "#%d%%", s->unique);
-#else		
-		snprintf(dest, sz, "x%ld", sym);
+#else
+		snprintf(dest, sz, "x%ld", *((intptr_t*)&sym));
 #endif
 		return 0;
 	}
@@ -263,7 +235,7 @@ makeNative(int label, basicBlock fn, int required, int captured, ...) {
 		va_end(ap);
 	}
 
-	return ((Obj) (&clo->head) | TAG_PTR);
+	return makePtr(&clo->head, TAG_NATIVE);
 }
 
 static void
@@ -277,18 +249,19 @@ nativeGCFunc(struct GC *gc, void *f) {
 
 bool
 isNative(Obj c) {
-	if ((c & TAG_MASK) != TAG_PTR) {
+	if (!(isobj(c) && tag(c) == TAG_NATIVE)) {
 		return false;
 	}
 	scmHead *h = ptr(c);
-	return h->type == scmHeadNative;
+	assert(h->type == scmHeadNative);
+	return true;
 }
 
 
 struct scmNative *
 mustNative(Obj o) {
+	assert(isNative(o));
 	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
 	return native;
 }
 
@@ -336,7 +309,7 @@ makeVector(int size, int cap) {
 	for (int i = 0; i < vec->size; i++) {
 		vec->data[i] = Undef;
 	}
-	return ((Obj) (&vec->head) | TAG_PTR);
+	return makePtr(&vec->head, TAG_PTR);
 }
 
 Obj
@@ -358,7 +331,7 @@ vectorSet(Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
-	writeBarrierForIncremental(getGC(), &v->data[idx], val);
+	writeBarrierForIncremental(getGC(), (uintptr_t*)&v->data[idx], val);
 	writeBarrierForGeneration(getGC(), &v->head, val);
 	return vec;
 }
@@ -393,14 +366,14 @@ vectorAppend(Obj vec, Obj val) {
 		struct scmVector *tmpV = ptr(tmp);
 		memcpy(tmpV->data, v->data, v->size * sizeof(Obj));
 		// writeBarrier!
-		writeBarrierForIncremental(getGC(), &vec, tmp);
+		writeBarrierForIncremental(getGC(), (uintptr_t*)&vec, tmp);
 		// this seems not required, because tmp->version should always >= val->version?
 		/* writeBarrierForGeneration(&v->head, val); */
 		v = ptr(tmp);
 	}
 	v->data[v->size] = val;
 	v->size++;
-	return ((Obj) (&v->head) | TAG_PTR);
+	return makePtr(&v->head, TAG_PTR);
 }
 
 bool
@@ -432,7 +405,7 @@ makeContinuation(struct frame *data, int len) {
 		cont->data[i] = data[i];
 	}
 	cont->len = len;
-	return ((Obj) (&cont->head) | TAG_PTR);
+	return makePtr(&cont->head, TAG_PTR);
 }
 
 struct callStack
@@ -464,7 +437,7 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	version_t minv = from->head.version;
-	struct callStack cs = contCallStack((Obj) (&from->head) | TAG_PTR);
+	struct callStack cs = contCallStack((Obj) makePtr(&from->head, TAG_PTR));
 	gcMarkCallStack(gc, &cs, minv);
 }
 

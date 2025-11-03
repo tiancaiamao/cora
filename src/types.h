@@ -4,47 +4,48 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 #include "gc.h"
 #include "str.h"
 #include "vector.h"
 
 #define assert(c) if (!(c)) __builtin_trap()
 
-typedef uint8_t scmHeadType;
+enum {
+	TAG_IMMED  = 0b001,
+	TAG_COBJ = 0b010,
+	TAG_SYMBOL = 0b011,
+	TAG_BYTES  = 0b100,
+	TAG_CONS   = 0b101,
+	TAG_NATIVE   = 0b110,
+	TAG_PTR = 0b111, // general pointer, like vector
+};
 
-#define TAG_SHIFT 3
-#define TAG_MASK 0x7
-#define TAG_PTR 0x7
+static inline int64_t
+fixnum(Obj o) {
+	assert(isfixnum(o));
+	return (int64_t)(*(double*)&o);
+}
 
-#define ptr(x) ((void*)((x)&~TAG_PTR))
-#define tag(x) ((x) & TAG_MASK)
-
-typedef uintptr_t Obj;
+static inline Obj
+makePtr(void *ptr, uint8_t tag) {
+	assert(((uintptr_t)ptr >> 48) == 0);
+	uintptr_t tmp = (((uintptr_t)tag) << 48) | OBJ_MASK | (uintptr_t)ptr;
+	return (Obj)tmp;
+}
 
 #define OBJ_FIELD(O, TYPE, FIELD) (((struct TYPE*)(ptr(O)))->FIELD)
 
-// XX0 fixnum
-// XX1 non-fixnum
-// 001 symbol
-// 011 cobj
-// 101 immediate const (boolean, null, undef...)
-// 111 general pointer (string, vector, number, error...)
-#define TAG_SYMBOL 0x1
-#define TAG_COBJ 0x3
-#define TAG_IMMEDIATE_CONST 0x5
-// 1-101 boolean
-// 0-101 other constant
-#define TAG_BOOLEAN 0xd
-
-#define iscobj(x) (tag(x) == TAG_COBJ)
-#define issymbol(x) ((tag(x) == TAG_SYMBOL) || (tag(x) == TAG_PTR && ((scmHead *)ptr(x))->type == scmHeadSymbol))
-#define isfixnum(x) (((x) & 1) == 0)
-#define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
-
+extern const Obj Undef;
+extern const Obj Nil;
 extern const Obj True;
 extern const Obj False;
-extern const Obj Nil;
-extern const Obj Undef;
+
+static inline bool iscobj(Obj v) { return ((v & MASK) == (((uint64_t)TAG_COBJ << 48) | OBJ_MASK));}
+static inline bool issymbol(Obj v) { return ((v & MASK) == (((uint64_t)TAG_SYMBOL << 48) | OBJ_MASK));}
+static inline bool isbytes(Obj v) { return ((v & MASK) == (((uint64_t)TAG_BYTES << 48) | OBJ_MASK));}
+static inline bool iscons(Obj v) { return ((v & MASK) == (((uint64_t)TAG_CONS << 48) | OBJ_MASK));}
+static inline bool isboolean(Obj x) { return ((x == True) || (x == False));}
 
 void typesInit();
 
@@ -58,8 +59,6 @@ struct scmCons {
   Obj cdr;
 };
 
-#define fixnum(x) ((intptr_t)(x)>>1)
-
 scmHead *getScmHead(Obj);
 
 void* mustCObj(Obj o);
@@ -70,7 +69,7 @@ Obj symbolGet(Obj sym);
 int symbolStr(Obj sym, char* dest, size_t sz);
 
 #define cons(x, y) makeCons(x, y)
-#define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
+// #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
 
 Obj makeCons(Obj car, Obj cdr);
 Obj consp(Obj v);
@@ -78,7 +77,9 @@ Obj cadr(Obj v);
 Obj cddr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
-#define car(v) (((struct scmCons*)(ptr(v)))->car)
+
+static inline Obj car(Obj o) { struct scmCons* c = (struct scmCons*)ptr(o); assert(c->head.type == scmHeadCons); return c->car; }
+// #define car(v) (((struct scmCons*)(ptr(v)))->car)
 #define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
 
 Obj makeCObj(void *ptr);
@@ -90,9 +91,16 @@ int bytesLen(Obj o);
 Obj makeString(const char *s, int len);
 Obj makeCString(const char *s);
 str stringStr(Obj o);
-Obj makeNumber(int v);
-#define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
-bool isNumber(Obj o);
+
+static inline Obj makeNumber(int64_t v) {
+	double f = (double)v;
+	if (isNumber(*(uint64_t*)&f)) {
+		return *(uint64_t*)&f;
+	}
+	assert(false);
+}
+
+// #define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
 
 struct scmBytes {
 	scmHead head;
@@ -109,9 +117,11 @@ eq(Obj x, Obj y) {
         return eq(cdr(x), cdr(y));
     }
 
-    if (isBytes(x) && isBytes(y)) {
-        struct scmBytes *x1 = ptr(x);
-        struct scmBytes *y1 = ptr(y);
+    if (isbytes(x) && isbytes(y)) {
+        struct scmBytes *x1 = (struct scmBytes *)ptr(x);
+        struct scmBytes *y1 = (struct scmBytes *)ptr(y);
+        assert(x1->head.type == scmHeadBytes);
+        assert(y1->head.type == scmHeadBytes);
         str s1 = { x1->data, x1->len };
         str s2 = { y1->data, y1->len };
         return strCmp(s1, s2) == 0;

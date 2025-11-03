@@ -5,11 +5,11 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <sys/stat.h>
-#include <inttypes.h>
 #include "runtime.h"
 #include "str.h"
 #include "gc.h"
 #include "trace.h"
+#include "types.h"
 
 const int INIT_STACK_SIZE = 254;
 
@@ -79,7 +79,7 @@ makeCurry(int required, int captured, Obj * data) {
 	clo->required = required;
 	clo->captured = captured;
 	memcpy(clo->data, data, captured * sizeof(Obj));
-	return ((Obj) (&clo->head) | TAG_PTR);
+	return makePtr(&clo->head, TAG_NATIVE);
 }
 
 void
@@ -199,21 +199,21 @@ primEQ(Obj x, Obj y) {
 
 Obj
 primGT(Obj x, Obj y) {
-	assert(isfixnum(x));
-	assert(isfixnum(y));
-	return fixnum(x) > fixnum(y) ? True : False;
+	assert(isNumber(x));
+	assert(isNumber(y));
+	return (double)x > (double)y ? True : False;
 }
 
 Obj
 primLT(Obj x, Obj y) {
-	assert(isfixnum(x));
-	assert(isfixnum(y));
-	return fixnum(x) < fixnum(y) ? True : False;
+	assert(isNumber(x));
+	assert(isNumber(y));
+	return (double)x < (double)y ? True : False;
 }
 
 Obj
 primDiv(Obj x, Obj y) {
-	if (isfixnum(x) && isfixnum(y)) {
+	if (isNumber(x) && isNumber(y)) {
 		return makeNumber(x / y);
 	} else {
 		// TODO
@@ -223,7 +223,7 @@ primDiv(Obj x, Obj y) {
 
 Obj
 primAdd(Obj x, Obj y) {
-	if (isfixnum(x) && isfixnum(y)) {
+	if (isNumber(x) && isNumber(y)) {
 		return x + y;
 	} else {
 		// TODO
@@ -271,7 +271,7 @@ Obj
 primSet(struct Cora *co, Obj key, Obj val) {
 	if (tag(key) == TAG_SYMBOL) {
 		struct trieNode *s = ptr(key);
-		writeBarrierForIncremental(getGC(), &s->value, val);	// s->value = val;
+		writeBarrierForIncremental(getGC(), (uintptr_t*)&s->value, val);	// s->value = val;
 		if (s->next == NULL) {
 			s->next = co->globals;
 			s->owner = co;
@@ -282,7 +282,7 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	} else if (tag(key) == TAG_PTR &&
 		   ((scmHead *) ptr(key))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(key);
-		writeBarrierForIncremental(getGC(), &s->value, val);
+		writeBarrierForIncremental(getGC(), (uintptr_t*)&s->value, val);
 		writeBarrierForGeneration(getGC(), &s->head, val);
 	} else {
 		assert(false);
@@ -292,7 +292,7 @@ primSet(struct Cora *co, Obj key, Obj val) {
 
 Obj
 primSub(Obj x, Obj y) {
-	if (isfixnum(x) && isfixnum(y)) {
+	if (isNumber(x) && isNumber(y)) {
 		return x - y;
 	} else {
 		// TODO
@@ -302,8 +302,8 @@ primSub(Obj x, Obj y) {
 
 Obj
 primMul(Obj x, Obj y) {
-	if (isfixnum(x) && isfixnum(y)) {
-		return makeNumber(fixnum(x) * fixnum(y));
+	if (isNumber(x) && isNumber(y)) {
+		return makeNumber(x * y);
 	} else {
 		// TODO
 		assert(false);
@@ -325,7 +325,7 @@ primGenSym() {
 	p->unique = uniqueIdx;
 	uniqueIdx++;
 #endif
-	return ((Obj) (&p->head) | TAG_PTR);
+	return makePtr(&p->head, TAG_SYMBOL);
 }
 
 Obj
@@ -348,7 +348,8 @@ primIsNumber(Obj x) {
 
 Obj
 primIsString(Obj x) {
-	if (isBytes(x)) {
+	if (isbytes(x)) {
+		assert(getScmHead(x)->type == scmHeadBytes);
 		return True;
 	} else {
 		return False;
@@ -367,7 +368,9 @@ symbolToString(struct Cora *co) {
 void
 builtinBytes(struct Cora *co) {
 	TRACE_SCOPE("builtinBytes");
-	int n = fixnum(co->args[1]);
+	Obj x = co->args[1];
+	assert(isfixnum(x));
+	int n = (int)x;
 	Obj val = makeBytes(n);
 	coraReturn(co, val);
 }
@@ -485,7 +488,7 @@ void
 builtinIntern(struct Cora *co) {
 	TRACE_SCOPE("builtinIntern");
 	Obj x = co->args[1];
-	assert(isBytes(x));
+	assert(isbytes(x));
 	Obj val = intern(stringStr(x).str);
 	coraReturn(co, val);
 }
@@ -777,7 +780,8 @@ static void
 builtinVector(struct Cora *co) {
 	TRACE_SCOPE("builtinVector");
 	Obj o = co->args[1];
-	int n = fixnum(o);
+	assert(isfixnum(o));
+	int n = (int64_t)o;
 	Obj res = makeVector(n, n);
 	coraReturn(co, res);
 }
@@ -786,7 +790,8 @@ static void
 builtinVectorRef(struct Cora *co) {
 	Obj v = co->args[1];
 	Obj idx = co->args[2];
-	coraReturn(co, vectorRef(v, fixnum(idx)));
+	assert(isfixnum(idx));
+	coraReturn(co, vectorRef(v, (int64_t)idx));
 }
 
 static void
@@ -795,7 +800,8 @@ builtinVectorSet(struct Cora *co) {
 	Obj v = co->args[1];
 	Obj idx = co->args[2];
 	Obj o = co->args[3];
-	coraReturn(co, vectorSet(v, fixnum(idx), o));
+	assert(isfixnum(idx));
+	coraReturn(co, vectorSet(v, (int64_t)idx, o));
 }
 
 static void
@@ -808,7 +814,7 @@ builtinVectorLength(struct Cora *co) {
 void
 builtinReadFileAsSexp(struct Cora *co) {
 	Obj arg = co->args[1];
-	assert(isBytes(arg));
+	assert(isbytes(arg));
 	Obj result = Nil;
 	char *fileName = stringStr(arg).str;
 	FILE *f = fopen(fileName, "r");

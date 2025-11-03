@@ -1,4 +1,5 @@
 #include "reader.h"
+#include "gc.h"
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -249,56 +250,60 @@ printCons(FILE *to, Obj o, bool start) {
 	}
 }
 
-void
-printObj(FILE *to, Obj o) {
-	if (isfixnum(o)) {
-		fprintf(to, "%ld", fixnum(o));
-	} else if (iscobj(o)) {
-		fprintf(to, "cobj");
-	} else if (iscons(o)) {
-		printCons(to, o, true);
-	} else if (issymbol(o)) {
-		char dest[256];
-		symbolStr(o, dest, 256);
-		fprintf(to, "%s", dest);
-	} else if (isboolean(o)) {
-		if (o == True) {
-			fprintf(to, "true");
-		} else if (o == False) {
-			fprintf(to, "false");
-		}
-	} else if (o == Nil) {
-		fprintf(to, "()");
-	} else if (tag(o) == TAG_PTR) {
-		scmHead *h = ptr(o);
-		switch (h->type) {
-		case scmHeadNumber:
-			fprintf(to, "ptr number");
-			break;
-		case scmHeadCons:
-			fprintf(to, "cons");
-			break;
-		case scmHeadVector:
-			fprintf(to, "vector");
-			break;
-		case scmHeadNull:
-			fprintf(to, "null");
-			break;
-		case scmHeadBytes:
-			fprintf(to, "\"%s\"", stringStr(o).str);
-			break;
-		case scmHeadBoolean:
-			fprintf(to, "boolean");
-			break;
-		case scmHeadNative:
-			fprintf(to, "native");
-			break;
-		default:
-			fprintf(to, "ptr unknown type = %d\n", h->type);
-		};
-	} else {
-		fprintf(to, "unknown %ld", o);
-	}
+void printObj(FILE *to, Obj o) {
+  if (isNumber(o)) {
+    if (isfixnum(o)) {
+      fprintf(to, "%lld", (int64_t)(*(double *)&o));
+    } else {
+      fprintf(to, "%f", *(double *)&o);
+    }
+    return;
+  }
+  if (tag(o) == TAG_IMMED) {
+    if (o == Nil) {
+      fprintf(to, "null");
+    } else if (o == True) {
+      fprintf(to, "true");
+    } else if (o == False) {
+      fprintf(to, "false");
+    } else if (o == Undef) {
+      fprintf(to, "Undef");
+    } else {
+      fprintf(to, "ptr unknown immed type = %ld\n", o);
+    }
+    return;
+  }
+
+  switch (tag(o)) {
+  case TAG_COBJ:
+    fprintf(to, "cobj");
+    break;
+  case TAG_SYMBOL: {
+    char dest[256];
+    symbolStr(o, dest, 256);
+    fprintf(to, "%s", dest);
+    break;
+  }
+  case TAG_BYTES:
+    fprintf(to, "\"%s\"", stringStr(o).str);
+    break;
+  case TAG_CONS:
+    printCons(to, o, true);
+    break;
+  case TAG_NATIVE:
+    fprintf(to, "native");
+    break;
+  case TAG_PTR: {
+    scmHead *h = ptr(o);
+    switch (h->type) {
+    case scmHeadVector:
+      fprintf(to, "vector");
+      break;
+    }
+  }
+  default:
+    fprintf(to, "unknown type = %ld\n", o);
+  }
 }
 
 void

@@ -19,7 +19,7 @@ struct Cora {
 		int nargs;
 
 
-	
+
 	Obj stack[200];
 };
 
@@ -74,7 +74,7 @@ static inline void
 growCallStack(struct callStack *cs) {
 	TRACE_SCOPE("growCallStack");
 	size_t new_cap = cs->cap * 2;
-	struct frame *new_data = malloc(new_cap * sizeof(struct frame));
+	struct frame *new_data = (struct frame *)malloc(new_cap * sizeof(struct frame));
 	memcpy(new_data, cs->data, cs->len * sizeof(struct frame));
 	free(cs->data);
 	cs->data = new_data;
