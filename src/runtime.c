@@ -31,7 +31,7 @@ segmentStackInit(struct segmentStack *alloc) {
 }
 
 Obj*
-stackAllocSlowPath(struct Cora *co, int n) {
+stackAllocSlowPath(Cora *co, int n) {
 	assert(n < INIT_STACK_SIZE);
 	segmentStackAlloc(&co->stk);
 	co->ctx.bp = co->stk.begin;
@@ -40,7 +40,7 @@ stackAllocSlowPath(struct Cora *co, int n) {
 }
 
 void
-coraReturnSlowPath(struct Cora *co) {
+coraReturnSlowPath(Cora *co) {
 	assert(vecGet(&co->stk.data, vecLen(&co->stk.data)-1) == co->stk.begin);
 	free(co->stk.begin);
 	vecSet(&co->stk.data, vecLen(&co->stk.data)-1, NULL);
@@ -56,11 +56,11 @@ coraReturnSlowPath(struct Cora *co) {
 }
 
 extern __thread struct trieNode *gRoot;
- __thread struct Cora *gCo;
+ // __thread struct Cora *gCo;
 
-static struct Cora *
+static Cora*
 coraNew() {
-	struct Cora *co = malloc(sizeof(struct Cora));
+	Cora *co = malloc(sizeof(Cora));
 	vecInit(&co->callstack, 64);
 	segmentStackInit(&co->stk);
 	co->ctx.bp = co->stk.begin;
@@ -68,19 +68,24 @@ coraNew() {
 	vecInit(&co->trystack, 4);
 
 	co->globals = gRoot;
-	gCo = co;
+	// gCo = co;
 	return co;
 }
 
+static void coraGCFunc(GC *gc, void *data);
+
 void
-trampoline(struct Cora *co) {
+trampoline(Cora *co) {
 	while(co->ctx.fn != NULL) {
 		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
+		if (gcTriggerCheck(co->gc)) {
+			gcMarkRoot(co->gc, coraGCFunc, co);
+		}
 	}
 }
 
 void
-coraRun(struct Cora *co) {
+coraRun(Cora *co) {
 	struct frame exit = {
 		.fn = NULL,
 		.label = 0,
@@ -91,7 +96,7 @@ coraRun(struct Cora *co) {
 	trampoline(co);
 }
 
-static void coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args);
+static void coraDispatch(Cora *co, Obj fn, int nargs, Obj* args);
 
 // Usage:
 //     Obj args[3] = {arg1, arg2, arg3};
@@ -99,7 +104,7 @@ static void coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args);
 // This funcation will copy args twice, once on C stack for temparary array
 // and once after stackAlloc() copy the the frame.
 void
-coraCall(struct Cora *co, Obj fn, int nargs, Obj *args) {
+coraCall(Cora *co, Obj fn, int nargs, Obj *args) {
 	struct scmNative* f = mustNative(fn);
 	if (f->required != nargs) {
 		// curry or partial, goto dispatch function
@@ -124,7 +129,7 @@ coraCall(struct Cora *co, Obj fn, int nargs, Obj *args) {
 }
 
 static void
-callCurry(struct Cora *co, int label, Obj *R) {
+callCurry(Cora *co, int label, Obj *R) {
 	Obj fn = R[0];
 	int captured = nativeCaptured(fn);
 	int nargs = nativeRequired(fn);
@@ -135,9 +140,9 @@ callCurry(struct Cora *co, int label, Obj *R) {
 }
 
 Obj
-makeCurry(Obj fn, int nargs, Obj *args) {
+makeCurry(Cora *co, Obj fn, int nargs, Obj *args) {
 	int sz = sizeof(struct scmNative) + (nargs + 1) * sizeof(Obj);
-	struct scmNative *clo = newObj(scmHeadNative, sz);
+	struct scmNative *clo = newObj(co->gc, scmHeadNative, sz);
 	clo->fn = callCurry;
 	struct scmNative* f = mustNative(fn);
 	assert(f->required > nargs);
@@ -153,12 +158,12 @@ makeCurry(Obj fn, int nargs, Obj *args) {
 }
 
 static void
-coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args) {
+coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
 	struct scmNative *f = mustNative(fn);
 	int required = f->required;
 	assert(nargs != required);
 	if (nargs < required) {
-		Obj ret = makeCurry(fn, nargs, args);
+		Obj ret = makeCurry(co, fn, nargs, args);
 		coraReturn(co, ret);
 	} else {
 		// eval the first call and get the result;
@@ -184,10 +189,10 @@ coraDispatch(struct Cora *co, Obj fn, int nargs, Obj* args) {
 }
 
 Obj
-primSet(struct Cora *co, Obj key, Obj val) {
+primSet(Cora *co, Obj key, Obj val) {
 	if (tag(key) == TAG_SYMBOL) {
 		struct trieNode *s = ptr(key);
-		writeBarrierForIncremental(getGC(), &s->value, val);	// s->value = val;
+		writeBarrierForIncremental(co->gc, &s->value, val);	// s->value = val;
 		if (s->next == NULL) {
 			s->next = co->globals;
 			s->owner = co;
@@ -198,8 +203,8 @@ primSet(struct Cora *co, Obj key, Obj val) {
 	} else if (tag(key) == TAG_PTR &&
 		   ((scmHead *) ptr(key))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(key);
-		writeBarrierForIncremental(getGC(), &s->value, val);
-		writeBarrierForGeneration(getGC(), &s->head, val);
+		writeBarrierForIncremental(co->gc, &s->value, val);
+		writeBarrierForGeneration(co->gc, &s->head, val);
 	} else {
 		assert(false);
 	}
@@ -216,31 +221,31 @@ primIsString(Obj x) {
 }
 
 void
-symbolToString(struct Cora *co, int lable, Obj *R) {
+symbolToString(Cora *co, int lable, Obj *R) {
 	Obj sym = R[1];
 	char dest[256];
 	symbolStr(sym, dest, 256);
-	Obj val = makeCString(dest);
+	Obj val = makeCString(co->gc, dest);
 	coraReturn(co, val);
 }
 
 void
-builtinBytes(struct Cora *co, int label, Obj *R) {
+builtinBytes(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinBytes");
 	int n = fixnum(R[1]);
-	Obj val = makeBytes(n);
+	Obj val = makeBytes(co->gc, n);
 	coraReturn(co, val);
 }
 
 static void
-builtinBytesLength(struct Cora *co, int label, Obj *R) {
+builtinBytesLength(Cora *co, int label, Obj *R) {
 	Obj o = R[1];
 	int res = bytesLen(o);
 	coraReturn(co, makeNumber(res));
 }
 
 void
-builtinIntern(struct Cora *co, int label, Obj *R) {
+builtinIntern(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinIntern");
 	Obj x = R[1];
 	assert(isBytes(x));
@@ -249,7 +254,7 @@ builtinIntern(struct Cora *co, int label, Obj *R) {
 }
 
 void
-builtinIsNumber(struct Cora *co, int label, Obj *R) {
+builtinIsNumber(Cora *co, int label, Obj *R) {
 	Obj x = R[1];
 	if (isfixnum(x)) {
 		coraReturn(co, True);
@@ -266,7 +271,7 @@ builtinIsNumber(struct Cora *co, int label, Obj *R) {
 }
 
 void
-builtinValue(struct Cora *co, int label, Obj *R) {
+builtinValue(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	Obj ret;
 	if (tag(sym) == TAG_SYMBOL) {
@@ -288,7 +293,7 @@ builtinValue(struct Cora *co, int label, Obj *R) {
 }
 
 void
-builtinValueOr(struct Cora *co, int label, Obj *R) {
+builtinValueOr(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	Obj ret;
 	if (tag(sym) == TAG_SYMBOL) {
@@ -310,7 +315,7 @@ builtinValueOr(struct Cora *co, int label, Obj *R) {
 }
 
 void
-builtinLoadSo(struct Cora *co, int label, Obj *R) {
+builtinLoadSo(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinLoadSo");
 	// (load-so "file-path.so" "package-path")
 	Obj filePath = R[1];
@@ -328,7 +333,7 @@ builtinLoadSo(struct Cora *co, int label, Obj *R) {
 	char *error = dlerror();
 	if (error != NULL) {
 		// TODO
-		coraReturn(co, makeString(error, strlen(error)));
+		coraReturn(co, makeString(co->gc, error, strlen(error)));
 		return;
 	}
 	struct frame exit = {
@@ -356,7 +361,7 @@ listLen(Obj l) {
 }
 
 static void
-builtinApply(struct Cora *co, int label, Obj *R) {
+builtinApply(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinApply");
 	Obj fn = R[1];
 	Obj args = R[2];
@@ -402,7 +407,7 @@ getCoraPath() {
 static int unique = 1;
 
 static void
-builtinLoad(struct Cora *co, int label, Obj *R) {
+builtinLoad(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinLoad");
 	// (load "file-path.cora")
 	Obj filePath = R[1];
@@ -414,7 +419,7 @@ builtinLoad(struct Cora *co, int label, Obj *R) {
 	unique++;
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
-	Obj arg2 = makeString(tmpCFile.str, tmpCFile.len);
+	Obj arg2 = makeString(co->gc, tmpCFile.str, tmpCFile.len);
 	Obj fn = globalRef(intern("cora/lib/toc#compile-to-c"));
 	coraCall2(co, fn, arg1, arg2);
 	coraRun(co);
@@ -444,9 +449,9 @@ builtinLoad(struct Cora *co, int label, Obj *R) {
 		return;
 	}
 
-	arg1 = makeCString(toCStr(tmp));
+	arg1 = makeCString(co->gc, toCStr(tmp));
 	strFree(tmp);
-	arg2 = makeCString("");
+	arg2 = makeCString(co->gc, "");
 	fn = globalRef(intern("load-so"));
 	co->ctx.sp = R;
 	coraCall2(co, fn, arg1, arg2);
@@ -493,7 +498,7 @@ exit:
 // 2. convert from library path to .cora or .so file
 // 3. call load or load-so for the actual work
 void
-builtinImport(struct Cora *co, int label, Obj *R) {
+builtinImport(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinImport");
 	Obj pkg = R[1];
 	str pkgStr = stringStr(pkg);
@@ -510,7 +515,7 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	}
 
 	// Set the *imported* variable to avoid repeated load.
-	primSet(co, sym, cons(pkg, imported));
+	primSet(co, sym, makeCons(co->gc, pkg, imported));
 
 	// CORA PATH
 	strBuf tmp = getCoraPath();
@@ -521,8 +526,8 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	if (safeToUseSo(tmp)) {
 		// builtinLoadSo is a bit special, it requires the spent stack of VM is
 		// (load-so "file-path.so" "package-path")
-		Obj arg0 = makeNative(3, builtinLoadSo, 2, 0);
-		Obj arg1 = makeString(toCStr(tmp), strLen(toStr(tmp)));
+		Obj arg0 = makeNative(co->gc, 3, builtinLoadSo, 2, 0);
+		Obj arg1 = makeString(co->gc, toCStr(tmp), strLen(toStr(tmp)));
 		Obj arg2 = pkg;
 		coraCall2(co, arg0, arg1, arg2);
 		coraRun(co);
@@ -536,12 +541,12 @@ builtinImport(struct Cora *co, int label, Obj *R) {
 	tmp = strCat(tmp, S(".cora"));
 	str tmp1 = toStr(tmp);
 
-	coraCall2(co, makeNative(3, builtinLoad, 2, 0), makeString(tmp1.str, tmp1.len), pkg);
+	coraCall2(co, makeNative(co->gc, 3, builtinLoad, 2, 0), makeString(co->gc, tmp1.str, tmp1.len), pkg);
 	strFree(tmp);
 }
 
 static void
-builtinIsVector(struct Cora *co, int label, Obj *R) {
+builtinIsVector(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinIsVector");
 	Obj o = R[1];
 	if (isvector(o)) {
@@ -552,39 +557,39 @@ builtinIsVector(struct Cora *co, int label, Obj *R) {
 }
 
 static void
-builtinVector(struct Cora *co, int label, Obj *R) {
+builtinVector(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinVector");
 	Obj o = R[1];
 	int n = fixnum(o);
-	Obj res = makeVector(n, n);
+	Obj res = makeVector(co->gc, n, n);
 	coraReturn(co, res);
 }
 
 static void
-builtinVectorRef(struct Cora *co, int label, Obj *R) {
+builtinVectorRef(Cora *co, int label, Obj *R) {
 	Obj v = R[1];
 	Obj idx = R[2];
 	coraReturn(co, vectorRef(v, fixnum(idx)));
 }
 
 static void
-builtinVectorSet(struct Cora *co, int label, Obj *R) {
+builtinVectorSet(Cora *co, int label, Obj *R) {
 	/* TRACE_SCOPE("builtinVectorSet"); */
 	Obj v = R[1];
 	Obj idx = R[2];
 	Obj o = R[3];
-	coraReturn(co, vectorSet(v, fixnum(idx), o));
+	coraReturn(co, vectorSet(co->gc, v, fixnum(idx), o));
 }
 
 static void
-builtinVectorLength(struct Cora *co, int label, Obj *R) {
+builtinVectorLength(Cora *co, int label, Obj *R) {
 	Obj o = R[1];
 	int res = vectorLength(o);
 	coraReturn(co, makeNumber(res));
 }
 
 void
-builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
+builtinReadFileAsSexp(Cora *co, int label, Obj *R) {
 	Obj arg = R[1];
 	assert(isBytes(arg));
 	Obj result = Nil;
@@ -598,16 +603,16 @@ builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
 	int err = 0;
 	int count = 0;
 	while (true) {
-		Obj ast = sexpRead(f, &err);
+		Obj ast = sexpRead(co->gc, f, &err);
 		if (err != 0) {
 			break;
 		}
-		result = cons(ast, result);
+		result = makeCons(co->gc, ast, result);
 		count++;
 	}
 	if (count > 1) {
-		result = reverse(result);
-		result = cons(makeSymbol("begin"), result);
+		result = reverse(co->gc, result);
+		result = makeCons(co->gc, makeSymbol("begin"), result);
 	} else {
 		result = car(result);
 	}
@@ -618,7 +623,7 @@ builtinReadFileAsSexp(struct Cora *co, int label, Obj *R) {
 }
 
 static void
-builtinStringAppend(struct Cora *co, int label, Obj *R) {
+builtinStringAppend(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinStringAppend");
 	Obj str1 = R[1];
 	Obj str2 = R[2];
@@ -628,13 +633,13 @@ builtinStringAppend(struct Cora *co, int label, Obj *R) {
 	tmp = strCpy(tmp, x);
 	tmp = strCat(tmp, y);
 	str s = toStr(tmp);
-	Obj val = makeString(s.str, s.len);
+	Obj val = makeString(co->gc, s.str, s.len);
 	strFree(tmp);
 	coraReturn(co, val);
 }
 
 static void
-builtinSymbolCooked(struct Cora *co, int label, Obj *R) {
+builtinSymbolCooked(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	char dst[256];
 	symbolStr(sym, dst, 256);
@@ -650,7 +655,7 @@ builtinSymbolCooked(struct Cora *co, int label, Obj *R) {
 // (try (lambda () (+ (throw 42) 1))
 //      (lambda (v resume) (resume (+ v 66))))
 static void
-builtinTryCatch(struct Cora *co, int label, Obj *R) {
+builtinTryCatch(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinTryCatch");
 
 	switch(label) {
@@ -718,10 +723,10 @@ struct scmContinuation {
 };
 
 Obj
-makeContinuation(struct frame *callstack, int len, Obj** stk, int count) {
+makeContinuation(Cora *co, struct frame *callstack, int len, Obj** stk, int count) {
 	size_t callstackBytes = len * sizeof(struct frame);
 	size_t segstackBytes  = count * sizeof(Obj*);
-	struct scmContinuation *cont = newObj(scmHeadContinuation,
+	struct scmContinuation *cont = newObj(co->gc, scmHeadContinuation,
 					      sizeof(struct scmContinuation) +
 					      callstackBytes + segstackBytes);
 	cont->len = len;
@@ -752,7 +757,7 @@ continuationGCFunc(struct GC *gc, void *f) {
 }
 
 static void
-continuationAsClosure(struct Cora *co, int label, Obj *R) {
+continuationAsClosure(Cora *co, int label, Obj *R) {
 	Obj this = R[0];
 	Obj contObj = nativeData(this)[0];
 
@@ -782,19 +787,19 @@ continuationAsClosure(struct Cora *co, int label, Obj *R) {
 }
 
 static void
-builtinThrow(struct Cora *co, int label, Obj *R) {
+builtinThrow(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinThrow");
 	struct tryMark mark = vecPop(&co->trystack);
 	Obj v = R[1];
 
 	// Capture the call stack as continuation.
-	Obj cont = makeContinuation(vecRef(&co->callstack, mark.callstackPos),
+	Obj cont = makeContinuation(co, vecRef(&co->callstack, mark.callstackPos),
 				     vecLen(&co->callstack) - mark.callstackPos,
 				     vecRef(&co->stk.data, mark.segmentStackPos),
 				     vecLen(&co->stk.data) - mark.segmentStackPos);
 
 	// Now that we get the spent continuation, disguise as a closure.
-	Obj clo = makeNative(2, continuationAsClosure, 1, 1, cont);
+	Obj clo = makeNative(co->gc, 2, continuationAsClosure, 1, 1, cont);
 
 	// Find the handler from the try stack, invoke it, passing the continuation.
 	struct frame try = vecGet(&co->callstack, mark.callstackPos);
@@ -859,8 +864,8 @@ primAdd(Obj x, Obj y) {
 }
 
 Obj
-primCons(Obj x, Obj y) {
-	return cons(x, y);
+primCons(Cora *co, Obj x, Obj y) {
+	return makeCons(co->gc, x, y);
 }
 
 Obj
@@ -915,9 +920,9 @@ primMul(Obj x, Obj y) {
 }
 
 Obj
-primGenSym() {
+primGenSym(Cora *co) {
 	// The pointer is uniqueness and can be used as symbol->string
-	struct scmSymbol *p = newObj(scmHeadSymbol, sizeof(struct scmSymbol));
+	struct scmSymbol *p = newObj(co->gc, scmHeadSymbol, sizeof(struct scmSymbol));
 	p->head.rset = NULL;
 	p->head.inRSet = false;
 	p->value = Nil;
@@ -938,7 +943,7 @@ primIsSymbol(Obj x) {
 }
 
 static void
-applyClosureForEval(struct Cora *co, int label, Obj *R) {
+applyClosureForEval(Cora *co, int label, Obj *R) {
 	Obj self = R[0];
 	Obj *data = nativeData(self);
 	Obj params = data[0];
@@ -947,7 +952,7 @@ applyClosureForEval(struct Cora *co, int label, Obj *R) {
 	for (int i = 1; params != Nil; i++) {
 		Obj var = car(params);
 		Obj val = R[i];
-		env = cons(cons(var, val), env);
+		env = makeCons(co->gc, makeCons(co->gc, var, val), env);
 		params = cdr(params);
 	}
 	co->ctx.sp = R;
@@ -955,17 +960,17 @@ applyClosureForEval(struct Cora *co, int label, Obj *R) {
 }
 
 static void
-makeClosureForEval(struct Cora *co, int label, Obj *R) {
+makeClosureForEval(Cora *co, int label, Obj *R) {
 	Obj params = R[1];
 	Obj body = R[2];
 	Obj env = R[3];
 	int len = listLen(params);
-	Obj ret = makeNative(4, applyClosureForEval, len, 3, params, body, env);
+	Obj ret = makeNative(co->gc, 4, applyClosureForEval, len, 3, params, body, env);
 	coraReturn(co, ret);
 }
 
 static Obj
-primVMSymbolForTLS(struct Cora *co) {
+primVMSymbolForTLS(Cora *co) {
 	char dest[20];
 	int sz = sprintf(dest, "%p", co);
 	assert(sz < 20);
@@ -973,13 +978,13 @@ primVMSymbolForTLS(struct Cora *co) {
 }
 
 static void
-vmSymbolForTLS(struct Cora *co, int label, Obj *R) {
+vmSymbolForTLS(Cora *co, int label, Obj *R) {
 	Obj ret = primVMSymbolForTLS(co);
 	coraReturn(co, ret);
 }
 
 void
-registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
+registerAPI(Cora *co, struct registerModule *m, str pkg) {
 	if (m->init != NULL) {
 		m->init();
 	}
@@ -1001,8 +1006,8 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 		} else {
 			sym = intern(entry.name);
 		}
-		primSet(co, sym, makeNative(entry.args + 1, entry.func, entry.args, 0));
-		exports = cons(intern(entry.name), exports);
+		primSet(co, sym, makeNative(co->gc, entry.args + 1, entry.func, entry.args, 0));
+		exports = makeCons(co->gc, intern(entry.name), exports);
 	}
 	if (strLen(pkg) > 0) {
 		strBuf tmp = strDup(pkg);
@@ -1014,7 +1019,7 @@ registerAPI(struct Cora *co, struct registerModule *m, str pkg) {
 }
 
 void
-coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int argc) {
+coraRegisterAPI(Cora *co, char* pkg, char *name, basicBlock func, int argc) {
 	Obj sym;
 	if (pkg != NULL) {
 		strBuf tmp = strDup(cstr(pkg));
@@ -1025,7 +1030,7 @@ coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int arg
 	} else {
 		sym = intern(name);
 	}
-	primSet(co, sym, makeNative(argc + 1, func, argc, 0));
+	primSet(co, sym, makeNative(co->gc, argc + 1, func, argc, 0));
 	if (pkg != NULL) {
 		strBuf tmp = strDup(cstr(pkg));
 		tmp = strCat(tmp, S("#*ns-export*"));
@@ -1035,73 +1040,73 @@ coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int arg
 		if (exports == Undef) {
 			exports = Nil;
 		}
-		exports = cons(intern(name), exports);
+		exports = makeCons(co->gc, intern(name), exports);
 		primSet(co, sym, exports);
 	}
 }
 
-struct Cora *
-coraInit(uintptr_t * mark) {
-	gcInit(mark);
+Cora *
+coraInit() {
+	Cora *co = coraNew();
+	co->gc = gcInit();
 	typesInit();
 	gcRegistForType(scmHeadContinuation, continuationGCFunc);
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
 	symUnQuote = intern("unquote");
-	struct Cora *co = coraNew();
 	primSet(co, intern("symbol->string"),
-		makeNative(2, symbolToString, 1, 0));
+		makeNative(co->gc, 2, symbolToString, 1, 0));
 	primSet(co, intern("intern"),
-		makeNative(2, builtinIntern, 1, 0));
+		makeNative(co->gc, 2, builtinIntern, 1, 0));
 	primSet(co, intern("number?"),
-		makeNative(2, builtinIsNumber, 1, 0));
+		makeNative(co->gc, 2, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
-		makeNative(2, builtinReadFileAsSexp, 1, 0));
+		makeNative(co->gc, 2, builtinReadFileAsSexp, 1, 0));
 	primSet(co, intern("string-append"),
-		makeNative(3, builtinStringAppend, 2, 0));
+		makeNative(co->gc, 3, builtinStringAppend, 2, 0));
 	primSet(co, intern("value"),
-		makeNative(2, builtinValue, 1, 0));
+		makeNative(co->gc, 2, builtinValue, 1, 0));
 	primSet(co, intern("value-or"),
-		makeNative(3, builtinValueOr, 2, 0));
+		makeNative(co->gc, 3, builtinValueOr, 2, 0));
 	primSet(co, intern("apply"),
-		makeNative(3, builtinApply, 2, 0));
+		makeNative(co->gc, 3, builtinApply, 2, 0));
 	primSet(co, intern("load-so"),
-		makeNative(3, builtinLoadSo, 2, 0));
+		makeNative(co->gc, 3, builtinLoadSo, 2, 0));
 	primSet(co, intern("import"),
-		makeNative(2, builtinImport, 1, 0));
+		makeNative(co->gc, 2, builtinImport, 1, 0));
 	primSet(co, intern("load"),
-		makeNative(2, builtinLoad, 1, 0));
+		makeNative(co->gc, 2, builtinLoad, 1, 0));
 	primSet(co, intern("vector"),
-		makeNative(2, builtinVector, 1, 0));
+		makeNative(co->gc, 2, builtinVector, 1, 0));
 	primSet(co, intern("vector?"),
-		makeNative(2, builtinIsVector, 1, 0));
+		makeNative(co->gc, 2, builtinIsVector, 1, 0));
 	primSet(co, intern("vector-set!"),
-		makeNative(4, builtinVectorSet, 3, 0));
+		makeNative(co->gc, 4, builtinVectorSet, 3, 0));
 	primSet(co, intern("vector-ref"),
-		makeNative(3, builtinVectorRef, 2, 0));
+		makeNative(co->gc, 3, builtinVectorRef, 2, 0));
 	primSet(co, intern("vector-length"),
-		makeNative(2, builtinVectorLength, 1, 0));
+		makeNative(co->gc, 2, builtinVectorLength, 1, 0));
 	primSet(co, intern("bytes"),
-		makeNative(2, builtinBytes, 1, 0));
+		makeNative(co->gc, 2, builtinBytes, 1, 0));
 	primSet(co, intern("bytes-length"),
-		makeNative(2, builtinBytesLength, 1, 0));
+		makeNative(co->gc, 2, builtinBytesLength, 1, 0));
 	primSet(co, intern("try"),
-		makeNative(3, builtinTryCatch, 2, 0));
+		makeNative(co->gc, 3, builtinTryCatch, 2, 0));
 	primSet(co, intern("throw"),
-		makeNative(2, builtinThrow, 1, 0));
+		makeNative(co->gc, 2, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
-		makeNative(2, builtinSymbolCooked, 1, 0));
+		makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
 	primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
-		makeNative(0, makeClosureForEval, 3, 0));
+		makeNative(co->gc, 0, makeClosureForEval, 3, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
-		makeNative(1, vmSymbolForTLS, 0, 0));
+		makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);
 	return co;
 }
 
 void
-coraExit(struct Cora *co) {
+coraExit(Cora *co) {
 	// TODO
 	// release GC
 	// release event loop
@@ -1113,8 +1118,9 @@ coraExit(struct Cora *co) {
 }
 
 static void
-coraGCFunc(struct GC *gc, struct Cora *co) {
+coraGCFunc(GC *gc, void *ptr) {
 	TRACE_SCOPE("coraGCFunc");
+	Cora *co = ptr;
 	// The globals
 	for (struct trieNode * p = co->globals; p != gRoot; p = p->next) {
 		assert(p->owner == co);
@@ -1138,21 +1144,13 @@ coraGCFunc(struct GC *gc, struct Cora *co) {
 	}
 }
 
-void
-gcGlobal(struct GC *gc) {
-	TRACE_SCOPE("gcGlobal");
-	coraGCFunc(gc, gCo);
-}
-
-
 #ifdef ForTest
 
-extern void entry(struct Cora *co, int label, Obj *R);
+extern void entry(Cora *co, int label, Obj *R);
 
 int
 main(int argc, char *argv[]) {
-	uintptr_t dummy;
-	struct Cora *co = coraInit(&dummy);
+	Cora *co = coraInit();
 
 	entry(co, 0, NULL);
 	coraRun(co);

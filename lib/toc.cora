@@ -226,7 +226,7 @@
 	      ['%closure cur (length params) nframe . fvs]))
 	v f-args => (map (collect-lambda v) f-args) where (cons? f-args)
 	v x => x)
-	     
+
   (defun append-result (v val)
     (let idx (vector-ref v 0)
       cur (vector-ref v 1)
@@ -292,7 +292,7 @@
 	   1 ls))
 
   (defun generate-inst (globals self env1 w x1)
-    (let generate-inst-h (gensym) 
+    (let generate-inst-h (gensym)
 	 (begin
 
 	  (set generate-inst-h
@@ -318,7 +318,7 @@
 							(generate-num w x)
 							(generate-str w ")")))
 					  ((string? x) (begin
-							(generate-str w "makeCString(\"")
+							(generate-str w "makeCString(co->gc, \"")
 							(generate-str w (escape-str x))
 							(generate-str w "\")")))
 					  ((= x ()) (generate-str w "Nil"))
@@ -335,9 +335,11 @@
 					       ((value generate-inst-h) c (cons a env))))
 			    [['%builtin f] . args] (begin
 						    (generate-str w (builtin->name f))
-						    (if (= f 'set)
-							(generate-str w "(co, ")
-							(generate-str w "("))
+							(cond
+							    ((= f 'set) (generate-str w "(co, "))
+								((= f 'gensym) (generate-str w "(co"))
+								((= f 'cons) (generate-str w "(co->gc, "))
+								(true (generate-str w "(")))
 						    (generate-inst-list globals self env w args)
 						    (generate-str w ")"))
 			    ['if a b c] (begin
@@ -349,7 +351,7 @@
 					 ((value generate-inst-h) c env)
 					 (generate-str w "}\n"))
 			    ['%closure label nargs nframe . frees] (begin
-								    (generate-str w "makeNative(")
+								    (generate-str w "makeNative(co->gc, ")
 								    (generate-num w nframe)
 								    (generate-str w ", ")
 								    (generate-group-name w label)
@@ -425,7 +427,7 @@
   (defun generate-inst-list (globals self env w l)
     (let generate-inst-list-h (gensym)
 	 (begin
-	  
+
 	  (set generate-inst-list-h
 	       (lambda (x)
 		 (match x

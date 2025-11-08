@@ -34,7 +34,7 @@ builtinTrace(struct Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	Obj fn = symbolGet(sym);
 	struct scmNative *old = mustNative(fn);
-	Obj wrap = makeNative(old->nframe, traceWrap, old->required, 2, fn, sym);
+	Obj wrap = makeNative(co->gc, old->nframe, traceWrap, old->required, 2, fn, sym);
 	Obj ret = primSet(co, sym, wrap);
 	coraReturn(co, ret);
 }

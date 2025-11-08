@@ -19,7 +19,7 @@ __thread int pollfd = -1;
 #endif
 
 static bool
-splitHostAndPort(Obj str1, Obj *host, Obj *port) {
+splitHostAndPort(Cora *co, Obj str1, Obj *host, Obj *port) {
   char* s = bytesData(str1);
   int sz = bytesLen(str1);
   int i = 0;
@@ -29,8 +29,8 @@ splitHostAndPort(Obj str1, Obj *host, Obj *port) {
     return false;
   }
 
-  *host = makeString(s, i);
-  *port = makeString(s+i+1, sz-i-1);
+  *host = makeString(co->gc, s, i);
+  *port = makeString(co->gc, s+i+1, sz-i-1);
   return true;
 }
 
@@ -44,7 +44,7 @@ static void
 netListen(struct Cora *ctx, int label, Obj *R) {
 	Obj str = R[1];
   Obj ret1, ret2;
-  if (!splitHostAndPort(str, &ret1, &ret2)) {
+  if (!splitHostAndPort(ctx, str, &ret1, &ret2)) {
     // TODO?
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
@@ -83,7 +83,7 @@ static void
 netDial(struct Cora *ctx, int label, Obj *R) {
 	Obj str = R[1];
   Obj ret1, ret2;
-  if (!splitHostAndPort(str, &ret1, &ret2)) {
+  if (!splitHostAndPort(ctx, str, &ret1, &ret2)) {
     // TODO?
     printf("invalid host:port string");
     coraReturn(ctx, Nil);
@@ -144,26 +144,26 @@ netSend(struct Cora *ctx, int label, Obj *R) {
 	// ['Send fd buf pos k]
 	/* pollWriteAdd(pollfd, fd); */
 	// [block pos]
-	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
+	coraReturn(ctx, makeCons(ctx->gc, makeSymbol("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
 	return;
       }
       // [err errno]
       printf("netSend error %d\n", errno);
-      coraReturn(ctx, cons(makeSymbol("err"), cons(makeNumber(errno), Nil)));
+      coraReturn(ctx, makeCons(ctx->gc, makeSymbol("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
       return;
     }
     pos = pos + ret;
   }
   // [ok]
   /* printf("netSend success\n"); */
-  coraReturn(ctx, cons(makeSymbol("ok"), Nil));
+  coraReturn(ctx, makeCons(ctx->gc, makeSymbol("ok"), Nil));
   return;
 }
 
 static void
 netPoll(struct Cora *ctx, int label, Obj *R) {
 	Obj timeout = R[1];
-  Obj ret = poll(pollfd, fixnum(timeout));
+  Obj ret = poll(ctx, pollfd, fixnum(timeout));
   coraReturn(ctx, ret);
 }
 
@@ -189,20 +189,20 @@ netRecv(struct Cora *ctx, int label, Obj *R) {
 	// [block pos]
 	/* printf("EAGAIN here...%d\n", pos); */
 	/* pollReadAdd(pollfd, fd); */
-	coraReturn(ctx, cons(makeSymbol("block"), cons(makeNumber(pos), Nil)));
+	coraReturn(ctx, makeCons(ctx->gc, makeSymbol("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
 	return;
       }
       // [err errno]
       printf("netRecv error %d\n", errno);
       perror("recv error");
-      coraReturn(ctx, cons(makeSymbol("err"), cons(makeNumber(errno), Nil)));
+      coraReturn(ctx, makeCons(ctx->gc, makeSymbol("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
       return;
     }
     pos = pos + ret;
   }
   // [ok]
   /* printf("netRecv success\n"); */
-  coraReturn(ctx, cons(makeSymbol("ok"), Nil));
+  coraReturn(ctx, makeCons(ctx->gc, makeSymbol("ok"), Nil));
 }
 
 static void
@@ -238,7 +238,7 @@ static void
 makeBuffer(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
   int size = fixnum(arg1);
-  coraReturn(ctx, makeBytes(size));
+  coraReturn(ctx, makeBytes(ctx->gc, size));
 }
 
 static void

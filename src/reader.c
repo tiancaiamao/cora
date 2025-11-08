@@ -52,7 +52,7 @@ peekFirstChar(FILE *in) {
 }
 
 static Obj
-readCons(FILE *in, int *errCode) {
+readCons(GC *gc, FILE *in, int *errCode) {
 	int c = getc(in);
 	if (c == ')') {
 		// read the empty list
@@ -60,28 +60,28 @@ readCons(FILE *in, int *errCode) {
 	}
 
 	ungetc(c, in);
-	Obj hd = sexpRead(in, errCode);
+	Obj hd = sexpRead(gc, in, errCode);
 
 	c = peekFirstChar(in);
 	ungetc(c, in);
 
 	/* read list */
-	Obj tl = readCons(in, errCode);
-	return cons(hd, tl);
+	Obj tl = readCons(gc, in, errCode);
+	return makeCons(gc, hd, tl);
 }
 
 Obj
-reverse(Obj o) {
+reverse(GC *gc, Obj o) {
 	Obj ret = Nil;
 	while (o != Nil) {
-		ret = cons(car(o), ret);
+		ret = makeCons(gc, car(o), ret);
 		o = cdr(o);
 	}
 	return ret;
 }
 
 static Obj
-readListMacro(FILE *in, int *errCode) {
+readListMacro(GC *gc, FILE *in, int *errCode) {
 	Obj hd = intern("list");
 	Obj ret = Nil;
 	char b = peekFirstChar(in);
@@ -90,12 +90,12 @@ readListMacro(FILE *in, int *errCode) {
 			hd = intern("list-rest");
 		} else {
 			ungetc(b, in);
-			Obj o = sexpRead(in, errCode);
-			ret = cons(o, ret);
+			Obj o = sexpRead(gc, in, errCode);
+			ret = makeCons(gc, o, ret);
 		}
 		b = peekFirstChar(in);
 	}
-	return cons(hd, reverse(ret));
+	return makeCons(gc, hd, reverse(gc, ret));
 }
 
 static Obj
@@ -118,7 +118,7 @@ readNumber(FILE *in) {
 }
 
 Obj
-sexpRead(FILE *in, int *errCode) {
+sexpRead(GC *gc, FILE *in, int *errCode) {
 	int c;
 	int i;
 	char buffer[512];
@@ -133,26 +133,26 @@ sexpRead(FILE *in, int *errCode) {
 	}
 	// read quote
 	if (c == '\'') {
-		Obj o = sexpRead(in, errCode);
-		return cons(symQuote, cons(o, Nil));
+		Obj o = sexpRead(gc, in, errCode);
+		return makeCons(gc, symQuote, makeCons(gc, o, Nil));
 	}
 	// read the empty list or pair
 	if (c == '(') {
-		return readCons(in, errCode);
+		return readCons(gc, in, errCode);
 	}
 	// read list macro
 	if (c == '[') {
-		return readListMacro(in, errCode);
+		return readListMacro(gc, in, errCode);
 	}
 	// read backquote macro
 	if (c == '`') {
-		Obj o = sexpRead(in, errCode);
-		return cons(symBackQuote, cons(o, Nil));
+		Obj o = sexpRead(gc, in, errCode);
+		return makeCons(gc, symBackQuote, makeCons(gc, o, Nil));
 	}
 	// read unquote macro
 	if (c == ',') {
-		Obj o = sexpRead(in, errCode);
-		return cons(symUnQuote, cons(o, Nil));
+		Obj o = sexpRead(gc, in, errCode);
+		return makeCons(gc, symUnQuote, makeCons(gc, o, Nil));
 	}
 	// read a string
 	if (c == '"') {
@@ -180,7 +180,7 @@ sexpRead(FILE *in, int *errCode) {
 			}
 		}
 		buffer[i] = '\0';
-		return makeString(buffer, i);
+		return makeString(gc, buffer, i);
 	}
 	// read a symbol
 	if (isIdentifierChar(c)) {

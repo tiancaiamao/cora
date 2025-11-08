@@ -27,9 +27,9 @@ const char *typeNameX[8] = {
 };
 
 void *
-newObj(scmHeadType tp, int sz) {
+newObj(GC *gc, scmHeadType tp, int sz) {
 	/* scmHead* p = malloc(sz); */
-	scmHead *p = gcAlloc(getGC(), sz);
+	scmHead *p = gcAlloc(gc, sz);
 	assert(((Obj) p & TAG_PTR) == 0);
 	p->type = tp;
 	/* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
@@ -58,15 +58,15 @@ mustCObj(Obj o) {
 }
 
 Obj
-makeCons(Obj car, Obj cdr) {
-	struct scmCons *p = newObj(scmHeadCons, sizeof(struct scmCons));
+makeCons(GC *gc, Obj car, Obj cdr) {
+	struct scmCons *p = newObj(gc, scmHeadCons, sizeof(struct scmCons));
 	p->car = car;
 	p->cdr = cdr;
 	return ((Obj) (&p->head) | TAG_PTR);
 }
 
 static void
-consGCFunc(struct GC *gc, void *f) {
+consGCFunc(GC *gc, void *f) {
 	struct scmCons *from = f;
 	version_t minv = from->head.version;
 	gcMark(gc, from->car, minv);
@@ -123,10 +123,10 @@ isNumber(Obj o) {
 }
 
 Obj
-makeBytes(int len) {
+makeBytes(GC *gc, int len) {
 	// sz is the actural length but we malloc a extra byte to be compatible with C.
 	int alloc = len + sizeof(struct scmBytes) + 1;
-	struct scmBytes *str = newObj(scmHeadBytes, alloc);
+	struct scmBytes *str = newObj(gc, scmHeadBytes, alloc);
 	str->len = len;
 	return ((Obj) (&str->head) | TAG_PTR);
 }
@@ -146,8 +146,8 @@ bytesLen(Obj o) {
 }
 
 Obj
-makeString(const char *s, int len) {
-	Obj ret = makeBytes(len);
+makeString(GC *gc, const char *s, int len) {
+	Obj ret = makeBytes(gc, len);
 	char *data = bytesData(ret);
 	memcpy(data, s, len);
 	data[len] = 0;
@@ -155,8 +155,8 @@ makeString(const char *s, int len) {
 }
 
 Obj
-makeCString(const char *s) {
-	return makeString(s, strlen(s));
+makeCString(GC *gc, const char *s) {
+	return makeString(gc, s, strlen(s));
 }
 
 str
@@ -170,11 +170,11 @@ stringStr(Obj o) {
 }
 
 static void
-bytesGCFunc(struct GC *gc, void *f) {
+bytesGCFunc(GC *gc, void *f) {
 }
 
 __thread struct trieNode *gRoot;
-extern  __thread struct Cora *gCo;
+// extern  __thread struct Cora *gCo;
 
 Obj
 makeSymbol(const char *s) {
@@ -197,7 +197,7 @@ makeSymbol(const char *s) {
 		p->value = Undef;
 	} else {
 		if (p->value != Undef) {
-			assert(p->owner == gCo);
+			// assert(p->owner == gCo);
 		}
 	}
 
@@ -234,7 +234,7 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 #ifdef _BOOTSTRAP_TEST_
 		struct scmSymbol* s = ptr(sym);
 		snprintf(dest, sz, "#%d%%", s->unique);
-#else		
+#else
 		snprintf(dest, sz, "x%ld", sym);
 #endif
 		return 0;
@@ -243,9 +243,9 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 }
 
 Obj
-makeNative(int nframe, basicBlock fn, int required, int captured, ...) {
+makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured, ...) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
-	struct scmNative *clo = newObj(scmHeadNative, sz);
+	struct scmNative *clo = newObj(gc, scmHeadNative, sz);
 	clo->nframe = nframe;
 	clo->fn = fn;
 	clo->required = required;
@@ -270,7 +270,7 @@ mustNative(Obj o) {
 }
 
 static void
-nativeGCFunc(struct GC *gc, void *f) {
+nativeGCFunc(GC *gc, void *f) {
 	struct scmNative *from = f;
 	version_t minv = from->head.version;
 	for (int i = 0; i < from->captured; i++) {
@@ -310,9 +310,9 @@ nativeRequired(Obj o) {
 }
 
 Obj
-makeVector(int size, int cap) {
+makeVector(GC *gc, int size, int cap) {
 	assert(size <= cap);
-	struct scmVector *vec = newObj(scmHeadVector,
+	struct scmVector *vec = newObj(gc, scmHeadVector,
 				       sizeof(struct scmVector) +
 				       sizeof(Obj) * cap);
 	vec->head.rset = NULL;
@@ -334,12 +334,12 @@ vectorRef(Obj v, int idx) {
 }
 
 Obj
-vectorSet(Obj vec, int idx, Obj val) {
+vectorSet(GC *gc, Obj vec, int idx, Obj val) {
 	struct scmVector *v = ptr(vec);
 	assert(v->head.type == scmHeadVector);
 	assert(idx >= 0 && idx < v->size);
-	writeBarrierForIncremental(getGC(), &v->data[idx], val);
-	writeBarrierForGeneration(getGC(), &v->head, val);
+	writeBarrierForIncremental(gc, &v->data[idx], val);
+	writeBarrierForGeneration(gc, &v->head, val);
 	return vec;
 }
 
@@ -358,7 +358,7 @@ vectorCapacity(Obj vec) {
 }
 
 Obj
-vectorAppend(Obj vec, Obj val) {
+vectorAppend(GC *gc, Obj vec, Obj val) {
 	assert(isvector(vec));
 	struct scmVector *v = ptr(vec);
 	if (v->size >= v->cap) {
@@ -369,11 +369,11 @@ vectorAppend(Obj vec, Obj val) {
 		} else {
 			newCap = v->cap + v->cap / 4;
 		}
-		Obj tmp = makeVector(v->size, newCap);
+		Obj tmp = makeVector(gc, v->size, newCap);
 		struct scmVector *tmpV = ptr(tmp);
 		memcpy(tmpV->data, v->data, v->size * sizeof(Obj));
 		// writeBarrier!
-		writeBarrierForIncremental(getGC(), &vec, tmp);
+		writeBarrierForIncremental(gc, &vec, tmp);
 		// this seems not required, because tmp->version should always >= val->version?
 		/* writeBarrierForGeneration(&v->head, val); */
 		v = ptr(tmp);
@@ -394,7 +394,7 @@ isvector(Obj o) {
 }
 
 static void
-vectorGCFunc(struct GC *gc, void *f) {
+vectorGCFunc(GC *gc, void *f) {
 	struct scmVector *from = f;
 	version_t minv = from->head.version;
 	for (int i = 0; i < from->size; i++) {
@@ -403,7 +403,7 @@ vectorGCFunc(struct GC *gc, void *f) {
 }
 
 static void
-symbolGCFunc(struct GC *gc, void *f) {
+symbolGCFunc(GC *gc, void *f) {
 	struct scmSymbol *from = f;
 	version_t minv = from->head.version;
 	gcMark(gc, from->value, minv);

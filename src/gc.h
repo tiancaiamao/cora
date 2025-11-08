@@ -53,10 +53,15 @@ typedef struct scmHeadEx_t scmHeadEx;
 #define ptr(x) ((void*)((x)&~TAG_PTR))
 #define tag(x) ((x) & TAG_MASK)
 
-void gcInit(uintptr_t* mark);
-struct GC *getGC();
 
-void* gcAlloc(struct GC* gc, int size);
+typedef struct GC GC;
+GC* gcInit();
+bool gcTriggerCheck(GC *gc);
+typedef void (*gcMarkRootCallback)(GC *gc, void* data);
+void gcMarkRoot(GC *gc, gcMarkRootCallback callback, void* data);
+
+void* gcAlloc(GC* gc, int size);
+void gcRun(GC *gc);
 
 void writeBarrierForIncremental(struct GC *gc, uintptr_t *slot, uintptr_t val);
 void gcMark(struct GC *gc, uintptr_t head, version_t minv);
@@ -82,6 +87,6 @@ struct scmSymbol {
 	Obj value;
 };
 
-void writeBarrierForGeneration(struct GC *gc, scmHeadEx *v, uintptr_t val);
+void writeBarrierForGeneration(GC *gc, scmHeadEx *v, uintptr_t val);
 
 #endif

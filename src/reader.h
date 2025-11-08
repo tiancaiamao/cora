@@ -4,10 +4,10 @@
 #include "types.h"
 #include <stdio.h>
 
-Obj sexpRead(FILE *in, int *errCode);
+Obj sexpRead(GC *gc, FILE *in, int *errCode);
 void sexpWrite(FILE *out, Obj obj);
 
 void printObj(FILE* f, Obj o);
-Obj reverse(Obj o);
+Obj reverse(GC *gc, Obj o);
 
 #endif

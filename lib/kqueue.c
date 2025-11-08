@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include "runtime.h"
 
 static int
 pollCreate() {
@@ -64,7 +65,7 @@ pollCtlDel(int kq, int fd) {
 }
 
 static Obj
-poll(int kq, int timeout) {
+poll(Cora *co, int kq, int timeout) {
     const int MAX_EVENTS = 64;
     struct kevent events[MAX_EVENTS];
     struct timespec ts;
@@ -90,10 +91,10 @@ again:
         struct kevent *e = &events[i];
         Obj conn = (Obj)e->udata;
         if (e->filter == EVFILT_READ) {
-            ret = cons(cons(conn, intern("read")), ret);
+            ret = makeCons(co->gc, makeCons(co->gc, conn, intern("read")), ret);
         }
         if (e->filter == EVFILT_WRITE) {
-            ret = cons(cons(conn, intern("write")), ret);
+            ret = makeCons(co->gc, makeCons(co->gc, conn, intern("write")), ret);
         }
     }
     return ret;
