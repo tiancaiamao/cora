@@ -25,6 +25,35 @@ struct Cora {
 
 void trampoline(struct Cora *co, basicBlock pc);
 void coraDispatch(struct Cora *co);
+Obj* stackAllocSlowPath(struct Cora *co, int n);
+void coraReturnSlowPath(struct Cora *co);
+
+static inline Obj*
+stackAlloc(struct Cora *co, int n) {
+	// fast path
+	assert(n > 0);
+	if (co->ctx.sp + n < co->stk.end) {
+		co->ctx.bp = co->ctx.sp;
+		co->ctx.sp += n;
+		return co->ctx.bp;
+	}
+	return stackAllocSlowPath(co, n);
+}
+
+#ifndef CORA_IMPLEMENTATION
+static inline void
+coraReturn(struct Cora *co, Obj val) {
+	// set return value
+	co->res = val;
+	// recover continuation
+	co->ctx = vecPop(&co->callstack);
+	if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
+		coraReturnSlowPath(co);
+	}
+	return;
+}
+#else
+>>>>>>> Stashed changes
 void coraReturn(struct Cora *co, Obj val);
 Obj coraGet(struct Cora *co, int i);
 
