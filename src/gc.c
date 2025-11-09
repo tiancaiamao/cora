@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <setjmp.h>
 #include <stddef.h>
 #include <assert.h>
 #include <inttypes.h>
@@ -198,8 +197,6 @@ gcStatsReset(struct GCStats *stats) {
 
 struct GC {
 	enum gcState state;
-	uintptr_t *baseStackAddr;
-
 	// Small objects are allocated from sizeClass blocks.
 	// Each Block can be belongs to one size class. After Block initialization,
 	// all objects allocated from that specific Block are with the same size.
@@ -273,7 +270,6 @@ blockReset(GC *gc, struct Block *block) {
 
 GC*
 gcInit() {
-	// assert(((uintptr_t) baseStackAddr & 0x7) == 0);
 	GC *gc = malloc(sizeof(GC));
 	if (gc == NULL) {
 		// Handle memory allocation failure
@@ -283,7 +279,6 @@ gcInit() {
 	gc->heap = NULL;
 	gc->large = NULL;
 	gc->state = gcStateNone;
-	// gc->baseStackAddr = baseStackAddr;
 	gc->version = 2;	// Start from 2, so uninitialized blocks can be treated as garbage
 	gc->rset = NULL;
 	gc->freelist = NULL;
@@ -800,35 +795,11 @@ gcMark(GC *gc, uintptr_t p, version_t minv) {
 #define ATTRIBUTE_NO_SANITIZE_ADDRESS
 #endif
 
-// ATTRIBUTE_NO_SANITIZE_ADDRESS static void
-// gcCStack(GC *gc) {
-// 	TRACE_SCOPE("gcStack");
-// 	// Get current stack pointer
-// 	uintptr_t *stackAddr = (uintptr_t *) & stackAddr;
-
-// 	// Save register state to stack
-// 	jmp_buf ctx;
-// 	memset(&ctx, 0, sizeof(jmp_buf));
-// 	setjmp(ctx);
-
-// 	// Verify stack boundaries
-// 	assert(stackAddr < gc->baseStackAddr);
-// 	assert(((uintptr_t) stackAddr & 0x7) == 0);
-// 	assert(((uintptr_t) gc->baseStackAddr & 0x7) == 0);
-
-// 	// Scan each potential pointer in stack space
-// 	for (uintptr_t * p = stackAddr; p < (uintptr_t *) gc->baseStackAddr;
-// 	     p++) {
-// 		uintptr_t stackValue = *p;
-// 		gcMark(gc, stackValue, 0);
-// 	}
-// }
-
 static void gcRSet(GC *gc);
 
 void
 gcMarkRoot(GC *gc, gcMarkRootCallback callback, void* data) {
-	TRACE_SCOPE("gcRunMark");
+	TRACE_SCOPE("gcMarkRoot");
 	// Reset counters
 	gcStatsReset(&gc->stats);
 
@@ -838,8 +809,6 @@ gcMarkRoot(GC *gc, gcMarkRootCallback callback, void* data) {
 	// Mark all root objects
 	callback(gc, data);
 
-	// gcGlobal(gc);		// Mark global variables
-	// gcCStack(gc);		// Mark stack variables
 	gcRSet(gc);
 
 	// Switch to incremental marking phase
@@ -1112,8 +1081,6 @@ gcRun(GC *gc) {
 	case gcStateNone:
 		assert(false);
 	case gcStateMark:
-		// gcRunMark(gc);
-		// break;
 		assert(false);
 	case gcStateIncremental:
 		gcRunIncremental(gc);

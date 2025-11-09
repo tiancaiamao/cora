@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "gc.h"
 #include "types.h"
-#include "vector.h"
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -174,7 +173,6 @@ bytesGCFunc(GC *gc, void *f) {
 }
 
 __thread struct trieNode *gRoot;
-// extern  __thread struct Cora *gCo;
 
 Obj
 makeSymbol(const char *s) {
