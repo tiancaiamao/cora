@@ -72,7 +72,7 @@ static void coraGCFunc(GC *gc, void *data);
 
 void
 coraRun(Cora *co) {
-	struct frame exit = {
+	Frame exit = {
 		.fn = NULL,
 		.label = 0,
 		.bp = co->ctx.bp,
@@ -659,7 +659,7 @@ builtinTryCatch(Cora *co, int label, Obj *R) {
 			// Save the try cont.
 			// This save can make the chunk and handler available to the recovering process.
 			// Use a call protocol instead of tail call protocol.
-			struct frame cont = {
+			Frame cont = {
 				.fn = builtinTryCatch,
 				.label = 1,
 				.bp = co->ctx.bp,
@@ -702,15 +702,15 @@ struct scmContinuation {
 };
 
 Obj
-makeContinuation(Cora *co, struct frame *callstack, int len, Obj** stk, int count) {
-	size_t callstackBytes = len * sizeof(struct frame);
+makeContinuation(Cora *co, Frame *callstack, int len, Obj** stk, int count) {
+	size_t callstackBytes = len * sizeof(Frame);
 	size_t segstackBytes  = count * sizeof(Obj*);
 	struct scmContinuation *cont = newObj(co->gc, scmHeadContinuation,
 					      sizeof(struct scmContinuation) +
 					      callstackBytes + segstackBytes);
 	cont->len = len;
 	cont->count = count;
-	struct frame *p = (struct frame *)cont->data;
+	Frame *p = (Frame *)cont->data;
 	for (int i = 0; i < len; i++) {
 		p[i] = callstack[i];
 	}
@@ -726,9 +726,9 @@ static void
 continuationGCFunc(struct GC *gc, void *f) {
 	struct scmContinuation *from = f;
 	version_t minv = from->head.version;
-	struct frame *stack = (struct frame *)from->data;
+	Frame *stack = (Frame *)from->data;
 	for (int i = 0; i < from->len; i++) {
-		struct frame *addr = stack + i;
+		Frame *addr = stack + i;
 		for (Obj *p = addr->bp; p < addr->sp; p++) {
 			gcMark(gc, *p, minv);
 		}
@@ -749,11 +749,11 @@ continuationAsClosure(Cora *co, int label, Obj *R) {
 
 	// Replace the current stack with the delimited continuation.
 	struct scmContinuation *cont = (struct scmContinuation*)ptr(contObj);
-	struct frame *p = (struct frame *)cont->data;
+	Frame *p = (Frame *)cont->data;
 	for (int i = 0; i < cont->len; i++) {
 		vecAppend(&co->callstack, p[i]);
 	}
-	Obj** stk = (Obj**)(cont->data + (sizeof(struct frame) * cont->len));
+	Obj** stk = (Obj**)(cont->data + (sizeof(Frame) * cont->len));
 	for (int i=0; i< cont->count; i++) {
 		vecAppend(&co->stk.data, stk[i]);
 	}
@@ -781,7 +781,7 @@ builtinThrow(Cora *co, int label, Obj *R) {
 	Obj clo = makeNative(co->gc, 2, continuationAsClosure, 1, 1, cont);
 
 	// Find the handler from the try stack, invoke it, passing the continuation.
-	struct frame try = vecGet(&co->callstack, mark.callstackPos);
+	Frame try = vecGet(&co->callstack, mark.callstackPos);
 	Obj handler = try.bp[2];
 
 	// Reset to the stack before try.
@@ -793,7 +793,7 @@ builtinThrow(Cora *co, int label, Obj *R) {
 	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
 	co->callstack.v.len = mark.callstackPos;
 
-	struct frame beforeTry = vecGet(&co->callstack, vecLen(&co->callstack) - 1);
+	Frame beforeTry = vecGet(&co->callstack, vecLen(&co->callstack) - 1);
 	co->ctx.bp = beforeTry.bp;
 	co->ctx.sp = beforeTry.sp;
 	coraCall2(co, handler, v, clo);
@@ -1116,7 +1116,7 @@ coraGCFunc(GC *gc, void *ptr) {
 
 	// All call stack frames.
 	for (int i = 0; i < vecLen(&co->callstack); i++) {
-		struct frame *addr = vecRef(&co->callstack, i);
+		Frame *addr = vecRef(&co->callstack, i);
 		for (Obj *p = addr->bp; p < addr->sp; p++) {
 			gcMark(gc, *p, 0);
 		}

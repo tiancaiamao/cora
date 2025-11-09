@@ -29,7 +29,7 @@ testWithSize(struct Cora *co, int maxSize, int count) {
 			continue;
 		}
 		// printf("generate object size %ld\n", sz);
-		newObj(scmHeadBytes, sz);
+		newObj(co->gc, scmHeadBytes, sz);
 	}
 }
 

@@ -10,12 +10,12 @@ TestReadSexp() {
 	/* char buffer[] = "(a)"; */
 	FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-	struct SexpReader reader = { };
+	GC* gc = gcInit();
 	int errCode;
-	Obj o = sexpRead(&reader, stream, &errCode);
+	Obj o = sexpRead(gc, stream, &errCode);
 
 	/* Obj r = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil))); */
-	Obj z = cons(intern("a"), cons(intern("b"), cons(intern("c"), Nil)));
+	Obj z = makeCons(gc, intern("a"), makeCons(gc, intern("b"), makeCons(gc, intern("c"), Nil)));
 
 	assert(iscons(o));
 	/* printf("here res =  %ld \n", o); */
@@ -49,17 +49,17 @@ TestReaderMacro(struct Cora *co) {
 		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};
 
-	struct SexpReader r = {.co = co };
+	GC *gc = gcInit();
 	int errCode = 0;
 	for (int i = 0; i < sizeof(cases) / sizeof(struct readerMacroTest);
 	     i++) {
 		struct readerMacroTest *c = &cases[i];
 		FILE *stream = fmemopen(c->input, strlen(c->input), "r");
-		Obj x = sexpRead(&r, stream, &errCode);
+		Obj x = sexpRead(gc, stream, &errCode);
 		assert(errCode == 0);
 
 		stream = fmemopen(c->expect, strlen(c->expect), "r");
-		Obj y = sexpRead(&r, stream, &errCode);
+		Obj y = sexpRead(gc, stream, &errCode);
 		assert(errCode == 0);
 
 		if (!eq(x, y)) {

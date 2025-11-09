@@ -7,7 +7,9 @@
 
 typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
 
-struct frame {
+typedef struct Frame Frame;
+
+struct Frame {
 	// fn + label = pc register
 	basicBlock fn;
 	int label;
@@ -31,8 +33,8 @@ struct tryMark {
 typedef struct Cora Cora;
 
 struct Cora {
-	struct frame ctx;
-	vector(struct frame) callstack;
+	Frame ctx;
+	vector(Frame) callstack;
 	struct segmentStack stk;
 
 	Obj res;
@@ -160,7 +162,7 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 
 static inline void
 saveCont(struct Cora *co, basicBlock fn, int label, Obj *bp) {
-	struct frame __curr = {
+	Frame __curr = {
 		.fn = fn,
 		.label = label,
 		.bp = bp,
