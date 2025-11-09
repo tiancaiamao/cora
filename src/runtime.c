@@ -70,16 +70,6 @@ coraNew() {
 
 static void coraGCFunc(GC *gc, void *data);
 
-static void
-trampoline(Cora *co) {
-	while(co->ctx.fn != NULL) {
-		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
-		if (gcTriggerCheck(co->gc)) {
-			gcMarkRoot(co->gc, coraGCFunc, co);
-		}
-	}
-}
-
 void
 coraRun(Cora *co) {
 	struct frame exit = {
@@ -89,7 +79,14 @@ coraRun(Cora *co) {
 		.sp = co->ctx.sp,
 	};
 	vecAppend(&co->callstack, exit);
-	trampoline(co);
+
+	// trampoline
+	while(co->ctx.fn != NULL) {
+		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
+		if (gcTriggerCheck(co->gc)) {
+			gcMarkRoot(co->gc, coraGCFunc, co);
+		}
+	}
 }
 
 static void coraDispatch(Cora *co, Obj fn, int nargs, Obj* args);
@@ -163,12 +160,6 @@ coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
 		coraReturn(co, ret);
 	} else {
 		// eval the first call and get the result;
-		struct frame ctx = {
-			.fn = NULL,
-			.bp = co->ctx.bp,
-			.sp = co->ctx.sp,
-		};
-		vecAppend(&co->callstack, ctx);
 		Obj *R = stackAlloc(co, f->nframe);
 		R[0] = fn;
 		for (int i=0; i<required; i++) {
@@ -176,8 +167,7 @@ coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
 		}
 		co->ctx.fn = f->fn;
 		co->ctx.label = 0;
-		trampoline(co);
-
+		coraRun(co);
 		// make the next call.
 		coraCall(co, co->res, nargs - required, args + required);
 	}

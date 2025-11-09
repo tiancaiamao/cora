@@ -61,7 +61,7 @@ pollCtlDel(int pollfd, int fd) {
 }
 
 static Obj
-poll(int pollfd, int timeout) {
+poll(Cora *co, int pollfd, int timeout) {
   const int MAX_EVENTS = 64;
   struct epoll_event events[MAX_EVENTS];
   int nfds;
@@ -81,11 +81,11 @@ poll(int pollfd, int timeout) {
   for (int i=0; i<nfds; i++) {
 	  if ((events[i].events & EPOLLIN) == EPOLLIN) {
 		  Obj conn = events[i].data.u64;
-		  ret = cons(cons(conn, intern("read")), ret);
+		  ret = makeCons(co->gc, makeCons(co->gc, conn, intern("read")), ret);
 	  }
 	  if ((events[i].events & EPOLLOUT) == EPOLLOUT) {
 		  Obj conn = events[i].data.u64;
-		  ret = cons(cons(conn, intern("write")), ret);
+		  ret = makeCons(co->gc, makeCons(co->gc, conn, intern("write")), ret);
 	  }
   }
   return ret;
