@@ -8,8 +8,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <pwd.h>
-#include <stdarg.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <sys/stat.h>
@@ -56,7 +54,6 @@ coraReturnSlowPath(Cora *co) {
 }
 
 extern __thread struct trieNode *gRoot;
- // __thread struct Cora *gCo;
 
 static Cora*
 coraNew() {
@@ -68,13 +65,12 @@ coraNew() {
 	vecInit(&co->trystack, 4);
 
 	co->globals = gRoot;
-	// gCo = co;
 	return co;
 }
 
 static void coraGCFunc(GC *gc, void *data);
 
-void
+static void
 trampoline(Cora *co) {
 	while(co->ctx.fn != NULL) {
 		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
@@ -336,16 +332,8 @@ builtinLoadSo(Cora *co, int label, Obj *R) {
 		coraReturn(co, makeString(co->gc, error, strlen(error)));
 		return;
 	}
-	struct frame exit = {
-		.fn = NULL,
-		.label = 0,
-		.bp = co->ctx.bp,
-		.sp = co->ctx.sp,
-	};
-	vecAppend(&co->callstack, exit);
 	entry(co, 0, R);
-	trampoline(co);
-
+	coraRun(co);
 	coraReturn(co, co->res);
 	return;
 }
@@ -528,11 +516,10 @@ builtinImport(Cora *co, int label, Obj *R) {
 		// (load-so "file-path.so" "package-path")
 		Obj arg0 = makeNative(co->gc, 3, builtinLoadSo, 2, 0);
 		Obj arg1 = makeString(co->gc, toCStr(tmp), strLen(toStr(tmp)));
-		Obj arg2 = pkg;
-		coraCall2(co, arg0, arg1, arg2);
-		coraRun(co);
 		strFree(tmp);
-		coraReturn(co, pkg);
+		Obj arg2 = pkg;
+		co->ctx.bp = R;
+		coraCall2(co, arg0, arg1, arg2);
 		return;
 	}
 
@@ -540,9 +527,11 @@ builtinImport(Cora *co, int label, Obj *R) {
 	tmp = strShrink(tmp, 3);
 	tmp = strCat(tmp, S(".cora"));
 	str tmp1 = toStr(tmp);
-
-	coraCall2(co, makeNative(co->gc, 3, builtinLoad, 2, 0), makeString(co->gc, tmp1.str, tmp1.len), pkg);
+	Obj filePath = makeString(co->gc, tmp1.str, tmp1.len);
 	strFree(tmp);
+
+	co->ctx.bp = R;
+	coraCall2(co, makeNative(co->gc, 3, builtinLoad, 2, 0), filePath, pkg);
 }
 
 static void
@@ -1047,9 +1036,9 @@ coraRegisterAPI(Cora *co, char* pkg, char *name, basicBlock func, int argc) {
 
 Cora *
 coraInit() {
+	typesInit(); // this should be called before coraNew()
 	Cora *co = coraNew();
 	co->gc = gcInit();
-	typesInit();
 	gcRegistForType(scmHeadContinuation, continuationGCFunc);
 	symQuote = intern("quote");
 	symBackQuote = intern("backquote");
