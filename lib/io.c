@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "cora.h"
+#include "runtime.h"
 #include "reader.h"
 #include "str.h"
 
@@ -19,7 +19,7 @@ builtinOpenOutputFile(struct Cora *co, int label, Obj *R) {
 }
 
 static void
-builtinCloseOutputFile(struct Cora *co, int label, Obj *R) {
+builtinCloseOutputFile(Cora *co, int label, Obj *R) {
   Obj arg1 = R[1];
   FILE *f = mustCObj(arg1);
   int errno = fclose(f);
@@ -42,7 +42,7 @@ ioReadAll(struct Cora *co, int label, Obj *R) {
       break;
     }
   }
-  Obj ret = makeString(toCStr(dest), strLen(toStr(dest)));
+  Obj ret = makeString(co->gc, toCStr(dest), strLen(toStr(dest)));
   strFree(dest);
   coraReturn(co, ret);
 }
@@ -87,7 +87,7 @@ ioWrite(struct Cora *co, int label, Obj *R) {
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	char* module = coraBytesData(pkg);
+	char* module = bytesData(pkg);
 	coraRegisterAPI(co, module, "display", builtinDisplay, 1);
 	coraRegisterAPI(co, module, "open-output-file", builtinOpenOutputFile, 1);
 	coraRegisterAPI(co, module, "close-output-file", builtinCloseOutputFile, 1);

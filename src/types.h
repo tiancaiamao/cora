@@ -7,6 +7,9 @@
 #include "gc.h"
 #include "str.h"
 
+typedef struct Cora Cora;
+typedef struct GC GC;
+
 #define assert(c) if (!(c)) __builtin_trap()
 
 typedef uint8_t scmHeadType;
@@ -48,9 +51,7 @@ extern const Obj Undef;
 
 void typesInit();
 
-struct Cora;
-
-void* newObj(scmHeadType tp, int sz);
+void* newObj(GC *gc, scmHeadType tp, int sz);
 
 struct scmCons {
   scmHead head;
@@ -69,10 +70,9 @@ Obj makeSymbol(const char *s);
 Obj symbolGet(Obj sym);
 int symbolStr(Obj sym, char* dest, size_t sz);
 
-#define cons(x, y) makeCons(x, y)
 #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
 
-Obj makeCons(Obj car, Obj cdr);
+Obj makeCons(GC *gc, Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
 Obj caddr(Obj v);
@@ -82,12 +82,12 @@ Obj cdddr(Obj v);
 
 Obj makeCObj(void *ptr);
 
-Obj makeBytes(int len);
+Obj makeBytes(GC *gc, int len);
 char *bytesData(Obj o);
 int bytesLen(Obj o);
 
-Obj makeString(const char *s, int len);
-Obj makeCString(const char *s);
+Obj makeString(GC *gc, const char *s, int len);
+Obj makeCString(GC *gc, const char *s);
 str stringStr(Obj o);
 
 #define MAKE_NUMBER(v) (((Obj)v) << 1)
@@ -135,9 +135,7 @@ eq(Obj x, Obj y) {
     return false;
 }
 
-struct Cora;
-
-typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
+typedef void (*basicBlock) (Cora *co, int label, Obj *R);
 
 struct scmNative {
 	scmHead head;
@@ -150,7 +148,7 @@ struct scmNative {
 };
 
 struct scmNative* mustNative(Obj o);
-Obj makeNative(int nframe, basicBlock fn, int required, int captured, ...);
+Obj makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured, ...);
 int nativeCaptured(Obj o);
 int nativeRequired(Obj o);
 Obj* nativeData(Obj o);
@@ -160,10 +158,10 @@ basicBlock nativeFn(Obj o);
 
 extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
-Obj makeVector(int size, int cap);
+Obj makeVector(GC *gc, int size, int cap);
 Obj vectorRef(Obj vec, int idx);
-Obj vectorSet(Obj vec, int idx, Obj val);
-Obj vectorAppend(Obj vec, Obj val);
+Obj vectorSet(GC *gc, Obj vec, int idx, Obj val);
+Obj vectorAppend(GC *gc, Obj vec, Obj val);
 bool isvector(Obj o);
 int vectorLength(Obj vec);
 

@@ -21,10 +21,10 @@ stringSlice(struct Cora *co, int label, Obj *R) {
 
   Obj ret;
   if (beg < 0 || end > len || end < beg) {
-    ret = makeString("", 0);
+    ret = makeString(co->gc, "", 0);
   } else {
     str s = stringStr(str1);
-    ret = makeString(s.str+beg, end-beg);
+    ret = makeString(co->gc, s.str+beg, end-beg);
   }
   coraReturn(co, ret);
 }
@@ -65,7 +65,7 @@ stringIndex(struct Cora *co, int label, Obj *R) {
 
   char* str = bytesData(x);
   int idx = fixnum(y);
-  Obj ret =  makeString(str+idx, 1);
+  Obj ret =  makeString(co->gc, str+idx, 1);
   coraReturn(co, ret);
 }
 
@@ -87,7 +87,7 @@ numberToString(struct Cora *co, int label, Obj *R) {
 
   char tmp[32];
   int l = snprintf(tmp, 32, "%ld", fixnum(n));
-  coraReturn(co, makeString(tmp, l));
+  coraReturn(co, makeString(co->gc, tmp, l));
 }
 
 static void
@@ -112,7 +112,7 @@ stringReplace(struct Cora *co, int label, Obj *R) {
   buf = strCat(buf, to);
   buf = strCat(buf, strSub(raw, pos+strLen(from), strLen(raw)));
   str s = toStr(buf);
-  Obj res = makeString(s.str, s.len);
+  Obj res = makeString(co->gc, s.str, s.len);
   strFree(buf);
   coraReturn(co, res);
 }
@@ -147,14 +147,14 @@ stringSplit(struct Cora *co, int label, Obj *R) {
     int pos = strStr(s, split);
     if (pos > 0) {
       str find = strSub(s, 0, pos);
-      res = cons(makeString(find.str, strLen(find)), res);
+      res = makeCons(co->gc, makeString(co->gc, find.str, strLen(find)), res);
       s = strSub(s, pos+strLen(split), strLen(s));
       continue;
     }
-    res = cons(makeString(s.str, strLen(s)), res);
+    res = makeCons(co->gc, makeString(co->gc, s.str, strLen(s)), res);
     break;
   }
-  coraReturn(co, reverse(res));
+  coraReturn(co, reverse(co->gc, res));
 }
 
 static void
@@ -187,9 +187,9 @@ stringToList(struct Cora *co, int label, Obj *R) {
 	int len = bytesLen(str);
 	Obj res = Nil;
 	for (int i=0; i<len; i++) {
-		res = cons(makeNumber(bs[i]), res);
+		res = makeCons(co->gc, makeNumber(bs[i]), res);
 	}
-	coraReturn(co, reverse(res));
+	coraReturn(co, reverse(co->gc, res));
 }
 
 static struct registerModule stringModule = {

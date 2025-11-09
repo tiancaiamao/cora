@@ -9,6 +9,10 @@ Obj coraGetResult(Cora *co) {
 	return co->res;
 }
 
+GC* coraGetGC(Cora *co) {
+	return co->gc;
+}
+
 void
 coraReturn(struct Cora *co, Obj val) {
 	// set return value
@@ -31,16 +35,16 @@ coraPrimSet(Cora *co, Obj key, Obj val) {
 	return primSet(co, key, val);
 }
 
-Obj coraMakeCons(Obj car, Obj cdr) {
-	return cons(car, cdr);
+Obj coraMakeCons(Cora *co, Obj car, Obj cdr) {
+	return makeCons(co->gc, car, cdr);
 }
 
-Obj coraMakeString(char *s, int len) {
-	return makeString(s, len);
+Obj coraMakeString(Cora *co, char *s, int len) {
+	return makeString(co->gc, s, len);
 }
 
-Obj coraMakeCString(char *s) {
-	return makeCString(s);
+Obj coraMakeCString(Cora *co, char *s) {
+	return makeCString(co->gc, s);
 }
 
 Obj coraMakeSymbol(const char *s) {

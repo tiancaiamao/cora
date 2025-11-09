@@ -28,6 +28,8 @@ struct tryMark {
 	int segmentStackPos;
 };
 
+typedef struct Cora Cora;
+
 struct Cora {
 	struct frame ctx;
 	vector(struct frame) callstack;
@@ -36,6 +38,7 @@ struct Cora {
 	Obj res;
 	struct trieNode *globals;
 	vector(struct tryMark) trystack;
+	GC *gc;
 };
 
 Obj* stackAllocSlowPath(struct Cora *co, int n);
@@ -65,7 +68,7 @@ coraReturn(struct Cora *co, Obj val) {
 	}
 	return;
 }
-#else 
+#else
 void coraReturn(struct Cora *co, Obj val);
 #endif
 
@@ -181,21 +184,21 @@ Obj primEQ(Obj x, Obj y);
 Obj primLT(Obj x, Obj y);
 Obj primGT(Obj x, Obj y);
 Obj primAdd(Obj x, Obj y);
-Obj primCons(Obj x, Obj y);
+Obj primCons(Cora *co, Obj x, Obj y);
 Obj primNot(Obj x);
 Obj primCar(Obj x);
 Obj primCdr(Obj x);
 Obj primIsCons(Obj x);
-Obj primSet(struct Cora *co, Obj key, Obj val);
+Obj primSet(Cora *co, Obj key, Obj val);
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
 Obj primDiv(Obj x, Obj y);
-Obj primGenSym();
+Obj primGenSym(Cora *co);
 Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
-struct Cora * coraInit(uintptr_t * mark);
+struct Cora * coraInit();
 void coraExit(struct Cora *co);
 
 struct registerEntry {

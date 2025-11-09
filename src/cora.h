@@ -17,6 +17,8 @@ extern "C" {
 	typedef struct Cora Cora;
 	typedef uintptr_t Obj;
 
+	typedef struct GC GC;
+
 	// Types API
 	extern const Obj True;
 	extern const Obj False;
@@ -25,20 +27,22 @@ extern "C" {
 
 	typedef void (*CoraFunc) (Cora *co, int label, Obj *R);
 
+	GC* coraGetGC(Cora *co);
+
 	void* coraMustCObj(Obj o);
 
 	Obj coraMakeNumber(int v);
 	bool coraIsNumber(Obj o);
 	int coraFixnum(Obj o);
 
-	Obj coraMakeBytes(int len);
+	Obj coraMakeBytes(Cora *co, int len);
 	char *coraBytesData(Obj o);
 	int coraBytesLen(Obj o);
 
-	Obj coraMakeString(char *s, int len);
-	Obj coraMakeCString(char *s);
+	Obj coraMakeString(Cora *co, char *s, int len);
+	Obj coraMakeCString(Cora *co, char *s);
 
-	Obj coraMakeCons(Obj car, Obj cdr);
+	Obj coraMakeCons(Cora *co, Obj car, Obj cdr);
 	Obj coraCar(Obj o);
 	Obj coraCdr(Obj o);
 
@@ -54,7 +58,7 @@ extern "C" {
 
 
 	// Cora Runtime API
-	Cora* coraInit(uintptr_t * mark);
+	Cora* coraInit();
 
 	void coraCall(Cora *co, Obj fn, int nargs, Obj *args);
 	void coraReturn(Cora *co, Obj val);

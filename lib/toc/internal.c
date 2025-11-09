@@ -74,7 +74,7 @@ builtinEscapeStr(struct Cora *co, int label, Obj *R) {
 			dst = strAppend(dst, c);
 		};
 	}
-	Obj ret = makeString(toCStr(dst), strLen(toStr(dst)));
+	Obj ret = makeString(co->gc, toCStr(dst), strLen(toStr(dst)));
 	strFree(dst);
 	coraReturn(co, ret);
 }

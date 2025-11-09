@@ -12,7 +12,7 @@ repl(Cora *co, FILE* stream) {
 			printf("%d #> ", i);
 		}
 
-		Obj exp = sexpRead(stream, &errCode);
+		Obj exp = sexpRead(coraGetGC(co), stream, &errCode);
 		if (errCode != 0) {
 			break;
 		}
@@ -71,10 +71,10 @@ shebang(Cora *co, int argc, char *argv[]) {
 
 	Obj args = Nil;
 	for (int i=1; i<argc; i++) {
-		Obj arg = coraMakeString(argv[i], strlen(argv[i]));
-		args = coraMakeCons(arg, args);
+		Obj arg = coraMakeString(co, argv[i], strlen(argv[i]));
+		args = coraMakeCons(co, arg, args);
 	}
-	args = reverse(args);
+	args = reverse(coraGetGC(co), args);
 	coraPrimSet(co, coraMakeSymbol("*command-line-args*"), args);
 
 	repl(co, f);
@@ -83,8 +83,7 @@ shebang(Cora *co, int argc, char *argv[]) {
 /* extern void entry(struct Cora *co, int label, Obj *R); */
 
 int main(int argc, char *argv[]) {
-	uintptr_t dummy;
-	Cora* co = coraInit(&dummy);
+	Cora* co = coraInit();
 
 	/* entry(co, 0, NULL); */
 	/* coraRun(co); */
@@ -93,17 +92,17 @@ int main(int argc, char *argv[]) {
 	/* return 0; */
 
 	Obj fn = coraSymbolGet(coraMakeSymbol("import"));
-	Obj arg1 = makeCString("cora/init");
+	Obj arg1 = makeCString(coraGetGC(co), "cora/init");
 	Obj args[1] = {arg1};
 	coraCall(co, fn, 1, args);
 	coraRun(co);
 
-	arg1 = makeCString("cora/lib/toc");
+	arg1 = makeCString(coraGetGC(co), "cora/lib/toc");
 	Obj _args[1] = {arg1};
 	coraCall(co, fn, 1, _args);
 	coraRun(co);
 
-	arg1 = makeCString("cora/lib/eval");
+	arg1 = makeCString(coraGetGC(co), "cora/lib/eval");
 	Obj __args[1] = {arg1};
 	coraCall(co, fn, 1, __args);
 	coraRun(co);
