@@ -2,7 +2,7 @@
 
 static int
 pollCreate() {
-  return epoll_create(1);
+	return epoll_create(1);
 }
 
 static void
@@ -54,39 +54,39 @@ pollCtlMod(int pollfd, int fd, Obj modes, Obj conn) {
 
 static void
 pollCtlDel(int pollfd, int fd) {
-  int succ = epoll_ctl(pollfd, EPOLL_CTL_DEL, fd, NULL);
-  if (succ != 0) {
-	  perror("epoll_ctl EPOLL_CTL_DEL");
-  }
+	int succ = epoll_ctl(pollfd, EPOLL_CTL_DEL, fd, NULL);
+	if (succ != 0) {
+		perror("epoll_ctl EPOLL_CTL_DEL");
+	}
 }
 
 static Obj
 poll(Cora *co, int pollfd, int timeout) {
-  const int MAX_EVENTS = 64;
-  struct epoll_event events[MAX_EVENTS];
-  int nfds;
- again:
-  nfds = epoll_wait(pollfd, events, MAX_EVENTS, timeout);
-  if (nfds < 0) {
-	  if (errno == EINTR) {
-		  goto again;
-	  }
-    // TODO
-    printf("netpoll fail?????\n");
-    perror("epoll_wait");
-    /* coraReturn(ctx, ) */
-  }
+	const int MAX_EVENTS = 64;
+	struct epoll_event events[MAX_EVENTS];
+	int nfds;
+again:
+	nfds = epoll_wait(pollfd, events, MAX_EVENTS, timeout);
+	if (nfds < 0) {
+		if (errno == EINTR) {
+			goto again;
+		}
+		// TODO
+		printf("netpoll fail?????\n");
+		perror("epoll_wait");
+		/* coraReturn(ctx, ) */
+	}
 
-  Obj ret = Nil;
-  for (int i=0; i<nfds; i++) {
-	  if ((events[i].events & EPOLLIN) == EPOLLIN) {
-		  Obj conn = events[i].data.u64;
-		  ret = makeCons(co->gc, makeCons(co->gc, conn, intern("read")), ret);
-	  }
-	  if ((events[i].events & EPOLLOUT) == EPOLLOUT) {
-		  Obj conn = events[i].data.u64;
-		  ret = makeCons(co->gc, makeCons(co->gc, conn, intern("write")), ret);
-	  }
-  }
-  return ret;
+	Obj ret = Nil;
+	for (int i = 0; i < nfds; i++) {
+		if ((events[i].events & EPOLLIN) == EPOLLIN) {
+			Obj conn = events[i].data.u64;
+			ret = makeCons(co->gc, makeCons(co->gc, conn, intern("read")), ret);
+		}
+		if ((events[i].events & EPOLLOUT) == EPOLLOUT) {
+			Obj conn = events[i].data.u64;
+			ret = makeCons(co->gc, makeCons(co->gc, conn, intern("write")), ret);
+		}
+	}
+	return ret;
 }

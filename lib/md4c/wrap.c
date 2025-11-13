@@ -1,22 +1,22 @@
 #include "md4c.h"
+#include "reader.h"
 #include "runtime.h"
 #include "types.h"
-#include "reader.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct _MD_HTML {
 	struct Cora *co;
-	Obj curr;		// symbol
-	Obj stack;		// symbol
+	Obj curr;  // symbol
+	Obj stack; // symbol
 	int size;
 	int cap;
 	char escape_map[256];
 } MD_HTML;
 
 static void
-md_html_push(MD_HTML * r) {
+md_html_push(MD_HTML *r) {
 	Obj x = symbolGet(r->curr);
 	if (r->size >= r->cap) {
 		if (r->cap == 0) {
@@ -39,41 +39,41 @@ md_html_push(MD_HTML * r) {
 }
 
 static Obj
-md_html_pop(MD_HTML * r) {
+md_html_pop(MD_HTML *r) {
 	r->size--;
 	return vectorRef(symbolGet(r->stack), r->size);
 }
 
 static void
-append_curr(MD_HTML * r, Obj x) {
+append_curr(MD_HTML *r, Obj x) {
 	Obj v = cons(x, symbolGet(r->curr));
 	primSet(r->co, r->curr, v);
 }
 
 static inline void
-render_verbatim_enter(MD_HTML * r, const MD_CHAR * text) {
+render_verbatim_enter(MD_HTML *r, const MD_CHAR *text) {
 	md_html_push(r);
 	primSet(r->co, r->curr, cons(intern(text), Nil));
 }
 
 static inline void
-render_verbatim_leave(MD_HTML * r) {
+render_verbatim_leave(MD_HTML *r) {
 	Obj tmp = reverse(symbolGet(r->curr));
 	Obj old = md_html_pop(r);
 	primSet(r->co, r->curr, cons(tmp, old));
 }
 
 static void
-render_append_text1(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
+render_append_text1(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
 	strBuf s = fromCStr("language-");
-	strBuf lang = fromBlk((char *) data, size);
+	strBuf lang = fromBlk((char *)data, size);
 	s = strCat(s, toStr(lang));
 	append_curr(r, makeString(toCStr(s), strLen(toStr(s))));
 }
 
 static void
-render_attribute(MD_HTML * r, const MD_ATTRIBUTE * attr,
-		 void (*fn_append)(MD_HTML *, const MD_CHAR *, MD_SIZE)) {
+render_attribute(MD_HTML *r, const MD_ATTRIBUTE *attr,
+	void (*fn_append)(MD_HTML *, const MD_CHAR *, MD_SIZE)) {
 	int i;
 
 	for (i = 0; attr->substr_offsets[i] < attr->size; i++) {
@@ -93,7 +93,7 @@ render_attribute(MD_HTML * r, const MD_ATTRIBUTE * attr,
 }
 
 static void
-render_open_li_block(MD_HTML * r, const MD_BLOCK_LI_DETAIL * det) {
+render_open_li_block(MD_HTML *r, const MD_BLOCK_LI_DETAIL *det) {
 	if (det->is_task) {
 		md_html_push(r);
 		Obj tmp = cons(intern("class"), cons(makeCString("task-list-item"), Nil));
@@ -123,7 +123,7 @@ render_open_li_block(MD_HTML * r, const MD_BLOCK_LI_DETAIL * det) {
 }
 
 static void
-render_open_ol_block(MD_HTML * r, const MD_BLOCK_OL_DETAIL * det) {
+render_open_ol_block(MD_HTML *r, const MD_BLOCK_OL_DETAIL *det) {
 	char buf[64];
 
 	render_verbatim_enter(r, "ol");
@@ -139,7 +139,7 @@ render_open_ol_block(MD_HTML * r, const MD_BLOCK_OL_DETAIL * det) {
 }
 
 static void
-render_open_code_block(MD_HTML * r, const MD_BLOCK_CODE_DETAIL * det) {
+render_open_code_block(MD_HTML *r, const MD_BLOCK_CODE_DETAIL *det) {
 	md_html_push(r);
 	primSet(r->co, r->curr, cons(intern("pre"), Nil));
 	md_html_push(r);
@@ -163,11 +163,11 @@ render_open_code_block(MD_HTML * r, const MD_BLOCK_CODE_DETAIL * det) {
 static int
 enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 	static const MD_CHAR *head[6] =
-		{ "h1", "h2", "h3", "h4", "h5", "h6" };
-	MD_HTML *r = (MD_HTML *) userdata;
+		{"h1", "h2", "h3", "h4", "h5", "h6"};
+	MD_HTML *r = (MD_HTML *)userdata;
 
 	switch (type) {
-	case MD_BLOCK_DOC:	/* noop */
+	case MD_BLOCK_DOC: /* noop */
 		break;
 	case MD_BLOCK_QUOTE:
 		render_verbatim_enter(r, "blockquote");
@@ -176,23 +176,22 @@ enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 		render_verbatim_enter(r, "ul");
 		break;
 	case MD_BLOCK_OL:
-		render_open_ol_block(r, (const MD_BLOCK_OL_DETAIL *) detail);
+		render_open_ol_block(r, (const MD_BLOCK_OL_DETAIL *)detail);
 		break;
 	case MD_BLOCK_LI:
-		render_open_li_block(r, (const MD_BLOCK_LI_DETAIL *) detail);
+		render_open_li_block(r, (const MD_BLOCK_LI_DETAIL *)detail);
 		break;
 	case MD_BLOCK_HR:
 		append_curr(r, cons(intern("hr"), Nil));
 		break;
 	case MD_BLOCK_H:
-		render_verbatim_enter(r, head[((MD_BLOCK_H_DETAIL *)
-					       detail)->level - 1]);
+		render_verbatim_enter(r, head[((MD_BLOCK_H_DETAIL *)detail)->level - 1]);
 		break;
 	case MD_BLOCK_CODE:
 		render_open_code_block(r,
-				       (const MD_BLOCK_CODE_DETAIL *) detail);
+			(const MD_BLOCK_CODE_DETAIL *)detail);
 		break;
-	case MD_BLOCK_HTML:	/* noop */
+	case MD_BLOCK_HTML: /* noop */
 		break;
 	case MD_BLOCK_P:
 		render_verbatim_enter(r, "p");
@@ -216,17 +215,15 @@ enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 	return 0;
 }
 
-
 static int
 leave_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 	static const MD_CHAR *head[6] =
-		{ "</h1>\n", "</h2>\n", "</h3>\n", "</h4>\n", "</h5>\n",
-		"</h6>\n"
-	};
-	MD_HTML *r = (MD_HTML *) userdata;
+		{"</h1>\n", "</h2>\n", "</h3>\n", "</h4>\n", "</h5>\n",
+			"</h6>\n"};
+	MD_HTML *r = (MD_HTML *)userdata;
 
 	switch (type) {
-	case MD_BLOCK_DOC:	/*noop */
+	case MD_BLOCK_DOC: /*noop */
 		break;
 	case MD_BLOCK_QUOTE:
 		render_verbatim_leave(r);
@@ -240,17 +237,17 @@ leave_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 	case MD_BLOCK_LI:
 		render_verbatim_leave(r);
 		break;
-	case MD_BLOCK_HR:	/*noop */
+	case MD_BLOCK_HR: /*noop */
 		break;
 	case MD_BLOCK_H:
 		render_verbatim_leave(r);
 		break;
-	case MD_BLOCK_CODE:{
-			render_verbatim_leave(r);
-			render_verbatim_leave(r);
-			break;
-		}
-	case MD_BLOCK_HTML:	/* noop */
+	case MD_BLOCK_CODE: {
+		render_verbatim_leave(r);
+		render_verbatim_leave(r);
+		break;
+	}
+	case MD_BLOCK_HTML: /* noop */
 		break;
 	case MD_BLOCK_P:
 		render_verbatim_leave(r);
@@ -279,12 +276,12 @@ leave_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 }
 
 static void
-render_url_escaped1(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
+render_url_escaped1(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
 	append_curr(r, makeString(data, size));
 }
 
 static void
-render_url_escaped(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
+render_url_escaped(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
 	static const MD_CHAR hex_chars[] = "0123456789ABCDEF";
 	MD_OFFSET beg = 0;
 	MD_OFFSET off = 0;
@@ -307,10 +304,8 @@ render_url_escaped(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
 				/* case '&':   RENDER_VERBATIM(r, "&amp;"); break; */
 			default:
 				hex[0] = '%';
-				hex[1] = hex_chars[((unsigned) data[off] >> 4)
-						   & 0xf];
-				hex[2] = hex_chars[((unsigned) data[off] >> 0)
-						   & 0xf];
+				hex[1] = hex_chars[((unsigned)data[off] >> 4) & 0xf];
+				hex[2] = hex_chars[((unsigned)data[off] >> 0) & 0xf];
 				/* render_verbatim(r, hex, 3); */
 				break;
 			}
@@ -324,7 +319,7 @@ render_url_escaped(MD_HTML * r, const MD_CHAR * data, MD_SIZE size) {
 }
 
 static void
-render_open_a_span(MD_HTML * r, const MD_SPAN_A_DETAIL * det) {
+render_open_a_span(MD_HTML *r, const MD_SPAN_A_DETAIL *det) {
 	md_html_push(r);
 
 	Obj attrs = cons(intern("@"), Nil);
@@ -347,7 +342,7 @@ render_open_a_span(MD_HTML * r, const MD_SPAN_A_DETAIL * det) {
 }
 
 static void
-render_open_img_span(MD_HTML * r, const MD_SPAN_IMG_DETAIL * det) {
+render_open_img_span(MD_HTML *r, const MD_SPAN_IMG_DETAIL *det) {
 	md_html_push(r);
 
 	primSet(r->co, r->curr, cons(intern("src"), Nil));
@@ -358,7 +353,7 @@ render_open_img_span(MD_HTML * r, const MD_SPAN_IMG_DETAIL * det) {
 }
 
 static void
-render_close_img_span(MD_HTML * r, const MD_SPAN_IMG_DETAIL * det) {
+render_close_img_span(MD_HTML *r, const MD_SPAN_IMG_DETAIL *det) {
 	if (det->title.text != NULL) {
 		// RENDER_VERBATIM(r, "\" title=\"");
 		// render_attribute(r, &det->title, render_html_escaped);
@@ -369,7 +364,7 @@ render_close_img_span(MD_HTML * r, const MD_SPAN_IMG_DETAIL * det) {
 
 static int
 enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
-	MD_HTML *r = (MD_HTML *) userdata;
+	MD_HTML *r = (MD_HTML *)userdata;
 	/* int inside_img = (r->image_nesting_level > 0); */
 
 	/* We are inside a Markdown image label. Markdown allows to use any emphasis
@@ -402,10 +397,10 @@ enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 		render_verbatim_enter(r, "<u>");
 		break;
 	case MD_SPAN_A:
-		render_open_a_span(r, (MD_SPAN_A_DETAIL *) detail);
+		render_open_a_span(r, (MD_SPAN_A_DETAIL *)detail);
 		break;
 	case MD_SPAN_IMG:
-		render_open_img_span(r, (MD_SPAN_IMG_DETAIL *) detail);
+		render_open_img_span(r, (MD_SPAN_IMG_DETAIL *)detail);
 		break;
 	case MD_SPAN_CODE:
 		render_verbatim_enter(r, "code");
@@ -427,7 +422,7 @@ enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 
 static int
 leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
-	MD_HTML *r = (MD_HTML *) userdata;
+	MD_HTML *r = (MD_HTML *)userdata;
 
 	/* if(type == MD_SPAN_IMG) */
 	/*     r->image_nesting_level--; */
@@ -448,7 +443,7 @@ leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 		render_verbatim_leave(r);
 		break;
 	case MD_SPAN_IMG:
-		render_close_img_span(r, (MD_SPAN_IMG_DETAIL *) detail);
+		render_close_img_span(r, (MD_SPAN_IMG_DETAIL *)detail);
 		break;
 	case MD_SPAN_CODE:
 		render_verbatim_leave(r);
@@ -456,7 +451,7 @@ leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 	case MD_SPAN_DEL:
 		render_verbatim_leave(r);
 		break;
-	case MD_SPAN_LATEXMATH:	/*fall through */
+	case MD_SPAN_LATEXMATH: /*fall through */
 	case MD_SPAN_LATEXMATH_DISPLAY:
 		render_verbatim_leave(r);
 		break;
@@ -469,9 +464,9 @@ leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 }
 
 static int
-text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
-	      void *userdata) {
-	MD_HTML *r = (MD_HTML *) userdata;
+text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
+	void *userdata) {
+	MD_HTML *r = (MD_HTML *)userdata;
 
 	switch (type) {
 		/* case MD_TEXT_NULLCHAR:  render_utf8_codepoint(r, 0x0000, render_verbatim); break; */
@@ -480,8 +475,8 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
 		break;
 		/* case MD_TEXT_SOFTBR:    RENDER_VERBATIM(r, (r->image_nesting_level == 0 ? "\n" : " ")); break; */
 	case MD_TEXT_HTML:
-	  // ignore html parsing currently, it conflicts with sxml
-	  // render_verbatim_enter(r, text);
+		// ignore html parsing currently, it conflicts with sxml
+		// render_verbatim_enter(r, text);
 		break;
 		/* case MD_TEXT_ENTITY:    render_entity(r, text, size, render_html_escaped); break; */
 	default:
@@ -494,15 +489,15 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR * text, MD_SIZE size,
 
 static void
 debug_log_callback(const char *msg, void *userdata) {
-	MD_HTML *r = (MD_HTML *) userdata;
+	MD_HTML *r = (MD_HTML *)userdata;
 	/* if(r->flags & MD_HTML_FLAG_DEBUG) */
 	/*     fprintf(stderr, "MD4C: %s\n", msg); */
 }
 
 static int
-md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
+md_sxml(struct Cora *co, const MD_CHAR *input, MD_SIZE input_size,
 	unsigned parser_flags, Obj curr, Obj stack,
-	Obj * res) {
+	Obj *res) {
 	MD_HTML render;
 	render.co = co;
 	render.curr = curr,
@@ -520,12 +515,11 @@ md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
 		leave_span_callback,
 		text_callback,
 		debug_log_callback,
-		NULL
-	};
+		NULL};
 
 	/* Build map of characters which need escaping. */
 	for (int i = 0; i < 256; i++) {
-		unsigned char ch = (unsigned char) i;
+		unsigned char ch = (unsigned char)i;
 
 		/* if(strchr("\"&<>", ch) != NULL) */
 		/*   render.escape_map[i] |= NEED_HTML_ESC_FLAG; */
@@ -534,7 +528,7 @@ md_sxml(struct Cora *co, const MD_CHAR * input, MD_SIZE input_size,
 		/*   render.escape_map[i] |= NEED_URL_ESC_FLAG; */
 	}
 
-	int succ = md_parse(input, input_size, &parser, (void *) &render);
+	int succ = md_parse(input, input_size, &parser, (void *)&render);
 	Obj x = symbolGet(render.curr);
 	*res = reverse(x);
 	return succ;
@@ -581,11 +575,10 @@ membuf_append(struct membuffer *buf, const char *data, MD_SIZE size) {
 	buf->size += size;
 }
 
-
 static int
-process_file(struct Cora *co, FILE * in, Obj * sxml) {
+process_file(struct Cora *co, FILE *in, Obj *sxml) {
 	size_t n;
-	struct membuffer buf_in = { 0 };
+	struct membuffer buf_in = {0};
 	/* struct membuffer buf_out = {0}; */
 	int ret = -1;
 	clock_t t0, t1;
@@ -600,7 +593,7 @@ process_file(struct Cora *co, FILE * in, Obj * sxml) {
 			membuf_grow(&buf_in, buf_in.asize + buf_in.asize / 2);
 
 		n = fread(buf_in.data + buf_in.size, 1,
-			  buf_in.asize - buf_in.size, in);
+			buf_in.asize - buf_in.size, in);
 		if (n == 0)
 			break;
 		buf_in.size += n;
@@ -637,16 +630,15 @@ process_file(struct Cora *co, FILE * in, Obj * sxml) {
 	 * md_renderer_t structure. */
 	/* t0 = clock(); */
 
-
 	static unsigned parser_flags = 0;
 	parser_flags |= MD_FLAG_STRIKETHROUGH;
 	parser_flags |= MD_FLAG_TASKLISTS;
 
 	Obj curr = primGenSym(Nil);
 	Obj stack = primGenSym(Nil);
-	ret = md_sxml(co, buf_in.data, (MD_SIZE) buf_in.size, parser_flags,
-		      curr, stack,
-		      sxml);
+	ret = md_sxml(co, buf_in.data, (MD_SIZE)buf_in.size, parser_flags,
+		curr, stack,
+		sxml);
 
 	// t1 = clock();
 	if (ret != 0) {
@@ -698,7 +690,7 @@ process_file(struct Cora *co, FILE * in, Obj * sxml) {
 	/* Success if we have reached here. */
 	ret = 0;
 
-      out:
+out:
 	membuf_fini(&buf_in);
 	/* membuf_fini(&buf_out); */
 
@@ -727,11 +719,8 @@ md2sxml(struct Cora *co, int label, Obj *R) {
 
 struct registerModule md4cModule = {
 	NULL,
-	{
-	 {"process-file", md2sxml, 1},
-	 {NULL, NULL, 0}
-	 }
-};
+	{{"process-file", md2sxml, 1},
+		{NULL, NULL, 0}}};
 
 void
 entry(struct Cora *co, int label, Obj *R) {
@@ -739,7 +728,6 @@ entry(struct Cora *co, int label, Obj *R) {
 	registerAPI(co, &md4cModule, stringStr(pkg));
 	coraReturn(co, intern("md4c"));
 }
-
 
 #ifdef DEBUG
 int

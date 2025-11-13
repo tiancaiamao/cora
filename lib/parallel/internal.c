@@ -1,15 +1,15 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <pthread.h>
-#include <fcntl.h>
-#include "types.h"
-#include "str.h"
 #include "runtime.h"
+#include "str.h"
+#include "types.h"
+#include <errno.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-static void*
-startRoutine(void* arg) {
+static void *
+startRoutine(void *arg) {
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
 	Obj fn = globalRef(intern("import"));
@@ -40,7 +40,7 @@ newProc(struct Cora *co, int label, Obj *R) {
 	Obj arg = R[1];
 	str path1 = stringStr(arg);
 	strBuf path2 = strDup(path1);
-	pthread_t* thread = malloc(sizeof(pthread_t));
+	pthread_t *thread = malloc(sizeof(pthread_t));
 	int ret = pthread_create(thread, NULL, startRoutine, path2);
 	if (ret != 0) {
 		coraReturn(co, Nil);
@@ -53,7 +53,7 @@ newProc(struct Cora *co, int label, Obj *R) {
 static void
 procJoin(struct Cora *co, int label, Obj *R) {
 	pthread_t *t = mustCObj(R[1]);
-	void* ignore;
+	void *ignore;
 	int ret = pthread_join(*t, &ignore);
 	if (ret != 0) {
 		perror("pthread_join");
@@ -77,7 +77,7 @@ pipeImpl(struct Cora *co, int label, Obj *R) {
 }
 
 struct node {
-	struct node* next;
+	struct node *next;
 };
 
 struct queue {
@@ -119,7 +119,7 @@ enqueueData(struct queue *q, Obj v) {
 	}
 }
 
-static struct nodeData*
+static struct nodeData *
 dequeueData(struct queue *q) {
 	assert(q->len > 0);
 	struct nodeData *b = (struct nodeData *)q->head;
@@ -164,7 +164,7 @@ mailboxUnlock(struct Cora *co, int label, Obj *R) {
 static void
 mailboxDequeue(struct Cora *co, int label, Obj *R) {
 	struct mailbox *m = mustCObj(R[1]);
-	struct nodeData* data = dequeueData(&m->data);
+	struct nodeData *data = dequeueData(&m->data);
 	coraReturn(co, data->v);
 }
 
@@ -184,18 +184,18 @@ enqueueBlocked(struct queue *q, struct nodeBlocked *n) {
 
 static void
 mailboxEnqueueBlocked(struct Cora *co, int label, Obj *R) {
-	struct mailbox* m = mustCObj(R[1]);
+	struct mailbox *m = mustCObj(R[1]);
 	Obj conn = R[2];
-	struct nodeBlocked *n = (struct nodeBlocked*)malloc(sizeof(struct nodeBlocked));
+	struct nodeBlocked *n = (struct nodeBlocked *)malloc(sizeof(struct nodeBlocked));
 	n->conn = conn;
 	enqueueBlocked(&m->blocked, n);
 	coraReturn(co, Nil);
 }
 
-static struct nodeBlocked*
+static struct nodeBlocked *
 dequeueBlocked(struct queue *q) {
 	assert(q->len > 0);
-	struct nodeBlocked *b = (struct nodeBlocked*)q->head;
+	struct nodeBlocked *b = (struct nodeBlocked *)q->head;
 	q->head = q->head->next;
 	b->h.next = NULL;
 	q->len--;
@@ -203,7 +203,7 @@ dequeueBlocked(struct queue *q) {
 }
 
 static void
-wakeupBlocked(struct nodeBlocked* n, Obj val) {
+wakeupBlocked(struct nodeBlocked *n, Obj val) {
 	Obj conn = n->conn;
 	// NOTE: this is a **ugly hack** here, definition of conn is in cora/lib/async
 	// vector index must be correct
@@ -219,7 +219,7 @@ wakeupBlocked(struct nodeBlocked* n, Obj val) {
 
 static void
 mailboxMake(struct Cora *co, int label, Obj *R) {
-	struct mailbox* m = (struct mailbox*)malloc(sizeof(struct mailbox));
+	struct mailbox *m = (struct mailbox *)malloc(sizeof(struct mailbox));
 	pthread_mutex_init(&m->mu, NULL);
 	queueInit(&m->data);
 	queueInit(&m->blocked);
@@ -228,11 +228,11 @@ mailboxMake(struct Cora *co, int label, Obj *R) {
 
 static void
 mailboxSend(struct Cora *co, int label, Obj *R) {
-	struct mailbox* m = mustCObj(R[1]);
+	struct mailbox *m = mustCObj(R[1]);
 	Obj val = R[2];
 	pthread_mutex_lock(&m->mu);
 	if (queueLen(&m->blocked) > 0) {
-		struct nodeBlocked* co = dequeueBlocked(&m->blocked);
+		struct nodeBlocked *co = dequeueBlocked(&m->blocked);
 		wakeupBlocked(co, val);
 	} else {
 		enqueueData(&m->data, val);
@@ -261,20 +261,18 @@ struct mailboxRegistrySlot {
 	strBuf name;
 };
 
-
 #define NUM_SLOTS 256
 
 struct mailboxRegistry {
 	struct mailboxRegistrySlot slots[NUM_SLOTS];
 };
 
-
 static unsigned long
 fnv1aHash(const char *str) {
-    unsigned long hash = 2166136261u;  // FNV offset basis
-    while (*str)
-        hash = (hash ^ (unsigned char)(*str++)) * 16777619;
-    return hash;
+	unsigned long hash = 2166136261u; // FNV offset basis
+	while (*str)
+		hash = (hash ^ (unsigned char)(*str++)) * 16777619;
+	return hash;
 }
 
 static struct mailboxRegistry registry;
@@ -292,7 +290,7 @@ mailboxPublish(struct Cora *co, int label, Obj *R) {
 	int idx = fnv1aHash(name.str) % NUM_SLOTS;
 	struct mailboxRegistrySlot *slot = &registry.slots[idx];
 	int start = (idx + NUM_SLOTS - 1) % NUM_SLOTS;
-	while(slot->m != NULL && idx != start) {
+	while (slot->m != NULL && idx != start) {
 		idx = (idx + 1) % NUM_SLOTS;
 		slot = &registry.slots[idx];
 	}
@@ -315,7 +313,7 @@ mailboxResolve(struct Cora *co, int label, Obj *R) {
 	struct mailboxRegistrySlot *slot = &registry.slots[idx];
 	// locate the slot
 	int try = 0;
-	while(slot->m != NULL && strCmp(name, toStr(slot->name)) != 0 && try < NUM_SLOTS) {
+	while (slot->m != NULL && strCmp(name, toStr(slot->name)) != 0 && try < NUM_SLOTS) {
 		idx = (idx + 1) % NUM_SLOTS;
 		slot = &registry.slots[idx];
 		try++;
@@ -333,7 +331,7 @@ mailboxResolve(struct Cora *co, int label, Obj *R) {
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	char* module = bytesData(pkg);
+	char *module = bytesData(pkg);
 	coraRegisterAPI(co, module, "new-proc", newProc, 1);
 	coraRegisterAPI(co, module, "proc-join", procJoin, 1);
 	coraRegisterAPI(co, module, "mailbox-make", mailboxMake, 0);

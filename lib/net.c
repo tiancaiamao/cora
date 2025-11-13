@@ -19,11 +19,11 @@ __thread int pollfd = -1;
 #endif
 
 static bool
-splitHostAndPort(Cora* co, Obj str1, Obj* host, Obj* port) {
-	char* s = bytesData(str1);
+splitHostAndPort(Cora *co, Obj str1, Obj *host, Obj *port) {
+	char *s = bytesData(str1);
 	int sz = bytesLen(str1);
 	int i = 0;
-	char* p = s;
+	char *p = s;
 	while (i < sz && p[i] != ':') {
 		i++;
 	}
@@ -43,7 +43,7 @@ setNonBlock(int fd) {
 }
 
 static void
-netListen(struct Cora* ctx, int label, Obj* R) {
+netListen(struct Cora *ctx, int label, Obj *R) {
 	Obj str = R[1];
 	Obj ret1, ret2;
 	if (!splitHostAndPort(ctx, str, &ret1, &ret2)) {
@@ -52,8 +52,8 @@ netListen(struct Cora* ctx, int label, Obj* R) {
 		coraReturn(ctx, Nil);
 		return;
 	}
-	char* host = bytesData(ret1);
-	char* portStr = bytesData(ret2);
+	char *host = bytesData(ret1);
+	char *portStr = bytesData(ret2);
 	int port = atoi(portStr);
 	/* printf("host = %s, port = %d\n", host, port); */
 
@@ -65,7 +65,7 @@ netListen(struct Cora* ctx, int label, Obj* R) {
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY; // 0.0.0.0
 	addr.sin_port = htons(port);
-	if (bind(fd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in)) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
 		fprintf(stderr, "bind error\n");
 		coraReturn(ctx, Nil);
 		return;
@@ -82,7 +82,7 @@ netListen(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-netDial(struct Cora* ctx, int label, Obj* R) {
+netDial(struct Cora *ctx, int label, Obj *R) {
 	Obj str = R[1];
 	Obj ret1, ret2;
 	if (!splitHostAndPort(ctx, str, &ret1, &ret2)) {
@@ -91,8 +91,8 @@ netDial(struct Cora* ctx, int label, Obj* R) {
 		coraReturn(ctx, Nil);
 		return;
 	}
-	char* host = bytesData(ret1);
-	char* port = bytesData(ret2);
+	char *host = bytesData(ret1);
+	char *port = bytesData(ret2);
 	/* printf("host = %s, port = %s\n", host, port); */
 
 	struct addrinfo hint;
@@ -129,12 +129,12 @@ netDial(struct Cora* ctx, int label, Obj* R) {
 // input: (net-send fd buf pos)
 // output: [block pos] or [ok] or [err errno]
 static void
-netSend(struct Cora* ctx, int label, Obj* R) {
+netSend(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
 	Obj arg2 = R[2];
 	Obj arg3 = R[3];
 	int fd = fixnum(arg1);
-	char* buf = bytesData(arg2);
+	char *buf = bytesData(arg2);
 	int len = bytesLen(arg2);
 	int pos = fixnum(arg3);
 
@@ -165,7 +165,7 @@ netSend(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-netPoll(struct Cora* ctx, int label, Obj* R) {
+netPoll(struct Cora *ctx, int label, Obj *R) {
 	Obj timeout = R[1];
 	Obj ret = poll(ctx, pollfd, fixnum(timeout));
 	coraReturn(ctx, ret);
@@ -174,12 +174,12 @@ netPoll(struct Cora* ctx, int label, Obj* R) {
 // input: (net-recv fd buf pos)
 // output: [block pos] or [ok] or [err errno]
 static void
-netRecv(struct Cora* ctx, int label, Obj* R) {
+netRecv(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
 	Obj arg2 = R[2];
 	Obj arg3 = R[3];
 	int fd = fixnum(arg1);
-	char* buf = bytesData(arg2);
+	char *buf = bytesData(arg2);
 	int len = bytesLen(arg2);
 	int pos = fixnum(arg3);
 
@@ -209,14 +209,14 @@ netRecv(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-netAccept(struct Cora* ctx, int label, Obj* R) {
+netAccept(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
 	int ln = fixnum(arg1);
 
 	struct sockaddr_in addr;
 	socklen_t len = sizeof(struct sockaddr_in);
 	memset(&addr, 0, sizeof(addr));
-	int fd = accept(ln, (struct sockaddr*)&addr, &len);
+	int fd = accept(ln, (struct sockaddr *)&addr, &len);
 	if (fd < 0) {
 		// TODO
 		printf("accept error: %s\n", strerror(errno));
@@ -230,7 +230,7 @@ netAccept(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-netClose(struct Cora* ctx, int label, Obj* R) {
+netClose(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
 	int fd = fixnum(arg1);
 	close(fd);
@@ -238,14 +238,14 @@ netClose(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-makeBuffer(struct Cora* ctx, int label, Obj* R) {
+makeBuffer(struct Cora *ctx, int label, Obj *R) {
 	Obj arg1 = R[1];
 	int size = fixnum(arg1);
 	coraReturn(ctx, makeBytes(ctx->gc, size));
 }
 
 static void
-pollAdd(struct Cora* ctx, int label, Obj* R) {
+pollAdd(struct Cora *ctx, int label, Obj *R) {
 	Obj fd = R[1];
 	Obj mode = R[2];
 	Obj conn = R[3];
@@ -261,7 +261,7 @@ pollAdd(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-pollMod(struct Cora* ctx, int label, Obj* R) {
+pollMod(struct Cora *ctx, int label, Obj *R) {
 	Obj fd = R[1];
 	Obj modes = R[2];
 	Obj conn = R[3];
@@ -271,14 +271,14 @@ pollMod(struct Cora* ctx, int label, Obj* R) {
 }
 
 static void
-pollDel(struct Cora* ctx, int label, Obj* R) {
+pollDel(struct Cora *ctx, int label, Obj *R) {
 	Obj fd = R[1];
 	pollCtlDel(pollfd, fixnum(fd));
 	coraReturn(ctx, Nil);
 }
 
 static void
-netPollFDInit(struct Cora* co, int label, Obj* R) {
+netPollFDInit(struct Cora *co, int label, Obj *R) {
 	if (pollfd > 0) {
 		printf("net poll fd init must be call only once!\n");
 		assert(false);
@@ -312,7 +312,7 @@ struct registerModule netModule = {
 		{NULL, NULL, 0}}};
 
 void
-entry(struct Cora* co, int label, Obj* R) {
+entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
 	registerAPI(co, &netModule, stringStr(pkg));
 	coraReturn(co, intern("net"));
