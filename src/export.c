@@ -5,42 +5,70 @@
 #define CORA_IMPLEMENTATION
 #include "runtime.h"
 
-Obj coraGetResult(Cora *co) { return co->res; }
-
-GC *coraGetGC(Cora *co) { return co->gc; }
-
-void coraReturn(struct Cora *co, Obj val) {
-  // set return value
-  co->res = val;
-  // recover continuation
-  co->ctx = vecPop(&co->callstack);
-  if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
-    coraReturnSlowPath(co);
-  }
-  return;
+Obj
+coraGetResult(Cora* co) {
+	return co->res;
 }
 
-Obj coraSymbolGet(Cora *co, Obj sym) {
-  Binding bind = bindSymbol(co, sym);
-  return globalRef(co, bind);
+GC*
+coraGetGC(Cora* co) {
+	return co->gc;
 }
 
-Obj coraPrimSet(Cora *co, Obj key, Obj val) { return primSet(co, key, val); }
-
-Obj coraMakeCons(Cora *co, Obj car, Obj cdr) {
-  return makeCons(co->gc, car, cdr);
+void
+coraReturn(struct Cora* co, Obj val) {
+	// set return value
+	co->res = val;
+	// recover continuation
+	co->ctx = vecPop(&co->callstack);
+	if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
+		coraReturnSlowPath(co);
+	}
+	return;
 }
 
-Obj coraMakeString(Cora *co, char *s, int len) {
-  return makeString(co->gc, s, len);
+Obj
+coraSymbolGet(Cora* co, Obj sym) {
+	Binding bind = bindSymbol(co, sym);
+	return globalRef(co, bind);
 }
 
-Obj coraMakeCString(Cora *co, char *s) { return makeCString(co->gc, s); }
+Obj
+coraPrimSet(Cora* co, Obj key, Obj val) {
+	return primSet(co, key, val);
+}
 
-Obj coraMakeSymbol(char *s) { return intern(s); }
+Obj
+coraMakeCons(Cora* co, Obj car, Obj cdr) {
+	return makeCons(co->gc, car, cdr);
+}
 
-char *coraBytesData(Obj o) { return bytesData(o); }
+Obj
+coraMakeString(Cora* co, char* s, int len) {
+	return makeString(co->gc, s, len);
+}
 
-Obj coraMakeNumber(int v) { return makeNumber(v); }
+Obj
+coraMakeCString(Cora* co, char* s) {
+	return makeCString(co->gc, s);
+}
 
-int coraFixnum(Obj o) { return fixnum(o); }
+Obj
+coraMakeSymbol(char* s) {
+	return intern(s);
+}
+
+char*
+coraBytesData(Obj o) {
+	return bytesData(o);
+}
+
+Obj
+coraMakeNumber(int v) {
+	return makeNumber(v);
+}
+
+int
+coraFixnum(Obj o) {
+	return fixnum(o);
+}
