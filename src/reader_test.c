@@ -1,8 +1,7 @@
+#include "reader.h"
+#include "runtime.h"
 #include <stdio.h>
 #include <string.h>
-#include "runtime.h"
-#include "reader.h"
-
 
 static void
 TestReadSexp() {
@@ -10,7 +9,7 @@ TestReadSexp() {
 	/* char buffer[] = "(a)"; */
 	FILE *stream = fmemopen(buffer, strlen(buffer), "r");
 
-	GC* gc = gcInit();
+	GC *gc = gcInit();
 	int errCode;
 	Obj o = sexpRead(gc, stream, &errCode);
 
@@ -32,7 +31,6 @@ TestReadSexp() {
 	fclose(stream);
 }
 
-
 struct readerMacroTest {
 	char *input;
 	char *expect;
@@ -46,13 +44,13 @@ TestReaderMacro(struct Cora *co) {
 		{"[1 2 3]", "(list 1 2 3)"},
 		{"[1 2 . 3]", "(list-rest 1 2 3)"},
 		{"`(1 ,a 2 ,(a b) c)",
-		 "(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
+			"(backquote (1 (unquote a) 2 (unquote (a b)) c))"},
 	};
 
 	GC *gc = gcInit();
 	int errCode = 0;
 	for (int i = 0; i < sizeof(cases) / sizeof(struct readerMacroTest);
-	     i++) {
+		i++) {
 		struct readerMacroTest *c = &cases[i];
 		FILE *stream = fmemopen(c->input, strlen(c->input), "r");
 		Obj x = sexpRead(gc, stream, &errCode);
@@ -66,7 +64,7 @@ TestReaderMacro(struct Cora *co) {
 			printObj(stderr, x);
 			printObj(stderr, y);
 			printf("reader macro test case: %s failed\n",
-			       c->input);
+				c->input);
 			assert(false);
 		}
 	}

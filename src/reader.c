@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern Obj primSet(struct Cora* co, Obj key, Obj val);
+extern Obj primSet(struct Cora *co, Obj key, Obj val);
 
 static bool
 isIdentifierChar(int c) {
@@ -29,7 +29,7 @@ isIdentifierChar(int c) {
 }
 
 static void
-eatWhitespace(FILE* in) {
+eatWhitespace(FILE *in) {
 	int c;
 	while ((c = getc(in)) != EOF) {
 		if (isspace(c)) {
@@ -47,13 +47,13 @@ eatWhitespace(FILE* in) {
 }
 
 static char
-peekFirstChar(FILE* in) {
+peekFirstChar(FILE *in) {
 	eatWhitespace(in);
 	return getc(in);
 }
 
 static Obj
-readCons(GC* gc, FILE* in, int* errCode) {
+readCons(GC *gc, FILE *in, int *errCode) {
 	int c = getc(in);
 	if (c == ')') {
 		// read the empty list
@@ -72,7 +72,7 @@ readCons(GC* gc, FILE* in, int* errCode) {
 }
 
 Obj
-reverse(GC* gc, Obj o) {
+reverse(GC *gc, Obj o) {
 	Obj ret = Nil;
 	while (o != Nil) {
 		ret = makeCons(gc, car(o), ret);
@@ -82,7 +82,7 @@ reverse(GC* gc, Obj o) {
 }
 
 static Obj
-readListMacro(GC* gc, FILE* in, int* errCode) {
+readListMacro(GC *gc, FILE *in, int *errCode) {
 	Obj hd = intern("list");
 	Obj ret = Nil;
 	char b = peekFirstChar(in);
@@ -100,7 +100,7 @@ readListMacro(GC* gc, FILE* in, int* errCode) {
 }
 
 static Obj
-readNumber(FILE* in) {
+readNumber(FILE *in) {
 	char buf[30];
 	memset(buf, 0, 30);
 	int i = 0;
@@ -119,7 +119,7 @@ readNumber(FILE* in) {
 }
 
 Obj
-sexpRead(GC* gc, FILE* in, int* errCode) {
+sexpRead(GC *gc, FILE *in, int *errCode) {
 	int c;
 	int i;
 	char buffer[512];
@@ -229,7 +229,7 @@ sexpRead(GC* gc, FILE* in, int* errCode) {
 }
 
 static void
-printCons(FILE* to, Obj o, bool start) {
+printCons(FILE *to, Obj o, bool start) {
 	if (start) {
 		fprintf(to, "(");
 		printObj(to, car(o));
@@ -251,7 +251,7 @@ printCons(FILE* to, Obj o, bool start) {
 }
 
 void
-printObj(FILE* to, Obj o) {
+printObj(FILE *to, Obj o) {
 	if (isfixnum(o)) {
 		fprintf(to, "%ld", fixnum(o));
 	} else if (iscobj(o)) {
@@ -271,7 +271,7 @@ printObj(FILE* to, Obj o) {
 	} else if (o == Nil) {
 		fprintf(to, "()");
 	} else if (tag(o) == TAG_PTR) {
-		scmHead* h = ptr(o);
+		scmHead *h = ptr(o);
 		switch (h->type) {
 		case scmHeadNumber:
 			fprintf(to, "ptr number");
@@ -306,6 +306,6 @@ printObj(FILE* to, Obj o) {
 }
 
 void
-sexpWrite(FILE* out, Obj o) {
+sexpWrite(FILE *out, Obj o) {
 	printObj(stdout, o);
 }

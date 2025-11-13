@@ -21,7 +21,7 @@ BraceWrapping:
   BeforeElse: false
   BeforeWhile: false
 
-PointerAlignment: Left
+PointerAlignment: Right
 AlignAfterOpenBracket: DontAlign
 AlignOperands: DontAlign
 AlignConsecutiveDeclarations: false
