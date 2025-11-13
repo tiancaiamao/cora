@@ -44,13 +44,8 @@ void coraReturnSlowPath(Cora *co) {
   co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
   co->stk.end = co->stk.begin + INIT_STACK_SIZE;
 
-  /* printf("coraReturn after = [%p, %p) sp=%p\n", */
-  /*        co->stk.begin, co->stk.end, co->ctx.sp); */
-
   assert(co->ctx.sp >= co->stk.begin && co->ctx.sp < co->stk.end);
 }
-
-// extern __thread struct trieNode *gRoot;
 
 static Cora *coraNew() {
   Cora *co = malloc(sizeof(Cora));
@@ -60,8 +55,6 @@ static Cora *coraNew() {
   co->ctx.sp = co->stk.begin;
   vecInit(&co->trystack, 4);
   mapInit(&co->env, strHashFunc, strEQFunc);
-
-  // co->globals = gRoot;
   return co;
 }
 
@@ -181,58 +174,34 @@ Binding bindSymbol(Cora *co, Obj sym) {
   return tmp;
 }
 
-// Obj
-// symbolGet(Cora *co, Obj sym) {
-// 	assert(issymbol(sym));
-// 	if (tag(sym) == TAG_SYMBOL) {
-// 		strBuf s = ptr(sym);
-// 		str xx = toStr(s);
-// 		envNode* node = mapGet(&co->env, xx);
-// 		// what the fuck, there is never an intern() call?
-// 		assert(node != NULL);
-// 		if (node->idx < 0) {
-// 			// The value is not bind?
-// 			return Undef;
-// 		}
-// 		return vecGet(&co->globals, node->idx);
-// 	}
+Obj symbolGet(Cora *co, Obj sym) {
+  assert(issymbol(sym));
+  if (tag(sym) == TAG_SYMBOL) {
+    Binding bind = bindSymbol(co, sym);
+    return globalRef(co, bind);
+  }
 
-// 	if (tag(sym) == TAG_PTR &&
-// 	    ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
-// 		struct scmSymbol *s = ptr(sym);
-// 		return s->value;
-// 	}
-// 	assert(false);
-// }
+  if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+    struct scmSymbol *s = ptr(sym);
+    return s->value;
+  }
+  assert(false);
+}
 
-Obj primSet(Cora *co, Binding bind, Obj val) {
-  assert(bind.idx >= 0);
-  Obj *slot = vecRef(&co->globals, bind.idx);
-  writeBarrierForIncremental(co->gc, slot, val);
+Obj primSet(Cora *co, Obj key, Obj val) {
+  if (tag(key) == TAG_SYMBOL) {
+    Binding bind = bindSymbol(co, key);
+    globalSet(co, bind, val);
+    return val;
+  }
 
-  // if (tag(key) == TAG_SYMBOL) {
-  // 	// struct trieNode *s = ptr(key);
-  // 	strBuf s = ptr(key);
-  // 	str xx = toStr(s);
-  // 	envNode *node = mapGet(&co->env, xx);
-  // 	Obj* valAddr = vecRef(&co->globals, node->idx);
-  // 	writeBarrierForIncremental(co->gc, valAddr, val);	// s->value =
-  // val;
-  // 	// if (s->next == NULL) {
-  // 	// 	s->next = co->globals;
-  // 	// 	s->owner = co;
-  // 	// 	co->globals = s;
-  // 	// } else {
-  // 	// 	assert(s->owner == co);
-  // 	// }
-  // } else if (tag(key) == TAG_PTR &&
-  // 	   ((scmHead *) ptr(key))->type == scmHeadSymbol) {
-  // 	struct scmSymbol *s = ptr(key);
-  // 	writeBarrierForIncremental(co->gc, &s->value, val);
-  // 	writeBarrierForGeneration(co->gc, &s->head, val);
-  // } else {
-  // 	assert(false);
-  // }
+  if (tag(key) == TAG_PTR && ((scmHead *)ptr(key))->type == scmHeadSymbol) {
+    struct scmSymbol *s = ptr(key);
+    writeBarrierForIncremental(co->gc, &s->value, val);
+    writeBarrierForGeneration(co->gc, &s->head, val);
+  } else {
+    assert(false);
+  }
   return val;
 }
 
@@ -270,16 +239,6 @@ void builtinIntern(Cora *co, int label, Obj *R) {
   Obj x = R[1];
   assert(isBytes(x));
   Obj sym = intern(stringStr(x).str);
-  // strBuf s = ptr(sym);
-  // str key = toStr(s);
-
-  // lookup Cora local env for the symbol
-  // envNode* p = mapGet(&co->env, key);
-  // if (p == NULL) {
-  // 	envNode val = {.name = key, .idx = -1};
-  // 	mapSet(&co->env, key, val);
-  // }
-
   coraReturn(co, sym);
 }
 
@@ -303,14 +262,7 @@ void builtinValue(Cora *co, int label, Obj *R) {
   Obj sym = R[1];
   Obj ret;
   if (tag(sym) == TAG_SYMBOL) {
-    Binding bind = bindSymbol(co, sym);
-    ret = globalRef(co, bind);
-    // strBuf p = ptr(sym);
-    // str xx = toStr(p);
-    // envNode *node = mapGet(&co->env, xx);
-    // ret = vecGet(&co->globals, node->idx);
-    // struct trieNode *s = ptr(sym);
-    // ret = s->value;
+    ret = symbolGet(co, sym);
     if (ret == Undef) {
       strBuf p = ptr(sym);
       printf("undefined value: %s\n", toCStr(p));
@@ -331,14 +283,7 @@ void builtinValueOr(Cora *co, int label, Obj *R) {
   Obj sym = R[1];
   Obj ret;
   if (tag(sym) == TAG_SYMBOL) {
-    Binding bind = bindSymbol(co, sym);
-    ret = globalRef(co, bind);
-    // strBuf p = ptr(sym);
-    // str xx = toStr(p);
-    // envNode *node = mapGet(&co->env, xx);
-    // ret = vecGet(&co->globals, node->idx);
-    // struct trieNode *s = ptr(sym);
-    // ret = s->value;
+    ret = symbolGet(co, sym);
   } else if (tag(sym) == TAG_PTR &&
              ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
     struct scmSymbol *s = ptr(sym);
@@ -349,9 +294,9 @@ void builtinValueOr(Cora *co, int label, Obj *R) {
 
   if (ret == Undef) {
     coraReturn(co, R[2]);
-    return;
+  } else {
+    coraReturn(co, ret);
   }
-  coraReturn(co, ret);
 }
 
 void builtinLoadSo(Cora *co, int label, Obj *R) {
@@ -544,8 +489,7 @@ void builtinImport(Cora *co, int label, Obj *R) {
   }
 
   // Set the *imported* variable to avoid repeated load.
-  bind = bindSymbol(co, sym);
-  primSet(co, bind, makeCons(co->gc, pkg, imported));
+  globalSet(co, bind, makeCons(co->gc, pkg, imported));
 
   // CORA PATH
   strBuf tmp = getCoraPath();
@@ -1004,8 +948,7 @@ void registerAPI(Cora *co, struct registerModule *m, str pkg) {
     } else {
       sym = intern(entry.name);
     }
-    Binding bind = bindSymbol(co, sym);
-    primSet(co, bind,
+    primSet(co, sym,
             makeNative(co->gc, entry.args + 1, entry.func, entry.args, 0));
     exports = makeCons(co->gc, intern(entry.name), exports);
   }
@@ -1014,8 +957,7 @@ void registerAPI(Cora *co, struct registerModule *m, str pkg) {
     tmp = strCat(tmp, S("#*ns-export*"));
     Obj sym = intern(toCStr(tmp));
     strFree(tmp);
-    Binding bind = bindSymbol(co, sym);
-    primSet(co, bind, exports);
+    primSet(co, sym, exports);
   }
 }
 
@@ -1031,20 +973,19 @@ void coraRegisterAPI(Cora *co, char *pkg, char *name, basicBlock func,
   } else {
     sym = intern(name);
   }
-  Binding bind = bindSymbol(co, sym);
-  primSet(co, bind, makeNative(co->gc, argc + 1, func, argc, 0));
+  primSet(co, sym, makeNative(co->gc, argc + 1, func, argc, 0));
   if (pkg != NULL) {
     strBuf tmp = strDup(cstr(pkg));
     tmp = strCat(tmp, S("#*ns-export*"));
     Obj sym = intern(toCStr(tmp));
     strFree(tmp);
-    Obj exports = globalRef(co, bindSymbol(co, sym));
+    Binding bind = bindSymbol(co, sym);
+    Obj exports = globalRef(co, bind);
     if (exports == Undef) {
       exports = Nil;
     }
     exports = makeCons(co->gc, intern(name), exports);
-    bind = bindSymbol(co, sym);
-    primSet(co, bind, exports);
+    globalSet(co, bind, exports);
   }
 }
 
@@ -1056,56 +997,41 @@ Cora *coraInit() {
   symQuote = intern("quote");
   symBackQuote = intern("backquote");
   symUnQuote = intern("unquote");
-  Binding bind = bindSymbol(co, intern("symbol->string"));
-  primSet(co, bind, makeNative(co->gc, 2, symbolToString, 1, 0));
-  bind = bindSymbol(co, intern("intern"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinIntern, 1, 0));
-  bind = bindSymbol(co, intern("number?"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinIsNumber, 1, 0));
-  bind = bindSymbol(co, intern("read-file-as-sexp"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinReadFileAsSexp, 1, 0));
-  bind = bindSymbol(co, intern("string-append"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinStringAppend, 2, 0));
-  bind = bindSymbol(co, intern("value"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinValue, 1, 0));
-  bind = bindSymbol(co, intern("value-or"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinValueOr, 2, 0));
-  bind = bindSymbol(co, intern("apply"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinApply, 2, 0));
-  bind = bindSymbol(co, intern("load-so"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinLoadSo, 2, 0));
-  bind = bindSymbol(co, intern("import"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinImport, 1, 0));
-  bind = bindSymbol(co, intern("load"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinLoad, 1, 0));
-  bind = bindSymbol(co, intern("vector"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinVector, 1, 0));
-  bind = bindSymbol(co, intern("vector?"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinIsVector, 1, 0));
-  bind = bindSymbol(co, intern("vector-set!"));
-  primSet(co, bind, makeNative(co->gc, 4, builtinVectorSet, 3, 0));
-  bind = bindSymbol(co, intern("vector-ref"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinVectorRef, 2, 0));
-  bind = bindSymbol(co, intern("vector-length"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinVectorLength, 1, 0));
-  bind = bindSymbol(co, intern("bytes"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinBytes, 1, 0));
-  bind = bindSymbol(co, intern("bytes-length"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinBytesLength, 1, 0));
-  bind = bindSymbol(co, intern("try"));
-  primSet(co, bind, makeNative(co->gc, 3, builtinTryCatch, 2, 0));
-  bind = bindSymbol(co, intern("throw"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinThrow, 1, 0));
-  bind = bindSymbol(co, intern("cora/init#*imported*"));
-  primSet(co, bind, Nil);
-  bind = bindSymbol(co, intern("symbol-cooked?"));
-  primSet(co, bind, makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
-  bind = bindSymbol(co, intern("cora/lib/eval#make-closure-for-eval"));
-  primSet(co, bind, makeNative(co->gc, 0, makeClosureForEval, 3, 0));
-  bind = bindSymbol(co, intern("cora/lib/sys#vm-symbol-for-tls"));
-  primSet(co, bind, makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
-  bind = bindSymbol(co, primVMSymbolForTLS(co));
-  primSet(co, bind, Nil);
+  primSet(co, intern("symbol->string"),
+          makeNative(co->gc, 2, symbolToString, 1, 0));
+  primSet(co, intern("intern"), makeNative(co->gc, 2, builtinIntern, 1, 0));
+  primSet(co, intern("number?"), makeNative(co->gc, 2, builtinIsNumber, 1, 0));
+  primSet(co, intern("read-file-as-sexp"),
+          makeNative(co->gc, 2, builtinReadFileAsSexp, 1, 0));
+  primSet(co, intern("string-append"),
+          makeNative(co->gc, 3, builtinStringAppend, 2, 0));
+  primSet(co, intern("value"), makeNative(co->gc, 2, builtinValue, 1, 0));
+  primSet(co, intern("value-or"), makeNative(co->gc, 3, builtinValueOr, 2, 0));
+  primSet(co, intern("apply"), makeNative(co->gc, 3, builtinApply, 2, 0));
+  primSet(co, intern("load-so"), makeNative(co->gc, 3, builtinLoadSo, 2, 0));
+  primSet(co, intern("import"), makeNative(co->gc, 2, builtinImport, 1, 0));
+  primSet(co, intern("load"), makeNative(co->gc, 2, builtinLoad, 1, 0));
+  primSet(co, intern("vector"), makeNative(co->gc, 2, builtinVector, 1, 0));
+  primSet(co, intern("vector?"), makeNative(co->gc, 2, builtinIsVector, 1, 0));
+  primSet(co, intern("vector-set!"),
+          makeNative(co->gc, 4, builtinVectorSet, 3, 0));
+  primSet(co, intern("vector-ref"),
+          makeNative(co->gc, 3, builtinVectorRef, 2, 0));
+  primSet(co, intern("vector-length"),
+          makeNative(co->gc, 2, builtinVectorLength, 1, 0));
+  primSet(co, intern("bytes"), makeNative(co->gc, 2, builtinBytes, 1, 0));
+  primSet(co, intern("bytes-length"),
+          makeNative(co->gc, 2, builtinBytesLength, 1, 0));
+  primSet(co, intern("try"), makeNative(co->gc, 3, builtinTryCatch, 2, 0));
+  primSet(co, intern("throw"), makeNative(co->gc, 2, builtinThrow, 1, 0));
+  primSet(co, intern("cora/init#*imported*"), Nil);
+  primSet(co, intern("symbol-cooked?"),
+          makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
+  primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
+          makeNative(co->gc, 0, makeClosureForEval, 3, 0));
+  primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
+          makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
+  primSet(co, primVMSymbolForTLS(co), Nil);
   return co;
 }
 
@@ -1124,10 +1050,6 @@ static void coraGCFunc(GC *gc, void *ptr) {
   TRACE_SCOPE("coraGCFunc");
   Cora *co = ptr;
   // The globals
-  // for (struct trieNode * p = co->globals; p != gRoot; p = p->next) {
-  // 	assert(p->owner == co);
-  // 	gcMark(gc, p->value, 0);
-  // }
   for (int i = 0; i < vecLen(&co->globals); i++) {
     gcMark(gc, vecGet(&co->globals, i), 0);
   }

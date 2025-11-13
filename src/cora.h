@@ -53,7 +53,7 @@ extern "C" {
 	bool coraIsVector(Obj o);
 	int coraVectorLength(Obj vec);
 
-	// Obj coraMakeSymbol(const char *s);
+	Obj coraMakeSymbol(const char *s);
 	Obj coraSymbolGet(Cora *co, Obj sym);
 
 

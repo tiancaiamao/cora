@@ -211,7 +211,16 @@ globalRef(Cora *co, Binding bind) {
 	return vecGet(&co->globals, bind.idx);
 }
 
-Obj primSet(Cora *co, Binding bind, Obj val);
+static inline void
+globalSet(Cora *co, Binding bind, Obj val) {
+  assert(bind.idx >= 0);
+  Obj *slot = vecRef(&co->globals, bind.idx);
+  writeBarrierForIncremental(co->gc, slot, val);
+}
+
+
+Obj primSet(Cora *co, Obj sym, Obj val);
+Obj symbolGet(Cora *co, Obj sym);
 
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);

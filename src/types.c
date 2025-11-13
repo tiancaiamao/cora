@@ -140,7 +140,6 @@ str stringStr(Obj o) {
 
 static void bytesGCFunc(GC *gc, void *f) {}
 
-// __thread struct trieNode *gRoot;
 map(str, strBuf) symbolIntern;
 
 Obj intern(const char *s) {
@@ -163,8 +162,7 @@ int symbolStr(Obj sym, char *dest, size_t sz) {
   if (tag(sym) == TAG_SYMBOL) {
     strBuf s = ptr(sym);
     int l = strLen(toStr(s)) + 1;
-    // int l = strlen(s->sym) + 1;
-    // assert(l < sz);
+    assert(l < sz);
     memcpy(dest, toCStr(s), l);
     return 0;
   } else if (tag(sym) == TAG_PTR &&
@@ -196,7 +194,6 @@ Obj makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured,
     }
     va_end(ap);
   }
-
   return ((Obj)(&clo->head) | TAG_PTR);
 }
 
@@ -344,10 +341,10 @@ bool strEQFunc(void *ptr1, void *ptr2) {
 }
 
 void typesInit() {
+  mapInit(&symbolIntern, strHashFunc, strEQFunc);
   gcRegistForType(scmHeadCons, consGCFunc);
   gcRegistForType(scmHeadBytes, bytesGCFunc);
   gcRegistForType(scmHeadVector, vectorGCFunc);
   gcRegistForType(scmHeadSymbol, symbolGCFunc);
   gcRegistForType(scmHeadNative, nativeGCFunc);
-  mapInit(&symbolIntern, strHashFunc, strEQFunc);
 }
