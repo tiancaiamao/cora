@@ -1,22 +1,23 @@
-#include "vector.h"
-#include "gc.h"
-#include "types.h"
-#include "reader.h"
-#include "trace.h"
 #include "runtime.h"
+#include "gc.h"
+#include "map.h"
+#include "reader.h"
 #include "str.h"
-#include <unistd.h>
+#include "trace.h"
+#include "types.h"
+#include "vector.h"
+#include <dlfcn.h>
 #include <errno.h>
 #include <pwd.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 const int INIT_STACK_SIZE = 256;
 
 static void
 segmentStackAlloc(struct segmentStack *alloc) {
-	Obj *fixSized = (Obj*)malloc(sizeof(Obj) * INIT_STACK_SIZE);
+	Obj *fixSized = (Obj *)malloc(sizeof(Obj) * INIT_STACK_SIZE);
 	vecAppend(&alloc->data, fixSized);
 	alloc->begin = fixSized;
 	alloc->end = fixSized + INIT_STACK_SIZE;
@@ -28,7 +29,7 @@ segmentStackInit(struct segmentStack *alloc) {
 	segmentStackAlloc(alloc);
 }
 
-Obj*
+Obj *
 stackAllocSlowPath(Cora *co, int n) {
 	assert(n < INIT_STACK_SIZE);
 	segmentStackAlloc(&co->stk);
@@ -39,23 +40,18 @@ stackAllocSlowPath(Cora *co, int n) {
 
 void
 coraReturnSlowPath(Cora *co) {
-	assert(vecGet(&co->stk.data, vecLen(&co->stk.data)-1) == co->stk.begin);
+	assert(vecGet(&co->stk.data, vecLen(&co->stk.data) - 1) == co->stk.begin);
 	free(co->stk.begin);
-	vecSet(&co->stk.data, vecLen(&co->stk.data)-1, NULL);
+	vecSet(&co->stk.data, vecLen(&co->stk.data) - 1, NULL);
 	co->stk.data.v.len--;
 
-	co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data)-1);
+	co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
 	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
-
-	/* printf("coraReturn after = [%p, %p) sp=%p\n", */
-	/*        co->stk.begin, co->stk.end, co->ctx.sp); */
 
 	assert(co->ctx.sp >= co->stk.begin && co->ctx.sp < co->stk.end);
 }
 
-extern __thread struct trieNode *gRoot;
-
-static Cora*
+static Cora *
 coraNew() {
 	Cora *co = malloc(sizeof(Cora));
 	vecInit(&co->callstack, 64);
@@ -63,8 +59,7 @@ coraNew() {
 	co->ctx.bp = co->stk.begin;
 	co->ctx.sp = co->stk.begin;
 	vecInit(&co->trystack, 4);
-
-	co->globals = gRoot;
+	mapInit(&co->env, strHashFunc, strEQFunc);
 	return co;
 }
 
@@ -81,7 +76,7 @@ coraRun(Cora *co) {
 	vecAppend(&co->callstack, exit);
 
 	// trampoline
-	while(co->ctx.fn != NULL) {
+	while (co->ctx.fn != NULL) {
 		co->ctx.fn(co, co->ctx.label, co->ctx.bp);
 		if (gcTriggerCheck(co->gc)) {
 			gcMarkRoot(co->gc, coraGCFunc, co);
@@ -89,7 +84,7 @@ coraRun(Cora *co) {
 	}
 }
 
-static void coraDispatch(Cora *co, Obj fn, int nargs, Obj* args);
+static void coraDispatch(Cora *co, Obj fn, int nargs, Obj *args);
 
 // Usage:
 //     Obj args[3] = {arg1, arg2, arg3};
@@ -98,7 +93,7 @@ static void coraDispatch(Cora *co, Obj fn, int nargs, Obj* args);
 // and once after stackAlloc() copy the the frame.
 void
 coraCall(Cora *co, Obj fn, int nargs, Obj *args) {
-	struct scmNative* f = mustNative(fn);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != nargs) {
 		// curry or partial, goto dispatch function
 		coraDispatch(co, fn, nargs, args);
@@ -112,7 +107,7 @@ coraCall(Cora *co, Obj fn, int nargs, Obj *args) {
 	frame[0] = fn;
 	if (nargs > 0) {
 		for (int i = 1; i <= nargs; i++) {
-			frame[i] = args[i-1];
+			frame[i] = args[i - 1];
 		}
 	}
 	// set the new ctx
@@ -137,7 +132,7 @@ makeCurry(Cora *co, Obj fn, int nargs, Obj *args) {
 	int sz = sizeof(struct scmNative) + (nargs + 1) * sizeof(Obj);
 	struct scmNative *clo = newObj(co->gc, scmHeadNative, sz);
 	clo->fn = callCurry;
-	struct scmNative* f = mustNative(fn);
+	struct scmNative *f = mustNative(fn);
 	assert(f->required > nargs);
 	clo->nframe = f->nframe;
 	clo->required = f->required - nargs;
@@ -145,13 +140,13 @@ makeCurry(Cora *co, Obj fn, int nargs, Obj *args) {
 	// fn + args
 	clo->data[0] = fn;
 	for (int i = 0; i < nargs; i++) {
-		clo->data[i+1] = args[i];
+		clo->data[i + 1] = args[i];
 	}
-	return ((Obj) (&clo->head) | TAG_PTR);
+	return ((Obj)(&clo->head) | TAG_PTR);
 }
 
 static void
-coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
+coraDispatch(Cora *co, Obj fn, int nargs, Obj *args) {
 	struct scmNative *f = mustNative(fn);
 	int required = f->required;
 	assert(nargs != required);
@@ -162,8 +157,8 @@ coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
 		// eval the first call and get the result;
 		Obj *R = stackAlloc(co, f->nframe);
 		R[0] = fn;
-		for (int i=0; i<required; i++) {
-			R[i+1] = args[i];
+		for (int i = 0; i < required; i++) {
+			R[i + 1] = args[i];
 		}
 		co->ctx.fn = f->fn;
 		co->ctx.label = 0;
@@ -174,20 +169,46 @@ coraDispatch(Cora *co, Obj fn, int nargs, Obj* args) {
 	return;
 }
 
+Binding
+bindSymbol(Cora *co, Obj sym) {
+	strBuf s = ptr(sym);
+	str xx = toStr(s);
+	Binding *node = mapGet(&co->env, xx);
+	if (node != NULL) {
+		return *node;
+	}
+
+	int idx = vecLen(&co->globals);
+	vecAppend(&co->globals, Undef);
+	Binding tmp = {sym, idx};
+	mapSet(&co->env, xx, tmp);
+	return tmp;
+}
+
+Obj
+symbolGet(Cora *co, Obj sym) {
+	assert(issymbol(sym));
+	if (tag(sym) == TAG_SYMBOL) {
+		Binding bind = bindSymbol(co, sym);
+		return globalRef(co, bind);
+	}
+
+	if (tag(sym) == TAG_PTR && ((scmHead *)ptr(sym))->type == scmHeadSymbol) {
+		struct scmSymbol *s = ptr(sym);
+		return s->value;
+	}
+	assert(false);
+}
+
 Obj
 primSet(Cora *co, Obj key, Obj val) {
 	if (tag(key) == TAG_SYMBOL) {
-		struct trieNode *s = ptr(key);
-		writeBarrierForIncremental(co->gc, &s->value, val);	// s->value = val;
-		if (s->next == NULL) {
-			s->next = co->globals;
-			s->owner = co;
-			co->globals = s;
-		} else {
-			assert(s->owner == co);
-		}
-	} else if (tag(key) == TAG_PTR &&
-		   ((scmHead *) ptr(key))->type == scmHeadSymbol) {
+		Binding bind = bindSymbol(co, key);
+		globalSet(co, bind, val);
+		return val;
+	}
+
+	if (tag(key) == TAG_PTR && ((scmHead *)ptr(key))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(key);
 		writeBarrierForIncremental(co->gc, &s->value, val);
 		writeBarrierForGeneration(co->gc, &s->head, val);
@@ -235,8 +256,8 @@ builtinIntern(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinIntern");
 	Obj x = R[1];
 	assert(isBytes(x));
-	Obj val = intern(stringStr(x).str);
-	coraReturn(co, val);
+	Obj sym = intern(stringStr(x).str);
+	coraReturn(co, sym);
 }
 
 void
@@ -261,14 +282,14 @@ builtinValue(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	Obj ret;
 	if (tag(sym) == TAG_SYMBOL) {
-		struct trieNode *s = ptr(sym);
-		ret = s->value;
+		ret = symbolGet(co, sym);
 		if (ret == Undef) {
-			printf("undefined value: %s\n", s->sym);
+			strBuf p = ptr(sym);
+			printf("undefined value: %s\n", toCStr(p));
 			assert(false);
 		}
 	} else if (tag(sym) == TAG_PTR &&
-		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
+		((scmHead *)ptr(sym))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(sym);
 		ret = s->value;
 		assert(ret != Undef);
@@ -283,10 +304,9 @@ builtinValueOr(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
 	Obj ret;
 	if (tag(sym) == TAG_SYMBOL) {
-		struct trieNode *s = ptr(sym);
-		ret = s->value;
+		ret = symbolGet(co, sym);
 	} else if (tag(sym) == TAG_PTR &&
-		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
+		((scmHead *)ptr(sym))->type == scmHeadSymbol) {
 		struct scmSymbol *s = ptr(sym);
 		ret = s->value;
 	} else {
@@ -295,9 +315,9 @@ builtinValueOr(Cora *co, int label, Obj *R) {
 
 	if (ret == Undef) {
 		coraReturn(co, R[2]);
-		return;
+	} else {
+		coraReturn(co, ret);
 	}
-	coraReturn(co, ret);
 }
 
 void
@@ -313,7 +333,8 @@ builtinLoadSo(Cora *co, int label, Obj *R) {
 		coraReturn(co, makeNumber(-1));
 		return;
 	}
-	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path, handle);
+	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path,
+	// handle);
 
 	basicBlock entry = dlsym(handle, "entry");
 	char *error = dlerror();
@@ -398,7 +419,8 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	Obj arg2 = makeString(co->gc, tmpCFile.str, tmpCFile.len);
-	Obj fn = globalRef(intern("cora/lib/toc#compile-to-c"));
+	Binding bind = bindSymbol(co, intern("cora/lib/toc#compile-to-c"));
+	Obj fn = globalRef(co, bind);
 	coraCall2(co, fn, arg1, arg2);
 	coraRun(co);
 	// TODO: check res?
@@ -417,9 +439,9 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	}
 
 	snprintf(buf, BUFSIZE,
-		 "gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o %s -ldl -L%scora/src -lcora",
-		 toCStr(path), toCStr(path), cfileidx, toCStr(tmp),
-		 toCStr(path));
+		"gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o "
+		"%s -ldl -L%scora/src -lcora",
+		toCStr(path), toCStr(path), cfileidx, toCStr(tmp), toCStr(path));
 	strFree(path);
 	int exitCode = system(buf);
 	if (exitCode != 0) {
@@ -430,7 +452,7 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	arg1 = makeCString(co->gc, toCStr(tmp));
 	strFree(tmp);
 	arg2 = makeCString(co->gc, "");
-	fn = globalRef(intern("load-so"));
+	fn = globalRef(co, bindSymbol(co, intern("load-so")));
 	co->ctx.sp = R;
 	coraCall2(co, fn, arg1, arg2);
 	return;
@@ -460,7 +482,8 @@ safeToUseSo(strBuf soFilePath) {
 		goto exit;
 	}
 	if (stat(toCStr(soFilePath), &soFileStat) < 0) {
-		printf("failed to get %s file stats: %s\n", toCStr(soFilePath), strerror(errno));
+		printf("failed to get %s file stats: %s\n", toCStr(soFilePath),
+			strerror(errno));
 		goto exit;
 	}
 	if (coraFileStat.st_mtime > soFileStat.st_mtime) {
@@ -481,7 +504,8 @@ builtinImport(Cora *co, int label, Obj *R) {
 	Obj pkg = R[1];
 	str pkgStr = stringStr(pkg);
 	Obj sym = intern("cora/init#*imported*");
-	Obj imported = symbolGet(sym);
+	Binding bind = bindSymbol(co, sym);
+	Obj imported = globalRef(co, bind);
 
 	// Avoid repeated load.
 	for (Obj p = imported; p != Nil; p = cdr(p)) {
@@ -493,14 +517,15 @@ builtinImport(Cora *co, int label, Obj *R) {
 	}
 
 	// Set the *imported* variable to avoid repeated load.
-	primSet(co, sym, makeCons(co->gc, pkg, imported));
+	globalSet(co, bind, makeCons(co->gc, pkg, imported));
 
 	// CORA PATH
 	strBuf tmp = getCoraPath();
 	tmp = strCat(tmp, pkgStr);
 	tmp = strCat(tmp, S(".so"));
 
-	// if the .so file exists, call (load-so "$CORAPATH/file-path.so" "package-path")
+	// if the .so file exists, call (load-so "$CORAPATH/file-path.so"
+	// "package-path")
 	if (safeToUseSo(tmp)) {
 		// builtinLoadSo is a bit special, it requires the spent stack of VM is
 		// (load-so "file-path.so" "package-path")
@@ -591,13 +616,13 @@ builtinReadFileAsSexp(Cora *co, int label, Obj *R) {
 	}
 	if (count > 1) {
 		result = reverse(co->gc, result);
-		result = makeCons(co->gc, makeSymbol("begin"), result);
+		result = makeCons(co->gc, intern("begin"), result);
 	} else {
 		result = car(result);
 	}
 	fclose(f);
 
-      exit0:
+exit0:
 	coraReturn(co, result);
 }
 
@@ -637,59 +662,60 @@ static void
 builtinTryCatch(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinTryCatch");
 
-	switch(label) {
-	case 0:
-		{
-			// Conceptually, (try chunk handler), thunk belongs to the try block, while handler does not.
-			// In chunk, we can throw twice, they will be handled by the same try, so chunk belongs to the try.
-			//     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42)))
-			// If we throw in handler however, it's panic in panic and cannot be catch by this try.
-			//     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
+	switch (label) {
+	case 0: {
+		// Conceptually, (try chunk handler), thunk belongs to the try block, while
+		// handler does not. In chunk, we can throw twice, they will be handled by
+		// the same try, so chunk belongs to the try.
+		//     (try (lambda () (begin (throw 1) (throw 2))) (lambda (v k) (k 42)))
+		// If we throw in handler however, it's panic in panic and cannot be catch
+		// by this try.
+		//     (try (lambda () (throw 1)) (lambda (v k) (throw 2)))
 
+		// Prepare a new stack for the chunk to use, segment stack!
+		Obj *frame = stackAllocSlowPath(co, 3);
 
-			// Prepare a new stack for the chunk to use, segment stack!
-			Obj* frame = stackAllocSlowPath(co, 3);
+		// Copy the try's frame to the new segment stack, pretend try is called on
+		// the new stack
+		frame[0] = R[0];
+		frame[1] = R[1];
+		frame[2] = R[2];
+		R = frame;
 
-			// Copy the try's frame to the new segment stack, pretend try is called on the new stack
-			frame[0] = R[0];
-			frame[1] = R[1];
-			frame[2] = R[2];
-			R = frame;
+		// Save the try cont.
+		// This save can make the chunk and handler available to the recovering
+		// process. Use a call protocol instead of tail call protocol.
+		Frame cont = {
+			.fn = builtinTryCatch,
+			.label = 1,
+			.bp = co->ctx.bp,
+			.sp = co->ctx.sp,
+		};
 
-			// Save the try cont.
-			// This save can make the chunk and handler available to the recovering process.
-			// Use a call protocol instead of tail call protocol.
-			Frame cont = {
-				.fn = builtinTryCatch,
-				.label = 1,
-				.bp = co->ctx.bp,
-				.sp = co->ctx.sp,
-			};
+		struct tryMark mark = {
+			.callstackPos = vecLen(&co->callstack),
+			.segmentStackPos = vecLen(&co->stk.data) - 1,
+		};
+		vecAppend(&co->trystack, mark);
+		vecAppend(&co->callstack, cont);
 
-			struct tryMark mark = {
-				.callstackPos = vecLen(&co->callstack),
-				.segmentStackPos = vecLen(&co->stk.data) - 1,
-			};
-			vecAppend(&co->trystack, mark);
-			vecAppend(&co->callstack, cont);
-
-			// Call the chunk in the new segment stack.
-			Obj chunk = R[1];
-			coraCall0(co, chunk);
-			return;
-		}
-	case 1:
-		{
-			// just like non-tail call thunk and after it return here
-			// now try itself return
-			co->trystack.v.len--;
-			coraReturn(co, co->res);
-			return;
-		}
+		// Call the chunk in the new segment stack.
+		Obj chunk = R[1];
+		coraCall0(co, chunk);
+		return;
+	}
+	case 1: {
+		// just like non-tail call thunk and after it return here
+		// now try itself return
+		co->trystack.v.len--;
+		coraReturn(co, co->res);
+		return;
+	}
 	}
 }
 
-// scmContinuation is much too implementation dependent, put it here rather than type.c
+// scmContinuation is much too implementation dependent, put it here rather than
+// type.c
 struct scmContinuation {
 	scmHead head;
 	/* vector(Obj*)segstack; */
@@ -702,24 +728,25 @@ struct scmContinuation {
 };
 
 Obj
-makeContinuation(Cora *co, Frame *callstack, int len, Obj** stk, int count) {
+makeContinuation(Cora *co, Frame *callstack, int len, Obj **stk,
+	int count) {
 	size_t callstackBytes = len * sizeof(Frame);
-	size_t segstackBytes  = count * sizeof(Obj*);
-	struct scmContinuation *cont = newObj(co->gc, scmHeadContinuation,
-					      sizeof(struct scmContinuation) +
-					      callstackBytes + segstackBytes);
+	size_t segstackBytes = count * sizeof(Obj *);
+	struct scmContinuation *cont =
+		newObj(co->gc, scmHeadContinuation,
+			sizeof(struct scmContinuation) + callstackBytes + segstackBytes);
 	cont->len = len;
 	cont->count = count;
 	Frame *p = (Frame *)cont->data;
 	for (int i = 0; i < len; i++) {
 		p[i] = callstack[i];
 	}
-	Obj** q = (Obj**)(cont->data + callstackBytes);
-	for (int i=0; i<count; i++) {
+	Obj **q = (Obj **)(cont->data + callstackBytes);
+	for (int i = 0; i < count; i++) {
 		q[i] = stk[i];
 	}
 
-	return ((Obj) (&cont->head) | TAG_PTR);
+	return ((Obj)(&cont->head) | TAG_PTR);
 }
 
 static void
@@ -748,16 +775,16 @@ continuationAsClosure(Cora *co, int label, Obj *R) {
 	vecAppend(&co->trystack, mark);
 
 	// Replace the current stack with the delimited continuation.
-	struct scmContinuation *cont = (struct scmContinuation*)ptr(contObj);
+	struct scmContinuation *cont = (struct scmContinuation *)ptr(contObj);
 	Frame *p = (Frame *)cont->data;
 	for (int i = 0; i < cont->len; i++) {
 		vecAppend(&co->callstack, p[i]);
 	}
-	Obj** stk = (Obj**)(cont->data + (sizeof(Frame) * cont->len));
-	for (int i=0; i< cont->count; i++) {
+	Obj **stk = (Obj **)(cont->data + (sizeof(Frame) * cont->len));
+	for (int i = 0; i < cont->count; i++) {
 		vecAppend(&co->stk.data, stk[i]);
 	}
-	Obj* stack = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
+	Obj *stack = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
 	co->stk.begin = stack;
 	co->stk.end = stack + INIT_STACK_SIZE;
 
@@ -773,9 +800,9 @@ builtinThrow(Cora *co, int label, Obj *R) {
 
 	// Capture the call stack as continuation.
 	Obj cont = makeContinuation(co, vecRef(&co->callstack, mark.callstackPos),
-				     vecLen(&co->callstack) - mark.callstackPos,
-				     vecRef(&co->stk.data, mark.segmentStackPos),
-				     vecLen(&co->stk.data) - mark.segmentStackPos);
+		vecLen(&co->callstack) - mark.callstackPos,
+		vecRef(&co->stk.data, mark.segmentStackPos),
+		vecLen(&co->stk.data) - mark.segmentStackPos);
 
 	// Now that we get the spent continuation, disguise as a closure.
 	Obj clo = makeNative(co->gc, 2, continuationAsClosure, 1, 1, cont);
@@ -785,7 +812,7 @@ builtinThrow(Cora *co, int label, Obj *R) {
 	Obj handler = try.bp[2];
 
 	// Reset to the stack before try.
-	for (int i=mark.segmentStackPos; i<vecLen(&co->stk.data); i++) {
+	for (int i = mark.segmentStackPos; i < vecLen(&co->stk.data); i++) {
 		vecSet(&co->stk.data, i, NULL);
 	}
 	co->stk.data.v.len = mark.segmentStackPos;
@@ -909,7 +936,7 @@ primGenSym(Cora *co) {
 	p->unique = uniqueIdx;
 	uniqueIdx++;
 #endif
-	return ((Obj) (&p->head) | TAG_PTR);
+	return ((Obj)(&p->head) | TAG_PTR);
 }
 
 Obj
@@ -935,7 +962,8 @@ applyClosureForEval(Cora *co, int label, Obj *R) {
 		params = cdr(params);
 	}
 	co->ctx.sp = R;
-	coraCall2(co, globalRef(intern("cora/lib/eval#eval")), body, env);
+	coraCall2(co, globalRef(co, bindSymbol(co, intern("cora/lib/eval#eval"))),
+		body, env);
 }
 
 static void
@@ -944,7 +972,8 @@ makeClosureForEval(Cora *co, int label, Obj *R) {
 	Obj body = R[2];
 	Obj env = R[3];
 	int len = listLen(params);
-	Obj ret = makeNative(co->gc, 4, applyClosureForEval, len, 3, params, body, env);
+	Obj ret =
+		makeNative(co->gc, 4, applyClosureForEval, len, 3, params, body, env);
 	coraReturn(co, ret);
 }
 
@@ -985,7 +1014,8 @@ registerAPI(Cora *co, struct registerModule *m, str pkg) {
 		} else {
 			sym = intern(entry.name);
 		}
-		primSet(co, sym, makeNative(co->gc, entry.args + 1, entry.func, entry.args, 0));
+		primSet(co, sym,
+			makeNative(co->gc, entry.args + 1, entry.func, entry.args, 0));
 		exports = makeCons(co->gc, intern(entry.name), exports);
 	}
 	if (strLen(pkg) > 0) {
@@ -998,7 +1028,8 @@ registerAPI(Cora *co, struct registerModule *m, str pkg) {
 }
 
 void
-coraRegisterAPI(Cora *co, char* pkg, char *name, basicBlock func, int argc) {
+coraRegisterAPI(Cora *co, char *pkg, char *name, basicBlock func,
+	int argc) {
 	Obj sym;
 	if (pkg != NULL) {
 		strBuf tmp = strDup(cstr(pkg));
@@ -1015,12 +1046,13 @@ coraRegisterAPI(Cora *co, char* pkg, char *name, basicBlock func, int argc) {
 		tmp = strCat(tmp, S("#*ns-export*"));
 		Obj sym = intern(toCStr(tmp));
 		strFree(tmp);
-		Obj exports = symbolGet(sym);
+		Binding bind = bindSymbol(co, sym);
+		Obj exports = globalRef(co, bind);
 		if (exports == Undef) {
 			exports = Nil;
 		}
 		exports = makeCons(co->gc, intern(name), exports);
-		primSet(co, sym, exports);
+		globalSet(co, bind, exports);
 	}
 }
 
@@ -1035,44 +1067,31 @@ coraInit() {
 	symUnQuote = intern("unquote");
 	primSet(co, intern("symbol->string"),
 		makeNative(co->gc, 2, symbolToString, 1, 0));
-	primSet(co, intern("intern"),
-		makeNative(co->gc, 2, builtinIntern, 1, 0));
-	primSet(co, intern("number?"),
-		makeNative(co->gc, 2, builtinIsNumber, 1, 0));
+	primSet(co, intern("intern"), makeNative(co->gc, 2, builtinIntern, 1, 0));
+	primSet(co, intern("number?"), makeNative(co->gc, 2, builtinIsNumber, 1, 0));
 	primSet(co, intern("read-file-as-sexp"),
 		makeNative(co->gc, 2, builtinReadFileAsSexp, 1, 0));
 	primSet(co, intern("string-append"),
 		makeNative(co->gc, 3, builtinStringAppend, 2, 0));
-	primSet(co, intern("value"),
-		makeNative(co->gc, 2, builtinValue, 1, 0));
-	primSet(co, intern("value-or"),
-		makeNative(co->gc, 3, builtinValueOr, 2, 0));
-	primSet(co, intern("apply"),
-		makeNative(co->gc, 3, builtinApply, 2, 0));
-	primSet(co, intern("load-so"),
-		makeNative(co->gc, 3, builtinLoadSo, 2, 0));
-	primSet(co, intern("import"),
-		makeNative(co->gc, 2, builtinImport, 1, 0));
-	primSet(co, intern("load"),
-		makeNative(co->gc, 2, builtinLoad, 1, 0));
-	primSet(co, intern("vector"),
-		makeNative(co->gc, 2, builtinVector, 1, 0));
-	primSet(co, intern("vector?"),
-		makeNative(co->gc, 2, builtinIsVector, 1, 0));
+	primSet(co, intern("value"), makeNative(co->gc, 2, builtinValue, 1, 0));
+	primSet(co, intern("value-or"), makeNative(co->gc, 3, builtinValueOr, 2, 0));
+	primSet(co, intern("apply"), makeNative(co->gc, 3, builtinApply, 2, 0));
+	primSet(co, intern("load-so"), makeNative(co->gc, 3, builtinLoadSo, 2, 0));
+	primSet(co, intern("import"), makeNative(co->gc, 2, builtinImport, 1, 0));
+	primSet(co, intern("load"), makeNative(co->gc, 2, builtinLoad, 1, 0));
+	primSet(co, intern("vector"), makeNative(co->gc, 2, builtinVector, 1, 0));
+	primSet(co, intern("vector?"), makeNative(co->gc, 2, builtinIsVector, 1, 0));
 	primSet(co, intern("vector-set!"),
 		makeNative(co->gc, 4, builtinVectorSet, 3, 0));
 	primSet(co, intern("vector-ref"),
 		makeNative(co->gc, 3, builtinVectorRef, 2, 0));
 	primSet(co, intern("vector-length"),
 		makeNative(co->gc, 2, builtinVectorLength, 1, 0));
-	primSet(co, intern("bytes"),
-		makeNative(co->gc, 2, builtinBytes, 1, 0));
+	primSet(co, intern("bytes"), makeNative(co->gc, 2, builtinBytes, 1, 0));
 	primSet(co, intern("bytes-length"),
 		makeNative(co->gc, 2, builtinBytesLength, 1, 0));
-	primSet(co, intern("try"),
-		makeNative(co->gc, 3, builtinTryCatch, 2, 0));
-	primSet(co, intern("throw"),
-		makeNative(co->gc, 2, builtinThrow, 1, 0));
+	primSet(co, intern("try"), makeNative(co->gc, 3, builtinTryCatch, 2, 0));
+	primSet(co, intern("throw"), makeNative(co->gc, 2, builtinThrow, 1, 0));
 	primSet(co, intern("cora/init#*imported*"), Nil);
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
@@ -1101,9 +1120,8 @@ coraGCFunc(GC *gc, void *ptr) {
 	TRACE_SCOPE("coraGCFunc");
 	Cora *co = ptr;
 	// The globals
-	for (struct trieNode * p = co->globals; p != gRoot; p = p->next) {
-		assert(p->owner == co);
-		gcMark(gc, p->value, 0);
+	for (int i = 0; i < vecLen(&co->globals); i++) {
+		gcMark(gc, vecGet(&co->globals, i), 0);
 	}
 
 	// The current frame.

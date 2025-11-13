@@ -4,10 +4,10 @@
 #include <string.h>
 
 static void
-repl(Cora *co, FILE* stream) {
+repl(Cora* co, FILE* stream) {
 	int errCode = 0;
 
-	for (int i=0; ; i++) {
+	for (int i = 0;; i++) {
 		if (stream == stdin) {
 			printf("%d #> ", i);
 		}
@@ -21,7 +21,7 @@ repl(Cora *co, FILE* stream) {
 		/* sexpWrite(stdout, exp); */
 		/* printf("\n"); */
 
-		Obj fn = coraSymbolGet(coraMakeSymbol("macroexpand"));
+		Obj fn = coraSymbolGet(co, intern("macroexpand"));
 		Obj args[1] = {exp};
 		coraCall(co, fn, 1, args);
 		coraRun(co);
@@ -32,7 +32,7 @@ repl(Cora *co, FILE* stream) {
 		/* printf(" --- %d %d\n", co->base, co->pos); */
 		/* printf("\n"); */
 
-		fn = coraSymbolGet(coraMakeSymbol("cora/lib/eval#eval"));
+		fn = coraSymbolGet(co, intern("cora/lib/eval#eval"));
 		Obj _args[2] = {exp, Nil};
 		coraCall(co, fn, 2, _args);
 		coraRun(co);
@@ -45,8 +45,8 @@ repl(Cora *co, FILE* stream) {
 }
 
 static void
-shebang(Cora *co, int argc, char *argv[]) {
-	FILE *f = fopen(argv[1], "r");
+shebang(Cora* co, int argc, char* argv[]) {
+	FILE* f = fopen(argv[1], "r");
 	if (f == NULL) {
 		// TODO: what the fuck?
 		exit(-1);
@@ -58,8 +58,8 @@ shebang(Cora *co, int argc, char *argv[]) {
 	// (followed by cora script ...)
 	//
 	char buf[256];
-	while(true) {
-		char *line = fgets(buf, 256, f);
+	while (true) {
+		char* line = fgets(buf, 256, f);
 		if (line == NULL) {
 			exit(-1);
 		}
@@ -70,19 +70,20 @@ shebang(Cora *co, int argc, char *argv[]) {
 	}
 
 	Obj args = Nil;
-	for (int i=1; i<argc; i++) {
+	for (int i = 1; i < argc; i++) {
 		Obj arg = coraMakeString(co, argv[i], strlen(argv[i]));
 		args = coraMakeCons(co, arg, args);
 	}
 	args = reverse(coraGetGC(co), args);
-	coraPrimSet(co, coraMakeSymbol("*command-line-args*"), args);
+	coraPrimSet(co, intern("*command-line-args*"), args);
 
 	repl(co, f);
 }
 
 /* extern void entry(struct Cora *co, int label, Obj *R); */
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char* argv[]) {
 	Cora* co = coraInit();
 
 	/* entry(co, 0, NULL); */
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]) {
 	/* printObj(stderr, coraGetResult(co)); */
 	/* return 0; */
 
-	Obj fn = coraSymbolGet(coraMakeSymbol("import"));
+	Obj fn = coraSymbolGet(co, intern("import"));
 	Obj arg1 = makeCString(coraGetGC(co), "cora/init");
 	Obj args[1] = {arg1};
 	coraCall(co, fn, 1, args);
@@ -106,7 +107,6 @@ int main(int argc, char *argv[]) {
 	Obj __args[1] = {arg1};
 	coraCall(co, fn, 1, __args);
 	coraRun(co);
-
 
 	if (argc == 1) {
 		repl(co, stdin);

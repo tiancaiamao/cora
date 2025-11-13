@@ -1,7 +1,7 @@
 #include "str.h"
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 struct _strBuf {
 	int cap;
@@ -22,14 +22,14 @@ growCap(int oldLen) {
 
 str
 cstr(char *s) {
-	return (str) {
-	.str = s,.len = strlen(s)};
+	return (str){
+		.str = s, .len = strlen(s)};
 }
 
 str
 toStr(strBuf s) {
-	return (str) {
-	.str = s->data,.len = s->len};
+	return (str){
+		.str = s->data, .len = s->len};
 }
 
 int
@@ -101,20 +101,20 @@ str
 strSub(str s, int start, int end) {
 	char *p1 = ptrByIdx(s.str, s.len, start);
 	if (p1 == NULL) {
-		return (str) {
-		.len = 0};
+		return (str){
+			.len = 0};
 	}
 	char *p2 = ptrByIdx(s.str, s.len, end);
 	if (p2 == NULL) {
-		return (str) {
-		.len = 0};
+		return (str){
+			.len = 0};
 	}
 	if (p1 >= p2) {
-		return (str) {
-		.len = 0};
+		return (str){
+			.len = 0};
 	}
-	return (str) {
-	.str = p1,.len = p2 - p1};
+	return (str){
+		.str = p1, .len = p2 - p1};
 }
 
 char *
@@ -124,7 +124,7 @@ toCStr(strBuf s) {
 
 strBuf
 fromBlk(void *ptr, int len) {
-	strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + len + 1);
+	strBuf ret = (strBuf)malloc(sizeof(struct _strBuf) + len + 1);
 	if (ptr != NULL) {
 		memcpy(&ret->data, ptr, len);
 	}
@@ -137,13 +137,13 @@ fromBlk(void *ptr, int len) {
 strBuf
 fromCStr(char *s) {
 	int len = strlen(s);
-	return fromBlk((void *) s, len);
+	return fromBlk((void *)s, len);
 }
 
 strBuf
 strNew(int cap) {
 	assert(cap > 0);
-	strBuf ret = (strBuf) malloc(sizeof(struct _strBuf) + cap);
+	strBuf ret = (strBuf)malloc(sizeof(struct _strBuf) + cap);
 	ret->cap = cap;
 	ret->len = 0;
 	ret->data[0] = '\0';

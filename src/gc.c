@@ -1,13 +1,13 @@
-#include <sys/mman.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <stddef.h>
-#include <assert.h>
-#include <inttypes.h>
 #include "gc.h"
 #include "trace.h"
+#include <assert.h>
+#include <inttypes.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
 
 enum gcState {
 	gcStateNone = 0,
@@ -46,7 +46,7 @@ struct Block {
 // each heapArena maintains 64MB virtual memory (mmap from OS)
 // Block are allocated from and recycle to heapArena.
 struct heapArena {
-	char *ptr;		// The start address of this virtual memory
+	char *ptr; // The start address of this virtual memory
 	struct heapArena *next;
 
 	// idx record the current (max) position of the allocated blocks.
@@ -59,7 +59,6 @@ struct heapArena {
 	bool forLargeObjects;
 	// curr is used when this heapArena is for large objects.
 	int curr;
-
 };
 
 static struct heapArena *
@@ -67,9 +66,8 @@ heapArenaNew() {
 	TRACE_SCOPE("heapArenaNew");
 	struct heapArena *ha = malloc(sizeof(struct heapArena));
 	ha->next = NULL;
-	ha->ptr =
-		mmap(0, HEAP_ARENA_SIZE, PROT_READ | PROT_WRITE,
-		     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	ha->ptr = mmap(0, HEAP_ARENA_SIZE, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	/* printf("mmap return ptr ====== %p\n", ha->ptr); */
 	ha->idx = 0;
 	ha->curr = 0;
@@ -97,8 +95,7 @@ heapArenaAlloc(struct heapArena *h) {
 
 static bool
 heapArenaContains(struct heapArena *h, void *p) {
-	return p >= (void *) h->ptr &&
-		p < (void *) h->ptr + (h->idx * MEM_BLOCK_SIZE);
+	return p >= (void *)h->ptr && p < (void *)h->ptr + (h->idx * MEM_BLOCK_SIZE);
 }
 
 struct doubleLinkList {
@@ -114,29 +111,35 @@ struct scmFreeNode {
 	struct scmFreeNode *next;
 };
 
-static int sizeClass[] =
-	{ 0, 16, 24, 32, 40, 48, 56, 64, 96, 128, 192, 256, 384, 512, 768,
+static int sizeClass[] = {0,
+	16,
+	24,
+	32,
+	40,
+	48,
+	56,
+	64,
+	96,
+	128,
+	192,
+	256,
+	384,
+	512,
+	768,
 	1024,
-	1536, 2048, MEM_BLOCK_SIZE
-};
+	1536,
+	2048,
+	MEM_BLOCK_SIZE};
 
 #define sizeClassSZ (sizeof(sizeClass) / sizeof(int))
-static int smallSizeClassIdx[] =
-	{ 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10,
-	10, 10,
-	10, 10
-};
+static int smallSizeClassIdx[] = {0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8,
+	9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10};
 
-static int mediumSizeClassIdx[] =
-	{ -1, -1, 9, 10, 11, 12, 12, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15,
-	16, 16,
-	16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18,
-	18, 18,
-	18, 18, 18, 18, 18, 18, 18,
-	18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
-	18, 18,
-	18, 18, 18, 18, 18
-};
+static int mediumSizeClassIdx[] = {
+	-1, -1, 9, 10, 11, 12, 12, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16,
+	16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18,
+	18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18,
+	18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18};
 
 static int
 getSlotBySize(int size) {
@@ -206,7 +209,8 @@ struct GC {
 	struct Block *freelist;
 
 	// Large objects are allocated directly from heapArena;
-	// This is a list of heapArena and if one heapArena is full, it's moved to heap.
+	// This is a list of heapArena and if one heapArena is full, it's moved to
+	// heap.
 	struct heapArena *large;
 
 	// Initially, allocate objects version=0
@@ -268,7 +272,7 @@ blockReset(GC *gc, struct Block *block) {
 	gc->freelist = block;
 }
 
-GC*
+GC *
 gcInit() {
 	GC *gc = malloc(sizeof(GC));
 	if (gc == NULL) {
@@ -279,7 +283,8 @@ gcInit() {
 	gc->heap = NULL;
 	gc->large = NULL;
 	gc->state = gcStateNone;
-	gc->version = 2;	// Start from 2, so uninitialized blocks can be treated as garbage
+	gc->version =
+		2; // Start from 2, so uninitialized blocks can be treated as garbage
 	gc->rset = NULL;
 	gc->freelist = NULL;
 
@@ -341,7 +346,7 @@ inuse(GC *gc, scmHead *h) {
 	return 2;
 }
 
-static struct Block*
+static struct Block *
 getBlock(GC *gc, int slot) {
 	struct Block *block = gc->sizeClass[slot];
 	if (block != NULL) {
@@ -372,9 +377,8 @@ getBlock(GC *gc, int slot) {
 // Helper function to check if GC should be triggered
 bool
 gcTriggerCheck(GC *gc) {
-	if (gc->stats.allocated > gc->stats.nextSize &&
-		gc->state == gcStateNone) {
-			gc->state = gcStateMark;
+	if (gc->stats.allocated > gc->stats.nextSize && gc->state == gcStateNone) {
+		gc->state = gcStateMark;
 		return true;
 	}
 	return false;
@@ -384,11 +388,9 @@ gcTriggerCheck(GC *gc) {
 static void
 allocDone(GC *gc, int size, scmHead *ret) {
 	ret->size = size;
-	ret->version =
-		(gc->state ==
-		 gcStateNone) ? (gc->version & VERSION_MASK) : ((gc->version +
-								 2) &
-								VERSION_MASK);
+	ret->version = (gc->state == gcStateNone)
+		? (gc->version & VERSION_MASK)
+		: ((gc->version + 2) & VERSION_MASK);
 
 	gc->stats.allocated += size;
 }
@@ -396,16 +398,17 @@ allocDone(GC *gc, int size, scmHead *ret) {
 static int
 getLargeObjSlots(scmHead *n) {
 	if (n->type == scmHeadUnused) {
-		return ((struct scmFreeNode *) n)->slots;
+		return ((struct scmFreeNode *)n)->slots;
 	}
 	return (n->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 }
 
 static void
-updateLargeObjectMeta(struct heapArena *ha, int start, int slots, scmHead *h) {
+updateLargeObjectMeta(struct heapArena *ha, int start, int slots,
+	scmHead *h) {
 	for (int i = 0; i < slots; i++) {
 		struct Block *b = &ha->blocks[start + i];
-		b->base = (char *) h;
+		b->base = (char *)h;
 	}
 }
 
@@ -420,9 +423,7 @@ heapArenaAllocLarge(struct heapArena *ha, GC *gc, int slots) {
 			}
 			// printf("allocate from uninitialized ==%d\n", ha->curr);
 			struct scmFreeNode *n =
-				(struct scmFreeNode *) (ha->ptr +
-							(ha->curr *
-							 MEM_BLOCK_SIZE));
+				(struct scmFreeNode *)(ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
 			n->head.type = scmHeadUnused;
 			n->slots = slots;
 			updateLargeObjectMeta(ha, ha->curr, slots, &n->head);
@@ -431,13 +432,10 @@ heapArenaAllocLarge(struct heapArena *ha, GC *gc, int slots) {
 			return &n->head;
 		}
 		// Find the first available object
-		scmHead *n =
-			(scmHead *) (ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
+		scmHead *n = (scmHead *)(ha->ptr + (ha->curr * MEM_BLOCK_SIZE));
 		if (inuse(gc, n)) {
 			// skip this object and move num blocks forward.
-			int skip =
-				(n->size + MEM_BLOCK_SIZE -
-				 1) / MEM_BLOCK_SIZE;
+			int skip = (n->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
 			ha->curr += skip;
 			continue;
 		}
@@ -450,17 +448,14 @@ heapArenaAllocLarge(struct heapArena *ha, GC *gc, int slots) {
 			if (ha->curr + slots1 == ha->idx) {
 				ha->idx = ha->curr + slots;
 				n->type = scmHeadUnused;
-				((struct scmFreeNode *) n)->slots = slots;
-				updateLargeObjectMeta(ha, ha->curr + slots1,
-						      slots - slots1, n);
+				((struct scmFreeNode *)n)->slots = slots;
+				updateLargeObjectMeta(ha, ha->curr + slots1, slots - slots1, n);
 				slots1 = slots;
 				break;
 			}
 			// Try to merge n with the adjacent one
 			scmHead *next =
-				(scmHead *) (ha->ptr +
-					     ((ha->curr +
-					       slots1) * MEM_BLOCK_SIZE));
+				(scmHead *)(ha->ptr + ((ha->curr + slots1) * MEM_BLOCK_SIZE));
 			if (inuse(gc, next)) {
 				break;
 			}
@@ -468,16 +463,14 @@ heapArenaAllocLarge(struct heapArena *ha, GC *gc, int slots) {
 			// printf("merge with next, slots ==%d\n", slots2);
 			assert(slots2 > 0);
 			for (int i = 0; i < slots2; i++) {
-				struct Block *b =
-					&ha->blocks[ha->curr + slots1 + i];
-				assert(b->base == (char *) next);
+				struct Block *b = &ha->blocks[ha->curr + slots1 + i];
+				assert(b->base == (char *)next);
 			}
 
 			n->type = scmHeadUnused;
-			updateLargeObjectMeta(ha, ha->curr + slots1, slots2,
-					      n);
+			updateLargeObjectMeta(ha, ha->curr + slots1, slots2, n);
 			slots1 += slots2;
-			((struct scmFreeNode *) n)->slots = slots1;
+			((struct scmFreeNode *)n)->slots = slots1;
 		}
 		if (slots1 < slots) {
 			ha->curr += slots1;
@@ -487,17 +480,14 @@ heapArenaAllocLarge(struct heapArena *ha, GC *gc, int slots) {
 		for (int i = 0; i < slots; i++) {
 			struct Block *b = &ha->blocks[ha->curr + i];
 			// b->base = (char*)n;
-			assert(b->base == (char *) n);
+			assert(b->base == (char *)n);
 		}
 		if (slots1 > slots) {
 			scmHead *next =
-				(scmHead *) (ha->ptr +
-					     ((ha->curr +
-					       slots) * MEM_BLOCK_SIZE));
+				(scmHead *)(ha->ptr + ((ha->curr + slots) * MEM_BLOCK_SIZE));
 			next->type = scmHeadUnused;
-			((struct scmFreeNode *) next)->slots = slots1 - slots;
-			updateLargeObjectMeta(ha, ha->curr + slots,
-					      slots1 - slots, next);
+			((struct scmFreeNode *)next)->slots = slots1 - slots;
+			updateLargeObjectMeta(ha, ha->curr + slots, slots1 - slots, next);
 		}
 		ha->curr += slots;
 		return n;
@@ -541,7 +531,7 @@ gcAllocLargeObject(GC *gc, int size) {
 static scmHead *
 blockAlloc(GC *gc, struct Block *block) {
 	while (block->curr + block->sizeClass <= MEM_BLOCK_SIZE) {
-		scmHead *p = (scmHead *) (block->base + block->curr);
+		scmHead *p = (scmHead *)(block->base + block->curr);
 		block->curr += block->sizeClass;
 		switch (inuse(gc, p)) {
 		case 0:
@@ -597,8 +587,7 @@ gcAlloc(GC *gc, int size) {
 	return ret;
 }
 
-
-static gcFunc registry[256] = { };
+static gcFunc registry[256] = {};
 
 bool
 gcRegistForType(uint8_t idx, gcFunc fn) {
@@ -629,7 +618,7 @@ gcEnqueue(GC *gc, scmHead *p) {
 		gc->end = 0;
 	}
 	// printf("gcEnqueue --%p %d %d %d\n", p, p->size, p->type, p->version);
-	*((scmHead **) (b->base + gc->end)) = p;
+	*((scmHead **)(b->base + gc->end)) = p;
 	gc->end += sizeof(scmHead *);
 }
 
@@ -653,7 +642,7 @@ gcDequeue(GC *gc) {
 		gc->end = 0;
 		return NULL;
 	}
-	scmHead *ret = *((scmHead **) & b->base[gc->start]);
+	scmHead *ret = *((scmHead **)&b->base[gc->start]);
 	gc->start += sizeof(scmHead *);
 	return ret;
 }
@@ -675,27 +664,28 @@ checkPointer(GC *gc, uintptr_t p, struct Block **block) {
 		return NULL;
 	}
 	// Get block index
-	int idx = ((char *) addr - h->ptr) / MEM_BLOCK_SIZE;
+	int idx = ((char *)addr - h->ptr) / MEM_BLOCK_SIZE;
 	struct Block *b = &h->blocks[idx];
 	*block = b;
 
 	// Handle large objects
 	if (h->forLargeObjects) {
-		scmHead *from = (scmHead *) b->base;
+		scmHead *from = (scmHead *)b->base;
 		assert(from != NULL);
 		return inuse(gc, from) ? from : NULL;
 	}
 	// Handle small objects
 	if (b->sizeClass == 0) {
-		return NULL;	// Special block
+		return NULL; // Special block
 	}
 
-	int pos = ((char *) addr - b->base) / b->sizeClass;
+	int pos = ((char *)addr - b->base) / b->sizeClass;
 	assert(pos >= 0);
-	scmHead *from = (scmHead *) (b->base + (pos * b->sizeClass));
+	scmHead *from = (scmHead *)(b->base + (pos * b->sizeClass));
 
 	/* if (from != addr) { */
-	/* 	printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d, version=%d}\n", (void *) p, from->type, from->size, from->version); */
+	/* 	printf("WARNING: the ptr %p is inside scmHead object! {type=%d, size=%d,
+	 * version=%d}\n", (void *) p, from->type, from->size, from->version); */
 	/* } */
 
 	return inuse(gc, from) ? from : NULL;
@@ -707,7 +697,7 @@ checkPointer(GC *gc, uintptr_t p, struct Block **block) {
 #define GEN_SHIFT VERSION_BITS
 
 // Increment values for each generation
-static const int GEN_INCREMENTS[] = { 2, 4, 8, 24 };
+static const int GEN_INCREMENTS[] = {2, 4, 8, 24};
 
 // A smart generational GC strategy
 // Higher 2bits are for generation mark and lower 6bits are for version,
@@ -739,10 +729,9 @@ markObject(GC *gc, scmHead *from, version_t minv) {
 	if ((from->version & 1) == 1) {
 		if (minv != 0) {
 			// Old generation to young generation is forbidden
-			if (versionCmp
-			    (minv & VERSION_MASK,
-			     from->version & VERSION_MASK) > 0) {
-				/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
+			if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
+				/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK);
+				 */
 				from->version = minv;
 			}
 		}
@@ -759,8 +748,7 @@ markObject(GC *gc, scmHead *from, version_t minv) {
 	// Generational GC barrier check
 	if (minv != 0) {
 		// Old generation to young generation is forbidden
-		if (versionCmp
-		    (minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
+		if (versionCmp(minv & VERSION_MASK, from->version & VERSION_MASK) > 0) {
 			/* from->version = (from->version & (3 << 6)) | (minv & VERSION_MASK); */
 			from->version = minv;
 			bump = true;
@@ -789,7 +777,7 @@ gcMark(GC *gc, uintptr_t p, version_t minv) {
 	}
 }
 
-#if defined(__clang__) || defined (__GNUC__)
+#if defined(__clang__) || defined(__GNUC__)
 #define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
 #else
 #define ATTRIBUTE_NO_SANITIZE_ADDRESS
@@ -798,7 +786,7 @@ gcMark(GC *gc, uintptr_t p, version_t minv) {
 static void gcRSet(GC *gc);
 
 void
-gcMarkRoot(GC *gc, gcMarkRootCallback callback, void* data) {
+gcMarkRoot(GC *gc, gcMarkRootCallback callback, void *data) {
 	TRACE_SCOPE("gcMarkRoot");
 	// Reset counters
 	gcStatsReset(&gc->stats);
@@ -825,11 +813,13 @@ gcMarkRoot(GC *gc, gcMarkRootCallback callback, void* data) {
 /* 		} */
 /* 	} */
 /* 	if (b->touch == false && live != 0) { */
-/* 		/\* printf("block %p, sizeClass%d, b->inuse=%d, actual inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); *\/ */
+/* 		/\* printf("block %p, sizeClass%d, b->inuse=%d, actual
+ * inuse=%d\n", b, b->sizeClass, b->inuse, inuse_count); *\/ */
 /* 		assert(false); */
 /* 	} */
 /* 	if (live == 0 && b->touch != 0) { */
-/* 		printf("block %p, sizeClass%d, is not used, but not recycled\n", b, b->sizeClass); */
+/* 		printf("block %p, sizeClass%d, is not used, but not recycled\n",
+ * b, b->sizeClass); */
 /* 	} */
 /* } */
 
@@ -837,13 +827,13 @@ static void
 gcFlip(GC *gc) {
 	TRACE_SCOPE("gcFlip");
 	// Reset the current large list and sizeClass list.
-	for (struct heapArena * p = gc->large; p != NULL; p = p->next) {
+	for (struct heapArena *p = gc->large; p != NULL; p = p->next) {
 		p->curr = 0;
 	}
 	for (int i = 0; i < sizeClassSZ; i++) {
 		struct Block *b = gc->sizeClass[i];
 		gc->sizeClass[i] = NULL;
-		while(b != NULL) {
+		while (b != NULL) {
 			b->touch = true;
 			b = b->next;
 		}
@@ -918,12 +908,11 @@ gcFlip(GC *gc) {
 	}
 	char *coraDebug = getenv("CORADEBUG");
 	if (coraDebug != NULL) {
-		printf("gc%" PRIu64
-		       "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, incremental=%zusz, freeBlock=%dcnt, sys=%zusz\n",
-		       gc->version, gen, gc->stats.nextSize,
-		       gc->stats.markSize, gc->stats.markCount,
-		       gc->stats.markSkip, gc->stats.allocated,
-		       freeBlockCnt, sysSize);
+		printf("gc%" PRIu64 "%s, trigger=%zusz, mark=%zusz %dcnt, skip=%dcnt, "
+		       "incremental=%zusz, freeBlock=%dcnt, sys=%zusz\n",
+			gc->version, gen, gc->stats.nextSize, gc->stats.markSize,
+			gc->stats.markCount, gc->stats.markSkip, gc->stats.allocated,
+			freeBlockCnt, sysSize);
 	}
 
 	gc->version = gc->version + 2;
@@ -935,16 +924,15 @@ gcFlip(GC *gc) {
 
 	// new algorithm: smooth the next trigger size dynamically
 	int base =
-		(gc->stats.youngGenSize + gc->stats.middleGenSize +
-		 gc->stats.oldGenSize);
+		(gc->stats.youngGenSize + gc->stats.middleGenSize + gc->stats.oldGenSize);
 	gc->stats.avgAllocated =
 		(gc->stats.allocated + 3 * gc->stats.avgAllocated) / 4;
 
-	/* printf("base=%d, avgAllocated=%d, prevTrigger=%d\n", base, gc->stats.avgAllocated, gc->stats.prevTrigger); */
+	/* printf("base=%d, avgAllocated=%d, prevTrigger=%d\n", base,
+	 * gc->stats.avgAllocated, gc->stats.prevTrigger); */
 
-	gc->stats.nextSize =
-		(int) (0.4 * (base + gc->stats.avgAllocated) +
-		       0.6 * gc->stats.prevTrigger);
+	gc->stats.nextSize = (int)(0.4 * (base + gc->stats.avgAllocated) +
+		0.6 * gc->stats.prevTrigger);
 
 	// limit the maxinum growth
 	if (gc->stats.nextSize > gc->stats.prevTrigger * 1.5) {
@@ -983,9 +971,7 @@ gcRunIncremental(GC *gc) {
 		if (fn != NULL) {
 			assert((curr->version & 1) == 1);
 			fn(gc, curr);
-			curr->version =
-				(curr->version & (3 << 6)) |
-				((curr->version + 1) % 64);
+			curr->version = (curr->version & (3 << 6)) | ((curr->version + 1) % 64);
 			gcInuseSizeInc(gc, curr->size);
 		}
 		steps--;
@@ -1001,9 +987,8 @@ sweepSizeClass(GC *gc, struct runDoneProgress *pg) {
 			continue;
 		}
 		// Small step to finish one block in size class
-		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE;
-		     j += pg->b->sizeClass) {
-			scmHead *p = (scmHead *) (pg->b->base + j);
+		for (int j = pg->b->curr; j < MEM_BLOCK_SIZE; j += pg->b->sizeClass) {
+			scmHead *p = (scmHead *)(pg->b->base + j);
 			if (!inuse(gc, p)) {
 				p->type = scmHeadUnused;
 			}
@@ -1018,25 +1003,18 @@ sweepLargeObjects(GC *gc, struct runDoneProgress *pg) {
 	while (pg->ha != NULL) {
 		int j = pg->ha->curr;
 		while (j < pg->ha->idx) {
-			scmHead *p =
-				(scmHead *) (pg->ha->ptr +
-					     j * MEM_BLOCK_SIZE);
+			scmHead *p = (scmHead *)(pg->ha->ptr + j * MEM_BLOCK_SIZE);
 			int slots;
 
 			if (p->type == scmHeadUnused) {
-				slots = ((struct scmFreeNode *) p)->slots;
+				slots = ((struct scmFreeNode *)p)->slots;
 			} else {
-				slots = (p->size + MEM_BLOCK_SIZE -
-					 1) / MEM_BLOCK_SIZE;
-				if ((p->version & VERSION_MASK) ==
-				    ((gc->version - 2) & VERSION_MASK)) {
-					struct scmFreeNode *n =
-						(struct scmFreeNode *) p;
+				slots = (p->size + MEM_BLOCK_SIZE - 1) / MEM_BLOCK_SIZE;
+				if ((p->version & VERSION_MASK) == ((gc->version - 2) & VERSION_MASK)) {
+					struct scmFreeNode *n = (struct scmFreeNode *)p;
 					n->head.type = scmHeadUnused;
 					n->slots = slots;
-					updateLargeObjectMeta(pg->ha, j,
-							      slots,
-							      &n->head);
+					updateLargeObjectMeta(pg->ha, j, slots, &n->head);
 				}
 			}
 
@@ -1066,7 +1044,7 @@ gcRunSweep(GC *gc) {
 void
 gcRun(GC *gc) {
 	TRACE_SCOPE("gcRun");
-	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip     |
+	// | gcStateNone | gcStateMark | gcStateIncremental | gcStateSweep | gcFlip    |
 	// | ---         | --          | --                 | --          | --         |
 	// | version  <- | version <-  | version            | version     | stale      |
 	// |             |             | gray               |             |            |
@@ -1074,8 +1052,8 @@ gcRun(GC *gc) {
 
 	// gcStateNone -> gcStateMark: start a new round of GC, mark root
 	// gcStateMark -> gcStateIncremental: mark root done, start incremental GC
-	// gcStateIncremental -> gcStateSweep: incremental GC done, wait for white to be exhausted
-	// gcStateSweep -> gcFlip: now only ecru and black, flip
+	// gcStateIncremental -> gcStateSweep: incremental GC done, wait for white to
+	// be exhausted gcStateSweep -> gcFlip: now only ecru and black, flip
 
 	switch (gc->state) {
 	case gcStateNone:
@@ -1126,7 +1104,7 @@ writeBarrierForGeneration(GC *gc, scmHeadEx *v, uintptr_t val) {
 		break;
 	case gcStateIncremental:
 		if (((v->version & 1) == 1) &&
-		    ((h->version + 1) % 64) == (v->version % 64)) {
+			((h->version + 1) % 64) == (v->version % 64)) {
 			return;
 		}
 		// add vec to rset and enqueue val
@@ -1149,10 +1127,9 @@ gcRSet(GC *gc) {
 	scmHeadEx *prev = NULL;
 	scmHeadEx *p = gc->rset;
 	while (p != NULL) {
-		scmHead *h = (scmHead *) p;
-		if (versionCmp
-		    (gc->version & VERSION_MASK,
-		     h->version & VERSION_MASK) >= 0) {
+		scmHead *h = (scmHead *)p;
+		if (versionCmp(gc->version & VERSION_MASK, h->version & VERSION_MASK) >=
+			0) {
 			// remove this from remember set.
 			if (prev == NULL) {
 				gc->rset = p->rset;
@@ -1166,22 +1143,18 @@ gcRSet(GC *gc) {
 			tmp->inRSet = false;
 		} else {
 			switch (p->type) {
-			case scmHeadVector:
-				{
-					struct scmVector *pv =
-						(struct scmVector *) p;
-					for (int i = 0; i < pv->size; i++) {
-						gcMark(gc, pv->data[i], 0);
-					}
-					break;
+			case scmHeadVector: {
+				struct scmVector *pv = (struct scmVector *)p;
+				for (int i = 0; i < pv->size; i++) {
+					gcMark(gc, pv->data[i], 0);
 				}
-			case scmHeadSymbol:
-				{
-					struct scmSymbol *pv =
-						(struct scmSymbol *) p;
-					gcMark(gc, pv->value, 0);
-					break;
-				}
+				break;
+			}
+			case scmHeadSymbol: {
+				struct scmSymbol *pv = (struct scmSymbol *)p;
+				gcMark(gc, pv->value, 0);
+				break;
+			}
 			}
 			prev = p;
 			p = p->rset;

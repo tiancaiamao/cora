@@ -1,10 +1,10 @@
 #include "reader.h"
 #include "types.h"
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
 
 extern Obj primSet(struct Cora *co, Obj key, Obj val);
 
@@ -37,7 +37,8 @@ eatWhitespace(FILE *in) {
 		}
 		if (c == ';') {
 			// comments are also whitespace
-			while (((c = getc(in)) != EOF) && (c != '\n'));
+			while (((c = getc(in)) != EOF) && (c != '\n'))
+				;
 			continue;
 		}
 		ungetc(c, in);
@@ -206,7 +207,7 @@ sexpRead(GC *gc, FILE *in, int *errCode) {
 		if (buffer[0] == '-' && i > 1) {
 			bool allDigit = true;
 			for (int p = 1; p < i; p++) {
-				if (!isdigit((int) buffer[p])) {
+				if (!isdigit((int)buffer[p])) {
 					allDigit = false;
 				}
 			}
@@ -215,7 +216,7 @@ sexpRead(GC *gc, FILE *in, int *errCode) {
 				return num;
 			}
 		}
-		return makeSymbol(buffer);
+		return intern(buffer);
 	}
 
 	if (c == EOF) {

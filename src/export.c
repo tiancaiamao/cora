@@ -1,15 +1,17 @@
-// This file is not necessary, it's purpose is to expose cora as a library for non-C languages
-// For C using internal API, just include runtime.h
+// This file is not necessary, it's purpose is to expose cora as a library for
+// non-C languages For C using internal API, just include runtime.h
 
 #include "cora.h"
 #define CORA_IMPLEMENTATION
 #include "runtime.h"
 
-Obj coraGetResult(Cora *co) {
+Obj
+coraGetResult(Cora *co) {
 	return co->res;
 }
 
-GC* coraGetGC(Cora *co) {
+GC *
+coraGetGC(Cora *co) {
 	return co->gc;
 }
 
@@ -26,8 +28,9 @@ coraReturn(struct Cora *co, Obj val) {
 }
 
 Obj
-coraSymbolGet(Obj sym) {
-	return symbolGet(sym);
+coraSymbolGet(Cora *co, Obj sym) {
+	Binding bind = bindSymbol(co, sym);
+	return globalRef(co, bind);
 }
 
 Obj
@@ -35,30 +38,37 @@ coraPrimSet(Cora *co, Obj key, Obj val) {
 	return primSet(co, key, val);
 }
 
-Obj coraMakeCons(Cora *co, Obj car, Obj cdr) {
+Obj
+coraMakeCons(Cora *co, Obj car, Obj cdr) {
 	return makeCons(co->gc, car, cdr);
 }
 
-Obj coraMakeString(Cora *co, char *s, int len) {
+Obj
+coraMakeString(Cora *co, char *s, int len) {
 	return makeString(co->gc, s, len);
 }
 
-Obj coraMakeCString(Cora *co, char *s) {
+Obj
+coraMakeCString(Cora *co, char *s) {
 	return makeCString(co->gc, s);
 }
 
-Obj coraMakeSymbol(const char *s) {
-	return makeSymbol(s);
+Obj
+coraMakeSymbol(char *s) {
+	return intern(s);
 }
 
-char *coraBytesData(Obj o) {
+char *
+coraBytesData(Obj o) {
 	return bytesData(o);
 }
 
-Obj coraMakeNumber(int v) {
+Obj
+coraMakeNumber(int v) {
 	return makeNumber(v);
 }
 
-int coraFixnum(Obj o) {
+int
+coraFixnum(Obj o) {
 	return fixnum(o);
 }

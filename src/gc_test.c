@@ -4,8 +4,8 @@
 
 size_t
 generate_logarithmic_random(size_t max_size) {
-	double r = (double) rand() / RAND_MAX;	// generate random value [0, 1)
-	return (size_t) (1 + (max_size - 1) * r * r);	// use r*r to simulate log
+	double r = (double)rand() / RAND_MAX;	     // generate random value [0, 1)
+	return (size_t)(1 + (max_size - 1) * r * r); // use r*r to simulate log
 }
 
 size_t
@@ -19,7 +19,7 @@ generate_mixed_random(size_t max_size) {
 
 static void
 testWithSize(struct Cora *co, int maxSize, int count) {
-	unsigned int seed = (unsigned int) time(NULL);
+	unsigned int seed = (unsigned int)time(NULL);
 	/* unsigned int seed = 1742627754; */
 	printf("test using seed %u\n", seed);
 	srand(seed);

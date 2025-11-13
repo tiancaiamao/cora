@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include "trace.h"
 #include <assert.h>
 #include <stdint.h>
-#include "trace.h"
+#include <stdio.h>
 
 FILE *trace_file = NULL;
 size_t trace_offset = 0;

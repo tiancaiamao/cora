@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include "runtime.h"
 #include "str.h"
+#include <stdio.h>
 
 static void
 builtinGenerateStr(struct Cora *co, int label, Obj *R) {
@@ -24,7 +24,7 @@ builtinGenerateSym(struct Cora *co, int label, Obj *R) {
 	}
 	for (const char *p = s; *p != 0; p++) {
 		if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
-		    (*p >= '0' && *p <= '9')) {
+			(*p >= '0' && *p <= '9')) {
 			fprintf(out, "%c", *p);
 		} else if (*p == '_') {
 			fprintf(out, "__");
@@ -80,19 +80,18 @@ builtinEscapeStr(struct Cora *co, int label, Obj *R) {
 }
 
 static struct registerModule module = {
-  NULL,
-  {
-    {"generate-str", builtinGenerateStr, 2},
-    {"generate-sym", builtinGenerateSym, 2},
-    {"generate-num", builtinGenerateNum, 2},
-    {"escape-str", builtinEscapeStr, 1},
-    {NULL, NULL, 0},
-  }
-};
+	NULL,
+	{
+		{"generate-str", builtinGenerateStr, 2},
+		{"generate-sym", builtinGenerateSym, 2},
+		{"generate-num", builtinGenerateNum, 2},
+		{"escape-str", builtinEscapeStr, 1},
+		{NULL, NULL, 0},
+	}};
 
 void
 entry(struct Cora *co, int label, Obj *R) {
-  Obj pkg = R[2];
-  registerAPI(co, &module, stringStr(pkg));
-  coraReturn(co, intern("internal"));
+	Obj pkg = R[2];
+	registerAPI(co, &module, stringStr(pkg));
+	coraReturn(co, intern("internal"));
 }

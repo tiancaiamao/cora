@@ -1,10 +1,12 @@
+#include "types.h"
+#include "gc.h"
+#include "map.h"
+#include "str.h"
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include "gc.h"
-#include "types.h"
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -29,10 +31,10 @@ void *
 newObj(GC *gc, scmHeadType tp, int sz) {
 	/* scmHead* p = malloc(sz); */
 	scmHead *p = gcAlloc(gc, sz);
-	assert(((Obj) p & TAG_PTR) == 0);
+	assert(((Obj)p & TAG_PTR) == 0);
 	p->type = tp;
 	/* printf("alloc object -- %p %s\n", p, typeNameX[tp]); */
-	return (void *) p;
+	return (void *)p;
 }
 
 scmHead *
@@ -46,8 +48,8 @@ getScmHead(Obj o) {
 Obj
 makeCObj(void *ptr) {
 	// The pointer must be aligned to be used as c object.
-	assert(((Obj) ptr & TAG_PTR) == 0);
-	return ((Obj) (ptr) | TAG_COBJ);
+	assert(((Obj)ptr & TAG_PTR) == 0);
+	return ((Obj)(ptr) | TAG_COBJ);
 }
 
 void *
@@ -61,7 +63,7 @@ makeCons(GC *gc, Obj car, Obj cdr) {
 	struct scmCons *p = newObj(gc, scmHeadCons, sizeof(struct scmCons));
 	p->car = car;
 	p->cdr = cdr;
-	return ((Obj) (&p->head) | TAG_PTR);
+	return ((Obj)(&p->head) | TAG_PTR);
 }
 
 static void
@@ -100,12 +102,12 @@ makeNumber(int v) {
 	if (v < 99999999) {
 		// The type of a fixnum is actually intptr_t, although stored as uintptr.
 		// Be careful with the sign digit.
-		Obj res = (Obj) (((intptr_t) (v) << 1));
+		Obj res = (Obj)(((intptr_t)(v) << 1));
 		assert((res & 1) == 0);
 		return res;
 	}
 	// TODO
-	return (Obj) (99999999);
+	return (Obj)(99999999);
 }
 
 bool
@@ -114,7 +116,7 @@ isNumber(Obj o) {
 		return true;
 	}
 	if (tag(o) == TAG_PTR) {
-		if (((scmHead *) ptr(o))->type == scmHeadNumber) {
+		if (((scmHead *)ptr(o))->type == scmHeadNumber) {
 			return true;
 		}
 	}
@@ -123,11 +125,12 @@ isNumber(Obj o) {
 
 Obj
 makeBytes(GC *gc, int len) {
-	// sz is the actural length but we malloc a extra byte to be compatible with C.
+	// sz is the actural length but we malloc a extra byte to be compatible with
+	// C.
 	int alloc = len + sizeof(struct scmBytes) + 1;
 	struct scmBytes *str = newObj(gc, scmHeadBytes, alloc);
 	str->len = len;
-	return ((Obj) (&str->head) | TAG_PTR);
+	return ((Obj)(&str->head) | TAG_PTR);
 }
 
 char *
@@ -172,65 +175,37 @@ static void
 bytesGCFunc(GC *gc, void *f) {
 }
 
-__thread struct trieNode *gRoot;
+map(str, strBuf) symbolIntern;
 
 Obj
-makeSymbol(const char *s) {
-	const char *old = s;
-	struct trieNode *p = gRoot;
-	for (; *s; s++) {
-		int offset = *s;
-		if (p->child[offset] == NULL) {
-			struct trieNode *n = malloc(sizeof(struct trieNode));
-			memset(n, 0, sizeof(struct trieNode));
-			p->child[offset] = n;
-		}
-		p = p->child[offset];
+intern(char *s) {
+	// TODO: lock!
+	// global interning for symbol
+	str key = cstr(s);
+	strBuf *val = mapGet(&symbolIntern, key);
+	if (val == NULL) {
+		strBuf p = fromCStr(s);
+		key = toStr(p);
+		mapSet(&symbolIntern, key, p);
+		return (Obj)(p) | TAG_SYMBOL;
 	}
-	/* printf("making symbol ...%p\n", p); */
-	if (p->sym == NULL) {
-		char *tmp = malloc(strlen(old) + 1);
-		strcpy(tmp, old);
-		p->sym = tmp;
-		p->value = Undef;
-	} else {
-		if (p->value != Undef) {
-			// assert(p->owner == gCo);
-		}
-	}
-
-	return (Obj) (p) | TAG_SYMBOL;
-}
-
-Obj
-symbolGet(Obj sym) {
-	assert(issymbol(sym));
-	if (tag(sym) == TAG_SYMBOL) {
-		struct trieNode *s = ptr(sym);
-		return s->value;
-	}
-
-	if (tag(sym) == TAG_PTR &&
-	    ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
-		struct scmSymbol *s = ptr(sym);
-		return s->value;
-	}
-	assert(false);
+	strBuf p = *val;
+	return (Obj)(p) | TAG_SYMBOL;
 }
 
 int
 symbolStr(Obj sym, char *dest, size_t sz) {
 	assert(issymbol(sym));
 	if (tag(sym) == TAG_SYMBOL) {
-		struct trieNode *s = ptr(sym);
-		int l = strlen(s->sym) + 1;
+		strBuf s = ptr(sym);
+		int l = strLen(toStr(s)) + 1;
 		assert(l < sz);
-		memcpy(dest, s->sym, l);
+		memcpy(dest, toCStr(s), l);
 		return 0;
 	} else if (tag(sym) == TAG_PTR &&
-		   ((scmHead *) ptr(sym))->type == scmHeadSymbol) {
+		((scmHead *)ptr(sym))->type == scmHeadSymbol) {
 #ifdef _BOOTSTRAP_TEST_
-		struct scmSymbol* s = ptr(sym);
+		struct scmSymbol *s = ptr(sym);
 		snprintf(dest, sz, "#%d%%", s->unique);
 #else
 		snprintf(dest, sz, "x%ld", sym);
@@ -241,7 +216,8 @@ symbolStr(Obj sym, char *dest, size_t sz) {
 }
 
 Obj
-makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured, ...) {
+makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured,
+	...) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(gc, scmHeadNative, sz);
 	clo->nframe = nframe;
@@ -256,8 +232,7 @@ makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured, ...) {
 		}
 		va_end(ap);
 	}
-
-	return ((Obj) (&clo->head) | TAG_PTR);
+	return ((Obj)(&clo->head) | TAG_PTR);
 }
 
 struct scmNative *
@@ -310,9 +285,8 @@ nativeRequired(Obj o) {
 Obj
 makeVector(GC *gc, int size, int cap) {
 	assert(size <= cap);
-	struct scmVector *vec = newObj(gc, scmHeadVector,
-				       sizeof(struct scmVector) +
-				       sizeof(Obj) * cap);
+	struct scmVector *vec =
+		newObj(gc, scmHeadVector, sizeof(struct scmVector) + sizeof(Obj) * cap);
 	vec->head.rset = NULL;
 	vec->head.inRSet = false;
 	vec->size = size;
@@ -320,7 +294,7 @@ makeVector(GC *gc, int size, int cap) {
 	for (int i = 0; i < vec->size; i++) {
 		vec->data[i] = Undef;
 	}
-	return ((Obj) (&vec->head) | TAG_PTR);
+	return ((Obj)(&vec->head) | TAG_PTR);
 }
 
 Obj
@@ -372,19 +346,20 @@ vectorAppend(GC *gc, Obj vec, Obj val) {
 		memcpy(tmpV->data, v->data, v->size * sizeof(Obj));
 		// writeBarrier!
 		writeBarrierForIncremental(gc, &vec, tmp);
-		// this seems not required, because tmp->version should always >= val->version?
+		// this seems not required, because tmp->version should always >=
+		// val->version?
 		/* writeBarrierForGeneration(&v->head, val); */
 		v = ptr(tmp);
 	}
 	v->data[v->size] = val;
 	v->size++;
-	return ((Obj) (&v->head) | TAG_PTR);
+	return ((Obj)(&v->head) | TAG_PTR);
 }
 
 bool
 isvector(Obj o) {
 	if (tag(o) == TAG_PTR) {
-		if (((scmHead *) ptr(o))->type == scmHeadVector) {
+		if (((scmHead *)ptr(o))->type == scmHeadVector) {
 			return true;
 		}
 	}
@@ -407,10 +382,22 @@ symbolGCFunc(GC *gc, void *f) {
 	gcMark(gc, from->value, minv);
 }
 
+uint64_t
+strHashFunc(void *ptr) {
+	str *s = (str *)ptr;
+	return fnv1a64(s->str, s->len);
+}
+
+bool
+strEQFunc(void *ptr1, void *ptr2) {
+	str *s1 = (str *)ptr1;
+	str *s2 = (str *)ptr2;
+	return strCmp(*s1, *s2) == 0;
+}
+
 void
 typesInit() {
-	gRoot = malloc(sizeof(struct trieNode));
-	memset(gRoot, 0, sizeof(struct trieNode));
+	mapInit(&symbolIntern, strHashFunc, strEQFunc);
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);
