@@ -142,7 +142,7 @@ static void bytesGCFunc(GC *gc, void *f) {}
 
 map(str, strBuf) symbolIntern;
 
-Obj intern(const char *s) {
+Obj intern(char *s) {
   // TODO: lock!
   // global interning for symbol
   str key = cstr(s);

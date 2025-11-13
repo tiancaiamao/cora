@@ -37,7 +37,7 @@ Obj coraMakeString(Cora *co, char *s, int len) {
 
 Obj coraMakeCString(Cora *co, char *s) { return makeCString(co->gc, s); }
 
-Obj coraMakeSymbol(const char *s) { return intern(s); }
+Obj coraMakeSymbol(char *s) { return intern(s); }
 
 char *coraBytesData(Obj o) { return bytesData(o); }
 

@@ -301,7 +301,7 @@
 		     (generate-sym w x2)
 		     (match x2
 			    ['%global x] (begin
-					  (generate-str w "globalRef(__symbolTable[")
+					  (generate-str w "globalRef(co, __symbolTable[")
 					  (generate-num w (symbol-offset x globals))
 					  (generate-str w "])"))
 			    ['%closure-ref idx] (begin
@@ -312,7 +312,7 @@
 					  ((symbol? x) (begin
 							(generate-str w "__symbolTable[")
 							(generate-num w (symbol-offset x globals))
-							(generate-str w "]")))
+							(generate-str w "].name")))
 					  ((number? x) (begin
 							(generate-str w "MAKE_NUMBER(")
 							(generate-num w x)
@@ -567,20 +567,17 @@
 
   (defun generate-entry (to globals label)
     (begin
-     (generate-str to "static __thread Obj* __symbolTable;\n\n")
-     (generate-str to "void entry(struct Cora *co, int label, Obj *R) {\n")
-     (generate-str to "__symbolTable = (Obj*)malloc(sizeof(Obj) * ")
+     (generate-str to "static Binding __symbolTable[")
      (generate-num to (length globals))
-     (generate-str to ");\n")
+     (generate-str to "];\n\n")
+     (generate-str to "void entry(struct Cora *co, int label, Obj *R) {\n")
      (foldl (lambda (acc sym)
 	      (begin
 	       (generate-str to "__symbolTable[")
 	       (generate-num to acc)
-	       ;; (generate-str to "sym")
-	       ;; (generate-sym to sym)
-	       (generate-str to "] = intern(\"")
+	       (generate-str to "] = bindSymbol(co, intern(\"")
 	       (generate-str to (symbol->string sym))
-	       (generate-str to "\");\n")
+	       (generate-str to "\"));\n")
 	       (+ acc 1)))
 	    0 globals)
 

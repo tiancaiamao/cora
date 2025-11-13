@@ -65,7 +65,7 @@ scmHead *getScmHead(Obj);
 
 void* mustCObj(Obj o);
 
-Obj intern(const char *s);
+Obj intern(char *s);
 int symbolStr(Obj sym, char* dest, size_t sz);
 
 #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
