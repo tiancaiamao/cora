@@ -161,10 +161,7 @@ Obj vectorAppend(GC *gc, Obj vec, Obj val);
 bool isvector(Obj o);
 int vectorLength(Obj vec);
 
-
 uint64_t strHashFunc(void *ptr);
 bool strEQFunc(void *ptr1, void *ptr2);
-
-// extern map(str, strBuf) symbolIntern;
 
 #endif

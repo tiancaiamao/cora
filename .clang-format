@@ -1,0 +1,45 @@
+BasedOnStyle: LLVM
+# 默认适用于所有语言（C 和 C++）
+---
+Language: Cpp
+BasedOnStyle: LLVM
+DisableFormat: true
+---
+Language: C
+BasedOnStyle: LLVM
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+IndentCaseLabels: false
+BreakBeforeBraces: Attach
+BraceWrapping:
+  AfterFunction: true
+  AfterControlStatement: true
+  AfterStruct: true
+  AfterEnum: true
+  AfterUnion: true
+  BeforeElse: false
+  BeforeWhile: false
+
+PointerAlignment: Left
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveMacros: false
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+CompactNamespaces: false
+
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpacesBeforeTrailingComments: 1
+
+BreakBeforeBinaryOperators: None
+ColumnLimit: 0
+ContinuationIndentWidth: 8
+AlwaysBreakAfterReturnType: AllDefinitions
+...
