@@ -144,19 +144,19 @@ netSend(struct Cora *ctx, int label, Obj *R) {
 	// ['Send fd buf pos k]
 	/* pollWriteAdd(pollfd, fd); */
 	// [block pos]
-	coraReturn(ctx, makeCons(ctx->gc, makeSymbol("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
+	coraReturn(ctx, makeCons(ctx->gc, intern("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
 	return;
       }
       // [err errno]
       printf("netSend error %d\n", errno);
-      coraReturn(ctx, makeCons(ctx->gc, makeSymbol("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
+      coraReturn(ctx, makeCons(ctx->gc, intern("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
       return;
     }
     pos = pos + ret;
   }
   // [ok]
   /* printf("netSend success\n"); */
-  coraReturn(ctx, makeCons(ctx->gc, makeSymbol("ok"), Nil));
+  coraReturn(ctx, makeCons(ctx->gc, intern("ok"), Nil));
   return;
 }
 
@@ -189,20 +189,20 @@ netRecv(struct Cora *ctx, int label, Obj *R) {
 	// [block pos]
 	/* printf("EAGAIN here...%d\n", pos); */
 	/* pollReadAdd(pollfd, fd); */
-	coraReturn(ctx, makeCons(ctx->gc, makeSymbol("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
+	coraReturn(ctx, makeCons(ctx->gc, intern("block"), makeCons(ctx->gc, makeNumber(pos), Nil)));
 	return;
       }
       // [err errno]
       printf("netRecv error %d\n", errno);
       perror("recv error");
-      coraReturn(ctx, makeCons(ctx->gc, makeSymbol("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
+      coraReturn(ctx, makeCons(ctx->gc, intern("err"), makeCons(ctx->gc, makeNumber(errno), Nil)));
       return;
     }
     pos = pos + ret;
   }
   // [ok]
   /* printf("netRecv success\n"); */
-  coraReturn(ctx, makeCons(ctx->gc, makeSymbol("ok"), Nil));
+  coraReturn(ctx, makeCons(ctx->gc, intern("ok"), Nil));
 }
 
 static void

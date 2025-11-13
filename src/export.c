@@ -26,13 +26,15 @@ coraReturn(struct Cora *co, Obj val) {
 }
 
 Obj
-coraSymbolGet(Obj sym) {
-	return symbolGet(sym);
+coraSymbolGet(Cora *co, Obj sym) {
+	Binding bind = bindSymbol(co, sym);
+	return globalRef(co, bind);
 }
 
 Obj
 coraPrimSet(Cora *co, Obj key, Obj val) {
-	return primSet(co, key, val);
+	Binding bind = bindSymbol(co, key);
+	return primSet(co, bind, val);
 }
 
 Obj coraMakeCons(Cora *co, Obj car, Obj cdr) {
@@ -47,9 +49,9 @@ Obj coraMakeCString(Cora *co, char *s) {
 	return makeCString(co->gc, s);
 }
 
-Obj coraMakeSymbol(const char *s) {
-	return makeSymbol(s);
-}
+// Obj coraMakeSymbol(const char *s) {
+// 	return makeSymbol(s);
+// }
 
 char *coraBytesData(Obj o) {
 	return bytesData(o);

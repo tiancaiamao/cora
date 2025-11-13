@@ -65,9 +65,10 @@ scmHead *getScmHead(Obj);
 
 void* mustCObj(Obj o);
 
-#define intern(x) makeSymbol(x)
-Obj makeSymbol(const char *s);
-Obj symbolGet(Obj sym);
+// #define intern(x) makeSymbol(x)
+// Obj makeSymbol(const char *s);
+Obj intern(const char *s);
+// Obj symbolGet(Obj sym);
 int symbolStr(Obj sym, char* dest, size_t sz);
 
 #define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
@@ -154,8 +155,6 @@ int nativeRequired(Obj o);
 Obj* nativeData(Obj o);
 basicBlock nativeFn(Obj o);
 
-/* void gcMarkCallStack(struct GC *gc, struct callStack *stack, int minv); */
-
 extern Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval, symBackQuote, symUnQuote;
 
 Obj makeVector(GC *gc, int size, int cap);
@@ -165,25 +164,30 @@ Obj vectorAppend(GC *gc, Obj vec, Obj val);
 bool isvector(Obj o);
 int vectorLength(Obj vec);
 
-struct trieNode {
-		Obj value;
-		char *sym;
-		struct trieNode* child[256];
 
-		struct trieNode *next;
-		struct Cora *owner;
-};
+uint64_t strHashFunc(void *ptr);
+bool strEQFunc(void *ptr1, void *ptr2);
 
-#define globalRef(symbol) ({ \
-    struct trieNode *s = ptr(symbol); \
-    Obj val = s->value; \
-    if (val == Undef) { \
-        printf("undefined global symbol: %s\n", s->sym); \
-        assert(false); \
-    } \
-    val; \
-})
+// extern map(str, strBuf) symbolIntern;
+// struct trieNode {
+// 		Obj value;
+// 		char *sym;
+// 		struct trieNode* child[256];
 
-void trieNodeGCFunc(struct GC* gc, struct trieNode *node);
+// 		struct trieNode *next;
+// 		struct Cora *owner;
+// };
+
+// #define globalRef(symbol) ({ \
+//     struct trieNode *s = ptr(symbol); \
+//     Obj val = s->value; \
+//     if (val == Undef) { \
+//         printf("undefined global symbol: %s\n", s->sym); \
+//         assert(false); \
+//     } \
+//     val; \
+// })
+
+// void trieNodeGCFunc(struct GC* gc, struct trieNode *node);
 
 #endif

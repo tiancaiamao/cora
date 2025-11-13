@@ -1,7 +1,7 @@
 #ifndef _STR_H_
 #define _STR_H_
 
-typedef struct _str {
+typedef struct {
   char *str;
   unsigned int len;
 } str;

@@ -215,7 +215,7 @@ sexpRead(GC *gc, FILE *in, int *errCode) {
 				return num;
 			}
 		}
-		return makeSymbol(buffer);
+		return intern(buffer);
 	}
 
 	if (c == EOF) {

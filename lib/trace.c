@@ -32,20 +32,21 @@ traceWrap(struct Cora *co, int label, Obj *R) {
 static void
 builtinTrace(struct Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
-	Obj fn = symbolGet(sym);
+	Obj fn = globalRef(co, bindSymbol(co, sym));
 	struct scmNative *old = mustNative(fn);
 	Obj wrap = makeNative(co->gc, old->nframe, traceWrap, old->required, 2, fn, sym);
-	Obj ret = primSet(co, sym, wrap);
+	Obj ret = primSet(co, bindSymbol(co, sym), wrap);
 	coraReturn(co, ret);
 }
 
 static void
 builtinUntrace(struct Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
-	Obj fn = symbolGet(sym);
+	Binding bind = bindSymbol(co, sym);
+	Obj fn = globalRef(co, bind);
 	struct scmNative *n = mustNative(fn);
 	if (n->captured == 2 && n->fn == traceWrap && n->data[1] == sym) {
-		Obj ret = primSet(co, sym, n->data[0]);
+		Obj ret = primSet(co, bind, n->data[0]);
 		coraReturn(co, ret);
 		return;
 	}

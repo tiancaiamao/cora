@@ -21,7 +21,7 @@ repl(Cora *co, FILE* stream) {
 		/* sexpWrite(stdout, exp); */
 		/* printf("\n"); */
 
-		Obj fn = coraSymbolGet(coraMakeSymbol("macroexpand"));
+		Obj fn = coraSymbolGet(co, intern("macroexpand"));
 		Obj args[1] = {exp};
 		coraCall(co, fn, 1, args);
 		coraRun(co);
@@ -32,7 +32,7 @@ repl(Cora *co, FILE* stream) {
 		/* printf(" --- %d %d\n", co->base, co->pos); */
 		/* printf("\n"); */
 
-		fn = coraSymbolGet(coraMakeSymbol("cora/lib/eval#eval"));
+		fn = coraSymbolGet(co, intern("cora/lib/eval#eval"));
 		Obj _args[2] = {exp, Nil};
 		coraCall(co, fn, 2, _args);
 		coraRun(co);
@@ -75,7 +75,7 @@ shebang(Cora *co, int argc, char *argv[]) {
 		args = coraMakeCons(co, arg, args);
 	}
 	args = reverse(coraGetGC(co), args);
-	coraPrimSet(co, coraMakeSymbol("*command-line-args*"), args);
+	coraPrimSet(co, intern("*command-line-args*"), args);
 
 	repl(co, f);
 }
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 	/* printObj(stderr, coraGetResult(co)); */
 	/* return 0; */
 
-	Obj fn = coraSymbolGet(coraMakeSymbol("import"));
+	Obj fn = coraSymbolGet(co, intern("import"));
 	Obj arg1 = makeCString(coraGetGC(co), "cora/init");
 	Obj args[1] = {arg1};
 	coraCall(co, fn, 1, args);

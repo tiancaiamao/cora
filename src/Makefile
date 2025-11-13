@@ -7,6 +7,9 @@ CC = gcc
 CFLAGS = -g -Wall -fPIC
 # CFLAGS = -g -DNDEBUG -O2 -Wall
 
+# Detect operating system
+UNAME_S := $(shell uname -s)
+
 ifeq ("${ENABLE_ASAN}", "1")
 	CFLAGS += -fsanitize=address
 endif
@@ -37,7 +40,16 @@ libcora.a: $(LIBOBJS)
 	ar -rc $@ $^
 
 libcora.so: $(LIBOBJS)
+ifeq ($(UNAME_S),Darwin)
+	# macOS: Use @rpath for flexible third-party usage
+	gcc -shared -o $@ $^ -ldl -Wl,-install_name,@rpath/$@
+else ifeq ($(UNAME_S),Linux)
+	# Linux: Use soname, absolute paths don't work the same way
+	gcc -shared -o $@ $^ -ldl -Wl,-soname,$@
+else
+	# Other Unix systems: basic shared library
 	gcc -shared -o $@ $^ -ldl
+endif
 
 clean:
 	rm -rf *.o libcora.a libcora.so cora *.test

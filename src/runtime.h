@@ -2,6 +2,7 @@
 #define _RUNTIME_H
 
 #include "vector.h"
+#include "map.h"
 #include "types.h"
 #include "reader.h"
 
@@ -32,13 +33,23 @@ struct tryMark {
 
 typedef struct Cora Cora;
 
+typedef struct {
+	Obj name;
+	int idx;
+} Binding;
+
 struct Cora {
 	Frame ctx;
 	vector(Frame) callstack;
 	struct segmentStack stk;
 
 	Obj res;
-	struct trieNode *globals;
+
+	// env: symbol => {symbol, idx}
+	// global: idx => Obj
+	map(str, Binding) env;
+	vector(Obj) globals;
+
 	vector(struct tryMark) trystack;
 	GC *gc;
 };
@@ -191,7 +202,17 @@ Obj primNot(Obj x);
 Obj primCar(Obj x);
 Obj primCdr(Obj x);
 Obj primIsCons(Obj x);
-Obj primSet(Cora *co, Obj key, Obj val);
+
+Binding bindSymbol(Cora *co, Obj x);
+
+static inline Obj
+globalRef(Cora *co, Binding bind) {
+	assert(bind.idx >= 0);
+	return vecGet(&co->globals, bind.idx);
+}
+
+Obj primSet(Cora *co, Binding bind, Obj val);
+
 Obj primSub(Obj x, Obj y);
 Obj primMul(Obj x, Obj y);
 Obj primDiv(Obj x, Obj y);
