@@ -46,9 +46,9 @@ extern "C" {
 	Obj coraCar(Obj o);
 	Obj coraCdr(Obj o);
 
-	Obj coraMakeVector(int size, int cap);
+	Obj coraMakeVector(Cora *co, int size, int cap);
 	Obj coraVectorRef(Obj vec, int idx);
-	Obj coraVectorSet(Obj vec, int idx, Obj val);
+	Obj coraVectorSet(Cora *co, Obj vec, int idx, Obj val);
 	Obj coraVectorAppend(Obj vec, Obj val);
 	bool coraIsVector(Obj o);
 	int coraVectorLength(Obj vec);
@@ -69,6 +69,8 @@ extern "C" {
 	void coraRegisterAPI(Cora *co, char* module, char *name, CoraFunc func, int argc);
 
 	Obj coraPrimSet(Cora *co, Obj key, Obj val);
+	Obj coraPrimGenSym(Cora *co);
+	Obj coraReverse(Cora *co, Obj o);
 
 #ifdef __cplusplus
 }

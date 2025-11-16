@@ -2,6 +2,7 @@
 #include "runtime.h"
 #include "str.h"
 #include <stdio.h>
+#include <sys/errno.h>
 
 static void
 builtinDisplay(struct Cora *co, int label, Obj *R) {
@@ -15,15 +16,22 @@ builtinOpenOutputFile(struct Cora *co, int label, Obj *R) {
 	Obj arg1 = R[1];
 	str filePath = stringStr(arg1);
 	FILE *f = fopen(filePath.str, "w");
+	if (f == NULL) {
+		fprintf(stderr, "Failed to open file '%s', err: %s\n", filePath.str, strerror(errno));
+	}
 	coraReturn(co, makeCObj(f));
+	return;
 }
 
 static void
 builtinCloseOutputFile(Cora *co, int label, Obj *R) {
 	Obj arg1 = R[1];
 	FILE *f = mustCObj(arg1);
-	int errno = fclose(f);
-	coraReturn(co, makeNumber(errno));
+	int ret = fclose(f);
+	if (ret != 0) {
+		fprintf(stderr, "Failed to close file, err: %s\n", strerror(errno));
+	}
+	coraReturn(co, makeNumber(ret));
 }
 
 static void

@@ -89,13 +89,13 @@ jsonIsString(struct Cora *co, int label, Obj *R) {
 static void
 jsonStringValue(struct Cora *co, int label, Obj *R) {
 	if (!iscobj(R[1])) {
-		coraReturn(co, makeCString(""));
+		coraReturn(co, makeCString(co->gc, ""));
 		return;
 	}
 	json_t *json = (json_t *)mustCObj(R[1]);
 	const char *s = json_string_value(json);
 	size_t len = json_string_length(json);
-	coraReturn(co, makeString(s, len));
+	coraReturn(co, makeString(co->gc, s, len));
 }
 
 static void

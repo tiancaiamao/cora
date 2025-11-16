@@ -71,7 +71,7 @@ stackAlloc(struct Cora *co, int n) {
 
 #ifndef CORA_IMPLEMENTATION
 static inline void
-coraReturn(struct Cora *co, Obj val) {
+coraReturn(Cora *co, Obj val) {
 	// set return value
 	co->res = val;
 	// recover continuation
@@ -82,7 +82,7 @@ coraReturn(struct Cora *co, Obj val) {
 	return;
 }
 #else
-void coraReturn(struct Cora *co, Obj val);
+void coraReturn(Cora *co, Obj val);
 #endif
 
 void coraCall(struct Cora *co, Obj fn, int nargs, Obj *args);

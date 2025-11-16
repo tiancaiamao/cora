@@ -2,6 +2,8 @@
 // non-C languages For C using internal API, just include runtime.h
 
 #include "cora.h"
+#include "reader.h"
+#include "types.h"
 #define CORA_IMPLEMENTATION
 #include "runtime.h"
 
@@ -29,8 +31,7 @@ coraReturn(struct Cora *co, Obj val) {
 
 Obj
 coraSymbolGet(Cora *co, Obj sym) {
-	Binding bind = bindSymbol(co, sym);
-	return globalRef(co, bind);
+	return symbolGet(co, sym);
 }
 
 Obj
@@ -68,7 +69,32 @@ coraMakeNumber(int v) {
 	return makeNumber(v);
 }
 
+Obj
+coraMakeVector(Cora *co, int size, int cap) {
+	return makeVector(co->gc, size, cap);
+}
+
+Obj
+coraVectorRef(Obj vec, int idx) {
+	return vectorRef(vec, idx);
+}
+
+Obj
+coraVectorSet(Cora *co, Obj vec, int idx, Obj val) {
+	return vectorSet(co->gc, vec, idx, val);
+}
+
+Obj
+coraReverse(Cora *co, Obj o) {
+	return reverse(co->gc, o);
+}
+
 int
 coraFixnum(Obj o) {
 	return fixnum(o);
+}
+
+Obj
+coraPrimGenSym(Cora *co) {
+	return primGenSym(co);
 }

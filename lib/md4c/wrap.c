@@ -1,10 +1,11 @@
+#include "cora.h"
 #include "md4c.h"
 #include "reader.h"
-#include "runtime.h"
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct _MD_HTML {
 	struct Cora *co;
@@ -17,7 +18,7 @@ typedef struct _MD_HTML {
 
 static void
 md_html_push(MD_HTML *r) {
-	Obj x = symbolGet(r->curr);
+	Obj x = coraSymbolGet(r->co, r->curr);
 	if (r->size >= r->cap) {
 		if (r->cap == 0) {
 			r->cap = 16;
@@ -26,41 +27,41 @@ md_html_push(MD_HTML *r) {
 		}
 
 		int tmp = r->cap;
-		Obj stack = makeVector(tmp, tmp);
+		Obj stack = coraMakeVector(r->co, tmp, tmp);
 		for (int i = 0; i < r->size; i++) {
-			Obj oldStack = symbolGet(r->stack);
-			vectorSet(stack, i, vectorRef(oldStack, i));
+			Obj oldStack = coraSymbolGet(r->co, r->stack);
+			coraVectorSet(r->co, stack, i, coraVectorRef(oldStack, i));
 		}
-		primSet(r->co, r->stack, stack);
+		coraPrimSet(r->co, r->stack, stack);
 	}
 
-	vectorSet(symbolGet(r->stack), r->size, x);
+	coraVectorSet(r->co, coraSymbolGet(r->co, r->stack), r->size, x);
 	r->size++;
 }
 
 static Obj
 md_html_pop(MD_HTML *r) {
 	r->size--;
-	return vectorRef(symbolGet(r->stack), r->size);
+	return vectorRef(coraSymbolGet(r->co, r->stack), r->size);
 }
 
 static void
 append_curr(MD_HTML *r, Obj x) {
-	Obj v = cons(x, symbolGet(r->curr));
-	primSet(r->co, r->curr, v);
+	Obj v = coraMakeCons(r->co, x, coraSymbolGet(r->co, r->curr));
+	coraPrimSet(r->co, r->curr, v);
 }
 
 static inline void
-render_verbatim_enter(MD_HTML *r, const MD_CHAR *text) {
+render_verbatim_enter(MD_HTML *r, MD_CHAR *text) {
 	md_html_push(r);
-	primSet(r->co, r->curr, cons(intern(text), Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern(text), Nil));
 }
 
 static inline void
 render_verbatim_leave(MD_HTML *r) {
-	Obj tmp = reverse(symbolGet(r->curr));
+	Obj tmp = coraReverse(r->co, coraSymbolGet(r->co, r->curr));
 	Obj old = md_html_pop(r);
-	primSet(r->co, r->curr, cons(tmp, old));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, tmp, old));
 }
 
 static void
@@ -68,7 +69,7 @@ render_append_text1(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
 	strBuf s = fromCStr("language-");
 	strBuf lang = fromBlk((char *)data, size);
 	s = strCat(s, toStr(lang));
-	append_curr(r, makeString(toCStr(s), strLen(toStr(s))));
+	append_curr(r, coraMakeString(r->co, toCStr(s), strLen(toStr(s))));
 }
 
 static void
@@ -96,19 +97,19 @@ static void
 render_open_li_block(MD_HTML *r, const MD_BLOCK_LI_DETAIL *det) {
 	if (det->is_task) {
 		md_html_push(r);
-		Obj tmp = cons(intern("class"), cons(makeCString("task-list-item"), Nil));
-		Obj attrs = cons(intern("@"), cons(tmp, Nil));
-		primSet(r->co, r->curr, cons(attrs, cons(intern("li"), Nil)));
+		Obj tmp = coraMakeCons(r->co, intern("class"), coraMakeCons(r->co, coraMakeCString(r->co, "task-list-item"), Nil));
+		Obj attrs = coraMakeCons(r->co, intern("@"), coraMakeCons(r->co, tmp, Nil));
+		coraPrimSet(r->co, r->curr, coraMakeCons(r->co, attrs, coraMakeCons(r->co, intern("li"), Nil)));
 
-		Obj tmp1 = cons(intern("type"), cons(makeCString("checkbox"), Nil));
-		Obj tmp2 = cons(intern("class"), cons(makeCString("task-list-item-checkbox"), Nil));
+		Obj tmp1 = coraMakeCons(r->co, intern("type"), coraMakeCons(r->co, coraMakeCString(r->co, "checkbox"), Nil));
+		Obj tmp2 = coraMakeCons(r->co, intern("class"), coraMakeCons(r->co, coraMakeCString(r->co, "task-list-item-checkbox"), Nil));
 		Obj tail = Nil;
 		if (det->task_mark == 'x' || det->task_mark == 'X') {
-			tail = cons(intern("checked"), tail);
+			tail = coraMakeCons(r->co, intern("checked"), tail);
 		}
-		tail = cons(intern("disabled"), tail);
-		attrs = cons(intern("@"), cons(tmp1, cons(tmp2, tail)));
-		Obj input = cons(intern("input"), cons(attrs, Nil));
+		tail = coraMakeCons(r->co, intern("disabled"), tail);
+		attrs = coraMakeCons(r->co, intern("@"), coraMakeCons(r->co, tmp1, coraMakeCons(r->co, tmp2, tail)));
+		Obj input = coraMakeCons(r->co, intern("input"), coraMakeCons(r->co, attrs, Nil));
 
 		append_curr(r, input);
 
@@ -131,8 +132,8 @@ render_open_ol_block(MD_HTML *r, const MD_BLOCK_OL_DETAIL *det) {
 		return;
 	}
 
-	Obj tmp = cons(intern("start"), cons(makeNumber(det->start), Nil));
-	Obj attrs = cons(intern("@"), cons(tmp, Nil));
+	Obj tmp = coraMakeCons(r->co, intern("start"), coraMakeCons(r->co, coraMakeNumber(det->start), Nil));
+	Obj attrs = coraMakeCons(r->co, intern("@"), coraMakeCons(r->co, tmp, Nil));
 	append_curr(r, attrs);
 	// snprintf(buf, sizeof(buf), "<ol start=\"%u\">\n", det->start);
 	// RENDER_VERBATIM(r, buf);
@@ -141,20 +142,20 @@ render_open_ol_block(MD_HTML *r, const MD_BLOCK_OL_DETAIL *det) {
 static void
 render_open_code_block(MD_HTML *r, const MD_BLOCK_CODE_DETAIL *det) {
 	md_html_push(r);
-	primSet(r->co, r->curr, cons(intern("pre"), Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("pre"), Nil));
 	md_html_push(r);
 
 	/* If known, output the HTML 5 attribute class="language-LANGNAME". */
 	Obj attrs = Nil;
 	if (det->lang.text != NULL) {
-		attrs = cons(intern("@"), attrs);
-		primSet(r->co, r->curr, cons(intern("class"), Nil));
+		attrs = coraMakeCons(r->co, intern("@"), coraMakeCons(r->co, attrs, Nil));
+		coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("class"), Nil));
 		render_attribute(r, &det->lang, render_append_text1);
-		Obj tmp = reverse(symbolGet(r->curr));
-		attrs = cons(tmp, attrs);
+		Obj tmp = coraReverse(r->co, coraSymbolGet(r->co, r->curr));
+		attrs = coraMakeCons(r->co, tmp, attrs);
 	}
 
-	primSet(r->co, r->curr, cons(intern("code"), Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("code"), Nil));
 	if (attrs != Nil) {
 		append_curr(r, attrs);
 	}
@@ -182,7 +183,7 @@ enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 		render_open_li_block(r, (const MD_BLOCK_LI_DETAIL *)detail);
 		break;
 	case MD_BLOCK_HR:
-		append_curr(r, cons(intern("hr"), Nil));
+		append_curr(r, coraMakeCons(r->co, intern("hr"), Nil));
 		break;
 	case MD_BLOCK_H:
 		render_verbatim_enter(r, head[((MD_BLOCK_H_DETAIL *)detail)->level - 1]);
@@ -208,6 +209,8 @@ enter_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 	case MD_BLOCK_TR:
 		render_verbatim_enter(r, "tr");
 		break;
+	default:
+		assert(false);
 		/* case MD_BLOCK_TH:       render_open_td_block(r, "th", (MD_BLOCK_TD_DETAIL*)detail); break; */
 		/* case MD_BLOCK_TD:       render_open_td_block(r, "td", (MD_BLOCK_TD_DETAIL*)detail); break; */
 	}
@@ -277,12 +280,12 @@ leave_block_callback(MD_BLOCKTYPE type, void *detail, void *userdata) {
 
 static void
 render_url_escaped1(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
-	append_curr(r, makeString(data, size));
+	append_curr(r, coraMakeString(r->co, data, size));
 }
 
 static void
-render_url_escaped(MD_HTML *r, const MD_CHAR *data, MD_SIZE size) {
-	static const MD_CHAR hex_chars[] = "0123456789ABCDEF";
+render_url_escaped(MD_HTML *r, MD_CHAR *data, MD_SIZE size) {
+	static MD_CHAR hex_chars[] = "0123456789ABCDEF";
 	MD_OFFSET beg = 0;
 	MD_OFFSET off = 0;
 
@@ -322,34 +325,34 @@ static void
 render_open_a_span(MD_HTML *r, const MD_SPAN_A_DETAIL *det) {
 	md_html_push(r);
 
-	Obj attrs = cons(intern("@"), Nil);
+	Obj attrs = coraMakeCons(r->co, intern("@"), Nil);
 
-	primSet(r->co, r->curr, cons(intern("href"), Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("href"), Nil));
 	render_attribute(r, &det->href, render_url_escaped1);
-	Obj tmp = reverse(symbolGet(r->curr));
-	attrs = cons(tmp, attrs);
+	Obj tmp = coraReverse(r->co, coraSymbolGet(r->co, r->curr));
+	attrs = coraMakeCons(r->co, tmp, attrs);
 
 	if (det->title.text != NULL) {
-		primSet(r->co, r->curr, cons(intern("title"), Nil));
+		coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("title"), Nil));
 		render_attribute(r, &det->title, render_url_escaped1);
-		Obj tmp1 = reverse(symbolGet(r->curr));
-		attrs = cons(tmp1, attrs);
+		Obj tmp1 = coraReverse(r->co, coraSymbolGet(r->co, r->curr));
+		attrs = coraMakeCons(r->co, tmp1, attrs);
 		// curr = cons(intern("title"), curr);
 		// render_attribute(r, &det->title, render_html_escaped);
 	}
-	attrs = reverse(attrs);
-	primSet(r->co, r->curr, cons(attrs, cons(intern("a"), Nil)));
+	attrs = coraReverse(r->co, attrs);
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, attrs, coraMakeCons(r->co, intern("a"), Nil)));
 }
 
 static void
 render_open_img_span(MD_HTML *r, const MD_SPAN_IMG_DETAIL *det) {
 	md_html_push(r);
 
-	primSet(r->co, r->curr, cons(intern("src"), Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, intern("src"), Nil));
 	render_attribute(r, &det->src, render_url_escaped1);
-	Obj tmp = reverse(symbolGet(r->curr));
-	Obj attrs = cons(intern("@"), cons(tmp, Nil));
-	primSet(r->co, r->curr, cons(attrs, cons(intern("img"), Nil)));
+	Obj tmp = coraReverse(r->co, coraSymbolGet(r->co, r->curr));
+	Obj attrs = coraMakeCons(r->co, intern("@"), coraMakeCons(r->co, tmp, Nil));
+	coraPrimSet(r->co, r->curr, coraMakeCons(r->co, attrs, coraMakeCons(r->co, intern("img"), Nil)));
 }
 
 static void
@@ -414,6 +417,8 @@ enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 	case MD_SPAN_LATEXMATH_DISPLAY:
 		render_verbatim_enter(r, "<x-equation type=\"display\">");
 		break;
+	default:
+		assert(false);
 		/* case MD_SPAN_WIKILINK:          render_open_wikilink_span(r, (MD_SPAN_WIKILINK_DETAIL*) detail); break; */
 	}
 
@@ -471,7 +476,7 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
 	switch (type) {
 		/* case MD_TEXT_NULLCHAR:  render_utf8_codepoint(r, 0x0000, render_verbatim); break; */
 	case MD_TEXT_BR:
-		append_curr(r, cons(intern("br"), Nil));
+		append_curr(r, coraMakeCons(r->co, intern("br"), Nil));
 		break;
 		/* case MD_TEXT_SOFTBR:    RENDER_VERBATIM(r, (r->image_nesting_level == 0 ? "\n" : " ")); break; */
 	case MD_TEXT_HTML:
@@ -480,7 +485,7 @@ text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
 		break;
 		/* case MD_TEXT_ENTITY:    render_entity(r, text, size, render_html_escaped); break; */
 	default:
-		append_curr(r, makeString(text, size));
+		append_curr(r, coraMakeString(r->co, text, size));
 		break;
 	}
 
@@ -501,7 +506,7 @@ md_sxml(struct Cora *co, const MD_CHAR *input, MD_SIZE input_size,
 	MD_HTML render;
 	render.co = co;
 	render.curr = curr,
-	primSet(co, render.curr, Nil);
+	coraPrimSet(co, render.curr, Nil);
 	render.stack = stack,
 	render.size = 0;
 	render.cap = 0;
@@ -529,8 +534,8 @@ md_sxml(struct Cora *co, const MD_CHAR *input, MD_SIZE input_size,
 	}
 
 	int succ = md_parse(input, input_size, &parser, (void *)&render);
-	Obj x = symbolGet(render.curr);
-	*res = reverse(x);
+	Obj x = coraSymbolGet(co, render.curr);
+	*res = coraReverse(co, x);
 	return succ;
 }
 
@@ -634,8 +639,8 @@ process_file(struct Cora *co, FILE *in, Obj *sxml) {
 	parser_flags |= MD_FLAG_STRIKETHROUGH;
 	parser_flags |= MD_FLAG_TASKLISTS;
 
-	Obj curr = primGenSym(Nil);
-	Obj stack = primGenSym(Nil);
+	Obj curr = coraPrimGenSym(co);
+	Obj stack = coraPrimGenSym(co);
 	ret = md_sxml(co, buf_in.data, (MD_SIZE)buf_in.size, parser_flags,
 		curr, stack,
 		sxml);
@@ -709,23 +714,21 @@ md2sxml(struct Cora *co, int label, Obj *R) {
 	}
 	Obj sxml = Nil;
 	int succ = process_file(co, in, &sxml);
+	fclose(in);
 	if (succ != 0) {
 		fprintf(stderr, "process file fail%s\n", filePath);
 		coraReturn(co, Nil);
 		return;
 	}
 	coraReturn(co, sxml);
+	return;
 }
-
-struct registerModule md4cModule = {
-	NULL,
-	{{"process-file", md2sxml, 1},
-		{NULL, NULL, 0}}};
 
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &md4cModule, stringStr(pkg));
+	char *module = bytesData(pkg);
+	coraRegisterAPI(co, module, "process-file", md2sxml, 1);
 	coraReturn(co, intern("md4c"));
 }
 
