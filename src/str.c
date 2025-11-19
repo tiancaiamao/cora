@@ -71,6 +71,18 @@ strChr(str s, char c) {
 }
 
 int
+strRchr(str s, char c) {
+	int pos = strLen(s) - 1;
+	while (pos >= 0) {
+		if (s.str[pos] == c) {
+			return pos;
+		}
+		pos--;
+	}
+	return -1;
+}
+
+int
 strCmp(str s1, str s2) {
 	for (int i = 0; i < s1.len && i < s2.len; i++) {
 		if (s1.str[i] > s2.str[i]) {

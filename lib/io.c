@@ -3,6 +3,8 @@
 #include "str.h"
 #include <stdio.h>
 #include <sys/errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static void
 builtinDisplay(struct Cora *co, int label, Obj *R) {
@@ -11,10 +13,47 @@ builtinDisplay(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, Nil);
 }
 
+// Create directories recursively like mkdir -p
+static int
+mkdirP(const char *path) {
+	char tmp[1024];
+	size_t len;
+	char *p;
+
+	if (!path)
+		return -1;
+
+	snprintf(tmp, sizeof(tmp), "%s", path);
+	len = strlen(tmp);
+
+	// remove trailing slash
+	if (len > 0 && (tmp[len - 1] == '/'))
+		tmp[len - 1] = 0;
+
+	for (p = tmp + 1; *p; p++) {
+		if (*p == '/') {
+			*p = 0;
+			mkdir(tmp, 0755); // ignore errors if dir exists
+			*p = '/';	  // normalize separator
+		}
+	}
+
+	return mkdir(tmp, 0755);
+}
+
 static void
 builtinOpenOutputFile(struct Cora *co, int label, Obj *R) {
 	Obj arg1 = R[1];
 	str filePath = stringStr(arg1);
+
+	// Find last separator to get directory part
+	int pos = strRchr(filePath, '/');
+	if (pos > 0) {
+		strBuf buf = fromBlk(filePath.str, pos);
+		mkdirP(toCStr(buf));
+		strFree(buf);
+	}
+
 	FILE *f = fopen(filePath.str, "w");
 	if (f == NULL) {
 		fprintf(stderr, "Failed to open file '%s', err: %s\n", filePath.str, strerror(errno));

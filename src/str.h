@@ -15,6 +15,7 @@ str toStr(strBuf s);
 int strLen(str s);
 int strStr(str haystack, str needle);
 int strChr(str s, char c);
+int strRchr(str s, char c);
 int strCmp(str s, str s0);
 str strSub(str s, int start, int end);
 str strCut(str *s, str split);
