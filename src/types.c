@@ -11,10 +11,10 @@
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
 
-const Obj True = ((1 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
-const Obj False = ((2 << (TAG_SHIFT + 1)) | TAG_BOOLEAN);
-const Obj Nil = ((666 << (TAG_SHIFT + 1)) | TAG_IMMEDIATE_CONST);
-const Obj Undef = ((42 << TAG_SHIFT) | TAG_IMMEDIATE_CONST);
+const Obj Undef = ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 0);
+const Obj Nil = ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 1);
+const Obj True = (((((uint64_t)TAG_IMMED) << 48) | OBJ_MASK) | 2);
+const Obj False = ((((uint64_t)TAG_IMMED << 48) | OBJ_MASK) | 3);
 
 const char *typeNameX[8] = {
 	"unused",
@@ -49,7 +49,7 @@ Obj
 makeCObj(void *ptr) {
 	// The pointer must be aligned to be used as c object.
 	assert(((Obj)ptr & TAG_PTR) == 0);
-	return ((Obj)(ptr) | TAG_COBJ);
+	return makeNaNPtr(ptr, TAG_COBJ);
 }
 
 void *
@@ -63,7 +63,7 @@ makeCons(GC *gc, Obj car, Obj cdr) {
 	struct scmCons *p = newObj(gc, scmHeadCons, sizeof(struct scmCons));
 	p->car = car;
 	p->cdr = cdr;
-	return ((Obj)(&p->head) | TAG_PTR);
+	return makeNaNPtr(&p->head, TAG_CONS);
 }
 
 static void
@@ -98,39 +98,13 @@ cdddr(Obj x) {
 }
 
 Obj
-makeNumber(int v) {
-	if (v < 99999999) {
-		// The type of a fixnum is actually intptr_t, although stored as uintptr.
-		// Be careful with the sign digit.
-		Obj res = (Obj)(((intptr_t)(v) << 1));
-		assert((res & 1) == 0);
-		return res;
-	}
-	// TODO
-	return (Obj)(99999999);
-}
-
-bool
-isNumber(Obj o) {
-	if (tag(o) == TAG_FIXNUM) {
-		return true;
-	}
-	if (tag(o) == TAG_PTR) {
-		if (((scmHead *)ptr(o))->type == scmHeadNumber) {
-			return true;
-		}
-	}
-	return false;
-}
-
-Obj
 makeBytes(GC *gc, int len) {
 	// sz is the actural length but we malloc a extra byte to be compatible with
 	// C.
 	int alloc = len + sizeof(struct scmBytes) + 1;
 	struct scmBytes *str = newObj(gc, scmHeadBytes, alloc);
 	str->len = len;
-	return ((Obj)(&str->head) | TAG_PTR);
+	return makeNaNPtr(&str->head, TAG_BYTES);
 }
 
 char *
@@ -187,10 +161,10 @@ intern(char *s) {
 		strBuf p = fromCStr(s);
 		key = toStr(p);
 		mapSet(&symbolIntern, key, p);
-		return (Obj)(p) | TAG_SYMBOL;
+		return makeNaNPtr(p, TAG_SYMBOL);
 	}
 	strBuf p = *val;
-	return (Obj)(p) | TAG_SYMBOL;
+	return makeNaNPtr(p, TAG_SYMBOL);
 }
 
 int
@@ -232,7 +206,7 @@ makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured,
 		}
 		va_end(ap);
 	}
-	return ((Obj)(&clo->head) | TAG_PTR);
+	return makeNaNPtr(&clo->head, TAG_NATIVE);
 }
 
 struct scmNative *
@@ -294,7 +268,7 @@ makeVector(GC *gc, int size, int cap) {
 	for (int i = 0; i < vec->size; i++) {
 		vec->data[i] = Undef;
 	}
-	return ((Obj)(&vec->head) | TAG_PTR);
+	return makeNaNPtr(&vec->head, TAG_PTR);
 }
 
 Obj
@@ -353,7 +327,7 @@ vectorAppend(GC *gc, Obj vec, Obj val) {
 	}
 	v->data[v->size] = val;
 	v->size++;
-	return ((Obj)(&v->head) | TAG_PTR);
+	return makeNaNPtr(&v->head, TAG_PTR);
 }
 
 bool

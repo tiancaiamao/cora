@@ -142,7 +142,7 @@ makeCurry(Cora *co, Obj fn, int nargs, Obj *args) {
 	for (int i = 0; i < nargs; i++) {
 		clo->data[i + 1] = args[i];
 	}
-	return ((Obj)(&clo->head) | TAG_PTR);
+	return makeNaNPtr(&clo->head, TAG_NATIVE);
 }
 
 static void
@@ -263,16 +263,9 @@ builtinIntern(Cora *co, int label, Obj *R) {
 void
 builtinIsNumber(Cora *co, int label, Obj *R) {
 	Obj x = R[1];
-	if (isfixnum(x)) {
+	if (isNumber(x)) {
 		coraReturn(co, True);
 		return;
-	}
-	if (tag(x) == TAG_PTR) {
-		scmHead *h = ptr(x);
-		if (h->type == scmHeadNumber) {
-			coraReturn(co, True);
-			return;
-		}
 	}
 	coraReturn(co, False);
 }
@@ -440,7 +433,7 @@ builtinLoad(Cora *co, int label, Obj *R) {
 
 	snprintf(buf, BUFSIZE,
 		"gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o "
-		"%s -ldl -L%scora/src -lcora",
+		"%s -ldl -lm -L%scora/src -lcora",
 		toCStr(path), toCStr(path), cfileidx, toCStr(tmp), toCStr(path));
 	strFree(path);
 	int exitCode = system(buf);
@@ -746,7 +739,7 @@ makeContinuation(Cora *co, Frame *callstack, int len, Obj **stk,
 		q[i] = stk[i];
 	}
 
-	return ((Obj)(&cont->head) | TAG_PTR);
+	return makeNaNPtr(&cont->head, TAG_PTR);
 }
 
 static void
@@ -936,7 +929,7 @@ primGenSym(Cora *co) {
 	p->unique = uniqueIdx;
 	uniqueIdx++;
 #endif
-	return ((Obj)(&p->head) | TAG_PTR);
+	return makeNaNPtr(&p->head, TAG_PTR);
 }
 
 Obj

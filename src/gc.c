@@ -654,9 +654,10 @@ gcDequeue(GC *gc) {
 static scmHead *
 checkPointer(GC *gc, uintptr_t p, struct Block **block) {
 	// Fast path: check pointer tag
-	if ((p & 0x7) != 0x7) {
+	if (!isScmHead(p)) {
 		return NULL;
 	}
+
 	// Get actual address
 	void *addr = ptr(p);
 	struct heapArena *h = gcContains(gc, addr);
@@ -1081,8 +1082,8 @@ writeBarrierForIncremental(GC *gc, uintptr_t *slot, uintptr_t val) {
 
 void
 writeBarrierForGeneration(GC *gc, scmHeadEx *v, uintptr_t val) {
-	// skip if not a pointer
-	if (tag(val) != TAG_PTR) {
+	// skip if not a NaN pointer
+	if (!isScmHead(val)) {
 		return;
 	}
 

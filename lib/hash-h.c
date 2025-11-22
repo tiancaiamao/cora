@@ -23,7 +23,7 @@ hashToNumberHelp(Obj key) {
 		return makeNumber(sum);
 	}
 
-	case TAG_IMMEDIATE_CONST:
+	case TAG_IMMED:
 		if (key == True) {
 			return makeNumber(17);
 		} else if (key == False) {

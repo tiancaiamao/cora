@@ -40,7 +40,7 @@ builtinGenerateNum(struct Cora *co, int label, Obj *R) {
 	Obj to = R[1];
 	FILE *out = mustCObj(to);
 	Obj exp = R[2];
-	fprintf(out, "%ld", fixnum(exp));
+	fprintf(out, "%lld", fixnum(exp));
 	coraReturn(co, Nil);
 }
 

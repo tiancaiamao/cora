@@ -270,26 +270,17 @@ printObj(FILE *to, Obj o) {
 		}
 	} else if (o == Nil) {
 		fprintf(to, "()");
-	} else if (tag(o) == TAG_PTR) {
+	} else if (isobj(o)) {
 		scmHead *h = ptr(o);
 		switch (h->type) {
-		case scmHeadNumber:
-			fprintf(to, "ptr number");
-			break;
 		case scmHeadCons:
 			fprintf(to, "cons");
 			break;
 		case scmHeadVector:
 			fprintf(to, "vector");
 			break;
-		case scmHeadNull:
-			fprintf(to, "null");
-			break;
 		case scmHeadBytes:
 			fprintf(to, "\"%s\"", stringStr(o).str);
-			break;
-		case scmHeadBoolean:
-			fprintf(to, "boolean");
 			break;
 		case scmHeadNative:
 			fprintf(to, "native");
