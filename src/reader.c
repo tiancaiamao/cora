@@ -253,7 +253,7 @@ printCons(FILE *to, Obj o, bool start) {
 void
 printObj(FILE *to, Obj o) {
 	if (isfixnum(o)) {
-		fprintf(to, "%lld", fixnum(o));
+		fprintf(to, "%ld", fixnum(o));
 	} else if (iscobj(o)) {
 		fprintf(to, "cobj");
 	} else if (iscons(o)) {
