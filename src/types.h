@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 #include "gc.h"
 #include "str.h"
 

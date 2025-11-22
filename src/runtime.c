@@ -433,7 +433,7 @@ builtinLoad(Cora *co, int label, Obj *R) {
 
 	snprintf(buf, BUFSIZE,
 		"gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o "
-		"%s -ldl -L%scora/src -lcora",
+		"%s -ldl -lm -L%scora/src -lcora",
 		toCStr(path), toCStr(path), cfileidx, toCStr(tmp), toCStr(path));
 	strFree(path);
 	int exitCode = system(buf);
