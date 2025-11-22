@@ -86,7 +86,7 @@ numberToString(struct Cora *co, int label, Obj *R) {
 	assert(isfixnum(n));
 
 	char tmp[32];
-	int l = snprintf(tmp, 32, "%ld", fixnum(n));
+	int l = snprintf(tmp, 32, "%lld", fixnum(n));
 	coraReturn(co, makeString(co->gc, tmp, l));
 }
 

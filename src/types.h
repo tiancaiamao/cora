@@ -14,40 +14,37 @@ typedef struct GC GC;
 
 typedef uint8_t scmHeadType;
 
-#define TAG_SHIFT 3
-#define TAG_MASK 0x7
-#define TAG_PTR 0x7
+#define isNumber(x) ((x & OBJ_MASK) != OBJ_MASK)
+static inline bool isfixnum(Obj x) { return isNumber(x) && *(double*)&x == trunc(*(double*)&x);}
 
-#define ptr(x) ((void*)((x)&~TAG_PTR))
-#define tag(x) ((x) & TAG_MASK)
+static inline int64_t
+fixnum(Obj o) {
+	assert(isfixnum(o));
+	return (int64_t)(*(double*)&o);
+}
 
-typedef uintptr_t Obj;
+static inline Obj
+makeNaNPtr(void *ptr, uint8_t tag) {
+	assert(((uintptr_t)ptr >> 48) == 0);
+	uintptr_t tmp = (((uintptr_t)tag) << 48) | OBJ_MASK | (uintptr_t)ptr;
+	return (Obj)tmp;
+}
 
+#define MASK      0x7FFF000000000000 // 0111  1111 1111 1000
 #define OBJ_FIELD(O, TYPE, FIELD) (((struct TYPE*)(ptr(O)))->FIELD)
-
-// XX0 fixnum
-// XX1 non-fixnum
-// 001 symbol
-// 011 cobj
-// 101 immediate const (boolean, null, undef...)
-// 111 general pointer (string, vector, number, error...)
-#define TAG_FIXNUM 0x0
-#define TAG_SYMBOL 0x1
-#define TAG_COBJ 0x3
-#define TAG_IMMEDIATE_CONST 0x5
-// 1-101 boolean
-// 0-101 other constant
-#define TAG_BOOLEAN 0xd
-
-#define iscobj(x) (tag(x) == TAG_COBJ)
-#define issymbol(x) ((tag(x) == TAG_SYMBOL) || (tag(x) == TAG_PTR && ((scmHead *)ptr(x))->type == scmHeadSymbol))
-#define isfixnum(x) (((x) & 1) == 0)
-#define isboolean(x) (((x) & 0xf) == TAG_BOOLEAN)
 
 extern const Obj True;
 extern const Obj False;
 extern const Obj Nil;
 extern const Obj Undef;
+
+static inline bool iscobj(Obj v) { return ((v & MASK) == (((uint64_t)TAG_COBJ << 48) | OBJ_MASK));}
+static inline bool issymbol(Obj v) {
+	return isobj(v) && ((tag(v) == TAG_SYMBOL) || (tag(v) == TAG_PTR && ((scmHead *)ptr(v))->type == scmHeadSymbol));
+}
+static inline bool isBytes(Obj v) { return ((v & MASK) == (((uint64_t)TAG_BYTES << 48) | OBJ_MASK));}
+static inline bool iscons(Obj v) { return ((v & MASK) == (((uint64_t)TAG_CONS << 48) | OBJ_MASK));}
+static inline bool isboolean(Obj x) { return ((x == True) || (x == False));}
 
 void typesInit();
 
@@ -59,8 +56,6 @@ struct scmCons {
   Obj cdr;
 };
 
-#define fixnum(x) ((intptr_t)(x)>>1)
-
 scmHead *getScmHead(Obj);
 
 void* mustCObj(Obj o);
@@ -68,15 +63,13 @@ void* mustCObj(Obj o);
 Obj intern(char *s);
 int symbolStr(Obj sym, char* dest, size_t sz);
 
-#define iscons(o) (((o) & TAG_MASK) == TAG_PTR && ((scmHead *)ptr(o))->type == scmHeadCons)
-
 Obj makeCons(GC *gc, Obj car, Obj cdr);
 Obj consp(Obj v);
 Obj cadr(Obj v);
 Obj caddr(Obj v);
 Obj cdddr(Obj v);
-#define car(v) (((struct scmCons*)(ptr(v)))->car)
-#define cdr(v) (((struct scmCons*)(ptr(v)))->cdr)
+static inline Obj car(Obj o) { struct scmCons* c = (struct scmCons*)ptr(o); assert(c->head.type == scmHeadCons); return c->car; }
+static inline Obj cdr(Obj o) { struct scmCons* c = (struct scmCons*)ptr(o); assert(c->head.type == scmHeadCons); return c->cdr; }
 
 Obj makeCObj(void *ptr);
 
@@ -88,7 +81,15 @@ Obj makeString(GC *gc, const char *s, int len);
 Obj makeCString(GC *gc, const char *s);
 str stringStr(Obj o);
 
-#define MAKE_NUMBER(v) (((Obj)v) << 1)
+
+static inline Obj makeNumber(int64_t v) {
+	double f = (double)v;
+	if (isNumber(*(uint64_t *)&f)) {
+		return *(uint64_t *)&f;
+	}
+	assert(false);
+}
+#define MAKE_NUMBER(v) makeNumber(v)
 
 #define PRIM_CAR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->car))
 #define PRIM_CDR(obj) ((Obj)(((struct scmCons*)(ptr(obj)))->cdr))
@@ -99,13 +100,11 @@ str stringStr(Obj o);
 #define PRIM_LT(x, y) (fixnum(x) < fixnum(y) ? True : False)
 
 // assuming x and y are both fixnum
-#define PRIM_ADD(x, y)    ((x) + (y))
-#define PRIM_SUB(x, y)    ((x) - (y))
+#define PRIM_ADD(x, y)    (MAKE_NUMBER(fixnum(x) + fixnum(y)))
+#define PRIM_SUB(x, y)    (MAKE_NUMBER(fixnum(x) - fixnum(y)))
 #define PRIM_MUL(x, y)    (MAKE_NUMBER(fixnum(x) * fixnum(y)))
 
-Obj makeNumber(int v);
-#define isBytes(o) ((tag(o) == TAG_PTR) && (((scmHead *)ptr(o))->type == scmHeadBytes))
-bool isNumber(Obj o);
+Obj makeNumber(int64_t v);
 
 struct scmBytes {
 	scmHead head;
