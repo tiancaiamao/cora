@@ -6,7 +6,7 @@
 #include "types.h"
 #include "reader.h"
 
-typedef void (*basicBlock) (struct Cora *co, int label, Obj *R);
+typedef void (*basicBlock) (Cora *co, int label, Obj *R);
 
 typedef struct Frame Frame;
 
@@ -42,7 +42,6 @@ struct Cora {
 	Frame ctx;
 	vector(Frame) callstack;
 	struct segmentStack stk;
-
 	Obj res;
 
 	// env: symbol => {symbol, idx}
@@ -50,15 +49,17 @@ struct Cora {
 	map(str, Binding) env;
 	vector(Obj) globals;
 
+	// imported packages, each package is an array Binding[]
+	vector(Binding*) pkgs;
 	vector(struct tryMark) trystack;
 	GC *gc;
 };
 
-Obj* stackAllocSlowPath(struct Cora *co, int n);
-void coraReturnSlowPath(struct Cora *co);
+Obj* stackAllocSlowPath(Cora *co, int n);
+void coraReturnSlowPath(Cora *co);
 
 static inline Obj*
-stackAlloc(struct Cora *co, int n) {
+stackAlloc(Cora *co, int n) {
 	// fast path
 	assert(n > 0);
 	if (co->ctx.sp + n < co->stk.end) {
@@ -85,10 +86,10 @@ coraReturn(Cora *co, Obj val) {
 void coraReturn(Cora *co, Obj val);
 #endif
 
-void coraCall(struct Cora *co, Obj fn, int nargs, Obj *args);
+void coraCall(Cora *co, Obj fn, int nargs, Obj *args);
 
 static inline void
-coraCall0(struct Cora *co, Obj fn) {
+coraCall0(Cora *co, Obj fn) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 0) {
@@ -102,7 +103,7 @@ coraCall0(struct Cora *co, Obj fn) {
 }
 
 static inline void
-coraCall1(struct Cora *co, Obj fn, Obj arg1) {
+coraCall1(Cora *co, Obj fn, Obj arg1) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 1) {
@@ -117,7 +118,7 @@ coraCall1(struct Cora *co, Obj fn, Obj arg1) {
 }
 
 static inline void
-coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
+coraCall2(Cora *co, Obj fn, Obj arg1, Obj arg2) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 2) {
@@ -133,7 +134,7 @@ coraCall2(struct Cora *co, Obj fn, Obj arg1, Obj arg2) {
 }
 
 static inline void
-coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
+coraCall3(Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 3) {
@@ -154,7 +155,7 @@ coraCall3(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 // ARM64 has even more registers
 // Anyway, static inline should not care about parameter count.
 static inline void
-coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
+coraCall4(Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 	struct scmNative *f = ptr(fn);
 	assert(f->head.type == scmHeadNative);
 	if (f->required != 4) {
@@ -172,7 +173,7 @@ coraCall4(struct Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
 }
 
 static inline void
-saveCont(struct Cora *co, basicBlock fn, int label, Obj *bp) {
+saveCont(Cora *co, basicBlock fn, int label, Obj *bp) {
 	Frame __curr = {
 		.fn = fn,
 		.label = label,
@@ -182,7 +183,16 @@ saveCont(struct Cora *co, basicBlock fn, int label, Obj *bp) {
 	vecAppend(&co->callstack, __curr);
 }
 
-void coraRun(struct Cora *co);
+Cora* coraInit();
+void coraRun(Cora *co);
+void coraExit(Cora *co);
+
+static inline Binding
+getBinding(Cora *co, int packageID, int slot) {
+	return vecGet(&co->pkgs, packageID)[slot];
+}
+void addPackage(Cora *co, int packageID, Binding *symbolTable);
+int packageIDAlloc();
 
 static inline Obj
 closureRef(Obj clo, int idx) {
@@ -230,9 +240,6 @@ Obj primIsSymbol(Obj x);
 Obj primIsString(Obj x);
 Obj primIsNumber(Obj x);
 
-struct Cora * coraInit();
-void coraExit(struct Cora *co);
-
 struct registerEntry {
   char *name;
   basicBlock func;
@@ -245,6 +252,6 @@ struct registerModule {
 };
 
 void registerAPI(struct Cora *co, struct registerModule* m, str pkg);
-void coraRegisterAPI(struct Cora *co, char* pkg, char *name, basicBlock func, int argc);
+void coraRegisterAPI(Cora *co, char* pkg, char *name, basicBlock func, int argc);
 
 #endif

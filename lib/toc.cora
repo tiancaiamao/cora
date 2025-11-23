@@ -301,18 +301,18 @@
 		     (generate-sym w x2)
 		     (match x2
 			    ['%global x] (begin
-					  (generate-str w "globalRef(co, __symbolTable[")
+					  (generate-str w "globalRef(co, getBinding(co, packageID, ")
 					  (generate-num w (symbol-offset x globals))
-					  (generate-str w "])"))
+					  (generate-str w "))"))
 			    ['%closure-ref idx] (begin
 						 (generate-str w "closureRef(R[0], ")
 						 (generate-num w idx)
 						 (generate-str w ")"))
 			    ['%const x] (cond
 					  ((symbol? x) (begin
-							(generate-str w "__symbolTable[")
+							(generate-str w "getBinding(co, packageID, ")
 							(generate-num w (symbol-offset x globals))
-							(generate-str w "].name")))
+							(generate-str w ").name")))
 					  ((number? x) (begin
 							(generate-str w "MAKE_NUMBER(")
 							(generate-num w x)
@@ -567,10 +567,11 @@
 
   (defun generate-entry (to globals label)
     (begin
-     (generate-str to "static Binding __symbolTable[")
-     (generate-num to (length globals))
-     (generate-str to "];\n\n")
      (generate-str to "void entry(struct Cora *co, int label, Obj *R) {\n")
+     (generate-str to "if (packageID == -1) { packageID = packageIDAlloc(); }\n")
+     (generate-str to "Binding *__symbolTable = malloc(sizeof(Binding) * ")
+     (generate-num to (length globals))
+     (generate-str to ");\n")
      (foldl (lambda (acc sym)
 	      (begin
 	       (generate-str to "__symbolTable[")
@@ -580,6 +581,7 @@
 	       (generate-str to "\"));\n")
 	       (+ acc 1)))
 	    0 globals)
+     (generate-str to "addPackage(co, packageID, __symbolTable);\n")
 
      (generate-str to "co->ctx.fn = ")
      (generate-group-name to label)
