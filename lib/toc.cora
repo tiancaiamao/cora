@@ -592,6 +592,7 @@
     (begin
      (generate-str to "#include \"types.h\"\n")
      (generate-str to "#include \"runtime.h\"\n\n")
+     (generate-str to "static int packageID = -1;\n")
      (for-each (lambda (group)
 		 (begin
 		  (code-gen-func-declare to (car group))
