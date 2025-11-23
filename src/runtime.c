@@ -313,6 +313,14 @@ builtinValueOr(Cora *co, int label, Obj *R) {
 	}
 }
 
+static int packageID = 0;
+
+int
+packageIDAlloc() {
+	// TODO: thread safe
+	return packageID++;
+}
+
 void
 builtinLoadSo(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinLoadSo");
@@ -1094,6 +1102,15 @@ coraInit() {
 		makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);
 	return co;
+}
+
+void
+addPackage(Cora *co, int packageID, Binding *symbolTable) {
+	assert(packageID >= 0);
+	while (vecLen(&co->pkgs) < packageID + 1) {
+		vecAppend(&co->pkgs, NULL);
+	}
+	vecSet(&co->pkgs, packageID, symbolTable);
 }
 
 void
