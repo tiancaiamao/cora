@@ -41,6 +41,14 @@
                 ['lambda [k]
                     [k . val-list]]))
 
+    ;; (let-values (a b) m body)
+    (defmacro let-values (exp)
+        (let bind (cadr exp)
+            m (caddr exp)
+            body (cdddr exp)
+            ['call-with-values m
+                ['lambda bind . body]]))
+
     ;; (call-with-values m (lambda (a b c ...) ...))
     (defun call-with-values (m k)
         (m k))
