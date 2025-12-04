@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 static void
 stringSlice(struct Cora *co, int label, Obj *R) {
@@ -86,7 +87,7 @@ numberToString(struct Cora *co, int label, Obj *R) {
 	assert(isfixnum(n));
 
 	char tmp[32];
-	int l = snprintf(tmp, 32, "%ld", fixnum(n));
+	int l = snprintf(tmp, 32, "%"PRId64, fixnum(n));
 	coraReturn(co, makeString(co->gc, tmp, l));
 }
 

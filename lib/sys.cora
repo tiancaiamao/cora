@@ -1,6 +1,6 @@
 (package "cora/lib/sys"
 
-  (export assq foldl for-each member thread-local-get thread-local-set)
+  (export assq foldl for-each member thread-local-get thread-local-set call-with-values)
 
   (defun thread-local-get (key)
     (let find (assq key (value (vm-symbol-for-tls)))
@@ -34,4 +34,14 @@
 	x [y . z] => (or (= x y)
 			 (member x z)))
 
+    ;; (values a b c) => (lambda (k a b c) (k a b c))
+    (defmacro values (exp)
+         (let val-list (cdr exp)
+                k (gensym)
+                ['lambda [k]
+                    [k . val-list]]))
+
+    ;; (call-with-values m (lambda (a b c ...) ...))
+    (defun call-with-values (m k)
+        (m k))
   )

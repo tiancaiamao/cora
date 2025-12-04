@@ -1,6 +1,7 @@
 #include "reader.h"
 #include "types.h"
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -253,7 +254,7 @@ printCons(FILE *to, Obj o, bool start) {
 void
 printObj(FILE *to, Obj o) {
 	if (isfixnum(o)) {
-		fprintf(to, "%ld", fixnum(o));
+		fprintf(to, "%" PRId64, fixnum(o));
 	} else if (iscobj(o)) {
 		fprintf(to, "cobj");
 	} else if (iscons(o)) {

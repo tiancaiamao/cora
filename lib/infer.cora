@@ -91,7 +91,7 @@
 			  (declare s (apply-subst t s1))
 			  res)))))
 	  (check-type v (cdr find) env subst))))
-  
+
   (func check-type-h
 	() t env s => ['succ s] where (number? t) ;; special check rule
 	x t env s => (unify 'int t s) where (number? x)
@@ -109,31 +109,31 @@
 				   ['succ s]) ;; variable not bound, skip check?
 				 (unify (cdr find1) t s)))
 			   (unify (cdr find) t s))) where (symbol? x)
-			   ['if e1 e2 e3] t env s => (bind-s (check-type-h e1 'bool env s)
+	['if e1 e2 e3] t env s => (bind-s (check-type-h e1 'bool env s)
 							     (lambda (s1)
 							       (bind-s (check-type e2 t env s1)
 								       (lambda (s2)
 									 (check-type e3 t env s2)))))
-			   ['do e1 e2] t env s => (bind-s (check-type-h e1 (tvar) env s)
+	['do e1 e2] t env s => (bind-s (check-type-h e1 (tvar) env s)
 							  (lambda (_)
 							    (check-type-h e2 t env s)))
-			   ['lambda () e] any env s => (let a (tvar)
+	['lambda () e] any env s => (let a (tvar)
 							 (bind-s (check-type e a env s)
 								 (lambda (s1)
 								   (unify any ['-> a] s1))))
-			   ['lambda [x] e] any env s => (let tx (tvar)
+	['lambda [x] e] any env s => (let tx (tvar)
 							  te (tvar)
 							  (bind-s (check-type e te (extend env x tx) s)
 								  (lambda (s1)
 								    (unify any [tx '-> te] s1))))
-			   ['lambda [x . more] e] t env s => (check-type ['lambda [x] ['lambda more e]] t env s) where (not (= () more))
-			   ['let a b c] t env s => (let tb (tvar)
+	['lambda [x . more] e] t env s => (check-type ['lambda [x] ['lambda more e]] t env s) where (not (= () more))
+	['let a b c] t env s => (let tb (tvar)
 						     (bind-s (check-type b tb env s)
 							     (lambda (s1)
 							       (check-type c t (extend env a tb) s1))))
-			   ['set ['quote sym] v] t env s => (check-type-for-set sym v env s)
-			   [f] b env s => (check-type-h f ['-> b] env s)
-			   [f x] t env s => (let a (tvar) b (tvar)
+	['set ['quote sym] v] t env s => (check-type-for-set sym v env s)
+	[f] b env s => (check-type-h f ['-> b] env s)
+	[f x] t env s => (let a (tvar) b (tvar)
 						 (bind-s (check-type-h f [a '-> b] env s)
 							 (lambda (s1)
 							   (bind-s (check-type x (apply-subst a s1) env s1)
@@ -144,7 +144,7 @@
 												(let k (car x)
 												  (not (or (= k a) (= k b)))))
 											      s3)])))))))
-			   [f x . more] b env s => (check-type [[f x] . more] b env s)
+	[f x . more] b env s => (check-type [[f x] . more] b env s)
 			   _ _ env s => ['fail])
 
   (def *type-rule* ())
@@ -152,7 +152,7 @@
     (def *type-rule* (cons (cons sym fn) *type-rule*)))
 
   (defun check-type (exp typ env subst)
-    (if (pair? typ)	
+    (if (pair? typ)
 	(let find (assq (car typ) *type-rule*)
 	  (if (null? find)
 	      (check-type-h exp typ env subst)
@@ -170,7 +170,7 @@
 
   (func type-check-for-tuple
 	['cons x y] ['tuple a b] env s => (bind-s (check-type x a env s)
-						  (lambda (s1) 
+						  (lambda (s1)
 						    (check-type y b env s1))))
   (deftype 'tuple type-check-for-tuple)
 
@@ -226,12 +226,12 @@
   ;; (func type-check-for-struct
   ;;       [a b] ['struct 'int 'bool] env s => (let s1 (check-type a 'int env s)
   ;;       						(check-type b 'bool env s)))
-  ;; 
+  ;;
   ;; (func type-check-for-option
   ;;       ['ok x] ['option a b] env s => (check-type x a env s)
   ;;       ['err y] ['option a b] env s => (check-type y b env s))
-  ;; 	
-  ;; 
+  ;;
+  ;;
   ;; (set '*type-rule* (cons (cons 'fruit type-check-for-fruit) *type-rule*))
   ;; (set '*type-rule* (cons (cons 'option type-check-for-option) *type-rule*))
 
@@ -254,7 +254,7 @@
   ;;  '((1 -> bool) -> bool)
   ;;  () ())
 
-  ;; This case is invalid for HM to infer 
+  ;; This case is invalid for HM to infer
   ;; x : a -> b
   ;; f : b -> b -> c
   ;; (check-type '(lambda (f x)

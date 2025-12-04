@@ -1097,7 +1097,7 @@ coraInit() {
 	primSet(co, intern("symbol-cooked?"),
 		makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
 	primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
-		makeNative(co->gc, 0, makeClosureForEval, 3, 0));
+		makeNative(co->gc, 4, makeClosureForEval, 3, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
 		makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);

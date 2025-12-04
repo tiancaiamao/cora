@@ -194,6 +194,7 @@ makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured,
 	...) {
 	int sz = sizeof(struct scmNative) + captured * sizeof(Obj);
 	struct scmNative *clo = newObj(gc, scmHeadNative, sz);
+	assert(nframe > 0);
 	clo->nframe = nframe;
 	clo->fn = fn;
 	clo->required = required;
