@@ -1,0 +1,20 @@
+(defun <= (x y)
+    (or (< x y) (= x y)))
+
+(defun a (k x1 x2 x3 x4 x5)
+    (let m (gensym)
+        b (gensym)
+        (begin
+            (set m k)
+            (set b (lambda ()
+                (do (set m (- (value m) 1))
+                    (a (value m) (value b) x1 x2 x3 x4))))
+            (if (<= k 0)
+                (+ (x4) (x5))
+                ((value b))))))
+
+(defun man-or-boy (n)
+    (a n (lambda () 1) (lambda () -1) (lambda () -1) (lambda () 1) (lambda () 0)))
+
+;; result should be -67
+(man-or-boy 10)
