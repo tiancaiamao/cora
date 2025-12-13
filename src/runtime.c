@@ -1,4 +1,5 @@
 #include "runtime.h"
+#include "config.h"
 #include "gc.h"
 #include "map.h"
 #include "reader.h"
@@ -6,7 +7,6 @@
 #include "trace.h"
 #include "types.h"
 #include "vector.h"
-#include "config.h"
 #include <dlfcn.h>
 #include <errno.h>
 #include <pwd.h>
@@ -523,7 +523,7 @@ builtinImport(Cora *co, int label, Obj *R) {
 
 	// CORA PATH
 	strBuf tmp = getCoraPath();
-	tmp = strCat(tmp, S("/pkg/"));
+	tmp = strCat(tmp, S("pkg/"));
 	tmp = strCat(tmp, pkgStr);
 	tmp = strCat(tmp, S(".so"));
 
@@ -1152,19 +1152,3 @@ coraGCFunc(GC *gc, void *ptr) {
 		}
 	}
 }
-
-#ifdef ForTest
-
-extern void entry(Cora *co, int label, Obj *R);
-
-int
-main(int argc, char *argv[]) {
-	Cora *co = coraInit();
-
-	entry(co, 0, NULL);
-	coraRun(co);
-	printObj(stdout, co->res);
-	return 0;
-}
-
-#endif

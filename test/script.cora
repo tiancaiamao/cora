@@ -6,3 +6,8 @@
 (+ 4 7)
 
 (load "test/run-basic-test.cora")
+
+(load "test/man-or-boy.cora")
+(load "test/define-record-test.cora")
+(load "test/macro-test.cora")
+(load "test/peg-test.cora")

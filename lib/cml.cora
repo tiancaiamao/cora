@@ -59,7 +59,7 @@
 	      (let task (dequeue (task-queue))
 		   (begin
 		    ;; (display "dequeue and run task\n")
-		    (task))))))) 
+		    (task)))))))
 
   (defun schedule-loop ()
     (begin
@@ -78,10 +78,11 @@
     (begin
      (task-queue-init)
      (if (member "cora/lib/async" cora/init#*imported*)
-	 (cora/lib/async#event-loop-init)
-	 (begin
-	  (display cora/init#*imported*)
-	  (display "cora/lib/async is not loaded!!\n")))
+         (cora/lib/async#event-loop-init)
+         42)
+         ;; (begin
+         ;;     (display cora/init#*imported*)
+         ;;     (display "cora/lib/async is not loaded!!\n")))
 
      (display "cml-entry init done\n")
 
@@ -167,4 +168,3 @@
 			    )))
 		  (wrap v)))))
   )
-

@@ -23,7 +23,7 @@ ifeq ("${ENABLE_TSAN}", "1")
 	LD_FLAG = -ltsan -lcora -ldl
 endif
 
-all: cora lib
+all: cora
 
 libcora:
 	make -C src
@@ -34,7 +34,8 @@ lib:
 .c.o:
 	$(CC) $(CFLAGS) -c -g $< -I src
 
-cora: libcora main.o init.so
+# cora directly depends on lib/toc.so
+cora: libcora main.o init.so lib
 ifeq ($(UNAME_S),Darwin)
 	# macOS: Use rpath for flexible library loading
 	$(CC) main.o -Lsrc $(LD_FLAG) -Wl,-rpath,@executable_path/src -o $@
@@ -54,7 +55,8 @@ init.so: init.c libcora
 fmt:
 	cd src; indent -npcs -bap -br -ce -brf -ut -i8 -nbbo -nhnl *.c
 
-test:
+test: cora
+	make test -C src
 	./test/script.cora
 
 FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'

@@ -28,8 +28,8 @@
       outfile-path (get-exec-file file-path)
       (begin
 	(cora/lib/toc#compile-to-c file-path c-file-path)
-	(exec ["gcc" "-g" "-DForTest -Isrc src/runtime.c src/gc.c ./src/str.c ./src/types.c ./src/reader.c" "./src/trace.c" c-file-path
-		  "-o" outfile-path "-ldl" "-lm"]))))
+	(exec ["gcc" "-g" "-Isrc src/for_test.c" c-file-path
+		  "-o" outfile-path "-ldl" "-lm" "-Lsrc -lcora" "-Wl,-rpath,@executable_path/../../src"]))))
 
   (defun run (file-path)
     (let exec-path (get-exec-file file-path)
