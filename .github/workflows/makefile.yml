@@ -13,9 +13,8 @@ jobs:
 
             - name: Build cora binary
               run: |
-                  make
-                  mkdir -p ${HOME}/.local/share/cora/pkg/
-                  ln -s `pwd` ${HOME}/.local/share/cora/pkg/cora
+                  make cora
+                  make install-local
 
             - name: Add custom binary to PATH
               run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH

@@ -70,24 +70,6 @@ bootstrap:
 	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
 	rm -f init.c.tmp lib/toc.c.tmp
 
-# Show build configuration
-info:
-	@echo "Build Configuration:"
-	@echo "  OS: $(UNAME_S)"
-	@echo "  CC: $(CC)"
-	@echo "  CFLAGS: $(CFLAGS)"
-	@echo "  LD_FLAG: $(LD_FLAG)"
-ifeq ($(UNAME_S),Darwin)
-	@echo "  Library strategy: @rpath with install_name @rpath/libcora.so"
-	@echo "  Binary rpath: @executable_path/src"
-	@echo "  Third-party usage: Flexible - library can be placed anywhere with appropriate rpath"
-else
-	@echo "  Library strategy: soname with LD_LIBRARY_PATH/rpath support"
-	@echo "  Binary rpath: \$$ORIGIN/src"
-	@echo "  Third-party usage: Standard Linux shared library behavior"
-endif
-	@echo ""
-	@echo "Usage modes:"
-	@echo "  Development: ./cora (direct)
-	@echo "  Third-party: Link with -lcora and set appropriate rpath"
-	@echo "  System: make install (copies to $(INSTALL_PREFIX))"
+install-local:
+	mkdir -p ${HOME}/.local/share/cora/pkg/; \
+	ln -s `pwd` ${HOME}/.local/share/cora/pkg/cora
