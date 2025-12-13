@@ -7,6 +7,7 @@ CC = gcc
 CFLAGS = -g -Wall -fPIC
 # CFLAGS = -g -DNDEBUG -O2 -Wall
 
+
 # Detect operating system
 UNAME_S := $(shell uname -s)
 
@@ -23,18 +24,24 @@ all: libcora.so
 test: reader_test gc_test
 
 reader.test: reader_test.o libcora.a
-	$(CC) -o reader.test $^ -ldl
+	$(CC) -o reader.test $^ -ldl -lm
 
 reader_test: reader.test
 	./reader.test
 
 gc.test: gc_test.o libcora.a
-	$(CC) -o gc.test $^ -ldl
+	$(CC) -o gc.test $^ -ldl -lm
 
 gc_test: gc.test
 	./gc.test
 
-LIBOBJS = str.o gc.o types.o reader.o runtime.o trace.o export.o
+
+CORA_SRC_DIR ?= $(shell pwd)
+
+config.o: config.c
+	$(CC) -o config.o -c config.c -DCORA_SRC_DIR=\"$(CORA_SRC_DIR)\"
+
+LIBOBJS = str.o gc.o types.o reader.o config.o runtime.o trace.o export.o
 
 libcora.a: $(LIBOBJS)
 	ar -rc $@ $^

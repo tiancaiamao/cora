@@ -1,4 +1,4 @@
-cora.bin
+cora
 *.o
 *.so
 *.a

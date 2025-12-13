@@ -1,4 +1,5 @@
 #include "runtime.h"
+#include "config.h"
 #include "gc.h"
 #include "map.h"
 #include "reader.h"
@@ -394,12 +395,12 @@ getCoraPath() {
 		struct passwd *pw = getpwuid(getuid());
 		char *homeDir = pw->pw_dir;
 		tmp = strCpy(tmp, cstr(homeDir));
-		tmp = strCat(tmp, S("/.corapath/"));
+		tmp = strCat(tmp, S("/.local/share/cora/"));
 	} else {
 		tmp = strCpy(tmp, cstr(coraPath));
-		if (toCStr(tmp)[strLen(toStr(tmp)) - 1] != '/') {
-			tmp = strCat(tmp, S("/"));
-		}
+	}
+	if (toCStr(tmp)[strLen(toStr(tmp)) - 1] != '/') {
+		tmp = strCat(tmp, S("/"));
 	}
 	return tmp;
 }
@@ -440,9 +441,9 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	}
 
 	snprintf(buf, BUFSIZE,
-		"gcc -shared -I%scora/src -I%scora/. -g -fPIC /tmp/cora-xxx-%d.c -o "
-		"%s -ldl -lm -L%scora/src -lcora",
-		toCStr(path), toCStr(path), cfileidx, toCStr(tmp), toCStr(path));
+		"gcc -shared -I%s -g -fPIC /tmp/cora-xxx-%d.c -o "
+		"%s -ldl -lm -L%s -lcora",
+		coraSrcDir, cfileidx, toCStr(tmp), coraSrcDir);
 	strFree(path);
 	int exitCode = system(buf);
 	if (exitCode != 0) {
@@ -522,6 +523,7 @@ builtinImport(Cora *co, int label, Obj *R) {
 
 	// CORA PATH
 	strBuf tmp = getCoraPath();
+	tmp = strCat(tmp, S("pkg/"));
 	tmp = strCat(tmp, pkgStr);
 	tmp = strCat(tmp, S(".so"));
 
@@ -1150,19 +1152,3 @@ coraGCFunc(GC *gc, void *ptr) {
 		}
 	}
 }
-
-#ifdef ForTest
-
-extern void entry(Cora *co, int label, Obj *R);
-
-int
-main(int argc, char *argv[]) {
-	Cora *co = coraInit();
-
-	entry(co, 0, NULL);
-	coraRun(co);
-	printObj(stdout, co->res);
-	return 0;
-}
-
-#endif

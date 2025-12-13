@@ -2,32 +2,30 @@ name: GitHub Actions CI
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v4
+    Explore-GitHub-Actions:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+            - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+            - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+            - name: Check out repository code
+              uses: actions/checkout@v4
 
-      - name: Build cora binary
-        run: make
+            - name: Build cora binary
+              run: |
+                  make cora
+                  make install-local
 
-      - name: Install rlwrap
-        run: sudo apt-get install -y rlwrap
+            - name: Add custom binary to PATH
+              run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
 
-      - name: Add custom binary to PATH
-        run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+            - name: Verify env before run
+              run: |
+                  which cora
+                  echo $PATH $PWD $GITHUB_WORKSPACE
 
-      - name: Verify env before run
-        run: |
-          which rlwrap
-          which cora
-          echo $PATH $PWD $GITHUB_WORKSPACE
+            - name: Run the test
+              run: make test
 
-      - name: Run the test
-        run: make test
-
-      - name: Run bootstrap test
-        run: make bootstrap
+            - name: Run bootstrap test
+              run: make bootstrap
