@@ -24,13 +24,13 @@ all: libcora.so
 test: reader_test gc_test
 
 reader.test: reader_test.o libcora.a
-	$(CC) -o reader.test $^ -ldl
+	$(CC) -o reader.test $^ -ldl -lm
 
 reader_test: reader.test
 	./reader.test
 
 gc.test: gc_test.o libcora.a
-	$(CC) -o gc.test $^ -ldl
+	$(CC) -o gc.test $^ -ldl -lm
 
 gc_test: gc.test
 	./gc.test
