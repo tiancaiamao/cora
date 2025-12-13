@@ -23,7 +23,7 @@ ifeq ("${ENABLE_TSAN}", "1")
 	LD_FLAG = -ltsan -lcora -ldl
 endif
 
-all: cora.bin lib
+all: cora lib
 
 libcora:
 	make -C src
@@ -34,7 +34,7 @@ lib:
 .c.o:
 	$(CC) $(CFLAGS) -c -g $< -I src
 
-cora.bin: libcora main.o init.so
+cora: libcora main.o init.so
 ifeq ($(UNAME_S),Darwin)
 	# macOS: Use rpath for flexible library loading
 	$(CC) main.o -Lsrc $(LD_FLAG) -Wl,-rpath,@executable_path/src -o $@
@@ -44,7 +44,7 @@ else
 endif
 
 clean:
-	rm -f *.o *.so *.bin test/*.so debug.sh
+	rm -f *.o *.so *.bin test/*.so
 	make clean -C src
 	make clean -C lib
 
@@ -68,23 +68,6 @@ bootstrap:
 	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
 	rm -f init.c.tmp lib/toc.c.tmp
 
-# Debug wrapper for IDE/debugger use
-debug: cora.bin
-	@echo '#!/bin/bash' > debug.sh
-	@echo 'BASE_DIR=$$(dirname "$$0")' >> debug.sh
-	@echo 'case "$$(uname -s)" in' >> debug.sh
-	@echo '  Darwin*) export DYLD_LIBRARY_PATH=$${BASE_DIR}/src:$$DYLD_LIBRARY_PATH ;;' >> debug.sh
-	@echo '  Linux*) export LD_LIBRARY_PATH=$${BASE_DIR}/src:$$LD_LIBRARY_PATH ;;' >> debug.sh
-	@echo 'esac' >> debug.sh
-	@echo 'export CORAPATH=$${BASE_DIR}/../' >> debug.sh
-	@echo 'if [ $$# -eq 0 ]; then exec ./cora.bin; else exec "$$1" ./cora.bin "$${@:2}"; fi' >> debug.sh
-	@chmod +x debug.sh
-ifeq ($(UNAME_S),Darwin)
-	@echo "Debug script created. Note: cora.bin can also run directly on macOS"
-else
-	@echo "Debug script created. Use ./debug.sh to run with proper library paths on Linux"
-endif
-
 # Show build configuration
 info:
 	@echo "Build Configuration:"
@@ -103,19 +86,6 @@ else
 endif
 	@echo ""
 	@echo "Usage modes:"
-	@echo "  Development: ./cora.bin (direct) or ./debug.sh [debugger]"
+	@echo "  Development: ./cora (direct)
 	@echo "  Third-party: Link with -lcora and set appropriate rpath"
 	@echo "  System: make install (copies to $(INSTALL_PREFIX))"
-
-# Install target for system-wide installation
-install: all
-	@echo "Installing cora to /usr/local/bin and /usr/local/lib"
-	sudo cp src/libcora.so /usr/local/lib/
-	sudo cp cora.bin /usr/local/bin/cora
-	@echo "Installation complete. You can now run 'cora' from anywhere."
-
-# Uninstall target
-uninstall:
-	sudo rm -f /usr/local/lib/libcora.so
-	sudo rm -f /usr/local/bin/cora
-	@echo "Uninstallation complete."
