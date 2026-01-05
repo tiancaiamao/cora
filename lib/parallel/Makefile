@@ -1,25 +1,29 @@
-all: internal.so
+# Makefile for parallel runtime
 
 CC = gcc
-CFLAGS := -I../../src -fPIC -g
-DEPDIR = .deps
-SRCS := internal.c
-OBJS = $(SRCS:%.c=%.o)
-DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
-DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
-COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+CFLAGS = -Wall -fPIC -g -I../../src 
+LDFLAGS = -shared -pthread -L../../src -lcora
 
+# Source files
+SOURCES = vm.c bindings.c
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = internal.so
+
+# Build target
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean
 clean:
-	rm -rf *.o *.so
+	rm -f $(OBJECTS) $(TARGET)
 
-%.so : %.o
-	gcc -shared -o $@ $^ -fPIC -I../../src -L../../src -lcora -lpthread
+# Dependencies
+vm.o: vm.c vm.h
+bindings.o: bindings.c vm.h
 
-%.o : %.c
-%.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
-	$(COMPILE.c) $(OUTPUT_OPTION) $<
-
-$(DEPDIR): ; @mkdir -p $@
-
-$(DEPS):
-include $(wildcard $(DEPS))
+.PHONY: all clean

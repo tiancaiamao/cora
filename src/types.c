@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 Obj symQuote, symIf, symLambda, symDo, symMacroExpand, symDebugEval,
 	symBackQuote, symUnQuote;
@@ -370,12 +371,26 @@ strEQFunc(void *ptr1, void *ptr2) {
 	return strCmp(*s1, *s2) == 0;
 }
 
-void
-typesInit() {
+// Global initialization state
+static pthread_once_t types_init_once = PTHREAD_ONCE_INIT;
+
+static void
+typesInitInternal() {
 	mapInit(&symbolIntern, strHashFunc, strEQFunc);
 	gcRegistForType(scmHeadCons, consGCFunc);
 	gcRegistForType(scmHeadBytes, bytesGCFunc);
 	gcRegistForType(scmHeadVector, vectorGCFunc);
 	gcRegistForType(scmHeadSymbol, symbolGCFunc);
 	gcRegistForType(scmHeadNative, nativeGCFunc);
+}
+
+void
+typesInit() {
+	pthread_once(&types_init_once, typesInitInternal);
+}
+
+// Explicit global initialization (for multi-VM scenarios)
+void
+coraGlobalInit() {
+	typesInit();
 }

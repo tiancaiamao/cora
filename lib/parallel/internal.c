@@ -1,4 +1,4 @@
-#include "runtime.h"
+#include "../../src/runtime.h"
 #include "str.h"
 #include "types.h"
 #include <errno.h>
