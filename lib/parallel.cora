@@ -1,122 +1,199 @@
-;; Parallel execution runtime for Cora
-;; Provides multi-VM execution with M:N threading
+;; High-level parallel API for Cora
+;; Provides friendly wrappers around the low-level C bindings
 
 (package "cora/lib/parallel"
-  (import "cora/lib/parallel/internal")
-  (import "cora/lib/queue")
-  (import "cora/lib/io")
-  (import "cora/lib/sys")
-  (import "cora/lib/cml")
-  (export 
+  (export
     ;; Runtime management
-    parallel-init parallel-shutdown
-    vm-runtime-init vm-runtime-shutdown vm-runtime-wait-all
-    ;; VM management  
-    vm-current-id vm-get-current vm-get-current-id
-    ;; Task spawning
-    spawn spawn-vm spawn-vm-native
-    ;; Mailbox API
-    mailbox-new mailbox-close mailbox-is-closed
-    mailbox-send-try mailbox-recv-try
-    mailbox-publish mailbox-resolve
-    ;; Entry point
-    parallel-entry)
-
-  ;; Initialize parallel runtime
-  (defun parallel-init (num-threads)
-    (cora/lib/parallel/internal#vm-runtime-init num-threads))
-
-  ;; Shutdown parallel runtime
-  (defun parallel-shutdown ()
-    (cora/lib/parallel/internal#vm-runtime-shutdown))
-
-  ;; Direct access to internal functions for advanced usage
-  (defun vm-runtime-init (num-threads)
-    (cora/lib/parallel/internal#vm-runtime-init num-threads))
-
-  (defun vm-runtime-shutdown ()
-    (cora/lib/parallel/internal#vm-runtime-shutdown))
-
-  (defun vm-runtime-wait-all ()
-    (cora/lib/parallel/internal#vm-runtime-wait-all))
-
-  (defun vm-get-current ()
-    (cora/lib/parallel/internal#vm-get-current))
-
-  ;; Get current VM ID
-  (defun vm-current-id ()
-    (cora/lib/parallel/internal#vm-get-current-id))
-
-  (defun vm-get-current-id ()
-    (cora/lib/parallel/internal#vm-get-current-id))
-
-  (defun spawn-vm-native (thunk)
-    (cora/lib/parallel/internal#spawn-vm-native thunk))
-
-  ;; Mailbox API wrappers
-  (defun mailbox-new (capacity)
-    (cora/lib/parallel/internal#mailbox-new capacity))
-
-  (defun mailbox-close (mailbox)
-    (cora/lib/parallel/internal#mailbox-close mailbox))
-
-  (defun mailbox-is-closed (mailbox)
-    (cora/lib/parallel/internal#mailbox-is-closed mailbox))
-
-  (defun mailbox-send-try (mailbox msg)
-    (cora/lib/parallel/internal#mailbox-send-try mailbox msg))
-
-  (defun mailbox-recv-try (mailbox)
-    (cora/lib/parallel/internal#mailbox-recv-try mailbox))
-
-  (defun mailbox-publish (name mailbox)
-    (cora/lib/parallel/internal#mailbox-publish name mailbox))
-
-  (defun mailbox-resolve (name)
-    (cora/lib/parallel/internal#mailbox-resolve name))
-
-  ;; Spawn coroutine in current VM
-  ;; This extends the existing CML spawn to work with parallel runtime
-  (defun spawn (thunk)
-    (let current-vm (vm-get-current)
-         (if current-vm
-             ;; We're in a parallel VM, use CML's spawn
-             (cora/lib/cml#spawn thunk)
-             ;; We're not in parallel mode, fall back to regular CML
-             (cora/lib/cml#spawn thunk))))
-
-  ;; Spawn coroutine in a new VM
-  (defun spawn-vm (thunk)
-    (let vm-id (spawn-vm-native thunk)
-         vm-id))
-
-  ;; Parallel entry point
-  ;; Similar to cml-entry but for multi-VM execution
-  (defun parallel-entry (main num-threads)
-    (begin
-      ;; Initialize parallel runtime
-      (parallel-init num-threads)
-      
-      ;; Create initial VM and run main
-      (let initial-vm-id (spawn-vm main)
-           (begin
-             (display "Parallel runtime started with ")
-             (display num-threads)
-             (display " threads\n")
-             
-             ;; Wait for all VMs to complete
-             ;; This is a simplified version - in reality we'd need
-             ;; a more sophisticated way to wait for completion
-             (vm-runtime-wait-all)
-             
-             (display "All VMs completed\n")
-             
-             ;; Shutdown runtime
-             (parallel-shutdown)))))
-
-  ;; Internal functions implemented in C
-  ;; These functions are registered by register_parallel_runtime()
+    parallel/init
+    parallel/shutdown
+    parallel/current-vm-id
+    
+    ;; Spawning
+    parallel/spawn
+    parallel/spawn-coroutine
+    
+    ;; Mailbox
+    mailbox/new
+    mailbox/send!
+    mailbox/recv
+    mailbox/close!
+    mailbox/closed?
+    mailbox/publish!
+    mailbox/resolve
+    
+    ;; Channel (alias)
+    channel/new
+    channel/send!
+    channel/recv
+    channel/close!
+    
+    ;; Poller
+    poller/init
+    poller/shutdown
+    event-handle/new
+    event-handle/enable-read!
+    event-handle/enable-write!
+    poller/add-handle!
+    poller/poll
+    
+    ;; Helpers
+    parallel/with-runtime
+    mailbox/send-blocking!
+    mailbox/recv-blocking)
   
-  ;; Note: The actual implementations are in lib/parallel/cora-bindings.c
-  ;; and are registered when the parallel runtime is loaded
-  )
+  (import "cora/lib/parallel/internal")
+
+;; ============================================================================
+;; Runtime Management
+;; ============================================================================
+
+;; Initialize the parallel runtime with specified number of worker threads
+(defun parallel/init (num-threads)
+  (cora/lib/parallel/internal#vm-runtime-init num-threads))
+
+;; Shutdown the parallel runtime and clean up resources
+(defun parallel/shutdown ()
+  (cora/lib/parallel/internal#vm-runtime-shutdown))
+
+;; Get the ID of the current VM, or -1 if not in a VM context
+(defun parallel/current-vm-id ()
+  (cora/lib/parallel/internal#vm-get-current-id))
+
+;; ============================================================================
+;; Spawning and Concurrency
+;; ============================================================================
+
+;; Spawn a new VM with the given thunk as entry point.
+;; Returns the VM ID, or -1 on failure.
+(defun parallel/spawn (thunk)
+  (cora/lib/parallel/internal#spawn-vm-native thunk))
+
+;; Spawn a coroutine in the current VM.
+;; Returns true on success, false on failure.
+(defun parallel/spawn-coroutine (thunk)
+  (cora/lib/parallel/internal#spawn-coroutine thunk))
+
+;; ============================================================================
+;; Mailbox Communication
+;; ============================================================================
+
+;; Create a new mailbox with given buffer capacity.
+;; Use 0 for unbuffered (rendezvous) mailbox.
+(defun mailbox/new (capacity)
+  (cora/lib/parallel/internal#mailbox-new capacity))
+
+;; Try to send a message to the mailbox (non-blocking).
+;; Returns true if sent, false if mailbox is full or closed.
+(defun mailbox/send! (mailbox msg)
+  (cora/lib/parallel/internal#mailbox-send-try mailbox msg))
+
+;; Try to receive a message from the mailbox (non-blocking).
+;; Returns the message if available, or false if mailbox is empty or closed.
+(defun mailbox/recv (mailbox)
+  (cora/lib/parallel/internal#mailbox-recv-try mailbox))
+
+;; Close the mailbox. No further sends or receives will succeed.
+(defun mailbox/close! (mailbox)
+  (cora/lib/parallel/internal#mailbox-close mailbox))
+
+;; Check if the mailbox is closed.
+(defun mailbox/closed? (mailbox)
+  (cora/lib/parallel/internal#mailbox-is-closed mailbox))
+
+;; Publish a mailbox under a given name for discovery by other VMs.
+(defun mailbox/publish! (name mailbox)
+  (cora/lib/parallel/internal#mailbox-publish name mailbox))
+
+;; Resolve a mailbox by name. Returns the mailbox or false if not found.
+(defun mailbox/resolve (name)
+  (cora/lib/parallel/internal#mailbox-resolve name))
+
+;; ============================================================================
+;; I/O Poller
+;; ============================================================================
+
+;; Initialize the global I/O poller with background thread.
+;; Returns true on success, false on failure.
+(defun poller/init ()
+  (cora/lib/parallel/internal#poller-init))
+
+;; Shutdown the I/O poller and stop the background thread.
+(defun poller/shutdown ()
+  (cora/lib/parallel/internal#poller-shutdown))
+
+;; Create a new event handle for the given file descriptor.
+(defun event-handle/new (fd)
+  (cora/lib/parallel/internal#event-handle-new fd))
+
+;; Enable read event notifications on the handle.
+(defun event-handle/enable-read! (handle)
+  (cora/lib/parallel/internal#event-handle-enable-read handle))
+
+;; Enable write event notifications on the handle.
+(defun event-handle/enable-write! (handle)
+  (cora/lib/parallel/internal#event-handle-enable-write handle))
+
+;; Add an event handle to the global poller.
+(defun poller/add-handle! (handle)
+  (cora/lib/parallel/internal#poller-add-handle handle))
+
+;; Poll for I/O events with the given timeout in milliseconds.
+;; Returns a list of ready event handles, or nil on timeout.
+(defun poller/poll (timeout-ms)
+  (cora/lib/parallel/internal#poller-poll timeout-ms))
+
+;; ============================================================================
+;; High-Level Channel Abstraction
+;; ============================================================================
+
+;; Create a new channel with the given buffer capacity.
+;; A channel is a mailbox with a friendly API.
+(defun channel/new (capacity)
+  (mailbox/new capacity))
+
+;; Send a message to the channel. Alias for mailbox/send!
+(defun channel/send! (ch msg)
+  (mailbox/send! ch msg))
+
+;; Receive a message from the channel. Alias for mailbox/recv
+(defun channel/recv (ch)
+  (mailbox/recv ch))
+
+;; Close the channel. Alias for mailbox/close!
+(defun channel/close! (ch)
+  (mailbox/close! ch))
+
+;; ============================================================================
+;; Helper Functions
+;; ============================================================================
+
+;; Execute body with initialized runtime, then cleanup.
+;; Usage: (parallel/with-runtime 4 (lambda () ...))
+(defun parallel/with-runtime (num-threads body)
+  (begin
+    (parallel/init num-threads)
+    (let result (body)
+      (begin
+        (parallel/shutdown)
+        result))))
+
+;; Send a message to mailbox, blocking until space is available.
+;; Note: This is a busy-wait implementation for now.
+(defun mailbox/send-blocking! (mailbox msg)
+  (let loop (lambda ()
+    (if (mailbox/send! mailbox msg)
+      true
+      (loop)))
+    (loop)))
+
+;; Receive a message from mailbox, blocking until one is available.
+;; Note: This is a busy-wait implementation for now.
+(defun mailbox/recv-blocking (mailbox)
+  (let loop (lambda ()
+    (let msg (mailbox/recv mailbox)
+      (if msg
+        msg
+        (loop))))
+    (loop)))
+
+) ;; end package

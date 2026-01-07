@@ -187,6 +187,34 @@ Cora* coraInit();
 void coraRun(Cora *co);
 void coraExit(Cora *co);
 
+// ============================================================================
+// Cora VM Task Management API - Higher level task management
+// ============================================================================
+
+// Forward declaration
+struct CoraVMWithTasks;
+
+typedef struct CoraVMWithTasks CoraVMWithTasks;
+
+// Create a Cora VM instance with task management capabilities
+CoraVMWithTasks *cora_vm_with_tasks_create(void);
+
+// Destroy a Cora VM instance with task management
+void cora_vm_with_tasks_destroy(CoraVMWithTasks *vm);
+
+// Spawn a task (represented as a thunk/closure) in the Cora VM
+void cora_vm_spawn_task(CoraVMWithTasks *vm, Obj thunk);
+
+// Check if there are ready tasks
+bool cora_vm_has_ready_tasks(CoraVMWithTasks *vm);
+
+// Run one task in the VM
+void cora_vm_run_one_task(CoraVMWithTasks *vm);
+
+// Get the underlying Cora VM instance
+Cora *cora_vm_get_cora_instance(CoraVMWithTasks *vm);
+
+
 static inline Binding
 getBinding(Cora *co, int packageID, int slot) {
 	return vecGet(&co->pkgs, packageID)[slot];

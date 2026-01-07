@@ -1,0 +1,36 @@
+;; Test poller with background thread
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "Initializing poller (starts background thread)...\n")
+(let result (cora/lib/parallel/internal#poller-init)
+  (begin
+    (display "Poller init result: ")
+    (display result)
+    (display "\n")
+    
+    (if result
+      (begin
+        (display "Poller running in background thread...\n")
+        (display "Waiting 1 second...\n")
+        
+        ; Sleep for a bit (we don't have sleep, so just do some work)
+        (let x 0
+          (let loop (lambda (n)
+            (if (< n 1000000)
+              (loop (+ n 1))
+              n))
+            (loop 0)))
+        
+        (display "Shutting down poller...\n")
+        (let shutdown-result (cora/lib/parallel/internal#poller-shutdown)
+          (begin
+            (display "Shutdown result: ")
+            (display shutdown-result)
+            (display "\n")
+            (display "Test complete!\n")
+            0)))
+      (begin
+        (display "Failed to initialize poller!\n")
+        1))))

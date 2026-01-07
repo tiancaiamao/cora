@@ -1,0 +1,13 @@
+;; Simple poller test
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "Initializing poller...\n")
+(let result (cora/lib/parallel/internal#poller-init)
+  (begin
+    (display "Poller init result: ")
+    (display result)
+    (display "\n")
+    (display "Poller test complete!\n")
+    0))

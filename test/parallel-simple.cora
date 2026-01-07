@@ -1,26 +1,29 @@
-;; Simple test for parallel runtime - just init and shutdown
+;; Simple test of high-level API
 
 (display "Loading parallel module...\n")
-(import "cora/lib/parallel/internal")
+(import "cora/lib/parallel")
 
-(display "Testing basic runtime lifecycle...\n")
+(display "Test: parallel/init\n")
+(parallel/init 2)
+(display "Runtime initialized!\n")
 
-;; Test 1: Initialize runtime
-(display "1. Initializing runtime with 2 threads...\n")
-(cora/lib/parallel/internal#vm-runtime-init 2)
-(display "   Runtime initialized\n")
-
-;; Test 2: Check current VM (should be -1, not in a spawned VM)
-(display "2. Checking current VM ID...\n")
-(let vm-id (cora/lib/parallel/internal#vm-get-current-id)
+(display "Test: mailbox/new\n")
+(let mb (mailbox/new 5)
   (begin
-    (display "   Current VM ID: ")
-    (display vm-id)
-    (display "\n")))
-
-;; Test 3: Shutdown
-(display "3. Shutting down runtime...\n")
-(cora/lib/parallel/internal#vm-runtime-shutdown)
-(display "   Runtime shutdown complete\n")
-
-(display "All tests passed!\n")
+    (display "Mailbox created\n")
+    
+    (display "Test: mailbox/send!\n")
+    (mailbox/send! mb 42)
+    (display "Sent 42\n")
+    
+    (display "Test: mailbox/recv\n")
+    (let val (mailbox/recv mb)
+      (begin
+        (display "Received: ")
+        (display val)
+        (display "\n")
+        
+        (display "Test: parallel/shutdown\n")
+        (parallel/shutdown)
+        (display "Done!\n")
+        0))))

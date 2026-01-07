@@ -1,0 +1,95 @@
+;; Demo: Using the high-level parallel API
+
+(import "cora/lib/parallel")
+
+(display "=== Parallel API Demo ===\n\n")
+
+;; Test 1: Runtime initialization
+(display "1. Initializing runtime with 2 worker threads...\n")
+(parallel/init 2)
+(display "   Runtime initialized!\n\n")
+
+;; Test 2: Mailbox communication
+(display "2. Testing mailbox communication...\n")
+(let mb (mailbox/new 5)
+  (begin
+    (display "   Created buffered mailbox (capacity=5)\n")
+    
+    ;; Send some messages
+    (display "   Sending: 42\n")
+    (mailbox/send! mb 42)
+    
+    (display "   Sending: \"hello\"\n")
+    (mailbox/send! mb "hello")
+    
+    (display "   Sending: (1 2 3)\n")
+    (mailbox/send! mb (quote (1 2 3)))
+    
+    ;; Receive messages
+    (display "   Receiving messages:\n")
+    (let msg1 (mailbox/recv mb)
+      (begin
+        (display "     Got: ")
+        (display msg1)
+        (display "\n")
+        
+        (let msg2 (mailbox/recv mb)
+          (begin
+            (display "     Got: ")
+            (display msg2)
+            (display "\n")
+            
+            (let msg3 (mailbox/recv mb)
+              (begin
+                (display "     Got: ")
+                (display msg3)
+                (display "\n")
+                
+                ;; Close mailbox
+                (mailbox/close! mb)
+                (display "   Mailbox closed\n\n")))))))))
+
+;; Test 3: Channel abstraction
+(display "3. Testing channel (friendly mailbox API)...\n")
+(let ch (channel/new 3)
+  (begin
+    (display "   Created channel (capacity=3)\n")
+    
+    (channel/send! ch 100)
+    (display "   Sent: 100\n")
+    
+    (let val (channel/recv ch)
+      (begin
+        (display "   Received: ")
+        (display val)
+        (display "\n")
+        
+        (channel/close! ch)
+        (display "   Channel closed\n\n")))))
+
+;; Test 4: Poller
+(display "4. Testing I/O poller...\n")
+(poller/init)
+(display "   Poller initialized (background thread started)\n")
+(poller/shutdown)
+(display "   Poller shutdown\n\n")
+
+;; Test 5: Current VM ID
+(display "5. Checking current VM context...\n")
+(let vm-id (parallel/current-vm-id)
+  (begin
+    (display "   Current VM ID: ")
+    (display vm-id)
+    (display "\n")
+    (if (= vm-id -1)
+      (display "   (Not in a VM context - running in main thread)\n")
+      (display "   (Running in a worker VM)\n"))
+    (display "\n")))
+
+;; Cleanup
+(display "6. Shutting down runtime...\n")
+(parallel/shutdown)
+(display "   Runtime shutdown complete!\n\n")
+
+(display "=== Demo Complete ===\n")
+0

@@ -1,0 +1,2 @@
+(import cora/parallel)
+(let [ch (make-channel)] (go (channel-send ch (+ 2 3))) (println (channel-receive ch)))
