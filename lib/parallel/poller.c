@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #if defined(__linux__)
 #include <sys/epoll.h>
@@ -10,6 +11,38 @@
 #else
 #error "Unsupported platform"
 #endif
+
+// Simplified wake queue - just a placeholder for now
+typedef struct ReadyNode {
+	struct ReadyNode *next;
+} ReadyNode;
+
+typedef struct ReadyQueue {
+	ReadyNode *head;
+	ReadyNode *tail;
+} ReadyQueue;
+
+static void
+ReadyQueueInit(ReadyQueue *q, ReadyNode *stub) {
+	q->head = stub;
+	q->tail = stub;
+	stub->next = NULL;
+}
+
+static bool
+ReadyQueueIsEmpty(ReadyQueue *q) {
+	return q->head == q->tail;
+}
+
+static ReadyNode *
+ReadyQueueDequeue(ReadyQueue *q) {
+	if (ReadyQueueIsEmpty(q)) {
+		return NULL;
+	}
+	ReadyNode *node = q->head;
+	q->head = node->next;
+	return node;
+}
 
 Poller *
 poller_new(void) {
@@ -27,9 +60,10 @@ poller_new(void) {
 #endif
 	p->max_events = 1024;
 
-	extern void ReadyQueueInit(void *, void *);
-	void *stub = malloc(sizeof(ReadyNode));
-	ReadyQueueInit(&p->wake_queue, stub);
+	ReadyNode *stub = malloc(sizeof(ReadyNode));
+	ReadyQueue *queue = malloc(sizeof(ReadyQueue));
+	ReadyQueueInit(queue, stub);
+	p->wake_queue = queue;
 	pthread_mutex_init(&p->wake_lock, NULL);
 
 	return p;
@@ -302,17 +336,15 @@ poller_process_wake_queue(Poller *p) {
 
 	pthread_mutex_lock(&p->wake_lock);
 
-	extern ReadyNode *ReadyQueueDequeue(void *);
-	void *node = NULL;
-	extern bool ReadyQueueIsEmpty(void *);
+	ReadyQueue *queue = (ReadyQueue *)p->wake_queue;
+	ReadyNode *node = NULL;
 
-	while (!ReadyQueueIsEmpty(&p->wake_queue)) {
-		node = ReadyQueueDequeue(&p->wake_queue);
+	while (!ReadyQueueIsEmpty(queue)) {
+		node = ReadyQueueDequeue(queue);
+		if (node) {
+			free(node);
+		}
 	}
 
 	pthread_mutex_unlock(&p->wake_lock);
-
-	if (node) {
-		free(node);
-	}
 }

@@ -2,6 +2,7 @@
 #include "vm.h"
 #include "mailbox.h"
 #include "scheduler.h"
+#include "poller.h"
 #include <stdio.h>
 
 // Cora binding functions
@@ -240,6 +241,196 @@ cora_mailbox_resolve(Cora *co, int label, Obj *R) {
 	}
 }
 
+// ============================================================================
+// Poller API
+// ============================================================================
+
+// Global poller (simplified - one poller for all VMs)
+static Poller *g_poller = NULL;
+static pthread_t g_poller_thread;
+static volatile int g_poller_running = 0;
+
+// Poller thread function
+static void *
+poller_thread_func(void *arg) {
+	(void)arg;
+	
+	while (g_poller_running) {
+		// Poll with 100ms timeout
+		int nfds = 0;
+		void **active = poller_poll(g_poller, 100, &nfds);
+		
+		if (nfds > 0) {
+			// Process active event handles
+			for (int i = 0; i < nfds; i++) {
+				EventHandle *eh = (EventHandle *)active[i];
+				
+				// Get ready events
+				int events = eh->ready_events;
+				
+				// Call callbacks if registered
+				if ((events & EVENT_READ) && eh->read_callback) {
+					eh->read_callback(eh);
+				}
+				if ((events & EVENT_WRITE) && eh->write_callback) {
+					eh->write_callback(eh);
+				}
+			}
+			free(active);
+		}
+		
+		// Process wake queue
+		poller_process_wake_queue(g_poller);
+	}
+	
+	return NULL;
+}
+
+// Initialize global poller
+static void
+cora_poller_init(Cora *co, int label, Obj *R) {
+	(void)label;
+	(void)R;
+
+	if (!g_poller) {
+		g_poller = poller_new();
+		if (!g_poller) {
+			coraReturn(co, False);
+			return;
+		}
+		
+		// Start poller thread
+		g_poller_running = 1;
+		if (pthread_create(&g_poller_thread, NULL, poller_thread_func, NULL) != 0) {
+			poller_free(g_poller);
+			g_poller = NULL;
+			g_poller_running = 0;
+			coraReturn(co, False);
+			return;
+		}
+	}
+
+	coraReturn(co, True);
+}
+
+// Shutdown global poller
+static void
+cora_poller_shutdown(Cora *co, int label, Obj *R) {
+	(void)label;
+	(void)R;
+	
+	if (g_poller && g_poller_running) {
+		g_poller_running = 0;
+		pthread_join(g_poller_thread, NULL);
+		poller_free(g_poller);
+		g_poller = NULL;
+	}
+	
+	coraReturn(co, True);
+}
+
+// Create an event handle
+static void
+cora_event_handle_new(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj fd_obj = R[1];
+	
+	if (!isfixnum(fd_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+	
+	int fd = fixnum(fd_obj);
+	
+	// TODO: Add support for callbacks
+	// For now, create a simple event handle without callbacks
+	EventHandle *eh = event_handle_new(fd, NULL, NULL, NULL);
+	
+	if (eh) {
+		coraReturn(co, makeCObj(eh));
+	} else {
+		coraReturn(co, False);
+	}
+}
+
+// Enable read events on handle
+static void
+cora_event_handle_enable_read(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+	event_handle_enable_read(eh);
+	coraReturn(co, True);
+}
+
+// Enable write events on handle
+static void
+cora_event_handle_enable_write(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+	event_handle_enable_write(eh);
+	coraReturn(co, True);
+}
+
+// Add event handle to poller
+static void
+cora_poller_add_handle(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+	
+	if (!g_poller) {
+		coraReturn(co, False);
+		return;
+	}
+	
+	poller_add_handle(g_poller, eh);
+	coraReturn(co, True);
+}
+
+// Poll for events (blocking with timeout)
+static void
+cora_poller_poll(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj timeout_obj = R[1];
+	
+	if (!isfixnum(timeout_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+	
+	int timeout_ms = fixnum(timeout_obj);
+	
+	if (!g_poller) {
+		coraReturn(co, False);
+		return;
+	}
+	
+	int nfds = 0;
+	void **active = poller_poll(g_poller, timeout_ms, &nfds);
+	
+	if (nfds < 0) {
+		// Error
+		coraReturn(co, False);
+		return;
+	}
+	
+	if (nfds == 0) {
+		// Timeout, no events
+		coraReturn(co, Nil);
+		return;
+	}
+	
+	// Build list of active event handles
+	Obj result = Nil;
+	for (int i = nfds - 1; i >= 0; i--) {
+		EventHandle *eh = (EventHandle *)active[i];
+		Obj handle_obj = makeCObj(eh);
+		result = makeCons(co->gc, handle_obj, result);
+	}
+	
+	free(active);
+	coraReturn(co, result);
+}
+
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
@@ -262,6 +453,15 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "mailbox-recv-try", cora_mailbox_recv_try, 1);
 	coraRegisterAPI(co, module, "mailbox-publish", cora_mailbox_publish, 2);
 	coraRegisterAPI(co, module, "mailbox-resolve", cora_mailbox_resolve, 1);
+
+	// Poller API
+	coraRegisterAPI(co, module, "poller-init", cora_poller_init, 0);
+	coraRegisterAPI(co, module, "poller-shutdown", cora_poller_shutdown, 0);
+	coraRegisterAPI(co, module, "event-handle-new", cora_event_handle_new, 1);
+	coraRegisterAPI(co, module, "event-handle-enable-read", cora_event_handle_enable_read, 1);
+	coraRegisterAPI(co, module, "event-handle-enable-write", cora_event_handle_enable_write, 1);
+	coraRegisterAPI(co, module, "poller-add-handle", cora_poller_add_handle, 1);
+	coraRegisterAPI(co, module, "poller-poll", cora_poller_poll, 1);
 
 	coraReturn(co, intern("parallel"));
 }

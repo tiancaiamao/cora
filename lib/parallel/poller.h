@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// Event type flags
+#define EVENT_READ  (1 << 0)
+#define EVENT_WRITE (1 << 1)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
