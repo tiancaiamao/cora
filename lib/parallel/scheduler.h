@@ -1,22 +1,26 @@
 #ifndef PARALLEL_SCHEDULER_H
 #define PARALLEL_SCHEDULER_H
 
+#include "../../src/runtime.h"
+#include "coroutine.h"
+#include "vm.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct Scheduler Scheduler;
-typedef struct VM VM;
+// VM creation with integrated scheduler
+VM *vm_create_with_scheduler(void);
 
-Scheduler *scheduler_new(int num_threads);
-void scheduler_free(Scheduler *s);
-void scheduler_start(Scheduler *s);
-void scheduler_shutdown(Scheduler *s);
+// Spawn a coroutine in the VM
+void vm_spawn_coroutine(VM *vm, Obj thunk);
 
-void scheduler_add_vm(Scheduler *s, VM *vm);
-void scheduler_wake_vm(Scheduler *s, VM *vm);
+// Enqueue a coroutine to VM's ready queue (thread-safe, for cross-VM wakeup)
+void vm_enqueue_coroutine(VM *vm, Coroutine *co);
+
+// Get the Cora VM instance from a VM
+Cora *vm_get_cora(VM *vm);
 
 #ifdef __cplusplus
 }

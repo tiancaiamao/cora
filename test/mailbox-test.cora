@@ -1,0 +1,90 @@
+;; Test mailbox functionality
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "=== Testing Mailbox ===\n")
+
+;; Test 1: Create mailbox
+(display "1. Creating mailbox (unbuffered)...\n")
+(let mb (cora/lib/parallel/internal#mailbox-new 0)
+  (begin
+    (display "   Mailbox created: ")
+    (display mb)
+    (display "\n")
+
+    ;; Test 2: Try send (should fail - no receiver)
+    (display "2. Try send (should fail - no receiver)...\n")
+    (let result (cora/lib/parallel/internal#mailbox-send-try mb 42)
+      (begin
+        (display "   Send result: ")
+        (display result)
+        (display " (expected #f)\n")
+
+        ;; Test 3: Try recv (should fail - no messages)
+        (display "3. Try recv (should fail - no messages)...\n")
+        (let recv-result (cora/lib/parallel/internal#mailbox-recv-try mb)
+          (begin
+            (display "   Recv result: ")
+            (display recv-result)
+            (display " (expected #f)\n")
+
+            ;; Test 4: Create buffered mailbox
+            (display "4. Creating buffered mailbox (capacity=5)...\n")
+            (let mb2 (cora/lib/parallel/internal#mailbox-new 5)
+              (begin
+                (display "   Buffered mailbox created\n")
+
+                ;; Test 5: Send to buffered mailbox
+                (display "5. Sending messages to buffered mailbox...\n")
+                (let s1 (cora/lib/parallel/internal#mailbox-send-try mb2 10)
+                  (let s2 (cora/lib/parallel/internal#mailbox-send-try mb2 20)
+                    (let s3 (cora/lib/parallel/internal#mailbox-send-try mb2 30)
+                      (begin
+                        (display "   Send results: ")
+                        (display s1) (display " ")
+                        (display s2) (display " ")
+                        (display s3) (display "\n")
+
+                        ;; Test 6: Receive from buffered mailbox
+                        (display "6. Receiving messages from buffered mailbox...\n")
+                        (let r1 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+                          (let r2 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+                            (let r3 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+                              (begin
+                                (display "   Received: ")
+                                (display r1) (display " ")
+                                (display r2) (display " ")
+                                (display r3) (display "\n")
+
+                                ;; Test 7: Close mailbox
+                                (display "7. Closing mailbox...\n")
+                                (cora/lib/parallel/internal#mailbox-close mb2)
+                                (let closed (cora/lib/parallel/internal#mailbox-is-closed mb2)
+                                  (begin
+                                    (display "   Is closed: ")
+                                    (display closed)
+                                    (display "\n")
+
+                                    ;; Test 8: Mailbox registry
+                                    (display "8. Testing mailbox registry...\n")
+                                    (let mb3 (cora/lib/parallel/internal#mailbox-new 10)
+                                      (begin
+                                        (display "   Publishing mailbox as 'test-channel'...\n")
+                                        (let pub-result (cora/lib/parallel/internal#mailbox-publish "test-channel" mb3)
+                                          (begin
+                                            (display "   Publish result: ")
+                                            (display pub-result)
+                                            (display "\n")
+
+                                            (display "   Resolving 'test-channel'...\n")
+                                            (let resolved (cora/lib/parallel/internal#mailbox-resolve "test-channel")
+                                              (begin
+                                                (display "   Resolved: ")
+                                                (display resolved)
+                                                (display "\n")
+                                                
+                                                (display "=== All mailbox tests passed! ===\n")
+                                                0)))))))))))))))))))))
+
+(display "Test complete!\n")

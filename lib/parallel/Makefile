@@ -5,7 +5,7 @@ CFLAGS = -Wall -fPIC -g -I../../src
 LDFLAGS = -shared -pthread -L../../src -lcora
 
 # Source files
-SOURCES = vm.c bindings.c
+SOURCES = vm.c scheduler.c mailbox.c bindings.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = internal.so
 
@@ -24,6 +24,8 @@ clean:
 
 # Dependencies
 vm.o: vm.c vm.h
-bindings.o: bindings.c vm.h
+scheduler.o: scheduler.c scheduler.h coroutine.h vm.h
+mailbox.o: mailbox.c mailbox.h vm.h coroutine.h
+bindings.o: bindings.c vm.h mailbox.h scheduler.h
 
 .PHONY: all clean

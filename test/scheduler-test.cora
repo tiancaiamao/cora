@@ -1,0 +1,40 @@
+;; Test VM scheduler with coroutines
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "=== Testing VM Scheduler ===\n")
+
+;; Initialize runtime
+(display "1. Initializing runtime with 2 threads...\n")
+(cora/lib/parallel/internal#vm-runtime-init 2)
+
+;; Test: Spawn VM with a simple thunk
+(display "2. Spawning VM with coroutine...\n")
+(let vm-id (cora/lib/parallel/internal#spawn-vm-native 
+             (lambda () 
+               (begin
+                 (display "Hello from VM!\n")
+                 (display "VM coroutine executing...\n")
+                 42)))
+  (begin
+    (display "   VM ID: ")
+    (display vm-id)
+    (display "\n")
+    
+    ;; Give it time to execute
+    (display "3. Waiting for execution...\n")
+    ;; Simple busy wait (not ideal, but works for testing)
+    (let loop (lambda (n)
+                (if (> n 0)
+                    (loop (- n 1))
+                    n))
+      (begin
+        (loop 1000000)
+        (display "4. Done waiting\n")
+        
+        ;; Shutdown
+        (display "5. Shutting down runtime...\n")
+        (cora/lib/parallel/internal#vm-runtime-shutdown)
+        (display "=== Test Complete ===\n")
+        0))))

@@ -15,6 +15,10 @@
     vm-current-id vm-get-current vm-get-current-id
     ;; Task spawning
     spawn spawn-vm spawn-vm-native
+    ;; Mailbox API
+    mailbox-new mailbox-close mailbox-is-closed
+    mailbox-send-try mailbox-recv-try
+    mailbox-publish mailbox-resolve
     ;; Entry point
     parallel-entry)
 
@@ -48,6 +52,28 @@
 
   (defun spawn-vm-native (thunk)
     (cora/lib/parallel/internal#spawn-vm-native thunk))
+
+  ;; Mailbox API wrappers
+  (defun mailbox-new (capacity)
+    (cora/lib/parallel/internal#mailbox-new capacity))
+
+  (defun mailbox-close (mailbox)
+    (cora/lib/parallel/internal#mailbox-close mailbox))
+
+  (defun mailbox-is-closed (mailbox)
+    (cora/lib/parallel/internal#mailbox-is-closed mailbox))
+
+  (defun mailbox-send-try (mailbox msg)
+    (cora/lib/parallel/internal#mailbox-send-try mailbox msg))
+
+  (defun mailbox-recv-try (mailbox)
+    (cora/lib/parallel/internal#mailbox-recv-try mailbox))
+
+  (defun mailbox-publish (name mailbox)
+    (cora/lib/parallel/internal#mailbox-publish name mailbox))
+
+  (defun mailbox-resolve (name)
+    (cora/lib/parallel/internal#mailbox-resolve name))
 
   ;; Spawn coroutine in current VM
   ;; This extends the existing CML spawn to work with parallel runtime
