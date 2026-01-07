@@ -10,24 +10,44 @@
   (export 
     ;; Runtime management
     parallel-init parallel-shutdown
+    vm-runtime-init vm-runtime-shutdown vm-runtime-wait-all
     ;; VM management  
-    vm-current-id
+    vm-current-id vm-get-current vm-get-current-id
     ;; Task spawning
-    spawn spawn-vm
+    spawn spawn-vm spawn-vm-native
     ;; Entry point
     parallel-entry)
 
   ;; Initialize parallel runtime
   (defun parallel-init (num-threads)
-    (vm-runtime-init num-threads))
+    (cora/lib/parallel/internal#vm-runtime-init num-threads))
 
   ;; Shutdown parallel runtime
   (defun parallel-shutdown ()
-    (vm-runtime-shutdown))
+    (cora/lib/parallel/internal#vm-runtime-shutdown))
+
+  ;; Direct access to internal functions for advanced usage
+  (defun vm-runtime-init (num-threads)
+    (cora/lib/parallel/internal#vm-runtime-init num-threads))
+
+  (defun vm-runtime-shutdown ()
+    (cora/lib/parallel/internal#vm-runtime-shutdown))
+
+  (defun vm-runtime-wait-all ()
+    (cora/lib/parallel/internal#vm-runtime-wait-all))
+
+  (defun vm-get-current ()
+    (cora/lib/parallel/internal#vm-get-current))
 
   ;; Get current VM ID
   (defun vm-current-id ()
-    (vm-get-current-id))
+    (cora/lib/parallel/internal#vm-get-current-id))
+
+  (defun vm-get-current-id ()
+    (cora/lib/parallel/internal#vm-get-current-id))
+
+  (defun spawn-vm-native (thunk)
+    (cora/lib/parallel/internal#spawn-vm-native thunk))
 
   ;; Spawn coroutine in current VM
   ;; This extends the existing CML spawn to work with parallel runtime

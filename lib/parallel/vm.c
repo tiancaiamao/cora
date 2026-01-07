@@ -163,19 +163,19 @@ worker_thread(void *arg) {
 
 		switch (result) {
 		case VM_TIME_EXPIRED:
-		case VM_NO_WORK:
-			// Re-enqueue VM
+		case VM_CONTINUE:
+			// VM has more work, re-enqueue for next time slice
 			vm_enqueue_global(vm);
+			break;
+
+		case VM_NO_WORK:
+			// VM has no ready tasks, don't re-enqueue
+			// It will be woken up by external events (mailbox/poller/waker)
 			break;
 
 		case VM_TERMINATED:
-			// Destroy VM
+			// VM lifecycle ended, destroy it
 			vm_destroy(vm);
-			break;
-
-		case VM_CONTINUE:
-			// Should not happen with time slice
-			vm_enqueue_global(vm);
 			break;
 		}
 
@@ -188,6 +188,12 @@ worker_thread(void *arg) {
 // Initialize global runtime
 void
 vm_runtime_init(int num_threads) {
+	// Ensure runtime is not already initialized
+	if (g_runtime != NULL) {
+		// Already initialized, ignore or assert based on policy
+		return;
+	}
+
 	g_runtime = malloc(sizeof(GlobalRuntime));
 
 	// Initialize VM queue
@@ -245,6 +251,11 @@ vm_runtime_shutdown(void) {
 // Create a new VM
 VM *
 vm_create(void) {
+	// Runtime must be initialized before creating VMs
+	if (g_runtime == NULL) {
+		return NULL;
+	}
+
 	VM *vm = malloc(sizeof(VM));
 	vm->id = atomic_fetch_add(&g_runtime->next_vm_id, 1);
 	vm->is_running = false;

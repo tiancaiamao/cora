@@ -1,0 +1,49 @@
+;; Test for parallel runtime (GlobalRuntime + thread pool)
+;; This tests the basic VM creation, scheduling, and cleanup
+
+(import "cora/lib/parallel")
+
+(defun test-vm-lifecycle ()
+  (begin
+    (display "=== Testing VM Runtime Lifecycle ===\n")
+    
+    ;; Initialize runtime with 4 worker threads
+    (display "Initializing runtime with 4 threads...\n")
+    (cora/lib/parallel#vm-runtime-init 4)
+    
+    ;; Get current VM ID (should be -1 since we're not in a spawned VM)
+    (let main-vm-id (cora/lib/parallel#vm-get-current-id)
+      (begin
+        (display "Main thread VM ID: ")
+        (display main-vm-id)
+        (display "\n")))
+    
+    ;; Spawn several VMs
+    (display "Spawning 5 VMs...\n")
+    (let vm1-id (cora/lib/parallel#spawn-vm-native (lambda () (display "VM 1 running\n")))
+      (let vm2-id (cora/lib/parallel#spawn-vm-native (lambda () (display "VM 2 running\n")))
+        (let vm3-id (cora/lib/parallel#spawn-vm-native (lambda () (display "VM 3 running\n")))
+          (let vm4-id (cora/lib/parallel#spawn-vm-native (lambda () (display "VM 4 running\n")))
+            (let vm5-id (cora/lib/parallel#spawn-vm-native (lambda () (display "VM 5 running\n")))
+              (begin
+                (display "Created VM IDs: ")
+                (display vm1-id) (display " ")
+                (display vm2-id) (display " ")
+                (display vm3-id) (display " ")
+                (display vm4-id) (display " ")
+                (display vm5-id) (display "\n")
+                
+                ;; Give worker threads time to process VMs
+                (display "Waiting for VMs to execute...\n")
+                ;; TODO: Replace with proper synchronization when implemented
+                (let _ (+ 1 1) ;; Placeholder
+                  (begin
+                    (display "Test completed\n")
+                    
+                    ;; Shutdown runtime
+                    (display "Shutting down runtime...\n")
+                    (cora/lib/parallel#vm-runtime-shutdown)
+                    (display "=== Test Complete ===\n")
+                    0))))))))))
+
+(test-vm-lifecycle)

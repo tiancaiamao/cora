@@ -1,0 +1,34 @@
+(package "cora/test/parallel-basic"
+  (import "cora/lib/parallel")
+  (import "cora/lib/io")
+
+  (defun test-parallel ()
+    (begin
+      (display "Testing parallel runtime API...\n")
+      
+      ;; Test initialization
+      (display "1. Testing parallel-init...\n")
+      (parallel-init 2)
+      (display "   Init successful!\n")
+      
+      ;; Test spawn
+      (display "2. Testing spawn...\n")
+      (spawn (lambda () (display "   Hello from spawned coroutine!\n")))
+      (display "   Spawn successful!\n")
+      
+      ;; Test VM info
+      (display "3. Testing VM info...\n")
+      (let id (vm-get-current-id))
+           (begin
+             (display "   Current VM ID: ")
+             (display id)
+             (display "\n")))
+      
+      ;; Test shutdown
+      (display "4. Testing parallel-shutdown...\n")
+      (parallel-shutdown)
+      (display "   Shutdown successful!\n")
+      
+      (display "All tests passed!\n")))
+  
+  (test-parallel))

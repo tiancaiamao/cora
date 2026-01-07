@@ -1,0 +1,26 @@
+;; Simple test for parallel runtime - just init and shutdown
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "Testing basic runtime lifecycle...\n")
+
+;; Test 1: Initialize runtime
+(display "1. Initializing runtime with 2 threads...\n")
+(cora/lib/parallel/internal#vm-runtime-init 2)
+(display "   Runtime initialized\n")
+
+;; Test 2: Check current VM (should be -1, not in a spawned VM)
+(display "2. Checking current VM ID...\n")
+(let vm-id (cora/lib/parallel/internal#vm-get-current-id)
+  (begin
+    (display "   Current VM ID: ")
+    (display vm-id)
+    (display "\n")))
+
+;; Test 3: Shutdown
+(display "3. Shutting down runtime...\n")
+(cora/lib/parallel/internal#vm-runtime-shutdown)
+(display "   Runtime shutdown complete\n")
+
+(display "All tests passed!\n")

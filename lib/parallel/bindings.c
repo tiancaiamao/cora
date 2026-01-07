@@ -50,6 +50,15 @@ cora_vm_get_current_id(Cora *co, int label, Obj *R) {
 	}
 }
 
+static bool
+coraAsVMHasWork(void *ptr) {
+	Cora *co = (Cora *)ptr;
+	(void)co;
+	// TODO: Check if Cora VM has ready tasks in its queue
+	// For now, assume it always has work (will be refined when integrating scheduler)
+	return true;
+}
+
 static void
 coraAsVMInit(void *ptr) {
 	Cora *co = (Cora *)ptr;
@@ -77,6 +86,7 @@ static void
 coraAsVMImpl(VMImpl *impl) {
 	Cora *co = coraInit();
 	impl->self = (void *)co;
+	impl->HasWork = coraAsVMHasWork;
 	impl->Init = coraAsVMInit;
 	impl->ScheduleOnce = coraAsVMScheduleOnce;
 	impl->Exit = coraAsVMExit;
@@ -91,6 +101,12 @@ cora_spawn_vm_native(Cora *co, int label, Obj *R) {
 	// For now, we'll create a VM but not actually execute the thunk
 	// This requires deeper integration with CML's task system
 	VM *vm = vm_create();
+	if (!vm) {
+		// Runtime not initialized or creation failed
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+
 	coraAsVMImpl(&vm->impl);
 
 	// TODO: Add thunk to VM's task queue
