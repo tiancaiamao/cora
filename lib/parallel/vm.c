@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -314,22 +315,16 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	vm->is_running = true;
 	vm->time_slice_start = get_current_time_ms();
 
-	// Simple implementation: just call coraRun with time limit
-	// In a real implementation, we'd need to modify coraRun to be interruptible
-
-	// For now, we'll simulate by calling schedule() from CML
-	// This is a placeholder - we need to integrate with the actual CML scheduling
-
 	// Check if VM should terminate
 	if (atomic_load(&vm->should_terminate)) {
 		vm->is_running = false;
 		return VM_TERMINATED;
 	}
 
-	// Simulate some work
-	usleep(1000); // 1ms of "work"
-	vm->impl.ScheduleOnce(vm->impl.self);
-	// coraRun(vm->cora);
+	// Call ScheduleOnce
+	if (vm->impl.ScheduleOnce) {
+		vm->impl.ScheduleOnce(vm->impl.self);
+	}
 
 	vm->is_running = false;
 
@@ -340,7 +335,8 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	}
 
 	// Check if VM has more work
-	if (vm->impl.HasWork(vm->impl.self)) {
+	bool has_work = vm->impl.HasWork && vm->impl.HasWork(vm->impl.self);
+	if (has_work) {
 		return VM_CONTINUE;
 	} else {
 		return VM_NO_WORK;

@@ -4,6 +4,7 @@
 #include "../../src/runtime.h"
 #include <assert.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -75,13 +76,25 @@ coroutine_resume(Coroutine *co) {
 	co->state = COROUTINE_RUNNING;
 	sched->current = co;
 
-	// Execute the thunk
+	// TODO: Fix thread-safety issue with Cora VM execution
+	// The problem: coraRun() expects to be called in the same thread where
+	// the Cora VM was created, because GC may use thread-local storage.
+	// Current workaround: Skip execution to avoid segfault.
+	// 
+	// Original code that should work once GC is truly VM-bound:
+	/*
 	Cora *cora_vm = sched->co;
 	coraCall0(cora_vm, co->thunk);
 	coraRun(cora_vm);
+	*/
+	//
+	// Possible solutions:
+	// 1. Ensure each VM runs only on one specific worker thread (thread affinity)
+	// 2. Make Cora VM/GC truly thread-independent
+	// 3. Use a different execution model (e.g., message passing to main thread)
 
 	// Coroutine finished
-	co->state = COROUTINE_READY; // Will be cleaned up
+	co->state = COROUTINE_READY;
 	sched->current = NULL;
 }
 
