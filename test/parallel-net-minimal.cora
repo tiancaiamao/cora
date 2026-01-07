@@ -1,0 +1,15 @@
+;; Minimal test - just test import
+(display "Test 1: Importing parallel module...")
+(import "cora/lib/parallel/internal")
+(display "  SUCCESS: Module imported")
+
+(display "\nTest 2: Calling net-listen...")
+(let ((fd (net-listen nil 9998)))
+  (display "  fd =" fd)
+  (if (>= fd 0)
+      (do
+        (display "  SUCCESS")
+        (net-close fd))
+      (display "  FAILED")))
+
+(display "\nDone.")

@@ -15,7 +15,7 @@
 // Scheduler state per VM
 typedef struct VMScheduler {
 	VM *vm;
-	Cora *co; // The Cora VM instance
+	CoraVMWithTasks *cora_vm_with_tasks;  // Use the new C-level API for task management
 
 	// Ready queue (local, not thread-safe)
 	Coroutine *ready_head;
@@ -68,7 +68,7 @@ coroutine_resume(Coroutine *co) {
 	}
 
 	VMScheduler *sched = (VMScheduler *)co->vm->impl.self;
-	if (!sched || !sched->co) {
+	if (!sched || !sched->cora_vm_with_tasks) {
 		return;
 	}
 
@@ -209,7 +209,7 @@ vm_scheduler_has_work(void *ptr) {
 static void
 vm_scheduler_init(void *ptr) {
 	VMScheduler *sched = (VMScheduler *)ptr;
-	if (!sched || !sched->co) {
+	if (!sched || !sched->cora_vm_with_tasks) {
 		return;
 	}
 
@@ -249,9 +249,9 @@ vm_scheduler_exit(void *ptr) {
 	}
 
 	// Clean up Cora VM
-	if (sched->co) {
-		coraExit(sched->co);
-		sched->co = NULL;
+	if (sched->cora_vm_with_tasks) {
+		cora_vm_with_tasks_destroy(sched->cora_vm_with_tasks);
+		sched->cora_vm_with_tasks = NULL;
 	}
 
 	// Clean up local queue
@@ -289,7 +289,7 @@ vm_create_with_scheduler(void) {
 	VMScheduler *sched = malloc(sizeof(VMScheduler));
 	memset(sched, 0, sizeof(VMScheduler));
 	sched->vm = vm;
-	sched->co = coraInit();
+	sched->cora_vm_with_tasks = cora_vm_with_tasks_create();
 	sched->next_coroutine_id = 1;
 	pthread_mutex_init(&sched->shared_lock, NULL);
 
@@ -332,5 +332,5 @@ vm_get_cora(VM *vm) {
 		return NULL;
 	}
 
-	return sched->co;
+	return cora_vm_get_cora_instance(sched->cora_vm_with_tasks);
 }

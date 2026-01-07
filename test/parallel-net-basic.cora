@@ -1,0 +1,58 @@
+;; Test the new parallel network API
+(import "lib/parallel/internal")
+
+;; Initialize parallel runtime with 2 threads
+(vm-runtime-init 2)
+
+;; Initialize global poller
+(poller-init)
+
+;; Test 1: Create a listening socket
+(println "Test 1: Create listening socket on port 9999")
+(let ((listen-fd (net-listen nil 9999)))
+  (if (< listen-fd 0)
+      (println "  FAILED: Could not create listening socket")
+      (do
+        (println "  OK: Listening socket created, fd =" listen-fd)
+        
+        ;; Test 2: Create async socket wrapper
+        (println "\nTest 2: Create AsyncSocket wrapper")
+        (let ((async-sock (async-socket-new listen-fd)))
+          (if (not async-sock)
+              (println "  FAILED: Could not create AsyncSocket")
+              (do
+                (println "  OK: AsyncSocket created")
+                
+                ;; Test 3: Get event handle from socket
+                (println "\nTest 3: Get EventHandle from AsyncSocket")
+                (let ((eh (async-socket-get-event-handle async-sock)))
+                  (if (not eh)
+                      (println "  FAILED: Could not get EventHandle")
+                      (do
+                        (println "  OK: EventHandle obtained")
+                        
+                        ;; Test 4: Enable read events
+                        (println "\nTest 4: Enable read events")
+                        (event-handle-enable-read eh)
+                        (println "  OK: Read events enabled")
+                        
+                        ;; Test 5: Add handle to poller
+                        (println "\nTest 5: Add handle to poller")
+                        (poller-add-handle eh)
+                        (println "  OK: Handle added to poller")
+                        ))))))
+        
+        ;; Close the listening socket
+        (net-close listen-fd)
+        (println "\nCleaned up: Listening socket closed")
+        )))
+
+;; Shutdown poller
+(poller-shutdown)
+(println "\nPoller shutdown complete")
+
+;; Shutdown parallel runtime
+(vm-runtime-shutdown)
+(println "Parallel runtime shutdown complete")
+
+(println "\n=== All tests completed ===")

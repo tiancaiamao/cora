@@ -1,0 +1,20 @@
+;; Simple test for parallel network API
+(import "cora/lib/parallel/internal")
+
+(display "Starting simple network API test...\n")
+
+;; Test 1: Listen on a port
+(display "\nTest 1: Creating listening socket on port 9999\n")
+(let fd (net-listen nil 9999)
+  (begin
+    (display "  Result: fd = ")
+    (display fd)
+    (display "\n")
+    (if (or (> fd 0) (= fd 0))
+        (begin
+          (display "  SUCCESS: Socket created\n")
+          (net-close fd)
+          (display "  Socket closed\n"))
+        (display "  FAILED: Could not create socket\n"))))
+
+(display "\nAll tests completed.\n")

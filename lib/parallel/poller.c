@@ -66,6 +66,10 @@ poller_new(void) {
 	p->wake_queue = queue;
 	pthread_mutex_init(&p->wake_lock, NULL);
 
+	// Initialize thread control
+	p->running = false;
+	p->should_stop = false;
+
 	return p;
 }
 
@@ -99,10 +103,13 @@ event_handle_new(int fd, void (*read_cb)(struct EventHandle *),
 	eh->fd = fd;
 	eh->read_callback = read_cb;
 	eh->write_callback = write_cb;
+	eh->wakeup_callback = NULL;
 	eh->user_data = user_data;
 	eh->listen_events = 0;
 	eh->ready_events = 0;
 	eh->exist = false;
+	eh->target_vm = NULL;
+	eh->target_coro = NULL;
 
 	return eh;
 }
@@ -347,4 +354,129 @@ poller_process_wake_queue(Poller *p) {
 	}
 
 	pthread_mutex_unlock(&p->wake_lock);
+}
+
+// ============================================================================
+// New implementations for enhanced poller functionality
+// ============================================================================
+
+EventHandle *
+event_handle_new_with_wakeup(int fd, WakeupCallback wakeup_cb,
+	void *user_data) {
+	EventHandle *eh = (EventHandle *)malloc(sizeof(EventHandle));
+	if (!eh) {
+		return NULL;
+	}
+
+	eh->fd = fd;
+	eh->read_callback = NULL;
+	eh->write_callback = NULL;
+	eh->wakeup_callback = wakeup_cb;
+	eh->user_data = user_data;
+	eh->listen_events = 0;
+	eh->ready_events = 0;
+	eh->exist = false;
+	eh->target_vm = NULL;
+	eh->target_coro = NULL;
+
+	return eh;
+}
+
+void
+event_handle_set_target_vm(EventHandle *eh, VM *vm) {
+	if (eh) {
+		eh->target_vm = vm;
+	}
+}
+
+void
+event_handle_set_target_coroutine(EventHandle *eh, Coroutine *coro) {
+	if (eh) {
+		eh->target_coro = coro;
+	}
+}
+
+// Poller thread function - moved from bindings.c
+static void *
+poller_thread_func(void *arg) {
+	Poller *p = (Poller *)arg;
+	if (!p) {
+		return NULL;
+	}
+	
+	while (!p->should_stop) {
+		// Poll with 100ms timeout
+		int nfds = 0;
+		void **active = poller_poll(p, 100, &nfds);
+		
+		if (nfds > 0) {
+			// Process active event handles
+			for (int i = 0; i < nfds; i++) {
+				EventHandle *eh = (EventHandle *)active[i];
+				
+				// Get ready events
+				int events = eh->ready_events;
+				
+				// Call wakeup callback if registered
+				if (eh->wakeup_callback) {
+					eh->wakeup_callback(eh->user_data, events);
+				}
+				
+				// Call legacy callbacks if registered
+				if ((events & EVENT_READ) && eh->read_callback) {
+					eh->read_callback(eh);
+				}
+				if ((events & EVENT_WRITE) && eh->write_callback) {
+					eh->write_callback(eh);
+				}
+			}
+			free(active);
+		}
+		
+		// Process wake queue
+		poller_process_wake_queue(p);
+	}
+	
+	p->running = false;
+	return NULL;
+}
+
+bool
+poller_start_thread(Poller *p) {
+	if (!p || p->running) {
+		return false;
+	}
+	
+	p->should_stop = false;
+	p->running = true;
+	
+	if (pthread_create(&p->thread, NULL, poller_thread_func, p) != 0) {
+		p->running = false;
+		return false;
+	}
+	
+	return true;
+}
+
+void
+poller_stop_thread(Poller *p) {
+	if (!p || !p->running) {
+		return;
+	}
+	
+	p->should_stop = true;
+	pthread_join(p->thread, NULL);
+	p->running = false;
+}
+
+// Wake up the poller thread (for cross-thread notifications)
+void
+poller_wakeup(Poller *p) {
+	if (!p) {
+		return;
+	}
+	
+	// We can use a self-pipe or eventfd to wake up the poller
+	// For now, the poller thread polls with timeout, so it will wake up eventually
+	// TODO: Implement eventfd/pipe-based wakeup for immediate response
 }

@@ -3,6 +3,7 @@
 #include "mailbox.h"
 #include "scheduler.h"
 #include "poller.h"
+#include "net.h"
 #include <stdio.h>
 
 // Cora binding functions
@@ -247,44 +248,8 @@ cora_mailbox_resolve(Cora *co, int label, Obj *R) {
 
 // Global poller (simplified - one poller for all VMs)
 static Poller *g_poller = NULL;
-static pthread_t g_poller_thread;
-static volatile int g_poller_running = 0;
 
-// Poller thread function
-static void *
-poller_thread_func(void *arg) {
-	(void)arg;
-	
-	while (g_poller_running) {
-		// Poll with 100ms timeout
-		int nfds = 0;
-		void **active = poller_poll(g_poller, 100, &nfds);
-		
-		if (nfds > 0) {
-			// Process active event handles
-			for (int i = 0; i < nfds; i++) {
-				EventHandle *eh = (EventHandle *)active[i];
-				
-				// Get ready events
-				int events = eh->ready_events;
-				
-				// Call callbacks if registered
-				if ((events & EVENT_READ) && eh->read_callback) {
-					eh->read_callback(eh);
-				}
-				if ((events & EVENT_WRITE) && eh->write_callback) {
-					eh->write_callback(eh);
-				}
-			}
-			free(active);
-		}
-		
-		// Process wake queue
-		poller_process_wake_queue(g_poller);
-	}
-	
-	return NULL;
-}
+// NOTE: Poller thread is now managed internally by poller.c
 
 // Initialize global poller
 static void
@@ -299,12 +264,10 @@ cora_poller_init(Cora *co, int label, Obj *R) {
 			return;
 		}
 		
-		// Start poller thread
-		g_poller_running = 1;
-		if (pthread_create(&g_poller_thread, NULL, poller_thread_func, NULL) != 0) {
+		// Start poller thread using the new API
+		if (!poller_start_thread(g_poller)) {
 			poller_free(g_poller);
 			g_poller = NULL;
-			g_poller_running = 0;
 			coraReturn(co, False);
 			return;
 		}
@@ -319,9 +282,9 @@ cora_poller_shutdown(Cora *co, int label, Obj *R) {
 	(void)label;
 	(void)R;
 	
-	if (g_poller && g_poller_running) {
-		g_poller_running = 0;
-		pthread_join(g_poller_thread, NULL);
+	if (g_poller) {
+		// Stop poller thread using the new API
+		poller_stop_thread(g_poller);
 		poller_free(g_poller);
 		g_poller = NULL;
 	}
@@ -431,6 +394,186 @@ cora_poller_poll(Cora *co, int label, Obj *R) {
 	coraReturn(co, result);
 }
 
+// ============================================================================
+// Network API bindings
+// ============================================================================
+
+// net-listen host port -> fd or -1
+static void
+cora_net_listen(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj host_obj = R[1];
+	Obj port_obj = R[2];
+	
+	if (!isfixnum(port_obj)) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	
+	const char *host = NULL;
+	if (host_obj != Nil && isBytes(host_obj)) {
+		host = bytesData(host_obj);
+	}
+	
+	int port = fixnum(port_obj);
+	int fd = net_listen(host, port);
+	
+	coraReturn(co, makeNumber(fd));
+}
+
+// net-dial host port -> fd or -1
+static void
+cora_net_dial(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj host_obj = R[1];
+	Obj port_obj = R[2];
+	
+	if (!isBytes(host_obj) || !isBytes(port_obj)) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	
+	const char *host = bytesData(host_obj);
+	const char *port = bytesData(port_obj);
+	
+	int fd = net_dial(host, port);
+	
+	coraReturn(co, makeNumber(fd));
+}
+
+// net-accept listen-fd -> fd or -1
+static void
+cora_net_accept(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj listen_fd_obj = R[1];
+	
+	if (!isfixnum(listen_fd_obj)) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	
+	int listen_fd = fixnum(listen_fd_obj);
+	int fd = net_accept(listen_fd);
+	
+	coraReturn(co, makeNumber(fd));
+}
+
+// net-close fd -> nil
+static void
+cora_net_close(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj fd_obj = R[1];
+	
+	if (isfixnum(fd_obj)) {
+		int fd = fixnum(fd_obj);
+		net_close(fd);
+	}
+	
+	coraReturn(co, Nil);
+}
+
+// async-socket-new fd -> AsyncSocket object or false
+static void
+cora_async_socket_new(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj fd_obj = R[1];
+	
+	if (!isfixnum(fd_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+	
+	int fd = fixnum(fd_obj);
+	AsyncSocket *sock = async_socket_new(fd);
+	
+	if (sock) {
+		coraReturn(co, makeCObj(sock));
+	} else {
+		coraReturn(co, False);
+	}
+}
+
+// async-socket-send sock buf -> [ok sent] or [block sent] or [error]
+static void
+cora_async_socket_send(Cora *co, int label, Obj *R) {
+	(void)label;
+	AsyncSocket *sock = mustCObj(R[1]);
+	Obj buf_obj = R[2];
+	
+	if (!isBytes(buf_obj)) {
+		// Return error
+		Obj result = makeCons(co->gc, intern("error"), Nil);
+		coraReturn(co, result);
+		return;
+	}
+	
+	const char *buf = bytesData(buf_obj);
+	size_t len = bytesLen(buf_obj);
+	size_t sent = 0;
+	
+	SocketResult res = async_socket_send(sock, buf, len, &sent);
+	
+	Obj status;
+	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
+		status = (res == SOCK_OK) ? intern("ok") : intern("block");
+	} else {
+		status = intern("error");
+	}
+	
+	Obj sent_num = makeNumber(sent);
+	Obj result = makeCons(co->gc, status, makeCons(co->gc, sent_num, Nil));
+	
+	coraReturn(co, result);
+}
+
+// async-socket-recv sock buf -> [ok received] or [block received] or [error]
+static void
+cora_async_socket_recv(Cora *co, int label, Obj *R) {
+	(void)label;
+	AsyncSocket *sock = mustCObj(R[1]);
+	Obj buf_obj = R[2];
+	
+	if (!isBytes(buf_obj)) {
+		// Return error
+		Obj result = makeCons(co->gc, intern("error"), Nil);
+		coraReturn(co, result);
+		return;
+	}
+	
+	char *buf = bytesData(buf_obj);
+	size_t len = bytesLen(buf_obj);
+	size_t received = 0;
+	
+	SocketResult res = async_socket_recv(sock, buf, len, &received);
+	
+	Obj status;
+	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
+		status = (res == SOCK_OK) ? intern("ok") : intern("block");
+	} else {
+		status = intern("error");
+	}
+	
+	Obj received_num = makeNumber(received);
+	Obj result = makeCons(co->gc, status, makeCons(co->gc, received_num, Nil));
+	
+	coraReturn(co, result);
+}
+
+// async-socket-get-event-handle sock -> EventHandle
+static void
+cora_async_socket_get_event_handle(Cora *co, int label, Obj *R) {
+	(void)label;
+	AsyncSocket *sock = mustCObj(R[1]);
+	
+	EventHandle *eh = async_socket_get_event_handle(sock);
+	
+	if (eh) {
+		coraReturn(co, makeCObj(eh));
+	} else {
+		coraReturn(co, False);
+	}
+}
+
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
@@ -462,6 +605,16 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "event-handle-enable-write", cora_event_handle_enable_write, 1);
 	coraRegisterAPI(co, module, "poller-add-handle", cora_poller_add_handle, 1);
 	coraRegisterAPI(co, module, "poller-poll", cora_poller_poll, 1);
+
+	// Network API
+	coraRegisterAPI(co, module, "net-listen", cora_net_listen, 2);
+	coraRegisterAPI(co, module, "net-dial", cora_net_dial, 2);
+	coraRegisterAPI(co, module, "net-accept", cora_net_accept, 1);
+	coraRegisterAPI(co, module, "net-close", cora_net_close, 1);
+	coraRegisterAPI(co, module, "async-socket-new", cora_async_socket_new, 1);
+	coraRegisterAPI(co, module, "async-socket-send", cora_async_socket_send, 2);
+	coraRegisterAPI(co, module, "async-socket-recv", cora_async_socket_recv, 2);
+	coraRegisterAPI(co, module, "async-socket-get-event-handle", cora_async_socket_get_event_handle, 1);
 
 	coraReturn(co, intern("parallel"));
 }
