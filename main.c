@@ -40,6 +40,7 @@ repl(Cora* co, FILE* stream) {
 		if (stream == stdin) {
 			sexpWrite(stdout, coraGetResult(co));
 			printf("\n");
+            fflush(stdout);
 		}
 	}
 }

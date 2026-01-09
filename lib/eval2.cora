@@ -1,0 +1,119 @@
+(package "cora/lib/eval2"
+
+    (export eval)
+
+  (set 'set (set))
+  (set 'car (car))
+  (set 'cdr (cdr))
+  (set 'cons (cons))
+  (set 'cons? (cons?))
+  (set '+ (+))
+  (set '- (-))
+  (set '* (*))
+  (set '/ (/))
+  (set '= (=))
+  (set '> (>))
+  (set '< (<))
+  (set 'gensym (lambda () (gensym)))
+  (set 'symbol? (symbol?))
+  (set 'not (not))
+  (set 'string? (string?))
+
+  ;; resolve global symbol at compile time
+  (defun var-with-ns (var ns)
+    (cond
+     ((= ns "") var)
+     ((symbol-cooked? var) var)
+     (true (intern (string-append ns (string-append "#" (symbol->string var)))))))
+
+  (func lookup-var
+	s ns [] => (var-with-ns s ns)
+	s ns [import . more] => (let export (value-or (intern (string-append import "#*ns-export*")) ())
+				  (if (elem? s export)
+				      (intern (string-append import (string-append "#" (symbol->string s))))
+				      (lookup-var s ns more))))
+
+  ;; Compile-time environment lookup
+  ;; Returns ['local depth idx] for local/closure vars, or ['global resolved-sym] for globals
+  (func compile-lookup
+    sym [] => ['global (lookup-var sym "" cora/init#*imported*)]
+    sym [vars . rest] =>
+      (match (index-of sym vars)
+        -1 (match (compile-lookup sym rest)
+             ['global g] ['global g]
+             ['local d i] ['local (+ d 1) i])
+        idx ['local 0 idx]))
+
+  ;; Helper: find index in list
+  (func index-of
+    x [] => -1
+    x [h . t] => (if (= x h) 0 (let r (index-of x t) (if (= r -1) -1 (+ r 1)))))
+
+  (func nth
+    lst 0 => (car lst)
+    lst n => (nth (cdr lst) (- n 1)))
+
+  ;; Helper: list to vector for params
+  (defun params->vector (params)
+    (let len (length params)
+         v (vector len)
+         (begin
+           (fill-vector! v params 0)
+           v)))
+
+  (func fill-vector!
+    v [] i => v
+    v [h . t] i => (begin (vector-set! v i h) (fill-vector! v t (+ i 1))))
+
+  ;; Main compile function: returns a function (lambda (renv) ...)
+  (func compile
+    exp cenv => (lambda (renv) exp) where (or (string? exp) (number? exp) (boolean? exp) (null? exp))
+    exp cenv => (match (compile-lookup exp cenv)
+                  ['local depth idx] (lambda (renv) (vector-ref (nth renv depth) idx))
+                  ['global resolved] (let resolved-sym resolved
+                                       (lambda (renv) (value resolved-sym))))
+      where (symbol? exp)
+    ['quote val] cenv => (lambda (renv) val)
+    ['if test then else-branch] cenv =>
+      (let test-code (compile test cenv)
+           then-code (compile then cenv)
+           else-code (compile else-branch cenv)
+        (lambda (renv)
+          (if (test-code renv) (then-code renv) (else-code renv))))
+    ['do a b] cenv =>
+      (let a-code (compile a cenv)
+           b-code (compile b cenv)
+        (lambda (renv) (do (a-code renv) (b-code renv))))
+    ['def var val] cenv =>
+      (let val-code (compile val cenv)
+        (lambda (renv) (set var (val-code renv))))
+    ['let var val body] cenv =>
+      (let val-code (compile val cenv)
+           new-cenv (cons (list var) cenv)
+           body-code (compile body new-cenv)
+        (lambda (renv)
+          (let v (val-code renv)
+               new-renv (cons (vector 1) renv)
+            (begin
+              (vector-set! (car new-renv) 0 v)
+              (body-code new-renv)))))
+    ['lambda params body] cenv =>
+      (let new-cenv (cons params cenv)
+           body-code (compile body new-cenv)
+           nparams (length params)
+        (lambda (renv)
+            ;; closure capture its definition time env and body
+            ;; [nparams body-code renv]
+            ;; we also need to make it be able to run with compiled code
+            (make-closure-for-eval nparams body-code renv)))
+    [f . args] cenv =>
+      (let f-code (compile f cenv)
+           args-code (map (lambda (arg) (compile arg cenv)) args)
+        (lambda (renv)
+          (let f-val (f-code renv)
+               args-val (map (lambda (code) (code renv)) args-code)
+               (apply f-val args-val)))))
+
+  (func eval
+    exp => ((compile exp ()) ()))
+  )
