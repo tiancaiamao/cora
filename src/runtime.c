@@ -294,6 +294,26 @@ builtinValue(Cora *co, int label, Obj *R) {
 	coraReturn(co, ret);
 }
 
+static void
+bindingValueForEval(Cora *co, int label, Obj *R) {
+    Obj idx = car(R[1]);
+    Obj sym = cdr(R[1]);
+	Obj v = vecGet(&co->globals, fixnum(idx));
+    if (v == Undef) {
+        strBuf s = ptr(sym);
+        printf("undefined global variable %s\n", toCStr(s));
+    }
+    coraReturn(co, v);
+}
+
+static void
+symbolBindingForEval(Cora *co, int label, Obj *R) {
+    Obj sym = R[1];
+    assert(tag(sym) == TAG_SYMBOL);
+ 	Binding bind = bindSymbol(co, sym);
+    coraReturn(co, makeCons(co->gc, makeNumber(bind.idx), bind.name));       
+}
+
 void
 builtinValueOr(Cora *co, int label, Obj *R) {
 	Obj sym = R[1];
@@ -985,18 +1005,9 @@ applyClosureForEval2(Cora *co, int label, Obj *R) {
         vectorSet(co->gc, vec, i, R[i+1]);
     }
 
-//	for (int i = 1; i<= required; i++) {
-//		Obj var = car(params);
-//		Obj val = R[i];
-//		env = makeCons(co->gc, makeCons(co->gc, var, val), env);
-//		params = cdr(params);
-//	}
-
     Obj newEnv = makeCons(co->gc, vec, env);
 	co->ctx.sp = R;
     coraCall1(co, body, newEnv);
-//	coraCall2(co, globalRef(co, bindSymbol(co, intern("cora/lib/eval#eval"))),
-//		body, env);
 }
 
 static void
@@ -1142,6 +1153,10 @@ coraInit() {
 		makeNative(co->gc, 4, makeClosureForEval, 3, 0));
     primSet(co, intern("cora/lib/eval2#make-closure-for-eval"),
         makeNative(co->gc, 4, makeClosureForEval2, 3, 0));
+    primSet(co, intern("cora/lib/eval2#symbol-binding"),
+        makeNative(co->gc, 2, symbolBindingForEval, 1, 0));
+    primSet(co, intern("cora/lib/eval2#binding-value"),
+        makeNative(co->gc, 2, bindingValueForEval, 1, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
 		makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);

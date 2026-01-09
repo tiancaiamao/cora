@@ -1,7 +1,7 @@
 (package "cora/lib/eval2"
     (import "cora/lib/peval") ;; to optimize performance
     (export eval)
-    
+
 
   (set 'set (set))
   (set 'car (car))
@@ -71,8 +71,8 @@
     exp cenv => (lambda (renv) exp) where (or (string? exp) (number? exp) (boolean? exp) (null? exp))
     exp cenv => (match (compile-lookup exp cenv)
                   ['local depth idx] (lambda (renv) (vector-ref (nth renv depth) idx))
-                  ['global resolved] (let resolved-sym resolved
-                                       (lambda (renv) (value resolved-sym))))
+                  ['global resolved] (let bind (symbol-binding resolved)
+                                          (lambda (renv) (binding-value bind))))
       where (symbol? exp)
     ['quote val] cenv => (lambda (renv) val)
     ['if test then else-branch] cenv =>
