@@ -108,11 +108,23 @@
             (make-closure-for-eval nparams body-code renv)))
     [f . args] cenv =>
       (let f-code (compile f cenv)
-           args-code (map (lambda (arg) (compile arg cenv)) args)
-        (lambda (renv)
-          (let f-val (f-code renv)
-               args-val (map (lambda (code) (code renv)) args-code)
-               (apply f-val args-val)))))
+            nargs (length args)
+            (cond
+                ((= nargs 0) (lambda (renv) ((f-code renv))))
+                ((= nargs 1) (let arg-code (compile (car args) cenv)
+                                (lambda (renv) ((f-code renv) (arg-code renv)))))
+                ((= nargs 2) (let arg1-code (compile (car args) cenv)
+                                  arg2-code (compile (cadr args) cenv)
+                                  (lambda (renv) ((f-code renv) (arg1-code renv) (arg2-code renv)))))
+                ((= nargs 3) (let arg1-code (compile (car args) cenv)
+                                  arg2-code (compile (cadr args) cenv)
+                                  arg3-code (compile (caddr args) cenv)
+                                  (lambda (renv) ((f-code renv) (arg1-code renv) (arg2-code renv) (arg3-code renv)))))
+                (true (let args-code (map (lambda (arg) (compile arg cenv)) args)
+                        (lambda (renv)
+                          (let f-val (f-code renv)
+                               args-val (map (lambda (code) (code renv)) args-code)
+                               (apply f-val args-val))))))))
 
   (func eval
     exp => ((compile exp ()) ()))
