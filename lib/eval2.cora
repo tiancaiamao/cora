@@ -1,6 +1,7 @@
 (package "cora/lib/eval2"
-
+    (import "cora/lib/peval") ;; to optimize performance
     (export eval)
+    
 
   (set 'set (set))
   (set 'car (car))
