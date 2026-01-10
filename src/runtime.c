@@ -288,9 +288,30 @@ builtinValue(Cora *co, int label, Obj *R) {
 		ret = s->value;
 		assert(ret != Undef);
 	} else {
+        printf("value function need a symbol parameter");
 		assert(false);
 	}
 	coraReturn(co, ret);
+}
+
+static void
+bindingValueForEval(Cora *co, int label, Obj *R) {
+    Obj idx = car(R[1]);
+    Obj sym = cdr(R[1]);
+	Obj v = vecGet(&co->globals, fixnum(idx));
+    if (v == Undef) {
+        strBuf s = ptr(sym);
+        printf("undefined global variable %s\n", toCStr(s));
+    }
+    coraReturn(co, v);
+}
+
+static void
+symbolBindingForEval(Cora *co, int label, Obj *R) {
+    Obj sym = R[1];
+    assert(tag(sym) == TAG_SYMBOL);
+ 	Binding bind = bindSymbol(co, sym);
+    coraReturn(co, makeCons(co->gc, makeNumber(bind.idx), bind.name));       
 }
 
 void
@@ -372,6 +393,7 @@ builtinApply(Cora *co, int label, Obj *R) {
 	assert(f->head.type == scmHeadNative);
 	if (f->required != nargs) {
 		// TODO
+        printf("builtinApply ... mismatch argument, require %d but get %d\n", f->required, nargs);
 		assert(false);
 	}
 
@@ -969,6 +991,25 @@ applyClosureForEval(Cora *co, int label, Obj *R) {
 		body, env);
 }
 
+
+static void
+applyClosureForEval2(Cora *co, int label, Obj *R) {
+	Obj self = R[0];
+	Obj *data = nativeData(self);
+    int required = nativeRequired(self);
+	Obj body = data[0];
+	Obj env = data[1];
+
+    Obj vec = makeVector(co->gc, required, required);
+    for (int i=0; i < required; i++) {
+        vectorSet(co->gc, vec, i, R[i+1]);
+    }
+
+    Obj newEnv = makeCons(co->gc, vec, env);
+	co->ctx.sp = R;
+    coraCall1(co, body, newEnv);
+}
+
 static void
 makeClosureForEval(Cora *co, int label, Obj *R) {
 	Obj params = R[1];
@@ -977,6 +1018,16 @@ makeClosureForEval(Cora *co, int label, Obj *R) {
 	int len = listLen(params);
 	Obj ret =
 		makeNative(co->gc, 4, applyClosureForEval, len, 3, params, body, env);
+	coraReturn(co, ret);
+}
+
+
+static void
+makeClosureForEval2(Cora *co, int label, Obj *R) {
+	Obj nparams = fixnum(R[1]);
+	Obj body = R[2];
+	Obj env = R[3];
+	Obj ret = makeNative(co->gc, nparams+1, applyClosureForEval2, nparams, 2, body, env);
 	coraReturn(co, ret);
 }
 
@@ -1050,7 +1101,7 @@ coraRegisterAPI(Cora *co, char *pkg, char *name, basicBlock func,
 		Obj sym = intern(toCStr(tmp));
 		strFree(tmp);
 		Binding bind = bindSymbol(co, sym);
-		Obj exports = globalRef(co, bind);
+    	Obj exports = vecGet(&co->globals, bind.idx);
 		if (exports == Undef) {
 			exports = Nil;
 		}
@@ -1100,6 +1151,12 @@ coraInit() {
 		makeNative(co->gc, 2, builtinSymbolCooked, 1, 0));
 	primSet(co, intern("cora/lib/eval#make-closure-for-eval"),
 		makeNative(co->gc, 4, makeClosureForEval, 3, 0));
+    primSet(co, intern("cora/lib/eval2#make-closure-for-eval"),
+        makeNative(co->gc, 4, makeClosureForEval2, 3, 0));
+    primSet(co, intern("cora/lib/eval2#symbol-binding"),
+        makeNative(co->gc, 2, symbolBindingForEval, 1, 0));
+    primSet(co, intern("cora/lib/eval2#binding-value"),
+        makeNative(co->gc, 2, bindingValueForEval, 1, 0));
 	primSet(co, intern("cora/lib/sys#vm-symbol-for-tls"),
 		makeNative(co->gc, 1, vmSymbolForTLS, 0, 0));
 	primSet(co, primVMSymbolForTLS(co), Nil);

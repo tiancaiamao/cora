@@ -21,13 +21,27 @@ endif
 
 all: libcora.so
 
-test: reader_test gc_test
+test: reader_test gc_test eval_test
+
+eval.test: eval_test.o libcora.so
+ifeq ($(UNAME_S),Darwin)
+	# macOS: Use rpath for flexible library loading
+	$(CC) eval_test.o -Wl,-rpath,@executable_path -ldl -L. -lcora -o $@
+else
+	# Linux: Use rpath for flexible library loading
+	$(CC) eval_test.o -Wl,-rpath,\$$ORIGIN -ldl -L. -lcora -o $@
+endif
+
+
 
 reader.test: reader_test.o libcora.a
 	$(CC) -o reader.test $^ -ldl -lm
 
 reader_test: reader.test
 	./reader.test
+
+eval_test: eval.test
+	./eval.test
 
 gc.test: gc_test.o libcora.a
 	$(CC) -o gc.test $^ -ldl -lm

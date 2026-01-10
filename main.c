@@ -32,14 +32,15 @@ repl(Cora* co, FILE* stream) {
 		/* printf(" --- %d %d\n", co->base, co->pos); */
 		/* printf("\n"); */
 
-		fn = coraSymbolGet(co, intern("cora/lib/eval#eval"));
-		Obj _args[2] = {exp, Nil};
-		coraCall(co, fn, 2, _args);
+		fn = coraSymbolGet(co, intern("cora/lib/eval2#eval"));
+		Obj _args[1] = {exp};
+		coraCall(co, fn, 1, _args);
 		coraRun(co);
 
 		if (stream == stdin) {
 			sexpWrite(stdout, coraGetResult(co));
 			printf("\n");
+            fflush(stdout);
 		}
 	}
 }
@@ -103,7 +104,7 @@ main(int argc, char* argv[]) {
 	coraCall(co, fn, 1, _args);
 	coraRun(co);
 
-	arg1 = makeCString(coraGetGC(co), "cora/lib/eval");
+	arg1 = makeCString(coraGetGC(co), "cora/lib/eval2");
 	Obj __args[1] = {arg1};
 	coraCall(co, fn, 1, __args);
 	coraRun(co);
