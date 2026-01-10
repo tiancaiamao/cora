@@ -218,7 +218,12 @@ Binding bindSymbol(Cora *co, Obj x);
 static inline Obj
 globalRef(Cora *co, Binding bind) {
 	assert(bind.idx >= 0);
-	return vecGet(&co->globals, bind.idx);
+	Obj v = vecGet(&co->globals, bind.idx);
+    if (v == Undef) {
+        strBuf s = ptr(bind.name);
+        printf("undefined global variable %s\n", toCStr(s));
+    }
+    return v;
 }
 
 static inline void
