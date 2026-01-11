@@ -23,7 +23,7 @@ typedef enum {
 typedef struct {
 	void *self;
 	bool (*HasWork)(void *ptr);
-	void (*Init)(void *ptr);
+	void (*Init)(void *ptr, str fileName);
 	void (*ScheduleOnce)(void *ptr);
 	void (*Exit)(void *ptr);
 } VMImpl;
@@ -63,7 +63,7 @@ void spawn_in_current_vm(void *thunk);
 
 // Utility functions
 uint64_t get_current_time_ms(void);
-VM *get_current_vm(void);
-void set_current_vm(VM *vm);
+// VM *get_current_vm(void);
+// void set_current_vm(VM *vm);
 
 #endif // VM_RUNTIME_H

@@ -1,11 +1,11 @@
 # Makefile for parallel runtime
 
 CC = gcc
-CFLAGS = -Wall -fPIC -g -I../../src 
+CFLAGS = -Wall -fPIC -g -I../../src
 LDFLAGS = -shared -pthread -L../../src -lcora
 
 # Source files
-SOURCES = vm.c scheduler.c mailbox.c poller.c net.c bindings.c
+SOURCES = vm.c bindings.c mailbox.c poller.c net.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = internal.so
 
@@ -20,14 +20,13 @@ $(TARGET): $(OBJECTS)
 
 # Clean
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f *.o *.so
 
 # Dependencies
 vm.o: vm.c vm.h
-scheduler.o: scheduler.c scheduler.h coroutine.h vm.h
-mailbox.o: mailbox.c mailbox.h vm.h coroutine.h
+mailbox.o: mailbox.c mailbox.h vm.h
 poller.o: poller.c poller.h
 net.o: net.c net.h poller.h
-bindings.o: bindings.c vm.h mailbox.h scheduler.h poller.h net.h
+bindings.o: bindings.c vm.h mailbox.h poller.h net.h
 
 .PHONY: all clean

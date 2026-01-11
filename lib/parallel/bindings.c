@@ -1,9 +1,8 @@
 #include "../../src/runtime.h"
-#include "vm.h"
 #include "mailbox.h"
-#include "scheduler.h"
-#include "poller.h"
 #include "net.h"
+#include "poller.h"
+#include "vm.h"
 #include <stdio.h>
 
 // Cora binding functions
@@ -17,9 +16,9 @@ cora_vm_runtime_init(Cora *co, int label, Obj *R) {
 	int num_threads = fixnum(num_threads_obj);
 
 	vm_runtime_init(num_threads);
-	
+
 	// Initialize mailbox registry
-	mailbox_registry_init();
+//	mailbox_registry_init();
 
 	coraReturn(co, makeNumber(0)); // Return success
 }
@@ -33,110 +32,17 @@ cora_vm_runtime_shutdown(Cora *co, int label, Obj *R) {
 	coraReturn(co, makeNumber(0)); // Return success
 }
 
-// Get current VM
-static void
-cora_vm_get_current(Cora *co, int label, Obj *R) {
-	VM *vm = get_current_vm();
-	if (vm) {
-		// Return VM as a pointer wrapped in a number
-		// This is a simplified approach - in reality we'd want a proper object type
-		coraReturn(co, makeNumber((intptr_t)vm));
-	} else {
-		coraReturn(co, False);
-	}
-}
-
-// Get current VM ID
-static void
-cora_vm_get_current_id(Cora *co, int label, Obj *R) {
-	VM *vm = get_current_vm();
-	if (vm) {
-		coraReturn(co, makeNumber(vm->id));
-	} else {
-		coraReturn(co, makeNumber(-1));
-	}
-}
-
-static bool
-coraAsVMHasWork(void *ptr) {
-	Cora *co = (Cora *)ptr;
-	(void)co;
-	// TODO: Check if Cora VM has ready tasks in its queue
-	// For now, assume it always has work (will be refined when integrating scheduler)
-	return true;
-}
-
-static void
-coraAsVMInit(void *ptr) {
-	Cora *co = (Cora *)ptr;
-	Obj fn = symbolGet(co, intern("import"));
-	Obj arg1 = makeCString(co->gc, "cora/init");
-	Obj args[1] = {arg1};
-	coraCall(co, fn, 1, args);
-}
-
-static void
-coraAsVMExit(void *ptr) {
-	Cora *co = (Cora *)ptr;
-	coraExit(co);
-	return;
-}
-
-static void
-coraAsVMScheduleOnce(void *ptr) {
-	Cora *co = (Cora *)ptr;
-	// TODO: run the real schedule function?
-	coraRun(co);
-}
-
-static void
-coraAsVMImpl(VMImpl *impl) {
-	Cora *co = coraInit();
-	impl->self = (void *)co;
-	impl->HasWork = coraAsVMHasWork;
-	impl->Init = coraAsVMInit;
-	impl->ScheduleOnce = coraAsVMScheduleOnce;
-	impl->Exit = coraAsVMExit;
-	return;
-}
-
-// Spawn VM with thunk
+// Spawn VM with thunk (parallel mode)
 static void
 cora_spawn_vm_native(Cora *co, int label, Obj *R) {
-	Obj thunk = R[1];
+	str fileName = stringStr(R[1]);
 
-	// Create VM with integrated scheduler
-	VM *vm = vm_create_with_scheduler();
-	if (!vm) {
-		// Runtime not initialized or creation failed
-		coraReturn(co, makeNumber(-1));
-		return;
-	}
-
-	// Spawn the initial coroutine in the VM
-	vm_spawn_coroutine(vm, thunk);
+	VM *vm = vm_create();
+	vm->impl.Init(vm->impl.self, fileName);
 
 	// Enqueue VM for execution
 	vm_enqueue_global(vm);
-
 	coraReturn(co, makeNumber(vm->id));
-}
-
-// Spawn coroutine in current VM
-static void
-cora_spawn_coroutine(Cora *co, int label, Obj *R) {
-	(void)label;
-	Obj thunk = R[1];
-
-	VM *vm = get_current_vm();
-	if (!vm) {
-		// Not in a VM context
-		coraReturn(co, False);
-		return;
-	}
-
-	vm_spawn_coroutine(vm, thunk);
-	coraReturn(co, True);
 }
 
 // Wait for all VMs to complete (placeholder)
@@ -158,13 +64,13 @@ static void
 cora_mailbox_new(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj capacity_obj = R[1];
-	
+
 	// Check if capacity_obj is a valid number
 	if (!isfixnum(capacity_obj)) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	int capacity = fixnum(capacity_obj);
 
 	Mailbox *mb = mailbox_new(capacity);
@@ -263,7 +169,7 @@ cora_poller_init(Cora *co, int label, Obj *R) {
 			coraReturn(co, False);
 			return;
 		}
-		
+
 		// Start poller thread using the new API
 		if (!poller_start_thread(g_poller)) {
 			poller_free(g_poller);
@@ -281,14 +187,14 @@ static void
 cora_poller_shutdown(Cora *co, int label, Obj *R) {
 	(void)label;
 	(void)R;
-	
+
 	if (g_poller) {
 		// Stop poller thread using the new API
 		poller_stop_thread(g_poller);
 		poller_free(g_poller);
 		g_poller = NULL;
 	}
-	
+
 	coraReturn(co, True);
 }
 
@@ -297,18 +203,18 @@ static void
 cora_event_handle_new(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj fd_obj = R[1];
-	
+
 	if (!isfixnum(fd_obj)) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	int fd = fixnum(fd_obj);
-	
+
 	// TODO: Add support for callbacks
 	// For now, create a simple event handle without callbacks
 	EventHandle *eh = event_handle_new(fd, NULL, NULL, NULL);
-	
+
 	if (eh) {
 		coraReturn(co, makeCObj(eh));
 	} else {
@@ -339,12 +245,12 @@ static void
 cora_poller_add_handle(Cora *co, int label, Obj *R) {
 	(void)label;
 	EventHandle *eh = mustCObj(R[1]);
-	
+
 	if (!g_poller) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	poller_add_handle(g_poller, eh);
 	coraReturn(co, True);
 }
@@ -354,34 +260,34 @@ static void
 cora_poller_poll(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj timeout_obj = R[1];
-	
+
 	if (!isfixnum(timeout_obj)) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	int timeout_ms = fixnum(timeout_obj);
-	
+
 	if (!g_poller) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	int nfds = 0;
 	void **active = poller_poll(g_poller, timeout_ms, &nfds);
-	
+
 	if (nfds < 0) {
 		// Error
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	if (nfds == 0) {
 		// Timeout, no events
 		coraReturn(co, Nil);
 		return;
 	}
-	
+
 	// Build list of active event handles
 	Obj result = Nil;
 	for (int i = nfds - 1; i >= 0; i--) {
@@ -389,7 +295,7 @@ cora_poller_poll(Cora *co, int label, Obj *R) {
 		Obj handle_obj = makeCObj(eh);
 		result = makeCons(co->gc, handle_obj, result);
 	}
-	
+
 	free(active);
 	coraReturn(co, result);
 }
@@ -404,20 +310,20 @@ cora_net_listen(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj host_obj = R[1];
 	Obj port_obj = R[2];
-	
+
 	if (!isfixnum(port_obj)) {
 		coraReturn(co, makeNumber(-1));
 		return;
 	}
-	
+
 	const char *host = NULL;
 	if (host_obj != Nil && isBytes(host_obj)) {
 		host = bytesData(host_obj);
 	}
-	
+
 	int port = fixnum(port_obj);
 	int fd = net_listen(host, port);
-	
+
 	coraReturn(co, makeNumber(fd));
 }
 
@@ -427,17 +333,17 @@ cora_net_dial(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj host_obj = R[1];
 	Obj port_obj = R[2];
-	
+
 	if (!isBytes(host_obj) || !isBytes(port_obj)) {
 		coraReturn(co, makeNumber(-1));
 		return;
 	}
-	
+
 	const char *host = bytesData(host_obj);
 	const char *port = bytesData(port_obj);
-	
+
 	int fd = net_dial(host, port);
-	
+
 	coraReturn(co, makeNumber(fd));
 }
 
@@ -446,15 +352,15 @@ static void
 cora_net_accept(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj listen_fd_obj = R[1];
-	
+
 	if (!isfixnum(listen_fd_obj)) {
 		coraReturn(co, makeNumber(-1));
 		return;
 	}
-	
+
 	int listen_fd = fixnum(listen_fd_obj);
 	int fd = net_accept(listen_fd);
-	
+
 	coraReturn(co, makeNumber(fd));
 }
 
@@ -463,12 +369,12 @@ static void
 cora_net_close(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj fd_obj = R[1];
-	
+
 	if (isfixnum(fd_obj)) {
 		int fd = fixnum(fd_obj);
 		net_close(fd);
 	}
-	
+
 	coraReturn(co, Nil);
 }
 
@@ -477,15 +383,15 @@ static void
 cora_async_socket_new(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj fd_obj = R[1];
-	
+
 	if (!isfixnum(fd_obj)) {
 		coraReturn(co, False);
 		return;
 	}
-	
+
 	int fd = fixnum(fd_obj);
 	AsyncSocket *sock = async_socket_new(fd);
-	
+
 	if (sock) {
 		coraReturn(co, makeCObj(sock));
 	} else {
@@ -499,30 +405,30 @@ cora_async_socket_send(Cora *co, int label, Obj *R) {
 	(void)label;
 	AsyncSocket *sock = mustCObj(R[1]);
 	Obj buf_obj = R[2];
-	
+
 	if (!isBytes(buf_obj)) {
 		// Return error
 		Obj result = makeCons(co->gc, intern("error"), Nil);
 		coraReturn(co, result);
 		return;
 	}
-	
+
 	const char *buf = bytesData(buf_obj);
 	size_t len = bytesLen(buf_obj);
 	size_t sent = 0;
-	
+
 	SocketResult res = async_socket_send(sock, buf, len, &sent);
-	
+
 	Obj status;
 	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
 		status = (res == SOCK_OK) ? intern("ok") : intern("block");
 	} else {
 		status = intern("error");
 	}
-	
+
 	Obj sent_num = makeNumber(sent);
 	Obj result = makeCons(co->gc, status, makeCons(co->gc, sent_num, Nil));
-	
+
 	coraReturn(co, result);
 }
 
@@ -532,30 +438,30 @@ cora_async_socket_recv(Cora *co, int label, Obj *R) {
 	(void)label;
 	AsyncSocket *sock = mustCObj(R[1]);
 	Obj buf_obj = R[2];
-	
+
 	if (!isBytes(buf_obj)) {
 		// Return error
 		Obj result = makeCons(co->gc, intern("error"), Nil);
 		coraReturn(co, result);
 		return;
 	}
-	
+
 	char *buf = bytesData(buf_obj);
 	size_t len = bytesLen(buf_obj);
 	size_t received = 0;
-	
+
 	SocketResult res = async_socket_recv(sock, buf, len, &received);
-	
+
 	Obj status;
 	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
 		status = (res == SOCK_OK) ? intern("ok") : intern("block");
 	} else {
 		status = intern("error");
 	}
-	
+
 	Obj received_num = makeNumber(received);
 	Obj result = makeCons(co->gc, status, makeCons(co->gc, received_num, Nil));
-	
+
 	coraReturn(co, result);
 }
 
@@ -564,9 +470,9 @@ static void
 cora_async_socket_get_event_handle(Cora *co, int label, Obj *R) {
 	(void)label;
 	AsyncSocket *sock = mustCObj(R[1]);
-	
+
 	EventHandle *eh = async_socket_get_event_handle(sock);
-	
+
 	if (eh) {
 		coraReturn(co, makeCObj(eh));
 	} else {
@@ -582,11 +488,10 @@ entry(struct Cora *co, int label, Obj *R) {
 	// VM runtime management
 	coraRegisterAPI(co, module, "vm-runtime-init", cora_vm_runtime_init, 1);
 	coraRegisterAPI(co, module, "vm-runtime-shutdown", cora_vm_runtime_shutdown, 0);
-	coraRegisterAPI(co, module, "vm-get-current", cora_vm_get_current, 0);
-	coraRegisterAPI(co, module, "vm-get-current-id", cora_vm_get_current_id, 0);
 	coraRegisterAPI(co, module, "spawn-vm-native", cora_spawn_vm_native, 1);
-	coraRegisterAPI(co, module, "spawn-coroutine", cora_spawn_coroutine, 1);
 	coraRegisterAPI(co, module, "vm-runtime-wait-all", cora_vm_runtime_wait_all, 0);
+
+	// coraReturn(co, intern("cora/lib/parallel"));
 
 	// Mailbox API
 	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new, 1);

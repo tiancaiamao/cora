@@ -41,7 +41,7 @@ struct GlobalRuntime {
 };
 
 static GlobalRuntime *g_runtime = NULL;
-static __thread VM *current_vm = NULL;
+// static __thread VM *current_vm = NULL;
 
 // Time utilities
 uint64_t
@@ -158,7 +158,7 @@ worker_thread(void *arg) {
 		if (!vm)
 			break;
 
-		set_current_vm(vm);
+		// set_current_vm(vm);
 
 		VMRunResult result = vm_run_time_slice(vm, 50); // 50ms time slice
 
@@ -180,7 +180,7 @@ worker_thread(void *arg) {
 			break;
 		}
 
-		set_current_vm(NULL);
+		// set_current_vm(NULL);
 	}
 
 	return NULL;
@@ -249,6 +249,8 @@ vm_runtime_shutdown(void) {
 	g_runtime = NULL;
 }
 
+static void vm_impl_init(VMImpl *impl);
+
 // Create a new VM
 VM *
 vm_create(void) {
@@ -263,22 +265,19 @@ vm_create(void) {
 	vm->time_slice_start = 0;
 	atomic_init(&vm->in_global_queue, 0);
 	atomic_init(&vm->should_terminate, 0);
-	pthread_mutex_init(&vm->lock, NULL);
+    	vm_impl_init(&vm->impl);
 
+	pthread_mutex_init(&vm->lock, NULL);
 	// Register VM globally
 	pthread_mutex_lock(&g_runtime->vm_registry_lock);
-
 	// Expand registry if needed
 	if (g_runtime->vm_count >= g_runtime->vm_capacity) {
 		g_runtime->vm_capacity *= 2;
 		g_runtime->vms = realloc(g_runtime->vms,
 			sizeof(VM *) * g_runtime->vm_capacity);
 	}
-
 	g_runtime->vms[g_runtime->vm_count++] = vm;
-
 	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
-
 	return vm;
 }
 
@@ -343,46 +342,91 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	}
 }
 
-// Current VM management
-VM *
-get_current_vm(void) {
-	return current_vm;
+// Cora implements VMImpl interface.
+typedef struct {
+	// VM *vm;
+	Cora *cora;
+} CoraVM;
+
+static void
+cora_vm_init(void *self, str fileName) {
+	CoraVM *vm = (CoraVM*)self;
+	if (!vm) return;
+	Cora *co = vm->cora;
+
+	// It's terrible to import so many things to make VM runnable.
+	Obj fn = symbolGet(co, intern("import"));
+	Obj arg1 = makeCString(co->gc, "cora/init");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
+	arg1 = makeCString(co->gc, "cora/lib/toc");
+	coraCall1(co, fn, arg1);
+	coraRun(co);
+
+	Obj s = makeString(co->gc, fileName.str, fileName.len);
+	fn = symbolGet(co, intern("load"));
+	coraCall1(co, fn, s);
+	coraRun(co);
+
+//	arg1 = makeCString(co->gc, "cora/lib/cml");
+//	coraCall1(co, fn, arg1);
+//	coraRun(co);
+
+//	fn = symbolGet(co, intern("cora/lib/cml#cml-entry-init"));
+//	coraCall1(co, fn, thunk);
+//	coraRun(co);
 }
 
-void
-set_current_vm(VM *vm) {
-	current_vm = vm;
-}
-
-// Spawn functions (to be called from Cora)
-int
-spawn_vm_native(void *thunk) {
-	(void)thunk; // Suppress unused parameter warning
-	VM *vm = vm_create();
-
-	// TODO: Add thunk to VM's task queue
-	// This requires integration with CML's task queue system
-	// Cora *co = vm->cora;
-	// Obj fn = symbolGet(co, intern("import"));
-	// Obj arg1 = makeCString(co->gc, "cora/init");
-	// Obj args[1] = {arg1};
-	// coraCall(co, fn, 1, args);
-	// coraRun(co);
-	vm->impl.Init(vm->impl.self);
-
-	// Enqueue VM for execution
-	vm_enqueue_global(vm);
-
-	return vm->id;
-}
-
-void
-spawn_in_current_vm(void *thunk) {
-	(void)thunk; // Suppress unused parameter warning
-	VM *vm = get_current_vm();
-	if (!vm)
+static void
+cora_vm_schedule_once(void *ptr) {
+	CoraVM *vm = (CoraVM*)ptr;
+	if (!vm || !vm->cora) {
 		return;
+	}
 
-	// TODO: Add thunk to current VM's task queue
-	// This requires integration with CML's enqueue-task function
+	Cora *co = vm->cora;
+	if (!co) {
+		return;
+	}
+
+	// Get schedule-once function from Cora environment
+	Obj schedule_once_fn = symbolGet(co, intern("cora/lib/cml#schedule-once"));
+	if (schedule_once_fn == Undef) {
+		// schedule-once not found, CML may not be loaded
+		return;
+	}
+
+	// Call schedule-once to run one scheduling iteration
+	// This will execute one task from the task queue and return
+	coraCall0(co, schedule_once_fn);
+	coraRun(co);
+}
+
+static void
+cora_vm_exit(void *ptr) {
+	CoraVM *sched = (CoraVM *)ptr;
+	if (!sched) {
+		return;
+	}
+
+	// Clean up Cora VM
+	if (sched->cora) {
+		coraExit(sched->cora);
+		sched->cora = NULL;
+	}
+	free(sched);
+}
+
+static void
+vm_impl_init(VMImpl *impl) {
+	CoraVM *sched = malloc(sizeof(CoraVM));
+	memset(sched, 0, sizeof(CoraVM));
+	sched->cora = coraInit();
+
+	impl->self = sched;
+//	impl->HasWork = vm_scheduler_has_work;
+	impl->Init = cora_vm_init;
+	impl->ScheduleOnce = cora_vm_schedule_once;
+	impl->Exit = cora_vm_exit;
 }

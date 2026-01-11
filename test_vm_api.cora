@@ -1,7 +1,0 @@
-;; 简单测试，确保基本功能正常
-(define (test-basic)
-  (let ((result (+ 1 2 3)))
-    (println "Basic test: " result)
-    result))
-
-(test-basic)

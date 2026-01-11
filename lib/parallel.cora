@@ -3,15 +3,12 @@
 
 (package "cora/lib/parallel"
   (export
-    ;; Runtime management
-    parallel/init
-    parallel/shutdown
+    init
+    shutdown
+    spawn-vm
+
     parallel/current-vm-id
-    
-    ;; Spawning
-    parallel/spawn
-    parallel/spawn-coroutine
-    
+
     ;; Mailbox
     mailbox/new
     mailbox/send!
@@ -20,13 +17,13 @@
     mailbox/closed?
     mailbox/publish!
     mailbox/resolve
-    
+
     ;; Channel (alias)
     channel/new
     channel/send!
     channel/recv
     channel/close!
-    
+
     ;; Poller
     poller/init
     poller/shutdown
@@ -35,12 +32,12 @@
     event-handle/enable-write!
     poller/add-handle!
     poller/poll
-    
+
     ;; Helpers
     parallel/with-runtime
     mailbox/send-blocking!
     mailbox/recv-blocking)
-  
+
   (import "cora/lib/parallel/internal")
 
 ;; ============================================================================
@@ -48,11 +45,11 @@
 ;; ============================================================================
 
 ;; Initialize the parallel runtime with specified number of worker threads
-(defun parallel/init (num-threads)
+(defun init (num-threads)
   (cora/lib/parallel/internal#vm-runtime-init num-threads))
 
 ;; Shutdown the parallel runtime and clean up resources
-(defun parallel/shutdown ()
+(defun shutdown ()
   (cora/lib/parallel/internal#vm-runtime-shutdown))
 
 ;; Get the ID of the current VM, or -1 if not in a VM context
@@ -65,13 +62,8 @@
 
 ;; Spawn a new VM with the given thunk as entry point.
 ;; Returns the VM ID, or -1 on failure.
-(defun parallel/spawn (thunk)
-  (cora/lib/parallel/internal#spawn-vm-native thunk))
-
-;; Spawn a coroutine in the current VM.
-;; Returns true on success, false on failure.
-(defun parallel/spawn-coroutine (thunk)
-  (cora/lib/parallel/internal#spawn-coroutine thunk))
+(defun spawn-vm (file-name)
+  (cora/lib/parallel/internal#spawn-vm-native file-name))
 
 ;; ============================================================================
 ;; Mailbox Communication
@@ -171,7 +163,7 @@
 ;; Usage: (parallel/with-runtime 4 (lambda () ...))
 (defun parallel/with-runtime (num-threads body)
   (begin
-    (parallel/init num-threads)
+    (parallel-init num-threads)
     (let result (body)
       (begin
         (parallel/shutdown)

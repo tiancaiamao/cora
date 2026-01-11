@@ -1,3 +1,0 @@
-(display "Before import\n")
-(import "cora/lib/parallel/internal")
-(display "After import\n")

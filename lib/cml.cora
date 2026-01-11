@@ -9,74 +9,63 @@
   (import "cora/lib/rand")
   (import "cora/lib/sys")
   (import "cora/lib/io")
-  (export cml-entry perform spawn yield wrap schedule enqueue-task register-scheduler)
+  (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once enqueue-task)
+
+  ;; Global task queue (VM-local, not thread-local for parallel mode)
+  (def *task-queue* ())
+
+  ;; Schedule mode: 'single-vm or 'parallel
+  (def *schedule-mode* 'single-vm)
 
   (defun task-queue ()
-    (thread-local-get 'cora/lib/cml#task-queue))
+    *task-queue*)
 
   (defun task-queue-init ()
-    (begin
-     (thread-local-set 'cora/lib/cml#external-schedulers ())
-     (thread-local-set 'cora/lib/cml#task-queue (queue-make))))
+    (def *task-queue* (queue-make)))
 
   ;; enqueue-task enqueue a task
   (defun enqueue-task (thunk)
-    (enqueue (task-queue) thunk))
+    (enqueue *task-queue* thunk))
 
-  ;; spawn wrap thunk in a resumble env and enqueue the task
+  ;; spawn wrap thunk in a resumble env and enqueue to task queue
   (defun spawn (thunk)
     (enqueue-task (lambda ()
 		    (try thunk
 			 (lambda (v k)
 			   (v k))))))
 
-  (defun external-schedulers ()
-    (thread-local-get 'cora/lib/cml#external-schedulers))
-
-  (defun register-scheduler (fn)
-    (thread-local-set 'cora/lib/cml#external-schedulers (cons fn (external-schedulers))))
-
-  (defun run-external-schedulers (timeout)
-    (foldl (lambda (succ sched)
-		 (let res (sched timeout)
-		      (or succ res)))
-	       false
-	       (external-schedulers)))
-
   ;; schedule take a task out and execute it
-  ;; return false if no more tasks
+  ;; this is the core scheduling logic, used by both schedule-once and schedule-loop
   (defun schedule ()
-    (begin
-     ;; (display "schedule()\n")
-     (let more-work (run-external-schedulers 0)
-	  (if (queue-empty? (task-queue))
-	      (if more-work
-		  (begin
-		   ;; (display "run external schedules no timeout\n")
-		   (run-external-schedulers -1))
-		  ;; (display "schedule no more task and empty task queue\n")
-		  ())
-	      (let task (dequeue (task-queue))
-		   (begin
-		    ;; (display "dequeue and run task\n")
-		    (task)))))))
+      (begin
+          (if (queue-empty? *task-queue*)
+              ()
+              (let task (dequeue *task-queue*)
+                  (begin
+                      (task))))))
 
+  ;; schedule-once: run one scheduling iteration and return
+  ;; this is used by parallel framework (C layer drives the scheduling)
+  (defun schedule-once ()
+      (schedule))
+
+  ;; schedule-loop: keep scheduling until no more tasks
+  ;; this is used by single-VM mode (internal loop)
   (defun schedule-loop ()
-    (begin
-     ;; (display "enter schedule-loop\n")
-     (schedule)
-     ;; (display "schedule-loop do one round, check next round\n")
-     (if (and (queue-empty? (task-queue))
-	      (not (run-external-schedulers 0)))
-	 (begin
-	  ;; (display "task queue empty and no external schedulers, exit!\n")
-	  ())
-	 (schedule-loop))))
+      (begin
+          (schedule)
+          (if (queue-empty? *task-queue*)
+              ()
+              (schedule-loop))))
 
-  ;; cml-entry can run only once within a thread
+  ;; cml-entry: single VM mode entry point (backward compatible)
+  ;; This initializes CML and enters the scheduling loop
+  ;; Usage: (cora/lib/cml#cml-entry (lambda () (main-body)))
   (defun cml-entry (main)
     (begin
      (task-queue-init)
+     (def *schedule-mode* 'single-vm)
+
      (if (member "cora/lib/async" cora/init#*imported*)
          (cora/lib/async#event-loop-init)
          42)
@@ -89,11 +78,23 @@
      (spawn main)
      (schedule-loop)))
 
+  ;; cml-entry-init: parallel mode entry point
+  ;; This initializes CML but does NOT enter the scheduling loop
+  ;; The C layer (parallel framework) will drive scheduling by calling schedule-once
+  ;; Usage: (cora/lib/cml#cml-entry-init (lambda () (main-body)))
+  (defun cml-entry-init (main)
+    (begin
+     (task-queue-init)
+     (def *schedule-mode* 'parallel)
+     (display "cml-entry-init done (parallel mode)\n")
+     (spawn main)))
+
+  ;; yield: voluntarily give up control and allow other tasks to run
+  ;; This captures the current continuation and re-queues it
   (defun yield ()
     (throw (lambda (k)
 	     (begin
-	       (enqueue (task-queue) (lambda () (k ())))
-	       (schedule-loop)))))
+	       (enqueue *task-queue* (lambda () (k ())))))))
 
 
   (defun default-wrap (x) x)
@@ -162,9 +163,9 @@
 		  (throw (lambda (k)
 			   (begin
 			    (block k wrap)
-			    ;; (display "perform called block, now schedule\n")
-			    (schedule)
-			    ;; (display "perform called block, schedule exit\n")
+			    ;; Yield to scheduler by enqueuing current continuation
+			    ;; and returning control to C layer (parallel mode)
+			    ;; or to schedule-loop (single-VM mode)
 			    )))
 		  (wrap v)))))
   )

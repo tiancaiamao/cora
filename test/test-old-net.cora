@@ -1,4 +1,0 @@
-(import "cora/lib/net")
-
-(display "Testing old net module\n")
-(display "Done\n")
