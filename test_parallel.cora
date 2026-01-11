@@ -2,10 +2,11 @@
 ;; This test should work with the refactored CML and scheduler
 
 (import "cora/lib/parallel")
+(import "cora/lib/io")
+(import "cora/lib/cml")
 
 ;; Test 1: Single VM mode (backward compatible)
 (display "=== Test 1: Single VM mode ===\n")
-(import "cora/lib/cml")
 
 (let task (lambda ()
     (begin
@@ -25,7 +26,7 @@
 
 ;; Initialize runtime with 2 worker threads
 (display "  Initializing runtime with 2 threads...\n")
-; (vm-runtime-init 2)
+(parallel-init 2)
 
 ; (display "  Runtime initialized\n")
 
@@ -38,12 +39,12 @@
 
 ; ;; Spawn the task using parallel mode
 ; (display "  Spawning task in parallel mode...\n")
-; (spawn-vm-native task)
+(spawn-vm "test.cora")
 
-; ;; Briefly run scheduler
-; ;; In a real test, we'd wait for VM completion
-; (display "  Test 2 initialized (VM should execute in worker threads)\n")
+;; Briefly run scheduler
+;; In a real test, we'd wait for VM completion
+(display "  Test 2 initialized (VM should execute in worker threads)\n")
 
 ; ;; Shutdown
-; (vm-runtime-shutdown)
-; (display "Test 2 completed\n")
+(parallel-shutdown)
+(display "Test 2 completed\n")

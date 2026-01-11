@@ -344,7 +344,6 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 
 // Cora implements VMImpl interface.
 typedef struct {
-	// VM *vm;
 	Cora *cora;
 } CoraVM;
 
@@ -368,14 +367,6 @@ cora_vm_init(void *self, str fileName) {
 	fn = symbolGet(co, intern("load"));
 	coraCall1(co, fn, s);
 	coraRun(co);
-
-//	arg1 = makeCString(co->gc, "cora/lib/cml");
-//	coraCall1(co, fn, arg1);
-//	coraRun(co);
-
-//	fn = symbolGet(co, intern("cora/lib/cml#cml-entry-init"));
-//	coraCall1(co, fn, thunk);
-//	coraRun(co);
 }
 
 static void

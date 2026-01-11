@@ -6,16 +6,16 @@
 (display "Step 2: After import\n")
 
 (display "Step 3: Before init\n")
-(cora/lib/parallel#init 2)
+(parallel-init 2)
 (display "Step 4: After init\n")
 
 (display "Step 5: Before spawn-vm-native call\n")
-(let vm-id (cora/lib/parallel#spawn-vm "test.cora")
+(let vm-id (spawn-vm "test.cora")
   (begin
     (display "Step 6: After spawn-vm-native, VM ID: ")
     (display vm-id)
     (display "\n")
 
     (display "Step 7: Before shutdown\n")
-    (cora/lib/parallel/internal#vm-runtime-shutdown)
+    (parallel-shutdown)
     (display "Step 8: After shutdown\n")))

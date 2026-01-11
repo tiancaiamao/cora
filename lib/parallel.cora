@@ -3,26 +3,18 @@
 
 (package "cora/lib/parallel"
   (export
-    init
-    shutdown
+    parallel-init
+    parallel-shutdown
     spawn-vm
 
-    parallel/current-vm-id
-
     ;; Mailbox
-    mailbox/new
-    mailbox/send!
-    mailbox/recv
+    mailbox-new
+    mailbox-send
+    mailbox-recv
     mailbox/close!
     mailbox/closed?
     mailbox/publish!
     mailbox/resolve
-
-    ;; Channel (alias)
-    channel/new
-    channel/send!
-    channel/recv
-    channel/close!
 
     ;; Poller
     poller/init
@@ -31,12 +23,7 @@
     event-handle/enable-read!
     event-handle/enable-write!
     poller/add-handle!
-    poller/poll
-
-    ;; Helpers
-    parallel/with-runtime
-    mailbox/send-blocking!
-    mailbox/recv-blocking)
+    poller/poll)
 
   (import "cora/lib/parallel/internal")
 
@@ -45,16 +32,12 @@
 ;; ============================================================================
 
 ;; Initialize the parallel runtime with specified number of worker threads
-(defun init (num-threads)
+(defun parallel-init (num-threads)
   (cora/lib/parallel/internal#vm-runtime-init num-threads))
 
 ;; Shutdown the parallel runtime and clean up resources
-(defun shutdown ()
+(defun parallel-shutdown ()
   (cora/lib/parallel/internal#vm-runtime-shutdown))
-
-;; Get the ID of the current VM, or -1 if not in a VM context
-(defun parallel/current-vm-id ()
-  (cora/lib/parallel/internal#vm-get-current-id))
 
 ;; ============================================================================
 ;; Spawning and Concurrency
@@ -71,17 +54,17 @@
 
 ;; Create a new mailbox with given buffer capacity.
 ;; Use 0 for unbuffered (rendezvous) mailbox.
-(defun mailbox/new (capacity)
+(defun mailbox-new (capacity)
   (cora/lib/parallel/internal#mailbox-new capacity))
 
 ;; Try to send a message to the mailbox (non-blocking).
 ;; Returns true if sent, false if mailbox is full or closed.
-(defun mailbox/send! (mailbox msg)
+(defun mailbox-send (mailbox msg)
   (cora/lib/parallel/internal#mailbox-send-try mailbox msg))
 
 ;; Try to receive a message from the mailbox (non-blocking).
 ;; Returns the message if available, or false if mailbox is empty or closed.
-(defun mailbox/recv (mailbox)
+(defun mailbox-recv (mailbox)
   (cora/lib/parallel/internal#mailbox-recv-try mailbox))
 
 ;; Close the mailbox. No further sends or receives will succeed.
@@ -133,27 +116,6 @@
 ;; Returns a list of ready event handles, or nil on timeout.
 (defun poller/poll (timeout-ms)
   (cora/lib/parallel/internal#poller-poll timeout-ms))
-
-;; ============================================================================
-;; High-Level Channel Abstraction
-;; ============================================================================
-
-;; Create a new channel with the given buffer capacity.
-;; A channel is a mailbox with a friendly API.
-(defun channel/new (capacity)
-  (mailbox/new capacity))
-
-;; Send a message to the channel. Alias for mailbox/send!
-(defun channel/send! (ch msg)
-  (mailbox/send! ch msg))
-
-;; Receive a message from the channel. Alias for mailbox/recv
-(defun channel/recv (ch)
-  (mailbox/recv ch))
-
-;; Close the channel. Alias for mailbox/close!
-(defun channel/close! (ch)
-  (mailbox/close! ch))
 
 ;; ============================================================================
 ;; Helper Functions
