@@ -1,0 +1,60 @@
+(package "cora/lib/parallel/handle-map"
+
+    (import "cora/lib/define-record")
+    (import "cora/lib/stack")
+    (import "cora/lib/io")
+
+    (export
+        handle-map-create
+        handle-map-add
+        handle-map-get
+        handle-map-delete)
+
+    (define-record <handle-map>
+        (make-handle-map)
+        handle-map?
+        (resource handle-map->resource handle-map-resource-set!)
+        (free-slots handle-map->free-slots handle-map-free-slots-set!))
+
+    (defun handle-map-create ()
+        (let hm (make-handle-map)
+            (begin
+                (handle-map-free-slots-set! hm (stack-create))
+                (handle-map-resource-set! hm (stack-create))
+                hm)))
+
+    (defun handle-map-add (hm val)
+        (if (= val ())
+            -1
+            (let slots (handle-map->free-slots hm)
+                (if (= (stack-size slots) 0)
+                    (begin
+                    ;; no free slots, expand resource
+                    (display "no free slots, expand\n")
+                    (stack-push! (handle-map->resource hm) val))
+                    ;; reuse slot
+                    (let slot (stack-pop! slots)
+                        resource (handle-map->resource hm)
+                        vec (stack->data resource)
+                        (begin
+                            (display "reuse slot")
+                            (display slot)
+                            (display "\n")
+                            (vector-set! vec slot val)
+                            slot))))))
+
+    (defun handle-map-get (hm handle)
+        (let resource (handle-map->resource hm)
+            (vector-ref (stack->data resource) handle)))
+
+    (defun handle-map-delete (hm handle)
+        (let resource (handle-map->resource hm)
+            arr (stack->data resource)
+            (let resource (vector-ref arr handle)
+                (if (= resource ())
+                    () ;; something is wrong? referencing deleted resource
+                    (begin
+                        (vector-set! arr handle ())
+                        (let free-slots (handle-map->free-slots hm)
+                            (stack-push! free-slots handle)))))))
+    )

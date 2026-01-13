@@ -1,0 +1,65 @@
+(package "cora/lib/stack"
+    (import "cora/lib/let-loop")
+    (import "cora/lib/define-record")
+
+    (export stack-create stack-push! stack-pop! stack-size stack->data)
+
+    (define-record <stack>
+        (make-stack)
+        stack?
+        (data stack->data stack-data-set!)
+        (index stack->index stack-index-set!))
+
+    (defun stack-create ()
+        (let stk (make-stack)
+            (begin
+                (stack-index-set! stk 0)
+                (stack-data-set! stk (vector 16))
+                stk)))
+
+    (defun vector-resize (old-vec)
+        (let cap (vector-length old-vec)
+            new-cap (* 2 cap)
+            (let new-vec (vector new-cap)
+                (let-loop recur (vec new-vec i 0)
+                    (if (= i cap)
+                        vec
+                        (begin
+                            (vector-set! new-vec i (vector-ref old-vec))
+                            (recur vec (+ i 1))))))))
+
+    (defun stack-resize-check (stk)
+        (let vec (stack->data stk)
+            idx (stack->index stk)
+            cap (vector-length vec)
+            (if (or (> idx cap) (= idx cap))
+                (let new-vec (vector-resize vec)
+                    (begin
+                        (stack-data-set! stk new-vec)
+                        stk))
+                stk)))
+
+    (defun stack-push! (stk v)
+        (let stk1 (stack-resize-check stk)
+            vec (stack->data stk)
+            idx (stack->index stk)
+            (begin
+                (vector-set! vec idx v)
+                (stack-index-set! stk (+ idx 1))
+                idx)))
+
+    (defun stack-pop! (stk)
+        (let idx (stack->index stk)
+            (if (= 0 idx)
+                () ;; what the fuck?
+                (let vec (stack->data stk)
+                    new-idx (- idx 1)
+                    ret (vector-ref vec new-idx)
+                    (begin
+                        (stack-index-set! stk new-idx)
+                        ret)))))
+
+    (defun stack-size (stk)
+        (stack->index stk))
+
+    )
