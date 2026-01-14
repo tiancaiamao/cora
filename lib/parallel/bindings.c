@@ -494,13 +494,17 @@ entry(struct Cora *co, int label, Obj *R) {
 	// coraReturn(co, intern("cora/lib/parallel"));
 
 	// Mailbox API
-	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new, 1);
+	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new);
 	coraRegisterAPI(co, module, "mailbox-close", cora_mailbox_close, 1);
-	coraRegisterAPI(co, module, "mailbox-is-closed", cora_mailbox_is_closed, 1);
-	coraRegisterAPI(co, module, "mailbox-send-try", cora_mailbox_send_try, 2);
-	coraRegisterAPI(co, module, "mailbox-recv-try", cora_mailbox_recv_try, 1);
-	coraRegisterAPI(co, module, "mailbox-publish", cora_mailbox_publish, 2);
-	coraRegisterAPI(co, module, "mailbox-resolve", cora_mailbox_resolve, 1);
+	// coraRegisterAPI(co, module, "mailbox-is-closed", cora_mailbox_is_closed, 1);
+	// coraRegisterAPI(co, module, "mailbox-send-try", cora_mailbox_send_try, 2);
+	// coraRegisterAPI(co, module, "mailbox-recv-try", cora_mailbox_recv_try, 1);
+	// coraRegisterAPI(co, module, "mailbox-publish", cora_mailbox_publish, 2);
+	// coraRegisterAPI(co, module, "mailbox-resolve", cora_mailbox_resolve, 1);
+
+	coraRegisterAPI(co, module, "mailbox-sendq-dequeue", mailbox_sendq_dequeue);
+	coraRegisterAPI(co, module, "mailbox-notify-wakeup", mailbox_notify_wakeup);
+	coraRegisterAPI(co, module, "wakeup->value", wakeup_value);
 
 	// Poller API
 	coraRegisterAPI(co, module, "poller-init", cora_poller_init, 0);

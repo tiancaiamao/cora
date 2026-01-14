@@ -342,7 +342,9 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	}
 }
 
+// ==========================
 // Cora implements VMImpl interface.
+// ==========================
 typedef struct {
 	Cora *cora;
 } CoraVM;
@@ -352,6 +354,9 @@ cora_vm_init(void *self, str fileName) {
 	CoraVM *vm = (CoraVM*)self;
 	if (!vm) return;
 	Cora *co = vm->cora;
+
+	// So in cora, CoraVM object can be obtain by *cora-vm*
+	primSet(co, intern("*cora-vm*"), makeCObj(vm));
 
 	// It's terrible to import so many things to make VM runnable.
 	Obj fn = symbolGet(co, intern("import"));
@@ -407,6 +412,12 @@ cora_vm_exit(void *ptr) {
 		sched->cora = NULL;
 	}
 	free(sched);
+}
+
+// cora_vm_enqueue must be thread safe
+static void
+cora_vm_enqueue(CoraVM *vm, int handle) {
+
 }
 
 static void

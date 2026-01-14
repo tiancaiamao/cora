@@ -7,12 +7,6 @@
     parallel-shutdown
     spawn-vm
 
-    ;; Handle Map
-    handle-map-create
-    handle-map-add
-    handle-map-get
-    handle-map-delete
-
     ;; Mailbox
     mailbox-new
     mailbox-send
@@ -32,7 +26,7 @@
     poller/poll)
 
   (import "cora/lib/parallel/internal")
-   (import "cora/lib/define-record")
+  (import "cora/lib/parallel/handle-map")
 
 ;; ============================================================================
 ;; Runtime Management
@@ -156,52 +150,5 @@
         msg
         (loop))))
     (loop)))
-
-;; Define handle-map record structure
-(define-record handle-map
-  resources    ;; Cora Vector: [res1, res2, ..., Nil, ...]
-  free-slot-index   ;; Cora Vector (stack): [2, 4, 5, ...]
-  capacity)
-
-;; Create a handle-map with given initial capacity (default 16)
-(defun handle-map-create ()
-    (let cap 16
-        (make-handle-map
-            (vector cap)         ;; resources
-            (cora/lib/parallel/internal#int-stack-create)             ;; free-stack (initial space)
-            cap)))
-
-(defun handle-map-add (hmap resource)
-  (if (= resource Nil)
-      -1
-      (let free-stack (handle-map-free-slot-index hmap)
-        (if (vector-empty? free-stack)
-            ;; No free slots, expand resources
-            (let new-resources (handle-map-resources hmap))
-              (let new-cap (vector-length new-resources))
-                (let hmap2 (make-handle-map
-                      (vector-append new-resources resource)
-                      (vector-new 16)         ;; reset free-stack
-                      new-cap))
-                  ;; Handle is new length - 1 (0-indexed)
-                  (- (vector-length new-resources) 1))))
-            ;; Pop a free slot index as handle
-            (let handle (vector-pop free-stack))
-              (handle-map-set-resource hmap handle resource)
-              handle)))))
-
-(defun handle-map-get (hmap handle)
-    (let resources (handle-map-resources hmap)
-        (vector-ref resources handle)))
-
-(defun handle-map-delete (hmap handle)
-    (let arr (handle-map-resources hmap)
-        (let resource (vector-ref arr handle)
-            (if (= resource Nil)
-                Nil ;; something is wrong? referencing deleted resource
-                (begin
-                    (vector-set! arr handle ())
-                    (let free-slot-index (handle-map-free-slot-index hmap)
-                        (int-stack-push free-slot-index handle)))))))
 
 ) ;; end package

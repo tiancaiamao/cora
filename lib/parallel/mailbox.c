@@ -4,6 +4,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stddef.h>
+
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - offsetof(type, member)))
+
+struct ListNode {
+       ListNode *next;
+};
+
+typedef struct  {
+       ListNode head;
+       ListNode *tail;
+} Queue;
+
+void
+queue_init(Queue *q) {
+    q->head.next = NULL;
+    q->tail = &q->head;
+}
+
+void
+queue_enqueue(Queue *q, ListNode *node) {
+       node->next = NULL;
+       q->tail->next = node;
+       q->tail = node;
+}
+
+ListNode *
+queue_dequeue(Queue *q) {
+       ListNode *n = q->head.next;
+       if (n == NULL) {
+               return NULL;
+       }
+       q->head.next = n->next;
+       if (q->tail == n) {
+               q->tail = &q->head;
+       }
+       n->next = NULL;
+       return n;
+}
+
 // ============================================================================
 // Mailbox Implementation
 // ============================================================================
@@ -11,25 +52,46 @@
 static int next_mailbox_id = 1;
 
 Mailbox *
-mailbox_new(int capacity) {
+mailbox_new() {
 	Mailbox *mb = malloc(sizeof(Mailbox));
 	pthread_mutex_init(&mb->lock, NULL);
-
-	// Initialize message queue
-	mb->msg_capacity = capacity;
-	if (capacity > 0) {
-		mb->messages = malloc(sizeof(Obj) * capacity);
-	} else {
-		mb->messages = NULL;
-	}
-	mb->msg_head = 0;
-	mb->msg_tail = 0;
-	mb->msg_count = 0;
-
-	mb->closed = false;
+	queue_init(&mb->sendq);
+	queue_init(&mb->recvq);
+	// mb->closed = false;
 	mb->id = __sync_fetch_and_add(&next_mailbox_id, 1);
-
 	return mb;
+}
+
+static void
+mailbox_sendq_dequeue(Cora *co, int label, Obj *R) {
+	pthread_mutex_lock(&mb->lock);
+	Mailbox* mb = (Mailbox*)mustCObj(R[1]);
+	ListNode *v = queue_dequeue(&mb->sendq);
+	if (v == NULL) {
+		pthread_mutex_unlock(&mb->lock);
+		coraReturn(co, Nil);
+		return;
+	}
+	pthread_mutex_unlock();
+
+	Waker* w = container_of(v, Waker, node);
+	coraReturn(co, makeCObj(w));
+}
+
+static void
+mailbox_notify_wakeup(Cora *co, int label, Obj *R) {
+	Waker* w = mustCObj(R[1]);
+	CoraVM *vm = w->vm;
+	// send message to that VM, and let that VM do the rest.
+	cora_vm_enqueue(vm, w->handle);
+	free(w);
+	coraReturn(co, Nil);
+}
+
+static void
+wakeup_value(Cora *co, int label, Obj *R) {
+	Waker *w = mustCObj(R[1]);
+	coraReturn(co, w->data);
 }
 
 void
