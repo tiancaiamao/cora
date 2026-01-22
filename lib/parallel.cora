@@ -5,14 +5,22 @@
   (export
     parallel-init
     parallel-shutdown
+    parallel/init
+    parallel/shutdown
     spawn-vm
 
     ;; Mailbox
+    mailbox-make
     mailbox-new
     mailbox-send
     mailbox-recv
+    mailbox/new
+    mailbox/send!
+    mailbox/recv
     mailbox/close!
     mailbox/closed?
+    mailbox-publish
+    mailbox-resolve
     mailbox/publish!
     mailbox/resolve
 
@@ -25,8 +33,9 @@
     poller/add-handle!
     poller/poll)
 
+  (import "cora/lib/cml")
   (import "cora/lib/parallel/internal")
-  (import "cora/lib/parallel/handle-map")
+  (import "cora/lib/parallel/mailbox")
 
 ;; ============================================================================
 ;; Runtime Management
@@ -39,6 +48,13 @@
 ;; Shutdown the parallel runtime and clean up resources
 (defun parallel-shutdown ()
   (cora/lib/parallel/internal#vm-runtime-shutdown))
+
+;; Convenience aliases
+(defun parallel/init (num-threads)
+  (parallel-init num-threads))
+
+(defun parallel/shutdown ()
+  (parallel-shutdown))
 
 ;; ============================================================================
 ;; Spawning and Concurrency
@@ -56,17 +72,29 @@
 ;; Create a new mailbox with given buffer capacity.
 ;; Use 0 for unbuffered (rendezvous) mailbox.
 (defun mailbox-new (capacity)
-  (cora/lib/parallel/internal#mailbox-new capacity))
+  (cora/lib/parallel/mailbox#mailbox-new capacity))
 
-;; Try to send a message to the mailbox (non-blocking).
-;; Returns true if sent, false if mailbox is full or closed.
+;; Create an unbuffered mailbox.
+(defun mailbox-make ()
+  (cora/lib/parallel/mailbox#mailbox-make))
+
+;; send on mailbox is an operation
 (defun mailbox-send (mailbox msg)
-  (cora/lib/parallel/internal#mailbox-send-try mailbox msg))
+  (cora/lib/parallel/mailbox#mailbox-send mailbox msg))
 
-;; Try to receive a message from the mailbox (non-blocking).
-;; Returns the message if available, or false if mailbox is empty or closed.
+;; recv on mailbox is an operation
 (defun mailbox-recv (mailbox)
-  (cora/lib/parallel/internal#mailbox-recv-try mailbox))
+  (cora/lib/parallel/mailbox#mailbox-recv mailbox))
+
+;; Convenience aliases for mailbox operations
+(defun mailbox/new (capacity)
+  (mailbox-new capacity))
+
+(defun mailbox/send! (mailbox msg)
+  (perform (mailbox-send mailbox msg)))
+
+(defun mailbox/recv (mailbox)
+  (perform (mailbox-recv mailbox)))
 
 ;; Close the mailbox. No further sends or receives will succeed.
 (defun mailbox/close! (mailbox)
@@ -77,12 +105,20 @@
   (cora/lib/parallel/internal#mailbox-is-closed mailbox))
 
 ;; Publish a mailbox under a given name for discovery by other VMs.
+(defun mailbox-publish (name mailbox)
+  (cora/lib/parallel/mailbox#mailbox-publish name mailbox))
+
+;; Resolve a mailbox by name. Returns the mailbox or false if not found.
+(defun mailbox-resolve (name)
+  (cora/lib/parallel/mailbox#mailbox-resolve name))
+
+;; Publish a mailbox under a given name for discovery by other VMs.
 (defun mailbox/publish! (name mailbox)
-  (cora/lib/parallel/internal#mailbox-publish name mailbox))
+  (mailbox-publish name mailbox))
 
 ;; Resolve a mailbox by name. Returns the mailbox or false if not found.
 (defun mailbox/resolve (name)
-  (cora/lib/parallel/internal#mailbox-resolve name))
+  (mailbox-resolve name))
 
 ;; ============================================================================
 ;; I/O Poller
@@ -133,22 +169,11 @@
         result))))
 
 ;; Send a message to mailbox, blocking until space is available.
-;; Note: This is a busy-wait implementation for now.
 (defun mailbox/send-blocking! (mailbox msg)
-  (let loop (lambda ()
-    (if (mailbox/send! mailbox msg)
-      true
-      (loop)))
-    (loop)))
+  (mailbox/send! mailbox msg))
 
 ;; Receive a message from mailbox, blocking until one is available.
-;; Note: This is a busy-wait implementation for now.
 (defun mailbox/recv-blocking (mailbox)
-  (let loop (lambda ()
-    (let msg (mailbox/recv mailbox)
-      (if msg
-        msg
-        (loop))))
-    (loop)))
+  (mailbox/recv mailbox))
 
 ) ;; end package

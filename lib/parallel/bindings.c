@@ -32,6 +32,18 @@ cora_vm_runtime_shutdown(Cora *co, int label, Obj *R) {
 	coraReturn(co, makeNumber(0)); // Return success
 }
 
+static void
+cora_vm_self_binding(Cora *co, int label, Obj *R) {
+	(void)label;
+	(void)R;
+	CoraVM *vm = cora_vm_self(co);
+	if (vm) {
+		coraReturn(co, makeCObj(vm));
+	} else {
+		coraReturn(co, False);
+	}
+}
+
 // Spawn VM with thunk (parallel mode)
 static void
 cora_spawn_vm_native(Cora *co, int label, Obj *R) {
@@ -74,7 +86,20 @@ cora_mailbox_new(Cora *co, int label, Obj *R) {
 	int capacity = fixnum(capacity_obj);
 
 	Mailbox *mb = mailbox_new(capacity);
-	coraReturn(co, makeCObj(mb));
+	if (mb) {
+		coraReturn(co, makeCObj(mb));
+	} else {
+		coraReturn(co, False);
+	}
+}
+
+// Free a mailbox
+static void
+cora_mailbox_free(Cora *co, int label, Obj *R) {
+	(void)label;
+	Mailbox *mb = mustCObj(R[1]);
+	mailbox_free(mb);
+	coraReturn(co, True);
 }
 
 // Close a mailbox
@@ -116,6 +141,48 @@ cora_mailbox_recv_try(Cora *co, int label, Obj *R) {
 	bool success = mailbox_recv_try(mb, &msg);
 	if (success) {
 		coraReturn(co, msg);
+	} else {
+		coraReturn(co, False);
+	}
+}
+
+// Enqueue a blocked sender
+static void
+cora_mailbox_sendq_enqueue(Cora *co, int label, Obj *R) {
+	(void)label;
+	Mailbox *mb = mustCObj(R[1]);
+	Waker *w = mustCObj(R[2]);
+	mailbox_sendq_enqueue(mb, w);
+	coraReturn(co, True);
+}
+
+// Enqueue a blocked receiver
+static void
+cora_mailbox_recvq_enqueue(Cora *co, int label, Obj *R) {
+	(void)label;
+	Mailbox *mb = mustCObj(R[1]);
+	Waker *w = mustCObj(R[2]);
+	mailbox_recvq_enqueue(mb, w);
+	coraReturn(co, True);
+}
+
+// Create a wakeup object
+static void
+cora_wakeup_create(Cora *co, int label, Obj *R) {
+	(void)label;
+	CoraVM *vm = mustCObj(R[1]);
+	Obj handle_obj = R[2];
+	Obj value = R[3];
+
+	if (!isfixnum(handle_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+
+	int handle = fixnum(handle_obj);
+	Waker *w = waker_create(vm, handle, value);
+	if (w) {
+		coraReturn(co, makeCObj(w));
 	} else {
 		coraReturn(co, False);
 	}
@@ -488,23 +555,24 @@ entry(struct Cora *co, int label, Obj *R) {
 	// VM runtime management
 	coraRegisterAPI(co, module, "vm-runtime-init", cora_vm_runtime_init, 1);
 	coraRegisterAPI(co, module, "vm-runtime-shutdown", cora_vm_runtime_shutdown, 0);
+	coraRegisterAPI(co, module, "vm-self", cora_vm_self_binding, 0);
 	coraRegisterAPI(co, module, "spawn-vm-native", cora_spawn_vm_native, 1);
 	coraRegisterAPI(co, module, "vm-runtime-wait-all", cora_vm_runtime_wait_all, 0);
 
 	// coraReturn(co, intern("cora/lib/parallel"));
 
 	// Mailbox API
-	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new);
+	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new, 1);
+	coraRegisterAPI(co, module, "mailbox-free", cora_mailbox_free, 1);
 	coraRegisterAPI(co, module, "mailbox-close", cora_mailbox_close, 1);
-	// coraRegisterAPI(co, module, "mailbox-is-closed", cora_mailbox_is_closed, 1);
-	// coraRegisterAPI(co, module, "mailbox-send-try", cora_mailbox_send_try, 2);
-	// coraRegisterAPI(co, module, "mailbox-recv-try", cora_mailbox_recv_try, 1);
-	// coraRegisterAPI(co, module, "mailbox-publish", cora_mailbox_publish, 2);
-	// coraRegisterAPI(co, module, "mailbox-resolve", cora_mailbox_resolve, 1);
-
-	coraRegisterAPI(co, module, "mailbox-sendq-dequeue", mailbox_sendq_dequeue);
-	coraRegisterAPI(co, module, "mailbox-notify-wakeup", mailbox_notify_wakeup);
-	coraRegisterAPI(co, module, "wakeup->value", wakeup_value);
+	coraRegisterAPI(co, module, "mailbox-is-closed", cora_mailbox_is_closed, 1);
+	coraRegisterAPI(co, module, "mailbox-send-try", cora_mailbox_send_try, 2);
+	coraRegisterAPI(co, module, "mailbox-recv-try", cora_mailbox_recv_try, 1);
+	coraRegisterAPI(co, module, "mailbox-publish", cora_mailbox_publish, 2);
+	coraRegisterAPI(co, module, "mailbox-resolve", cora_mailbox_resolve, 1);
+	coraRegisterAPI(co, module, "mailbox-sendq-enqueue", cora_mailbox_sendq_enqueue, 2);
+	coraRegisterAPI(co, module, "mailbox-recvq-enqueue", cora_mailbox_recvq_enqueue, 2);
+	coraRegisterAPI(co, module, "wakeup-create", cora_wakeup_create, 3);
 
 	// Poller API
 	coraRegisterAPI(co, module, "poller-init", cora_poller_init, 0);

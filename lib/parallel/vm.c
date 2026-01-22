@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -40,6 +41,20 @@ struct GlobalRuntime {
 	volatile int next_vm_id; // Next VM ID to assign
 };
 
+typedef struct WakeupNode {
+	struct WakeupNode *next;
+	int handle;
+	Obj value;
+} WakeupNode;
+
+struct CoraVM {
+	Cora *cora;
+	VM *owner;
+	pthread_mutex_t wake_lock;
+	WakeupNode *wake_head;
+	WakeupNode *wake_tail;
+};
+
 static GlobalRuntime *g_runtime = NULL;
 // static __thread VM *current_vm = NULL;
 
@@ -49,6 +64,105 @@ get_current_time_ms(void) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return (uint64_t)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+static void
+cora_vm_wakeup_init(CoraVM *vm) {
+	pthread_mutex_init(&vm->wake_lock, NULL);
+	vm->wake_head = NULL;
+	vm->wake_tail = NULL;
+}
+
+static void
+cora_vm_wakeup_destroy(CoraVM *vm) {
+	pthread_mutex_lock(&vm->wake_lock);
+	WakeupNode *node = vm->wake_head;
+	vm->wake_head = NULL;
+	vm->wake_tail = NULL;
+	pthread_mutex_unlock(&vm->wake_lock);
+
+	while (node) {
+		WakeupNode *next = node->next;
+		free(node);
+		node = next;
+	}
+
+	pthread_mutex_destroy(&vm->wake_lock);
+}
+
+CoraVM *
+cora_vm_self(Cora *co) {
+	if (!co) {
+		return NULL;
+	}
+
+	Obj existing = symbolGet(co, intern("*cora-vm*"));
+	if (existing != Undef && iscobj(existing)) {
+		return mustCObj(existing);
+	}
+
+	CoraVM *vm = malloc(sizeof(CoraVM));
+	if (!vm) {
+		return NULL;
+	}
+	memset(vm, 0, sizeof(CoraVM));
+	vm->cora = co;
+	vm->owner = NULL;
+	cora_vm_wakeup_init(vm);
+
+	primSet(co, intern("*cora-vm*"), makeCObj(vm));
+	return vm;
+}
+
+static WakeupNode *
+cora_vm_wakeup_take(CoraVM *vm) {
+	pthread_mutex_lock(&vm->wake_lock);
+	WakeupNode *head = vm->wake_head;
+	vm->wake_head = NULL;
+	vm->wake_tail = NULL;
+	pthread_mutex_unlock(&vm->wake_lock);
+	return head;
+}
+
+void
+cora_vm_enqueue(CoraVM *vm, int handle, Obj value) {
+	if (!vm) {
+		return;
+	}
+
+	if (!g_runtime) {
+		Obj resume_fn = symbolGet(vm->cora,
+			intern("cora/lib/parallel/mailbox#resume-handle"));
+		if (resume_fn == Undef) {
+			return;
+		}
+		coraCall2(vm->cora, resume_fn, makeNumber(handle), value);
+		coraRun(vm->cora);
+		return;
+	}
+
+	if (!vm->owner) {
+		return;
+	}
+
+	WakeupNode *node = malloc(sizeof(WakeupNode));
+	if (!node) {
+		return;
+	}
+	node->handle = handle;
+	node->value = value;
+	node->next = NULL;
+
+	pthread_mutex_lock(&vm->wake_lock);
+	if (vm->wake_tail) {
+		vm->wake_tail->next = node;
+	} else {
+		vm->wake_head = node;
+	}
+	vm->wake_tail = node;
+	pthread_mutex_unlock(&vm->wake_lock);
+
+	vm_enqueue_global(vm->owner);
 }
 
 // VM queue operations
@@ -265,7 +379,10 @@ vm_create(void) {
 	vm->time_slice_start = 0;
 	atomic_init(&vm->in_global_queue, 0);
 	atomic_init(&vm->should_terminate, 0);
-    	vm_impl_init(&vm->impl);
+	vm_impl_init(&vm->impl);
+	if (vm->impl.self) {
+		((CoraVM *)vm->impl.self)->owner = vm;
+	}
 
 	pthread_mutex_init(&vm->lock, NULL);
 	// Register VM globally
@@ -345,9 +462,6 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 // ==========================
 // Cora implements VMImpl interface.
 // ==========================
-typedef struct {
-	Cora *cora;
-} CoraVM;
 
 static void
 cora_vm_init(void *self, str fileName) {
@@ -375,6 +489,29 @@ cora_vm_init(void *self, str fileName) {
 }
 
 static void
+cora_vm_process_wakeups(CoraVM *vm) {
+	if (!vm || !vm->cora) {
+		return;
+	}
+
+	Obj resume_fn = symbolGet(vm->cora,
+		intern("cora/lib/parallel/mailbox#resume-handle"));
+	if (resume_fn == Undef) {
+		return;
+	}
+
+	WakeupNode *node = cora_vm_wakeup_take(vm);
+	while (node) {
+		WakeupNode *next = node->next;
+		coraCall2(vm->cora, resume_fn,
+			makeNumber(node->handle), node->value);
+		coraRun(vm->cora);
+		free(node);
+		node = next;
+	}
+}
+
+static void
 cora_vm_schedule_once(void *ptr) {
 	CoraVM *vm = (CoraVM*)ptr;
 	if (!vm || !vm->cora) {
@@ -385,6 +522,8 @@ cora_vm_schedule_once(void *ptr) {
 	if (!co) {
 		return;
 	}
+
+	cora_vm_process_wakeups(vm);
 
 	// Get schedule-once function from Cora environment
 	Obj schedule_once_fn = symbolGet(co, intern("cora/lib/cml#schedule-once"));
@@ -411,13 +550,8 @@ cora_vm_exit(void *ptr) {
 		coraExit(sched->cora);
 		sched->cora = NULL;
 	}
+	cora_vm_wakeup_destroy(sched);
 	free(sched);
-}
-
-// cora_vm_enqueue must be thread safe
-static void
-cora_vm_enqueue(CoraVM *vm, int handle) {
-
 }
 
 static void
@@ -425,6 +559,7 @@ vm_impl_init(VMImpl *impl) {
 	CoraVM *sched = malloc(sizeof(CoraVM));
 	memset(sched, 0, sizeof(CoraVM));
 	sched->cora = coraInit();
+	cora_vm_wakeup_init(sched);
 
 	impl->self = sched;
 //	impl->HasWork = vm_scheduler_has_work;

@@ -1,97 +1,105 @@
 #include "mailbox.h"
 #include "vm.h"
-#include <assert.h>
+#include <pthread.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <stddef.h>
-
 #define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
+	((type *)((char *)(ptr) - offsetof(type, member)))
 
-struct ListNode {
-       ListNode *next;
-};
+typedef struct ListNode {
+	struct ListNode *next;
+} ListNode;
 
-typedef struct  {
-       ListNode head;
-       ListNode *tail;
+typedef struct {
+	ListNode head;
+	ListNode *tail;
 } Queue;
 
-void
+static void
 queue_init(Queue *q) {
-    q->head.next = NULL;
-    q->tail = &q->head;
+	q->head.next = NULL;
+	q->tail = &q->head;
 }
 
-void
+static bool
+queue_is_empty(Queue *q) {
+	return q->head.next == NULL;
+}
+
+static void
 queue_enqueue(Queue *q, ListNode *node) {
-       node->next = NULL;
-       q->tail->next = node;
-       q->tail = node;
+	node->next = NULL;
+	q->tail->next = node;
+	q->tail = node;
 }
 
-ListNode *
+static ListNode *
 queue_dequeue(Queue *q) {
-       ListNode *n = q->head.next;
-       if (n == NULL) {
-               return NULL;
-       }
-       q->head.next = n->next;
-       if (q->tail == n) {
-               q->tail = &q->head;
-       }
-       n->next = NULL;
-       return n;
+	ListNode *n = q->head.next;
+	if (n == NULL) {
+		return NULL;
+	}
+	q->head.next = n->next;
+	if (q->tail == n) {
+		q->tail = &q->head;
+	}
+	n->next = NULL;
+	return n;
 }
 
-// ============================================================================
-// Mailbox Implementation
-// ============================================================================
+struct Waker {
+	ListNode node;
+	CoraVM *vm;
+	int handle;
+	Obj data;
+};
+
+struct Mailbox {
+	pthread_mutex_t lock;
+	Queue sendq;
+	Queue recvq;
+	bool closed;
+	Obj *messages;
+	int msg_capacity;
+	int msg_count;
+	int msg_head;
+	int msg_tail;
+	int id;
+};
 
 static int next_mailbox_id = 1;
 
 Mailbox *
-mailbox_new() {
+mailbox_new(int capacity) {
 	Mailbox *mb = malloc(sizeof(Mailbox));
+	if (!mb) {
+		return NULL;
+	}
+
 	pthread_mutex_init(&mb->lock, NULL);
 	queue_init(&mb->sendq);
 	queue_init(&mb->recvq);
-	// mb->closed = false;
+	mb->closed = false;
+	mb->messages = NULL;
+	mb->msg_capacity = 0;
+	mb->msg_count = 0;
+	mb->msg_head = 0;
+	mb->msg_tail = 0;
 	mb->id = __sync_fetch_and_add(&next_mailbox_id, 1);
-	return mb;
-}
 
-static void
-mailbox_sendq_dequeue(Cora *co, int label, Obj *R) {
-	pthread_mutex_lock(&mb->lock);
-	Mailbox* mb = (Mailbox*)mustCObj(R[1]);
-	ListNode *v = queue_dequeue(&mb->sendq);
-	if (v == NULL) {
-		pthread_mutex_unlock(&mb->lock);
-		coraReturn(co, Nil);
-		return;
+	if (capacity > 0) {
+		mb->messages = calloc((size_t)capacity, sizeof(Obj));
+		if (!mb->messages) {
+			pthread_mutex_destroy(&mb->lock);
+			free(mb);
+			return NULL;
+		}
+		mb->msg_capacity = capacity;
 	}
-	pthread_mutex_unlock();
 
-	Waker* w = container_of(v, Waker, node);
-	coraReturn(co, makeCObj(w));
-}
-
-static void
-mailbox_notify_wakeup(Cora *co, int label, Obj *R) {
-	Waker* w = mustCObj(R[1]);
-	CoraVM *vm = w->vm;
-	// send message to that VM, and let that VM do the rest.
-	cora_vm_enqueue(vm, w->handle);
-	free(w);
-	coraReturn(co, Nil);
-}
-
-static void
-wakeup_value(Cora *co, int label, Obj *R) {
-	Waker *w = mustCObj(R[1]);
-	coraReturn(co, w->data);
+	return mb;
 }
 
 void
@@ -100,15 +108,29 @@ mailbox_free(Mailbox *mb) {
 		return;
 	}
 
-	pthread_mutex_destroy(&mb->lock);
-	if (mb->messages) {
-		free(mb->messages);
+	pthread_mutex_lock(&mb->lock);
+	ListNode *node = NULL;
+	while ((node = queue_dequeue(&mb->sendq)) != NULL) {
+		Waker *w = container_of(node, Waker, node);
+		free(w);
 	}
+	while ((node = queue_dequeue(&mb->recvq)) != NULL) {
+		Waker *w = container_of(node, Waker, node);
+		free(w);
+	}
+	pthread_mutex_unlock(&mb->lock);
+
+	pthread_mutex_destroy(&mb->lock);
+	free(mb->messages);
 	free(mb);
 }
 
 void
 mailbox_close(Mailbox *mb) {
+	if (!mb) {
+		return;
+	}
+
 	pthread_mutex_lock(&mb->lock);
 	mb->closed = true;
 	pthread_mutex_unlock(&mb->lock);
@@ -116,23 +138,74 @@ mailbox_close(Mailbox *mb) {
 
 bool
 mailbox_is_closed(Mailbox *mb) {
+	if (!mb) {
+		return true;
+	}
+
 	pthread_mutex_lock(&mb->lock);
 	bool closed = mb->closed;
 	pthread_mutex_unlock(&mb->lock);
 	return closed;
 }
 
-// Try to send without blocking
+Waker *
+waker_create(CoraVM *vm, int handle, Obj value) {
+	Waker *w = malloc(sizeof(Waker));
+	if (!w) {
+		return NULL;
+	}
+	w->node.next = NULL;
+	w->vm = vm;
+	w->handle = handle;
+	w->data = value;
+	return w;
+}
+
+void
+mailbox_sendq_enqueue(Mailbox *mb, Waker *w) {
+	if (!mb || !w) {
+		return;
+	}
+
+	pthread_mutex_lock(&mb->lock);
+	queue_enqueue(&mb->sendq, &w->node);
+	pthread_mutex_unlock(&mb->lock);
+}
+
+void
+mailbox_recvq_enqueue(Mailbox *mb, Waker *w) {
+	if (!mb || !w) {
+		return;
+	}
+
+	pthread_mutex_lock(&mb->lock);
+	queue_enqueue(&mb->recvq, &w->node);
+	pthread_mutex_unlock(&mb->lock);
+}
+
 bool
 mailbox_send_try(Mailbox *mb, Obj msg) {
-	pthread_mutex_lock(&mb->lock);
+	if (!mb) {
+		return false;
+	}
 
+	Waker *w = NULL;
+
+	pthread_mutex_lock(&mb->lock);
 	if (mb->closed) {
 		pthread_mutex_unlock(&mb->lock);
 		return false;
 	}
 
-	// If mailbox is buffered and has space, enqueue message
+	ListNode *node = queue_dequeue(&mb->recvq);
+	if (node) {
+		w = container_of(node, Waker, node);
+		pthread_mutex_unlock(&mb->lock);
+		cora_vm_enqueue(w->vm, w->handle, msg);
+		free(w);
+		return true;
+	}
+
 	if (mb->msg_capacity > 0 && mb->msg_count < mb->msg_capacity) {
 		mb->messages[mb->msg_tail] = msg;
 		mb->msg_tail = (mb->msg_tail + 1) % mb->msg_capacity;
@@ -141,31 +214,58 @@ mailbox_send_try(Mailbox *mb, Obj msg) {
 		return true;
 	}
 
-	// Would block
 	pthread_mutex_unlock(&mb->lock);
 	return false;
 }
 
-// Try to receive without blocking
 bool
 mailbox_recv_try(Mailbox *mb, Obj *msg_out) {
-	pthread_mutex_lock(&mb->lock);
-
-	if (mb->closed) {
-		pthread_mutex_unlock(&mb->lock);
+	if (!mb || !msg_out) {
 		return false;
 	}
 
-	// If there are messages in the queue, dequeue one
+	Waker *wakeup = NULL;
+	Waker *refill = NULL;
+	Obj msg = Nil;
+
+	pthread_mutex_lock(&mb->lock);
 	if (mb->msg_count > 0) {
-		*msg_out = mb->messages[mb->msg_head];
+		msg = mb->messages[mb->msg_head];
 		mb->msg_head = (mb->msg_head + 1) % mb->msg_capacity;
 		mb->msg_count--;
+
+		if (mb->msg_capacity > 0 && !queue_is_empty(&mb->sendq)) {
+			ListNode *node = queue_dequeue(&mb->sendq);
+			if (node) {
+				refill = container_of(node, Waker, node);
+				mb->messages[mb->msg_tail] = refill->data;
+				mb->msg_tail = (mb->msg_tail + 1) % mb->msg_capacity;
+				mb->msg_count++;
+			}
+		}
+
 		pthread_mutex_unlock(&mb->lock);
+
+		if (refill) {
+			cora_vm_enqueue(refill->vm, refill->handle, Nil);
+			free(refill);
+		}
+
+		*msg_out = msg;
 		return true;
 	}
 
-	// Would block
+	ListNode *node = queue_dequeue(&mb->sendq);
+	if (node) {
+		wakeup = container_of(node, Waker, node);
+		msg = wakeup->data;
+		pthread_mutex_unlock(&mb->lock);
+		cora_vm_enqueue(wakeup->vm, wakeup->handle, Nil);
+		free(wakeup);
+		*msg_out = msg;
+		return true;
+	}
+
 	pthread_mutex_unlock(&mb->lock);
 	return false;
 }
@@ -216,17 +316,15 @@ mailbox_publish(const char *name, Mailbox *mb) {
 
 	pthread_mutex_lock(&registry_lock);
 
-	// Check if name already exists
 	RegistryEntry *entry = registry_buckets[bucket];
 	while (entry) {
 		if (strcmp(entry->name, name) == 0) {
 			pthread_mutex_unlock(&registry_lock);
-			return false; // Already exists
+			return false;
 		}
 		entry = entry->next;
 	}
 
-	// Create new entry
 	entry = malloc(sizeof(RegistryEntry));
 	entry->name = strdup(name);
 	entry->mailbox = mb;

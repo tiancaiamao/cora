@@ -1,74 +1,71 @@
 (package "cora/lib/parallel/mailbox"
-    (export mailbox-make mailbox-send mailbox-recv)
+    (export
+        mailbox-make
+        mailbox-new
+        mailbox-send
+        mailbox-recv
+        mailbox-publish
+        mailbox-resolve
+        resume-handle)
     (import "cora/lib/cml")
     (import "cora/lib/parallel/internal")
     (import "cora/lib/parallel/handle-map")
 
     (def *blocked-coroutine* (handle-map-create))
 
-    (defun mailbox-create ()
-        (cora/lib/parallel/internal#mailbox-new))
+    (defun mailbox-make ()
+        (cora/lib/parallel/internal#mailbox-new 0))
 
-    (defun mailbox-release (m)
-        (cora/lib/parallel/internal#mailbox-free m))
+    (defun mailbox-new (capacity)
+        (cora/lib/parallel/internal#mailbox-new capacity))
+
+    (defun mailbox-publish (name mailbox)
+        (cora/lib/parallel/internal#mailbox-publish name mailbox))
+
+    (defun mailbox-resolve (name)
+        (cora/lib/parallel/internal#mailbox-resolve name))
+
+    (defun resume-handle (handle value)
+        (let k (handle-map-get *blocked-coroutine* handle)
+            (if (= k ())
+                ()
+                (begin
+                    (handle-map-delete *blocked-coroutine* handle)
+                    (enqueue-task (lambda () (k value)))))))
 
     (defun recv-try (mailbox)
-        (let wakeup (mailbox-sendq-dequeue mailbox)
-            (if (null? wakeup)
-                false
-                (let val (wakeup->val wakeup)
-                    (begin
-                        (mailbox-notify-wakeup wake-up)
-                        val)))))
+        (cora/lib/parallel/internal#mailbox-recv-try mailbox))
 
-    (defun recv-block (recvq k wrap)
-        (let h (handle-map-add *blocked-coroutine* k)
-            wakeup (wakeup-create h *cora-vm*)
-            (mailbox-recvq-enqueue mailbox wakeup)))
+    (defun recv-block (mailbox k wrap)
+        (let resume (lambda (v) (k (wrap v)))
+            handle (handle-map-add *blocked-coroutine* resume)
+            vm (cora/lib/parallel/internal#vm-self)
+            wakeup (cora/lib/parallel/internal#wakeup-create vm handle ())
+            (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
+
+    (defun send-try (mailbox val)
+        (if (cora/lib/parallel/internal#mailbox-send-try mailbox val)
+            ()
+            false))
+
+    (defun send-block (mailbox k val wrap)
+        (let resume (lambda (v) (k (wrap v)))
+            handle (handle-map-add *blocked-coroutine* resume)
+            vm (cora/lib/parallel/internal#vm-self)
+            wakeup (cora/lib/parallel/internal#wakeup-create vm handle val)
+            (cora/lib/parallel/internal#mailbox-sendq-enqueue mailbox wakeup)))
 
     (defun default-wrap (x) x)
 
     ;; recv on mailbox is an operation
-    (defun mailbox-recv (ch)
-        (let try (lambda () (recv-try ch))
-            block (lambda (k wrap) (recv-block (cadr ch) k wrap))
+    (defun mailbox-recv (mailbox)
+        (let try (lambda () (recv-try mailbox))
+            block (lambda (k wrap) (recv-block mailbox k wrap))
             [try block default-wrap]))
 
-    (func send-try (mb val)
-        (let wakeup (mailbox-recvq-dequeue mb)
-            (if (null? wakeup)
-                fasle
-                ;; someone is recving the mailbox and blocked, so we can wakeup him
-                (begin
-                    (mailbox-notify-wakeup wakeup val)))))
-
-    ; [sendq recvq] val => (if (queue-empty? recvq)
-    ;     false
-    ;     (match (dequeue recvq)
-    ;         [state resume wrap]
-    ;         (if (= 'Done (value state))
-    ;             (send-try [sendq recvq]) ;; ignore stale
-    ;             (begin
-    ;                 (enqueue-task (lambda ()
-    ;                     (begin
-    ;                         ;; (io.display "resume recv op\n")
-    ;                         (resume (wrap val)))))
-    ;                 (set state 'Done)
-    ;                 ())))))
-
-    (defun send-block (mb k val wrap)
-        (let handle (handle-map-add *blocked-coroutine* k)
-            wakeup (wakeup-create handle *cora-vm* val)
-            (mailbox-sendq-enqueue mb wakeup)))
-
-    ; (let state (gensym)
-    ;     (begin
-    ;         (set state 'Wait)
-    ;         (enqueue sendq [state k val wrap]))))
-
     ;; send on mailbox is an operation
-    (defun mailbox-send (mb val)
-        (let try (lambda () (send-try mb val))
-            block (lambda (k wrap) (send-block mb k val wrap))
+    (defun mailbox-send (mailbox val)
+        (let try (lambda () (send-try mailbox val))
+            block (lambda (k wrap) (send-block mailbox k val wrap))
             [try block default-wrap]))
     )

@@ -10,6 +10,7 @@
 // Forward declarations
 typedef struct VM VM;
 typedef struct GlobalRuntime GlobalRuntime;
+typedef struct CoraVM CoraVM;
 
 // VM execution results
 typedef enum {
@@ -63,6 +64,8 @@ void spawn_in_current_vm(void *thunk);
 
 // Utility functions
 uint64_t get_current_time_ms(void);
+void cora_vm_enqueue(CoraVM *vm, int handle, Obj value);
+CoraVM *cora_vm_self(Cora *co);
 // VM *get_current_vm(void);
 // void set_current_vm(VM *vm);
 
