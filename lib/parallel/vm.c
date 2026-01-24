@@ -644,7 +644,7 @@ cora_vm_init(void *self, str fileName) {
 static Obj
 cora_vm_get_resume_fn(Cora *co) {
 	Obj resume_fn = symbolGet(co,
-		intern("cora/lib/parallel/mailbox#resume-handle"));
+		intern("cora/lib/cml#resume-handle"));
 	if (resume_fn != Undef) {
 		return resume_fn;
 	}
@@ -654,11 +654,11 @@ cora_vm_get_resume_fn(Cora *co) {
 		return Undef;
 	}
 
-	Obj arg = makeCString(co->gc, "cora/lib/parallel/mailbox");
+	Obj arg = makeCString(co->gc, "cora/lib/cml");
 	coraCall1(co, import_fn, arg);
 	coraRun(co);
 
-	return symbolGet(co, intern("cora/lib/parallel/mailbox#resume-handle"));
+	return symbolGet(co, intern("cora/lib/cml#resume-handle"));
 }
 
 static void

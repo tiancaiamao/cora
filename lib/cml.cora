@@ -9,7 +9,23 @@
   (import "cora/lib/rand")
   (import "cora/lib/sys")
   (import "cora/lib/io")
-  (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once enqueue-task)
+  (import "cora/lib/parallel/handle-map")
+
+  (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
+      enqueue-task add-task-to-blocked)
+
+  (def *blocked-coroutine* (handle-map-create))
+
+  (defun resume-handle (handle value)
+        (let k (handle-map-get *blocked-coroutine* handle)
+            (if (= k ())
+                ()
+                (begin
+                    (handle-map-delete *blocked-coroutine* handle)
+                    (enqueue-task (lambda () (k value)))))))
+
+  (defun add-task-to-blocked (resume)
+      (handle-map-add *blocked-coroutine* resume))
 
   ;; Global task queue (VM-local, not thread-local for parallel mode)
   (def *task-queue* ())

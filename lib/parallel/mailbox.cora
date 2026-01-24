@@ -5,14 +5,11 @@
         mailbox-send
         mailbox-recv
         mailbox-publish
-        mailbox-resolve
-        resume-handle)
+        mailbox-resolve)
 
     (import "cora/lib/cml")
     (import "cora/lib/parallel/internal")
     (import "cora/lib/parallel/handle-map")
-
-    (def *blocked-coroutine* (handle-map-create))
 
     (defun mailbox-make ()
         (cora/lib/parallel/internal#mailbox-new 0))
@@ -26,20 +23,12 @@
     (defun mailbox-resolve (name)
         (cora/lib/parallel/internal#mailbox-resolve name))
 
-    (defun resume-handle (handle value)
-        (let k (handle-map-get *blocked-coroutine* handle)
-            (if (= k ())
-                ()
-                (begin
-                    (handle-map-delete *blocked-coroutine* handle)
-                    (enqueue-task (lambda () (k value)))))))
-
     (defun recv-try (mailbox)
         (cora/lib/parallel/internal#mailbox-recv-try mailbox))
 
     (defun recv-block (mailbox k wrap)
         (let resume (lambda (v) (k (wrap v)))
-            handle (handle-map-add *blocked-coroutine* resume)
+            handle (add-task-to-blocked resume)
             vm (cora/lib/parallel/internal#vm-self)
             wakeup (cora/lib/parallel/internal#wakeup-create vm handle ())
             (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
@@ -55,7 +44,7 @@
         (begin
             (mailbox-ensure-immediate val)
             (let resume (lambda (v) (k (wrap v)))
-                handle (handle-map-add *blocked-coroutine* resume)
+                handle (add-task-to-blocked resume)
                 vm (cora/lib/parallel/internal#vm-self)
                 wakeup (cora/lib/parallel/internal#wakeup-create vm handle val)
                 (cora/lib/parallel/internal#mailbox-sendq-enqueue mailbox wakeup))))
