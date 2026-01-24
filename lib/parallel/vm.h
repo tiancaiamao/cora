@@ -48,9 +48,12 @@ struct VM {
 // Global runtime functions
 void vm_runtime_init(int num_threads);
 void vm_runtime_shutdown(void);
+void vm_runtime_wait_all(void);
 
 // VM management
 VM *vm_create(void);
+VM *vm_attach_current(Cora *co);
+void vm_set_init_file(VM *vm, str fileName);
 void vm_destroy(VM *vm);
 VMRunResult vm_run_time_slice(VM *vm, int time_slice_ms);
 

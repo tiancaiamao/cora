@@ -27,8 +27,8 @@
 		 (begin
 		  (perform
 		   ;; (choice
-		   (wrap (mailbox-send c2s "ping") (lambda (v)
-						  (display "client send ping\n")))
+		   (wrap (mailbox-send c2s 1) (lambda (v)
+						(display "client send ping\n")))
 		   ;; (wrap (mailbox-recv s2c) (lambda (v) (begin
 		   ;; 					(display "client recv:")
 		   ;; 					(display v)

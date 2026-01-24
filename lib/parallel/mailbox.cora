@@ -44,18 +44,30 @@
             (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
 
     (defun send-try (mailbox val)
-        (if (cora/lib/parallel/internal#mailbox-send-try mailbox val)
-            ()
-            false))
+        (begin
+            (mailbox-ensure-immediate val)
+            (if (cora/lib/parallel/internal#mailbox-send-try mailbox val)
+                ()
+                false)))
 
     (defun send-block (mailbox k val wrap)
-        (let resume (lambda (v) (k (wrap v)))
-            handle (handle-map-add *blocked-coroutine* resume)
-            vm (cora/lib/parallel/internal#vm-self)
-            wakeup (cora/lib/parallel/internal#wakeup-create vm handle val)
-            (cora/lib/parallel/internal#mailbox-sendq-enqueue mailbox wakeup)))
+        (begin
+            (mailbox-ensure-immediate val)
+            (let resume (lambda (v) (k (wrap v)))
+                handle (handle-map-add *blocked-coroutine* resume)
+                vm (cora/lib/parallel/internal#vm-self)
+                wakeup (cora/lib/parallel/internal#wakeup-create vm handle val)
+                (cora/lib/parallel/internal#mailbox-sendq-enqueue mailbox wakeup))))
 
     (defun default-wrap (x) x)
+
+    (defun mailbox-immediate? (v)
+        (or (number? v) (boolean? v) (null? v)))
+
+    (defun mailbox-ensure-immediate (v)
+        (if (mailbox-immediate? v)
+            true
+            (error "mailbox only supports number/boolean/nil across VMs")))
 
     ;; recv on mailbox is an operation
     (defun mailbox-recv (mailbox)

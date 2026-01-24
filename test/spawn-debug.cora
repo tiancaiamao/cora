@@ -16,6 +16,8 @@
     (display vm-id)
     (display "\n")
 
+    (cora/lib/parallel/internal#vm-runtime-wait-all)
+
     (display "Step 7: Before shutdown\n")
     (parallel-shutdown)
     (display "Step 8: After shutdown\n")))

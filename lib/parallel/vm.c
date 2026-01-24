@@ -39,6 +39,7 @@ struct GlobalRuntime {
 	// Runtime state (using volatile for atomic access)
 	volatile int shutdown;	 // 0/1
 	volatile int next_vm_id; // Next VM ID to assign
+	volatile int running_vms;
 };
 
 typedef struct WakeupNode {
@@ -53,10 +54,19 @@ struct CoraVM {
 	pthread_mutex_t wake_lock;
 	WakeupNode *wake_head;
 	WakeupNode *wake_tail;
+	bool initialized;
+	bool owns_cora;
+	char *init_file;
+	size_t init_len;
 };
 
 static GlobalRuntime *g_runtime = NULL;
 // static __thread VM *current_vm = NULL;
+
+static void cora_vm_schedule_once(void *ptr);
+static bool cora_vm_has_work(void *ptr);
+static void cora_vm_exit(void *ptr);
+static Obj cora_vm_get_resume_fn(Cora *co);
 
 // Time utilities
 uint64_t
@@ -90,6 +100,29 @@ cora_vm_wakeup_destroy(CoraVM *vm) {
 	pthread_mutex_destroy(&vm->wake_lock);
 }
 
+static void
+cora_vm_set_init_file(CoraVM *vm, str fileName) {
+	if (!vm) {
+		return;
+	}
+
+	free(vm->init_file);
+	vm->init_file = NULL;
+	vm->init_len = 0;
+
+	if (fileName.str && fileName.len > 0) {
+		vm->init_file = malloc((size_t)fileName.len + 1);
+		if (!vm->init_file) {
+			return;
+		}
+		memcpy(vm->init_file, fileName.str, (size_t)fileName.len);
+		vm->init_file[fileName.len] = '\0';
+		vm->init_len = (size_t)fileName.len;
+	}
+
+	vm->initialized = false;
+}
+
 CoraVM *
 cora_vm_self(Cora *co) {
 	if (!co) {
@@ -108,6 +141,10 @@ cora_vm_self(Cora *co) {
 	memset(vm, 0, sizeof(CoraVM));
 	vm->cora = co;
 	vm->owner = NULL;
+	vm->initialized = true;
+	vm->owns_cora = false;
+	vm->init_file = NULL;
+	vm->init_len = 0;
 	cora_vm_wakeup_init(vm);
 
 	primSet(co, intern("*cora-vm*"), makeCObj(vm));
@@ -131,8 +168,7 @@ cora_vm_enqueue(CoraVM *vm, int handle, Obj value) {
 	}
 
 	if (!g_runtime) {
-		Obj resume_fn = symbolGet(vm->cora,
-			intern("cora/lib/parallel/mailbox#resume-handle"));
+		Obj resume_fn = cora_vm_get_resume_fn(vm->cora);
 		if (resume_fn == Undef) {
 			return;
 		}
@@ -274,7 +310,9 @@ worker_thread(void *arg) {
 
 		// set_current_vm(vm);
 
+		atomic_fetch_add(&g_runtime->running_vms, 1);
 		VMRunResult result = vm_run_time_slice(vm, 50); // 50ms time slice
+		atomic_fetch_add(&g_runtime->running_vms, -1);
 
 		switch (result) {
 		case VM_TIME_EXPIRED:
@@ -323,6 +361,7 @@ vm_runtime_init(int num_threads) {
 	// Initialize runtime state
 	atomic_init(&g_runtime->shutdown, 0);
 	atomic_init(&g_runtime->next_vm_id, 1);
+	atomic_init(&g_runtime->running_vms, 0);
 
 	// Start worker threads
 	g_runtime->num_threads = num_threads;
@@ -354,6 +393,17 @@ vm_runtime_shutdown(void) {
 	}
 
 	// Cleanup
+	if (g_runtime->vm_count > 0) {
+		int vm_count = g_runtime->vm_count;
+		VM **vm_list = malloc(sizeof(VM *) * vm_count);
+		if (vm_list) {
+			memcpy(vm_list, g_runtime->vms, sizeof(VM *) * vm_count);
+			for (int i = 0; i < vm_count; i++) {
+				vm_destroy(vm_list[i]);
+			}
+			free(vm_list);
+		}
+	}
 	free(g_runtime->worker_threads);
 	free(g_runtime->vms);
 	pthread_mutex_destroy(&g_runtime->vm_registry_lock);
@@ -361,6 +411,29 @@ vm_runtime_shutdown(void) {
 
 	free(g_runtime);
 	g_runtime = NULL;
+}
+
+void
+vm_runtime_wait_all(void) {
+	if (!g_runtime) {
+		return;
+	}
+
+	for (;;) {
+		if (atomic_load(&g_runtime->shutdown)) {
+			return;
+		}
+
+		pthread_mutex_lock(&g_runtime->queue_lock);
+		int queue_size = g_runtime->queue_size;
+		pthread_mutex_unlock(&g_runtime->queue_lock);
+		int running = atomic_load(&g_runtime->running_vms);
+		if (queue_size == 0 && running == 0) {
+			break;
+		}
+
+		usleep(1000);
+	}
 }
 
 static void vm_impl_init(VMImpl *impl);
@@ -398,6 +471,61 @@ vm_create(void) {
 	return vm;
 }
 
+void
+vm_set_init_file(VM *vm, str fileName) {
+	if (!vm || !vm->impl.self) {
+		return;
+	}
+	cora_vm_set_init_file((CoraVM *)vm->impl.self, fileName);
+}
+
+VM *
+vm_attach_current(Cora *co) {
+	if (!g_runtime || !co) {
+		return NULL;
+	}
+
+	CoraVM *sched = cora_vm_self(co);
+	if (!sched) {
+		return NULL;
+	}
+	if (sched->owner) {
+		return sched->owner;
+	}
+
+	VM *vm = malloc(sizeof(VM));
+	vm->id = atomic_fetch_add(&g_runtime->next_vm_id, 1);
+	vm->is_running = false;
+	vm->time_slice_start = 0;
+	atomic_init(&vm->in_global_queue, 0);
+	atomic_init(&vm->should_terminate, 0);
+
+	vm->impl.self = sched;
+	vm->impl.HasWork = cora_vm_has_work;
+	vm->impl.Init = NULL;
+	vm->impl.ScheduleOnce = cora_vm_schedule_once;
+	vm->impl.Exit = cora_vm_exit;
+
+	sched->owner = vm;
+	sched->cora = co;
+	sched->initialized = true;
+	sched->owns_cora = false;
+
+	pthread_mutex_init(&vm->lock, NULL);
+	// Register VM globally
+	pthread_mutex_lock(&g_runtime->vm_registry_lock);
+	if (g_runtime->vm_count >= g_runtime->vm_capacity) {
+		g_runtime->vm_capacity *= 2;
+		g_runtime->vms = realloc(g_runtime->vms,
+			sizeof(VM *) * g_runtime->vm_capacity);
+	}
+	g_runtime->vms[g_runtime->vm_count++] = vm;
+	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
+
+	vm_enqueue_global(vm);
+	return vm;
+}
+
 // Destroy VM
 void
 vm_destroy(VM *vm) {
@@ -417,6 +545,12 @@ vm_destroy(VM *vm) {
 	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
 
 	// Cleanup VM
+	if (vm->impl.self) {
+		CoraVM *sched = (CoraVM *)vm->impl.self;
+		if (!sched->owns_cora) {
+			sched->owner = NULL;
+		}
+	}
 	vm->impl.Exit(vm->impl.self);
 	pthread_mutex_destroy(&vm->lock);
 	free(vm);
@@ -435,6 +569,22 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	if (atomic_load(&vm->should_terminate)) {
 		vm->is_running = false;
 		return VM_TERMINATED;
+	}
+
+	if (vm->impl.Init && vm->impl.self) {
+		CoraVM *sched = (CoraVM *)vm->impl.self;
+		if (!sched->initialized) {
+			str fileName = {0};
+			if (sched->init_file && sched->init_len > 0) {
+				fileName.str = sched->init_file;
+				fileName.len = (int)sched->init_len;
+			}
+			vm->impl.Init(vm->impl.self, fileName);
+			free(sched->init_file);
+			sched->init_file = NULL;
+			sched->init_len = 0;
+			sched->initialized = true;
+		}
 	}
 
 	// Call ScheduleOnce
@@ -471,6 +621,7 @@ cora_vm_init(void *self, str fileName) {
 
 	// So in cora, CoraVM object can be obtain by *cora-vm*
 	primSet(co, intern("*cora-vm*"), makeCObj(vm));
+	primSet(co, intern("cora/lib/cml#*schedule-mode*"), intern("parallel"));
 
 	// It's terrible to import so many things to make VM runnable.
 	Obj fn = symbolGet(co, intern("import"));
@@ -482,10 +633,32 @@ cora_vm_init(void *self, str fileName) {
 	coraCall1(co, fn, arg1);
 	coraRun(co);
 
-	Obj s = makeString(co->gc, fileName.str, fileName.len);
-	fn = symbolGet(co, intern("load"));
-	coraCall1(co, fn, s);
+	if (fileName.str && fileName.len > 0) {
+    	Obj s = makeString(co->gc, fileName.str, fileName.len);
+    	fn = symbolGet(co, intern("load"));
+    	coraCall1(co, fn, s);
+	    coraRun(co);
+    }
+}
+
+static Obj
+cora_vm_get_resume_fn(Cora *co) {
+	Obj resume_fn = symbolGet(co,
+		intern("cora/lib/parallel/mailbox#resume-handle"));
+	if (resume_fn != Undef) {
+		return resume_fn;
+	}
+
+	Obj import_fn = symbolGet(co, intern("import"));
+	if (import_fn == Undef) {
+		return Undef;
+	}
+
+	Obj arg = makeCString(co->gc, "cora/lib/parallel/mailbox");
+	coraCall1(co, import_fn, arg);
 	coraRun(co);
+
+	return symbolGet(co, intern("cora/lib/parallel/mailbox#resume-handle"));
 }
 
 static void
@@ -494,8 +667,7 @@ cora_vm_process_wakeups(CoraVM *vm) {
 		return;
 	}
 
-	Obj resume_fn = symbolGet(vm->cora,
-		intern("cora/lib/parallel/mailbox#resume-handle"));
+	Obj resume_fn = cora_vm_get_resume_fn(vm->cora);
 	if (resume_fn == Undef) {
 		return;
 	}
@@ -538,10 +710,36 @@ cora_vm_schedule_once(void *ptr) {
 	coraRun(co);
 }
 
+static bool
+cora_vm_has_work(void *ptr) {
+	CoraVM *vm = (CoraVM *)ptr;
+	if (!vm || !vm->cora) {
+		return false;
+	}
+
+	Obj queue = symbolGet(vm->cora, intern("cora/lib/cml#*task-queue*"));
+	if (queue == Undef || queue == Nil) {
+		return false;
+	}
+
+	Obj empty_fn = symbolGet(vm->cora, intern("cora/lib/queue#queue-empty?"));
+	if (empty_fn == Undef) {
+		return false;
+	}
+
+	coraCall1(vm->cora, empty_fn, queue);
+	coraRun(vm->cora);
+	return vm->cora->res != True;
+}
+
 static void
 cora_vm_exit(void *ptr) {
 	CoraVM *sched = (CoraVM *)ptr;
 	if (!sched) {
+		return;
+	}
+
+	if (!sched->owns_cora) {
 		return;
 	}
 
@@ -550,6 +748,9 @@ cora_vm_exit(void *ptr) {
 		coraExit(sched->cora);
 		sched->cora = NULL;
 	}
+	free(sched->init_file);
+	sched->init_file = NULL;
+	sched->init_len = 0;
 	cora_vm_wakeup_destroy(sched);
 	free(sched);
 }
@@ -559,10 +760,14 @@ vm_impl_init(VMImpl *impl) {
 	CoraVM *sched = malloc(sizeof(CoraVM));
 	memset(sched, 0, sizeof(CoraVM));
 	sched->cora = coraInit();
+	sched->initialized = false;
+	sched->owns_cora = true;
+	sched->init_file = NULL;
+	sched->init_len = 0;
 	cora_vm_wakeup_init(sched);
 
 	impl->self = sched;
-//	impl->HasWork = vm_scheduler_has_work;
+	impl->HasWork = cora_vm_has_work;
 	impl->Init = cora_vm_init;
 	impl->ScheduleOnce = cora_vm_schedule_once;
 	impl->Exit = cora_vm_exit;

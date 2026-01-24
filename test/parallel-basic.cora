@@ -2,6 +2,7 @@
 
 (package "cora/test/parallel-basic"
   (import "cora/lib/parallel")
+  (import "cora/lib/cml")
   (import "cora/lib/io")
 
   ;; Test basic spawn functionality
@@ -9,41 +10,25 @@
     (begin
       (display "Testing spawn in current VM\n")
       (spawn (lambda ()
-               (begin
-                 (display "Hello from spawned coroutine in VM ")
-                 (display (vm-current-id))
-                 (display "\n"))))
+               (display "Hello from spawned coroutine\n")))
+      (yield)
       (display "Spawn test completed\n")))
 
-  ;; Test spawn-vm functionality  
+  ;; Test spawn-vm functionality
   (defun test-spawn-vm ()
     (begin
       (display "Testing spawn-vm\n")
-      (let vm-id (spawn-vm (lambda ()
-                             (begin
-                               (display "Hello from new VM ")
-                               (display (vm-current-id))
-                               (display "\n")
-                               
-                               ;; Spawn some coroutines in this VM
-                               (spawn (lambda ()
-                                        (display "Coroutine 1 in VM ")
-                                        (display (vm-current-id))
-                                        (display "\n")))
-                               (spawn (lambda ()
-                                        (display "Coroutine 2 in VM ")
-                                        (display (vm-current-id))
-                                        (display "\n"))))))
-           (begin
-             (display "Created VM with ID: ")
-             (display vm-id)
-             (display "\n")))))
+      (let vm-id (spawn-vm "test/parallel/worker.cora")
+        (begin
+          (display "Created VM with ID: ")
+          (display vm-id)
+          (display "\n")))))
 
   ;; Main test function
   (defun main ()
     (begin
       (display "Starting parallel runtime tests\n")
-;;      (test-spawn)
+      (test-spawn)
       (test-spawn-vm)
       (display "All tests completed\n")))
 

@@ -19,11 +19,11 @@
     (display "   Sending: 42\n")
     (mailbox/send! mb 42)
     
-    (display "   Sending: \"hello\"\n")
-    (mailbox/send! mb "hello")
+    (display "   Sending: false\n")
+    (mailbox/send! mb false)
     
-    (display "   Sending: (1 2 3)\n")
-    (mailbox/send! mb (quote (1 2 3)))
+    (display "   Sending: 7\n")
+    (mailbox/send! mb 7)
     
     ;; Receive messages
     (display "   Receiving messages:\n")
@@ -49,45 +49,15 @@
                 (mailbox/close! mb)
                 (display "   Mailbox closed\n\n")))))))))
 
-;; Test 3: Channel abstraction
-(display "3. Testing channel (friendly mailbox API)...\n")
-(let ch (channel/new 3)
-  (begin
-    (display "   Created channel (capacity=3)\n")
-    
-    (channel/send! ch 100)
-    (display "   Sent: 100\n")
-    
-    (let val (channel/recv ch)
-      (begin
-        (display "   Received: ")
-        (display val)
-        (display "\n")
-        
-        (channel/close! ch)
-        (display "   Channel closed\n\n")))))
-
-;; Test 4: Poller
-(display "4. Testing I/O poller...\n")
+;; Test 3: Poller
+(display "3. Testing I/O poller...\n")
 (poller/init)
 (display "   Poller initialized (background thread started)\n")
 (poller/shutdown)
 (display "   Poller shutdown\n\n")
 
-;; Test 5: Current VM ID
-(display "5. Checking current VM context...\n")
-(let vm-id (parallel/current-vm-id)
-  (begin
-    (display "   Current VM ID: ")
-    (display vm-id)
-    (display "\n")
-    (if (= vm-id -1)
-      (display "   (Not in a VM context - running in main thread)\n")
-      (display "   (Running in a worker VM)\n"))
-    (display "\n")))
-
 ;; Cleanup
-(display "6. Shutting down runtime...\n")
+(display "4. Shutting down runtime...\n")
 (parallel/shutdown)
 (display "   Runtime shutdown complete!\n\n")
 

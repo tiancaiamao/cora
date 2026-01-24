@@ -7,6 +7,7 @@
     parallel-shutdown
     parallel/init
     parallel/shutdown
+    parallel-entry
     spawn-vm
 
     ;; Mailbox
@@ -34,6 +35,7 @@
     poller/poll)
 
   (import "cora/lib/cml")
+  (import "cora/lib/io")
   (import "cora/lib/parallel/internal")
   (import "cora/lib/parallel/mailbox")
 
@@ -65,6 +67,17 @@
 (defun spawn-vm (file-name)
   (cora/lib/parallel/internal#spawn-vm-native file-name))
 
+;; Parallel runtime entry: initialize runtime, run main in parallel mode, wait.
+(defun parallel-entry (main num-threads)
+  (begin
+    (parallel-init num-threads)
+    (display "parallel-entry, before schedule-mode\n")
+    (set 'cora/lib/cml#*schedule-mode* 'parallel)
+    (cml-entry main)
+    (cora/lib/parallel/internal#vm-attach-current)
+    (cora/lib/parallel/internal#vm-runtime-wait-all)
+    (parallel/shutdown)))
+
 ;; ============================================================================
 ;; Mailbox Communication
 ;; ============================================================================
@@ -87,6 +100,7 @@
   (cora/lib/parallel/mailbox#mailbox-recv mailbox))
 
 ;; Convenience aliases for mailbox operations
+;; Note: mailbox messages must be number/boolean/nil (cross-VM safe).
 (defun mailbox/new (capacity)
   (mailbox-new capacity))
 

@@ -50,7 +50,11 @@ cora_spawn_vm_native(Cora *co, int label, Obj *R) {
 	str fileName = stringStr(R[1]);
 
 	VM *vm = vm_create();
-	vm->impl.Init(vm->impl.self, fileName);
+	if (!vm) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	vm_set_init_file(vm, fileName);
 
 	// Enqueue VM for execution
 	vm_enqueue_global(vm);
@@ -60,11 +64,23 @@ cora_spawn_vm_native(Cora *co, int label, Obj *R) {
 // Wait for all VMs to complete (placeholder)
 static void
 cora_vm_runtime_wait_all(Cora *co, int label, Obj *R) {
-	// This is a placeholder implementation
-	// In reality, we'd need to track active VMs and wait for them
-
-	// For now, just return immediately
+	(void)label;
+	(void)R;
+	vm_runtime_wait_all();
 	coraReturn(co, True);
+}
+
+// Attach current Cora VM to runtime
+static void
+cora_vm_attach_current(Cora *co, int label, Obj *R) {
+	(void)label;
+	(void)R;
+	VM *vm = vm_attach_current(co);
+	if (!vm) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
+	coraReturn(co, makeNumber(vm->id));
 }
 
 // ============================================================================
@@ -558,6 +574,7 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "vm-self", cora_vm_self_binding, 0);
 	coraRegisterAPI(co, module, "spawn-vm-native", cora_spawn_vm_native, 1);
 	coraRegisterAPI(co, module, "vm-runtime-wait-all", cora_vm_runtime_wait_all, 0);
+	coraRegisterAPI(co, module, "vm-attach-current", cora_vm_attach_current, 0);
 
 	// coraReturn(co, intern("cora/lib/parallel"));
 
