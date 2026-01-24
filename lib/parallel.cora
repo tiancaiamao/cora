@@ -71,9 +71,8 @@
 (defun parallel-entry (main num-threads)
   (begin
     (parallel-init num-threads)
-    (display "parallel-entry, before schedule-mode\n")
-    (set 'cora/lib/cml#*schedule-mode* 'parallel)
-    (cml-entry main)
+    (display "parallel-entry, initializing CML in parallel mode\n")
+    (cml-entry-init main)
     (cora/lib/parallel/internal#vm-attach-current)
     (cora/lib/parallel/internal#vm-runtime-wait-all)
     (parallel/shutdown)))

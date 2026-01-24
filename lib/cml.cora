@@ -14,9 +14,6 @@
   ;; Global task queue (VM-local, not thread-local for parallel mode)
   (def *task-queue* ())
 
-  ;; Schedule mode: 'single-vm or 'parallel
-  (def *schedule-mode* (value-or 'cora/lib/cml#*schedule-mode* 'single-vm))
-
   (defun task-queue ()
     *task-queue*)
 
@@ -58,7 +55,8 @@
               ()
               (schedule-loop))))
 
-  ;; cml-entry: entry point for both single-vm and parallel modes
+  ;; cml-entry: entry point for single-VM mode
+  ;; Initializes CML and enters the scheduling loop
   ;; Usage: (cora/lib/cml#cml-entry (lambda () (main-body)))
   (defun cml-entry (main)
     (begin
@@ -67,18 +65,11 @@
      (if (member "cora/lib/async" cora/init#*imported*)
          (cora/lib/async#event-loop-init)
          42)
-         ;; (begin
-         ;;     (display cora/init#*imported*)
-         ;;     (display "cora/lib/async is not loaded!!\n")))
 
      (display "cml-entry init done\n")
 
      (spawn main)
-     (if (= *schedule-mode* 'parallel)
-         ()
-         (begin
-           (def *schedule-mode* 'single-vm)
-           (schedule-loop)))))
+     (schedule-loop)))
 
   ;; cml-entry-init: parallel mode entry point
   ;; This initializes CML but does NOT enter the scheduling loop
@@ -87,7 +78,11 @@
   (defun cml-entry-init (main)
     (begin
      (task-queue-init)
-     (def *schedule-mode* 'parallel)
+
+     (if (member "cora/lib/async" cora/init#*imported*)
+         (cora/lib/async#event-loop-init)
+         42)
+
      (display "cml-entry-init done (parallel mode)\n")
      (spawn main)))
 
