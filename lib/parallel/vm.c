@@ -621,7 +621,7 @@ cora_vm_init(void *self, str fileName) {
 
 	// So in cora, CoraVM object can be obtain by *cora-vm*
 	primSet(co, intern("*cora-vm*"), makeCObj(vm));
-	primSet(co, intern("cora/lib/cml#*schedule-mode*"), intern("parallel"));
+	// primSet(co, intern("cora/lib/cml#*schedule-mode*"), intern("parallel"));
 
 	// It's terrible to import so many things to make VM runnable.
 	Obj fn = symbolGet(co, intern("import"));

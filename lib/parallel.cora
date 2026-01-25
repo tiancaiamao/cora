@@ -3,10 +3,7 @@
 
 (package "cora/lib/parallel"
   (export
-    parallel-init
     parallel-shutdown
-    parallel/init
-    parallel/shutdown
     parallel-entry
     spawn-vm
 
@@ -15,15 +12,11 @@
     mailbox-new
     mailbox-send
     mailbox-recv
-    mailbox/new
-    mailbox/send!
-    mailbox/recv
-    mailbox/close!
-    mailbox/closed?
     mailbox-publish
     mailbox-resolve
-    mailbox/publish!
-    mailbox/resolve
+
+    mailbox/close!
+    mailbox/closed?
 
     ;; Poller
     poller/init
@@ -51,13 +44,6 @@
 (defun parallel-shutdown ()
   (cora/lib/parallel/internal#vm-runtime-shutdown))
 
-;; Convenience aliases
-(defun parallel/init (num-threads)
-  (parallel-init num-threads))
-
-(defun parallel/shutdown ()
-  (parallel-shutdown))
-
 ;; ============================================================================
 ;; Spawning and Concurrency
 ;; ============================================================================
@@ -74,6 +60,7 @@
     (display "parallel-entry, initializing CML in parallel mode\n")
     (cml-entry-init main)
     (cora/lib/parallel/internal#vm-attach-current)
+    (display "parallel-entry, after vm-attach-current\n")
     (cora/lib/parallel/internal#vm-runtime-wait-all)
     (parallel/shutdown)))
 
@@ -98,16 +85,6 @@
 (defun mailbox-recv (mailbox)
   (cora/lib/parallel/mailbox#mailbox-recv mailbox))
 
-;; Convenience aliases for mailbox operations
-;; Note: mailbox messages must be number/boolean/nil (cross-VM safe).
-(defun mailbox/new (capacity)
-  (mailbox-new capacity))
-
-(defun mailbox/send! (mailbox msg)
-  (perform (mailbox-send mailbox msg)))
-
-(defun mailbox/recv (mailbox)
-  (perform (mailbox-recv mailbox)))
 
 ;; Close the mailbox. No further sends or receives will succeed.
 (defun mailbox/close! (mailbox)
@@ -124,14 +101,6 @@
 ;; Resolve a mailbox by name. Returns the mailbox or false if not found.
 (defun mailbox-resolve (name)
   (cora/lib/parallel/mailbox#mailbox-resolve name))
-
-;; Publish a mailbox under a given name for discovery by other VMs.
-(defun mailbox/publish! (name mailbox)
-  (mailbox-publish name mailbox))
-
-;; Resolve a mailbox by name. Returns the mailbox or false if not found.
-(defun mailbox/resolve (name)
-  (mailbox-resolve name))
 
 ;; ============================================================================
 ;; I/O Poller
@@ -182,11 +151,6 @@
         result))))
 
 ;; Send a message to mailbox, blocking until space is available.
-(defun mailbox/send-blocking! (mailbox msg)
-  (mailbox/send! mailbox msg))
-
-;; Receive a message from mailbox, blocking until one is available.
-(defun mailbox/recv-blocking (mailbox)
-  (mailbox/recv mailbox))
-
+(defun mailbox-send-blocking! (mailbox msg)
+  (mailbox-send! mailbox msg))
 ) ;; end package

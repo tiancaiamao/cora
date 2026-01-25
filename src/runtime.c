@@ -554,6 +554,7 @@ builtinImport(Cora *co, int label, Obj *R) {
 	if (safeToUseSo(tmp)) {
 		// builtinLoadSo is a bit special, it requires the spent stack of VM is
 		// (load-so "file-path.so" "package-path")
+        printf("import load-so == %s\n", toCStr(tmp));
 		Obj arg0 = makeNative(co->gc, 3, builtinLoadSo, 2, 0);
 		Obj arg1 = makeString(co->gc, toCStr(tmp), strLen(toStr(tmp)));
 		strFree(tmp);
@@ -568,6 +569,7 @@ builtinImport(Cora *co, int label, Obj *R) {
 	tmp = strCat(tmp, S(".cora"));
 	str tmp1 = toStr(tmp);
 	Obj filePath = makeString(co->gc, tmp1.str, tmp1.len);
+    printf("import load-so == %s\n", toCStr(tmp1.str));
 	strFree(tmp);
 
 	co->ctx.bp = R;

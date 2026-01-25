@@ -1,5 +1,4 @@
 (import "cora/lib/io")
-(import "cora/lib/async")
 (import "cora/lib/cml")
 (import "cora/lib/parallel")
 
@@ -11,7 +10,7 @@
   (if (= i 0)
       ()
       (begin
-       (mailbox/send! mb i)
+       (perform (mailbox-send mb i))
        (display "send a ping\n")
        (client-h (- i 1) mb))))
 
