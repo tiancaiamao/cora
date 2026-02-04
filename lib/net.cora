@@ -1,0 +1,40 @@
+;; High-level synchronous-style network API
+;; Internally uses async operations, but presents a synchronous interface
+;; This is the user-facing API for network programming
+
+(package "cora/lib/net"
+  (import "cora/lib/async")
+  (import "cora/lib/cml")
+  (import "cora/lib/io")
+
+  (export
+    net-listen net-dial
+    net-accept
+    net-recv net-send
+    net-close)
+
+  (defun net-listen (addr)
+    (cora/lib/async#async-listen addr))
+
+  (defun net-dial (addr)
+    (cora/lib/async#async-dial addr))
+
+  (defun net-accept (listener)
+    (perform (cora/lib/async#async-accept listener)))
+
+  (defun net-recv (conn size)
+    (let buf (make-bytes size)
+      (let n (perform (cora/lib/async#async-recv conn buf))
+        (if (= n 0)
+            ()  ;; connection is closed
+            (bytes-substring buf 0 n)))))
+
+  (defun net-send (conn data)
+    (let buf (if (string? data)
+                 (string->bytes data)
+                 data)
+      (perform (cora/lib/async#async-send conn buf))))
+
+  (defun net-close (conn)
+    (cora/lib/async#async-conn-close conn))
+    )

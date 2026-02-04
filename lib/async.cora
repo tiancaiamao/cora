@@ -1,275 +1,156 @@
+;; Low-level async I/O API for Cora
+;; This is the foundation for higher-level network APIs
+;; Uses handle-map for GC-safe resource management
+;; Uses CML perform mechanism for async operations
+
 (package "cora/lib/async"
-
-  (import "cora/lib/sys")
-  (import "cora/lib/io")
-  (import "cora/lib/net")
-  (import "cora/lib/queue")
-  (import "cora/lib/let-loop")
   (import "cora/lib/cml")
-  (import "cora/lib/define-record")
+  (import "cora/lib/io")
+  (import "cora/lib/parallel/internal")
+  (import "cora/lib/parallel/handle-map")
 
-  (export listen dial recv send accept
-	  conn-close conn-make conn-extra
-	  event-loop-add)
+  (export
+    async-listen async-dial
+    async-recv async-send
+    async-accept
+    async-conn-close
+    poller-init poller-shutdown)
 
-  (define-record <conn>
-      (conn-make-naive fd)
+  (def *async-sock-map* ())
+
+  (defun async-sock-map-init ()
+    (def *async-sock-map* (handle-map-create)))
+
+  (defun async-sock-register (sock)
+    (handle-map-add *async-sock-map* sock))
+
+  ;; socket to connection object
+  (define-record <async-sock>
+    (async-sock-make-raw)
     false
-    (next conn-next conn-set-next!)
-    (prev conn-prev conn-set-prev!)
-    (mode conn-mode conn-set-mode!)
-    (fd conn-fd)
-    (read-callback conn-read-callback conn-set-read-callback!)
-    (write-callback conn-write-callback conn-set-write-callback!)
-    ;; NOTE, extra is also used in parallel/internal.c,
-    ;; if it's changed here, they must be done together
-    (extra conn-extra conn-set-extra!))
+    (fd async-sock-fd)
+    (event-handle async-sock-event-handle))
 
-  (defun conn-make (fd)
-    (let c (conn-make-naive fd)
-	 (begin
-	  (conn-set-next! c ())
-	  (conn-set-prev! c ())
-	  (conn-set-mode! c ())
-	  (conn-set-read-callback! c ())
-	  (conn-set-write-callback! c ())
-	  c)))
+  (defun async-sock-create (fd)
+    (let sock (async-sock-make-raw)
+      (begin
+        (async-sock-fd-set! sock fd)
+        ;; event handle in C
+        (let eh (cora/lib/parallel/internal#event-handle-new fd)
+          (begin
+            (async-sock-event-handle-set! sock eh)
+            ;; register to handle-map to make resource protected from been GC
+            (async-sock-register sock)
+            sock)))))
 
-  (define-record <node>
-      (node-make)
-    false
-    (next node-next node-set-next!)
-    (prev node-prev node-set-prev!))
+  (defun poller-init ()
+    (cora/lib/parallel/internal#poller-init))
 
-  (defun create-event-loop-conns ()
-    (let v (node-make)
-	 (begin
-	  (node-set-next! v ())
-	  (node-set-prev! v ())
-	  v)))
+  (defun poller-shutdown ()
+    (cora/lib/parallel/internal#poller-shutdown))
 
-  (defun event-loop-conns ()
-    (thread-local-get 'cora/lib/async#event-loop))
+  (defun recv-try (mailbox)
+      (cora/lib/parallel/internal#mailbox-recv-try mailbox))
 
-  (defun conn-not-in-event-loop? (conn)
-    (and (null? (conn-next conn))
-	 (null? (conn-prev conn))))
-
-  (defun add-to-event-loop-conns (conn)
-    (let head (event-loop-conns)
-	 (begin
-	  (conn-set-next! conn (node-next head)) ;; conn->next = head->next
-	  (if (not (null? (node-next head))) ;; if head->next != null
-	      (node-set-prev! (node-next head) conn) ;; head->next->prev = conn
-	      ())
-	  (node-set-next! head conn) ;; head->next = conn
-	  (conn-set-prev! conn head)))) ;; conn->prev = conn
-
-  (defun del-from-event-loop-conns (conn)
-    (let prev (conn-prev conn)
-	 (begin
-	  (conn-set-next! prev (conn-next conn)) ;; prev->next = conn->next
-	  (if (null? (conn-next conn)) ;; if conn->next != null
-	      ()
-	      (conn-set-prev! (conn-next conn) prev)) ;; conn->next->prev = prev
-	  (conn-set-next! conn ()) ;; conn->next = null
-	  (conn-set-prev! conn ())))) ;; conn->prev = null
-	 
-
-  ;; event-loop-add registers the conn to event loop.
-  ;; conn is also added to a list to protect from garbage recycle.
-  (defun event-loop-add (conn mode callback)
-    (begin 
-     (cond
-       ((= mode 'read) (conn-set-read-callback! conn callback))
-       ((= mode 'write) (conn-set-write-callback! conn callback)))
-     ;; (display mode)
-     ;; (display "in event-loop-add \n")
-     (if (conn-not-in-event-loop? conn)
-	 (begin
-	  ;; (display "in event-loop-add before add-to-event-loop \n")
-	  (add-to-event-loop-conns conn)
-	  ;; (display "in event-loop-add before net-poll-add \n")
-	  (net-poll-add (conn-fd conn) mode conn)
-	  (conn-set-mode! conn (cons mode ())))
-	 (if (not (member mode (conn-mode conn)))
-	     (begin
-	      ;; (display "conn mode is:")
-	      ;; (display (conn-mode conn))
-	      ;; (display "\n add event loop mode is:")
-	      ;; (display mode)
-	      ;; (display "\n")
-	      (let new-mode (cons mode (conn-mode conn))
-		   (begin
-		    (net-poll-mod (conn-fd conn) new-mode conn)
-		    (conn-set-mode! conn new-mode))))
-	     (display "event loop add no action!\n")))))
-
-  (defun listen (addr)
-    (let fd (net-listen addr)
-	 (begin
-	  ;; (display fd)
-	  ;; (display "here in listen?\n")
-	  (conn-make fd))))
-
-  (defun conn-close (conn)
-    (if (conn-not-in-event-loop? conn)
-	(net-close (conn-fd conn))
-	(let fd (conn-fd conn)
-	     (begin
-	      (net-poll-del fd)
-	      (net-close fd)
-	      (del-from-event-loop-conns conn)))))
-
-  (defun dial (addr)
-    (let fd (net-dial addr)
-	 (conn-make fd)))
-
-  (func recv-handler
-	[conn buf pos] k => (begin
-			     ;; (display "run in recv-handler\n")
-			     (match (net-recv (conn-fd conn) buf pos)
-				    [block pos] (begin
-						 (event-loop-add conn 'read (lambda (conn) (recv-handler [conn buf pos] k)))
-						 ;; (display "recv-handler block and go to scheduler\n")
-						 (schedule)
-						 ;; (display "finish schedule in recv-handler")
-						 )
-				    res (begin
-					 (conn-set-read-callback! conn ())
-					 ;; (display "before recv handler direct return\n")
-					 (spawn (lambda () (k res)))
-					 ;; (display "after recv handler direct return\n")
-					 ))))
+  (defun recv-block (mailbox k wrap)
+      (let resume (lambda (v) (k (wrap v)))
+            handle (add-task-to-blocked resume)
+            vm (cora/lib/parallel/internal#vm-self)
+            wakeup (cora/lib/parallel/internal#wakeup-create vm handle ())
+            (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
 
   (defun default-wrap (x) x)
 
-  (defun recv-op (conn buf pos)
-    (let try (lambda () false)
-	 block (lambda (k wrap)
-		 (event-loop-add conn 'read (lambda (conn) (recv-handler [conn buf pos] k))))
-	 [try block default-wrap]))
-
-  (defun recv (conn buf)
-    (begin
-      ;; (display "in recv ---\n")
-      (perform (recv-op conn buf 0))))
-
-  (func send-handler
-	[conn buf pos] k => (match (net-send (conn-fd conn) buf pos)
-				   [block pos] (begin
-						(event-loop-add conn 'write (lambda (conn)
-									      (send-handler [conn buf pos] k)))
-						;; (display "send-handler block and go to schedule\n")
-						(schedule)
-						;; (display "finish send-handler\n")
-						)
-				   res (begin
-					(conn-set-write-callback! conn ())
-					;; remove writable event registry from event loop,
-					;; because we'll get too noisy notifications, writable is almost always true
-					(let fd (conn-fd conn)
-					     old-mode (conn-mode conn)
-					     new-mode (filter
-						       (lambda (m) (not (= 'write m)))
-						       old-mode)
-					     (net-poll-mod fd new-mode conn))
-					(spawn (lambda () (k res)))))
-	_ k => (display "wrong argument for send-handler\n"))
-
-  (defun send-op (conn buf pos)
+  ;; recv on mailbox is an operation
+  (defun async-recv-op (sock buf)
     (let try (lambda ()
-	       (match (net-send (conn-fd conn) buf pos)
-		      [block pos] (begin
-				   (conn-set-extra! conn pos)
-				   false)
-		      res res))
-	 block (lambda (k wrap)
-		 (begin
-		  ;; (display "send-op\n")
-		  (let pos1 (conn-extra conn)
-		       (event-loop-add conn 'write (lambda (conn)
-						     (begin
-						      ;; (display "in send callback\n")
-						      (send-handler [conn buf pos1] k)))))))
-	 [try block default-wrap]))
+              (match (cora/lib/parallel/internal#async-socket-recv
+                      (async-sock-fd sock) buf 0)
+                ['ok n] n
+                ['block n] false
+                ['error e] (error "async-recv error")))
+         block (lambda (k wrap)
+                 (let eh (async-sock-event-handle sock)
+                   (begin
+                     ;; register resume function to blocked-coroutine
+                     (let handle (add-task-to-blocked
+                                   (lambda (value)
+                                     ;; retry when the event is ready again
+                                     (wrap (cora/lib/parallel/internal#async-socket-recv
+                                            (async-sock-fd sock) buf -1))))
+                       (begin
+                         ;; set the VM（for parallel mode）
+                         ; (let self-vm (cora/lib/parallel/internal#vm-self)
+                         ;   (if (not (null? self-vm))
+                         ;       ;; 注意：这里需要 C 层提供设置 target_vm 的 API
+                         ;       ;; 暂时注释掉，等后续实现
+                         ;       ;; (cora/lib/parallel/internal#event-handle-set-target-vm! eh self-vm)
+                         ;       ()))
+                         ;; set connection to readable
+                         (cora/lib/parallel/internal#event-handle-enable-read eh))))))
+         [try block default-wrap]))
 
-  (defun send (conn buf)
-    (begin
-      (perform (send-op conn buf 0))
-      ;; (display buf)
-      ;; (display "send success!\n")
-      ))
+  (defun async-recv (sock buf)
+    (perform (async-recv-op sock buf)))
 
-  (defun accept-op (ln)
-    (let try (lambda () false)
-	 block (lambda (k wrap)
-		 (begin
-		  ;; (display "accept-op\n")
-		  (event-loop-add ln 'read (lambda (conn)
-					     (begin
-					      ;; (display "here in accept callback!\n")
-					      (conn-set-read-callback! conn ())
-					      (let fd (conn-fd conn)
-						   new-fd (net-accept fd)
-						   new-conn (conn-make new-fd)
-						   (begin
-						    ;; (display new-fd)
-						    ;; (display "before accept spawn\n")
-						    (spawn (lambda ()
-							     (begin
-							      ;; (display "accept spawn called\n")
-							      (k new-conn)))))))))))
-	 [try block default-wrap]))
+  (defun send-try (sock val)
+      (begin
+          ;; try send first
+          (if (cora/lib/parallel/internal#async-socket-send
+                  (async-sock-fd sock) val)
+              ()
+              false)))
 
-  (defun accept (ln)
-    (perform (accept-op ln)))
+  (defun send-block (sock k val wrap)
+      (let eh (async-sock-event-handle sock)
+        (begin
+          ;; register resume function
+          (let handle (add-task-to-blocked
+                (lambda (v)
+                  (wrap (cora/lib/parallel/internal#async-socket-send
+                         (async-sock-fd sock) val))))
+            ; (begin
+            ;   ;; 设置关联的 VM
+            ;   (let self-vm (cora/lib/parallel/internal#vm-self)
+            ;     (if (not (null? self-vm))
+            ;         ;; (cora/lib/parallel/internal#event-handle-set-target-vm! eh self-vm)
+            ;         ()))
+              ;; set listening writable event on event handle
+              (cora/lib/parallel/internal#event-handle-enable-write eh)))))
 
-  (defun blocked-queue-empty? ()
-    (let-loop recur (conn (node-next (event-loop-conns)))
-	      (cond
-		((null? conn) true)
-		((and (null? (conn-read-callback conn))
-		      (null? (conn-write-callback conn)))
-		 (recur (conn-next conn)))
-		(true false))))
+  ;; send on socket is an operation
+  (defun async-send-op (sock val)
+    (let try (lambda () (send-try sock val))
+         block (lambda (k wrap) (send-block sock k val wrap))
+         [try block default-wrap]))
 
-  (defun scheduler (timeout)
-    (if (blocked-queue-empty?)
-	(begin
-	 (display "block queue empty --- return false!!\n")
-	 false) ;; no more task
-	(let events (net-poll timeout)
-	     (or (null? events)
-		 (begin
-		  (display "net-poll once, and scheduler handle ready events\n")
-		  (for-each (lambda (events)
-			      (let conn (car events)
-				   mode (cdr events)
-				   read-handler (conn-read-callback conn)
-				   write-handler (conn-write-callback conn)
-				   (cond
-				     ((and (= mode 'read) (not (null? read-handler))) (read-handler conn))
-				     ((and (= mode 'write) (not (null? write-handler))) (write-handler conn))
-				     (true (begin
-					    (display "poll get event ")
-					    (display mode)
-					    (display "but callback is not set")
-					    (display "fd=")
-					    (display (conn-fd conn))
-					    (display "\n"))))))
-			    events)
-		  (display "handle net-poll events done, --- return true!\n")
-		  true)))))
+  (defun async-send (sock val)
+    (perform (async-send-op sock val)))
 
-  ;; event-loop-init initializes the thread local event loop
-  ;; and register the event loop to scheduler
-  (defun event-loop-init ()
-    (let el (create-event-loop-conns)
-	 (begin
-	  (net-poll-fd-init)
-	  (display "event loop init!!!!!!\n")
-	  (thread-local-set 'cora/lib/async#event-loop el)
-	  (register-scheduler scheduler))))
 
+  ;; Accept 需要监听 socket 和新连接的 socket
+  ;; 这是一个简化版本，完整实现需要更复杂的处理
+  (defun async-accept (listener)
+    ;; 简化实现：使用 C 层的 async-socket-accept
+    ;; 这会在新连接可用时返回
+    (perform
+      (let try (lambda ()
+                (cora/lib/parallel/internal#async-socket-accept listener))
+           block (lambda (k wrap)
+                   ;; 需要设置读事件监听
+                   ;; 暂时简化处理
+                   (cora/lib/parallel/internal#event-handle-enable-read
+                     (cora/lib/parallel/internal#async-socket-get-event-handle listener)))
+           [try block default-wrap])))
+
+  (defun async-listen (addr)
+    (let fd (cora/lib/parallel/internal#net-listen addr)
+      (async-sock-create fd)))
+
+  (defun async-dial (addr)
+    (let fd (cora/lib/parallel/internal#net-dial addr)
+      (async-sock-create fd)))
+
+  (defun async-conn-close (sock)
+    (cora/lib/parallel/internal#net-close (async-sock-fd sock)))
   )

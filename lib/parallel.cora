@@ -3,7 +3,6 @@
 
 (package "cora/lib/parallel"
   (export
-    parallel-shutdown
     parallel-entry
     spawn-vm
 
@@ -25,12 +24,19 @@
     event-handle/enable-read!
     event-handle/enable-write!
     poller/add-handle!
-    poller/poll)
+    poller/poll
+
+    ;; Network I/O (high-level API, synchronous style)
+    net-listen net-dial
+    net-accept
+    net-recv net-send
+    net-close)
 
   (import "cora/lib/cml")
   (import "cora/lib/io")
   (import "cora/lib/parallel/internal")
   (import "cora/lib/parallel/mailbox")
+  (import "cora/lib/net")
 
 ;; ============================================================================
 ;; Runtime Management
@@ -62,7 +68,7 @@
     (cora/lib/parallel/internal#vm-attach-current)
     (display "parallel-entry, after vm-attach-current\n")
     (cora/lib/parallel/internal#vm-runtime-wait-all)
-    (parallel/shutdown)))
+    (parallel-shutdown)))
 
 ;; ============================================================================
 ;; Mailbox Communication
@@ -147,10 +153,36 @@
     (parallel-init num-threads)
     (let result (body)
       (begin
-        (parallel/shutdown)
+        (parallel-shutdown)
         result))))
 
 ;; Send a message to mailbox, blocking until space is available.
 (defun mailbox-send-blocking! (mailbox msg)
   (mailbox-send! mailbox msg))
+
+;; ============================================================================
+;; Network I/O (high-level API, synchronous style)
+;; ============================================================================
+
+;; Convenience wrappers for the high-level net API
+;; These provide the same synchronous-style interface but are re-exported from parallel
+
+(defun net-listen (addr)
+  (cora/lib/net#net-listen addr))
+
+(defun net-dial (addr)
+  (cora/lib/net#net-dial addr))
+
+(defun net-accept (listener)
+  (cora/lib/net#net-accept listener))
+
+(defun net-recv (conn size)
+  (cora/lib/net#net-recv conn size))
+
+(defun net-send (conn data)
+  (cora/lib/net#net-send conn data))
+
+(defun net-close (conn)
+  (cora/lib/net#net-close conn))
+
 ) ;; end package

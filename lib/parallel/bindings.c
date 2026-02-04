@@ -252,14 +252,6 @@ cora_poller_init(Cora *co, int label, Obj *R) {
 			coraReturn(co, False);
 			return;
 		}
-
-		// Start poller thread using the new API
-		if (!poller_start_thread(g_poller)) {
-			poller_free(g_poller);
-			g_poller = NULL;
-			coraReturn(co, False);
-			return;
-		}
 	}
 
 	coraReturn(co, True);
@@ -272,8 +264,6 @@ cora_poller_shutdown(Cora *co, int label, Obj *R) {
 	(void)R;
 
 	if (g_poller) {
-		// Stop poller thread using the new API
-		poller_stop_thread(g_poller);
 		poller_free(g_poller);
 		g_poller = NULL;
 	}
@@ -575,8 +565,6 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "spawn-vm-native", cora_spawn_vm_native, 1);
 	coraRegisterAPI(co, module, "vm-runtime-wait-all", cora_vm_runtime_wait_all, 0);
 	coraRegisterAPI(co, module, "vm-attach-current", cora_vm_attach_current, 0);
-
-	// coraReturn(co, intern("cora/lib/parallel"));
 
 	// Mailbox API
 	coraRegisterAPI(co, module, "mailbox-new", cora_mailbox_new, 1);

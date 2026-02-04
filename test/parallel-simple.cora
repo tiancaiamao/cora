@@ -23,7 +23,7 @@
         (display val)
         (display "\n")
         
-        (display "Test: parallel/shutdown\n")
-        (parallel/shutdown)
+        (display "Test: parallel-shutdown\n")
+        (parallel-shutdown)
         (display "Done!\n")
         0))))

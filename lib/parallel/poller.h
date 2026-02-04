@@ -11,10 +11,6 @@
 #define EVENT_WRITE (1 << 1)
 #define EVENT_ERROR (1 << 2)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct Poller Poller;
 typedef struct EventHandle EventHandle;
 typedef struct VM VM;
@@ -32,7 +28,7 @@ typedef struct EventHandle {
 	int listen_events;
 	int ready_events;
 	bool exist;
-	
+
 	// For coroutine/VM integration
 	VM *target_vm;           // VM to wake up when events are ready
 	Coroutine *target_coro;  // Coroutine to wake up when events are ready
@@ -44,7 +40,7 @@ struct Poller {
 	int max_events;
 	void *wake_queue;
 	pthread_mutex_t wake_lock;
-	
+
 	// Thread control
 	pthread_t thread;
 	volatile bool running;
@@ -57,10 +53,6 @@ struct Poller {
 
 Poller *poller_new(void);
 void poller_free(Poller *p);
-
-// Start/stop poller thread
-bool poller_start_thread(Poller *p);
-void poller_stop_thread(Poller *p);
 
 // ============================================================================
 // EventHandle management
@@ -99,12 +91,5 @@ void poller_remove_handle(Poller *p, EventHandle *eh);
 void poller_update_handle(Poller *p, EventHandle *eh);
 
 void poller_process_wake_queue(Poller *p);
-
-// Wake up poller from another thread (for cross-thread notifications)
-void poller_wakeup(Poller *p);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

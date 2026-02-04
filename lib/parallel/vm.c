@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "poller.h"
 #include "../../src/runtime.h"
 #include <assert.h>
 #include <pthread.h>
@@ -35,6 +36,9 @@ struct GlobalRuntime {
 	int vm_count;
 	int vm_capacity;
 	pthread_mutex_t vm_registry_lock;
+
+	// I/O Poller
+	Poller *poller;
 
 	// Runtime state (using volatile for atomic access)
 	volatile int shutdown;	 // 0/1
@@ -363,6 +367,9 @@ vm_runtime_init(int num_threads) {
 	atomic_init(&g_runtime->next_vm_id, 1);
 	atomic_init(&g_runtime->running_vms, 0);
 
+	// Initialize I/O Poller
+	g_runtime->poller = poller_new();
+
 	// Start worker threads
 	g_runtime->num_threads = num_threads;
 	g_runtime->worker_threads = malloc(sizeof(pthread_t) * num_threads);
@@ -390,6 +397,12 @@ vm_runtime_shutdown(void) {
 	// Wait for worker threads
 	for (int i = 0; i < g_runtime->num_threads; i++) {
 		pthread_join(g_runtime->worker_threads[i], NULL);
+	}
+
+	// Cleanup poller
+	if (g_runtime->poller) {
+		poller_free(g_runtime->poller);
+		g_runtime->poller = NULL;
 	}
 
 	// Cleanup
@@ -432,7 +445,13 @@ vm_runtime_wait_all(void) {
 			break;
 		}
 
-		usleep(1000);
+		// Execute poller operations (100ms timeout)
+		// This detects I/O events and delivers wakeups to VM queues
+		if (g_runtime->poller) {
+			int nfds = 0;
+			poller_poll(g_runtime->poller, 100, &nfds);
+			// poller_poll will call wakeup callbacks, which enqueue VMs
+		}
 	}
 }
 
