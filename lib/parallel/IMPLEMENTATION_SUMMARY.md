@@ -182,6 +182,9 @@ Smoke tests verified:
 3. `intra-vm-channel.cora` - Intra-VM channel coroutine communication ✅
 4. `mixed-workload.cora` - Mixed CPU/I/O coroutine scheduling smoke test ✅
 5. `parallel-net-e2e.cora` - Parallel net listen/close smoke test ✅
+6. `spawn-vm-test-01-basic.cora` - spawn-vm basic startup + ack ✅
+7. `spawn-vm-test-02-multi-vm-coroutines.cora` - spawn-vm + VM-internal coroutine fan-out ✅
+8. `spawn-vm-test-03-mailbox-rpc.cora` - spawn-vm mailbox RPC ✅
 
 Additional soak validation:
 
@@ -189,6 +192,7 @@ Additional soak validation:
 - `cross-vm-mailbox.cora`: pass
 - `mixed-workload.cora`: pass
 - `intra-vm-channel.cora`: pass
+- `test/parallel/run-tests-simple.sh`: pass (spawn-vm + existing integration set)
 
 **Status:** Passing in current environment (smoke + targeted soak)
 

@@ -15,8 +15,20 @@ make
 # Clean all build artifacts
 make clean
 
-# Run full test suite
+# Run full test suite (core + poller + parallel/spawn-vm integration)
 make test
+
+# Run core tests only (legacy behavior of `make test`)
+make test-core
+
+# Run poller integration tests only
+make test-poller
+
+# Run parallel integration tests only (includes spawn-vm focused tests)
+make test-parallel
+
+# Run integration tests only (poller + parallel)
+make test-integration
 
 # Bootstrap test (regenerates init.c and lib/toc.c from .cora sources)
 make bootstrap
@@ -33,6 +45,54 @@ ENABLE_ASAN=1 make
 # Build with ThreadSanitizer (for concurrency debugging)
 ENABLE_TSAN=1 make
 ```
+
+## Test Matrix and Intent
+
+### Core language and runtime (`make test-core`)
+
+- Runs `src` C tests (`reader.test`, `gc.test`, `eval.test`)
+- Runs `test/script.cora` (loads core language test bundles)
+- Scope:
+  - parser/reader behavior
+  - GC correctness
+  - evaluator semantics
+  - macro/stdlib baseline behavior
+
+### Poller integration (`make test-poller`)
+
+- Runs `./test/poller/run-tests-simple.sh`
+- Scope:
+  - poller module import and lifecycle smoke
+  - low-level mailbox creation smoke
+  - low-level net-listen and EventHandle wiring smoke
+  - vm-runtime + poller init compatibility
+
+### Parallel + spawn-vm integration (`make test-parallel`)
+
+- Runs `./test/parallel/run-tests-simple.sh`
+- Scope:
+  - `spawn-vm` basic startup and ID validity
+  - multi-VM scheduling with per-VM coroutine fan-out
+  - cross-VM mailbox request/response (RPC-style)
+  - existing cross-vm mailbox, mixed workload, and parallel net e2e coverage
+
+### Full pipeline (`make test`)
+
+- Ordered composition:
+  - `test-core`
+  - `test-integration` (`test-poller` + `test-parallel`)
+
+## Concurrency Model Notes (Important for Test Design)
+
+- `spawn` creates a coroutine inside the current VM.
+- `spawn-vm` creates a new VM (scheduled in parallel by worker threads).
+- VM-to-VM execution is concurrent.
+- Coroutine scheduling inside one VM is cooperative and queue-driven.
+- Same-VM coroutines share VM-local memory/state.
+- Cross-VM communication must use mailbox (`cora/lib/parallel/mailbox`).
+- Channel (`cora/lib/chan`) is intended for same-VM coroutine communication.
+- `cml-entry` is primarily single-VM coroutine execution.
+- `parallel-entry` initializes runtime and drives multi-VM/multi-core execution.
 
 ## Project Architecture
 
@@ -95,7 +155,7 @@ This ensures the compiler can correctly compile its own standard library.
 - Other modules: string, io, os, net, hash, rand, json, markdown
 
 ### Test Structure (`test/`)
-- **script.cora**: Main test runner (executed by `make test`)
+- **script.cora**: Main test runner (executed by `make test-core`, and as part of `make test`)
 - Individual test files for specific features
 - **benchmark/**: Performance tests
 - Tests can be run individually: `./cora test/foo.cora`
@@ -163,6 +223,32 @@ Modules are compiled to .so files and loaded dynamically via `import`.
 - Check `src/gc.c` for GC-related issues
 - Use conservative root scanning when adding new stack references
 
+### Debugging Playbook (Used in Practice)
+
+For flaky parallel/poller/network issues, use this order:
+
+1. Reproduce with time-bounded loops
+   - Example:
+   - `for i in $(seq 1 30); do timeout 30 ./cora test/parallel/parallel-net-e2e.cora || break; done`
+2. Capture crash stack with lldb
+   - `lldb --batch -o 'run' -o 'bt' -o 'thread backtrace all' -- ./cora <test-file>`
+3. Correlate generated C with source module
+   - inspect `/tmp/cora-xxx-*.c`
+   - search symbol table strings (`cora/lib/...#...`) to identify the failing `.cora` package
+4. Avoid false negatives from compile-cache contention
+   - do not run multiple `./cora` compile-heavy tests concurrently
+   - parallel `./cora` processes can race on temporary/generated artifacts
+5. Validate fixes with soak runs
+   - rerun the same test repeatedly (20-100 runs) before concluding stability
+6. Prefer defensive checks on wakeup/handle boundaries
+   - stale wakeups should return safe no-op values, not assert or segfault
+
+### Import/Build Cache Caveat
+
+- Module loading can prefer `.so` over `.cora` depending on freshness checks.
+- If a `.cora` fix is not taking effect, ensure stale `.so` artifacts are not shadowing the source.
+- Keep regression runs serialized when diagnosing module-load issues.
+
 ### Understanding Tagged Values
 The type system uses NaN-tagged doubles:
 - Numbers: untagged doubles
@@ -210,3 +296,45 @@ Obj cons = coraMakeCons(co, car, cdr);
   - Exception: User-facing content may be localized as needed
 
 This ensures international collaboration and code maintainability.
+
+## LLM-Debuggability Improvements (Recommended Backlog)
+
+These changes significantly improve automated debugging quality and speed:
+
+1. Structured reader/parser errors
+   - return explicit error objects with:
+     - error code/category
+     - file/module
+     - line/column
+     - nearby source snippet
+     - expected token/form and actual token
+   - avoid process-level abort for normal syntax errors
+
+2. Stable, machine-readable diagnostics
+   - add optional JSON-line error output mode (env flag)
+   - include module + phase tags: `reader`, `macroexpand`, `eval`, `codegen`, `runtime`
+
+3. Runtime assert policy hardening
+   - replace internal `assert` on user-triggerable paths with recoverable error returns
+   - reserve hard aborts for invariants that cannot be recovered safely
+
+4. Crash context retention
+   - keep generated `/tmp/cora-xxx-*.c` files on failure by flag
+   - print mapping between generated unit and source module automatically
+
+5. Deterministic debug knobs
+   - introduce env-controlled tracing categories (e.g. import/scheduler/poller/mailbox)
+   - make logs grep-friendly and one-event-per-line
+
+6. Concurrency diagnostics
+   - add optional checks for:
+     - duplicate VM run detection
+     - stale/invalid wakeup-handle usage
+     - mailbox misuse across VM boundaries
+
+7. Test harness ergonomics
+   - standardize shell test scripts with:
+     - timeout
+     - clear PASS/FAIL summary
+     - deterministic exit codes
+     - optional stress mode (`N` loops)

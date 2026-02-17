@@ -7,6 +7,12 @@ This directory contains all test files for the Cora language.
 ## Quick Start
 
 ```bash
+# Run full test pipeline (core + poller + parallel/spawn-vm)
+make test
+
+# Run core tests only (legacy behavior)
+make test-core
+
 # Run all basic tests
 ./cora test/script.cora
 
@@ -18,6 +24,9 @@ This directory contains all test files for the Cora language.
 
 # Run Poller integration tests
 ./test/poller/run-tests-simple.sh
+
+# Run Parallel integration tests (includes spawn-vm focused cases)
+./test/parallel/run-tests-simple.sh
 ```
 
 ---
@@ -71,7 +80,23 @@ Tests the concurrent model of M threads driving N VMs.
 - `worker.cora` - Worker thread test
 - `base.so` - Basic parallel runtime
 - `recv.cora` - Receive operation test
+- `cross-vm-mailbox.cora` - Cross-VM mailbox smoke test
+- `mixed-workload.cora` - Mixed CPU/I/O scheduling smoke test
 - `parallel-net-e2e.cora` - End-to-end network test (server + client)
+- `spawn-vm-test-01-basic.cora` - spawn-vm basic startup + ack
+- `spawn-vm-test-02-multi-vm-coroutines.cora` - 2 VM + per-VM multi-coroutine send
+- `spawn-vm-test-03-mailbox-rpc.cora` - spawn-vm request/response mailbox RPC
+
+**Worker Files (spawn-vm):**
+- `spawn-vm-worker-ack.cora`
+- `spawn-vm-worker-burst-a.cora`
+- `spawn-vm-worker-burst-b.cora`
+- `spawn-vm-worker-rpc.cora`
+
+**How to run:**
+```bash
+./test/parallel/run-tests-simple.sh
+```
 
 ---
 
@@ -143,6 +168,9 @@ Bootstrap test verifying compiler self-hosting capability.
 - **`parallel-net-basic.cora`** - Networking basic test
 - **`parallel-net-minimal.cora`** - Minimal network test
 - **`parallel-net-simple.cora`** - Simple network test
+- **`test/parallel/spawn-vm-test-01-basic.cora`** - spawn-vm basic startup test
+- **`test/parallel/spawn-vm-test-02-multi-vm-coroutines.cora`** - spawn-vm + VM-internal coroutine fan-out
+- **`test/parallel/spawn-vm-test-03-mailbox-rpc.cora`** - spawn-vm mailbox RPC test
 
 ---
 
@@ -165,6 +193,7 @@ Bootstrap test verifying compiler self-hosting capability.
 | `parallel-api-demo.cora` | Concurrency API | ⭐⭐ |
 | `parallel-runtime-test.cora` | Runtime | ⭐⭐⭐ |
 | `parallel-net-*.cora` | Networking features | ⭐⭐ |
+| `test/parallel/spawn-vm-test-*.cora` | spawn-vm focused integration | ⭐⭐⭐ |
 
 ---
 

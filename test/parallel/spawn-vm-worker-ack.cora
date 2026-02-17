@@ -1,0 +1,11 @@
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel/mailbox")
+
+(defun worker-main ()
+  (let done (mailbox-resolve "spawn-vm-test-01-done")
+    (if (null? done)
+        (display "spawn-vm-worker-ack resolve failed\n")
+        (perform (mailbox-send done 101)))))
+
+(cml-entry-init worker-main)

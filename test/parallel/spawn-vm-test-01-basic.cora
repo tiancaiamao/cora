@@ -1,0 +1,24 @@
+;; spawn-vm test 01: basic VM startup and one cross-VM mailbox ack.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/parallel/mailbox")
+
+(defun main ()
+  (let done (mailbox-new 2)
+    (begin
+      (mailbox-publish "spawn-vm-test-01-done" done)
+      (let vm-id (spawn-vm "test/parallel/spawn-vm-worker-ack.cora")
+        (if (> vm-id 0)
+            (display "spawn-vm test 01 vm-id ok\n")
+            (display "spawn-vm test 01 vm-id invalid\n")))
+      (let msg (perform (mailbox-recv done))
+        (if (= msg 101)
+            (display "spawn-vm test 01 ok\n")
+            (begin
+              (display "spawn-vm test 01 fail msg=")
+              (display msg)
+              (display "\n")))))))
+
+(parallel-entry main 2)
