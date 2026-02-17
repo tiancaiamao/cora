@@ -17,6 +17,16 @@
                 (stack-data-set! stk (vector 16))
                 stk)))
 
+    (defun stack-index-safe (stk)
+        (if (stack? stk)
+            (let idx (stack->index stk)
+                (if (number? idx)
+                    idx
+                    (begin
+                        (stack-index-set! stk 0)
+                        0)))
+            0))
+
     (defun vector-resize (old-vec)
         (let cap (vector-length old-vec)
             new-cap (* 2 cap)
@@ -25,41 +35,49 @@
                     (if (= i cap)
                         vec
                         (begin
-                            (vector-set! new-vec i (vector-ref old-vec))
+                            (vector-set! new-vec i (vector-ref old-vec i))
                             (recur vec (+ i 1))))))))
 
     (defun stack-resize-check (stk)
-        (let vec (stack->data stk)
-            idx (stack->index stk)
-            cap (vector-length vec)
-            (if (or (> idx cap) (= idx cap))
-                (let new-vec (vector-resize vec)
-                    (begin
-                        (stack-data-set! stk new-vec)
-                        stk))
-                stk)))
+        (if (stack? stk)
+            (let vec (stack->data stk)
+                idx (stack-index-safe stk)
+                cap (vector-length vec)
+                (if (or (> idx cap) (= idx cap))
+                    (let new-vec (vector-resize vec)
+                        (begin
+                            (stack-data-set! stk new-vec)
+                            stk))
+                    stk))
+            stk))
 
     (defun stack-push! (stk v)
-        (let stk1 (stack-resize-check stk)
-            vec (stack->data stk)
-            idx (stack->index stk)
-            (begin
-                (vector-set! vec idx v)
-                (stack-index-set! stk (+ idx 1))
-                idx)))
+        (if (stack? stk)
+            (let stk1 (stack-resize-check stk)
+                vec (stack->data stk1)
+                idx (stack-index-safe stk1)
+                (begin
+                    (vector-set! vec idx v)
+                    (stack-index-set! stk1 (+ idx 1))
+                    idx))
+            -1))
 
     (defun stack-pop! (stk)
-        (let idx (stack->index stk)
-            (if (= 0 idx)
-                () ;; what the fuck?
-                (let vec (stack->data stk)
-                    new-idx (- idx 1)
-                    ret (vector-ref vec new-idx)
-                    (begin
-                        (stack-index-set! stk new-idx)
-                        ret)))))
+        (if (stack? stk)
+            (let idx (stack-index-safe stk)
+                (if (= 0 idx)
+                    () ;; what the fuck?
+                    (let vec (stack->data stk)
+                        new-idx (- idx 1)
+                        ret (vector-ref vec new-idx)
+                        (begin
+                            (stack-index-set! stk new-idx)
+                            ret))))
+            ()))
 
     (defun stack-size (stk)
-        (stack->index stk))
+        (if (stack? stk)
+            (stack-index-safe stk)
+            0))
 
     )

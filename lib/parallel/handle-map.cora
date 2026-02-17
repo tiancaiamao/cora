@@ -24,37 +24,33 @@
                 hm)))
 
     (defun handle-map-add (hm val)
-        (if (= val ())
-            -1
-            (let slots (handle-map->free-slots hm)
-                (if (= (stack-size slots) 0)
-                    (begin
-                    ;; no free slots, expand resource
-                    (display "no free slots, expand\n")
-                    (stack-push! (handle-map->resource hm) val))
-                    ;; reuse slot
-                    (let slot (stack-pop! slots)
-                        resource (handle-map->resource hm)
-                        vec (stack->data resource)
-                        (begin
-                            (display "reuse slot")
-                            (display slot)
-                            (display "\n")
-                            (vector-set! vec slot val)
-                            slot))))))
+        (if (handle-map? hm)
+            (if (= val ())
+                -1
+                (stack-push! (handle-map->resource hm) val))
+            -1))
 
     (defun handle-map-get (hm handle)
-        (let resource (handle-map->resource hm)
-            (vector-ref (stack->data resource) handle)))
+        (if (and (handle-map? hm) (number? handle))
+            (let resource (handle-map->resource hm)
+                arr (stack->data resource)
+                cap (if (vector? arr) (vector-length arr) 0)
+                (if (or (< handle 0) (> handle cap) (= handle cap))
+                    ()
+                    (vector-ref arr handle)))
+            ()))
 
     (defun handle-map-delete (hm handle)
-        (let resource (handle-map->resource hm)
-            arr (stack->data resource)
-            (let resource (vector-ref arr handle)
-                (if (= resource ())
-                    () ;; something is wrong? referencing deleted resource
-                    (begin
-                        (vector-set! arr handle ())
-                        (let free-slots (handle-map->free-slots hm)
-                            (stack-push! free-slots handle)))))))
+        (if (and (handle-map? hm) (number? handle))
+            (let resource (handle-map->resource hm)
+                arr (stack->data resource)
+                cap (if (vector? arr) (vector-length arr) 0)
+                (if (or (< handle 0) (> handle cap) (= handle cap))
+                    ()
+                    (let item (vector-ref arr handle)
+                        (if (= item ())
+                            ()
+                            (begin
+                                (vector-set! arr handle ()))))))
+            ()))
     )

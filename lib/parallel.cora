@@ -4,55 +4,17 @@
 (package "cora/lib/parallel"
   (export
     parallel-entry
-    spawn-vm
-
-    ;; Mailbox
-    mailbox-make
-    mailbox-new
-    mailbox-send
-    mailbox-recv
-    mailbox-publish
-    mailbox-resolve
-
-    mailbox/close!
-    mailbox/closed?
-
-    ;; Poller
-    poller/init
-    poller/shutdown
-    event-handle/new
-    event-handle/enable-read!
-    event-handle/enable-write!
-    poller/add-handle!
-    poller/poll
-
-    ;; Network I/O (high-level API, synchronous style)
-    net-listen net-dial
-    net-accept
-    net-recv net-send
-    net-close)
+    spawn-vm)
 
   (import "cora/lib/cml")
   (import "cora/lib/io")
   (import "cora/lib/parallel/internal")
-  (import "cora/lib/parallel/mailbox")
-  (import "cora/lib/net")
 
-;; ============================================================================
-;; Runtime Management
-;; ============================================================================
-
-;; Initialize the parallel runtime with specified number of worker threads
 (defun parallel-init (num-threads)
   (cora/lib/parallel/internal#vm-runtime-init num-threads))
 
-;; Shutdown the parallel runtime and clean up resources
 (defun parallel-shutdown ()
   (cora/lib/parallel/internal#vm-runtime-shutdown))
-
-;; ============================================================================
-;; Spawning and Concurrency
-;; ============================================================================
 
 ;; Spawn a new VM with the given thunk as entry point.
 ;; Returns the VM ID, or -1 on failure.
@@ -70,119 +32,4 @@
     (cora/lib/parallel/internal#vm-runtime-wait-all)
     (parallel-shutdown)))
 
-;; ============================================================================
-;; Mailbox Communication
-;; ============================================================================
-
-;; Create a new mailbox with given buffer capacity.
-;; Use 0 for unbuffered (rendezvous) mailbox.
-(defun mailbox-new (capacity)
-  (cora/lib/parallel/mailbox#mailbox-new capacity))
-
-;; Create an unbuffered mailbox.
-(defun mailbox-make ()
-  (cora/lib/parallel/mailbox#mailbox-make))
-
-;; send on mailbox is an operation
-(defun mailbox-send (mailbox msg)
-  (cora/lib/parallel/mailbox#mailbox-send mailbox msg))
-
-;; recv on mailbox is an operation
-(defun mailbox-recv (mailbox)
-  (cora/lib/parallel/mailbox#mailbox-recv mailbox))
-
-
-;; Close the mailbox. No further sends or receives will succeed.
-(defun mailbox/close! (mailbox)
-  (cora/lib/parallel/internal#mailbox-close mailbox))
-
-;; Check if the mailbox is closed.
-(defun mailbox/closed? (mailbox)
-  (cora/lib/parallel/internal#mailbox-is-closed mailbox))
-
-;; Publish a mailbox under a given name for discovery by other VMs.
-(defun mailbox-publish (name mailbox)
-  (cora/lib/parallel/mailbox#mailbox-publish name mailbox))
-
-;; Resolve a mailbox by name. Returns the mailbox or false if not found.
-(defun mailbox-resolve (name)
-  (cora/lib/parallel/mailbox#mailbox-resolve name))
-
-;; ============================================================================
-;; I/O Poller
-;; ============================================================================
-
-;; Initialize the global I/O poller with background thread.
-;; Returns true on success, false on failure.
-(defun poller/init ()
-  (cora/lib/parallel/internal#poller-init))
-
-;; Shutdown the I/O poller and stop the background thread.
-(defun poller/shutdown ()
-  (cora/lib/parallel/internal#poller-shutdown))
-
-;; Create a new event handle for the given file descriptor.
-(defun event-handle/new (fd)
-  (cora/lib/parallel/internal#event-handle-new fd))
-
-;; Enable read event notifications on the handle.
-(defun event-handle/enable-read! (handle)
-  (cora/lib/parallel/internal#event-handle-enable-read handle))
-
-;; Enable write event notifications on the handle.
-(defun event-handle/enable-write! (handle)
-  (cora/lib/parallel/internal#event-handle-enable-write handle))
-
-;; Add an event handle to the global poller.
-(defun poller/add-handle! (handle)
-  (cora/lib/parallel/internal#poller-add-handle handle))
-
-;; Poll for I/O events with the given timeout in milliseconds.
-;; Returns a list of ready event handles, or nil on timeout.
-(defun poller/poll (timeout-ms)
-  (cora/lib/parallel/internal#poller-poll timeout-ms))
-
-;; ============================================================================
-;; Helper Functions
-;; ============================================================================
-
-;; Execute body with initialized runtime, then cleanup.
-;; Usage: (parallel/with-runtime 4 (lambda () ...))
-(defun parallel/with-runtime (num-threads body)
-  (begin
-    (parallel-init num-threads)
-    (let result (body)
-      (begin
-        (parallel-shutdown)
-        result))))
-
-;; Send a message to mailbox, blocking until space is available.
-(defun mailbox-send-blocking! (mailbox msg)
-  (mailbox-send! mailbox msg))
-
-;; ============================================================================
-;; Network I/O (high-level API, synchronous style)
-;; ============================================================================
-
-;; Convenience wrappers for the high-level net API
-;; These provide the same synchronous-style interface but are re-exported from parallel
-
-(defun net-listen (addr)
-  (cora/lib/net#net-listen addr))
-
-(defun net-dial (addr)
-  (cora/lib/net#net-dial addr))
-
-(defun net-accept (listener)
-  (cora/lib/net#net-accept listener))
-
-(defun net-recv (conn size)
-  (cora/lib/net#net-recv conn size))
-
-(defun net-send (conn data)
-  (cora/lib/net#net-send conn data))
-
-(defun net-close (conn)
-  (cora/lib/net#net-close conn))
-
-) ;; end package
+)

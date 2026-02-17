@@ -1,0 +1,20 @@
+;; Cross-VM mailbox smoke test.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/parallel/mailbox")
+
+(defun main ()
+  (let mb (mailbox-new 8)
+    (begin
+      (mailbox-publish "worker-mailbox" mb)
+      (spawn-vm "test/parallel/worker-mailbox.cora")
+      (yield)
+      (yield)
+      (perform (mailbox-send mb 11))
+      (perform (mailbox-send mb 22))
+      (perform (mailbox-send mb 33))
+      (display "cross-vm mailbox test done\n"))))
+
+(parallel-entry main 2)

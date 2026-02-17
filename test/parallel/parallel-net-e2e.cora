@@ -1,0 +1,49 @@
+;; Parallel network end-to-end test.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/net")
+(import "cora/lib/parallel/mailbox")
+
+(defun server (ready done)
+  (let listener (net-listen "127.0.0.1:9997")
+    (begin
+      (perform (mailbox-send ready true))
+      (let conn (net-accept listener)
+        (begin
+          (let msg (net-recv conn 4)
+            (if (null? msg)
+                (display "server recv failed\n")
+                (net-send conn msg)))
+          (net-close conn)
+          (net-close listener)
+          (perform (mailbox-send done true)))))))
+
+(defun client (ready done)
+  (begin
+    (perform (mailbox-recv ready))
+    (let conn (net-dial "127.0.0.1:9997")
+      (begin
+        (net-send conn "ping")
+        (let resp (net-recv conn 4)
+          (if (null? resp)
+              (display "client recv failed\n")
+              (begin
+                (display "client got: ")
+                (display (bytes->string resp))
+                (display "\n"))))
+        (net-close conn)
+        (perform (mailbox-send done true))))))
+
+(defun main ()
+  (let ready (mailbox-new 1)
+       done (mailbox-new 2)
+    (begin
+      (spawn (lambda () (server ready done)))
+      (spawn (lambda () (client ready done)))
+      (perform (mailbox-recv done))
+      (perform (mailbox-recv done))
+      (display "parallel net e2e ok\n"))))
+
+(parallel-entry main 2)

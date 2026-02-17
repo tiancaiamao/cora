@@ -4,6 +4,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#define atomic_load_int(ptr) __atomic_load_n((ptr), __ATOMIC_SEQ_CST)
+#define atomic_store_int(ptr, val) __atomic_store_n((ptr), (val), __ATOMIC_SEQ_CST)
+#define atomic_add_int(ptr, val) __atomic_add_fetch((ptr), (val), __ATOMIC_SEQ_CST)
+#define atomic_sub_int(ptr, val) __atomic_sub_fetch((ptr), (val), __ATOMIC_SEQ_CST)
+
 #if defined(__linux__)
 #include <sys/epoll.h>
 #elif defined(__APPLE__)
@@ -29,27 +34,13 @@ ReadyQueueInit(ReadyQueue *q, ReadyNode *stub) {
 	stub->next = NULL;
 }
 
-static bool
-ReadyQueueIsEmpty(ReadyQueue *q) {
-	return q->head == q->tail;
-}
-
-static ReadyNode *
-ReadyQueueDequeue(ReadyQueue *q) {
-	if (ReadyQueueIsEmpty(q)) {
-		return NULL;
-	}
-	ReadyNode *node = q->head;
-	q->head = node->next;
-	return node;
-}
-
 Poller *
 poller_new(void) {
 	Poller *p = (Poller *)malloc(sizeof(Poller));
 	if (!p) {
 		return NULL;
 	}
+	memset(p, 0, sizeof(Poller));
 
 #if defined(__APPLE__)
 	p->epoll_fd = kqueue();
@@ -59,12 +50,30 @@ poller_new(void) {
 	p->events = calloc(1024, sizeof(struct epoll_event));
 #endif
 	p->max_events = 1024;
+	if (p->epoll_fd < 0 || !p->events) {
+		if (p->epoll_fd >= 0) {
+			close(p->epoll_fd);
+		}
+		free(p->events);
+		free(p);
+		return NULL;
+	}
 
 	ReadyNode *stub = malloc(sizeof(ReadyNode));
 	ReadyQueue *queue = malloc(sizeof(ReadyQueue));
+	if (!stub || !queue) {
+		free(stub);
+		free(queue);
+		close(p->epoll_fd);
+		free(p->events);
+		free(p);
+		return NULL;
+	}
 	ReadyQueueInit(queue, stub);
 	p->wake_queue = queue;
+	p->wake_stub = stub;
 	pthread_mutex_init(&p->wake_lock, NULL);
+	atomic_store_int(&p->active_handles, 0);
 
 	// Initialize thread control
 	p->running = false;
@@ -85,6 +94,17 @@ poller_free(Poller *p) {
 
 	if (p->events) {
 		free(p->events);
+	}
+
+	ReadyQueue *queue = (ReadyQueue *)p->wake_queue;
+	if (queue && p->wake_stub) {
+		ReadyNode *node = (ReadyNode *)p->wake_stub;
+		while (node) {
+			ReadyNode *next = node->next;
+			free(node);
+			node = next;
+		}
+		free(queue);
 	}
 
 	pthread_mutex_destroy(&p->wake_lock);
@@ -110,6 +130,7 @@ event_handle_new(int fd, void (*read_cb)(struct EventHandle *),
 	eh->exist = false;
 	eh->target_vm = NULL;
 	eh->target_coro = NULL;
+	eh->wakeup_handle = -1;
 
 	return eh;
 }
@@ -187,8 +208,7 @@ event_handle_set_exist(EventHandle *eh, bool in) {
 
 void **
 poller_poll(Poller *p, int timeout_ms, int *out_nfds) {
-	if (!p || !out_nfds) {
-		*out_nfds = 0;
+	if (!p || !out_nfds || p->epoll_fd < 0) {
 		return NULL;
 	}
 
@@ -221,6 +241,10 @@ poller_poll(Poller *p, int timeout_ms, int *out_nfds) {
 	}
 
 	void **active = malloc(sizeof(void *) * nfds);
+	if (!active) {
+		*out_nfds = -1;
+		return NULL;
+	}
 	for (int i = 0; i < nfds; i++) {
 #if defined(__linux__)
 		struct epoll_event *ev = &((struct epoll_event *)p->events)[i];
@@ -231,7 +255,14 @@ poller_poll(Poller *p, int timeout_ms, int *out_nfds) {
 		if (ev->events & EPOLLOUT) {
 			events |= EVENT_WRITE;
 		}
+		if (ev->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)) {
+			events |= EVENT_ERROR;
+		}
 		EventHandle *eh = (EventHandle *)ev->data.ptr;
+		if (!eh) {
+			active[i] = NULL;
+			continue;
+		}
 		eh->ready_events = events;
 		active[i] = eh;
 #elif defined(__APPLE__)
@@ -244,6 +275,10 @@ poller_poll(Poller *p, int timeout_ms, int *out_nfds) {
 			events |= EVENT_WRITE;
 		}
 		EventHandle *eh = (EventHandle *)ev->udata;
+		if (!eh) {
+			active[i] = NULL;
+			continue;
+		}
 		eh->ready_events = events;
 		active[i] = eh;
 #endif
@@ -252,10 +287,13 @@ poller_poll(Poller *p, int timeout_ms, int *out_nfds) {
 	return active;
 }
 
-void
+bool
 poller_add_handle(Poller *p, EventHandle *eh) {
-	if (!p || !eh) {
-		return;
+	if (!p || !eh || eh->fd < 0 || p->epoll_fd < 0) {
+		return false;
+	}
+	if (eh->listen_events == 0) {
+		return false;
 	}
 
 #if defined(__linux__)
@@ -272,12 +310,13 @@ poller_add_handle(Poller *p, EventHandle *eh) {
 
 	if (!eh->exist) {
 		if (epoll_ctl(p->epoll_fd, EPOLL_CTL_ADD, eh->fd, &ev) < 0) {
-			return;
+			return false;
 		}
 		eh->exist = true;
+		atomic_add_int(&p->active_handles, 1);
 	} else {
 		if (epoll_ctl(p->epoll_fd, EPOLL_CTL_MOD, eh->fd, &ev) < 0) {
-			return;
+			return false;
 		}
 	}
 #elif defined(__APPLE__)
@@ -292,47 +331,64 @@ poller_add_handle(Poller *p, EventHandle *eh) {
 
 	if (n > 0) {
 		if (kevent(p->epoll_fd, kev, n, NULL, 0, NULL) < 0) {
-			return;
+			return false;
 		}
+	}
+	if (!eh->exist) {
+		atomic_add_int(&p->active_handles, 1);
 	}
 	eh->exist = true;
 #endif
+	return true;
 }
 
-void
+bool
 poller_remove_handle(Poller *p, EventHandle *eh) {
-	if (!p || !eh) {
-		return;
+	if (!p || !eh || p->epoll_fd < 0) {
+		return false;
+	}
+	if (!eh->exist) {
+		return true;
 	}
 
+	bool removed = true;
+
 #if defined(__linux__)
-	epoll_ctl(p->epoll_fd, EPOLL_CTL_DEL, eh->fd, NULL);
+	if (epoll_ctl(p->epoll_fd, EPOLL_CTL_DEL, eh->fd, NULL) < 0) {
+		if (errno != ENOENT && errno != EBADF) {
+			removed = false;
+		}
+	}
 #elif defined(__APPLE__)
 	struct kevent kev[2];
 	int n = 0;
-	if (eh->listen_events & EVENT_READ) {
-		EV_SET(&kev[n++], eh->fd, EVFILT_READ, EV_DELETE, 0, 0, eh);
-	}
-	if (eh->listen_events & EVENT_WRITE) {
-		EV_SET(&kev[n++], eh->fd, EVFILT_WRITE, EV_DELETE, 0, 0, eh);
-	}
-
-	if (n > 0) {
-		kevent(p->epoll_fd, kev, n, NULL, 0, NULL);
+	EV_SET(&kev[n++], eh->fd, EVFILT_READ, EV_DELETE, 0, 0, eh);
+	EV_SET(&kev[n++], eh->fd, EVFILT_WRITE, EV_DELETE, 0, 0, eh);
+	if (kevent(p->epoll_fd, kev, n, NULL, 0, NULL) < 0) {
+		removed = false;
 	}
 #endif
 
-	eh->exist = false;
-}
-
-void
-poller_update_handle(Poller *p, EventHandle *eh) {
-	if (!p || !eh) {
-		return;
+	if (removed || eh->fd < 0) {
+		eh->exist = false;
+		eh->ready_events = 0;
+		atomic_sub_int(&p->active_handles, 1);
+		return true;
 	}
 
-	poller_remove_handle(p, eh);
-	poller_add_handle(p, eh);
+	return false;
+}
+
+bool
+poller_update_handle(Poller *p, EventHandle *eh) {
+	if (!p || !eh) {
+		return false;
+	}
+
+	if (eh->exist && !poller_remove_handle(p, eh)) {
+		return false;
+	}
+	return poller_add_handle(p, eh);
 }
 
 void
@@ -344,12 +400,16 @@ poller_process_wake_queue(Poller *p) {
 	pthread_mutex_lock(&p->wake_lock);
 
 	ReadyQueue *queue = (ReadyQueue *)p->wake_queue;
-	ReadyNode *node = NULL;
-
-	while (!ReadyQueueIsEmpty(queue)) {
-		node = ReadyQueueDequeue(queue);
-		if (node) {
+	ReadyNode *stub = (ReadyNode *)p->wake_stub;
+	if (queue && stub) {
+		ReadyNode *node = stub->next;
+		stub->next = NULL;
+		queue->head = stub;
+		queue->tail = stub;
+		while (node) {
+			ReadyNode *next = node->next;
 			free(node);
+			node = next;
 		}
 	}
 
@@ -378,6 +438,7 @@ event_handle_new_with_wakeup(int fd, WakeupCallback wakeup_cb,
 	eh->exist = false;
 	eh->target_vm = NULL;
 	eh->target_coro = NULL;
+	eh->wakeup_handle = -1;
 
 	return eh;
 }
@@ -394,4 +455,20 @@ event_handle_set_target_coroutine(EventHandle *eh, Coroutine *coro) {
 	if (eh) {
 		eh->target_coro = coro;
 	}
+}
+
+void
+event_handle_set_wakeup_info(EventHandle *eh, void *vm, int handle) {
+	if (eh) {
+		eh->target_vm = vm;
+		eh->wakeup_handle = handle;
+	}
+}
+
+int
+poller_active_handle_count(Poller *p) {
+	if (!p) {
+		return 0;
+	}
+	return atomic_load_int(&p->active_handles);
 }

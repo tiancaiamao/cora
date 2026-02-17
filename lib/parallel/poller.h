@@ -30,7 +30,8 @@ typedef struct EventHandle {
 	bool exist;
 
 	// For coroutine/VM integration
-	VM *target_vm;           // VM to wake up when events are ready
+	void *target_vm;        // CoraVM to wake up when events are ready
+	int wakeup_handle;       // handle-map handle for wakeup
 	Coroutine *target_coro;  // Coroutine to wake up when events are ready
 } EventHandle;
 
@@ -39,7 +40,9 @@ struct Poller {
 	void *events;
 	int max_events;
 	void *wake_queue;
+	void *wake_stub;
 	pthread_mutex_t wake_lock;
+	volatile int active_handles;
 
 	// Thread control
 	pthread_t thread;
@@ -81,14 +84,18 @@ void event_handle_set_exist(EventHandle *eh, bool in);
 void event_handle_set_target_vm(EventHandle *eh, VM *vm);
 void event_handle_set_target_coroutine(EventHandle *eh, Coroutine *coro);
 
+// Set wakeup info for handle-map mechanism
+void event_handle_set_wakeup_info(EventHandle *eh, void *vm, int handle);
+
 // ============================================================================
 // Poller operations
 // ============================================================================
 
 void **poller_poll(Poller *p, int timeout_ms, int *out_nfds);
-void poller_add_handle(Poller *p, EventHandle *eh);
-void poller_remove_handle(Poller *p, EventHandle *eh);
-void poller_update_handle(Poller *p, EventHandle *eh);
+bool poller_add_handle(Poller *p, EventHandle *eh);
+bool poller_remove_handle(Poller *p, EventHandle *eh);
+bool poller_update_handle(Poller *p, EventHandle *eh);
+int poller_active_handle_count(Poller *p);
 
 void poller_process_wake_queue(Poller *p);
 

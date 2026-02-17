@@ -3,7 +3,9 @@
 #include "net.h"
 #include "poller.h"
 #include "vm.h"
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Cora binding functions
 // These functions provide the interface between Cora language and C runtime
@@ -166,6 +168,10 @@ cora_mailbox_recv_try(Cora *co, int label, Obj *R) {
 static void
 cora_mailbox_sendq_enqueue(Cora *co, int label, Obj *R) {
 	(void)label;
+	if (!iscobj(R[1]) || !iscobj(R[2])) {
+		coraReturn(co, False);
+		return;
+	}
 	Mailbox *mb = mustCObj(R[1]);
 	Waker *w = mustCObj(R[2]);
 	mailbox_sendq_enqueue(mb, w);
@@ -176,6 +182,10 @@ cora_mailbox_sendq_enqueue(Cora *co, int label, Obj *R) {
 static void
 cora_mailbox_recvq_enqueue(Cora *co, int label, Obj *R) {
 	(void)label;
+	if (!iscobj(R[1]) || !iscobj(R[2])) {
+		coraReturn(co, False);
+		return;
+	}
 	Mailbox *mb = mustCObj(R[1]);
 	Waker *w = mustCObj(R[2]);
 	mailbox_recvq_enqueue(mb, w);
@@ -186,6 +196,10 @@ cora_mailbox_recvq_enqueue(Cora *co, int label, Obj *R) {
 static void
 cora_wakeup_create(Cora *co, int label, Obj *R) {
 	(void)label;
+	if (!iscobj(R[1])) {
+		coraReturn(co, False);
+		return;
+	}
 	CoraVM *vm = mustCObj(R[1]);
 	Obj handle_obj = R[2];
 	Obj value = R[3];
@@ -209,6 +223,10 @@ static void
 cora_mailbox_publish(Cora *co, int label, Obj *R) {
 	(void)label;
 	Obj name_obj = R[1];
+	if (!iscobj(R[2])) {
+		coraReturn(co, False);
+		return;
+	}
 	Mailbox *mb = mustCObj(R[2]);
 
 	const char *name = bytesData(name_obj);
@@ -235,39 +253,40 @@ cora_mailbox_resolve(Cora *co, int label, Obj *R) {
 // Poller API
 // ============================================================================
 
-// Global poller (simplified - one poller for all VMs)
-static Poller *g_poller = NULL;
-
-// NOTE: Poller thread is now managed internally by poller.c
+// Get the global poller from vm_runtime
+static Poller *
+get_global_poller(void) {
+	extern Poller *vm_runtime_get_poller(void);
+	return vm_runtime_get_poller();
+}
 
 // Initialize global poller
+// Note: Poller is already created in vm_runtime_init, so this is a no-op
 static void
 cora_poller_init(Cora *co, int label, Obj *R) {
 	(void)label;
 	(void)R;
 
-	if (!g_poller) {
-		g_poller = poller_new();
-		if (!g_poller) {
-			coraReturn(co, False);
-			return;
-		}
+	// Poller is already created by vm_runtime_init
+	// Just check if it exists
+	Poller *poller = get_global_poller();
+	if (!poller) {
+		coraReturn(co, False);
+		return;
 	}
 
 	coraReturn(co, True);
 }
 
 // Shutdown global poller
+// Note: Poller will be cleaned up by vm_runtime_shutdown
 static void
 cora_poller_shutdown(Cora *co, int label, Obj *R) {
 	(void)label;
 	(void)R;
 
-	if (g_poller) {
-		poller_free(g_poller);
-		g_poller = NULL;
-	}
-
+	// Poller will be cleaned up by vm_runtime_shutdown
+	// This is a no-op for compatibility
 	coraReturn(co, True);
 }
 
@@ -313,19 +332,80 @@ cora_event_handle_enable_write(Cora *co, int label, Obj *R) {
 	coraReturn(co, True);
 }
 
+// Disable all events on handle
+static void
+cora_event_handle_disable_all(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+	event_handle_disable_all(eh);
+	coraReturn(co, True);
+}
+
+// Set wakeup info for event handle (VM + handle)
+static void
+cora_event_handle_set_wakeup_info(Cora *co, int label, Obj *R) {
+	(void)label;
+	if (!iscobj(R[1]) || !iscobj(R[2])) {
+		coraReturn(co, False);
+		return;
+	}
+	EventHandle *eh = mustCObj(R[1]);
+	CoraVM *vm = mustCObj(R[2]);
+	Obj handle_obj = R[3];
+
+	if (!isfixnum(handle_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+
+	int handle = fixnum(handle_obj);
+	event_handle_set_wakeup_info(eh, vm, handle);
+	coraReturn(co, True);
+}
+
 // Add event handle to poller
 static void
 cora_poller_add_handle(Cora *co, int label, Obj *R) {
 	(void)label;
 	EventHandle *eh = mustCObj(R[1]);
 
-	if (!g_poller) {
+	Poller *poller = get_global_poller();
+	if (!poller) {
 		coraReturn(co, False);
 		return;
 	}
 
-	poller_add_handle(g_poller, eh);
-	coraReturn(co, True);
+	coraReturn(co, poller_add_handle(poller, eh) ? True : False);
+}
+
+// Update event handle in poller
+static void
+cora_poller_update_handle(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+
+	Poller *poller = get_global_poller();
+	if (!poller) {
+		coraReturn(co, False);
+		return;
+	}
+
+	coraReturn(co, poller_update_handle(poller, eh) ? True : False);
+}
+
+// Remove event handle from poller
+static void
+cora_poller_remove_handle(Cora *co, int label, Obj *R) {
+	(void)label;
+	EventHandle *eh = mustCObj(R[1]);
+
+	Poller *poller = get_global_poller();
+	if (!poller) {
+		coraReturn(co, False);
+		return;
+	}
+
+	coraReturn(co, poller_remove_handle(poller, eh) ? True : False);
 }
 
 // Poll for events (blocking with timeout)
@@ -341,13 +421,14 @@ cora_poller_poll(Cora *co, int label, Obj *R) {
 
 	int timeout_ms = fixnum(timeout_obj);
 
-	if (!g_poller) {
+	Poller *poller = get_global_poller();
+	if (!poller) {
 		coraReturn(co, False);
 		return;
 	}
 
 	int nfds = 0;
-	void **active = poller_poll(g_poller, timeout_ms, &nfds);
+	void **active = poller_poll(poller, timeout_ms, &nfds);
 
 	if (nfds < 0) {
 		// Error
@@ -365,6 +446,9 @@ cora_poller_poll(Cora *co, int label, Obj *R) {
 	Obj result = Nil;
 	for (int i = nfds - 1; i >= 0; i--) {
 		EventHandle *eh = (EventHandle *)active[i];
+		if (!eh) {
+			continue;
+		}
 		Obj handle_obj = makeCObj(eh);
 		result = makeCons(co->gc, handle_obj, result);
 	}
@@ -384,17 +468,20 @@ cora_net_listen(Cora *co, int label, Obj *R) {
 	Obj host_obj = R[1];
 	Obj port_obj = R[2];
 
-	if (!isfixnum(port_obj)) {
-		coraReturn(co, makeNumber(-1));
-		return;
-	}
-
 	const char *host = NULL;
 	if (host_obj != Nil && isBytes(host_obj)) {
 		host = bytesData(host_obj);
 	}
 
-	int port = fixnum(port_obj);
+	int port = -1;
+	if (isfixnum(port_obj)) {
+		port = fixnum(port_obj);
+	} else if (isBytes(port_obj)) {
+		port = atoi(bytesData(port_obj));
+	} else {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
 	int fd = net_listen(host, port);
 
 	coraReturn(co, makeNumber(fd));
@@ -472,7 +559,7 @@ cora_async_socket_new(Cora *co, int label, Obj *R) {
 	}
 }
 
-// async-socket-send sock buf -> [ok sent] or [block sent] or [error]
+// async-socket-send sock buf -> [ok sent] or [block sent] or [closed sent] or [error errno]
 static void
 cora_async_socket_send(Cora *co, int label, Obj *R) {
 	(void)label;
@@ -480,8 +567,8 @@ cora_async_socket_send(Cora *co, int label, Obj *R) {
 	Obj buf_obj = R[2];
 
 	if (!isBytes(buf_obj)) {
-		// Return error
-		Obj result = makeCons(co->gc, intern("error"), Nil);
+		Obj result = makeCons(co->gc, intern("error"),
+			makeCons(co->gc, makeNumber(-1), Nil));
 		coraReturn(co, result);
 		return;
 	}
@@ -492,20 +579,28 @@ cora_async_socket_send(Cora *co, int label, Obj *R) {
 
 	SocketResult res = async_socket_send(sock, buf, len, &sent);
 
-	Obj status;
-	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
-		status = (res == SOCK_OK) ? intern("ok") : intern("block");
+	Obj status = intern("error");
+	Obj detail = makeNumber(-1);
+	if (res == SOCK_OK) {
+		status = intern("ok");
+		detail = makeNumber(sent);
+	} else if (res == SOCK_WOULD_BLOCK) {
+		status = intern("block");
+		detail = makeNumber(sent);
+	} else if (res == SOCK_CLOSED) {
+		status = intern("closed");
+		detail = makeNumber(sent);
 	} else {
 		status = intern("error");
+		detail = makeNumber(errno);
 	}
 
-	Obj sent_num = makeNumber(sent);
-	Obj result = makeCons(co->gc, status, makeCons(co->gc, sent_num, Nil));
+	Obj result = makeCons(co->gc, status, makeCons(co->gc, detail, Nil));
 
 	coraReturn(co, result);
 }
 
-// async-socket-recv sock buf -> [ok received] or [block received] or [error]
+// async-socket-recv sock buf -> [ok received] or [block received] or [closed received] or [error errno]
 static void
 cora_async_socket_recv(Cora *co, int label, Obj *R) {
 	(void)label;
@@ -513,8 +608,8 @@ cora_async_socket_recv(Cora *co, int label, Obj *R) {
 	Obj buf_obj = R[2];
 
 	if (!isBytes(buf_obj)) {
-		// Return error
-		Obj result = makeCons(co->gc, intern("error"), Nil);
+		Obj result = makeCons(co->gc, intern("error"),
+			makeCons(co->gc, makeNumber(-1), Nil));
 		coraReturn(co, result);
 		return;
 	}
@@ -525,16 +620,82 @@ cora_async_socket_recv(Cora *co, int label, Obj *R) {
 
 	SocketResult res = async_socket_recv(sock, buf, len, &received);
 
-	Obj status;
-	if (res == SOCK_OK || res == SOCK_WOULD_BLOCK) {
-		status = (res == SOCK_OK) ? intern("ok") : intern("block");
+	Obj status = intern("error");
+	Obj detail = makeNumber(-1);
+	if (res == SOCK_OK) {
+		status = intern("ok");
+		detail = makeNumber(received);
+	} else if (res == SOCK_WOULD_BLOCK) {
+		status = intern("block");
+		detail = makeNumber(received);
+	} else if (res == SOCK_CLOSED) {
+		status = intern("closed");
+		detail = makeNumber(received);
 	} else {
 		status = intern("error");
+		detail = makeNumber(errno);
 	}
 
-	Obj received_num = makeNumber(received);
-	Obj result = makeCons(co->gc, status, makeCons(co->gc, received_num, Nil));
+	Obj result = makeCons(co->gc, status, makeCons(co->gc, detail, Nil));
 
+	coraReturn(co, result);
+}
+
+// async-socket-accept listen-fd -> [ok fd] or [block] or [error errno]
+static void
+cora_async_socket_accept(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj listen_fd_obj = R[1];
+
+	if (!isfixnum(listen_fd_obj)) {
+		Obj result = makeCons(co->gc, intern("error"),
+			makeCons(co->gc, makeNumber(-1), Nil));
+		coraReturn(co, result);
+		return;
+	}
+
+	int listen_fd = fixnum(listen_fd_obj);
+	int fd = -1;
+	SocketResult res = async_socket_accept(listen_fd, &fd);
+
+	if (res == SOCK_WOULD_BLOCK) {
+		Obj result = makeCons(co->gc, intern("block"), Nil);
+		coraReturn(co, result);
+		return;
+	}
+
+	if (res != SOCK_OK || fd < 0) {
+		Obj result = makeCons(co->gc, intern("error"),
+			makeCons(co->gc, makeNumber(errno), Nil));
+		coraReturn(co, result);
+		return;
+	}
+
+	Obj result = makeCons(co->gc, intern("ok"),
+		makeCons(co->gc, makeNumber(fd), Nil));
+	coraReturn(co, result);
+}
+
+// async-socket-connect-check sock -> [ok] or [block] or [error errno]
+static void
+cora_async_socket_connect_check(Cora *co, int label, Obj *R) {
+	(void)label;
+	AsyncSocket *sock = mustCObj(R[1]);
+	int err = 0;
+	SocketResult res = async_socket_connect_check(sock, &err);
+
+	if (res == SOCK_OK) {
+		coraReturn(co, makeCons(co->gc, intern("ok"), Nil));
+		return;
+	}
+
+	if (res == SOCK_WOULD_BLOCK) {
+		coraReturn(co, makeCons(co->gc, intern("block"), Nil));
+		return;
+	}
+
+	Obj result = makeCons(co->gc, intern("error"),
+		makeCons(co->gc, makeNumber(err), Nil));
 	coraReturn(co, result);
 }
 
@@ -585,7 +746,11 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "event-handle-new", cora_event_handle_new, 1);
 	coraRegisterAPI(co, module, "event-handle-enable-read", cora_event_handle_enable_read, 1);
 	coraRegisterAPI(co, module, "event-handle-enable-write", cora_event_handle_enable_write, 1);
+	coraRegisterAPI(co, module, "event-handle-disable-all", cora_event_handle_disable_all, 1);
+	coraRegisterAPI(co, module, "event-handle-set-wakeup-info", cora_event_handle_set_wakeup_info, 3);
 	coraRegisterAPI(co, module, "poller-add-handle", cora_poller_add_handle, 1);
+	coraRegisterAPI(co, module, "poller-update-handle", cora_poller_update_handle, 1);
+	coraRegisterAPI(co, module, "poller-remove-handle", cora_poller_remove_handle, 1);
 	coraRegisterAPI(co, module, "poller-poll", cora_poller_poll, 1);
 
 	// Network API
@@ -596,6 +761,8 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "async-socket-new", cora_async_socket_new, 1);
 	coraRegisterAPI(co, module, "async-socket-send", cora_async_socket_send, 2);
 	coraRegisterAPI(co, module, "async-socket-recv", cora_async_socket_recv, 2);
+	coraRegisterAPI(co, module, "async-socket-accept", cora_async_socket_accept, 1);
+	coraRegisterAPI(co, module, "async-socket-connect-check", cora_async_socket_connect_check, 1);
 	coraRegisterAPI(co, module, "async-socket-get-event-handle", cora_async_socket_get_event_handle, 1);
 
 	coraReturn(co, intern("parallel"));

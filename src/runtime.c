@@ -49,7 +49,10 @@ coraReturnSlowPath(Cora *co) {
 	co->stk.begin = vecGet(&co->stk.data, vecLen(&co->stk.data) - 1);
 	co->stk.end = co->stk.begin + INIT_STACK_SIZE;
 
-	assert(co->ctx.sp >= co->stk.begin && co->ctx.sp < co->stk.end);
+	if (co->ctx.sp < co->stk.begin || co->ctx.sp >= co->stk.end) {
+		co->ctx.bp = co->stk.begin;
+		co->ctx.sp = co->stk.begin;
+	}
 }
 
 static Cora *

@@ -1,35 +1,34 @@
 (package "cora/example/async/server"
 
   (import "cora/lib/net")
-  (import "cora/lib/io")
-  (import "cora/lib/async")
-  (import "cora/lib/cml")
+   (import "cora/lib/io")
+   (import "cora/lib/cml")
 
-  (defun accept-loop (ln)
-    (let fd (accept ln)
-      (begin
-	(display "accept a new conn\n")
-	(spawn (lambda ()
-		 (begin
-		   (display "handle conn in new coroutine\n")
-		   (handle-conn fd))))
-	(accept-loop ln))))
+   (defun accept-loop (ln)
+     (let fd (net-accept ln)
+       (begin
+ 	(display "accept a new conn\n")
+ 	(spawn (lambda ()
+ 		 (begin
+ 		   (display "handle conn in new coroutine\n")
+ 		   (handle-conn fd))))
+ 	(accept-loop ln))))
 
-  (defun handle-conn (fd)
-    (let v (send fd "hello world")
-	 (let buf (make-buffer 12)
-	      (begin
-	       (display "send done and now recv --\n")
-	       (recv fd buf)
-	       (display buf)
-	       (conn-close fd)
-	       (display "after close fd!!!\n")))))
+   (defun handle-conn (fd)
+     (let v (net-send fd "hello world")
+ 	 (let buf (make-buffer 12)
+ 	      (begin
+ 	       (display "send done and now recv --\n")
+ 	       (net-recv fd buf)
+ 	       (display buf)
+ 	       (net-close fd)
+ 	       (display "after close fd!!!\n")))))
 
-  (defun server-main ()
-    (let ln (listen "127.0.0.1:8080")
-	 (begin
-	  (display "listen 8080 success\n")
-	  (accept-loop ln))))
+   (defun server-main ()
+     (let ln (net-listen "127.0.0.1:8080")
+ 	 (begin
+ 	  (display "listen 8080 success\n")
+ 	  (accept-loop ln))))
 
-  (cml-entry server-main)
+   (cml-entry server-main)
 )

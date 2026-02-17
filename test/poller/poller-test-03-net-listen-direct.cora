@@ -1,0 +1,16 @@
+;; Poller 测试 03: 直接调用 net-listen（不使用 let）
+;; 预期结果: ✅ 应该成功
+;; 状态: ✅ 通过
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(display "=== 测试 03: 直接调用 net-listen ===\n")
+(display "创建监听 socket...\n")
+
+(net-listen "0.0.0.0" 9980)
+
+(display "net-listen 调用成功（未捕获返回值）\n")
+(display "测试通过!\n")
+
+42

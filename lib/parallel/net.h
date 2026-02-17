@@ -72,6 +72,12 @@ SocketResult async_socket_send(AsyncSocket *sock, const void *buf, size_t len, s
 //   SOCK_CLOSED: connection closed
 SocketResult async_socket_recv(AsyncSocket *sock, void *buf, size_t len, size_t *received);
 
+// Accept a connection (non-blocking)
+SocketResult async_socket_accept(int listen_fd, int *out_fd);
+
+// Check non-blocking connect completion
+SocketResult async_socket_connect_check(AsyncSocket *sock, int *out_errno);
+
 // Send all data (may require multiple calls to complete)
 // Returns true if all data sent, false if would block or error
 bool async_socket_send_all(AsyncSocket *sock, const void *buf, size_t len, size_t *sent);

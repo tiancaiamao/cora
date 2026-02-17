@@ -1,37 +1,15 @@
-;; Basic test for parallel runtime
+;; Basic parallel runtime smoke test.
 
-(package "cora/test/parallel-basic"
-  (import "cora/lib/parallel")
-  (import "cora/lib/cml")
-  (import "cora/lib/io")
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
 
-  ;; Test basic spawn functionality
-  (defun test-spawn ()
-    (begin
-      (display "Testing spawn in current VM\n")
-      (spawn (lambda ()
-               (display "Hello from spawned coroutine\n")))
-      (yield)
-      (display "Spawn test completed\n")))
+(defun main ()
+  (display "Starting parallel basic test\n")
+  (spawn (lambda () (display "task A\n")))
+  (spawn (lambda () (display "task B\n")))
+  (yield)
+  (yield)
+  (display "parallel basic test done\n"))
 
-  ;; Test spawn-vm functionality
-  (defun test-spawn-vm ()
-    (begin
-      (display "Testing spawn-vm\n")
-      (let vm-id (spawn-vm "test/parallel/worker.cora")
-        (begin
-          (display "Created VM with ID: ")
-          (display vm-id)
-          (display "\n")))))
-
-  ;; Main test function
-  (defun main ()
-    (begin
-      (display "Starting parallel runtime tests\n")
-      (test-spawn)
-      (test-spawn-vm)
-      (display "All tests completed\n")))
-
-  ;; Entry point using parallel runtime
-  (parallel-entry main 2)  ;; Use 2 worker threads
-  )
+(parallel-entry main 2)

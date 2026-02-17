@@ -79,7 +79,7 @@
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)
-         (cora/lib/async#poller-init)
+         (cora/lib/parallel/internal#poller-init)
          42)
 
      (display "cml-entry init done\n")
@@ -96,7 +96,7 @@
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)
-         (cora/lib/async#poller-init)
+         (cora/lib/parallel/internal#poller-init)
          42)
 
      (display "cml-entry-init done (parallel mode)\n")

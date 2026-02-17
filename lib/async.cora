@@ -6,6 +6,7 @@
 (package "cora/lib/async"
   (import "cora/lib/cml")
   (import "cora/lib/io")
+  (import "cora/lib/string")
   (import "cora/lib/parallel/internal")
   (import "cora/lib/parallel/handle-map")
 
@@ -21,6 +22,11 @@
   (defun async-sock-map-init ()
     (def *async-sock-map* (handle-map-create)))
 
+  (defun ensure-async-sock-map ()
+    (if (null? *async-sock-map*)
+        (async-sock-map-init)
+        ()))
+
   (defun async-sock-register (sock)
     (handle-map-add *async-sock-map* sock))
 
@@ -28,20 +34,27 @@
   (define-record <async-sock>
     (async-sock-make-raw)
     false
-    (fd async-sock-fd)
-    (event-handle async-sock-event-handle))
+    (fd async-sock-fd async-sock-fd-set!)
+    (raw async-sock-raw async-sock-raw-set!)
+    (event-handle async-sock-event-handle async-sock-event-handle-set!))
 
   (defun async-sock-create (fd)
-    (let sock (async-sock-make-raw)
-      (begin
-        (async-sock-fd-set! sock fd)
-        ;; event handle in C
-        (let eh (cora/lib/parallel/internal#event-handle-new fd)
-          (begin
-            (async-sock-event-handle-set! sock eh)
-            ;; register to handle-map to make resource protected from been GC
-            (async-sock-register sock)
-            sock)))))
+    (begin
+      (ensure-async-sock-map)
+      (if (< fd 0)
+          (error "async-sock-create invalid fd")
+          (let raw (cora/lib/parallel/internal#async-socket-new fd)
+            (if (= raw false)
+                (error "async-sock-create failed")
+                (let sock (async-sock-make-raw)
+                  (begin
+                    (async-sock-fd-set! sock fd)
+                    (async-sock-raw-set! sock raw)
+                    (let eh (cora/lib/parallel/internal#async-socket-get-event-handle raw)
+                      (begin
+                        (async-sock-event-handle-set! sock eh)
+                        (async-sock-register sock)
+                        sock)))))))))
 
   (defun poller-init ()
     (cora/lib/parallel/internal#poller-init))
@@ -49,108 +62,211 @@
   (defun poller-shutdown ()
     (cora/lib/parallel/internal#poller-shutdown))
 
-  (defun recv-try (mailbox)
-      (cora/lib/parallel/internal#mailbox-recv-try mailbox))
+  (defun poller-register-read (eh)
+    (begin
+      (cora/lib/parallel/internal#poller-remove-handle eh)
+      (cora/lib/parallel/internal#event-handle-disable-all eh)
+      (cora/lib/parallel/internal#event-handle-enable-read eh)
+      (if (cora/lib/parallel/internal#poller-add-handle eh)
+          true
+          (error "poller-register-read failed"))))
 
-  (defun recv-block (mailbox k wrap)
-      (let resume (lambda (v) (k (wrap v)))
-            handle (add-task-to-blocked resume)
-            vm (cora/lib/parallel/internal#vm-self)
-            wakeup (cora/lib/parallel/internal#wakeup-create vm handle ())
-            (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
+  (defun poller-register-write (eh)
+    (begin
+      (cora/lib/parallel/internal#poller-remove-handle eh)
+      (cora/lib/parallel/internal#event-handle-disable-all eh)
+      (cora/lib/parallel/internal#event-handle-enable-write eh)
+      (if (cora/lib/parallel/internal#poller-add-handle eh)
+          true
+          (error "poller-register-write failed"))))
+
+  (defun poller-unregister (eh)
+    (begin
+      (cora/lib/parallel/internal#poller-remove-handle eh)
+      (cora/lib/parallel/internal#event-handle-disable-all eh)))
+
+  (defun register-wakeup (eh handle)
+    (let self-vm (cora/lib/parallel/internal#vm-self)
+      (if (= self-vm false)
+          ()
+          (cora/lib/parallel/internal#event-handle-set-wakeup-info eh self-vm handle)
+          )))
+
+  ;; Cora core does not provide a universal `error` symbol in every package.
+  ;; Use CML-compatible throw to abort current coroutine safely on async failures.
+  (defun error (msg)
+    (throw (lambda (k)
+             (begin
+               (display "async error: ")
+               (display msg)
+               (display "\n")
+               ()))))
 
   (defun default-wrap (x) x)
 
-  ;; recv on mailbox is an operation
+  (defun parse-addr (addr)
+    (let parts (string-split addr ":")
+      (if (= (length parts) 2)
+          parts
+          (error "invalid address"))))
+
+  (defun async-recv-retry (sock buf k wrap)
+    (let eh (async-sock-event-handle sock)
+      (match (cora/lib/parallel/internal#async-socket-recv
+              (async-sock-raw sock) buf)
+        ['ok n]
+        (begin
+          (poller-unregister eh)
+          (k (wrap n)))
+        ['closed n]
+        (begin
+          (poller-unregister eh)
+          (k (wrap 0)))
+        ['block n]
+        (begin
+          (let handle (add-task-to-blocked (lambda (v) (async-recv-retry sock buf k wrap)))
+            (begin
+              (register-wakeup eh handle)
+              (poller-register-read eh))))
+        ['error e]
+        (error "async-recv error"))))
+
+  ;; recv on socket is an operation
   (defun async-recv-op (sock buf)
     (let try (lambda ()
-              (match (cora/lib/parallel/internal#async-socket-recv
-                      (async-sock-fd sock) buf 0)
-                ['ok n] n
-                ['block n] false
-                ['error e] (error "async-recv error")))
-         block (lambda (k wrap)
-                 (let eh (async-sock-event-handle sock)
-                   (begin
-                     ;; register resume function to blocked-coroutine
-                     (let handle (add-task-to-blocked
-                                   (lambda (value)
-                                     ;; retry when the event is ready again
-                                     (wrap (cora/lib/parallel/internal#async-socket-recv
-                                            (async-sock-fd sock) buf -1))))
-                       (begin
-                         ;; set the VM（for parallel mode）
-                         ; (let self-vm (cora/lib/parallel/internal#vm-self)
-                         ;   (if (not (null? self-vm))
-                         ;       ;; 注意：这里需要 C 层提供设置 target_vm 的 API
-                         ;       ;; 暂时注释掉，等后续实现
-                         ;       ;; (cora/lib/parallel/internal#event-handle-set-target-vm! eh self-vm)
-                         ;       ()))
-                         ;; set connection to readable
-                         (cora/lib/parallel/internal#event-handle-enable-read eh))))))
+               (match (cora/lib/parallel/internal#async-socket-recv
+                       (async-sock-raw sock) buf)
+                 ['ok n] n
+                 ['block n] false
+                 ['closed n] 0
+                 ['error e] (error "async-recv error")))
+         block (lambda (k wrap) (async-recv-retry sock buf k wrap))
          [try block default-wrap]))
 
   (defun async-recv (sock buf)
     (perform (async-recv-op sock buf)))
 
-  (defun send-try (sock val)
-      (begin
-          ;; try send first
-          (if (cora/lib/parallel/internal#async-socket-send
-                  (async-sock-fd sock) val)
-              ()
-              false)))
-
-  (defun send-block (sock k val wrap)
-      (let eh (async-sock-event-handle sock)
+  (defun async-send-retry (sock buf k wrap)
+    (let eh (async-sock-event-handle sock)
+      (match (cora/lib/parallel/internal#async-socket-send
+              (async-sock-raw sock) buf)
+        ['ok n]
         (begin
-          ;; register resume function
-          (let handle (add-task-to-blocked
-                (lambda (v)
-                  (wrap (cora/lib/parallel/internal#async-socket-send
-                         (async-sock-fd sock) val))))
-            ; (begin
-            ;   ;; 设置关联的 VM
-            ;   (let self-vm (cora/lib/parallel/internal#vm-self)
-            ;     (if (not (null? self-vm))
-            ;         ;; (cora/lib/parallel/internal#event-handle-set-target-vm! eh self-vm)
-            ;         ()))
-              ;; set listening writable event on event handle
-              (cora/lib/parallel/internal#event-handle-enable-write eh)))))
+          (poller-unregister eh)
+          (k (wrap n)))
+        ['block n]
+        (begin
+          (let handle (add-task-to-blocked (lambda (v) (async-send-retry sock buf k wrap)))
+            (begin
+              (register-wakeup eh handle)
+              (poller-register-write eh))))
+        ['closed n]
+        (begin
+          (poller-unregister eh)
+          (error "async-send closed"))
+        ['error e]
+        (error "async-send error"))))
 
   ;; send on socket is an operation
-  (defun async-send-op (sock val)
-    (let try (lambda () (send-try sock val))
-         block (lambda (k wrap) (send-block sock k val wrap))
+  (defun async-send-op (sock buf)
+    (let try (lambda ()
+               (match (cora/lib/parallel/internal#async-socket-send
+                       (async-sock-raw sock) buf)
+                 ['ok n] n
+                 ['block n] false
+                 ['closed n] (error "async-send closed")
+                 ['error e] (error "async-send error")))
+         block (lambda (k wrap) (async-send-retry sock buf k wrap))
          [try block default-wrap]))
 
-  (defun async-send (sock val)
-    (perform (async-send-op sock val)))
+  (defun async-send (sock buf)
+    (perform (async-send-op sock buf)))
 
+  (defun async-accept-retry (listener k wrap)
+    (let eh (async-sock-event-handle listener)
+      (match (cora/lib/parallel/internal#async-socket-accept
+              (async-sock-fd listener))
+        ['ok fd]
+        (begin
+          (poller-unregister eh)
+          (k (wrap (async-sock-create fd))))
+        ['block]
+        (begin
+          (let handle (add-task-to-blocked (lambda (v) (async-accept-retry listener k wrap)))
+            (begin
+              (register-wakeup eh handle)
+              (poller-register-read eh))))
+        ['error e]
+        (error "async-accept error"))))
 
-  ;; Accept 需要监听 socket 和新连接的 socket
-  ;; 这是一个简化版本，完整实现需要更复杂的处理
+  (defun async-accept-op (listener)
+    (let try (lambda ()
+               (match (cora/lib/parallel/internal#async-socket-accept
+                       (async-sock-fd listener))
+                 ['ok fd] (async-sock-create fd)
+                 ['block] false
+                 ['error e] (error "async-accept error")))
+         block (lambda (k wrap) (async-accept-retry listener k wrap))
+         [try block default-wrap]))
+
   (defun async-accept (listener)
-    ;; 简化实现：使用 C 层的 async-socket-accept
-    ;; 这会在新连接可用时返回
-    (perform
-      (let try (lambda ()
-                (cora/lib/parallel/internal#async-socket-accept listener))
-           block (lambda (k wrap)
-                   ;; 需要设置读事件监听
-                   ;; 暂时简化处理
-                   (cora/lib/parallel/internal#event-handle-enable-read
-                     (cora/lib/parallel/internal#async-socket-get-event-handle listener)))
-           [try block default-wrap])))
+    (perform (async-accept-op listener)))
 
-  (defun async-listen (addr)
-    (let fd (cora/lib/parallel/internal#net-listen addr)
-      (async-sock-create fd)))
+  (defun async-connect-retry (sock k wrap)
+    (let eh (async-sock-event-handle sock)
+      (match (cora/lib/parallel/internal#async-socket-connect-check
+              (async-sock-raw sock))
+        ['ok]
+        (begin
+          (poller-unregister eh)
+          (k (wrap sock)))
+        ['block]
+        (begin
+          (let handle (add-task-to-blocked (lambda (v) (async-connect-retry sock k wrap)))
+            (begin
+              (register-wakeup eh handle)
+              (poller-register-write eh))))
+        ['error e]
+        (begin
+          (async-conn-close sock)
+          (error "async-dial error")))))
+
+  (defun async-dial-op (addr)
+    (let parts (parse-addr addr)
+      (let host (car parts)
+           port (cadr parts)
+        (let fd (cora/lib/parallel/internal#net-dial host port)
+          (if (< fd 0)
+              (error "async-dial failed")
+              (let sock (async-sock-create fd)
+                (let try (lambda ()
+                           (match (cora/lib/parallel/internal#async-socket-connect-check
+                                   (async-sock-raw sock))
+                             ['ok] sock
+                             ['block] false
+                             ['error e] (begin
+                                          (async-conn-close sock)
+                                          (error "async-dial error"))))
+                     block (lambda (k wrap) (async-connect-retry sock k wrap))
+                     [try block default-wrap])))))))
 
   (defun async-dial (addr)
-    (let fd (cora/lib/parallel/internal#net-dial addr)
-      (async-sock-create fd)))
+    (perform (async-dial-op addr)))
+
+  (defun async-listen (addr)
+    (let parts (parse-addr addr)
+      (let host (car parts)
+           port (cadr parts)
+        (let fd (cora/lib/parallel/internal#net-listen host port)
+          (async-sock-create fd)))))
 
   (defun async-conn-close (sock)
-    (cora/lib/parallel/internal#net-close (async-sock-fd sock)))
+    (let eh (async-sock-event-handle sock)
+      (begin
+        (if (= eh false)
+            ()
+            (begin
+              (cora/lib/parallel/internal#poller-remove-handle eh)
+              (cora/lib/parallel/internal#event-handle-disable-all eh)))
+        (cora/lib/parallel/internal#net-close (async-sock-fd sock)))))
   )

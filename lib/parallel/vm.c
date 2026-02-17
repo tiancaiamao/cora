@@ -133,7 +133,9 @@ cora_vm_self(Cora *co) {
 		return NULL;
 	}
 
-	Obj existing = symbolGet(co, intern("*cora-vm*"));
+	Obj sym = intern("*cora-vm*");
+	Binding bind = bindSymbol(co, sym);
+	Obj existing = vecGet(&co->globals, bind.idx);
 	if (existing != Undef && iscobj(existing)) {
 		return mustCObj(existing);
 	}
@@ -151,7 +153,7 @@ cora_vm_self(Cora *co) {
 	vm->init_len = 0;
 	cora_vm_wakeup_init(vm);
 
-	primSet(co, intern("*cora-vm*"), makeCObj(vm));
+	primSet(co, sym, makeCObj(vm));
 	return vm;
 }
 
@@ -272,22 +274,36 @@ vm_dequeue_global(void) {
 
 	pthread_mutex_lock(&g_runtime->queue_lock);
 
-	while (g_runtime->queue_size == 0 && !atomic_load(&g_runtime->shutdown)) {
-		pthread_cond_wait(&g_runtime->queue_cond, &g_runtime->queue_lock);
-	}
+	for (;;) {
+		while (g_runtime->queue_size == 0 && !atomic_load(&g_runtime->shutdown)) {
+			pthread_cond_wait(&g_runtime->queue_cond, &g_runtime->queue_lock);
+		}
 
-	if (atomic_load(&g_runtime->shutdown)) {
+		if (atomic_load(&g_runtime->shutdown)) {
+			pthread_mutex_unlock(&g_runtime->queue_lock);
+			return NULL;
+		}
+
+		VM *vm = g_runtime->vm_queue[g_runtime->queue_head];
+		g_runtime->queue_head = (g_runtime->queue_head + 1) % g_runtime->queue_capacity;
+		g_runtime->queue_size--;
+		atomic_store(&vm->in_global_queue, 0);
+
+		/*
+		 * Mark VM running while queue lock is still held, so a duplicate
+		 * queue entry cannot race and start the same VM concurrently.
+		 */
+		pthread_mutex_lock(&vm->lock);
+		if (vm->is_running) {
+			pthread_mutex_unlock(&vm->lock);
+			continue;
+		}
+		vm->is_running = true;
+		pthread_mutex_unlock(&vm->lock);
+
 		pthread_mutex_unlock(&g_runtime->queue_lock);
-		return NULL;
+		return vm;
 	}
-
-	VM *vm = g_runtime->vm_queue[g_runtime->queue_head];
-	g_runtime->queue_head = (g_runtime->queue_head + 1) % g_runtime->queue_capacity;
-	g_runtime->queue_size--;
-	atomic_store(&vm->in_global_queue, 0);
-
-	pthread_mutex_unlock(&g_runtime->queue_lock);
-	return vm;
 }
 
 // Check if VM has work by calling Cora function
@@ -304,7 +320,7 @@ vm_dequeue_global(void) {
 static void *
 worker_thread(void *arg) {
 	int thread_id = *(int *)arg;
-	(void)thread_id; // Suppress unused variable warning
+	(void)thread_id;
 	free(arg);
 
 	while (!atomic_load(&g_runtime->shutdown)) {
@@ -317,6 +333,10 @@ worker_thread(void *arg) {
 		atomic_fetch_add(&g_runtime->running_vms, 1);
 		VMRunResult result = vm_run_time_slice(vm, 50); // 50ms time slice
 		atomic_fetch_add(&g_runtime->running_vms, -1);
+
+		pthread_mutex_lock(&vm->lock);
+		vm->is_running = false;
+		pthread_mutex_unlock(&vm->lock);
 
 		switch (result) {
 		case VM_TIME_EXPIRED:
@@ -426,12 +446,21 @@ vm_runtime_shutdown(void) {
 	g_runtime = NULL;
 }
 
+Poller *
+vm_runtime_get_poller(void) {
+	if (!g_runtime) {
+		return NULL;
+	}
+	return g_runtime->poller;
+}
+
 void
 vm_runtime_wait_all(void) {
 	if (!g_runtime) {
 		return;
 	}
 
+	int idle_poller_loops = 0;
 	for (;;) {
 		if (atomic_load(&g_runtime->shutdown)) {
 			return;
@@ -441,16 +470,64 @@ vm_runtime_wait_all(void) {
 		int queue_size = g_runtime->queue_size;
 		pthread_mutex_unlock(&g_runtime->queue_lock);
 		int running = atomic_load(&g_runtime->running_vms);
-		if (queue_size == 0 && running == 0) {
+		int active_handles = 0;
+		if (g_runtime->poller) {
+			active_handles = poller_active_handle_count(g_runtime->poller);
+		}
+
+		if (queue_size == 0 && running == 0 && active_handles == 0) {
 			break;
 		}
 
+		// If no descriptors are being monitored, yield briefly to avoid busy spin.
+		if (!g_runtime->poller || active_handles == 0) {
+			usleep(1000);
+			continue;
+		}
+
 		// Execute poller operations (100ms timeout)
-		// This detects I/O events and delivers wakeups to VM queues
-		if (g_runtime->poller) {
-			int nfds = 0;
-			poller_poll(g_runtime->poller, 100, &nfds);
-			// poller_poll will call wakeup callbacks, which enqueue VMs
+		// This detects I/O events and delivers wakeups to VM queues.
+		int nfds = 0;
+		void **active = poller_poll(g_runtime->poller, 100, &nfds);
+		if (nfds < 0) {
+			usleep(1000);
+			if (active) {
+				free(active);
+			}
+			continue;
+		}
+
+		// Process active handles and wake up VMs
+		for (int i = 0; i < nfds; i++) {
+			EventHandle *eh = (EventHandle *)active[i];
+			if (!eh) {
+				continue;
+			}
+			if (eh->target_vm && eh->wakeup_handle >= 0) {
+				// We pass True as an event token; coroutine resume logic reads state from handle.
+				cora_vm_enqueue((CoraVM *)eh->target_vm, eh->wakeup_handle, True);
+			}
+		}
+
+		if (queue_size == 0 && running == 0) {
+			if (nfds == 0) {
+				idle_poller_loops++;
+			} else {
+				idle_poller_loops = 0;
+			}
+			/*
+			 * If runtime is otherwise idle but poller keeps reporting no events
+			 * while active handles remain, treat them as stale registrations.
+			 */
+			if (idle_poller_loops > 50) {
+				break;
+			}
+		} else {
+			idle_poller_loops = 0;
+		}
+
+		if (active) {
+			free(active);
 		}
 	}
 }
@@ -581,12 +658,10 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	if (!vm)
 		return VM_TERMINATED;
 
-	vm->is_running = true;
 	vm->time_slice_start = get_current_time_ms();
 
 	// Check if VM should terminate
 	if (atomic_load(&vm->should_terminate)) {
-		vm->is_running = false;
 		return VM_TERMINATED;
 	}
 
@@ -610,8 +685,6 @@ vm_run_time_slice(VM *vm, int time_slice_ms) {
 	if (vm->impl.ScheduleOnce) {
 		vm->impl.ScheduleOnce(vm->impl.self);
 	}
-
-	vm->is_running = false;
 
 	// Check elapsed time
 	uint64_t elapsed = get_current_time_ms() - vm->time_slice_start;

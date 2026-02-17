@@ -66,13 +66,13 @@ netListen(struct Cora *ctx, int label, Obj *R) {
 	addr.sin_addr.s_addr = INADDR_ANY; // 0.0.0.0
 	addr.sin_port = htons(port);
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
-		fprintf(stderr, "bind error\n");
+		fprintf(stderr, "bind error: %s\n", strerror(errno));
 		coraReturn(ctx, Nil);
 		return;
 	}
 
 	if (listen(fd, 200) < 0) {
-		fprintf(stderr, "listen error\n");
+		fprintf(stderr, "listen error: %s\n", strerror(errno));
 		coraReturn(ctx, Nil);
 		return;
 	}

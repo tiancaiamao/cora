@@ -11,6 +11,7 @@
 typedef struct VM VM;
 typedef struct GlobalRuntime GlobalRuntime;
 typedef struct CoraVM CoraVM;
+typedef struct Poller Poller;
 
 // VM execution results
 typedef enum {
@@ -49,6 +50,7 @@ struct VM {
 void vm_runtime_init(int num_threads);
 void vm_runtime_shutdown(void);
 void vm_runtime_wait_all(void);
+Poller *vm_runtime_get_poller(void);
 
 // VM management
 VM *vm_create(void);
