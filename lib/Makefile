@@ -1,5 +1,5 @@
 # all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so trace.so
-all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so trace.so
+all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so trace.so
 
 extra: md4c/include.so json.so
 
@@ -38,5 +38,5 @@ toc/internal.so: toc/internal.c
 
 OS_NAME := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
-parallel/internal.so: parallel/internal.c
+parallel/internal.so:
 	make -C parallel

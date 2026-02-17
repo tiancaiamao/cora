@@ -82,4 +82,4 @@ bootstrap:
 
 install-local:
 	mkdir -p ${HOME}/.local/share/cora/pkg/; \
-	ln -s `pwd` ${HOME}/.local/share/cora/pkg/cora
+	ln -sfn `pwd` ${HOME}/.local/share/cora/pkg/cora
