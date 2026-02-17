@@ -28,7 +28,7 @@ all: cora
 libcora:
 	make -C src
 
-lib:
+lib: libcora
 	make -C lib
 
 .c.o:
