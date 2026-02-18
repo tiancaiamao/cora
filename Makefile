@@ -1,56 +1,34 @@
-.PHONY: libcora lib fmt test test-core test-poller test-parallel test-integration
+.PHONY: libcora lib fmt test test-core test-poller test-parallel test-integration \
+	cmake-configure cmake-build compile-commands
 
-CC = gcc
-CFLAGS := -g -Wall
-
-# Detect operating system
-UNAME_S := $(shell uname -s)
-
-ifeq ("${ENABLE_ASAN}", "1")
-	CFLAGS += -fsanitize=address
-endif
-
-ifeq ("${ENABLE_TSAN}", "1")
-	CFLAGS += -fsanitize=thread
-endif
-
-LD_FLAG	:=  -lcora -ldl
-ifeq ("${ENABLE_ASAN}", "1")
-	LD_FLAG = -lasan -lcora -ldl
-endif
-
-ifeq ("${ENABLE_TSAN}", "1")
-	LD_FLAG = -ltsan -lcora -ldl
-endif
+CMAKE_BUILD_DIR ?= build
+CMAKE_ENABLE_ASAN := $(if $(filter 1,$(ENABLE_ASAN)),ON,OFF)
+CMAKE_ENABLE_TSAN := $(if $(filter 1,$(ENABLE_TSAN)),ON,OFF)
+CMAKE_BOOTSTRAP_TEST ?= OFF
 
 all: cora
 
-libcora:
-	make -C src
+libcora: cmake-configure
+	cmake --build $(CMAKE_BUILD_DIR) --target cora_runtime
 
-lib: libcora
-	make -C lib
+lib: cmake-configure
+	cmake --build $(CMAKE_BUILD_DIR) --target cora-libs
 
-.c.o:
-	$(CC) $(CFLAGS) -c -g $< -I src
+init.so: cmake-configure
+	cmake --build $(CMAKE_BUILD_DIR) --target cora_init
 
-# cora directly depends on lib/toc.so
-cora: libcora main.o init.so lib
-ifeq ($(UNAME_S),Darwin)
-	# macOS: Use rpath for flexible library loading
-	$(CC) main.o -Lsrc $(LD_FLAG) -Wl,-rpath,@executable_path/src -o $@
-else
-	# Linux: Use rpath for flexible library loading
-	$(CC) main.o -Lsrc $(LD_FLAG) -Wl,-rpath,\$$ORIGIN/src -o $@
-endif
+cora: cmake-configure
+	cmake --build $(CMAKE_BUILD_DIR) --target cora-all
 
 clean:
-	rm -f *.o *.so *.bin test/*.so
-	make clean -C src
-	make clean -C lib
-
-init.so: init.c libcora
-	gcc -shared -o init.so -g -fPIC init.c -Isrc -I. -Lsrc -lcora
+	rm -f *.o *.so *.bin cora init.so test/*.so
+	rm -f src/*.o src/*.a src/*.so src/*.test
+	rm -f lib/*.o lib/*.so
+	rm -f lib/toc/*.o lib/toc/*.so
+	rm -f lib/parallel/*.o lib/parallel/*.so
+	rm -f lib/md4c/*.o
+	rm -rf src/.deps lib/.deps lib/toc/.deps
+	rm -rf $(CMAKE_BUILD_DIR)
 
 fmt:
 	cd src; indent -npcs -bap -br -ce -brf -ut -i8 -nbbo -nhnl *.c
@@ -73,9 +51,8 @@ FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
 
 bootstrap:
 	@make clean
-	@make CFLAGS='-D_BOOTSTRAP_TEST_ -fPIC' -C src
-	@make
-	@./test/bootstrap.cora;
+	@$(MAKE) cora CMAKE_BOOTSTRAP_TEST=ON
+	@PATH="$(PWD):$$PATH" ./test/bootstrap.cora;
 	@diff init.c init.c.tmp | $(FAIL_ON_STDOUT)
 	@diff lib/toc.c lib/toc.c.tmp | $(FAIL_ON_STDOUT)
 	rm -f init.c.tmp lib/toc.c.tmp
@@ -83,3 +60,18 @@ bootstrap:
 install-local:
 	mkdir -p ${HOME}/.local/share/cora/pkg/; \
 	ln -sfn `pwd` ${HOME}/.local/share/cora/pkg/cora
+
+cmake-configure:
+	cmake -S . -B $(CMAKE_BUILD_DIR) \
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DENABLE_ASAN=$(CMAKE_ENABLE_ASAN) \
+		-DENABLE_TSAN=$(CMAKE_ENABLE_TSAN) \
+		-DBOOTSTRAP_TEST=$(CMAKE_BOOTSTRAP_TEST)
+	cp $(CMAKE_BUILD_DIR)/compile_commands.json ./compile_commands.json
+
+cmake-build: cmake-configure
+	cmake --build $(CMAKE_BUILD_DIR) --target cora-all
+
+compile-commands: cmake-configure
+	@:
