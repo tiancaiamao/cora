@@ -194,6 +194,21 @@ getBinding(Cora *co, int packageID, int slot) {
 void addPackage(Cora *co, int packageID, Binding *symbolTable);
 int packageIDAlloc();
 
+/*
+ * Shared parallel state is kept in runtime (not module .so) so all VMs can
+ * safely access one process-wide state container.
+ */
+void *coraParallelRuntimeGet(void);
+bool coraParallelRuntimeSetIfAbsent(void *runtime);
+bool coraParallelRuntimeClearIfMatch(void *runtime);
+void *coraParallelPollerGet(void);
+void coraParallelPollerSet(void *poller);
+
+int coraParallelMailboxIDAlloc(void);
+void coraParallelMailboxRegistryReset(void);
+bool coraParallelMailboxPublish(const char *name, void *mailbox);
+void *coraParallelMailboxResolve(const char *name);
+
 static inline Obj
 closureRef(Obj clo, int idx) {
 #ifndef NDEBUG

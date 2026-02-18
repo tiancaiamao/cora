@@ -69,8 +69,6 @@ struct Mailbox {
 	int id;
 };
 
-static int next_mailbox_id = 1;
-
 Mailbox *
 mailbox_new(int capacity) {
 	Mailbox *mb = malloc(sizeof(Mailbox));
@@ -87,7 +85,7 @@ mailbox_new(int capacity) {
 	mb->msg_count = 0;
 	mb->msg_head = 0;
 	mb->msg_tail = 0;
-	mb->id = __sync_fetch_and_add(&next_mailbox_id, 1);
+	mb->id = coraParallelMailboxIDAlloc();
 
 	if (capacity > 0) {
 		mb->messages = calloc((size_t)capacity, sizeof(Obj));
@@ -270,91 +268,16 @@ mailbox_recv_try(Mailbox *mb, Obj *msg_out) {
 	return false;
 }
 
-// ============================================================================
-// Mailbox Registry
-// ============================================================================
-
-#define MAX_REGISTRY_SIZE 256
-
-typedef struct RegistryEntry {
-	char *name;
-	Mailbox *mailbox;
-	struct RegistryEntry *next;
-} RegistryEntry;
-
-static RegistryEntry *registry_buckets[MAX_REGISTRY_SIZE];
-static pthread_mutex_t registry_lock = PTHREAD_MUTEX_INITIALIZER;
-static bool registry_initialized = false;
-
-static unsigned int
-hash_string(const char *str) {
-	unsigned int hash = 5381;
-	int c;
-	while ((c = *str++)) {
-		hash = ((hash << 5) + hash) + c;
-	}
-	return hash % MAX_REGISTRY_SIZE;
-}
-
 void
 mailbox_registry_init(void) {
-	pthread_mutex_lock(&registry_lock);
-	if (!registry_initialized) {
-		memset(registry_buckets, 0, sizeof(registry_buckets));
-		registry_initialized = true;
-	}
-	pthread_mutex_unlock(&registry_lock);
 }
 
 bool
 mailbox_publish(const char *name, Mailbox *mb) {
-	if (!registry_initialized) {
-		mailbox_registry_init();
-	}
-
-	unsigned int bucket = hash_string(name);
-
-	pthread_mutex_lock(&registry_lock);
-
-	RegistryEntry *entry = registry_buckets[bucket];
-	while (entry) {
-		if (strcmp(entry->name, name) == 0) {
-			pthread_mutex_unlock(&registry_lock);
-			return false;
-		}
-		entry = entry->next;
-	}
-
-	entry = malloc(sizeof(RegistryEntry));
-	entry->name = strdup(name);
-	entry->mailbox = mb;
-	entry->next = registry_buckets[bucket];
-	registry_buckets[bucket] = entry;
-
-	pthread_mutex_unlock(&registry_lock);
-	return true;
+	return coraParallelMailboxPublish(name, mb);
 }
 
 Mailbox *
 mailbox_resolve(const char *name) {
-	if (!registry_initialized) {
-		return NULL;
-	}
-
-	unsigned int bucket = hash_string(name);
-
-	pthread_mutex_lock(&registry_lock);
-
-	RegistryEntry *entry = registry_buckets[bucket];
-	while (entry) {
-		if (strcmp(entry->name, name) == 0) {
-			Mailbox *mb = entry->mailbox;
-			pthread_mutex_unlock(&registry_lock);
-			return mb;
-		}
-		entry = entry->next;
-	}
-
-	pthread_mutex_unlock(&registry_lock);
-	return NULL;
+	return coraParallelMailboxResolve(name);
 }

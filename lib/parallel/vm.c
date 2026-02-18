@@ -1,5 +1,5 @@
 #include "vm.h"
-#include "poller.h"
+#include "../poller/poller.h"
 #include "../../src/runtime.h"
 #include <assert.h>
 #include <pthread.h>
@@ -64,8 +64,12 @@ struct CoraVM {
 	size_t init_len;
 };
 
-static GlobalRuntime *g_runtime = NULL;
 // static __thread VM *current_vm = NULL;
+
+static inline GlobalRuntime *
+vm_runtime_state(void) {
+	return (GlobalRuntime *)coraParallelRuntimeGet();
+}
 
 static void cora_vm_schedule_once(void *ptr);
 static bool cora_vm_has_work(void *ptr);
@@ -173,7 +177,7 @@ cora_vm_enqueue(CoraVM *vm, int handle, Obj value) {
 		return;
 	}
 
-	if (!g_runtime) {
+	if (!vm_runtime_state()) {
 		Obj resume_fn = cora_vm_get_resume_fn(vm->cora);
 		if (resume_fn == Undef) {
 			return;
@@ -228,65 +232,67 @@ vm_queue_destroy(GlobalRuntime *runtime) {
 
 void
 vm_enqueue_global(VM *vm) {
-	if (!g_runtime)
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime)
 		return;
 
-	pthread_mutex_lock(&g_runtime->queue_lock);
+	pthread_mutex_lock(&runtime->queue_lock);
 
 	// Check if already in queue
 	if (atomic_load(&vm->in_global_queue)) {
-		pthread_mutex_unlock(&g_runtime->queue_lock);
+		pthread_mutex_unlock(&runtime->queue_lock);
 		return;
 	}
 
 	// Expand queue if needed
-	if (g_runtime->queue_size >= g_runtime->queue_capacity) {
-		int new_capacity = g_runtime->queue_capacity * 2;
+	if (runtime->queue_size >= runtime->queue_capacity) {
+		int new_capacity = runtime->queue_capacity * 2;
 		VM **new_queue = malloc(sizeof(VM *) * new_capacity);
 
 		// Copy existing items
-		for (int i = 0; i < g_runtime->queue_size; i++) {
-			int idx = (g_runtime->queue_head + i) % g_runtime->queue_capacity;
-			new_queue[i] = g_runtime->vm_queue[idx];
+		for (int i = 0; i < runtime->queue_size; i++) {
+			int idx = (runtime->queue_head + i) % runtime->queue_capacity;
+			new_queue[i] = runtime->vm_queue[idx];
 		}
 
-		free(g_runtime->vm_queue);
-		g_runtime->vm_queue = new_queue;
-		g_runtime->queue_head = 0;
-		g_runtime->queue_tail = g_runtime->queue_size;
-		g_runtime->queue_capacity = new_capacity;
+		free(runtime->vm_queue);
+		runtime->vm_queue = new_queue;
+		runtime->queue_head = 0;
+		runtime->queue_tail = runtime->queue_size;
+		runtime->queue_capacity = new_capacity;
 	}
 
 	// Add to queue
-	g_runtime->vm_queue[g_runtime->queue_tail] = vm;
-	g_runtime->queue_tail = (g_runtime->queue_tail + 1) % g_runtime->queue_capacity;
-	g_runtime->queue_size++;
+	runtime->vm_queue[runtime->queue_tail] = vm;
+	runtime->queue_tail = (runtime->queue_tail + 1) % runtime->queue_capacity;
+	runtime->queue_size++;
 	atomic_store(&vm->in_global_queue, 1);
 
-	pthread_cond_signal(&g_runtime->queue_cond);
-	pthread_mutex_unlock(&g_runtime->queue_lock);
+	pthread_cond_signal(&runtime->queue_cond);
+	pthread_mutex_unlock(&runtime->queue_lock);
 }
 
 VM *
 vm_dequeue_global(void) {
-	if (!g_runtime)
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime)
 		return NULL;
 
-	pthread_mutex_lock(&g_runtime->queue_lock);
+	pthread_mutex_lock(&runtime->queue_lock);
 
 	for (;;) {
-		while (g_runtime->queue_size == 0 && !atomic_load(&g_runtime->shutdown)) {
-			pthread_cond_wait(&g_runtime->queue_cond, &g_runtime->queue_lock);
+		while (runtime->queue_size == 0 && !atomic_load(&runtime->shutdown)) {
+			pthread_cond_wait(&runtime->queue_cond, &runtime->queue_lock);
 		}
 
-		if (atomic_load(&g_runtime->shutdown)) {
-			pthread_mutex_unlock(&g_runtime->queue_lock);
+		if (atomic_load(&runtime->shutdown)) {
+			pthread_mutex_unlock(&runtime->queue_lock);
 			return NULL;
 		}
 
-		VM *vm = g_runtime->vm_queue[g_runtime->queue_head];
-		g_runtime->queue_head = (g_runtime->queue_head + 1) % g_runtime->queue_capacity;
-		g_runtime->queue_size--;
+		VM *vm = runtime->vm_queue[runtime->queue_head];
+		runtime->queue_head = (runtime->queue_head + 1) % runtime->queue_capacity;
+		runtime->queue_size--;
 		atomic_store(&vm->in_global_queue, 0);
 
 		/*
@@ -301,7 +307,7 @@ vm_dequeue_global(void) {
 		vm->is_running = true;
 		pthread_mutex_unlock(&vm->lock);
 
-		pthread_mutex_unlock(&g_runtime->queue_lock);
+		pthread_mutex_unlock(&runtime->queue_lock);
 		return vm;
 	}
 }
@@ -323,16 +329,20 @@ worker_thread(void *arg) {
 	(void)thread_id;
 	free(arg);
 
-	while (!atomic_load(&g_runtime->shutdown)) {
+	for (;;) {
+		GlobalRuntime *runtime = vm_runtime_state();
+		if (!runtime || atomic_load(&runtime->shutdown)) {
+			break;
+		}
 		VM *vm = vm_dequeue_global();
 		if (!vm)
 			break;
 
 		// set_current_vm(vm);
 
-		atomic_fetch_add(&g_runtime->running_vms, 1);
+		atomic_fetch_add(&runtime->running_vms, 1);
 		VMRunResult result = vm_run_time_slice(vm, 50); // 50ms time slice
-		atomic_fetch_add(&g_runtime->running_vms, -1);
+		atomic_fetch_add(&runtime->running_vms, -1);
 
 		pthread_mutex_lock(&vm->lock);
 		vm->is_running = false;
@@ -366,113 +376,153 @@ worker_thread(void *arg) {
 void
 vm_runtime_init(int num_threads) {
 	// Ensure runtime is not already initialized
-	if (g_runtime != NULL) {
+	if (vm_runtime_state() != NULL) {
 		// Already initialized, ignore or assert based on policy
 		return;
 	}
 
-	g_runtime = malloc(sizeof(GlobalRuntime));
+	GlobalRuntime *runtime = calloc(1, sizeof(GlobalRuntime));
+	if (!runtime) {
+		return;
+	}
 
 	// Initialize VM queue
-	vm_queue_init(g_runtime, 64);
+	vm_queue_init(runtime, 64);
 
 	// Initialize VM registry
-	g_runtime->vm_capacity = 64;
-	g_runtime->vms = calloc(g_runtime->vm_capacity, sizeof(VM *));
-	g_runtime->vm_count = 0;
-	pthread_mutex_init(&g_runtime->vm_registry_lock, NULL);
+	runtime->vm_capacity = 64;
+	runtime->vms = calloc(runtime->vm_capacity, sizeof(VM *));
+	runtime->vm_count = 0;
+	pthread_mutex_init(&runtime->vm_registry_lock, NULL);
 
 	// Initialize runtime state
-	atomic_init(&g_runtime->shutdown, 0);
-	atomic_init(&g_runtime->next_vm_id, 1);
-	atomic_init(&g_runtime->running_vms, 0);
+	atomic_init(&runtime->shutdown, 0);
+	atomic_init(&runtime->next_vm_id, 1);
+	atomic_init(&runtime->running_vms, 0);
 
 	// Initialize I/O Poller
-	g_runtime->poller = poller_new();
+	runtime->poller = poller_new();
+	coraParallelPollerSet(runtime->poller);
 
 	// Start worker threads
-	g_runtime->num_threads = num_threads;
-	g_runtime->worker_threads = malloc(sizeof(pthread_t) * num_threads);
+	runtime->num_threads = 0;
+	runtime->worker_threads = malloc(sizeof(pthread_t) * num_threads);
+	if (!runtime->vms || !runtime->worker_threads) {
+		if (runtime->poller) {
+			poller_free(runtime->poller);
+		}
+		free(runtime->worker_threads);
+		free(runtime->vms);
+		pthread_mutex_destroy(&runtime->vm_registry_lock);
+		vm_queue_destroy(runtime);
+		free(runtime);
+		return;
+	}
+
+	if (!coraParallelRuntimeSetIfAbsent(runtime)) {
+		if (runtime->poller) {
+			poller_free(runtime->poller);
+		}
+		free(runtime->worker_threads);
+		free(runtime->vms);
+		pthread_mutex_destroy(&runtime->vm_registry_lock);
+		vm_queue_destroy(runtime);
+		free(runtime);
+		return;
+	}
 
 	for (int i = 0; i < num_threads; i++) {
 		int *thread_id = malloc(sizeof(int));
+		if (!thread_id) {
+			continue;
+		}
 		*thread_id = i;
-		pthread_create(&g_runtime->worker_threads[i], NULL, worker_thread, thread_id);
+		if (pthread_create(&runtime->worker_threads[runtime->num_threads], NULL,
+			worker_thread, thread_id) == 0) {
+			runtime->num_threads++;
+		} else {
+			free(thread_id);
+		}
 	}
 }
 
 // Shutdown runtime
 void
 vm_runtime_shutdown(void) {
-	if (!g_runtime)
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime)
 		return;
 
-	atomic_store(&g_runtime->shutdown, 1);
+	atomic_store(&runtime->shutdown, 1);
 
 	// Wake up all worker threads
-	pthread_mutex_lock(&g_runtime->queue_lock);
-	pthread_cond_broadcast(&g_runtime->queue_cond);
-	pthread_mutex_unlock(&g_runtime->queue_lock);
+	pthread_mutex_lock(&runtime->queue_lock);
+	pthread_cond_broadcast(&runtime->queue_cond);
+	pthread_mutex_unlock(&runtime->queue_lock);
 
 	// Wait for worker threads
-	for (int i = 0; i < g_runtime->num_threads; i++) {
-		pthread_join(g_runtime->worker_threads[i], NULL);
+	for (int i = 0; i < runtime->num_threads; i++) {
+		pthread_join(runtime->worker_threads[i], NULL);
 	}
 
 	// Cleanup poller
-	if (g_runtime->poller) {
-		poller_free(g_runtime->poller);
-		g_runtime->poller = NULL;
+	coraParallelPollerSet(NULL);
+	if (runtime->poller) {
+		poller_free(runtime->poller);
+		runtime->poller = NULL;
 	}
 
 	// Cleanup
-	if (g_runtime->vm_count > 0) {
-		int vm_count = g_runtime->vm_count;
+	if (runtime->vm_count > 0) {
+		int vm_count = runtime->vm_count;
 		VM **vm_list = malloc(sizeof(VM *) * vm_count);
 		if (vm_list) {
-			memcpy(vm_list, g_runtime->vms, sizeof(VM *) * vm_count);
+			memcpy(vm_list, runtime->vms, sizeof(VM *) * vm_count);
 			for (int i = 0; i < vm_count; i++) {
 				vm_destroy(vm_list[i]);
 			}
 			free(vm_list);
 		}
 	}
-	free(g_runtime->worker_threads);
-	free(g_runtime->vms);
-	pthread_mutex_destroy(&g_runtime->vm_registry_lock);
-	vm_queue_destroy(g_runtime);
+	free(runtime->worker_threads);
+	free(runtime->vms);
+	pthread_mutex_destroy(&runtime->vm_registry_lock);
+	vm_queue_destroy(runtime);
+	coraParallelMailboxRegistryReset();
 
-	free(g_runtime);
-	g_runtime = NULL;
+	coraParallelRuntimeClearIfMatch(runtime);
+	free(runtime);
 }
 
 Poller *
 vm_runtime_get_poller(void) {
-	if (!g_runtime) {
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime) {
 		return NULL;
 	}
-	return g_runtime->poller;
+	return runtime->poller;
 }
 
 void
 vm_runtime_wait_all(void) {
-	if (!g_runtime) {
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime) {
 		return;
 	}
 
 	int idle_poller_loops = 0;
 	for (;;) {
-		if (atomic_load(&g_runtime->shutdown)) {
+		if (atomic_load(&runtime->shutdown)) {
 			return;
 		}
 
-		pthread_mutex_lock(&g_runtime->queue_lock);
-		int queue_size = g_runtime->queue_size;
-		pthread_mutex_unlock(&g_runtime->queue_lock);
-		int running = atomic_load(&g_runtime->running_vms);
+		pthread_mutex_lock(&runtime->queue_lock);
+		int queue_size = runtime->queue_size;
+		pthread_mutex_unlock(&runtime->queue_lock);
+		int running = atomic_load(&runtime->running_vms);
 		int active_handles = 0;
-		if (g_runtime->poller) {
-			active_handles = poller_active_handle_count(g_runtime->poller);
+		if (runtime->poller) {
+			active_handles = poller_active_handle_count(runtime->poller);
 		}
 
 		if (queue_size == 0 && running == 0 && active_handles == 0) {
@@ -480,7 +530,7 @@ vm_runtime_wait_all(void) {
 		}
 
 		// If no descriptors are being monitored, yield briefly to avoid busy spin.
-		if (!g_runtime->poller || active_handles == 0) {
+		if (!runtime->poller || active_handles == 0) {
 			usleep(1000);
 			continue;
 		}
@@ -488,7 +538,7 @@ vm_runtime_wait_all(void) {
 		// Execute poller operations (100ms timeout)
 		// This detects I/O events and delivers wakeups to VM queues.
 		int nfds = 0;
-		void **active = poller_poll(g_runtime->poller, 100, &nfds);
+		void **active = poller_poll(runtime->poller, 100, &nfds);
 		if (nfds < 0) {
 			usleep(1000);
 			if (active) {
@@ -537,13 +587,14 @@ static void vm_impl_init(VMImpl *impl);
 // Create a new VM
 VM *
 vm_create(void) {
+	GlobalRuntime *runtime = vm_runtime_state();
 	// Runtime must be initialized before creating VMs
-	if (g_runtime == NULL) {
+	if (runtime == NULL) {
 		return NULL;
 	}
 
 	VM *vm = malloc(sizeof(VM));
-	vm->id = atomic_fetch_add(&g_runtime->next_vm_id, 1);
+	vm->id = atomic_fetch_add(&runtime->next_vm_id, 1);
 	vm->is_running = false;
 	vm->time_slice_start = 0;
 	atomic_init(&vm->in_global_queue, 0);
@@ -555,15 +606,15 @@ vm_create(void) {
 
 	pthread_mutex_init(&vm->lock, NULL);
 	// Register VM globally
-	pthread_mutex_lock(&g_runtime->vm_registry_lock);
+	pthread_mutex_lock(&runtime->vm_registry_lock);
 	// Expand registry if needed
-	if (g_runtime->vm_count >= g_runtime->vm_capacity) {
-		g_runtime->vm_capacity *= 2;
-		g_runtime->vms = realloc(g_runtime->vms,
-			sizeof(VM *) * g_runtime->vm_capacity);
+	if (runtime->vm_count >= runtime->vm_capacity) {
+		runtime->vm_capacity *= 2;
+		runtime->vms = realloc(runtime->vms,
+			sizeof(VM *) * runtime->vm_capacity);
 	}
-	g_runtime->vms[g_runtime->vm_count++] = vm;
-	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
+	runtime->vms[runtime->vm_count++] = vm;
+	pthread_mutex_unlock(&runtime->vm_registry_lock);
 	return vm;
 }
 
@@ -577,7 +628,8 @@ vm_set_init_file(VM *vm, str fileName) {
 
 VM *
 vm_attach_current(Cora *co) {
-	if (!g_runtime || !co) {
+	GlobalRuntime *runtime = vm_runtime_state();
+	if (!runtime || !co) {
 		return NULL;
 	}
 
@@ -590,7 +642,7 @@ vm_attach_current(Cora *co) {
 	}
 
 	VM *vm = malloc(sizeof(VM));
-	vm->id = atomic_fetch_add(&g_runtime->next_vm_id, 1);
+	vm->id = atomic_fetch_add(&runtime->next_vm_id, 1);
 	vm->is_running = false;
 	vm->time_slice_start = 0;
 	atomic_init(&vm->in_global_queue, 0);
@@ -609,14 +661,14 @@ vm_attach_current(Cora *co) {
 
 	pthread_mutex_init(&vm->lock, NULL);
 	// Register VM globally
-	pthread_mutex_lock(&g_runtime->vm_registry_lock);
-	if (g_runtime->vm_count >= g_runtime->vm_capacity) {
-		g_runtime->vm_capacity *= 2;
-		g_runtime->vms = realloc(g_runtime->vms,
-			sizeof(VM *) * g_runtime->vm_capacity);
+	pthread_mutex_lock(&runtime->vm_registry_lock);
+	if (runtime->vm_count >= runtime->vm_capacity) {
+		runtime->vm_capacity *= 2;
+		runtime->vms = realloc(runtime->vms,
+			sizeof(VM *) * runtime->vm_capacity);
 	}
-	g_runtime->vms[g_runtime->vm_count++] = vm;
-	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
+	runtime->vms[runtime->vm_count++] = vm;
+	pthread_mutex_unlock(&runtime->vm_registry_lock);
 
 	vm_enqueue_global(vm);
 	return vm;
@@ -627,18 +679,21 @@ void
 vm_destroy(VM *vm) {
 	if (!vm)
 		return;
+	GlobalRuntime *runtime = vm_runtime_state();
 
 	// Remove from registry
-	pthread_mutex_lock(&g_runtime->vm_registry_lock);
-	for (int i = 0; i < g_runtime->vm_count; i++) {
-		if (g_runtime->vms[i] == vm) {
+	if (runtime) {
+		pthread_mutex_lock(&runtime->vm_registry_lock);
+		for (int i = 0; i < runtime->vm_count; i++) {
+			if (runtime->vms[i] == vm) {
 			// Move last element to this position
-			g_runtime->vms[i] = g_runtime->vms[g_runtime->vm_count - 1];
-			g_runtime->vm_count--;
-			break;
+				runtime->vms[i] = runtime->vms[runtime->vm_count - 1];
+				runtime->vm_count--;
+				break;
+			}
 		}
+		pthread_mutex_unlock(&runtime->vm_registry_lock);
 	}
-	pthread_mutex_unlock(&g_runtime->vm_registry_lock);
 
 	// Cleanup VM
 	if (vm->impl.self) {

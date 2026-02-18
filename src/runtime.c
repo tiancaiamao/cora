@@ -10,11 +10,155 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <pwd.h>
+#include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 const int INIT_STACK_SIZE = 256;
+
+#define PARALLEL_MAILBOX_REGISTRY_SIZE 256
+
+typedef struct ParallelMailboxRegistryEntry {
+	char *name;
+	void *mailbox;
+	struct ParallelMailboxRegistryEntry *next;
+} ParallelMailboxRegistryEntry;
+
+static pthread_mutex_t parallelRuntimeLock = PTHREAD_MUTEX_INITIALIZER;
+static void *parallelRuntime = NULL;
+static void *parallelPoller = NULL;
+static volatile int parallelMailboxID = 1;
+static ParallelMailboxRegistryEntry
+	*parallelMailboxRegistry[PARALLEL_MAILBOX_REGISTRY_SIZE];
+static pthread_mutex_t parallelMailboxRegistryLock = PTHREAD_MUTEX_INITIALIZER;
+
+static unsigned int
+parallelMailboxHash(const char *s) {
+	unsigned int h = 5381;
+	int c = 0;
+	while ((c = *s++) != 0) {
+		h = ((h << 5) + h) + (unsigned int)c;
+	}
+	return h % PARALLEL_MAILBOX_REGISTRY_SIZE;
+}
+
+void *
+coraParallelRuntimeGet(void) {
+	return __atomic_load_n(&parallelRuntime, __ATOMIC_SEQ_CST);
+}
+
+void *
+coraParallelPollerGet(void) {
+	return __atomic_load_n(&parallelPoller, __ATOMIC_SEQ_CST);
+}
+
+void
+coraParallelPollerSet(void *poller) {
+	__atomic_store_n(&parallelPoller, poller, __ATOMIC_SEQ_CST);
+}
+
+bool
+coraParallelRuntimeSetIfAbsent(void *runtime) {
+	bool ok = false;
+	pthread_mutex_lock(&parallelRuntimeLock);
+	if (parallelRuntime == NULL) {
+		parallelRuntime = runtime;
+		ok = true;
+	}
+	pthread_mutex_unlock(&parallelRuntimeLock);
+	return ok;
+}
+
+bool
+coraParallelRuntimeClearIfMatch(void *runtime) {
+	bool ok = false;
+	pthread_mutex_lock(&parallelRuntimeLock);
+	if (parallelRuntime == runtime) {
+		parallelRuntime = NULL;
+		parallelPoller = NULL;
+		ok = true;
+	}
+	pthread_mutex_unlock(&parallelRuntimeLock);
+	return ok;
+}
+
+int
+coraParallelMailboxIDAlloc(void) {
+	return __sync_fetch_and_add(&parallelMailboxID, 1);
+}
+
+void
+coraParallelMailboxRegistryReset(void) {
+	pthread_mutex_lock(&parallelMailboxRegistryLock);
+	for (int i = 0; i < PARALLEL_MAILBOX_REGISTRY_SIZE; i++) {
+		ParallelMailboxRegistryEntry *node = parallelMailboxRegistry[i];
+		while (node) {
+			ParallelMailboxRegistryEntry *next = node->next;
+			free(node->name);
+			free(node);
+			node = next;
+		}
+		parallelMailboxRegistry[i] = NULL;
+	}
+	pthread_mutex_unlock(&parallelMailboxRegistryLock);
+}
+
+bool
+coraParallelMailboxPublish(const char *name, void *mailbox) {
+	if (!name || !mailbox) {
+		return false;
+	}
+	unsigned int bucket = parallelMailboxHash(name);
+
+	pthread_mutex_lock(&parallelMailboxRegistryLock);
+	ParallelMailboxRegistryEntry *node = parallelMailboxRegistry[bucket];
+	while (node) {
+		if (strcmp(node->name, name) == 0) {
+			pthread_mutex_unlock(&parallelMailboxRegistryLock);
+			return false;
+		}
+		node = node->next;
+	}
+
+	node = malloc(sizeof(ParallelMailboxRegistryEntry));
+	if (!node) {
+		pthread_mutex_unlock(&parallelMailboxRegistryLock);
+		return false;
+	}
+	node->name = strdup(name);
+	if (!node->name) {
+		free(node);
+		pthread_mutex_unlock(&parallelMailboxRegistryLock);
+		return false;
+	}
+	node->mailbox = mailbox;
+	node->next = parallelMailboxRegistry[bucket];
+	parallelMailboxRegistry[bucket] = node;
+	pthread_mutex_unlock(&parallelMailboxRegistryLock);
+	return true;
+}
+
+void *
+coraParallelMailboxResolve(const char *name) {
+	if (!name) {
+		return NULL;
+	}
+	unsigned int bucket = parallelMailboxHash(name);
+	pthread_mutex_lock(&parallelMailboxRegistryLock);
+	ParallelMailboxRegistryEntry *node = parallelMailboxRegistry[bucket];
+	while (node) {
+		if (strcmp(node->name, name) == 0) {
+			void *mailbox = node->mailbox;
+			pthread_mutex_unlock(&parallelMailboxRegistryLock);
+			return mailbox;
+		}
+		node = node->next;
+	}
+	pthread_mutex_unlock(&parallelMailboxRegistryLock);
+	return NULL;
+}
 
 static void
 segmentStackAlloc(struct segmentStack *alloc) {
@@ -338,12 +482,49 @@ builtinValueOr(Cora *co, int label, Obj *R) {
 	}
 }
 
-static int packageID = 0;
+static volatile int packageID = 0;
+static pthread_mutex_t loadSoLock = PTHREAD_MUTEX_INITIALIZER;
+
+typedef struct LoadedSo {
+	char *path;
+	void *handle;
+	basicBlock entry;
+	struct LoadedSo *next;
+} LoadedSo;
+
+static LoadedSo *loadedSoList = NULL;
+
+static basicBlock
+findLoadedEntryLocked(const char *path) {
+	for (LoadedSo *node = loadedSoList; node; node = node->next) {
+		if (strcmp(node->path, path) == 0) {
+			return node->entry;
+		}
+	}
+	return NULL;
+}
+
+static bool
+cacheLoadedEntryLocked(const char *path, void *handle, basicBlock entry) {
+	LoadedSo *node = malloc(sizeof(LoadedSo));
+	if (!node) {
+		return false;
+	}
+	node->path = strdup(path);
+	if (!node->path) {
+		free(node);
+		return false;
+	}
+	node->handle = handle;
+	node->entry = entry;
+	node->next = loadedSoList;
+	loadedSoList = node;
+	return true;
+}
 
 int
 packageIDAlloc() {
-	// TODO: thread safe
-	return packageID++;
+	return __sync_fetch_and_add(&packageID, 1);
 }
 
 void
@@ -353,22 +534,35 @@ builtinLoadSo(Cora *co, int label, Obj *R) {
 	Obj filePath = R[1];
 	str str = stringStr(filePath);
 	char *path = str.str;
-	void *handle = dlopen(path, RTLD_LAZY);
-	if (!handle) {
-		fprintf(stderr, "%s\n", dlerror());
-		coraReturn(co, makeNumber(-1));
-		return;
-	}
-	// printf("builtin load so ... dlopen for path %s return handle=%p\n", path,
-	// handle);
+	basicBlock entry = NULL;
 
-	basicBlock entry = dlsym(handle, "entry");
-	char *error = dlerror();
-	if (error != NULL) {
-		// TODO
-		coraReturn(co, makeString(co->gc, error, strlen(error)));
-		return;
+	pthread_mutex_lock(&loadSoLock);
+	entry = findLoadedEntryLocked(path);
+	if (!entry) {
+		void *handle = dlopen(path, RTLD_LAZY);
+		if (!handle) {
+			pthread_mutex_unlock(&loadSoLock);
+			fprintf(stderr, "%s\n", dlerror());
+			coraReturn(co, makeNumber(-1));
+			return;
+		}
+
+		dlerror();
+		entry = dlsym(handle, "entry");
+		char *error = dlerror();
+		if (error != NULL) {
+			pthread_mutex_unlock(&loadSoLock);
+			coraReturn(co, makeString(co->gc, error, strlen(error)));
+			return;
+		}
+		/*
+		 * Even if caching fails due to OOM, continue with resolved symbol so
+		 * the current import still succeeds.
+		 */
+		(void)cacheLoadedEntryLocked(path, handle, entry);
 	}
+	pthread_mutex_unlock(&loadSoLock);
+
 	entry(co, 0, R);
 	coraRun(co);
 	coraReturn(co, co->res);
@@ -430,7 +624,7 @@ getCoraPath() {
 	return tmp;
 }
 
-static int unique = 1;
+static volatile int unique = 1;
 
 static void
 builtinLoad(Cora *co, int label, Obj *R) {
@@ -438,11 +632,10 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	// (load "file-path.cora")
 	Obj filePath = R[1];
 	Obj arg1 = filePath;
-	str filePathStr = stringStr(filePath);
+	strBuf filePathCopy = strDup(stringStr(filePath));
 	const int BUFSIZE = 512;
 	char buf[BUFSIZE];
-	int cfileidx = unique;
-	unique++;
+	int cfileidx = __sync_fetch_and_add(&unique, 1);
 	snprintf(buf, BUFSIZE, "/tmp/cora-xxx-%d.c", cfileidx);
 	str tmpCFile = cstr(buf);
 	Obj arg2 = makeString(co->gc, tmpCFile.str, tmpCFile.len);
@@ -452,6 +645,7 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	coraRun(co);
 	// TODO: check res?
 	// Obj res = co->args[1];
+	str filePathStr = toStr(filePathCopy);
 
 	strBuf tmp;
 	strBuf path = getCoraPath();
@@ -472,12 +666,14 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	strFree(path);
 	int exitCode = system(buf);
 	if (exitCode != 0) {
+		strFree(filePathCopy);
 		coraReturn(co, makeNumber(exitCode));
 		return;
 	}
 
 	arg1 = makeCString(co->gc, toCStr(tmp));
 	strFree(tmp);
+	strFree(filePathCopy);
 	arg2 = makeCString(co->gc, "");
 	fn = globalRef(co, bindSymbol(co, intern("load-so")));
 	co->ctx.sp = R;
@@ -572,7 +768,7 @@ builtinImport(Cora *co, int label, Obj *R) {
 	tmp = strCat(tmp, S(".cora"));
 	str tmp1 = toStr(tmp);
 	Obj filePath = makeString(co->gc, tmp1.str, tmp1.len);
-    printf("import load-so == %s\n", toCStr(tmp1.str));
+	printf("import load-so == %s\n", tmp1.str);
 	strFree(tmp);
 
 	co->ctx.bp = R;
@@ -603,7 +799,17 @@ static void
 builtinVectorRef(Cora *co, int label, Obj *R) {
 	Obj v = R[1];
 	Obj idx = R[2];
-	coraReturn(co, vectorRef(v, fixnum(idx)));
+	if (!isvector(v) || !isfixnum(idx)) {
+		coraReturn(co, Nil);
+		return;
+	}
+	int i = fixnum(idx);
+	int n = vectorLength(v);
+	if (i < 0 || i >= n) {
+		coraReturn(co, Nil);
+		return;
+	}
+	coraReturn(co, vectorRef(v, i));
 }
 
 static void
@@ -612,12 +818,26 @@ builtinVectorSet(Cora *co, int label, Obj *R) {
 	Obj v = R[1];
 	Obj idx = R[2];
 	Obj o = R[3];
-	coraReturn(co, vectorSet(co->gc, v, fixnum(idx), o));
+	if (!isvector(v) || !isfixnum(idx)) {
+		coraReturn(co, Nil);
+		return;
+	}
+	int i = fixnum(idx);
+	int n = vectorLength(v);
+	if (i < 0 || i >= n) {
+		coraReturn(co, Nil);
+		return;
+	}
+	coraReturn(co, vectorSet(co->gc, v, i, o));
 }
 
 static void
 builtinVectorLength(Cora *co, int label, Obj *R) {
 	Obj o = R[1];
+	if (!isvector(o)) {
+		coraReturn(co, makeNumber(-1));
+		return;
+	}
 	int res = vectorLength(o);
 	coraReturn(co, makeNumber(res));
 }
