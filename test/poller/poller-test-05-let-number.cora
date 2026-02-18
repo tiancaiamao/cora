@@ -3,7 +3,6 @@
 ;; 状态: ✅ 通过 - 验证 let 本身没有问题
 
 (import "cora/lib/io")
-(import "cora/lib/parallel/internal")
 
 (display "=== 测试 05: let 绑定普通数字 ===\n")
 

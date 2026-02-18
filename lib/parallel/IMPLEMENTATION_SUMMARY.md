@@ -99,13 +99,16 @@ mailbox-resolve(name)      ; Find mailbox by name
 ---
 
 ### 5. Async/Net Integration
-**Files:** `lib/async.cora`, `lib/net.cora`
+**Files:** `lib/async.cora`, `lib/net.cora`, `lib/net/internal.cora`, `lib/poller/internal.cora`
 
 **Implementation:**
-- Low-level async operations using parallel mode
+- Async + net APIs remain available outside `parallel` entry usage
 - High-level synchronous-style API
 - EventHandle integration with poller
 - GC-safe resource management via handle-map
+- Public low-level paths for non-parallel imports:
+  - `cora/lib/net/internal`
+  - `cora/lib/poller/internal`
 
 **Status:** ✅ INTEGRATED
 
@@ -116,9 +119,12 @@ High-Level (lib/net.cora):
     ↓ uses
 Mid-Level (lib/async.cora):
   async-listen, async-dial, async-accept, async-recv, async-send
-    ↓ uses
-Low-Level (lib/parallel/internal):
+    ↓ runtime bindings
+Low-Level Runtime FFI (lib/parallel/internal):
   async-socket-new, async-socket-recv, event-handle-new, etc.
+    ↓ exposed as modular imports
+Low-Level Module Paths (lib/net/internal.cora, lib/poller/internal.cora):
+  cora/lib/net/internal, cora/lib/poller/internal
 ```
 
 ---
@@ -220,7 +226,7 @@ Focused stabilization for poller + network integration:
    - Keep `is_running` transitions only in dequeue/worker lock-protected path.
    - Prevents same VM from being executed concurrently by multiple workers.
 
-2. Handle-map hardening (`lib/parallel/handle-map.cora`)
+2. Handle-map hardening (`lib/handle-map.cora`)
    - Added handle range checks before `vector-ref` / `vector-set!`.
    - Invalid or stale handles now return `()` safely.
    - Reduces crash risk from duplicate/stale wakeups.
@@ -256,6 +262,9 @@ User Level (lib/net.cora):
     ↓
 Library Level (lib/async.cora):
   async-listen, async-recv, async-send  (returns operations)
+    ↓
+Module-Level Low-Level APIs:
+  cora/lib/net/internal + cora/lib/poller/internal
     ↓
 C FFI Level (lib/parallel/internal):
   async_socket_new, async_socket_recv  (system call wrappers)
@@ -315,12 +324,14 @@ lib/parallel/
 lib/
 ├── cml.cora          - CML primitives (perform, abort, sync, spawn, yield)
 ├── chan.cora         - Channel operations (intra-VM only)
+├── handle-map.cora   - Handle map for blocked coroutine/resource management
 ├── async.cora        - Low-level async I/O operations
 ├── net.cora          - High-level network API (synchronous style)
+├── net/internal.cora - Net low-level module path
+├── poller/internal.cora - Poller low-level module path
 ├── parallel.cora     - Parallel mode entry point (`parallel-entry`, `spawn-vm`)
 └── parallel/
-    ├── mailbox.cora  - Mailbox API
-    └── handle-map.cora - Handle map for blocked coroutine management
+    └── mailbox.cora  - Mailbox API (cross-VM)
 ```
 
 ---
@@ -331,9 +342,12 @@ Current module composition is explicit:
 
 - `cora/lib/parallel` exports runtime entry APIs (`parallel-entry`, `spawn-vm`)
 - `cora/lib/net` exports high-level networking APIs
+- `cora/lib/net/internal` exports low-level net APIs
+- `cora/lib/poller/internal` exports low-level poller APIs
+- `cora/lib/handle-map` exports shared handle-map utilities
 - `cora/lib/parallel/mailbox` exports mailbox operation APIs
 
-This keeps runtime control, network API, and mailbox API separated by concern.
+This keeps runtime control, network/poller APIs, shared utilities, and mailbox APIs separated by concern.
 
 ---
 

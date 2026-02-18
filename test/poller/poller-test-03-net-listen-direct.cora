@@ -3,7 +3,7 @@
 ;; 状态: ✅ 通过
 
 (import "cora/lib/io")
-(import "cora/lib/parallel/internal")
+(import "cora/lib/net/internal")
 
 (display "=== 测试 03: 直接调用 net-listen ===\n")
 (display "创建监听 socket...\n")

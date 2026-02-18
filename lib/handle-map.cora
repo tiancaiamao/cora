@@ -1,4 +1,4 @@
-(package "cora/lib/parallel/handle-map"
+(package "cora/lib/handle-map"
 
     (import "cora/lib/define-record")
     (import "cora/lib/stack")
@@ -27,7 +27,20 @@
         (if (handle-map? hm)
             (if (= val ())
                 -1
-                (stack-push! (handle-map->resource hm) val))
+                (let resource (handle-map->resource hm)
+                    free-slots (handle-map->free-slots hm)
+                    reused-handle (stack-pop! free-slots)
+                    (if (= reused-handle ())
+                        (stack-push! resource val)
+                        (if (number? reused-handle)
+                            (let arr (stack->data resource)
+                                cap (if (vector? arr) (vector-length arr) 0)
+                                (if (or (< reused-handle 0) (> reused-handle cap) (= reused-handle cap))
+                                    (stack-push! resource val)
+                                    (begin
+                                        (vector-set! arr reused-handle val)
+                                        reused-handle)))
+                            (stack-push! resource val)))))
             -1))
 
     (defun handle-map-get (hm handle)
@@ -43,6 +56,7 @@
     (defun handle-map-delete (hm handle)
         (if (and (handle-map? hm) (number? handle))
             (let resource (handle-map->resource hm)
+                free-slots (handle-map->free-slots hm)
                 arr (stack->data resource)
                 cap (if (vector? arr) (vector-length arr) 0)
                 (if (or (< handle 0) (> handle cap) (= handle cap))
@@ -51,6 +65,7 @@
                         (if (= item ())
                             ()
                             (begin
-                                (vector-set! arr handle ()))))))
+                                (vector-set! arr handle ())
+                                (stack-push! free-slots handle))))))
             ()))
     )

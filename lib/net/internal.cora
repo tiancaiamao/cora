@@ -1,0 +1,45 @@
+(package "cora/lib/net/internal"
+    (import "cora/lib/parallel/internal")
+
+    (export
+        net-listen
+        net-dial
+        net-accept
+        net-close
+        async-socket-new
+        async-socket-send
+        async-socket-recv
+        async-socket-accept
+        async-socket-connect-check
+        async-socket-get-event-handle)
+
+    (defun net-listen (host port)
+        (cora/lib/parallel/internal#net-listen host port))
+
+    (defun net-dial (host port)
+        (cora/lib/parallel/internal#net-dial host port))
+
+    (defun net-accept (listen-fd)
+        (cora/lib/parallel/internal#net-accept listen-fd))
+
+    (defun net-close (fd)
+        (cora/lib/parallel/internal#net-close fd))
+
+    (defun async-socket-new (fd)
+        (cora/lib/parallel/internal#async-socket-new fd))
+
+    (defun async-socket-send (sock buf)
+        (cora/lib/parallel/internal#async-socket-send sock buf))
+
+    (defun async-socket-recv (sock buf)
+        (cora/lib/parallel/internal#async-socket-recv sock buf))
+
+    (defun async-socket-accept (listen-fd)
+        (cora/lib/parallel/internal#async-socket-accept listen-fd))
+
+    (defun async-socket-connect-check (sock)
+        (cora/lib/parallel/internal#async-socket-connect-check sock))
+
+    (defun async-socket-get-event-handle (sock)
+        (cora/lib/parallel/internal#async-socket-get-event-handle sock))
+    )

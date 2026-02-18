@@ -9,7 +9,7 @@
   (import "cora/lib/rand")
   (import "cora/lib/sys")
   (import "cora/lib/io")
-  (import "cora/lib/parallel/handle-map")
+  (import "cora/lib/handle-map")
 
   (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
       enqueue-task add-task-to-blocked)

@@ -8,7 +8,7 @@
   (import "cora/lib/io")
   (import "cora/lib/string")
   (import "cora/lib/parallel/internal")
-  (import "cora/lib/parallel/handle-map")
+  (import "cora/lib/handle-map")
 
   (export
     async-listen async-dial
