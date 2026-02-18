@@ -1,0 +1,83 @@
+(package "cora/lib/stack"
+    (import "cora/lib/let-loop")
+    (import "cora/lib/define-record")
+
+    (export stack-create stack-push! stack-pop! stack-size stack->data)
+
+    (define-record <stack>
+        (make-stack)
+        stack?
+        (data stack->data stack-data-set!)
+        (index stack->index stack-index-set!))
+
+    (defun stack-create ()
+        (let stk (make-stack)
+            (begin
+                (stack-index-set! stk 0)
+                (stack-data-set! stk (vector 16))
+                stk)))
+
+    (defun stack-index-safe (stk)
+        (if (stack? stk)
+            (let idx (stack->index stk)
+                (if (number? idx)
+                    idx
+                    (begin
+                        (stack-index-set! stk 0)
+                        0)))
+            0))
+
+    (defun vector-resize (old-vec)
+        (let cap (vector-length old-vec)
+            new-cap (* 2 cap)
+            (let new-vec (vector new-cap)
+                (let-loop recur (vec new-vec i 0)
+                    (if (= i cap)
+                        vec
+                        (begin
+                            (vector-set! new-vec i (vector-ref old-vec i))
+                            (recur vec (+ i 1))))))))
+
+    (defun stack-resize-check (stk)
+        (if (stack? stk)
+            (let vec (stack->data stk)
+                idx (stack-index-safe stk)
+                cap (vector-length vec)
+                (if (or (> idx cap) (= idx cap))
+                    (let new-vec (vector-resize vec)
+                        (begin
+                            (stack-data-set! stk new-vec)
+                            stk))
+                    stk))
+            stk))
+
+    (defun stack-push! (stk v)
+        (if (stack? stk)
+            (let stk1 (stack-resize-check stk)
+                vec (stack->data stk1)
+                idx (stack-index-safe stk1)
+                (begin
+                    (vector-set! vec idx v)
+                    (stack-index-set! stk1 (+ idx 1))
+                    idx))
+            -1))
+
+    (defun stack-pop! (stk)
+        (if (stack? stk)
+            (let idx (stack-index-safe stk)
+                (if (= 0 idx)
+                    () ;; what the fuck?
+                    (let vec (stack->data stk)
+                        new-idx (- idx 1)
+                        ret (vector-ref vec new-idx)
+                        (begin
+                            (stack-index-set! stk new-idx)
+                            ret))))
+            ()))
+
+    (defun stack-size (stk)
+        (if (stack? stk)
+            (stack-index-safe stk)
+            0))
+
+    )

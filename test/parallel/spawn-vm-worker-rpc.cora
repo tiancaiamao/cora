@@ -1,0 +1,20 @@
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel/mailbox")
+
+(defun serve (req resp n)
+  (if (= n 0)
+      ()
+      (let v (perform (mailbox-recv req))
+        (begin
+          (perform (mailbox-send resp (* 2 v)))
+          (serve req resp (- n 1))))))
+
+(defun worker-main ()
+  (let req (mailbox-resolve "spawn-vm-test-03-req")
+    (let resp (mailbox-resolve "spawn-vm-test-03-resp")
+      (if (or (null? req) (null? resp))
+          (display "spawn-vm-worker-rpc resolve failed\n")
+          (spawn (lambda () (serve req resp 3)))))))
+
+(cml-entry-init worker-main)

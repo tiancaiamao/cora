@@ -1,0 +1,73 @@
+(package "cora/lib/parallel/mailbox"
+    (export
+        mailbox-make
+        mailbox-new
+        mailbox-send
+        mailbox-recv
+        mailbox-publish
+        mailbox-resolve)
+
+    (import "cora/lib/cml")
+    (import "cora/lib/parallel/internal")
+    (import "cora/lib/parallel/handle-map")
+
+    (defun mailbox-make ()
+        (cora/lib/parallel/internal#mailbox-new 0))
+
+    (defun mailbox-new (capacity)
+        (cora/lib/parallel/internal#mailbox-new capacity))
+
+    (defun mailbox-publish (name mailbox)
+        (cora/lib/parallel/internal#mailbox-publish name mailbox))
+
+    (defun mailbox-resolve (name)
+        (cora/lib/parallel/internal#mailbox-resolve name))
+
+    (defun recv-try (mailbox)
+        (cora/lib/parallel/internal#mailbox-recv-try mailbox))
+
+    (defun recv-block (mailbox k wrap)
+        (let resume (lambda (v) (k (wrap v)))
+            handle (add-task-to-blocked resume)
+            vm (cora/lib/parallel/internal#vm-self)
+            wakeup (cora/lib/parallel/internal#wakeup-create vm handle ())
+            (cora/lib/parallel/internal#mailbox-recvq-enqueue mailbox wakeup)))
+
+    (defun send-try (mailbox val)
+        (begin
+            (mailbox-ensure-immediate val)
+            (if (cora/lib/parallel/internal#mailbox-send-try mailbox val)
+                ()
+                false)))
+
+    (defun send-block (mailbox k val wrap)
+        (begin
+            (mailbox-ensure-immediate val)
+            (let resume (lambda (v) (k (wrap v)))
+                handle (add-task-to-blocked resume)
+                vm (cora/lib/parallel/internal#vm-self)
+                wakeup (cora/lib/parallel/internal#wakeup-create vm handle val)
+                (cora/lib/parallel/internal#mailbox-sendq-enqueue mailbox wakeup))))
+
+    (defun default-wrap (x) x)
+
+    (defun mailbox-immediate? (v)
+        (or (number? v) (boolean? v) (null? v)))
+
+    (defun mailbox-ensure-immediate (v)
+        (if (mailbox-immediate? v)
+            true
+            (error "mailbox only supports number/boolean/nil across VMs")))
+
+    ;; recv on mailbox is an operation
+    (defun mailbox-recv (mailbox)
+        (let try (lambda () (recv-try mailbox))
+            block (lambda (k wrap) (recv-block mailbox k wrap))
+            [try block default-wrap]))
+
+    ;; send on mailbox is an operation
+    (defun mailbox-send (mailbox val)
+        (let try (lambda () (send-try mailbox val))
+            block (lambda (k wrap) (send-block mailbox k val wrap))
+            [try block default-wrap]))
+    )

@@ -1,0 +1,26 @@
+;; Simple mailbox test - just create and basic operations
+
+(display "Loading parallel module...\n")
+(import "cora/lib/parallel/internal")
+
+(display "Creating buffered mailbox (capacity=5)...\n")
+(let mb (cora/lib/parallel/internal#mailbox-new 5)
+  (begin
+    (display "Mailbox created\n")
+    
+    (display "Sending 42...\n")
+    (let s1 (cora/lib/parallel/internal#mailbox-send-try mb 42)
+      (begin
+        (display "Send result: ")
+        (display s1)
+        (display "\n")
+        
+        (display "Receiving...\n")
+        (let r1 (cora/lib/parallel/internal#mailbox-recv-try mb)
+          (begin
+            (display "Received: ")
+            (display r1)
+            (display "\n")
+            
+            (display "Test complete!\n")
+            0))))))

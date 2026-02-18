@@ -1,0 +1,15 @@
+;; Basic parallel runtime smoke test.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+
+(defun main ()
+  (display "Starting parallel basic test\n")
+  (spawn (lambda () (display "task A\n")))
+  (spawn (lambda () (display "task B\n")))
+  (yield)
+  (yield)
+  (display "parallel basic test done\n"))
+
+(parallel-entry main 2)

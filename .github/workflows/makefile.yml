@@ -1,31 +1,52 @@
-name: GitHub Actions CI
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: CI
+
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-    Explore-GitHub-Actions:
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-            - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-            - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-            - name: Check out repository code
-              uses: actions/checkout@v4
+  tests:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Core Tests
+            target: test-core
+          - name: Poller Integration Tests
+            target: test-poller
+          - name: Parallel Integration Tests
+            target: test-parallel
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Build cora binary
-              run: |
-                  make cora
-                  make install-local
+      - name: Build cora and install local package link
+        run: |
+          make -j"$(nproc)" cora
+          make install-local
 
-            - name: Add custom binary to PATH
-              run: echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+      - name: Run ${{ matrix.target }}
+        run: make ${{ matrix.target }}
 
-            - name: Verify env before run
-              run: |
-                  which cora
-                  echo $PATH $PWD $GITHUB_WORKSPACE
+  bootstrap:
+    name: Bootstrap Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Run the test
-              run: make test
+      - name: Prepare cora in PATH and install local package link
+        run: |
+          make -j"$(nproc)" cora
+          make install-local
+          echo "$GITHUB_WORKSPACE" >> "$GITHUB_PATH"
 
-            - name: Run bootstrap test
-              run: make bootstrap
+      - name: Run bootstrap verification
+        run: make bootstrap

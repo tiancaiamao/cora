@@ -1,0 +1,15 @@
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel/mailbox")
+
+(defun worker-main ()
+  (let done (mailbox-resolve "spawn-vm-test-02-done")
+    (if (null? done)
+        (display "spawn-vm-worker-burst-b resolve failed\n")
+        (begin
+          (spawn (lambda () (perform (mailbox-send done 4))))
+          (spawn (lambda () (perform (mailbox-send done 5))))
+          (spawn (lambda () (perform (mailbox-send done 6))))
+          (display "spawn-vm-worker-burst-b queued\n")))))
+
+(cml-entry-init worker-main)

@@ -1,0 +1,18 @@
+;; Poller 测试 07: 调用 poller-init
+;; 预期结果: ✅ 应该成功
+;; 状态: ✅ 通过 - Poller 初始化正常
+;; 说明: poller-init 现在是 no-op（poller 在 vm-runtime-init 中创建）
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(display "=== 测试 07: poller-init ===\n")
+(display "初始化 poller...\n")
+
+(let result (cora/lib/parallel/internal#poller-init)
+  (begin
+    (display "poller-init 返回: ")
+    (display result)
+    (display "\n")
+    (display "测试完成!\n")
+    result))

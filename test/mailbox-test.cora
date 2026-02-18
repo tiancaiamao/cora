@@ -1,0 +1,55 @@
+;; Mailbox API test with deterministic checks.
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(defun run ()
+  (display "=== Testing Mailbox ===\n")
+
+  (let mb (cora/lib/parallel/internal#mailbox-new 0)
+    (begin
+      (display "send on unbuffered without receiver: ")
+      (display (cora/lib/parallel/internal#mailbox-send-try mb 42))
+      (display "\n")
+
+      (display "recv on empty unbuffered: ")
+      (display (cora/lib/parallel/internal#mailbox-recv-try mb))
+      (display "\n")))
+
+  (let mb2 (cora/lib/parallel/internal#mailbox-new 3)
+    (begin
+      (cora/lib/parallel/internal#mailbox-send-try mb2 10)
+      (cora/lib/parallel/internal#mailbox-send-try mb2 20)
+      (cora/lib/parallel/internal#mailbox-send-try mb2 30)
+
+      (let r1 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+           r2 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+           r3 (cora/lib/parallel/internal#mailbox-recv-try mb2)
+        (begin
+          (display "buffered recv: ")
+          (display r1)
+          (display " ")
+          (display r2)
+          (display " ")
+          (display r3)
+          (display "\n")))
+
+      (cora/lib/parallel/internal#mailbox-close mb2)
+      (display "is closed: ")
+      (display (cora/lib/parallel/internal#mailbox-is-closed mb2))
+      (display "\n")))
+
+  (let mb3 (cora/lib/parallel/internal#mailbox-new 2)
+    (begin
+      (display "publish test-channel: ")
+      (display (cora/lib/parallel/internal#mailbox-publish "test-channel" mb3))
+      (display "\n")
+
+      (display "resolve test-channel: ")
+      (display (cora/lib/parallel/internal#mailbox-resolve "test-channel"))
+      (display "\n")))
+
+  (display "=== Mailbox test done ===\n")
+  0)
+
+(run)

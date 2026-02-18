@@ -1,0 +1,18 @@
+;; Poller 测试 06: 调用 vm-runtime-init
+;; 预期结果: ✅ 应该成功
+;; 状态: ✅ 通过 - parallel 核心功能正常
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(display "=== 测试 06: vm-runtime-init ===\n")
+(display "初始化 parallel runtime (1 thread)...\n")
+
+(vm-runtime-init 1)
+(display "vm-runtime-init 完成\n")
+
+(vm-runtime-shutdown)
+(display "vm-runtime-shutdown 完成\n")
+
+(display "测试通过!\n")
+42

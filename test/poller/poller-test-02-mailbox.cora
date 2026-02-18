@@ -1,0 +1,10 @@
+;; Poller test 02: mailbox creation smoke test.
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(let mb (cora/lib/parallel/internal#mailbox-new 5)
+  (begin
+    (display "mailbox created: ")
+    (display mb)
+    (display "\n")))

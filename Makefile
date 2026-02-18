@@ -1,4 +1,4 @@
-.PHONY: libcora lib fmt test
+.PHONY: libcora lib fmt test test-core test-poller test-parallel test-integration
 
 CC = gcc
 CFLAGS := -g -Wall
@@ -28,7 +28,7 @@ all: cora
 libcora:
 	make -C src
 
-lib:
+lib: libcora
 	make -C lib
 
 .c.o:
@@ -55,9 +55,19 @@ init.so: init.c libcora
 fmt:
 	cd src; indent -npcs -bap -br -ce -brf -ut -i8 -nbbo -nhnl *.c
 
-test: cora
+test-core: cora
 	make test -C src
-	./test/script.cora
+	./cora test/script.cora
+
+test-poller: cora
+	./test/poller/run-tests-simple.sh
+
+test-parallel: cora
+	./test/parallel/run-tests-simple.sh
+
+test-integration: test-poller test-parallel
+
+test: test-core test-integration
 
 FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
 
@@ -72,4 +82,4 @@ bootstrap:
 
 install-local:
 	mkdir -p ${HOME}/.local/share/cora/pkg/; \
-	ln -s `pwd` ${HOME}/.local/share/cora/pkg/cora
+	ln -sfn `pwd` ${HOME}/.local/share/cora/pkg/cora

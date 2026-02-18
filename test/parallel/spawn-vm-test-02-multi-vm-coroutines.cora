@@ -1,0 +1,32 @@
+;; spawn-vm test 02:
+;; Start 2 VMs, each VM spawns 3 coroutines and sends numbers via mailbox.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/parallel/mailbox")
+
+(defun recv-n-sum (mb n acc)
+  (if (= n 0)
+      acc
+      (let v (perform (mailbox-recv mb))
+        (recv-n-sum mb (- n 1) (+ acc v)))))
+
+(defun main ()
+  (let done (mailbox-new 12)
+    (begin
+      (mailbox-publish "spawn-vm-test-02-done" done)
+      (let id1 (spawn-vm "test/parallel/spawn-vm-worker-burst-a.cora")
+        (let id2 (spawn-vm "test/parallel/spawn-vm-worker-burst-b.cora")
+          (if (and (> id1 0) (> id2 0))
+              (display "spawn-vm test 02 vm-id ok\n")
+              (display "spawn-vm test 02 vm-id invalid\n"))))
+      (let total (recv-n-sum done 6 0)
+        (if (= total 21)
+            (display "spawn-vm test 02 ok\n")
+            (begin
+              (display "spawn-vm test 02 fail total=")
+              (display total)
+              (display "\n")))))))
+
+(parallel-entry main 3)

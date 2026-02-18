@@ -1,0 +1,6 @@
+;; Poller test 01: import smoke test.
+
+(import "cora/lib/io")
+(import "cora/lib/parallel/internal")
+
+(display "poller import ok\n")

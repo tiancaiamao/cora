@@ -1,0 +1,24 @@
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel/mailbox")
+
+(defun recv-one (mb)
+  (perform
+   (wrap (mailbox-recv mb)
+         (lambda (v)
+           (begin
+             (display "worker recv: ")
+             (display v)
+             (display "\n"))))))
+
+(defun worker-main ()
+  (let mb (mailbox-resolve "worker-mailbox")
+    (if (null? mb)
+        (display "worker failed to resolve mailbox\n")
+        (begin
+          (recv-one mb)
+          (recv-one mb)
+          (recv-one mb)
+          (display "worker done\n")))))
+
+(cml-entry-init worker-main)

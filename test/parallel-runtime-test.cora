@@ -1,0 +1,25 @@
+;; Test for parallel runtime (GlobalRuntime + thread pool)
+;; This tests the basic VM creation, scheduling, and cleanup
+
+(import "cora/lib/parallel")
+(import "cora/lib/io")
+
+(defun main ()
+  (begin
+    (display "=== Testing VM Runtime Lifecycle ===\n")
+    (display "Spawning 5 VMs...\n")
+    (let vm1-id (spawn-vm "test/parallel/worker.cora")
+      (let vm2-id (spawn-vm "test/parallel/worker.cora")
+        (let vm3-id (spawn-vm "test/parallel/worker.cora")
+          (let vm4-id (spawn-vm "test/parallel/worker.cora")
+            (let vm5-id (spawn-vm "test/parallel/worker.cora")
+              (begin
+                (display "Created VM IDs: ")
+                (display vm1-id) (display " ")
+                (display vm2-id) (display " ")
+                (display vm3-id) (display " ")
+                (display vm4-id) (display " ")
+                (display vm5-id) (display "\n")
+                (display "=== Test Complete ===\n")))))))))
+
+(parallel-entry main 4)

@@ -1,0 +1,62 @@
+;; Echo Server Test for Parallel Mode
+;;
+;; This test demonstrates:
+;; 1. Parallel mode with multiple threads
+;; 2. Async I/O with non-blocking operations
+;; 3. Multiple concurrent coroutines handling connections
+;; 4. Proper mailbox and channel usage
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/let-loop")
+
+;; Handle a client connection
+(defun handle-client (conn client-id)
+    (begin
+        (display "Client ")
+        (display client-id)
+        (display " connected\n")
+
+        (let-loop loop (count 0)
+            (let buf (net-recv conn 1024)
+                (if (null? buf)
+                    (begin
+                        (display "Client ")
+                        (display client-id)
+                        (display " disconnected\n")
+                        (net-close conn))
+                    (begin
+                        (display "Client ")
+                        (display client-id)
+                        (display " received: ")
+                        (display (bytes->string buf))
+                        (display "\n")
+
+                        ;; Echo the data back
+                        (net-send conn buf)
+
+                        ;; Continue loop
+                        (loop (+ count 1))))))))
+
+;; Accept connections in a loop
+(defun accept-loop (listener count)
+    (let conn (net-accept listener)
+        (begin
+            (display "accept a new connection\n")
+            ;; Spawn a new coroutine to handle this client
+            (spawn (lambda () (handle-client conn count)))
+            (accept-loop listener (+ count 1)))))
+
+;; Echo server entry point
+(defun echo-server ()
+    (display "Starting echo server on 127.0.0.1:8888\n")
+    (let listener (net-listen "127.0.0.1:8888")
+        (begin
+            (display "Echo server listening\n")
+            (accept-loop listener 0)
+            ;; Cleanup (never reached in this test)
+            (net-close listener))))
+
+;; Main entry point - run echo server with 2 worker threads
+(cml-entry (lambda () (echo-server)))

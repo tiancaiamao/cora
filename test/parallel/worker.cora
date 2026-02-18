@@ -1,0 +1,12 @@
+(import "cora/lib/cml")
+(import "cora/lib/io")
+
+(defun main ()
+  (begin
+    (display "worker start\n")
+    (spawn (lambda ()
+             (display "worker coroutine\n")))
+    (yield)
+    (display "worker done\n")))
+
+(cml-entry main)

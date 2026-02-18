@@ -1,0 +1,36 @@
+;; spawn-vm test 03:
+;; Spawn one VM as a service, do request/response over cross-VM mailbox.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/parallel")
+(import "cora/lib/parallel/mailbox")
+
+(defun recv3-sum (mb)
+  (let a (perform (mailbox-recv mb))
+    (let b (perform (mailbox-recv mb))
+      (let c (perform (mailbox-recv mb))
+        (+ (+ a b) c)))))
+
+(defun main ()
+  (let req (mailbox-new 8)
+    (let resp (mailbox-new 8)
+      (begin
+        (mailbox-publish "spawn-vm-test-03-req" req)
+        (mailbox-publish "spawn-vm-test-03-resp" resp)
+        (let vm-id (spawn-vm "test/parallel/spawn-vm-worker-rpc.cora")
+          (if (> vm-id 0)
+              (display "spawn-vm test 03 vm-id ok\n")
+              (display "spawn-vm test 03 vm-id invalid\n")))
+        (perform (mailbox-send req 7))
+        (perform (mailbox-send req 8))
+        (perform (mailbox-send req 9))
+        (let total (recv3-sum resp)
+          (if (= total 48)
+              (display "spawn-vm test 03 ok\n")
+              (begin
+                (display "spawn-vm test 03 fail total=")
+                (display total)
+                (display "\n"))))))))
+
+(parallel-entry main 2)

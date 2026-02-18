@@ -1,0 +1,44 @@
+;; Intra-VM channel test.
+
+(import "cora/lib/io")
+(import "cora/lib/cml")
+(import "cora/lib/chan")
+
+(defun producer (ch id n)
+  (if (= n 0)
+      (begin
+        (display "Producer ")
+        (display id)
+        (display " done\n"))
+      (begin
+        (perform (chan-send ch n))
+        (yield)
+        (producer ch id (- n 1)))))
+
+(defun consumer (ch id n)
+  (if (= n 0)
+      (begin
+        (display "Consumer ")
+        (display id)
+        (display " done\n"))
+      (perform
+       (wrap (chan-recv ch)
+             (lambda (v)
+               (begin
+                 (display "Consumer ")
+                 (display id)
+                 (display " recv: ")
+                 (display v)
+                 (display "\n")
+                 (consumer ch id (- n 1))))))))
+
+(defun main ()
+  (display "Intra-VM Channel Test\n")
+  (let ch (chan-make)
+    (begin
+      (spawn (lambda () (producer ch 1 5)))
+      (spawn (lambda () (producer ch 2 5)))
+      (spawn (lambda () (consumer ch 1 5)))
+      (spawn (lambda () (consumer ch 2 5))))))
+
+(cml-entry main)

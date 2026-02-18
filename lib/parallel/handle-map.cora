@@ -1,0 +1,56 @@
+(package "cora/lib/parallel/handle-map"
+
+    (import "cora/lib/define-record")
+    (import "cora/lib/stack")
+    (import "cora/lib/io")
+
+    (export
+        handle-map-create
+        handle-map-add
+        handle-map-get
+        handle-map-delete)
+
+    (define-record <handle-map>
+        (make-handle-map)
+        handle-map?
+        (resource handle-map->resource handle-map-resource-set!)
+        (free-slots handle-map->free-slots handle-map-free-slots-set!))
+
+    (defun handle-map-create ()
+        (let hm (make-handle-map)
+            (begin
+                (handle-map-free-slots-set! hm (stack-create))
+                (handle-map-resource-set! hm (stack-create))
+                hm)))
+
+    (defun handle-map-add (hm val)
+        (if (handle-map? hm)
+            (if (= val ())
+                -1
+                (stack-push! (handle-map->resource hm) val))
+            -1))
+
+    (defun handle-map-get (hm handle)
+        (if (and (handle-map? hm) (number? handle))
+            (let resource (handle-map->resource hm)
+                arr (stack->data resource)
+                cap (if (vector? arr) (vector-length arr) 0)
+                (if (or (< handle 0) (> handle cap) (= handle cap))
+                    ()
+                    (vector-ref arr handle)))
+            ()))
+
+    (defun handle-map-delete (hm handle)
+        (if (and (handle-map? hm) (number? handle))
+            (let resource (handle-map->resource hm)
+                arr (stack->data resource)
+                cap (if (vector? arr) (vector-length arr) 0)
+                (if (or (< handle 0) (> handle cap) (= handle cap))
+                    ()
+                    (let item (vector-ref arr handle)
+                        (if (= item ())
+                            ()
+                            (begin
+                                (vector-set! arr handle ()))))))
+            ()))
+    )

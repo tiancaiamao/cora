@@ -1,5 +1,5 @@
-# all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so parallel/internal.so trace.so
-all: toc/internal.so toc.so os.so string.so io.so hash-h.so net.so rand.so trace.so
+# all: toc/internal.so toc.so os.so string.so io.so hash-h.so rand.so parallel/internal.so trace.so
+all: toc/internal.so toc.so os.so string.so io.so hash-h.so rand.so parallel/internal.so trace.so
 
 extra: md4c/include.so json.so
 
@@ -9,7 +9,7 @@ md4c/include.so:
 CC = gcc
 CFLAGS := -I../src -fPIC -g
 DEPDIR = .deps
-SRCS := toc.c string.c os.c io.c hash-h.c net.c rand.c trace.c
+SRCS := toc.c string.c os.c io.c hash-h.c rand.c trace.c
 OBJS = $(SRCS:%.c=%.o)
 DEPS := $(SRCS:%.c=$(DEPDIR)/%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
@@ -38,5 +38,5 @@ toc/internal.so: toc/internal.c
 
 OS_NAME := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
-parallel/internal.so: parallel/internal.c
+parallel/internal.so:
 	make -C parallel
