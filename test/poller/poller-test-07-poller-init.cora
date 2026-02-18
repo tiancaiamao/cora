@@ -4,12 +4,12 @@
 ;; 说明: poller-init 现在是 no-op（poller 在 vm-runtime-init 中创建）
 
 (import "cora/lib/io")
-(import "cora/lib/parallel/internal")
+(import "cora/lib/poller/internal")
 
 (display "=== 测试 07: poller-init ===\n")
 (display "初始化 poller...\n")
 
-(let result (cora/lib/parallel/internal#poller-init)
+(let result (cora/lib/poller/internal#poller-init)
   (begin
     (display "poller-init 返回: ")
     (display result)

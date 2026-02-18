@@ -2,9 +2,9 @@
 ;; Use fd = -1 to avoid depending on real sockets in this unit case.
 
 (import "cora/lib/io")
-(import "cora/lib/parallel/internal")
+(import "cora/lib/poller/internal")
 
-(let eh (cora/lib/parallel/internal#event-handle-new -1)
+(let eh (cora/lib/poller/internal#event-handle-new -1)
   (begin
     (display "event-handle-new result: ")
     (display eh)

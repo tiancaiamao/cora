@@ -9,7 +9,6 @@
 
     (import "cora/lib/cml")
     (import "cora/lib/parallel/internal")
-    (import "cora/lib/parallel/handle-map")
 
     (defun mailbox-make ()
         (cora/lib/parallel/internal#mailbox-new 0))

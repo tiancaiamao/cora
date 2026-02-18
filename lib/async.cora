@@ -7,8 +7,9 @@
   (import "cora/lib/cml")
   (import "cora/lib/io")
   (import "cora/lib/string")
-  (import "cora/lib/parallel/internal")
-  (import "cora/lib/parallel/handle-map")
+  (import "cora/lib/net/internal")
+  (import "cora/lib/poller/internal")
+  (import "cora/lib/handle-map")
 
   (export
     async-listen async-dial
@@ -43,53 +44,53 @@
       (ensure-async-sock-map)
       (if (< fd 0)
           (error "async-sock-create invalid fd")
-          (let raw (cora/lib/parallel/internal#async-socket-new fd)
+          (let raw (cora/lib/net/internal#async-socket-new fd)
             (if (= raw false)
                 (error "async-sock-create failed")
                 (let sock (async-sock-make-raw)
                   (begin
                     (async-sock-fd-set! sock fd)
                     (async-sock-raw-set! sock raw)
-                    (let eh (cora/lib/parallel/internal#async-socket-get-event-handle raw)
+                    (let eh (cora/lib/net/internal#async-socket-get-event-handle raw)
                       (begin
                         (async-sock-event-handle-set! sock eh)
                         (async-sock-register sock)
                         sock)))))))))
 
   (defun poller-init ()
-    (cora/lib/parallel/internal#poller-init))
+    (cora/lib/poller/internal#poller-init))
 
   (defun poller-shutdown ()
-    (cora/lib/parallel/internal#poller-shutdown))
+    (cora/lib/poller/internal#poller-shutdown))
 
   (defun poller-register-read (eh)
     (begin
-      (cora/lib/parallel/internal#poller-remove-handle eh)
-      (cora/lib/parallel/internal#event-handle-disable-all eh)
-      (cora/lib/parallel/internal#event-handle-enable-read eh)
-      (if (cora/lib/parallel/internal#poller-add-handle eh)
+      (cora/lib/poller/internal#poller-remove-handle eh)
+      (cora/lib/poller/internal#event-handle-disable-all eh)
+      (cora/lib/poller/internal#event-handle-enable-read eh)
+      (if (cora/lib/poller/internal#poller-add-handle eh)
           true
           (error "poller-register-read failed"))))
 
   (defun poller-register-write (eh)
     (begin
-      (cora/lib/parallel/internal#poller-remove-handle eh)
-      (cora/lib/parallel/internal#event-handle-disable-all eh)
-      (cora/lib/parallel/internal#event-handle-enable-write eh)
-      (if (cora/lib/parallel/internal#poller-add-handle eh)
+      (cora/lib/poller/internal#poller-remove-handle eh)
+      (cora/lib/poller/internal#event-handle-disable-all eh)
+      (cora/lib/poller/internal#event-handle-enable-write eh)
+      (if (cora/lib/poller/internal#poller-add-handle eh)
           true
           (error "poller-register-write failed"))))
 
   (defun poller-unregister (eh)
     (begin
-      (cora/lib/parallel/internal#poller-remove-handle eh)
-      (cora/lib/parallel/internal#event-handle-disable-all eh)))
+      (cora/lib/poller/internal#poller-remove-handle eh)
+      (cora/lib/poller/internal#event-handle-disable-all eh)))
 
   (defun register-wakeup (eh handle)
-    (let self-vm (cora/lib/parallel/internal#vm-self)
+    (let self-vm (cora/lib/poller/internal#vm-self)
       (if (= self-vm false)
           ()
-          (cora/lib/parallel/internal#event-handle-set-wakeup-info eh self-vm handle)
+          (cora/lib/poller/internal#event-handle-set-wakeup-info eh self-vm handle)
           )))
 
   ;; Cora core does not provide a universal `error` symbol in every package.
@@ -112,7 +113,7 @@
 
   (defun async-recv-retry (sock buf k wrap)
     (let eh (async-sock-event-handle sock)
-      (match (cora/lib/parallel/internal#async-socket-recv
+      (match (cora/lib/net/internal#async-socket-recv
               (async-sock-raw sock) buf)
         ['ok n]
         (begin
@@ -134,7 +135,7 @@
   ;; recv on socket is an operation
   (defun async-recv-op (sock buf)
     (let try (lambda ()
-               (match (cora/lib/parallel/internal#async-socket-recv
+               (match (cora/lib/net/internal#async-socket-recv
                        (async-sock-raw sock) buf)
                  ['ok n] n
                  ['block n] false
@@ -148,7 +149,7 @@
 
   (defun async-send-retry (sock buf k wrap)
     (let eh (async-sock-event-handle sock)
-      (match (cora/lib/parallel/internal#async-socket-send
+      (match (cora/lib/net/internal#async-socket-send
               (async-sock-raw sock) buf)
         ['ok n]
         (begin
@@ -170,7 +171,7 @@
   ;; send on socket is an operation
   (defun async-send-op (sock buf)
     (let try (lambda ()
-               (match (cora/lib/parallel/internal#async-socket-send
+               (match (cora/lib/net/internal#async-socket-send
                        (async-sock-raw sock) buf)
                  ['ok n] n
                  ['block n] false
@@ -184,7 +185,7 @@
 
   (defun async-accept-retry (listener k wrap)
     (let eh (async-sock-event-handle listener)
-      (match (cora/lib/parallel/internal#async-socket-accept
+      (match (cora/lib/net/internal#async-socket-accept
               (async-sock-fd listener))
         ['ok fd]
         (begin
@@ -201,7 +202,7 @@
 
   (defun async-accept-op (listener)
     (let try (lambda ()
-               (match (cora/lib/parallel/internal#async-socket-accept
+               (match (cora/lib/net/internal#async-socket-accept
                        (async-sock-fd listener))
                  ['ok fd] (async-sock-create fd)
                  ['block] false
@@ -214,7 +215,7 @@
 
   (defun async-connect-retry (sock k wrap)
     (let eh (async-sock-event-handle sock)
-      (match (cora/lib/parallel/internal#async-socket-connect-check
+      (match (cora/lib/net/internal#async-socket-connect-check
               (async-sock-raw sock))
         ['ok]
         (begin
@@ -235,12 +236,12 @@
     (let parts (parse-addr addr)
       (let host (car parts)
            port (cadr parts)
-        (let fd (cora/lib/parallel/internal#net-dial host port)
+        (let fd (cora/lib/net/internal#net-dial host port)
           (if (< fd 0)
               (error "async-dial failed")
               (let sock (async-sock-create fd)
                 (let try (lambda ()
-                           (match (cora/lib/parallel/internal#async-socket-connect-check
+                           (match (cora/lib/net/internal#async-socket-connect-check
                                    (async-sock-raw sock))
                              ['ok] sock
                              ['block] false
@@ -257,7 +258,7 @@
     (let parts (parse-addr addr)
       (let host (car parts)
            port (cadr parts)
-        (let fd (cora/lib/parallel/internal#net-listen host port)
+        (let fd (cora/lib/net/internal#net-listen host port)
           (async-sock-create fd)))))
 
   (defun async-conn-close (sock)
@@ -266,7 +267,7 @@
         (if (= eh false)
             ()
             (begin
-              (cora/lib/parallel/internal#poller-remove-handle eh)
-              (cora/lib/parallel/internal#event-handle-disable-all eh)))
-        (cora/lib/parallel/internal#net-close (async-sock-fd sock)))))
+              (cora/lib/poller/internal#poller-remove-handle eh)
+              (cora/lib/poller/internal#event-handle-disable-all eh)))
+        (cora/lib/net/internal#net-close (async-sock-fd sock)))))
   )

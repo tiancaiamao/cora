@@ -151,21 +151,26 @@ bytesGCFunc(GC *gc, void *f) {
 }
 
 map(str, strBuf) symbolIntern;
+static pthread_mutex_t symbolInternLock = PTHREAD_MUTEX_INITIALIZER;
 
 Obj
 intern(char *s) {
-	// TODO: lock!
 	// global interning for symbol
+	pthread_mutex_lock(&symbolInternLock);
 	str key = cstr(s);
 	strBuf *val = mapGet(&symbolIntern, key);
 	if (val == NULL) {
 		strBuf p = fromCStr(s);
 		key = toStr(p);
 		mapSet(&symbolIntern, key, p);
-		return makeNaNPtr(p, TAG_SYMBOL);
+		Obj ret = makeNaNPtr(p, TAG_SYMBOL);
+		pthread_mutex_unlock(&symbolInternLock);
+		return ret;
 	}
 	strBuf p = *val;
-	return makeNaNPtr(p, TAG_SYMBOL);
+	Obj ret = makeNaNPtr(p, TAG_SYMBOL);
+	pthread_mutex_unlock(&symbolInternLock);
+	return ret;
 }
 
 int

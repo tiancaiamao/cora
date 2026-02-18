@@ -1,9 +1,9 @@
-#ifndef PARALLEL_NET_H
-#define PARALLEL_NET_H
+#ifndef CORA_NET_CORE_H
+#define CORA_NET_CORE_H
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "poller.h"
+#include "../poller/poller.h"
 
 #ifdef __cplusplus
 extern "C" {

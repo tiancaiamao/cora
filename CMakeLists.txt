@@ -108,20 +108,92 @@ add_cora_module(cora_rand rand lib/rand.c ${CORA_OUT_LIB})
 add_cora_module(cora_trace trace lib/trace.c ${CORA_OUT_LIB})
 add_cora_module(cora_toc_internal internal lib/toc/internal.c ${CORA_OUT_LIB}/toc)
 
-add_library(cora_parallel_internal MODULE
+add_library(cora_io_core OBJECT
+  lib/poller/poller.c
+  lib/net/net.c
+)
+target_include_directories(cora_io_core PRIVATE ${CORA_COMMON_INCLUDES})
+
+add_library(cora_parallel_core SHARED
   lib/parallel/vm.c
-  lib/parallel/bindings.c
   lib/parallel/mailbox.c
-  lib/parallel/poller.c
-  lib/parallel/net.c
+  $<TARGET_OBJECTS:cora_io_core>
+)
+target_include_directories(cora_parallel_core PRIVATE ${CORA_COMMON_INCLUDES})
+target_link_libraries(cora_parallel_core PRIVATE cora_runtime ${CMAKE_DL_LIBS} m pthread)
+set_target_properties(cora_parallel_core PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME core
+  LIBRARY_OUTPUT_DIRECTORY ${CORA_OUT_LIB}/parallel
+)
+if(APPLE)
+  set_target_properties(cora_parallel_core PROPERTIES
+    SUFFIX ".so"
+    BUILD_RPATH "@loader_path/../../src"
+  )
+else()
+  set_target_properties(cora_parallel_core PROPERTIES
+    BUILD_RPATH "$ORIGIN/../../src"
+  )
+endif()
+
+add_library(cora_parallel_internal MODULE
+  lib/parallel/bindings.c
 )
 target_include_directories(cora_parallel_internal PRIVATE ${CORA_COMMON_INCLUDES})
-target_link_libraries(cora_parallel_internal PRIVATE cora_runtime ${CMAKE_DL_LIBS} m pthread)
+target_link_libraries(cora_parallel_internal PRIVATE cora_parallel_core cora_runtime ${CMAKE_DL_LIBS} m pthread)
 set_target_properties(cora_parallel_internal PROPERTIES
   PREFIX ""
   OUTPUT_NAME internal
   LIBRARY_OUTPUT_DIRECTORY ${CORA_OUT_LIB}/parallel
 )
+if(APPLE)
+  set_target_properties(cora_parallel_internal PROPERTIES
+    BUILD_RPATH "@loader_path;@loader_path/../../src"
+  )
+else()
+  set_target_properties(cora_parallel_internal PROPERTIES
+    BUILD_RPATH "$ORIGIN:$ORIGIN/../../src"
+  )
+endif()
+
+add_library(cora_net_internal MODULE lib/net/internal.c)
+target_include_directories(cora_net_internal PRIVATE ${CORA_COMMON_INCLUDES})
+target_sources(cora_net_internal PRIVATE $<TARGET_OBJECTS:cora_io_core>)
+target_link_libraries(cora_net_internal PRIVATE cora_runtime ${CMAKE_DL_LIBS} m pthread)
+set_target_properties(cora_net_internal PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME internal
+  LIBRARY_OUTPUT_DIRECTORY ${CORA_OUT_LIB}/net
+)
+if(APPLE)
+  set_target_properties(cora_net_internal PROPERTIES
+    BUILD_RPATH "@loader_path/../../src"
+  )
+else()
+  set_target_properties(cora_net_internal PROPERTIES
+    BUILD_RPATH "$ORIGIN/../../src"
+  )
+endif()
+
+add_library(cora_poller_internal MODULE lib/poller/internal.c)
+target_include_directories(cora_poller_internal PRIVATE ${CORA_COMMON_INCLUDES})
+target_sources(cora_poller_internal PRIVATE $<TARGET_OBJECTS:cora_io_core>)
+target_link_libraries(cora_poller_internal PRIVATE cora_runtime ${CMAKE_DL_LIBS} m pthread)
+set_target_properties(cora_poller_internal PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME internal
+  LIBRARY_OUTPUT_DIRECTORY ${CORA_OUT_LIB}/poller
+)
+if(APPLE)
+  set_target_properties(cora_poller_internal PROPERTIES
+    BUILD_RPATH "@loader_path/../../src"
+  )
+else()
+  set_target_properties(cora_poller_internal PROPERTIES
+    BUILD_RPATH "$ORIGIN/../../src"
+  )
+endif()
 
 add_custom_target(cora-all
   DEPENDS
@@ -136,7 +208,10 @@ add_custom_target(cora-all
     cora_rand
     cora_trace
     cora_toc_internal
+    cora_parallel_core
     cora_parallel_internal
+    cora_net_internal
+    cora_poller_internal
 )
 
 add_custom_target(cora-libs
@@ -149,7 +224,10 @@ add_custom_target(cora-libs
     cora_rand
     cora_trace
     cora_toc_internal
+    cora_parallel_core
     cora_parallel_internal
+    cora_net_internal
+    cora_poller_internal
 )
 
 add_library(cora_compile_db OBJECT

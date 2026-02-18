@@ -6,16 +6,16 @@
 ;;   2. 修复了 let 语法：从 (let fd (net-listen ...)) 改为 (let fd (net-listen ...)
 
 (import "cora/lib/io")
-(import "cora/lib/parallel/internal")
+(import "cora/lib/net/internal")
 
 (display "=== 测试 04: let + net-listen ===\n")
 (display "创建监听 socket...\n")
 
-(let fd (net-listen "0.0.0.0" 9979)
+(let fd (cora/lib/net/internal#net-listen "0.0.0.0" 9979)
   (begin
     (display "fd=")
     (display fd)
     (display "\n")
-    (net-close fd)
+    (cora/lib/net/internal#net-close fd)
     (display "测试完成!\n")
     42))

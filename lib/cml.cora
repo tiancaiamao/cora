@@ -9,7 +9,8 @@
   (import "cora/lib/rand")
   (import "cora/lib/sys")
   (import "cora/lib/io")
-  (import "cora/lib/parallel/handle-map")
+  (import "cora/lib/poller/internal")
+  (import "cora/lib/handle-map")
 
   (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
       enqueue-task add-task-to-blocked)
@@ -79,7 +80,7 @@
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)
-         (cora/lib/parallel/internal#poller-init)
+         (cora/lib/poller/internal#poller-init)
          42)
 
      (display "cml-entry init done\n")
@@ -96,7 +97,7 @@
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)
-         (cora/lib/parallel/internal#poller-init)
+         (cora/lib/poller/internal#poller-init)
          42)
 
      (display "cml-entry-init done (parallel mode)\n")

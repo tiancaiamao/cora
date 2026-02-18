@@ -1,7 +1,7 @@
 #include "../../src/runtime.h"
 #include "mailbox.h"
-#include "net.h"
-#include "poller.h"
+#include "../net/net.h"
+#include "../poller/poller.h"
 #include "vm.h"
 #include <errno.h>
 #include <stdio.h>
@@ -764,6 +764,31 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "async-socket-accept", cora_async_socket_accept, 1);
 	coraRegisterAPI(co, module, "async-socket-connect-check", cora_async_socket_connect_check, 1);
 	coraRegisterAPI(co, module, "async-socket-get-event-handle", cora_async_socket_get_event_handle, 1);
+
+	/*
+	 * Keep parallel/internal exports focused on VM + mailbox.
+	 * net/poller low-level symbols should not shadow cora/lib/net.
+	 */
+	Obj exports = Nil;
+	exports = makeCons(co->gc, intern("wakeup-create"), exports);
+	exports = makeCons(co->gc, intern("mailbox-recvq-enqueue"), exports);
+	exports = makeCons(co->gc, intern("mailbox-sendq-enqueue"), exports);
+	exports = makeCons(co->gc, intern("mailbox-resolve"), exports);
+	exports = makeCons(co->gc, intern("mailbox-publish"), exports);
+	exports = makeCons(co->gc, intern("mailbox-recv-try"), exports);
+	exports = makeCons(co->gc, intern("mailbox-send-try"), exports);
+	exports = makeCons(co->gc, intern("mailbox-is-closed"), exports);
+	exports = makeCons(co->gc, intern("mailbox-close"), exports);
+	exports = makeCons(co->gc, intern("mailbox-free"), exports);
+	exports = makeCons(co->gc, intern("mailbox-new"), exports);
+	exports = makeCons(co->gc, intern("vm-attach-current"), exports);
+	exports = makeCons(co->gc, intern("vm-runtime-wait-all"), exports);
+	exports = makeCons(co->gc, intern("spawn-vm-native"), exports);
+	exports = makeCons(co->gc, intern("vm-self"), exports);
+	exports = makeCons(co->gc, intern("vm-runtime-shutdown"), exports);
+	exports = makeCons(co->gc, intern("vm-runtime-init"), exports);
+	Obj export_sym = intern("cora/lib/parallel/internal#*ns-export*");
+	primSet(co, export_sym, exports);
 
 	coraReturn(co, intern("parallel"));
 }

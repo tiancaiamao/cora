@@ -1,5 +1,5 @@
-#ifndef PARALLEL_POLLER_H
-#define PARALLEL_POLLER_H
+#ifndef CORA_POLLER_CORE_H
+#define CORA_POLLER_CORE_H
 
 #include <pthread.h>
 #include <stdbool.h>

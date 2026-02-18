@@ -4,7 +4,6 @@
 
 (package "cora/lib/net"
   (import "cora/lib/cml")
-  (import "cora/lib/io")
   (import "cora/lib/string")
   (import "cora/lib/async")
 

@@ -25,6 +25,8 @@ clean:
 	rm -f src/*.o src/*.a src/*.so src/*.test
 	rm -f lib/*.o lib/*.so
 	rm -f lib/toc/*.o lib/toc/*.so
+	rm -f lib/net/*.o lib/net/*.so
+	rm -f lib/poller/*.o lib/poller/*.so
 	rm -f lib/parallel/*.o lib/parallel/*.so
 	rm -f lib/md4c/*.o
 	rm -rf src/.deps lib/.deps lib/toc/.deps
