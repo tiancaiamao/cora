@@ -27,9 +27,6 @@ typedef enum {
 AsyncSocket *async_socket_new(int fd);
 void async_socket_free(AsyncSocket *sock);
 
-// Get underlying file descriptor
-int async_socket_get_fd(AsyncSocket *sock);
-
 // Get event handle for integration with poller
 EventHandle *async_socket_get_event_handle(AsyncSocket *sock);
 
@@ -78,20 +75,9 @@ SocketResult async_socket_accept(int listen_fd, int *out_fd);
 // Check non-blocking connect completion
 SocketResult async_socket_connect_check(AsyncSocket *sock, int *out_errno);
 
-// Send all data (may require multiple calls to complete)
-// Returns true if all data sent, false if would block or error
-bool async_socket_send_all(AsyncSocket *sock, const void *buf, size_t len, size_t *sent);
-
-// Receive all data (may require multiple calls to complete)
-// Returns true if all data received, false if would block or error
-bool async_socket_recv_all(AsyncSocket *sock, void *buf, size_t len, size_t *received);
-
 // ============================================================================
 // Helper utilities
 // ============================================================================
-
-// Parse "host:port" string
-bool net_parse_address(const char *addr, char **host, char **port);
 
 // Close a file descriptor
 void net_close(int fd);

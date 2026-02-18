@@ -2,18 +2,19 @@
 
   (import "cora/lib/net")
   (import "cora/lib/io")
-  (import "cora/lib/async")
   (import "cora/lib/cml")
 
   (defun client-main ()
-    (let conn (dial "127.0.0.1:8080")
-      buf (make-buffer 11)
+    (let conn (net-dial "127.0.0.1:8080")
       (begin
-	(recv conn buf)
-	(display buf)
-	(display "\n")
-	(send conn "hello arthur")
-	(conn-close conn))))
+        (let resp (net-recv conn 11)
+          (if (null? resp)
+              (display "client recv failed\n")
+              (begin
+                (display resp)
+                (display "\n"))))
+        (net-send conn "hello arthur")
+        (net-close conn))))
 
   (cml-entry client-main)
   )

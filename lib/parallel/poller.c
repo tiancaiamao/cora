@@ -17,23 +17,6 @@
 #error "Unsupported platform"
 #endif
 
-// Simplified wake queue - just a placeholder for now
-typedef struct ReadyNode {
-	struct ReadyNode *next;
-} ReadyNode;
-
-typedef struct ReadyQueue {
-	ReadyNode *head;
-	ReadyNode *tail;
-} ReadyQueue;
-
-static void
-ReadyQueueInit(ReadyQueue *q, ReadyNode *stub) {
-	q->head = stub;
-	q->tail = stub;
-	stub->next = NULL;
-}
-
 Poller *
 poller_new(void) {
 	Poller *p = (Poller *)malloc(sizeof(Poller));
@@ -59,25 +42,7 @@ poller_new(void) {
 		return NULL;
 	}
 
-	ReadyNode *stub = malloc(sizeof(ReadyNode));
-	ReadyQueue *queue = malloc(sizeof(ReadyQueue));
-	if (!stub || !queue) {
-		free(stub);
-		free(queue);
-		close(p->epoll_fd);
-		free(p->events);
-		free(p);
-		return NULL;
-	}
-	ReadyQueueInit(queue, stub);
-	p->wake_queue = queue;
-	p->wake_stub = stub;
-	pthread_mutex_init(&p->wake_lock, NULL);
 	atomic_store_int(&p->active_handles, 0);
-
-	// Initialize thread control
-	p->running = false;
-	p->should_stop = false;
 
 	return p;
 }
@@ -96,18 +61,6 @@ poller_free(Poller *p) {
 		free(p->events);
 	}
 
-	ReadyQueue *queue = (ReadyQueue *)p->wake_queue;
-	if (queue && p->wake_stub) {
-		ReadyNode *node = (ReadyNode *)p->wake_stub;
-		while (node) {
-			ReadyNode *next = node->next;
-			free(node);
-			node = next;
-		}
-		free(queue);
-	}
-
-	pthread_mutex_destroy(&p->wake_lock);
 	free(p);
 }
 
@@ -123,13 +76,11 @@ event_handle_new(int fd, void (*read_cb)(struct EventHandle *),
 	eh->fd = fd;
 	eh->read_callback = read_cb;
 	eh->write_callback = write_cb;
-	eh->wakeup_callback = NULL;
 	eh->user_data = user_data;
 	eh->listen_events = 0;
 	eh->ready_events = 0;
 	eh->exist = false;
 	eh->target_vm = NULL;
-	eh->target_coro = NULL;
 	eh->wakeup_handle = -1;
 
 	return eh;
@@ -164,46 +115,6 @@ event_handle_disable_all(EventHandle *eh) {
 		return;
 	}
 	eh->listen_events = 0;
-}
-
-int
-event_handle_get_fd(EventHandle *eh) {
-	if (!eh) {
-		return -1;
-	}
-	return eh->fd;
-}
-
-void *
-event_handle_get_user_data(EventHandle *eh) {
-	if (!eh) {
-		return NULL;
-	}
-	return eh->user_data;
-}
-
-void
-event_handle_set_ready_event(EventHandle *eh, int ev) {
-	if (!eh) {
-		return;
-	}
-	eh->ready_events |= ev;
-}
-
-bool
-event_handle_get_exist(EventHandle *eh) {
-	if (!eh) {
-		return false;
-	}
-	return eh->exist;
-}
-
-void
-event_handle_set_exist(EventHandle *eh, bool in) {
-	if (!eh) {
-		return;
-	}
-	eh->exist = in;
 }
 
 void **
@@ -389,72 +300,6 @@ poller_update_handle(Poller *p, EventHandle *eh) {
 		return false;
 	}
 	return poller_add_handle(p, eh);
-}
-
-void
-poller_process_wake_queue(Poller *p) {
-	if (!p) {
-		return;
-	}
-
-	pthread_mutex_lock(&p->wake_lock);
-
-	ReadyQueue *queue = (ReadyQueue *)p->wake_queue;
-	ReadyNode *stub = (ReadyNode *)p->wake_stub;
-	if (queue && stub) {
-		ReadyNode *node = stub->next;
-		stub->next = NULL;
-		queue->head = stub;
-		queue->tail = stub;
-		while (node) {
-			ReadyNode *next = node->next;
-			free(node);
-			node = next;
-		}
-	}
-
-	pthread_mutex_unlock(&p->wake_lock);
-}
-
-// ============================================================================
-// New implementations for enhanced poller functionality
-// ============================================================================
-
-EventHandle *
-event_handle_new_with_wakeup(int fd, WakeupCallback wakeup_cb,
-	void *user_data) {
-	EventHandle *eh = (EventHandle *)malloc(sizeof(EventHandle));
-	if (!eh) {
-		return NULL;
-	}
-
-	eh->fd = fd;
-	eh->read_callback = NULL;
-	eh->write_callback = NULL;
-	eh->wakeup_callback = wakeup_cb;
-	eh->user_data = user_data;
-	eh->listen_events = 0;
-	eh->ready_events = 0;
-	eh->exist = false;
-	eh->target_vm = NULL;
-	eh->target_coro = NULL;
-	eh->wakeup_handle = -1;
-
-	return eh;
-}
-
-void
-event_handle_set_target_vm(EventHandle *eh, VM *vm) {
-	if (eh) {
-		eh->target_vm = vm;
-	}
-}
-
-void
-event_handle_set_target_coroutine(EventHandle *eh, Coroutine *coro) {
-	if (eh) {
-		eh->target_coro = coro;
-	}
 }
 
 void

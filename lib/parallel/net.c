@@ -55,14 +55,6 @@ async_socket_free(AsyncSocket *sock) {
 	free(sock);
 }
 
-int
-async_socket_get_fd(AsyncSocket *sock) {
-	if (!sock) {
-		return -1;
-	}
-	return sock->fd;
-}
-
 EventHandle *
 async_socket_get_event_handle(AsyncSocket *sock) {
 	if (!sock) {
@@ -361,100 +353,4 @@ async_socket_connect_check(AsyncSocket *sock, int *out_errno) {
 		*out_errno = err;
 	}
 	return SOCK_ERROR;
-}
-
-bool
-async_socket_send_all(AsyncSocket *sock, const void *buf, size_t len, size_t *sent) {
-	if (!sock || !buf || !sent) {
-		return false;
-	}
-	
-	size_t total = 0;
-	const char *ptr = (const char *)buf;
-	
-	while (total < len) {
-		size_t n = 0;
-		SocketResult result = async_socket_send(sock, ptr + total, len - total, &n);
-		
-		total += n;
-		
-		if (result == SOCK_WOULD_BLOCK) {
-			*sent = total;
-			return false;  // Not all data sent yet
-		}
-		
-		if (result != SOCK_OK) {
-			*sent = total;
-			return false;
-		}
-	}
-	
-	*sent = total;
-	return true;
-}
-
-bool
-async_socket_recv_all(AsyncSocket *sock, void *buf, size_t len, size_t *received) {
-	if (!sock || !buf || !received) {
-		return false;
-	}
-	
-	size_t total = 0;
-	char *ptr = (char *)buf;
-	
-	while (total < len) {
-		size_t n = 0;
-		SocketResult result = async_socket_recv(sock, ptr + total, len - total, &n);
-		
-		total += n;
-		
-		if (result == SOCK_WOULD_BLOCK) {
-			*received = total;
-			return false;  // Not all data received yet
-		}
-		
-		if (result != SOCK_OK) {
-			*received = total;
-			return false;
-		}
-	}
-	
-	*received = total;
-	return true;
-}
-
-// ============================================================================
-// Helper utilities
-// ============================================================================
-
-bool
-net_parse_address(const char *addr, char **host, char **port) {
-	if (!addr || !host || !port) {
-		return false;
-	}
-	
-	const char *colon = strchr(addr, ':');
-	if (!colon) {
-		return false;
-	}
-	
-	size_t host_len = colon - addr;
-	size_t port_len = strlen(colon + 1);
-	
-	*host = (char *)malloc(host_len + 1);
-	*port = (char *)malloc(port_len + 1);
-	
-	if (!*host || !*port) {
-		free(*host);
-		free(*port);
-		return false;
-	}
-	
-	memcpy(*host, addr, host_len);
-	(*host)[host_len] = '\0';
-	
-	memcpy(*port, colon + 1, port_len);
-	(*port)[port_len] = '\0';
-	
-	return true;
 }

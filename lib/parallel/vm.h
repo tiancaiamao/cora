@@ -63,10 +63,6 @@ VMRunResult vm_run_time_slice(VM *vm, int time_slice_ms);
 void vm_enqueue_global(VM *vm);
 VM *vm_dequeue_global(void);
 
-// Spawn functions (called from Cora)
-int spawn_vm_native(void *thunk); // Returns VM ID
-void spawn_in_current_vm(void *thunk);
-
 // Utility functions
 uint64_t get_current_time_ms(void);
 void cora_vm_enqueue(CoraVM *vm, int handle, Obj value);
