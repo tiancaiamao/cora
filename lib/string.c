@@ -193,28 +193,22 @@ stringToList(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, reverse(co->gc, res));
 }
 
-static struct registerModule stringModule = {
-	NULL,
-	{
-		{"string-slice", stringSlice, 3},
-		{"has-prefix?", stringHasPrefix, 2},
-		{"string-length", bytesLength, 1},
-		{"string-index", stringIndex, 2},
-		{"compare", stringCompare, 2},
-		{"number->string", numberToString, 1},
-		{"string-replace", stringReplace, 3},
-		{"string-split", stringSplit, 2},
-		{"string-contain?", stringContain, 2},
-		{"memcpy", bytesMemCpy, 5},
-		{"byte-ref", bytesRef, 2},
-		{"string->list", stringToList, 1},
-		{NULL, NULL, 0},
-	}};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &stringModule, stringStr(pkg));
+	str module = stringStr(pkg);
+	coraRegisterAPI(co, module.str, "string-slice", stringSlice, 3);
+	coraRegisterAPI(co, module.str, "has-prefix?", stringHasPrefix, 2);
+	coraRegisterAPI(co, module.str, "string-length", bytesLength, 1);
+	coraRegisterAPI(co, module.str, "string-index", stringIndex, 2);
+	coraRegisterAPI(co, module.str, "compare", stringCompare, 2);
+	coraRegisterAPI(co, module.str, "number->string", numberToString, 1);
+	coraRegisterAPI(co, module.str, "string-replace", stringReplace, 3);
+	coraRegisterAPI(co, module.str, "string-split", stringSplit, 2);
+	coraRegisterAPI(co, module.str, "string-contain?", stringContain, 2);
+	coraRegisterAPI(co, module.str, "memcpy", bytesMemCpy, 5);
+	coraRegisterAPI(co, module.str, "byte-ref", bytesRef, 2);
+	coraRegisterAPI(co, module.str, "string->list", stringToList, 1);
 	coraReturn(co, intern("string"));
 }
 

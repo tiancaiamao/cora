@@ -1,0 +1,22 @@
+;; Test HTTP parser with debug
+
+(import "cora/lib/http/internal")
+
+(display "Testing HTTP parser...\n")
+
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "Request created\n")
+    (display "Length: ")
+    (display (bytes-length req))
+    (display "\n")
+    
+    (display "Calling parser...\n")
+    (let result (http-internal-parse-request req))
+    (begin
+      (display "Parser returned\n")
+      (display "Result: ")
+      (display result)
+      (display "\n"))))
+
+(display "Done\n")

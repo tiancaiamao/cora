@@ -1,0 +1,10 @@
+;; Simple test - just call parser
+
+(import "cora/lib/http/internal")
+
+(display "Start\n")
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (let result (http-internal-parse-request req)
+    (begin
+      (display "Parse done\n")
+      (display result))))

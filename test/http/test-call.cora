@@ -1,0 +1,16 @@
+;; Test if module loads and we can call a function
+
+(import "cora/lib/http/internal")
+(import "cora/lib/net")
+
+(display "Before import\n")
+(display "After import\n")
+
+;; Try calling the function
+(display "Calling http-internal-parse-request...\n")
+(let s "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+  (let b (string->bytes s)
+    (let result (http-internal-parse-request b)
+      (begin
+        (display "Result: ")
+        (display result)))))

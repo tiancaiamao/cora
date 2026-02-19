@@ -69,15 +69,11 @@ builtinMod(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, ret);
 }
 
-struct registerModule hashModule = {
-	NULL,
-	{{"mod", builtinMod, 2},
-		{"hash-to-number", hashToNumber, 1},
-		{NULL, NULL, 0}}};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &hashModule, stringStr(pkg));
+	str module = stringStr(pkg);
+	coraRegisterAPI(co, module.str, "mod", builtinMod, 2);
+	coraRegisterAPI(co, module.str, "hash-to-number", hashToNumber, 1);
 	coraReturn(co, intern("hash"));
 }

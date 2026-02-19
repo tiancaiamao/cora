@@ -1,0 +1,23 @@
+;; Test string escape sequences
+
+(display "Testing escape sequences:\n")
+
+(let s1 "line1\nline2"
+  (begin
+    (display "Test \\n: ")
+    (display s1)
+    (display "\n")))
+
+(let s2 "hello\tworld"
+  (begin
+    (display "Test \\t: ")
+    (display s2)
+    (display "\n")))
+
+(let s3 "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "Test \\r\\n: ")
+    (display (bytes-length s3))
+    (display " bytes\n")))
+
+(display "\nAll escape sequences work!\n")

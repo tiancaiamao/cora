@@ -8,14 +8,10 @@ builtinN(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, makeNumber(val % fixnum(n)));
 }
 
-struct registerModule ioModule = {
-	NULL,
-	{{"randN", builtinN, 1},
-		{NULL, NULL, 0}}};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &ioModule, stringStr(pkg));
+	str module = stringStr(pkg);
+	coraRegisterAPI(co, module.str, "randN", builtinN, 1);
 	coraReturn(co, intern("rand"));
 }

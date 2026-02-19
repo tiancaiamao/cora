@@ -1,0 +1,21 @@
+;; Test simple parse - without newline function
+
+(import "cora/lib/http/internal")
+(import "cora/lib/net")
+
+(display "Test 1: bytes creation\n")
+(let s "GET / HTTP/1.1\r\n\r\n"
+  (let b (string->bytes s)
+    (begin
+      (display "Bytes length: ")
+      (display (bytes-length b))
+      (display "\n"))))
+
+(display "\nTest 2: parse\n")
+(let s2 "GET / HTTP/1.1\r\n\r\n"
+  (let b2 (string->bytes s2)
+    (let r (http-internal-parse-request b2)
+      (begin
+        (display "Result: ")
+        (display r)
+        (display "\n")))))

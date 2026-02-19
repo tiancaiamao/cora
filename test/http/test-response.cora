@@ -1,0 +1,25 @@
+;; Test HTTP response builder
+
+(import "cora/lib/http/internal")
+
+(defun test-build-response ()
+  (display "Testing HTTP response builder...\n")
+  
+  (let resp (list (cons 'status 200)
+                  (cons 'headers '(("Content-Type" . "text/plain")
+                                   ("Content-Length" . "12")))
+                  (cons 'body "Hello World!")))
+  
+  (let resp-bytes (http-internal-build-response resp))
+  
+  (if resp-bytes
+      (begin
+        (display "Response built successfully:\n")
+        (display (bytes->string resp-bytes))
+        (newline)
+        (display "OK\n"))
+      (begin
+        (display "FAILED: build returned nil\n")
+        (exit 1))))
+
+(test-build-response)

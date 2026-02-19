@@ -1,0 +1,22 @@
+;; Simple test to check if module loads
+
+(import "cora/lib/http/internal")
+
+(display "Module loaded successfully!\n")
+
+;; Test simple parse
+(let req-str "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+  (begin
+    (display "Created test string\n")
+    (let req-bytes (string->bytes req-str)
+      (begin
+        (display "Converted to bytes\n")
+        (display "Attempting to parse...\n")
+        (let req (http-internal-parse-request req-bytes)
+          (if req
+              (begin
+                (display "Parse successful!\n")
+                (display req)
+                (newline))
+              (begin
+                (display "Parse failed (returned nil)\n"))))))))

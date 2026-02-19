@@ -1,0 +1,31 @@
+;; Test HTTP request parser
+
+(import "cora/lib/http/internal")
+
+(defun test-parse-get ()
+  (let req-str "GET /foo?bar=1 HTTP/1.1\r\nHost: localhost\r\nUser-Agent: test\r\n\r\n")
+  (let req-bytes (string->bytes req-str))
+  (let req (http-internal-parse-request req-bytes))
+  
+  (display "Testing HTTP parser...\n")
+  
+  (if req
+      (begin
+        (display "  method: ")
+        (display (cdr (assoc 'method req)))
+        (newline)
+        (display "  path: ")
+        (display (cdr (assoc 'path req)))
+        (newline)
+        (display "  query: ")
+        (display (cdr (assoc 'query req)))
+        (newline)
+        (display "  version: ")
+        (display (cdr (assoc 'version req)))
+        (newline)
+        (display "OK\n"))
+      (begin
+        (display "FAILED: parse returned nil\n")
+        (exit 1))))
+
+(test-parse-get)

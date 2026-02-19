@@ -1,0 +1,5 @@
+;; Test if module loads
+
+(display "Before import\n")
+(import "cora/lib/http/internal")
+(display "After import\n")

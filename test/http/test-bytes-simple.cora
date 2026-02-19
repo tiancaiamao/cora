@@ -1,0 +1,20 @@
+;; Simple test - check byte values
+
+(import "cora/lib/http/internal")
+
+(display "Testing bytes...\n")
+
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "Length: ")
+    (display (bytes-length req))
+    (display "\n")
+    
+    (display "Bytes: ")
+    (let len (bytes-length req)
+      (let i 0
+        (while (< i len)
+          (begin
+            (display (byte-ref req i))
+            (display " ")
+            (set 'i (+ i 1))))))))

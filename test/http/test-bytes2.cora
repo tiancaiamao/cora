@@ -1,0 +1,14 @@
+;; Test bytes without HTTP library
+
+(display "Testing bytes...\n")
+
+(let s "hello world"
+  (begin
+    (display "String created: ")
+    (display s)
+    (newline)
+    (let b (string->bytes s)
+      (begin
+        (display "Bytes created\n")
+        (display b)
+        (newline))))

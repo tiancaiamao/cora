@@ -1,0 +1,117 @@
+;; Blog server - Serve static blog content
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora examples/http/blog-server.cora
+;; Then: curl http://localhost:8080/ or curl http://localhost:8080/posts/hello
+
+(package "examples/http/blog-server"
+  (import "cora/lib/http")
+  (import "cora/lib/io")
+  (import "cora/lib/string")
+
+  ;; Blog posts storage (in-memory for demo)
+  ;; In a real implementation, this would read from filesystem
+  (defvar *blog-posts*
+    '(("/hello" . "<h1>Hello World</h1><p>My first blog post!</p>")
+      ("/welcome" . "<h1>Welcome</h1><p>Welcome to my Cora-powered blog!</p>")
+      ("/about" . "<h1>About</h1><p>This blog is built with Cora HTTP library.</p>")))
+
+  ;; Get blog post by path
+  (defun get-blog-post (path)
+    (let entry (assoc path *blog-posts*))
+    (if entry
+        (cdr entry)
+        #f))
+
+  ;; Render blog post with template
+  (defun render-blog-post (content)
+    (string-append
+      "<!DOCTYPE html>"
+      "<html>"
+      "<head>"
+      "<title>My Cora Blog</title>"
+      "<style>"
+      "body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; }"
+      "h1 { color: #333; }"
+      "a { color: #0066cc; }"
+      "</style>"
+      "</head>"
+      "<body>"
+      "<h1><a href='/'>My Cora Blog</a></h1>"
+      "<hr>"
+      content
+      "<hr>"
+      "<p><a href='/'>Back to Home</a></p>"
+      "</body>"
+      "</html>"))
+
+  ;; Render home page with list of posts
+  (defun render-home ()
+    (string-append
+      "<!DOCTYPE html>"
+      "<html>"
+      "<head>"
+      "<title>My Cora Blog</title>"
+      "<style>"
+      "body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; }"
+      "h1 { color: #333; }"
+      "a { color: #0066cc; text-decoration: none; }"
+      ".post-link { margin: 10px 0; }"
+      "</style>"
+      "</head>"
+      "<body>"
+      "<h1>My Cora Blog</h1>"
+      "<hr>"
+      "<h2>Posts</h2>"
+      "<div class='post-link'><a href='/posts/hello'>Hello World</a></div>"
+      "<div class='post-link'><a href='/posts/welcome'>Welcome</a></div>"
+      "<div class='post-link'><a href='/posts/about'>About</a></div>"
+      "<hr>"
+      "<p>Powered by <a href='https://github.com/your-org/cora'>Cora</a></p>"
+      "</body>"
+      "</html>"))
+
+  ;; Blog handler
+  (defun blog-handler (req)
+    (let path (http-request-get req 'path))
+    (let method (http-request-get req 'method))
+
+    (display "Request: ")
+    (display method)
+    (display " ")
+    (display path)
+    (newline)
+
+    (cond
+      ;; Home page
+      ((equal? path "/")
+       (http-response-html (render-home)))
+
+      ;; Blog posts
+      ((has-prefix? path "/posts/")
+       (let post-path (string-slice path 7 (string-length path)))
+       (let content (get-blog-post post-path))
+       (if content
+           (http-response-html (render-blog-post content))
+           (http-response-not-found)))
+
+      ;; API endpoints
+      ((equal? path "/api/posts")
+       (http-response-json
+         "{\"posts\":[\"/posts/hello\",\"/posts/welcome\",\"/posts/about\"]}"))
+
+      ;; 404 for everything else
+      (else
+        (http-response-not-found))))
+
+  ;; Start server
+  (display "Starting Blog Server on :8080\n")
+  (display "Visit http://localhost:8080/ to view the blog\n")
+  (display "\n")
+  (display "Available pages:\n")
+  (display "  GET /              - Home page\n")
+  (display "  GET /posts/hello   - Hello World post\n")
+  (display "  GET /posts/welcome - Welcome post\n")
+  (display "  GET /posts/about   - About post\n")
+  (display "  GET /api/posts     - JSON API\n")
+  (display "\n")
+
+  (http-listen-and-serve ":8080" #'blog-handler))

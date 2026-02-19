@@ -1,0 +1,43 @@
+;; Comprehensive HTTP parser test
+
+(import "cora/lib/http/internal")
+
+(display "=== HTTP Parser Tests ===\n\n")
+
+;; Test 1: Simple GET
+(display "Test 1: Simple GET request\n")
+(let req1 "GET / HTTP/1.1\r\n\r\n"
+  (let result1 (http-internal-parse-request req1)
+    (begin
+      (display "Result: ")
+      (display result1)
+      (display "\n\n"))))
+
+;; Test 2: GET with Host header
+(display "Test 2: GET with Host header\n")
+(let req2 "GET /index.html HTTP/1.1\r\nHost: www.example.com\r\n\r\n"
+  (let result2 (http-internal-parse-request req2)
+    (begin
+      (display "Result: ")
+      (display result2)
+      (display "\n\n"))))
+
+;; Test 3: GET with query string
+(display "Test 3: GET with query string\n")
+(let req3 "GET /search?q=hello&page=1 HTTP/1.1\r\nHost: localhost\r\n\r\n"
+  (let result3 (http-internal-parse-request req3)
+    (begin
+      (display "Result: ")
+      (display result3)
+      (display "\n\n"))))
+
+;; Test 4: POST with body
+(display "Test 4: POST with body\n")
+(let req4 "POST /api/users HTTP/1.1\r\nHost: api.example.com\r\nContent-Type: application/json\r\nContent-Length: 13\r\n\r\n{\"name\":\"Alice\"}"
+  (let result4 (http-internal-parse-request req4)
+    (begin
+      (display "Result: ")
+      (display result4)
+      (display "\n\n"))))
+
+(display "=== All tests completed ===\n")

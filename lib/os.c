@@ -48,18 +48,12 @@ pcloseFn(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, res);
 }
 
-static struct registerModule osModule = {
-	NULL,
-	{
-		{"exec", exec, 1},
-		{"popen", popenFn, 2},
-		{"pclose", pcloseFn, 1},
-		{NULL, NULL, 0},
-	}};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &osModule, stringStr(pkg));
+	str module = stringStr(pkg);
+	coraRegisterAPI(co, module.str, "exec", exec, 1);
+	coraRegisterAPI(co, module.str, "popen", popenFn, 2);
+	coraRegisterAPI(co, module.str, "pclose", pcloseFn, 1);
 	coraReturn(co, intern("os"));
 }

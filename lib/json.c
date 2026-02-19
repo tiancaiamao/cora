@@ -202,29 +202,25 @@ jsonObjectGet(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, makeCObj(v));
 }
 
-struct registerModule jsonModule = {
-	NULL,
-	{{"json-load-file", jsonLoadFile, 1},
-		{"json-typeof", jsonTypeOf, 1},
-		{"json-is-array?", jsonIsArray, 1},
-		{"json-is-object?", jsonIsObject, 1},
-		{"json-is-integer?", jsonIsInteger, 1},
-		{"json-integer-value", jsonIntegerValue, 1},
-		{"json-is-real?", jsonIsReal, 1},
-		{"json-is-string?", jsonIsString, 1},
-		{"json-string-value", jsonStringValue, 1},
-		{"json-is-null?", jsonIsNull, 1},
-		{"json-is-true?", jsonIsTrue, 1},
-		{"json-is-false?", jsonIsFalse, 1},
-		{"json-array-size", jsonArraySize, 1},
-		{"json-array-get", jsonArrayGet, 2},
-		{"json-object-size", jsonObjectSize, 1},
-		{"json-object-get", jsonObjectGet, 2},
-		{NULL, NULL, 0}}};
-
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
-	registerAPI(co, &jsonModule, stringStr(pkg));
+	str module = stringStr(pkg);
+	coraRegisterAPI(co, module.str, "json-load-file", jsonLoadFile, 1);
+	coraRegisterAPI(co, module.str, "json-typeof", jsonTypeOf, 1);
+	coraRegisterAPI(co, module.str, "json-is-array?", jsonIsArray, 1);
+	coraRegisterAPI(co, module.str, "json-is-object?", jsonIsObject, 1);
+	coraRegisterAPI(co, module.str, "json-is-integer?", jsonIsInteger, 1);
+	coraRegisterAPI(co, module.str, "json-integer-value", jsonIntegerValue, 1);
+	coraRegisterAPI(co, module.str, "json-is-real?", jsonIsReal, 1);
+	coraRegisterAPI(co, module.str, "json-is-string?", jsonIsString, 1);
+	coraRegisterAPI(co, module.str, "json-string-value", jsonStringValue, 1);
+	coraRegisterAPI(co, module.str, "json-is-null?", jsonIsNull, 1);
+	coraRegisterAPI(co, module.str, "json-is-true?", jsonIsTrue, 1);
+	coraRegisterAPI(co, module.str, "json-is-false?", jsonIsFalse, 1);
+	coraRegisterAPI(co, module.str, "json-array-size", jsonArraySize, 1);
+	coraRegisterAPI(co, module.str, "json-array-get", jsonArrayGet, 2);
+	coraRegisterAPI(co, module.str, "json-object-size", jsonObjectSize, 1);
+	coraRegisterAPI(co, module.str, "json-object-get", jsonObjectGet, 2);
 	coraReturn(co, intern("json"));
 }
