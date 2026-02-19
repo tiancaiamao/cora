@@ -1,0 +1,11 @@
+;; net/http integration test server (basic handler)
+
+(import "cora/lib/net/http")
+
+(defun test-handler (req)
+  (let path (http-request-get req 'path)
+    (if (= path "/health")
+        (http-response-ok "ok-basic")
+        (http-response-not-found))))
+
+(listen-and-serve "127.0.0.1:18081" test-handler)

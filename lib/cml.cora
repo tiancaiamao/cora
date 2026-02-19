@@ -13,9 +13,15 @@
   (import "cora/lib/handle-map")
 
   (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
-      enqueue-task add-task-to-blocked)
+      enqueue-task add-task-to-blocked cancel-blocked-handle)
 
   (def *blocked-coroutine* (handle-map-create))
+  (def *blocked-count* 0)
+
+  (defun blocked-state-init ()
+    (begin
+      (def *blocked-coroutine* (handle-map-create))
+      (def *blocked-count* 0)))
 
   (defun resume-handle (handle value)
         (let k (handle-map-get *blocked-coroutine* handle)
@@ -23,10 +29,29 @@
                 ()
                 (begin
                     (handle-map-delete *blocked-coroutine* handle)
+                    (if (> *blocked-count* 0)
+                        (def *blocked-count* (- *blocked-count* 1))
+                        ())
                     (enqueue-task (lambda () (k value)))))))
 
   (defun add-task-to-blocked (resume)
-      (handle-map-add *blocked-coroutine* resume))
+      (let handle (handle-map-add *blocked-coroutine* resume)
+        (begin
+          (if (= handle -1)
+              ()
+              (def *blocked-count* (+ *blocked-count* 1)))
+          handle)))
+
+  (defun cancel-blocked-handle (handle)
+    (let k (handle-map-get *blocked-coroutine* handle)
+      (if (= k ())
+          false
+          (begin
+            (handle-map-delete *blocked-coroutine* handle)
+            (if (> *blocked-count* 0)
+                (def *blocked-count* (- *blocked-count* 1))
+                ())
+            true))))
 
   ;; Global task queue (VM-local, not thread-local for parallel mode)
   (def *task-queue* ())
@@ -65,18 +90,35 @@
 
   ;; schedule-loop: keep scheduling until no more tasks
   ;; this is used by single-VM mode (internal loop)
+  (defun pump-poller-once (timeout-ms)
+    (if (member "cora/lib/async" cora/init#*imported*)
+        (let handles (cora/lib/poller/internal#poller-poll-wakeup-handles timeout-ms)
+          (if (= handles false)
+              ()
+              (for-each (lambda (handle)
+                          (resume-handle handle true))
+                        handles)))
+        ()))
+
   (defun schedule-loop ()
       (begin
           (schedule)
           (if (queue-empty? *task-queue*)
-              ()
-              (schedule-loop))))
+              (if (> *blocked-count* 0)
+                  (begin
+                    (pump-poller-once 50)
+                    (schedule-loop))
+                  ())
+              (begin
+                (pump-poller-once 0)
+                (schedule-loop)))))
 
   ;; cml-entry: entry point for single-VM mode
   ;; Initializes CML and enters the scheduling loop
   ;; Usage: (cora/lib/cml#cml-entry (lambda () (main-body)))
   (defun cml-entry (main)
     (begin
+     (blocked-state-init)
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)
@@ -94,6 +136,7 @@
   ;; Usage: (cora/lib/cml#cml-entry-init (lambda () (main-body)))
   (defun cml-entry-init (main)
     (begin
+     (blocked-state-init)
      (task-queue-init)
 
      (if (member "cora/lib/async" cora/init#*imported*)

@@ -16,7 +16,7 @@ A Go-style HTTP library for the Cora programming language.
 ### Hello World Server
 
 ```cora
-(import "cora/lib/http")
+(import "cora/lib/net/http")
 
 (defun hello-handler (req)
   (http-response-html "<h1>Hello from Cora!</h1>"))
@@ -37,7 +37,7 @@ curl http://localhost:8080/
 ### Server with Routing
 
 ```cora
-(import "cora/lib/http")
+(import "cora/lib/net/http")
 
 ;; Create router
 (let mux (http-new-serve-mux)
@@ -52,6 +52,9 @@ curl http://localhost:8080/
 ```
 
 ## API Reference
+
+Primary module path: `cora/lib/net/http`  
+Backward-compatible alias: `cora/lib/http`
 
 ### Request Helpers
 

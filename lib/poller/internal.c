@@ -7,6 +7,17 @@ poller_symbol(void) {
 	return intern("cora/lib/poller/internal#*poller*");
 }
 
+static Obj
+global_get_if_bound(Cora *co, Obj sym) {
+	strBuf name_buf = ptr(sym);
+	str name = toStr(name_buf);
+	Binding *binding = mapGet(&co->env, name);
+	if (!binding) {
+		return Undef;
+	}
+	return vecGet(&co->globals, binding->idx);
+}
+
 static Poller *
 local_poller_get(Cora *co) {
 	Binding bind = bindSymbol(co, poller_symbol());
@@ -116,13 +127,19 @@ cora_event_handle_disable_all(Cora *co, int label, Obj *R) {
 static void
 cora_event_handle_set_wakeup_info(Cora *co, int label, Obj *R) {
 	(void)label;
-	if (!iscobj(R[1]) || !iscobj(R[2])) {
+	if (!iscobj(R[1])) {
 		coraReturn(co, False);
 		return;
 	}
 
 	EventHandle *eh = mustCObj(R[1]);
-	void *vm = mustCObj(R[2]);
+	void *vm = NULL;
+	if (iscobj(R[2])) {
+		vm = mustCObj(R[2]);
+	} else if (R[2] != False && R[2] != Nil) {
+		coraReturn(co, False);
+		return;
+	}
 	Obj handle_obj = R[3];
 	if (!isfixnum(handle_obj)) {
 		coraReturn(co, False);
@@ -131,6 +148,46 @@ cora_event_handle_set_wakeup_info(Cora *co, int label, Obj *R) {
 
 	event_handle_set_wakeup_info(eh, vm, fixnum(handle_obj));
 	coraReturn(co, True);
+}
+
+static void
+cora_poller_poll_wakeup_handles(Cora *co, int label, Obj *R) {
+	(void)label;
+	Obj timeout_obj = R[1];
+
+	if (!isfixnum(timeout_obj)) {
+		coraReturn(co, False);
+		return;
+	}
+
+	Poller *poller = get_active_poller(co);
+	if (!poller) {
+		coraReturn(co, False);
+		return;
+	}
+
+	int nfds = 0;
+	void **active = poller_poll(poller, fixnum(timeout_obj), &nfds);
+	if (nfds < 0) {
+		coraReturn(co, False);
+		return;
+	}
+	if (nfds == 0) {
+		coraReturn(co, Nil);
+		return;
+	}
+
+	Obj result = Nil;
+	for (int i = nfds - 1; i >= 0; i--) {
+		EventHandle *eh = (EventHandle *)active[i];
+		if (!eh || eh->wakeup_handle < 0) {
+			continue;
+		}
+		result = makeCons(co->gc, makeNumber(eh->wakeup_handle), result);
+	}
+
+	free(active);
+	coraReturn(co, result);
 }
 
 static void
@@ -219,7 +276,7 @@ static void
 cora_vm_self_binding(Cora *co, int label, Obj *R) {
 	(void)label;
 	(void)R;
-	Obj vm = symbolGet(co, intern("*cora-vm*"));
+	Obj vm = global_get_if_bound(co, intern("*cora-vm*"));
 	if (vm != Undef && iscobj(vm)) {
 		coraReturn(co, vm);
 		return;
@@ -246,6 +303,7 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module, "poller-update-handle", cora_poller_update_handle, 1);
 	coraRegisterAPI(co, module, "poller-remove-handle", cora_poller_remove_handle, 1);
 	coraRegisterAPI(co, module, "poller-poll", cora_poller_poll, 1);
+	coraRegisterAPI(co, module, "poller-poll-wakeup-handles", cora_poller_poll_wakeup_handles, 1);
 	coraRegisterAPI(co, module, "vm-self", cora_vm_self_binding, 0);
 	Obj export_sym = intern("cora/lib/poller/internal#*ns-export*");
 	primSet(co, export_sym, Nil);

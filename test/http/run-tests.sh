@@ -22,4 +22,8 @@ echo "Running response builder tests..."
 "$PROJECT_ROOT/cora" "$SCRIPT_DIR/test-response-builder.cora" 2>&1 | grep -v "import load-so"
 echo ""
 
+echo "Running net/http integration tests..."
+"$SCRIPT_DIR/test-net-http-integration.sh"
+echo ""
+
 echo "=== All HTTP tests completed ==="

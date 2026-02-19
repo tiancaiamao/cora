@@ -1,8 +1,14 @@
 ;; Hello World HTTP server
-;; Usage: DYLD_LIBRARY_PATH=./src ./cora examples/http/hello-server.cora
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora example/http/hello-server.cora
 ;; Then: curl http://localhost:8080/
 
-(import "cora/lib/http")
+(import "cora/lib/net/http")
+(import "cora/lib/io")
+
+(func concat
+  [] => ""
+  [x] => x
+  [x . xs] => (string-append x (concat xs)))
 
 (defun hello-handler (req)
   (let path (http-request-get req 'path)
@@ -11,15 +17,16 @@
     (display (http-request-get req 'method))
     (display " ")
     (display path)
-    (newline)
+    (display "\n")
     
     (http-response-html
-      (string-append
+      (concat
+        [
         "<html><body>"
         "<h1>Hello from Cora!</h1>"
         "<p>You requested: " path "</p>"
         "<p>Method: " (http-request-get req 'method) "</p>"
-        "</body></html>")))))
+        "</body></html>"])))))
 
 (display "Starting Hello World HTTP server on :8080\n")
-(http-listen-and-serve ":8080" hello-handler)
+(listen-and-serve "127.0.0.1:8080" hello-handler)

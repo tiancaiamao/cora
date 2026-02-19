@@ -1,29 +1,24 @@
 ;; HTTP server with routing
-;; Usage: DYLD_LIBRARY_PATH=./src ./cora examples/http/router-server.cora
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora example/http/router-server.cora
 ;; Then: curl http://localhost:8080/ or curl http://localhost:8080/api/status
 
-(import "cora/lib/http")
+(import "cora/lib/net/http")
 
 ;; Create router
-(let mux (http-new-serve-mux)
-  (begin
-    ;; Add routes
-    (set 'mux (http-handle mux "/" 
-      (lambda (req)
-        (http-response-html "<h1>Home Page</h1>"))))
-    
-    (set 'mux (http-handle mux "/api/status"
-      (lambda (req)
-        (http-response-json "{\"status\":\"ok\",\"version\":\"1.0\"}"))))
-    
-    (set 'mux (http-handle mux "/api/time"
-      (lambda (req)
-        (http-response-json "{\"time\":\"2025-01-18T00:00:00Z\"}"))))
-    
-    ;; Start server with router
-    (display "Starting HTTP server with routing on :8080\n")
-    (display "Routes:\n")
-    (display "  GET /           - Home page\n")
-    (display "  GET /api/status - Status API\n")
-    (display "  GET /api/time   - Time API\n")
-    (http-listen-and-serve ":8080" (http-mux-handler mux))))
+(let mux0 (http-new-serve-mux)
+  (let mux1 (http-handle mux0 "/"
+                         (lambda (req)
+                           (http-response-html "<h1>Home Page</h1>")))
+    (let mux2 (http-handle mux1 "/api/status"
+                           (lambda (req)
+                             (http-response-json "{\"status\":\"ok\",\"version\":\"1.0\"}")))
+      (let mux3 (http-handle mux2 "/api/time"
+                             (lambda (req)
+                               (http-response-json "{\"time\":\"2026-02-19T00:00:00Z\"}")))
+        (begin
+          (display "Starting HTTP server with routing on :8080\n")
+          (display "Routes:\n")
+          (display "  GET /           - Home page\n")
+          (display "  GET /api/status - Status API\n")
+          (display "  GET /api/time   - Time API\n")
+          (http-listen-and-serve ":8080" (http-mux-handler mux3)))))))

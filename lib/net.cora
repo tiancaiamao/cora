@@ -5,6 +5,7 @@
 (package "cora/lib/net"
   (import "cora/lib/cml")
   (import "cora/lib/string")
+  (import "cora/lib/io")
   (import "cora/lib/async")
 
   (export
@@ -28,25 +29,59 @@
   (defun bytes->string (b)
     b)
 
+  (defun net-log-error (where msg)
+    (begin
+      (display "net error [")
+      (display where)
+      (display "]: ")
+      (display msg)
+      (display "\n")))
+
+  (defun net-unwrap (where result fallback)
+    (match result
+      ['ok value] value
+      ['err msg] (begin
+                   (net-log-error where msg)
+                   fallback)
+      _ fallback))
+
   (defun net-listen (addr)
-    (cora/lib/async#async-listen addr))
+    (net-unwrap "net-listen" (cora/lib/async#async-listen addr) ()))
 
   (defun net-dial (addr)
-    (cora/lib/async#async-dial addr))
+    (net-unwrap "net-dial" (cora/lib/async#async-dial addr) ()))
 
   (defun net-accept (listener)
-    (cora/lib/async#async-accept listener))
+    (net-unwrap "net-accept" (cora/lib/async#async-accept listener) ()))
 
   (defun net-recv (conn size)
     (let buf (make-bytes size)
-      (let n (cora/lib/async#async-recv conn buf)
+      (match (cora/lib/async#async-recv conn buf)
+        ['ok n]
         (if (= n 0)
-            ()  ;; connection is closed
-            (bytes-substring buf 0 n)))))
+            ()
+            (bytes-substring buf 0 n))
+        ['err msg]
+        (begin
+          (net-log-error "net-recv" msg)
+          ())
+        _
+        ())))
 
   (defun net-send (conn data)
-    (cora/lib/async#async-send conn data))
+    (match (cora/lib/async#async-send conn data)
+      ['ok n] n
+      ['err msg]
+      (begin
+        (net-log-error "net-send" msg)
+        0)
+      _
+      0))
 
   (defun net-close (conn)
-    (cora/lib/async#async-conn-close conn))
+    (match (cora/lib/async#async-conn-close conn)
+      ['ok _] ()
+      ['err msg]
+      (net-log-error "net-close" msg)
+      _ ()))
     )

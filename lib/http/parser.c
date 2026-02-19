@@ -35,6 +35,11 @@ httpInternalParseRequest(struct Cora *co, int label, Obj *R) {
                                 &minor_version,
                                 headers, &num_headers, 0);
 
+    if (ret == -2) {
+        coraReturn(co, intern("http-internal-incomplete"));
+        return;
+    }
+
     if (ret < 0) {
         /* Parse failed - return nil */
         coraReturn(co, Nil);
@@ -90,6 +95,48 @@ httpInternalParseRequest(struct Cora *co, int label, Obj *R) {
     coraReturn(co, result);
 }
 
+/* Unwrap malformed quoted dotted pair tails: `(. v)` -> `v`. */
+static Obj
+httpUnwrapDotValue(Obj raw) {
+	if (!iscons(raw)) {
+		return raw;
+	}
+
+	Obj first = car(raw);
+	Obj rest = cdr(raw);
+
+	/* Handle malformed quoted `(k . v)` in parens:
+	   cdr becomes `(. v)` in Cora reader. */
+	if (first == intern(".")) {
+		if (iscons(rest) && cdr(rest) == Nil) {
+			return car(rest);
+		}
+		return raw;
+	}
+
+	return raw;
+}
+
+static bool
+httpExtractHeader(Obj entry, Obj *name_out, Obj *value_out) {
+	if (!iscons(entry)) {
+		return false;
+	}
+
+	Obj name = car(entry);
+	Obj value = httpUnwrapDotValue(cdr(entry));
+	if (iscons(value) && cdr(value) == Nil) {
+		value = car(value);
+	}
+	if (!isBytes(name) || !isBytes(value)) {
+		return false;
+	}
+
+	*name_out = name;
+	*value_out = value;
+	return true;
+}
+
 /* Build HTTP response from Cora data structure */
 static void
 httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
@@ -99,23 +146,50 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
     int status = 200;
     Obj headers = Nil;
     Obj body = makeString(co->gc, "", 0);
+    Obj key_status = intern("status");
+    Obj key_headers = intern("headers");
+    Obj key_body = intern("body");
 
     /* Iterate through association list */
     Obj curr = response;
     while (curr != Nil) {
-        Obj pair = car(curr);
-        Obj key = car(pair);
-        Obj value = cdr(pair);
+		if (!iscons(curr)) {
+			break;
+		}
 
-        if (key == intern("status")) {
-            status = fixnum(value);
-        } else if (key == intern("headers")) {
-            headers = value;
-        } else if (key == intern("body")) {
-            body = value;
-        }
+		Obj pair = car(curr);
+		if (!iscons(pair)) {
+			curr = cdr(curr);
+			continue;
+		}
 
-        curr = cdr(curr);
+		Obj key = car(pair);
+		Obj raw_value = cdr(pair);
+
+		if (key == key_status) {
+			Obj value = httpUnwrapDotValue(raw_value);
+			if (iscons(value) && cdr(value) == Nil) {
+				value = car(value);
+			}
+			if (isfixnum(value)) {
+				status = fixnum(value);
+			}
+		} else if (key == key_headers) {
+			Obj value = httpUnwrapDotValue(raw_value);
+			if (value == Nil || iscons(value)) {
+				headers = value;
+			}
+		} else if (key == key_body) {
+			Obj value = httpUnwrapDotValue(raw_value);
+			if (iscons(value) && cdr(value) == Nil) {
+				value = car(value);
+			}
+			if (isBytes(value)) {
+				body = value;
+			}
+		}
+
+		curr = cdr(curr);
     }
 
     /* Build status line */
@@ -138,15 +212,19 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
     Obj curr_header = headers;
     size_t headers_len = 0;
     while (curr_header != Nil) {
-        Obj pair = car(curr_header);
-        Obj hname = car(pair);
-        Obj hvalue = cdr(pair);
-        struct scmBytes *name = ptr(hname);
-        struct scmBytes *value_buf = ptr(hvalue);
-        headers_len += name->len;
-        headers_len += value_buf->len;
-        headers_len += 4; /* ": " + "\r\n" */
-        curr_header = cdr(curr_header);
+		if (!iscons(curr_header)) {
+			break;
+		}
+
+		Obj hname, hvalue;
+		if (httpExtractHeader(car(curr_header), &hname, &hvalue)) {
+			struct scmBytes *name = ptr(hname);
+			struct scmBytes *value_buf = ptr(hvalue);
+			headers_len += name->len;
+			headers_len += value_buf->len;
+			headers_len += 4; /* ": " + "\r\n" */
+		}
+		curr_header = cdr(curr_header);
     }
 
     /* Get body length */
@@ -167,22 +245,36 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
 
     /* Build response */
     char *p = resp_buf;
-    p += sprintf(p, "%s", status_line);
+    size_t status_line_len = strlen(status_line);
+    memcpy(p, status_line, status_line_len);
+    p += status_line_len;
 
     /* Add headers */
     curr_header = headers;
     while (curr_header != Nil) {
-        Obj pair = car(curr_header);
-        Obj hname = car(pair);
-        Obj hvalue = cdr(pair);
-        struct scmBytes *name = ptr(hname);
-        struct scmBytes *value_buf = ptr(hvalue);
-        p += sprintf(p, "%.*s: %.*s\r\n", name->len, name->data, value_buf->len, value_buf->data);
-        curr_header = cdr(curr_header);
+		if (!iscons(curr_header)) {
+			break;
+		}
+
+		Obj hname, hvalue;
+		if (httpExtractHeader(car(curr_header), &hname, &hvalue)) {
+			struct scmBytes *name = ptr(hname);
+			struct scmBytes *value_buf = ptr(hvalue);
+			memcpy(p, name->data, name->len);
+			p += name->len;
+			memcpy(p, ": ", 2);
+			p += 2;
+			memcpy(p, value_buf->data, value_buf->len);
+			p += value_buf->len;
+			memcpy(p, "\r\n", 2);
+			p += 2;
+		}
+		curr_header = cdr(curr_header);
     }
 
     /* Add blank line */
-    p += sprintf(p, "\r\n");
+    memcpy(p, "\r\n", 2);
+    p += 2;
 
     /* Add body */
     if (body_len > 0 && body_buf != NULL) {

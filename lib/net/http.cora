@@ -1,0 +1,215 @@
+;; Complete HTTP server example
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora examples/http/hello-server.cora
+
+(package "cora/lib/net/http"
+  (import "cora/lib/net/http/internal")
+  (import "cora/lib/net/internal")
+  (import "cora/lib/string")
+  (import "cora/lib/io")
+
+  (export listen-and-serve http-listen-and-serve
+          http-request-get http-request-get-header
+          http-response-new http-response-ok http-response-not-found
+          http-response-error http-response-html http-response-json
+          http-new-serve-mux http-handle http-mux-handler)
+
+  ;; ============================================================================
+  ;; Request/Response Helpers
+  ;; ============================================================================
+
+  (defun http-assoc (key pairs)
+    (if (null? pairs)
+        ()
+        (let entry (car pairs)
+          (if (cons? entry)
+              (if (= key (car entry))
+                  entry
+                  (http-assoc key (cdr pairs)))
+              (http-assoc key (cdr pairs))))))
+
+  (defun http-request-get (req field)
+    (let pair (http-assoc field req)
+      (if (null? pair)
+          ()
+          (cdr pair))))
+
+  (defun http-request-get-header (req header-name)
+    (let headers (http-request-get req 'headers)
+      (if (null? headers)
+          ()
+          (let pair (http-assoc header-name headers)
+            (if (null? pair)
+                ()
+                (cdr pair))))))
+
+  (defun http-response-new (status headers body)
+    (list (cons 'status status)
+          (cons 'headers headers)
+          (cons 'body body)))
+
+  (defun http-response-ok (body)
+    (http-response-new 200
+                       (list (cons "Content-Type" "text/plain"))
+                       body))
+
+  (defun http-response-not-found ()
+    (http-response-new 404
+                       (list (cons "Content-Type" "text/html"))
+                       "<h1>404 Not Found</h1>"))
+
+  (defun http-response-error (msg)
+    (http-response-new 500
+                       (list (cons "Content-Type" "text/plain"))
+                       msg))
+
+  (defun http-response-html (html)
+    (http-response-new 200
+                       (list (cons "Content-Type" "text/html"))
+                       html))
+
+  (defun http-response-json (json)
+    (http-response-new 200
+                       (list (cons "Content-Type" "application/json"))
+                       json))
+
+  ;; ============================================================================
+  ;; HTTP Server
+  ;; ============================================================================
+
+  (defun http-parse-addr (addr)
+    (if (has-prefix? addr ":")
+        (list "0.0.0.0" (string-slice addr 1 (string-length addr)))
+        (let parts (string-split addr ":")
+             n (length parts)
+          (cond
+            ((= n 1)
+             (list "127.0.0.1" (car parts)))
+            ((= n 2)
+             (let host (car parts)
+                  port (cadr parts)
+               (if (= host "")
+                   (list "0.0.0.0" port)
+                   (list host port))))
+            (true
+             (list "127.0.0.1" "8080"))))))
+
+  (defun http-accept-blocking (listener-fd)
+    (let conn-fd (cora/lib/net/internal#net-accept listener-fd)
+      (if (< conn-fd 0)
+          (http-accept-blocking listener-fd)
+          conn-fd)))
+
+  (defun http-recv-blocking (sock buf)
+    (match (cora/lib/net/internal#async-socket-recv sock buf)
+      ['ok n] n
+      ['block n] (http-recv-blocking sock buf)
+      ['closed n] 0
+      ['error e] 0))
+
+  (defun http-send-blocking (sock bytes)
+    (match (cora/lib/net/internal#async-socket-send sock bytes)
+      ['ok n] n
+      ['block n] (http-send-blocking sock bytes)
+      ['closed n] 0
+      ['error e] 0))
+
+  (defun http-send-response (sock resp)
+    (let resp-bytes (http-internal-build-response resp)
+      (http-send-blocking sock resp-bytes)))
+
+  (defun http-send-bad-request (sock)
+    (http-send-response sock
+                        (http-response-new 400
+                                           (list (cons "Content-Type" "text/plain"))
+                                           "Bad Request")))
+
+  (defun http-read-request-more (sock acc remaining)
+    (if (= remaining 0)
+        ()
+        (match (http-internal-parse-request acc)
+          'http-internal-incomplete
+          (let buf (bytes 4096)
+               n (http-recv-blocking sock buf)
+            (if (> n 0)
+                (http-read-request-more sock
+                                        (string-append acc (string-slice buf 0 n))
+                                        (- remaining 1))
+                ()))
+          ()
+          ()
+          req
+          req)))
+
+  (defun http-read-request (sock)
+    (let buf (bytes 4096)
+         n (http-recv-blocking sock buf)
+      (if (> n 0)
+          (http-read-request-more sock (string-slice buf 0 n) 128)
+          ())))
+
+  (defun http-serve-conn (conn-fd handler)
+    (let sock (cora/lib/net/internal#async-socket-new conn-fd)
+      (if (= sock false)
+          (cora/lib/net/internal#net-close conn-fd)
+          (let req (http-read-request sock)
+            (if (null? req)
+                (begin
+                  (http-send-bad-request sock)
+                  (cora/lib/net/internal#net-close conn-fd))
+                (let resp (handler req)
+                  (begin
+                    (http-send-response sock resp)
+                    (cora/lib/net/internal#net-close conn-fd))))))))
+
+  (defun http-accept-loop (listener-fd handler)
+    (let conn-fd (http-accept-blocking listener-fd)
+      (begin
+        (http-serve-conn conn-fd handler)
+        (http-accept-loop listener-fd handler))))
+
+  (defun listen-and-serve (addr handler)
+    (let parsed (http-parse-addr addr)
+         host (car parsed)
+         port (cadr parsed)
+         listener-fd (cora/lib/net/internal#net-listen host port)
+      (if (< listener-fd 0)
+          (begin
+            (display "HTTP listen failed on ")
+            (display addr)
+            (display "\n")
+            ())
+          (begin
+            (display "HTTP server listening on ")
+            (display addr)
+            (display "\n")
+            (http-accept-loop listener-fd handler)))))
+
+  (defun http-listen-and-serve (addr handler)
+    (listen-and-serve addr handler))
+
+  ;; ============================================================================
+  ;; Simple Router (Optional)
+  ;; ============================================================================
+
+  (defun http-new-serve-mux ()
+    ())
+
+  (defun http-handle (mux pattern handler)
+    (cons (cons pattern handler) mux))
+
+  (defun http-mux-find-handler (mux path)
+    (if (null? mux)
+        (lambda (req) (http-response-not-found))
+        (let entry (car mux)
+             pattern (car entry)
+             handler (cdr entry)
+          (if (= pattern path)
+              handler
+              (http-mux-find-handler (cdr mux) path)))))
+
+  (defun http-mux-handler (mux)
+    (lambda (req)
+      (let path (http-request-get req 'path)
+           handler (http-mux-find-handler mux path)
+        (handler req))))
+  )

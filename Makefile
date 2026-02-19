@@ -48,9 +48,9 @@ test-parallel: cora
 test-http: cora
 	./test/http/run-tests.sh
 
-test-integration: test-poller test-parallel
+test-integration: test-poller test-parallel test-http
 
-test: test-core test-integration test-http
+test: test-core test-integration
 
 FAIL_ON_STDOUT := awk '{ print } END { if (NR > 0) { exit 1 } }'
 
