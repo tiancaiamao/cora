@@ -8,19 +8,22 @@
         handle-map-create
         handle-map-add
         handle-map-get
-        handle-map-delete)
+        handle-map-delete
+        handle-map-size)
 
     (define-record <handle-map>
         (make-handle-map)
         handle-map?
         (resource handle-map->resource handle-map-resource-set!)
-        (free-slots handle-map->free-slots handle-map-free-slots-set!))
+        (free-slots handle-map->free-slots handle-map-free-slots-set!)
+        (size handle-map->size handle-map-size-set!))
 
     (defun handle-map-create ()
         (let hm (make-handle-map)
             (begin
                 (handle-map-free-slots-set! hm (stack-create))
                 (handle-map-resource-set! hm (stack-create))
+                (handle-map-size-set! hm 0)
                 hm)))
 
     (defun handle-map-add (hm val)
@@ -30,17 +33,22 @@
                 (let resource (handle-map->resource hm)
                     free-slots (handle-map->free-slots hm)
                     reused-handle (stack-pop! free-slots)
-                    (if (= reused-handle ())
-                        (stack-push! resource val)
-                        (if (number? reused-handle)
-                            (let arr (stack->data resource)
-                                cap (if (vector? arr) (vector-length arr) 0)
-                                (if (or (< reused-handle 0) (> reused-handle cap) (= reused-handle cap))
+                    (let handle (if (= reused-handle ())
                                     (stack-push! resource val)
-                                    (begin
-                                        (vector-set! arr reused-handle val)
-                                        reused-handle)))
-                            (stack-push! resource val)))))
+                                    (if (number? reused-handle)
+                                        (let arr (stack->data resource)
+                                            cap (if (vector? arr) (vector-length arr) 0)
+                                            (if (or (< reused-handle 0) (> reused-handle cap) (= reused-handle cap))
+                                                (stack-push! resource val)
+                                                (begin
+                                                    (vector-set! arr reused-handle val)
+                                                    reused-handle)))
+                                        (stack-push! resource val)))
+                        (begin
+                            (if (not (< handle 0))
+                                (handle-map-size-set! hm (+ (handle-map->size hm) 1))
+                                ())
+                            handle))))
             -1))
 
     (defun handle-map-get (hm handle)
@@ -66,6 +74,14 @@
                             ()
                             (begin
                                 (vector-set! arr handle ())
-                                (stack-push! free-slots handle))))))
+                                (stack-push! free-slots handle)
+                                (if (> (handle-map->size hm) 0)
+                                    (handle-map-size-set! hm (- (handle-map->size hm) 1))
+                                    ()))))))
             ()))
+
+    (defun handle-map-size (hm)
+        (if (handle-map? hm)
+            (handle-map->size hm)
+            0))
     )

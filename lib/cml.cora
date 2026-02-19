@@ -16,12 +16,10 @@
       enqueue-task add-task-to-blocked cancel-blocked-handle cml-active?)
 
   (def *blocked-coroutine* (handle-map-create))
-  (def *blocked-count* 0)
 
   (defun blocked-state-init ()
     (begin
-      (def *blocked-coroutine* (handle-map-create))
-      (def *blocked-count* 0)))
+      (def *blocked-coroutine* (handle-map-create))))
 
   (defun resume-handle (handle value)
         (let k (handle-map-get *blocked-coroutine* handle)
@@ -29,18 +27,10 @@
                 ()
                 (begin
                     (handle-map-delete *blocked-coroutine* handle)
-                    (if (> *blocked-count* 0)
-                        (def *blocked-count* (- *blocked-count* 1))
-                        ())
                     (enqueue-task (lambda () (k value)))))))
 
   (defun add-task-to-blocked (resume)
-      (let handle (handle-map-add *blocked-coroutine* resume)
-        (begin
-          (if (= handle -1)
-              ()
-              (def *blocked-count* (+ *blocked-count* 1)))
-          handle)))
+      (handle-map-add *blocked-coroutine* resume))
 
   (defun cancel-blocked-handle (handle)
     (let k (handle-map-get *blocked-coroutine* handle)
@@ -48,9 +38,6 @@
           false
           (begin
             (handle-map-delete *blocked-coroutine* handle)
-            (if (> *blocked-count* 0)
-                (def *blocked-count* (- *blocked-count* 1))
-                ())
             true))))
 
   ;; Global task queue (VM-local, not thread-local for parallel mode)
@@ -107,7 +94,7 @@
       (begin
           (schedule)
           (if (queue-empty? *task-queue*)
-              (if (> *blocked-count* 0)
+              (if (> (handle-map-size *blocked-coroutine*) 0)
                   (begin
                     (pump-poller-once 50)
                     (schedule-loop))
