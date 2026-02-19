@@ -22,6 +22,10 @@ jobs:
             target: test-poller
           - name: Parallel Integration Tests
             target: test-parallel
+          - name: HTTP Integration Tests
+            target: test-http
+          - name: GC Stability Tests
+            target: test-gc-stability
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

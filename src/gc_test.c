@@ -1,6 +1,36 @@
 #include "runtime.h"
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <time.h>
+
+static size_t
+read_size_env(const char *name, size_t fallback) {
+	const char *raw = getenv(name);
+	if (raw == NULL || *raw == '\0') {
+		return fallback;
+	}
+
+	errno = 0;
+	char *end = NULL;
+	unsigned long long parsed = strtoull(raw, &end, 10);
+	if (errno != 0 || end == raw || *end != '\0') {
+		return fallback;
+	}
+	if (parsed == 0 || parsed > SIZE_MAX) {
+		return fallback;
+	}
+	return (size_t)parsed;
+}
+
+static unsigned int
+read_seed_env(unsigned int fallback) {
+	size_t parsed = read_size_env("CORA_GC_SEED", fallback);
+	if (parsed > UINT_MAX) {
+		return fallback;
+	}
+	return (unsigned int)parsed;
+}
 
 size_t
 generate_logarithmic_random(size_t max_size) {
@@ -18,12 +48,8 @@ generate_mixed_random(size_t max_size) {
 }
 
 static void
-testWithSize(struct Cora *co, int maxSize, int count) {
-	unsigned int seed = (unsigned int)time(NULL);
-	/* unsigned int seed = 1742627754; */
-	printf("test using seed %u\n", seed);
-	srand(seed);
-	for (int i = 0; i < count; i++) {
+testWithSize(struct Cora *co, size_t maxSize, size_t count) {
+	for (size_t i = 0; i < count; i++) {
 		size_t sz = generate_mixed_random(maxSize);
 		if (sz <= sizeof(scmHead)) {
 			continue;
@@ -34,19 +60,31 @@ testWithSize(struct Cora *co, int maxSize, int count) {
 }
 
 static void
-TestSmallObjects(struct Cora *co) {
-	testWithSize(co, 4 * 1024, 10000);
+TestSmallObjects(struct Cora *co, size_t maxSize, size_t count) {
+	testWithSize(co, maxSize, count);
 }
 
 static void
-TestLargeObjects(struct Cora *co) {
-	testWithSize(co, 64 * 1024 * 1024, 1000);
+TestLargeObjects(struct Cora *co, size_t maxSize, size_t count) {
+	testWithSize(co, maxSize, count);
 }
 
 int
 main(int argc, char *argv[]) {
+	(void)argc;
+	(void)argv;
 	uintptr_t dummy;
 	struct Cora *co = coraInit(&dummy);
-	TestSmallObjects(co);
-	TestLargeObjects(co);
+	unsigned int seed = read_seed_env((unsigned int)time(NULL));
+	size_t small_max = read_size_env("CORA_GC_SMALL_MAX", 4 * 1024);
+	size_t small_count = read_size_env("CORA_GC_SMALL_COUNT", 10000);
+	size_t large_max = read_size_env("CORA_GC_LARGE_MAX", 64 * 1024 * 1024);
+	size_t large_count = read_size_env("CORA_GC_LARGE_COUNT", 1000);
+
+	printf("gc.test seed=%u small=(count=%zu,max=%zu) large=(count=%zu,max=%zu)\n",
+	       seed, small_count, small_max, large_count, large_max);
+	srand(seed);
+	TestSmallObjects(co, small_max, small_count);
+	TestLargeObjects(co, large_max, large_count);
+	return 0;
 }
