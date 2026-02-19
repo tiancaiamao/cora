@@ -1,9 +1,10 @@
-;; Complete HTTP server example
-;; Usage: DYLD_LIBRARY_PATH=./src ./cora examples/http/hello-server.cora
+;; HTTP server library
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora example/http/hello-server.cora
 
 (package "cora/lib/net/http"
   (import "cora/lib/net/http/internal")
-  (import "cora/lib/net/internal")
+  (import "cora/lib/net")
+  (import "cora/lib/cml")
   (import "cora/lib/string")
   (import "cora/lib/io")
 
@@ -73,122 +74,88 @@
                        json))
 
   ;; ============================================================================
-  ;; HTTP Server
+  ;; HTTP Server (CML coroutine based)
   ;; ============================================================================
 
-  (defun http-parse-addr (addr)
+  (defun http-normalize-addr (addr)
     (if (has-prefix? addr ":")
-        (list "0.0.0.0" (string-slice addr 1 (string-length addr)))
-        (let parts (string-split addr ":")
-             n (length parts)
-          (cond
-            ((= n 1)
-             (list "127.0.0.1" (car parts)))
-            ((= n 2)
-             (let host (car parts)
-                  port (cadr parts)
-               (if (= host "")
-                   (list "0.0.0.0" port)
-                   (list host port))))
-            (true
-             (list "127.0.0.1" "8080"))))))
+        (string-append "0.0.0.0:" (string-slice addr 1 (string-length addr)))
+        addr))
 
-  (defun http-accept-blocking (listener-fd)
-    (let conn-fd (cora/lib/net/internal#net-accept listener-fd)
-      (if (< conn-fd 0)
-          (http-accept-blocking listener-fd)
-          conn-fd)))
-
-  (defun http-recv-blocking (sock buf)
-    (match (cora/lib/net/internal#async-socket-recv sock buf)
-      ['ok n] n
-      ['block n] (http-recv-blocking sock buf)
-      ['closed n] 0
-      ['error e] 0))
-
-  (defun http-send-blocking (sock bytes)
-    (match (cora/lib/net/internal#async-socket-send sock bytes)
-      ['ok n] n
-      ['block n] (http-send-blocking sock bytes)
-      ['closed n] 0
-      ['error e] 0))
-
-  (defun http-send-response (sock resp)
+  (defun http-send-response (conn resp)
     (let resp-bytes (http-internal-build-response resp)
-      (http-send-blocking sock resp-bytes)))
+      (net-send conn resp-bytes)))
 
-  (defun http-send-bad-request (sock)
-    (http-send-response sock
+  (defun http-send-bad-request (conn)
+    (http-send-response conn
                         (http-response-new 400
                                            (list (cons "Content-Type" "text/plain"))
                                            "Bad Request")))
 
-  (defun http-read-request-more (sock acc remaining)
+  (defun http-read-request-more (conn acc remaining)
     (if (= remaining 0)
         ()
         (match (http-internal-parse-request acc)
           'http-internal-incomplete
-          (let buf (bytes 4096)
-               n (http-recv-blocking sock buf)
-            (if (> n 0)
-                (http-read-request-more sock
-                                        (string-append acc (string-slice buf 0 n))
-                                        (- remaining 1))
-                ()))
+          (let chunk (net-recv conn 4096)
+            (if (null? chunk)
+                ()
+                (http-read-request-more conn
+                                        (string-append acc chunk)
+                                        (- remaining 1))))
           ()
           ()
           req
           req)))
 
-  (defun http-read-request (sock)
-    (let buf (bytes 4096)
-         n (http-recv-blocking sock buf)
-      (if (> n 0)
-          (http-read-request-more sock (string-slice buf 0 n) 128)
-          ())))
+  (defun http-read-request (conn)
+    (let chunk (net-recv conn 4096)
+      (if (null? chunk)
+          ()
+          (http-read-request-more conn chunk 128))))
 
-  (defun http-serve-conn (conn-fd handler)
-    (let sock (cora/lib/net/internal#async-socket-new conn-fd)
-      (if (= sock false)
-          (cora/lib/net/internal#net-close conn-fd)
-          (let req (http-read-request sock)
-            (if (null? req)
-                (begin
-                  (http-send-bad-request sock)
-                  (cora/lib/net/internal#net-close conn-fd))
-                (let resp (handler req)
-                  (begin
-                    (http-send-response sock resp)
-                    (cora/lib/net/internal#net-close conn-fd))))))))
-
-  (defun http-accept-loop (listener-fd handler)
-    (let conn-fd (http-accept-blocking listener-fd)
+  (defun http-serve-conn (conn handler)
+    (let req (http-read-request conn)
       (begin
-        (http-serve-conn conn-fd handler)
-        (http-accept-loop listener-fd handler))))
+        (if (null? req)
+            (http-send-bad-request conn)
+            (let resp (handler req)
+              (http-send-response conn resp)))
+        (net-close conn))))
+
+  (defun http-accept-loop (listener handler)
+    (let conn (net-accept listener)
+      (begin
+        (if (null? conn)
+            (yield)
+            (spawn (lambda () (http-serve-conn conn handler))))
+        (http-accept-loop listener handler))))
+
+  (defun http-listen-main (addr handler)
+    (let normalized-addr (http-normalize-addr addr)
+      (let listener (net-listen normalized-addr)
+        (if (null? listener)
+            (begin
+              (display "HTTP listen failed on ")
+              (display addr)
+              (display "\n")
+              ())
+            (begin
+              (display "HTTP server listening on ")
+              (display addr)
+              (display "\n")
+              (http-accept-loop listener handler))))))
 
   (defun listen-and-serve (addr handler)
-    (let parsed (http-parse-addr addr)
-         host (car parsed)
-         port (cadr parsed)
-         listener-fd (cora/lib/net/internal#net-listen host port)
-      (if (< listener-fd 0)
-          (begin
-            (display "HTTP listen failed on ")
-            (display addr)
-            (display "\n")
-            ())
-          (begin
-            (display "HTTP server listening on ")
-            (display addr)
-            (display "\n")
-            (http-accept-loop listener-fd handler)))))
+    (if (cml-active?)
+        (http-listen-main addr handler)
+        (cml-entry (lambda () (http-listen-main addr handler)))))
 
   (defun http-listen-and-serve (addr handler)
     (listen-and-serve addr handler))
 
   ;; ============================================================================
-  ;; Simple Router (Optional)
+  ;; Simple Router
   ;; ============================================================================
 
   (defun http-new-serve-mux ()

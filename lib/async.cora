@@ -97,12 +97,14 @@
   (defun default-wrap (x) x)
 
   (defun parse-addr (addr)
-    (let parts (string-split addr ":")
-         len-parts (length parts)
-         (cond
-             ((= len-parts 2) (async-ok parts))
-             ((= len-parts 1) (async-ok (cons "127.0.0.1" parts)))
-             (true (async-err "invalid address")))))
+    (if (has-prefix? addr ":")
+        (async-ok (list "0.0.0.0" (string-slice addr 1 (string-length addr))))
+        (let parts (string-split addr ":")
+             len-parts (length parts)
+             (cond
+               ((= len-parts 2) (async-ok parts))
+               ((= len-parts 1) (async-ok (cons "127.0.0.1" parts)))
+               (true (async-err "invalid address"))))))
 
   (defun enqueue-blocked (retry-fn)
     (let handle (add-task-to-blocked retry-fn)

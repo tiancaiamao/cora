@@ -13,7 +13,7 @@
   (import "cora/lib/handle-map")
 
   (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
-      enqueue-task add-task-to-blocked cancel-blocked-handle)
+      enqueue-task add-task-to-blocked cancel-blocked-handle cml-active?)
 
   (def *blocked-coroutine* (handle-map-create))
   (def *blocked-count* 0)
@@ -58,6 +58,9 @@
 
   (defun task-queue ()
     *task-queue*)
+
+  (defun cml-active? ()
+    (not (null? *task-queue*)))
 
   (defun task-queue-init ()
     (def *task-queue* (queue-make)))
