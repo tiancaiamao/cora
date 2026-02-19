@@ -109,9 +109,9 @@ add_cora_module(cora_trace trace lib/trace.c ${CORA_OUT_LIB})
 add_cora_module(cora_toc_internal internal lib/toc/internal.c ${CORA_OUT_LIB}/toc)
 
 # HTTP library (canonical module path: cora/lib/net/http/internal)
-add_cora_module(cora_http_internal internal lib/http/parser.c ${CORA_OUT_LIB}/net/http)
-target_include_directories(cora_http_internal PRIVATE ${CORA_COMMON_INCLUDES} ${CMAKE_SOURCE_DIR}/lib/http/picohttpparser)
-target_sources(cora_http_internal PRIVATE lib/http/picohttpparser/picohttpparser.c)
+add_cora_module(cora_http_internal internal lib/net/http/parser.c ${CORA_OUT_LIB}/net/http)
+target_include_directories(cora_http_internal PRIVATE ${CORA_COMMON_INCLUDES} ${CMAKE_SOURCE_DIR}/lib/net/http/picohttpparser)
+target_sources(cora_http_internal PRIVATE lib/net/http/picohttpparser/picohttpparser.c)
 
 add_library(cora_io_core OBJECT
   lib/poller/poller.c

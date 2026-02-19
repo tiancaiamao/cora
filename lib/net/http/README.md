@@ -121,7 +121,7 @@ Primary module path: `cora/lib/net/http`
 
 ## Examples
 
-See `examples/http/` directory:
+See `example/http/` directory:
 
 - `hello-server.cora` - Basic hello world server
 - `router-server.cora` - Server with multiple routes
@@ -209,5 +209,5 @@ DYLD_LIBRARY_PATH=./src ./cora test/http/test-response-builder.cora
 
 ## Related
 
-- [MISSING_INFRASTRUCTURE.md](MISSING_INFRASTRUCTURE.md) - Missing features discovered during implementation
-- [Cora Language](../README.md) - Main Cora documentation
+- [MISSING_INFRASTRUCTURE.md](../../../MISSING_INFRASTRUCTURE.md) - Missing features discovered during implementation
+- [Cora Language](../../../README.md) - Main Cora documentation
