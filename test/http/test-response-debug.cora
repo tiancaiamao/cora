@@ -1,6 +1,6 @@
 ;; Test HTTP response builder - debug headers
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "=== Debug: Check headers structure ===\n\n")
 

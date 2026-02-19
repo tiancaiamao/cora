@@ -1,6 +1,6 @@
 ;; Test HTTP response builder
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "=== HTTP Response Builder Tests ===\n\n")
 

@@ -1,6 +1,6 @@
 ;; Simple test to check if module loads
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "Module loaded successfully!\n")
 

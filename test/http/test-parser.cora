@@ -1,6 +1,6 @@
 ;; Test HTTP request parser
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (defun test-parse-get ()
   (let req-str "GET /foo?bar=1 HTTP/1.1\r\nHost: localhost\r\nUser-Agent: test\r\n\r\n")

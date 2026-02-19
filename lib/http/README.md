@@ -53,8 +53,7 @@ curl http://localhost:8080/
 
 ## API Reference
 
-Primary module path: `cora/lib/net/http`  
-Backward-compatible alias: `cora/lib/http`
+Primary module path: `cora/lib/net/http`
 
 ### Request Helpers
 
@@ -172,7 +171,7 @@ See `examples/http/` directory:
 cd build && make cora_http_internal
 
 # Library is automatically installed to:
-# ~/.local/share/cora/pkg/cora/lib/http/internal.so
+# ~/.local/share/cora/pkg/cora/lib/net/http/internal.so
 ```
 
 ## Testing

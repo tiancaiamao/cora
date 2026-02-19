@@ -1,6 +1,6 @@
 ;; Simple test - check byte values
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "Testing bytes...\n")
 

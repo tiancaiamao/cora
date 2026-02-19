@@ -25,7 +25,7 @@
 
   (defun resume-handle (handle value)
         (let k (handle-map-get *blocked-coroutine* handle)
-            (if (= k ())
+            (if (null? k)
                 ()
                 (begin
                     (handle-map-delete *blocked-coroutine* handle)
@@ -44,7 +44,7 @@
 
   (defun cancel-blocked-handle (handle)
     (let k (handle-map-get *blocked-coroutine* handle)
-      (if (= k ())
+      (if (null? k)
           false
           (begin
             (handle-map-delete *blocked-coroutine* handle)

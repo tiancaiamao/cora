@@ -1,6 +1,6 @@
 ;; Test simple parse - debug why parser returns nil
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 (import "cora/lib/net")
 
 (display "=== Test 1: Check bytes ===\n")

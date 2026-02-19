@@ -1,7 +1,7 @@
 ;; Test HTTP parse - use actual bytes instead of string literals
 ;; Since Cora string literals don't support \r escape
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "=== Test: Parse HTTP request ===\n")
 

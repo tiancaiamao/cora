@@ -1,14 +1,15 @@
-;; Compatibility shim for net/http internal package.
-;; Reuses the existing C-backed implementation in cora/lib/http/internal.
+;; HTTP library internal bindings
+;; Low-level C function bindings for HTTP parsing and building
 
 (package "cora/lib/net/http/internal"
-  (import "cora/lib/http/internal")
 
-  (export http-internal-parse-request http-internal-build-response)
+  (import "cora/internal")
 
-  (defun http-internal-parse-request (bytes)
-    (cora/lib/http/internal#http-internal-parse-request bytes))
+  ;; C function: parse HTTP request
+  ;; (http-internal-parse-request bytes) -> request-alist
+  (defprim http-internal-parse-request 1)
 
-  (defun http-internal-build-response (response)
-    (cora/lib/http/internal#http-internal-build-response response))
+  ;; C function: build HTTP response
+  ;; (http-internal-build-response response-alist) -> bytes
+  (defprim http-internal-build-response 1)
 )

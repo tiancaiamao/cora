@@ -1,6 +1,6 @@
 ;; Test with very simple request
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 (import "cora/lib/net")
 
 (display "Test 1: Minimal request\n")

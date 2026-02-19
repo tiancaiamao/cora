@@ -1,6 +1,6 @@
 ;; Test if module loads and we can call a function
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 (import "cora/lib/net")
 
 (display "Before import\n")

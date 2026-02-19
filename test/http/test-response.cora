@@ -1,6 +1,6 @@
 ;; Test HTTP response builder
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (defun test-build-response ()
   (display "Testing HTTP response builder...\n")

@@ -1,6 +1,6 @@
 ;; Test simple parse - without newline function
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 (import "cora/lib/net")
 
 (display "Test 1: bytes creation\n")

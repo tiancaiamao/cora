@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "picohttpparser/picohttpparser.h"
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -137,6 +138,46 @@ httpExtractHeader(Obj entry, Obj *name_out, Obj *value_out) {
 	return true;
 }
 
+static const char *
+httpStatusText(int status) {
+	switch (status) {
+	case 200:
+		return "OK";
+	case 201:
+		return "Created";
+	case 204:
+		return "No Content";
+	case 301:
+		return "Moved Permanently";
+	case 302:
+		return "Found";
+	case 307:
+		return "Temporary Redirect";
+	case 308:
+		return "Permanent Redirect";
+	case 400:
+		return "Bad Request";
+	case 401:
+		return "Unauthorized";
+	case 403:
+		return "Forbidden";
+	case 404:
+		return "Not Found";
+	case 413:
+		return "Request Entity Too Large";
+	case 500:
+		return "Internal Server Error";
+	case 502:
+		return "Bad Gateway";
+	case 503:
+		return "Service Unavailable";
+	case 504:
+		return "Gateway Timeout";
+	default:
+		return "Unknown Status";
+	}
+}
+
 /* Build HTTP response from Cora data structure */
 static void
 httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
@@ -192,17 +233,18 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
 		curr = cdr(curr);
     }
 
+    struct scmBytes *body_buf = NULL;
+    size_t body_len = 0;
+    if (isBytes(body)) {
+        body_buf = ptr(body);
+        if (body_buf != NULL) {
+            body_len = body_buf->len;
+        }
+    }
+
     /* Build status line */
     char status_line[256];
-    const char *status_text = "OK";
-    switch (status) {
-        case 200: status_text = "OK"; break;
-        case 201: status_text = "Created"; break;
-        case 204: status_text = "No Content"; break;
-        case 400: status_text = "Bad Request"; break;
-        case 404: status_text = "Not Found"; break;
-        case 500: status_text = "Internal Server Error"; break;
-    }
+    const char *status_text = httpStatusText(status);
     snprintf(status_line, sizeof(status_line), "HTTP/1.1 %d %s\r\n", status, status_text);
 
     /* Start building response */
@@ -211,25 +253,41 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
     /* Calculate headers length */
     Obj curr_header = headers;
     size_t headers_len = 0;
+    bool has_content_length = false;
     while (curr_header != Nil) {
 		if (!iscons(curr_header)) {
 			break;
 		}
 
-		Obj hname, hvalue;
-		if (httpExtractHeader(car(curr_header), &hname, &hvalue)) {
-			struct scmBytes *name = ptr(hname);
-			struct scmBytes *value_buf = ptr(hvalue);
-			headers_len += name->len;
-			headers_len += value_buf->len;
-			headers_len += 4; /* ": " + "\r\n" */
-		}
-		curr_header = cdr(curr_header);
-    }
+			Obj hname, hvalue;
+			if (httpExtractHeader(car(curr_header), &hname, &hvalue)) {
+				struct scmBytes *name = ptr(hname);
+				struct scmBytes *value_buf = ptr(hvalue);
+				headers_len += name->len;
+				headers_len += value_buf->len;
+				headers_len += 4; /* ": " + "\r\n" */
+				if (name->len == strlen("Content-Length")
+				    && strncasecmp(name->data, "Content-Length", name->len) == 0) {
+					has_content_length = true;
+				}
+			}
+			curr_header = cdr(curr_header);
+	    }
 
-    /* Get body length */
-    struct scmBytes *body_buf = ptr(body);
-    size_t body_len = body_buf->len;
+    char content_length_value[32];
+    int content_length_value_len = snprintf(content_length_value,
+                                            sizeof(content_length_value),
+                                            "%zu",
+                                            body_len);
+    if (content_length_value_len < 0) {
+        content_length_value_len = 0;
+        content_length_value[0] = '\0';
+    }
+    if (!has_content_length) {
+        headers_len += strlen("Content-Length");
+        headers_len += (size_t)content_length_value_len;
+        headers_len += 4; /* ": " + "\r\n" */
+    }
 
     /* Total response length */
     total_len += headers_len;
@@ -239,7 +297,11 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
     /* Allocate response buffer */
     char *resp_buf = (char*)malloc(total_len + 1);
     if (!resp_buf) {
-        coraReturn(co, makeString(co->gc, "", 0));
+        static const char fallback[] =
+            "HTTP/1.1 500 Internal Server Error\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+        coraReturn(co, makeString(co->gc, fallback, sizeof(fallback) - 1));
         return;
     }
 
@@ -251,7 +313,7 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
 
     /* Add headers */
     curr_header = headers;
-    while (curr_header != Nil) {
+	    while (curr_header != Nil) {
 		if (!iscons(curr_header)) {
 			break;
 		}
@@ -269,7 +331,18 @@ httpInternalBuildResponse(struct Cora *co, int label, Obj *R) {
 			memcpy(p, "\r\n", 2);
 			p += 2;
 		}
-		curr_header = cdr(curr_header);
+			curr_header = cdr(curr_header);
+	    }
+
+    if (!has_content_length) {
+        memcpy(p, "Content-Length", strlen("Content-Length"));
+        p += strlen("Content-Length");
+        memcpy(p, ": ", 2);
+        p += 2;
+        memcpy(p, content_length_value, (size_t)content_length_value_len);
+        p += (size_t)content_length_value_len;
+        memcpy(p, "\r\n", 2);
+        p += 2;
     }
 
     /* Add blank line */

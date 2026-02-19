@@ -1,6 +1,6 @@
 ;; Test HTTP request parsing
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "=== Test HTTP Parser ===\n\n")
 

@@ -1,6 +1,6 @@
 ;; Debug: Check if \r\n works correctly
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 
 (display "=== Debug test ===\n")
 

@@ -1,6 +1,6 @@
 ;; Test simple parse
 
-(import "cora/lib/http/internal")
+(import "cora/lib/net/http/internal")
 (import "cora/lib/net")
 
 (display "Starting test...\n")

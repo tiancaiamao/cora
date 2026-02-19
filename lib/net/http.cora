@@ -92,21 +92,29 @@
                                            (list (cons "Content-Type" "text/plain"))
                                            "Bad Request")))
 
+  (defun http-send-request-too-large (conn)
+    (http-send-response conn
+                        (http-response-new 413
+                                           (list (cons "Content-Type" "text/plain"))
+                                           "Request Entity Too Large")))
+
   (defun http-read-request-more (conn acc remaining)
-    (if (= remaining 0)
-        ()
-        (match (http-internal-parse-request acc)
-          'http-internal-incomplete
-          (let chunk (net-recv conn 4096)
-            (if (null? chunk)
-                ()
-                (http-read-request-more conn
-                                        (string-append acc chunk)
-                                        (- remaining 1))))
-          ()
-          ()
-          req
-          req)))
+    (if (> (string-length acc) 1048576)
+        'http-request-too-large
+        (if (= remaining 0)
+            ()
+            (match (http-internal-parse-request acc)
+              'http-internal-incomplete
+              (let chunk (net-recv conn 4096)
+                (if (null? chunk)
+                    ()
+                    (http-read-request-more conn
+                                            (string-append acc chunk)
+                                            (- remaining 1))))
+              ()
+              ()
+              req
+              req))))
 
   (defun http-read-request (conn)
     (let chunk (net-recv conn 4096)
@@ -117,10 +125,14 @@
   (defun http-serve-conn (conn handler)
     (let req (http-read-request conn)
       (begin
-        (if (null? req)
-            (http-send-bad-request conn)
-            (let resp (handler req)
-              (http-send-response conn resp)))
+        (cond
+          ((= req 'http-request-too-large)
+           (http-send-request-too-large conn))
+          ((null? req)
+           (http-send-bad-request conn))
+          (true
+           (let resp (handler req)
+             (http-send-response conn resp))))
         (net-close conn))))
 
   (defun http-accept-loop (listener handler)
