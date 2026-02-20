@@ -1,0 +1,16 @@
+;; Test simple parse
+
+(import "cora/lib/net/http/internal")
+(import "cora/lib/net")
+
+(display "Starting test...\n")
+(let s "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "String created\n")
+    (let b (string->bytes s)
+      (begin
+        (display "Bytes created\n")
+        (let r (http-internal-parse-request b)
+          (begin
+            (display "Parse returned\n")
+            (display r)))))))

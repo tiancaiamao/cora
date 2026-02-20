@@ -1,0 +1,91 @@
+;; Blog server - Serve static blog content
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora example/http/blog-server.cora
+;; Then: curl http://localhost:8080/ or curl http://localhost:8080/posts/hello
+
+(import "cora/lib/net/http")
+(import "cora/lib/io")
+(import "cora/lib/string")
+
+(func concat
+  [] => ""
+  [x] => x
+  [x . xs] => (string-append x (concat xs)))
+
+(func blog-post-content
+  "hello" => "<h1>Hello World</h1><p>My first blog post!</p>"
+  "welcome" => "<h1>Welcome</h1><p>Welcome to my Cora-powered blog!</p>"
+  "about" => "<h1>About</h1><p>This blog is built with Cora HTTP library.</p>"
+  _ => ())
+
+(defun render-page (content)
+  (concat
+    [
+     "<!DOCTYPE html>"
+     "<html>"
+     "<head>"
+     "<title>My Cora Blog</title>"
+     "<style>"
+     "body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; }"
+     "h1 { color: #333; }"
+     "a { color: #0066cc; text-decoration: none; }"
+     ".post-link { margin: 10px 0; }"
+     "</style>"
+     "</head>"
+     "<body>"
+     "<h1><a href='/'>My Cora Blog</a></h1>"
+     "<hr>"
+     content
+     "<hr>"
+     "<p><a href='/'>Back to Home</a></p>"
+     "</body>"
+     "</html>"]))
+
+(defun render-home ()
+  (render-page
+    (concat
+      [
+       "<h2>Posts</h2>"
+       "<div class='post-link'><a href='/posts/hello'>Hello World</a></div>"
+       "<div class='post-link'><a href='/posts/welcome'>Welcome</a></div>"
+       "<div class='post-link'><a href='/posts/about'>About</a></div>"
+       "<p>Powered by Cora net/http</p>"
+       ])))
+
+(defun render-post (content)
+  (render-page content))
+
+(defun blog-handler (req)
+  (let path (http-request-get req 'path)
+       method (http-request-get req 'method)
+    (begin
+      (display "Request: ")
+      (display method)
+      (display " ")
+      (display path)
+      (display "\n")
+      (cond
+        ((= path "/")
+         (http-response-html (render-home)))
+        ((has-prefix? path "/posts/")
+         (let slug (string-slice path 7 (string-length path))
+           (let content (blog-post-content slug)
+             (if (null? content)
+                 (http-response-not-found)
+                 (http-response-html (render-post content)))))
+         )
+        ((= path "/api/posts")
+         (http-response-json
+           "{\"posts\":[\"/posts/hello\",\"/posts/welcome\",\"/posts/about\"]}"))
+        (true
+         (http-response-not-found))))))
+
+(display "Starting Blog Server on :8080\n")
+(display "Visit http://localhost:8080/ to view the blog\n")
+(display "Available pages:\n")
+(display "  GET /              - Home page\n")
+(display "  GET /posts/hello   - Hello World post\n")
+(display "  GET /posts/welcome - Welcome post\n")
+(display "  GET /posts/about   - About post\n")
+(display "  GET /api/posts     - JSON API\n")
+
+(http-listen-and-serve ":8080" blog-handler)

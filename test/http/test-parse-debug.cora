@@ -1,0 +1,36 @@
+;; Test with very simple request
+
+(import "cora/lib/net/http/internal")
+(import "cora/lib/net")
+
+(display "Test 1: Minimal request\n")
+(let s1 "GET / HTTP/1.1\r\n\r\n"
+  (let b1 (string->bytes s1)
+    (let r1 (http-internal-parse-request b1)
+      (begin
+        (display "Result 1: ")
+        (display r1)
+        (display "\n")))))
+
+(display "\nTest 2: With Host header\n")
+(let s2 "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+  (let b2 (string->bytes s2)
+    (let r2 (http-internal-parse-request b2)
+      (begin
+        (display "Result 2: ")
+        (display r2)
+        (display "\n")))))
+
+(display "\nTest 3: Check bytes type\n")
+(let s3 "GET / HTTP/1.1\r\n\r\n"
+  (let b3 (string->bytes s3)
+    (begin
+      (display "Is bytes: ")
+      (display (bytes? b3))
+      (display "\n")
+      (display "Calling parse...\n")
+      (let r3 (http-internal-parse-request b3)
+        (begin
+          (display "Result 3: ")
+          (display r3)
+          (display "\n"))))))

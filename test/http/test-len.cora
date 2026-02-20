@@ -1,0 +1,11 @@
+;; Simple test - just check string length
+
+(import "cora/lib/net/http/internal")
+
+(display "Testing...\n")
+
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "Length: ")
+    (display (bytes-length req))
+    (display "\n")))

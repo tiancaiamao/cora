@@ -1,0 +1,15 @@
+;; Test bytes creation
+
+(import "cora/lib/net")
+
+(display "Creating bytes...\n")
+
+(let s "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+  (let b (string->bytes s)
+    (begin
+      (display "Bytes: ")
+      (display b)
+      (display "\n")
+      (display "Length: ")
+      (display (bytes-length b))
+      (display "\n"))))

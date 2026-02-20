@@ -1,0 +1,20 @@
+;; Test HTTP parser
+
+(import "cora/lib/net/http/internal")
+
+(display "Testing HTTP parser...\n")
+
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "Request length: ")
+    (display (bytes-length req))
+    (display "\n")
+    
+    (display "Parsing...\n")
+    (let result (http-internal-parse-request req))
+    (begin
+      (display "Parse result: ")
+      (display result)
+      (display "\n"))))
+
+(display "Done\n")

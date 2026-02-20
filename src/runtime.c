@@ -1045,6 +1045,7 @@ continuationAsClosure(Cora *co, int label, Obj *R) {
 static void
 builtinThrow(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinThrow");
+    assert(vecLen(&co->trystack) > 0);
 	struct tryMark mark = vecPop(&co->trystack);
 	Obj v = R[1];
 

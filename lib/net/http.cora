@@ -1,0 +1,194 @@
+;; HTTP server library
+;; Usage: DYLD_LIBRARY_PATH=./src ./cora example/http/hello-server.cora
+
+(package "cora/lib/net/http"
+  (import "cora/lib/net/http/internal")
+  (import "cora/lib/net")
+  (import "cora/lib/cml")
+  (import "cora/lib/string")
+  (import "cora/lib/io")
+
+  (export listen-and-serve http-listen-and-serve
+          http-request-get http-request-get-header
+          http-response-new http-response-ok http-response-not-found
+          http-response-error http-response-html http-response-json
+          http-new-serve-mux http-handle http-mux-handler)
+
+  ;; ============================================================================
+  ;; Request/Response Helpers
+  ;; ============================================================================
+
+  (defun http-assoc (key pairs)
+    (if (null? pairs)
+        ()
+        (let entry (car pairs)
+          (if (cons? entry)
+              (if (= key (car entry))
+                  entry
+                  (http-assoc key (cdr pairs)))
+              (http-assoc key (cdr pairs))))))
+
+  (defun http-request-get (req field)
+    (let pair (http-assoc field req)
+      (if (null? pair)
+          ()
+          (cdr pair))))
+
+  (defun http-request-get-header (req header-name)
+    (let headers (http-request-get req 'headers)
+      (if (null? headers)
+          ()
+          (let pair (http-assoc header-name headers)
+            (if (null? pair)
+                ()
+                (cdr pair))))))
+
+  (defun http-response-new (status headers body)
+    (list (cons 'status status)
+          (cons 'headers headers)
+          (cons 'body body)))
+
+  (defun http-response-ok (body)
+    (http-response-new 200
+                       (list (cons "Content-Type" "text/plain"))
+                       body))
+
+  (defun http-response-not-found ()
+    (http-response-new 404
+                       (list (cons "Content-Type" "text/html"))
+                       "<h1>404 Not Found</h1>"))
+
+  (defun http-response-error (msg)
+    (http-response-new 500
+                       (list (cons "Content-Type" "text/plain"))
+                       msg))
+
+  (defun http-response-html (html)
+    (http-response-new 200
+                       (list (cons "Content-Type" "text/html"))
+                       html))
+
+  (defun http-response-json (json)
+    (http-response-new 200
+                       (list (cons "Content-Type" "application/json"))
+                       json))
+
+  ;; ============================================================================
+  ;; HTTP Server (CML coroutine based)
+  ;; ============================================================================
+
+  (defun http-normalize-addr (addr)
+    (if (has-prefix? addr ":")
+        (string-append "0.0.0.0:" (string-slice addr 1 (string-length addr)))
+        addr))
+
+  (defun http-send-response (conn resp)
+    (let resp-bytes (http-internal-build-response resp)
+      (net-send conn resp-bytes)))
+
+  (defun http-send-bad-request (conn)
+    (http-send-response conn
+                        (http-response-new 400
+                                           (list (cons "Content-Type" "text/plain"))
+                                           "Bad Request")))
+
+  (defun http-send-request-too-large (conn)
+    (http-send-response conn
+                        (http-response-new 413
+                                           (list (cons "Content-Type" "text/plain"))
+                                           "Request Entity Too Large")))
+
+  (defun http-read-request-more (conn acc remaining)
+    (if (> (string-length acc) 1048576)
+        'http-request-too-large
+        (if (= remaining 0)
+            ()
+            (match (http-internal-parse-request acc)
+              'http-internal-incomplete
+              (let chunk (net-recv conn 4096)
+                (if (null? chunk)
+                    ()
+                    (http-read-request-more conn
+                                            (string-append acc chunk)
+                                            (- remaining 1))))
+              ()
+              ()
+              req
+              req))))
+
+  (defun http-read-request (conn)
+    (let chunk (net-recv conn 4096)
+      (if (null? chunk)
+          ()
+          (http-read-request-more conn chunk 128))))
+
+  (defun http-serve-conn (conn handler)
+    (let req (http-read-request conn)
+      (begin
+        (cond
+          ((= req 'http-request-too-large)
+           (http-send-request-too-large conn))
+          ((null? req)
+           (http-send-bad-request conn))
+          (true
+           (let resp (handler req)
+             (http-send-response conn resp))))
+        (net-close conn))))
+
+  (defun http-accept-loop (listener handler)
+    (let conn (net-accept listener)
+      (begin
+        (if (null? conn)
+            (yield)
+            (spawn (lambda () (http-serve-conn conn handler))))
+        (http-accept-loop listener handler))))
+
+  (defun http-listen-main (addr handler)
+    (let normalized-addr (http-normalize-addr addr)
+      (let listener (net-listen normalized-addr)
+        (if (null? listener)
+            (begin
+              (display "HTTP listen failed on ")
+              (display addr)
+              (display "\n")
+              ())
+            (begin
+              (display "HTTP server listening on ")
+              (display addr)
+              (display "\n")
+              (http-accept-loop listener handler))))))
+
+  (defun listen-and-serve (addr handler)
+    (if (cml-active?)
+        (http-listen-main addr handler)
+        (cml-entry (lambda () (http-listen-main addr handler)))))
+
+  (defun http-listen-and-serve (addr handler)
+    (listen-and-serve addr handler))
+
+  ;; ============================================================================
+  ;; Simple Router
+  ;; ============================================================================
+
+  (defun http-new-serve-mux ()
+    ())
+
+  (defun http-handle (mux pattern handler)
+    (cons (cons pattern handler) mux))
+
+  (defun http-mux-find-handler (mux path)
+    (if (null? mux)
+        (lambda (req) (http-response-not-found))
+        (let entry (car mux)
+             pattern (car entry)
+             handler (cdr entry)
+          (if (= pattern path)
+              handler
+              (http-mux-find-handler (cdr mux) path)))))
+
+  (defun http-mux-handler (mux)
+    (lambda (req)
+      (let path (http-request-get req 'path)
+           handler (http-mux-find-handler mux path)
+        (handler req))))
+  )

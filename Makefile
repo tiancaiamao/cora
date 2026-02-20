@@ -1,5 +1,5 @@
-.PHONY: libcora lib fmt test test-core test-poller test-parallel test-integration \
-	cmake-configure cmake-build compile-commands
+.PHONY: libcora lib fmt test test-core test-poller test-parallel test-http test-gc-stability test-integration \
+		cmake-configure cmake-build compile-commands
 
 CMAKE_BUILD_DIR ?= build
 CMAKE_ENABLE_ASAN := $(if $(filter 1,$(ENABLE_ASAN)),ON,OFF)
@@ -45,7 +45,26 @@ test-poller: cora
 test-parallel: cora
 	./test/parallel/run-tests-simple.sh
 
-test-integration: test-poller test-parallel
+test-http: cora
+	./test/http/run-tests.sh
+
+test-gc-stability: cora
+	$(MAKE) -C src gc.test
+	@runs=$${GC_STABILITY_RUNS:-10}; \
+	seed_base=$${GC_STABILITY_SEED_BASE:-1800000000}; \
+	i=1; \
+	while [ $$i -le $$runs ]; do \
+	  CORA_GC_SEED=$$((seed_base + i)) \
+	  CORA_GC_SMALL_COUNT=$${CORA_GC_SMALL_COUNT:-1000} \
+	  CORA_GC_SMALL_MAX=$${CORA_GC_SMALL_MAX:-4096} \
+	  CORA_GC_LARGE_COUNT=$${CORA_GC_LARGE_COUNT:-20} \
+	  CORA_GC_LARGE_MAX=$${CORA_GC_LARGE_MAX:-1048576} \
+	  ./src/gc.test >/dev/null; \
+	  i=$$((i + 1)); \
+	done; \
+	echo "gc stability runs=$$runs passed"
+
+test-integration: test-poller test-parallel test-http
 
 test: test-core test-integration
 

@@ -1,0 +1,27 @@
+;; Test simple parse - debug why parser returns nil
+
+(import "cora/lib/net/http/internal")
+(import "cora/lib/net")
+
+(display "=== Test 1: Check bytes ===\n")
+(let s "GET / HTTP/1.1\r\n\r\n"
+  (let b (string->bytes s)
+    (begin
+      (display "Bytes length: ")
+      (display (bytes-length b))
+      (display "\n")
+      (display "Bytes content: ")
+      (display b)
+      (display "\n\n"))))
+
+(display "=== Test 2: Parse ===\n")
+(let s2 "GET / HTTP/1.1\r\n\r\n"
+  (let b2 (string->bytes s2)
+    (let r (http-internal-parse-request b2)
+      (begin
+        (display "Parse result: ")
+        (display r)
+        (display "\n")
+        (if r
+            (display "Parse succeeded!\n")
+            (display "Parse failed - returned nil\n"))))))

@@ -1,0 +1,37 @@
+;; Test HTTP response builder - debug headers
+
+(import "cora/lib/net/http/internal")
+
+(display "=== Debug: Check headers structure ===\n\n")
+
+;; Test header structure
+(display "Test: Header structure\n")
+(let headers1 (list (cons "Content-Type" "text/plain"))
+  (begin
+    (display "Headers: ")
+    (display headers1)
+    (display "\n")
+    (display "First header: ")
+    (display (car headers1))
+    (display "\n")
+    (display "Header name: ")
+    (display (car (car headers1)))
+    (display "\n")
+    (display "Header value: ")
+    (display (cdr (car headers1)))
+    (display "\n\n")))
+
+;; Test with explicit cons
+(display "Test: Build response with explicit cons\n")
+(let resp1 (list (cons 'status 200)
+                 (cons 'headers (list (cons "Content-Type" "text/plain")))
+                 (cons 'body "Hello World"))
+  (begin
+    (display "Response structure: ")
+    (display resp1)
+    (display "\n\n")
+    (let result1 (http-internal-build-response resp1)
+      (begin
+        (display "Built response:\n")
+        (display result1)
+        (display "\n")))))

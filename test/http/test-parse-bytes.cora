@@ -1,0 +1,18 @@
+;; Test HTTP parse - use actual bytes instead of string literals
+;; Since Cora string literals don't support \r escape
+
+(import "cora/lib/net/http/internal")
+
+(display "=== Test: Parse HTTP request ===\n")
+
+;; Create HTTP request as list of bytes
+;; "GET / HTTP/1.1\r\n\r\n" = [71,69,84,32,47,32,72,84,84,80,47,49,46,49,13,10,13,10]
+(let bytes-list
+  (list 71 69 84 32 47 32 72 84 84 80 47 49 46 49 13 10 13 10)
+  (begin
+    (display "Created byte list\n")
+    ;; TODO: Need function to convert byte list to bytes
+    ;; (let req-bytes (list->bytes bytes-list)
+    ;;   (let result (http-internal-parse-request req-bytes)
+    ;;     (display result)))
+    (display "Missing: list->bytes function\n")))

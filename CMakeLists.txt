@@ -108,6 +108,11 @@ add_cora_module(cora_rand rand lib/rand.c ${CORA_OUT_LIB})
 add_cora_module(cora_trace trace lib/trace.c ${CORA_OUT_LIB})
 add_cora_module(cora_toc_internal internal lib/toc/internal.c ${CORA_OUT_LIB}/toc)
 
+# HTTP library (canonical module path: cora/lib/net/http/internal)
+add_cora_module(cora_http_internal internal lib/net/http/parser.c ${CORA_OUT_LIB}/net/http)
+target_include_directories(cora_http_internal PRIVATE ${CORA_COMMON_INCLUDES} ${CMAKE_SOURCE_DIR}/lib/net/http/picohttpparser)
+target_sources(cora_http_internal PRIVATE lib/net/http/picohttpparser/picohttpparser.c)
+
 add_library(cora_io_core OBJECT
   lib/poller/poller.c
   lib/net/net.c
@@ -208,6 +213,7 @@ add_custom_target(cora-all
     cora_rand
     cora_trace
     cora_toc_internal
+    cora_http_internal
     cora_parallel_core
     cora_parallel_internal
     cora_net_internal
@@ -224,6 +230,7 @@ add_custom_target(cora-libs
     cora_rand
     cora_trace
     cora_toc_internal
+    cora_http_internal
     cora_parallel_core
     cora_parallel_internal
     cora_net_internal

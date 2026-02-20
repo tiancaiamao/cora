@@ -160,12 +160,18 @@ sexpRead(GC *gc, FILE *in, int *errCode) {
 	if (c == '"') {
 		i = 0;
 		while ((c = getc(in)) != '"') {
-			if (c == '\\') {
-				c = getc(in);
-				if (c == 'n') {
-					c = '\n';
-				}
+if (c == '\\') {
+			c = getc(in);
+			switch (c) {
+			case 'n': c = '\n'; break;
+			case 'r': c = '\r'; break;
+			case 't': c = '\t'; break;
+			case '0': c = '\0'; break;
+			case '\\': c = '\\'; break;
+			case '"': c = '"'; break;
+			default: break; // Keep the character as-is
 			}
+		}
 			if (c == EOF) {
 				fprintf(stderr,
 					"non-terminated string literal\n");

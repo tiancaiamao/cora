@@ -1,0 +1,12 @@
+;; net/http integration test server (serve mux + :port address parsing)
+
+(import "cora/lib/net/http")
+
+(let mux0 (http-new-serve-mux)
+  (let mux1 (http-handle mux0 "/"
+                         (lambda (req)
+                           (http-response-html "<h1>mux-home</h1>")))
+    (let mux2 (http-handle mux1 "/api/status"
+                           (lambda (req)
+                             (http-response-json "{\"status\":\"ok\"}")))
+      (http-listen-and-serve ":18082" (http-mux-handler mux2)))))

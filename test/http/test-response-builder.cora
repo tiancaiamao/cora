@@ -1,0 +1,41 @@
+;; Test HTTP response builder
+
+(import "cora/lib/net/http/internal")
+
+(display "=== HTTP Response Builder Tests ===\n\n")
+
+;; Test 1: Simple 200 OK
+(display "Test 1: Simple 200 OK\n")
+(let resp1 (list (cons 'status 200)
+                 (cons 'headers '(("Content-Type" . "text/plain")))
+                 (cons 'body "Hello World"))
+  (let result1 (http-internal-build-response resp1)
+    (begin
+      (display "Result:\n")
+      (display result1)
+      (display "\n\n"))))
+
+;; Test 2: 404 Not Found
+(display "Test 2: 404 Not Found\n")
+(let resp2 (list (cons 'status 404)
+                 (cons 'headers '(("Content-Type" . "text/html")))
+                 (cons 'body "<h1>404 Not Found</h1>"))
+  (let result2 (http-internal-build-response resp2)
+    (begin
+      (display "Result:\n")
+      (display result2)
+      (display "\n\n"))))
+
+;; Test 3: JSON response
+(display "Test 3: JSON response\n")
+(let resp3 (list (cons 'status 200)
+                 (cons 'headers '(("Content-Type" . "application/json")
+                                  ("X-Custom-Header" . "test-value")))
+                 (cons 'body "{\"status\":\"ok\",\"data\":[]}"))
+  (let result3 (http-internal-build-response resp3)
+    (begin
+      (display "Result:\n")
+      (display result3)
+      (display "\n\n"))))
+
+(display "=== All response builder tests completed ===\n")

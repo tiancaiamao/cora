@@ -1,0 +1,25 @@
+;; Debug: Check if \r\n works correctly
+
+(import "cora/lib/net/http/internal")
+
+(display "=== Debug test ===\n")
+
+(let req "GET / HTTP/1.1\r\n\r\n"
+  (begin
+    (display "String length: ")
+    (display (bytes-length req))
+    (display "\n")
+    
+    (display "String bytes: ")
+    (let i 0
+      (while (< i (bytes-length req))
+        (display (byte-ref req i))
+        (display " ")
+        (set 'i (+ i 1))))
+    (display "\n")
+    
+    (display "Parsing...\n")
+    (let result (http-internal-parse-request req))
+    (display "Result: ")
+    (display result)
+    (display "\n")))
