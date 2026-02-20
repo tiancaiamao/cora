@@ -40,7 +40,7 @@ repl(Cora* co, FILE* stream) {
 		if (stream == stdin) {
 			sexpWrite(stdout, coraGetResult(co));
 			printf("\n");
-            fflush(stdout);
+			fflush(stdout);
 		}
 	}
 }
@@ -60,26 +60,20 @@ shebang(Cora* co, int argc, char* argv[]) {
 	//
 	char buf[256];
 	char* line = fgets(buf, 256, f);
-	if (line == NULL) {
-		exit(-1);
-	}
-	// Only skip the first line if it's actually a shebang
-	if (buf[0] == '#' && buf[1] == '!') {
-		// The first line IS a shebang, check if it's too long
-		while (true) {
-			if (buf[254] != '\n') {
-				break;
+	if (line != NULL) {
+		// Only skip the first line if it's actually a shebang.
+		if (buf[0] == '#' && buf[1] == '!') {
+			// Shebang line may exceed the fixed buffer; consume the remainder.
+			if (strchr(buf, '\n') == NULL) {
+				int ch;
+				do {
+					ch = fgetc(f);
+				} while (ch != '\n' && ch != EOF);
 			}
-			line = fgets(buf, 256, f);
-			if (line == NULL) {
-				exit(-1);
-			}
-			// Found a line that's not the shebang continuation
-			break;
+		} else {
+			// Not a shebang, seek back to the beginning of the file.
+			fseek(f, 0, SEEK_SET);
 		}
-	} else {
-		// Not a shebang, seek back to the beginning of the file
-		fseek(f, 0, SEEK_SET);
 	}
 
 	Obj args = Nil;
@@ -91,6 +85,7 @@ shebang(Cora* co, int argc, char* argv[]) {
 	coraPrimSet(co, intern("*command-line-args*"), args);
 
 	repl(co, f);
+	fclose(f);
 }
 
 /* extern void entry(struct Cora *co, int label, Obj *R); */
