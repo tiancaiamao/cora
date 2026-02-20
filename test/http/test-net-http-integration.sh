@@ -51,7 +51,7 @@ start_server() {
   local port="$2"
 
   cleanup
-  SERVER_LOG="$(mktemp -t cora-net-http)"
+  SERVER_LOG="$(mktemp "${TMPDIR:-/tmp}/cora-net-http.XXXXXX")"
   DYLD_LIBRARY_PATH="$PROJECT_ROOT/src:${DYLD_LIBRARY_PATH:-}" \
     "${CORA_BIN}" "${SCRIPT_DIR}/${script}" >"${SERVER_LOG}" 2>&1 &
   SERVER_PID=$!
