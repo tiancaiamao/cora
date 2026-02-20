@@ -1,0 +1,4 @@
+#!/usr/bin/env cora
+;; Shebang Test 03: 验证带 shebang 的文件仍然正常工作
+(display "has shebang\n")
+;; 期望输出：has shebang

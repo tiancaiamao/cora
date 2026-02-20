@@ -1,0 +1,6 @@
+;; Shebang Test 02: 验证第一行的 import 能正常工作
+(import "cora/lib/string")
+(import "cora/lib/io")
+(display (string-length "hello"))
+(display "\n")
+;; 期望输出：5

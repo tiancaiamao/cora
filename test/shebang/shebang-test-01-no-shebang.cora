@@ -1,0 +1,5 @@
+;; Shebang Test 01: 验证没有 shebang 的文件第一行不会丢失
+(display "first line\n")
+(display "second line\n")
+(display "third line\n")
+;; 期望输出：三行都显示

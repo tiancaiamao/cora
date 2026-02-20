@@ -1,4 +1,4 @@
-.PHONY: libcora lib fmt test test-core test-poller test-parallel test-http test-gc-stability test-integration \
+.PHONY: libcora lib fmt test test-core test-poller test-parallel test-http test-gc-stability test-integration test-shebang \
 		cmake-configure cmake-build compile-commands
 
 CMAKE_BUILD_DIR ?= build
@@ -79,8 +79,9 @@ bootstrap:
 	rm -f init.c.tmp lib/toc.c.tmp
 
 install-local:
-	mkdir -p ${HOME}/.local/share/cora/pkg/; \
-	ln -sfn `pwd` ${HOME}/.local/share/cora/pkg/cora
+	@mkdir -p ${HOME}/.local/share/cora/pkg/
+	@rm -rf ${HOME}/.local/share/cora/pkg/cora
+	@ln -s "$$(pwd)" ${HOME}/.local/share/cora/pkg/cora
 
 cmake-configure:
 	cmake -S . -B $(CMAKE_BUILD_DIR) \
@@ -96,3 +97,7 @@ cmake-build: cmake-configure
 
 compile-commands: cmake-configure
 	@:
+
+
+test-shebang: cora
+	./test/shebang/run-tests.sh
