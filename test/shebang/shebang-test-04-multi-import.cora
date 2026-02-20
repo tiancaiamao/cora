@@ -1,0 +1,7 @@
+;; Shebang Test 04: 验证多个 import 在前几行都能工作
+(import "cora/lib/string")
+(display (string-length "test"))
+(display "\n")
+(import "cora/lib/io")
+(display "done\n")
+;; 期望输出：4, done

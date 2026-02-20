@@ -193,6 +193,15 @@ stringToList(struct Cora *co, int label, Obj *R) {
 	coraReturn(co, reverse(co->gc, res));
 }
 
+// Forward declarations for additional string operations
+static void stringJoin(struct Cora *co, int label, Obj *R);
+static void stringTrim(struct Cora *co, int label, Obj *R);
+static void stringTrimLeft(struct Cora *co, int label, Obj *R);
+static void stringTrimRight(struct Cora *co, int label, Obj *R);
+static void stringHasSuffix(struct Cora *co, int label, Obj *R);
+static void stringUpcase(struct Cora *co, int label, Obj *R);
+static void stringDowncase(struct Cora *co, int label, Obj *R);
+
 void
 entry(struct Cora *co, int label, Obj *R) {
 	Obj pkg = R[2];
@@ -209,6 +218,14 @@ entry(struct Cora *co, int label, Obj *R) {
 	coraRegisterAPI(co, module.str, "memcpy", bytesMemCpy, 5);
 	coraRegisterAPI(co, module.str, "byte-ref", bytesRef, 2);
 	coraRegisterAPI(co, module.str, "string->list", stringToList, 1);
+	// Additional string operations
+	coraRegisterAPI(co, module.str, "string-join", stringJoin, 2);
+	coraRegisterAPI(co, module.str, "string-trim", stringTrim, 1);
+	coraRegisterAPI(co, module.str, "string-trim-left", stringTrimLeft, 1);
+	coraRegisterAPI(co, module.str, "string-trim-right", stringTrimRight, 1);
+	coraRegisterAPI(co, module.str, "has-suffix?", stringHasSuffix, 2);
+	coraRegisterAPI(co, module.str, "string-upcase", stringUpcase, 1);
+	coraRegisterAPI(co, module.str, "string-downcase", stringDowncase, 1);
 	coraReturn(co, intern("string"));
 }
 
@@ -218,3 +235,160 @@ entry(struct Cora *co, int label, Obj *R) {
 // (str.has-prefix? "sdfsdf" "sdf")
 // (str.slice "sdfsd" 1 3)
 // (str.compare "sdfsd" "abc"))
+
+static void
+stringJoin(struct Cora *co, int label, Obj *R) {
+	Obj strs = R[1];
+	Obj sep = R[2];
+	str separator = stringStr(sep);
+	int totalLen = 0;
+	int count = 0;
+	Obj tmp = strs;
+	while (tmp != Nil) {
+		Obj s = car(tmp);
+		totalLen += bytesLen(s);
+		tmp = cdr(tmp);
+		count++;
+	}
+	if (count > 0) {
+		totalLen += (count - 1) * strLen(separator);
+	}
+	strBuf buf = strNew(totalLen + 1);
+	tmp = strs;
+	int first = 1;
+	while (tmp != Nil) {
+		if (!first) {
+			buf = strCat(buf, separator);
+		}
+		Obj s = car(tmp);
+		str ss = stringStr(s);
+		for (int i = 0; i < ss.len; i++) {
+			buf = strAppend(buf, ss.str[i]);
+		}
+		first = 0;
+		tmp = cdr(tmp);
+	}
+	str result = toStr(buf);
+	Obj ret = makeString(co->gc, result.str, result.len);
+	strFree(buf);
+	coraReturn(co, ret);
+}
+
+static void
+stringTrim(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	char *data = bytesData(str);
+	int len = bytesLen(str);
+	int start = 0;
+	while (start < len && (data[start] == ' ' || data[start] == '\t' ||
+			       data[start] == '\n' || data[start] == '\r')) {
+		start++;
+	}
+	int end = len - 1;
+	while (end >= start && (data[end] == ' ' || data[end] == '\t' ||
+			     data[end] == '\n' || data[end] == '\r')) {
+		end--;
+	}
+	if (start > end) {
+		coraReturn(co, makeString(co->gc, "", 0));
+		return;
+	}
+	Obj ret = makeString(co->gc, data + start, end - start + 1);
+	coraReturn(co, ret);
+}
+
+static void
+stringTrimLeft(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	char *data = bytesData(str);
+	int len = bytesLen(str);
+	int start = 0;
+	while (start < len && (data[start] == ' ' || data[start] == '\t' ||
+			       data[start] == '\n' || data[start] == '\r')) {
+		start++;
+	}
+	if (start == len) {
+		coraReturn(co, makeString(co->gc, "", 0));
+		return;
+	}
+	Obj ret = makeString(co->gc, data + start, len - start);
+	coraReturn(co, ret);
+}
+
+static void
+stringTrimRight(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	char *data = bytesData(str);
+	int len = bytesLen(str);
+	int end = len - 1;
+	while (end >= 0 && (data[end] == ' ' || data[end] == '\t' ||
+			     data[end] == '\n' || data[end] == '\r')) {
+		end--;
+	}
+	if (end < 0) {
+		coraReturn(co, makeString(co->gc, "", 0));
+		return;
+	}
+	Obj ret = makeString(co->gc, data, end + 1);
+	coraReturn(co, ret);
+}
+
+static void
+stringHasSuffix(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	Obj suffix = R[2];
+	char *strData = bytesData(str);
+	int strLen = bytesLen(str);
+	char *suffixData = bytesData(suffix);
+	int suffixLen = bytesLen(suffix);
+	if (suffixLen > strLen) {
+		coraReturn(co, False);
+		return;
+	}
+	int offset = strLen - suffixLen;
+	for (int i = 0; i < suffixLen; i++) {
+		if (strData[offset + i] != suffixData[i]) {
+			coraReturn(co, False);
+			return;
+		}
+	}
+	coraReturn(co, True);
+}
+
+static void
+stringUpcase(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	char *data = bytesData(str);
+	int len = bytesLen(str);
+	char *buf = malloc(len + 1);
+	if (buf == NULL) {
+		coraReturn(co, str);
+		return;
+	}
+	for (int i = 0; i < len; i++) {
+		buf[i] = (data[i] >= 'a' && data[i] <= 'z') ?
+			 (data[i] - 'a' + 'A') : data[i];
+	}
+	Obj ret = makeString(co->gc, buf, len);
+	free(buf);
+	coraReturn(co, ret);
+}
+
+static void
+stringDowncase(struct Cora *co, int label, Obj *R) {
+	Obj str = R[1];
+	char *data = bytesData(str);
+	int len = bytesLen(str);
+	char *buf = malloc(len + 1);
+	if (buf == NULL) {
+		coraReturn(co, str);
+		return;
+	}
+	for (int i = 0; i < len; i++) {
+		buf[i] = (data[i] >= 'A' && data[i] <= 'Z') ?
+			 (data[i] - 'A' + 'a') : data[i];
+	}
+	Obj ret = makeString(co->gc, buf, len);
+	free(buf);
+	coraReturn(co, ret);
+}

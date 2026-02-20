@@ -59,15 +59,27 @@ shebang(Cora* co, int argc, char* argv[]) {
 	// (followed by cora script ...)
 	//
 	char buf[256];
-	while (true) {
-		char* line = fgets(buf, 256, f);
-		if (line == NULL) {
-			exit(-1);
-		}
-		// The length of the first line is more than 255 bytes.
-		if (buf[254] != '\n') {
+	char* line = fgets(buf, 256, f);
+	if (line == NULL) {
+		exit(-1);
+	}
+	// Only skip the first line if it's actually a shebang
+	if (buf[0] == '#' && buf[1] == '!') {
+		// The first line IS a shebang, check if it's too long
+		while (true) {
+			if (buf[254] != '\n') {
+				break;
+			}
+			line = fgets(buf, 256, f);
+			if (line == NULL) {
+				exit(-1);
+			}
+			// Found a line that's not the shebang continuation
 			break;
 		}
+	} else {
+		// Not a shebang, seek back to the beginning of the file
+		fseek(f, 0, SEEK_SET);
 	}
 
 	Obj args = Nil;

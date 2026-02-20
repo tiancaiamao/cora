@@ -79,8 +79,28 @@ bootstrap:
 	rm -f init.c.tmp lib/toc.c.tmp
 
 install-local:
-	mkdir -p ${HOME}/.local/share/cora/pkg/; \
-	ln -sfn `pwd` ${HOME}/.local/share/cora/pkg/cora
+	@echo "Installing cora to ${HOME}/.local/share/cora/pkg/cora"
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/src
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/lib/toc
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/lib/net/http
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/lib/poller
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/lib/parallel
+	@mkdir -p ${HOME}/.local/share/cora/pkg/cora/lib/net
+	@# Copy source files
+	@cp init.c ${HOME}/.local/share/cora/pkg/cora/
+	@cp lib/*.cora ${HOME}/.local/share/cora/pkg/cora/lib/ 2>/dev/null || true
+	@cp lib/toc/*.cora ${HOME}/.local/share/cora/pkg/cora/lib/toc/ 2>/dev/null || true
+	@cp lib/net/http/*.cora ${HOME}/.local/share/cora/pkg/cora/lib/net/http/ 2>/dev/null || true
+	@# Copy compiled .so files
+	@cp init.so ${HOME}/.local/share/cora/pkg/cora/
+	@cp lib/*.so ${HOME}/.local/share/cora/pkg/cora/lib/ 2>/dev/null || true
+	@cp lib/toc/*.so ${HOME}/.local/share/cora/pkg/cora/lib/toc/ 2>/dev/null || true
+	@cp lib/net/http/*.so ${HOME}/.local/share/cora/pkg/cora/lib/net/http/ 2>/dev/null || true
+	@cp lib/poller/*.so ${HOME}/.local/share/cora/pkg/cora/lib/poller/ 2>/dev/null || true
+	@cp lib/parallel/*.so ${HOME}/.local/share/cora/pkg/cora/lib/parallel/ 2>/dev/null || true
+	@cp lib/net/*.so ${HOME}/.local/share/cora/pkg/cora/lib/net/ 2>/dev/null || true
+	@cp cora ${HOME}/.local/share/cora/pkg/cora/
+	@echo "Installation complete"
 
 cmake-configure:
 	cmake -S . -B $(CMAKE_BUILD_DIR) \
@@ -96,3 +116,9 @@ cmake-build: cmake-configure
 
 compile-commands: cmake-configure
 	@:
+
+	./test/test-shebang-fix.sh
+
+
+test-shebang: cora
+	./test/shebang/run-tests.sh
