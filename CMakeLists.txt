@@ -99,6 +99,28 @@ function(add_cora_module target_name output_name source_file output_dir)
   )
 endfunction()
 
+# Optional modules with external dependencies
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+  pkg_check_modules(JANSSON QUIET jansson)
+  if(JANSSON_FOUND)
+    message(STATUS "Found jansson: building json module")
+    add_cora_module(cora_json json lib/json.c ${CORA_OUT_LIB})
+    target_include_directories(cora_json PRIVATE ${JANSSON_INCLUDE_DIRS})
+    target_link_libraries(cora_json PRIVATE ${JANSSON_LIBRARIES})
+    if(JANSSON_LIBRARY_DIRS)
+      target_link_directories(cora_json PRIVATE ${JANSSON_LIBRARY_DIRS})
+    endif()
+    set(CORA_HAS_JSON TRUE)
+  else()
+    message(STATUS "jansson not found: skipping json module")
+    set(CORA_HAS_JSON FALSE)
+  endif()
+else()
+  message(STATUS "PkgConfig not found: skipping optional dependency detection")
+  set(CORA_HAS_JSON FALSE)
+endif()
+
 add_cora_module(cora_toc toc lib/toc.c ${CORA_OUT_LIB})
 add_cora_module(cora_string string lib/string.c ${CORA_OUT_LIB})
 add_cora_module(cora_os os lib/os.c ${CORA_OUT_LIB})
@@ -200,42 +222,48 @@ else()
   )
 endif()
 
-add_custom_target(cora-all
-  DEPENDS
-    cora_runtime
-    cora_bin
-    cora_init
-    cora_toc
-    cora_string
-    cora_os
-    cora_io
-    cora_hash_h
-    cora_rand
-    cora_trace
-    cora_toc_internal
-    cora_http_internal
-    cora_parallel_core
-    cora_parallel_internal
-    cora_net_internal
-    cora_poller_internal
+set(_CORA_ALL_DEPS
+  cora_runtime
+  cora_bin
+  cora_init
+  cora_toc
+  cora_string
+  cora_os
+  cora_io
+  cora_hash_h
+  cora_rand
+  cora_trace
+  cora_toc_internal
+  cora_http_internal
+  cora_parallel_core
+  cora_parallel_internal
+  cora_net_internal
+  cora_poller_internal
 )
+if(CORA_HAS_JSON)
+  list(APPEND _CORA_ALL_DEPS cora_json)
+endif()
+add_custom_target(cora-all DEPENDS ${_CORA_ALL_DEPS})
 
-add_custom_target(cora-libs
-  DEPENDS
-    cora_toc
-    cora_string
-    cora_os
-    cora_io
-    cora_hash_h
-    cora_rand
-    cora_trace
-    cora_toc_internal
-    cora_http_internal
-    cora_parallel_core
-    cora_parallel_internal
-    cora_net_internal
-    cora_poller_internal
+set(_CORA_LIB_DEPS
+  cora_toc
+  cora_string
+  cora_os
+  cora_io
+  cora_hash_h
+  cora_rand
+  cora_trace
+  cora_toc_internal
+  cora_http_internal
+  cora_parallel_core
+  cora_parallel_internal
+  cora_net_internal
+  cora_poller_internal
 )
+if(CORA_HAS_JSON)
+  list(APPEND _CORA_LIB_DEPS cora_json)
+endif()
+add_custom_target(cora-libs DEPENDS ${_CORA_LIB_DEPS})
 
 add_library(cora_compile_db OBJECT
   src/reader_test.c
