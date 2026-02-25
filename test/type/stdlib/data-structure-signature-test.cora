@@ -1,0 +1,73 @@
+(import "cora/lib/infer")
+(import "cora/lib/queue")
+(import "cora/lib/stack")
+(import "cora/lib/hash")
+(import "cora/lib/handle-map")
+
+(defun tc-check (exp typ)
+  (cora/lib/infer#check-type exp typ () ()))
+
+(defun expect-succ (res msg)
+  (match res
+    ['succ . _] ()
+    _ (cora/init#throw msg)))
+
+(defun expect-fail (res msg)
+  (match res
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw msg)))
+
+;; queue
+(expect-succ (tc-check '(queue-make) (tvar))
+	     "queue-make() should type-check")
+(expect-succ (tc-check '(queue-len q) 'int)
+	     "queue-len(_) should type-check as int")
+(expect-succ (tc-check '(queue-empty? q) 'bool)
+	     "queue-empty?(_) should type-check as bool")
+(expect-succ (tc-check '(enqueue q 1) (tvar))
+	     "enqueue(_,_) should type-check")
+(expect-succ (tc-check '(enqueue q) (tvar))
+	     "enqueue(_) should type-check as partial application")
+(expect-fail (tc-check '(queue-len) 'int)
+	     "queue-len() should fail by arity")
+
+;; stack
+(expect-succ (tc-check '(stack-create) (tvar))
+	     "stack-create() should type-check")
+(expect-succ (tc-check '(stack-push! stk 1) 'int)
+	     "stack-push!(_,_) should type-check as int")
+(expect-succ (tc-check '(stack-pop! stk) (tvar))
+	     "stack-pop!(_) should type-check")
+(expect-succ (tc-check '(stack-size stk) 'int)
+	     "stack-size(_) should type-check as int")
+(expect-fail (tc-check '(stack-size) 'int)
+	     "stack-size() should fail by arity")
+
+;; hash
+(expect-succ (tc-check '(hash-make 8) (tvar))
+	     "hash-make(int) should type-check")
+(expect-fail (tc-check '(hash-make "8") (tvar))
+	     "hash-make(non-int) should fail")
+(expect-succ (tc-check '(hash-count h) 'int)
+	     "hash-count(_) should type-check as int")
+(expect-succ (tc-check '(hash-set! h 'k 1) (tvar))
+	     "hash-set!(_,_,_) should type-check")
+(expect-succ (tc-check '(hash-get h 'k) (tvar))
+	     "hash-get(_,_) should type-check")
+(expect-fail (tc-check '(hash-count) 'int)
+	     "hash-count() should fail by arity")
+
+;; handle-map
+(expect-succ (tc-check '(handle-map-create) (tvar))
+	     "handle-map-create() should type-check")
+(expect-succ (tc-check '(handle-map-add hm 1) 'int)
+	     "handle-map-add(_,_) should type-check as int")
+(expect-succ (tc-check '(handle-map-get hm 0) (tvar))
+	     "handle-map-get(_,int) should type-check")
+(expect-fail (tc-check '(handle-map-get hm "0") (tvar))
+	     "handle-map-get(_,non-int) should fail")
+(expect-succ (tc-check '(handle-map-size hm) 'int)
+	     "handle-map-size(_) should type-check as int")
+(expect-fail (tc-check '(handle-map-size) 'int)
+	     "handle-map-size() should fail by arity")

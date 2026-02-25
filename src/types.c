@@ -218,8 +218,36 @@ makeNative(GC *gc, int nframe, basicBlock fn, int required, int captured,
 
 struct scmNative *
 mustNative(Obj o) {
+	if (o == Undef) {
+		fprintf(stderr,
+			"runtime error: attempt to call undefined symbol/value.\n"
+			"hint: missing module import? e.g. use (import \"cora/lib/io\") "
+			"before calling display.\n");
+		fflush(stderr);
+		__builtin_trap();
+	}
+	if (!isobj(o)) {
+		fprintf(stderr,
+			"runtime error: attempt to call a non-function number value.\n");
+		fflush(stderr);
+		__builtin_trap();
+	}
+	if (tag(o) != TAG_NATIVE && tag(o) != TAG_PTR) {
+		fprintf(stderr,
+			"runtime error: attempt to call a non-function object (tag=%d).\n",
+			(int)tag(o));
+		fflush(stderr);
+		__builtin_trap();
+	}
+
 	struct scmNative *native = ptr(o);
-	assert(native->head.type == scmHeadNative);
+	if (native->head.type != scmHeadNative) {
+		fprintf(stderr,
+			"runtime error: attempt to call a non-function object (head=%d).\n",
+			(int)native->head.type);
+		fflush(stderr);
+		__builtin_trap();
+	}
 	return native;
 }
 

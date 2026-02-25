@@ -1,0 +1,227 @@
+(package "cora/lib/resolve"
+  (import "cora/lib/string")
+
+  (export check check!)
+
+  (func bind-ok
+    ['ok] f => (f)
+    ['fail x] _f1 => ['fail x]
+    ['fail . more] _f2 => ['fail . more]
+    ['fail] _f3 => ['fail])
+
+  (func dedup-cons
+    x xs => xs where (elem? x xs)
+    x xs => (cons x xs))
+
+  (defun symbol-module (sym)
+    (let parts (string-split (symbol->string sym) "#")
+      (if (> (length parts) 1)
+          (car parts)
+          false)))
+
+  (defun symbol-name (sym)
+    (let parts (string-split (symbol->string sym) "#")
+      (if (> (length parts) 1)
+          (intern (cadr parts))
+          false)))
+
+  (defun module-from-export-set (form)
+    (match form
+      ['set ['quote sym] _]
+      (if (symbol? sym)
+          (if (= (symbol-name sym) '*ns-export*)
+              (symbol-module sym)
+              false)
+          false)
+      _ false))
+
+  (func module-name
+    ['package name . _tail] => name
+    ['begin . body] => (module-name-from-list body)
+    ['do a b] => (let m (module-name a)
+                   (if (= m false)
+                       (module-name b)
+                       m))
+    x => (module-from-export-set x))
+
+  (func module-name-from-list
+    [] => false
+    [x . xs] => (let m (module-name x)
+                  (if (= m false)
+                      (module-name-from-list xs)
+                      m))
+    _x => false)
+
+  (func collect-imports-exp
+    ['import pkg] ret => (dedup-cons pkg ret)
+    ['cora/init#import pkg] ret => (dedup-cons pkg ret)
+    ['package _ . body] ret => (collect-imports-list body ret)
+    ['begin . body] ret => (collect-imports-list body ret)
+    ['do a b] ret => (collect-imports-exp b (collect-imports-exp a ret))
+    _ ret => ret)
+
+  (func collect-imports-list
+    [] ret => ret
+    [x . xs] ret => (collect-imports-list xs (collect-imports-exp x ret))
+    _x ret => ret)
+
+  (func module-imports
+    exp => (collect-imports-exp exp ()))
+
+  (defun visible-namespaced-symbol? (sym imports curmod)
+    (let mod (symbol-module sym)
+      (let name (symbol-name sym)
+        (if (or (= mod false) (= name false))
+            ['ok]
+            (if (= mod "cora/init")
+                    ['ok]
+                    (if (= mod curmod)
+                        ['ok]
+                        (if (elem? mod imports)
+                            ['ok]
+                            ['fail ['unimported-module-symbol sym mod]])))))))
+
+  (func bind-params
+    env () => env
+    env p => (cons p env) where (symbol? p)
+    env [h . t] => (bind-params (bind-params env h) t)
+    env _x => env)
+
+  (func proper-list-length
+    [] => 0
+    [_x . more] => (let n (proper-list-length more)
+                    (if (= n -1)
+                        -1
+                        (+ n 1)))
+    _y => -1)
+
+  (defun lambda-literal-arity (exp)
+    (match exp
+      ['lambda params _body] (proper-list-length params)
+      _other -1))
+
+  (defun lambda-literal-arity-mismatch? (exp expected)
+    (let n (lambda-literal-arity exp)
+      (if (= n -1)
+          false
+          (not (= n expected)))))
+
+  (func literal-list-elems
+    [] => []
+    ['list . elems] => elems
+    ['cons x more] => (let tail (literal-list-elems more)
+                        (if (= tail false)
+                            false
+                            (cons x tail)))
+    _x => false)
+
+  (defun definitely-non-callable-literal? (x)
+    (or (number? x)
+        (string? x)
+        (boolean? x)
+        (null? x)
+        (symbol? x)
+        (and (pair? x) (= (car x) 'quote))
+        (not (= (literal-list-elems x) false))))
+
+  (defun cml-op-shape-error (op)
+    (let elems (literal-list-elems op)
+      (if (= elems false)
+          false
+          (if (= (length elems) 3)
+              false
+              ['cml-perform-op-shape op]))))
+
+  (defun cml-op-callable-error (op)
+    (let elems (literal-list-elems op)
+      (if (or (= elems false) (not (= (length elems) 3)))
+          false
+          (let try1 (car elems)
+            (let block1 (cadr elems)
+              (let wrap1 (caddr elems)
+                (if (or (definitely-non-callable-literal? try1)
+                        (definitely-non-callable-literal? block1)
+                        (definitely-non-callable-literal? wrap1))
+                    ['cml-perform-op-callable op]
+                    false)))))))
+
+  (func resolve-body
+    [] env imports curmod => ['ok]
+    [['import _pkg1] . more] env imports curmod => (resolve-body more env imports curmod)
+    [['cora/init#import _pkg2] . more] env imports curmod => (resolve-body more env imports curmod)
+    [['export . _syms] . more] env imports curmod => (resolve-body more env imports curmod)
+    [form . more] env imports curmod => (bind-ok (resolve-exp form env imports curmod)
+                                                  (lambda () (resolve-body more env imports curmod)))
+    _forms _env _imports _curmod => ['ok])
+
+  (func resolve-list
+    [] env imports curmod => ['ok]
+    [x . xs] env imports curmod => (bind-ok (resolve-exp x env imports curmod)
+                                            (lambda () (resolve-list xs env imports curmod)))
+    _forms _env _imports _curmod => ['ok])
+
+  (func resolve-exp
+    x env imports curmod => ['ok] where (or (number? x) (string? x) (boolean? x) (null? x))
+    sym env imports curmod => (if (elem? sym env)
+                                  ['ok]
+                                  (visible-namespaced-symbol? sym imports curmod))
+    where (symbol? sym)
+    ['quote _q] _env1 _imports1 _curmod1 => ['ok]
+    ['lambda params body] env imports curmod => (resolve-exp body (bind-params env params) imports curmod)
+    ['if a b c] env imports curmod => (bind-ok (resolve-exp a env imports curmod)
+                                               (lambda ()
+                                                 (bind-ok (resolve-exp b env imports curmod)
+                                                          (lambda () (resolve-exp c env imports curmod)))))
+    ['do a b] env imports curmod => (bind-ok (resolve-exp a env imports curmod)
+                                             (lambda () (resolve-exp b env imports curmod)))
+    ['try chunk handler] env imports curmod => (bind-ok (resolve-exp chunk env imports curmod)
+                                                        (lambda ()
+                                                          (resolve-exp handler env imports curmod)))
+    ['let a b c] env imports curmod => (bind-ok (resolve-exp b env imports curmod)
+                                                (lambda () (resolve-exp c (cons a env) imports curmod)))
+    ['set ['quote _sym] val] env imports curmod => (resolve-exp val env imports curmod)
+    ['cora/lib/cml#perform op] env imports curmod =>
+    (bind-ok (resolve-exp op env imports curmod)
+             (lambda ()
+               (let shape-error (cml-op-shape-error op)
+                 (if (= shape-error false)
+                     (let callable-error (cml-op-callable-error op)
+                       (if (= callable-error false)
+                           ['ok]
+                           ['fail callable-error]))
+                     ['fail shape-error]))))
+    ['cora/lib/cml#wrap op mapper] env imports curmod =>
+    (bind-ok (resolve-exp op env imports curmod)
+             (lambda ()
+               (bind-ok (resolve-exp mapper env imports curmod)
+                        (lambda ()
+                          (if (lambda-literal-arity-mismatch? mapper 1)
+                              ['fail ['cml-wrap-mapper-arity mapper]]
+                              ['ok])))))
+    ['package _pkg . body] env imports curmod => (resolve-body body env imports curmod)
+    ['begin . body] env imports curmod => (resolve-body body env imports curmod)
+    [':declare . _decl] _env2 _imports2 _curmod2 => ['ok]
+    [':type . _type] _env3 _imports3 _curmod3 => ['ok]
+    [op . args] env imports curmod => (bind-ok (resolve-exp op env imports curmod)
+                                               (lambda () (resolve-list args env imports curmod)))
+    _exp _env4 _imports4 _curmod4 => ['ok])
+
+  (defun check (exp)
+    (let imports (module-imports exp)
+      (let mname (module-name exp)
+        (let imports1 (if (= mname false)
+                          imports
+                          (dedup-cons mname imports))
+          (let imports2 (dedup-cons "cora/init" imports1)
+            (let curmod (if (= mname false)
+                            ""
+                            mname)
+              (resolve-exp exp () imports2 curmod)))))))
+
+  (defun check! (exp)
+    (match (check exp)
+      ['ok] exp
+      ['fail reason] (cora/init#throw ['resolve-failed reason exp])
+      ['fail . msg] (cora/init#throw ['resolve-failed msg exp])
+      ['fail] (cora/init#throw ['resolve-failed ['unknown] exp])))
+  )

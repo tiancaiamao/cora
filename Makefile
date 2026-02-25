@@ -1,4 +1,4 @@
-.PHONY: libcora lib fmt test test-core test-poller test-parallel test-http test-gc-stability test-integration test-shebang \
+.PHONY: libcora lib fmt test test-core test-type test-infer test-poller test-parallel test-http test-gc-stability test-integration test-shebang \
 		cmake-configure cmake-build compile-commands
 
 CMAKE_BUILD_DIR ?= build
@@ -38,6 +38,13 @@ fmt:
 test-core: cora
 	make test -C src
 	./cora test/script.cora
+	./test/type/run-tests.sh
+
+test-type: cora
+	./test/type/run-tests.sh
+
+test-infer: cora
+	./test/type/run-tests.sh
 
 test-poller: cora
 	./test/poller/run-tests-simple.sh

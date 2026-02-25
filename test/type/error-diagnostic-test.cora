@@ -1,0 +1,18 @@
+(import "cora/lib/infer")
+
+(defun expect-diagnostic-code (exp code msg)
+  (let thrown (try (lambda () (check-type! exp (tvar)))
+		   (lambda (v resume) v))
+    (match thrown
+      ['type-check-failed _ _ [c . _]] (if (= c code)
+					    ()
+					    (cora/init#throw msg))
+      _ (cora/init#throw msg))))
+
+(expect-diagnostic-code '(+ 1 "x")
+			'type-mismatch
+			"type mismatch should report type-mismatch diagnostic code")
+
+(expect-diagnostic-code '(do 1 2 3)
+			'do-arity
+			"do arity error should report do-arity diagnostic code")

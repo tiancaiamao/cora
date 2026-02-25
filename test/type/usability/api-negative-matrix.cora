@@ -1,0 +1,50 @@
+(import "cora/lib/infer")
+(import "cora/lib/cml")
+(import "cora/lib/chan")
+(import "cora/lib/async")
+(import "cora/lib/net")
+
+(defun check (exp typ)
+  (cora/lib/infer#check-type exp typ () ()))
+
+(defun expect-fail (res msg)
+  (match res
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw msg)))
+
+;; cml
+(expect-fail (check '(cora/lib/cml#spawn 1) (tvar))
+	     "spawn should reject non-thunk argument")
+(expect-fail (check '(cora/lib/cml#cml-active? 1) (tvar))
+	     "cml-active? should reject extra argument")
+
+;; chan
+(expect-fail (check '(chan-make 1) (tvar))
+	     "chan-make should reject extra argument")
+(expect-fail (check '(chan-recv) (tvar))
+	     "chan-recv should require 1 argument")
+
+;; async
+(expect-fail (check '(async-listen 1) (tvar))
+	     "async-listen should require string address")
+(expect-fail (check '(async-dial false) (tvar))
+	     "async-dial should require string address")
+(expect-fail (check '(async-recv sock 1) (tvar))
+	     "async-recv should require string buffer")
+(expect-fail (check '(async-send sock 1) (tvar))
+	     "async-send should require string buffer")
+
+;; net
+(expect-fail (check '(cora/lib/net#net-listen 1) (tvar))
+	     "net-listen should require string address")
+(expect-fail (check '(cora/lib/net#net-dial false) (tvar))
+	     "net-dial should require string address")
+(expect-fail (check '(cora/lib/net#net-recv conn "64") (tvar))
+	     "net-recv should require int size")
+(expect-fail (check '(cora/lib/net#net-send conn 1) (tvar))
+	     "net-send should require string payload")
+(expect-fail (check '(cora/lib/net#make-bytes "16") (tvar))
+	     "make-bytes should require int size")
+(expect-fail (check '(cora/lib/net#bytes-substring 1 0 1) (tvar))
+	     "bytes-substring should require string first argument")

@@ -1,0 +1,6 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+;; begin is the variadic sequencing form.
+(begin 1 2 3)

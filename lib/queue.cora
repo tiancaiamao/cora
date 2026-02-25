@@ -1,7 +1,30 @@
 ;; use two stack to implement a list
 (package "cora/lib/queue"
-
+  (import "cora/lib/infer")
   (export queue-make enqueue dequeue queue-empty? queue-len)
+  (tc true)
+
+  ;; Type declarations live with module implementation.
+  (:declare 'queue-make
+			  ['-> (tvar)])
+  (:declare 'cora/lib/queue#queue-make
+			  ['-> (tvar)])
+  (:declare 'enqueue
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (:declare 'cora/lib/queue#enqueue
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (:declare 'dequeue
+			  [(tvar) '-> (tvar)])
+  (:declare 'cora/lib/queue#dequeue
+			  [(tvar) '-> (tvar)])
+  (:declare 'queue-empty?
+			  [(tvar) '-> 'bool])
+  (:declare 'cora/lib/queue#queue-empty?
+			  [(tvar) '-> 'bool])
+  (:declare 'queue-len
+			  [(tvar) '-> 'int])
+  (:declare 'cora/lib/queue#queue-len
+			  [(tvar) '-> 'int])
 
   (defun queue-make ()
     (let q (vector 3)

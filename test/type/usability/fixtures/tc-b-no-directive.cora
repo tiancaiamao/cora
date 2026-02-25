@@ -1,0 +1,7 @@
+(import "cora/lib/infer")
+
+;; No module directive: this unit should default to tc OFF.
+(:declare 'id `(int -> int))
+(defun id (x) x)
+
+(id "x")

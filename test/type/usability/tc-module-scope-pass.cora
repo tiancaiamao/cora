@@ -1,0 +1,7 @@
+(import "cora/lib/infer")
+
+;; Current unit uses tc ON.
+(tc true)
+
+;; Loaded unit has no tc directive and should NOT inherit tc ON.
+(load "test/type/usability/fixtures/tc-b-no-directive.cora")

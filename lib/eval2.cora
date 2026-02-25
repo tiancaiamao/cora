@@ -85,6 +85,7 @@
       (let a-code (compile a cenv)
            b-code (compile b cenv)
         (lambda (renv) (do (a-code renv) (b-code renv))))
+    ['do . args] cenv => (lambda (renv) (cora/init#throw "do expects exactly 2 expressions; use begin for multiple"))
     ['def var val] cenv =>
       (let val-code (compile val cenv)
         (lambda (renv) (set var (val-code renv))))

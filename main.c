@@ -17,11 +17,21 @@ repl(Cora* co, FILE* stream) {
 			break;
 		}
 
-		/* printf("before macro expand =="); */
+			/*
+			 * Keep script/REPL behavior consistent with compile-to-c pipeline:
+			 * translate :type/:declare and optional typecheck wrappers first.
+			 */
+			Obj fn = coraSymbolGet(co, intern("cora/lib/toc#split-type-and-code-toplevel"));
+			Obj preArgs[1] = {exp};
+			coraCall(co, fn, 1, preArgs);
+			coraRun(co);
+			exp = coraGetResult(co);
+
+			/* printf("before macro expand =="); */
 		/* sexpWrite(stdout, exp); */
 		/* printf("\n"); */
 
-		Obj fn = coraSymbolGet(co, intern("macroexpand"));
+		fn = coraSymbolGet(co, intern("macroexpand"));
 		Obj args[1] = {exp};
 		coraCall(co, fn, 1, args);
 		coraRun(co);

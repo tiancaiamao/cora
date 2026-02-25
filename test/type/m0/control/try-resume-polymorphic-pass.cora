@@ -1,0 +1,10 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+;; Runtime contract: resume can take any value and feed it back
+;; as the original throw expression result.
+(try (lambda ()
+       (throw 1))
+     (lambda (v resume)
+       (resume true)))

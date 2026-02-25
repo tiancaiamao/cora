@@ -1,0 +1,25 @@
+(import "cora/lib/infer")
+
+;; Regression: constraints from the first expression in (do e1 e2)
+;; must flow into e2. This should fail because x is both int and bool.
+(let bad-ret (cora/lib/infer#check-type
+	      '(lambda (x) (do (+ x 1) (if x 1 2)))
+	      (tvar) () ())
+  (match bad-ret
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw "infer do constraint propagation regression")))
+
+;; Sanity checks: valid programs still type-check.
+(check-type! '(lambda (x) (do (+ x 1) (+ x 2))) (tvar))
+(check-type! '(lambda (x) (hd x)) (tvar))
+
+;; Visibility is handled by resolver pass, not by infer.
+;; infer keeps unknown globals dynamic to avoid over-rejecting runtime-valid code.
+(tc-mode 'strict)
+(let strict-ret (cora/lib/infer#check-type 'some/unknown#f (tvar) () ())
+  (match strict-ret
+    ['succ _] ()
+    _ (cora/init#throw "infer should keep unknown globals dynamic")))
+
+(tc-mode 'compat)

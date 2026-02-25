@@ -1,5 +1,8 @@
 (import "cora/lib/infer")
 
+;; Enable type checking so expression-level checks are inserted.
+(tc true)
+
 (:declare 'member (let a (tvar) b (tvar) `(,a -> ((list ,b) -> bool))))
 (func member
       x [] => false
@@ -31,17 +34,14 @@
 
 (:type
  (func type-check-for-fruit
-  ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
-  _ _ env s => ['fail])
-
- (deftype 'fruit type-check-for-fruit)
- )
+       ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
+       _ _ env s => ['fail])
+ (deftype 'fruit type-check-for-fruit))
 
 (:declare 'f `((fruit) -> bool))
 (defun f (x)
-       (= x 'xxx))
+       (= x 'apple))
 
 (f 'apple)
-;; (f 'asdfdsf) ;; uncomment it and type check error!
-
-
+;; Uncomment to see early type-check failure:
+;; (f 'asdfdsf)

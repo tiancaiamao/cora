@@ -1,7 +1,22 @@
 (package "cora/lib/chan"
   (export chan-make chan-send chan-recv)
+  (import "cora/lib/infer")
   (import "cora/lib/cml")
   (import "cora/lib/queue")
+
+  ;; Type declarations live with module implementation.
+  (declare 'chan-make
+				  ['-> (tvar)])
+  (declare 'cora/lib/chan#chan-make
+				  ['-> (tvar)])
+  (declare 'chan-send
+				  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (declare 'cora/lib/chan#chan-send
+				  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (declare 'chan-recv
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/chan#chan-recv
+				  [(tvar) '-> (tvar)])
 
   ;; channel is a sendq and recvq
   ;; sendq represent the coroutines blocked sending msg to the channel.

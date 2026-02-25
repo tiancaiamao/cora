@@ -1,0 +1,54 @@
+(import "cora/lib/resolve")
+
+(defun expect-resolve-fail-code (exp code msg)
+  (match (cora/lib/resolve#check exp)
+    ['fail [got . _]] (if (= got code)
+			  ()
+			  (cora/init#throw msg))
+    ['fail got] (if (= got code)
+		    ()
+		    (cora/init#throw msg))
+    _ (cora/init#throw msg)))
+
+;; try handler arity is runtime/control-flow dependent; resolver should not over-reject.
+(match (cora/lib/resolve#check '(package "test/resolve-boundary"
+				  (import "cora/lib/cml")
+				  (try (lambda () 1)
+				       (lambda (v) v))))
+  ['ok] ()
+  _ (cora/init#throw "resolver should not reject try handler literal arity"))
+
+;; cml perform op tuple shape is resolver-owned structural validation.
+(expect-resolve-fail-code '(package "test/resolve-boundary"
+			     (import "cora/lib/cml")
+			     (cora/lib/cml#perform [42 43]))
+			  'cml-perform-op-shape
+			  "resolver should reject malformed cml perform op shape")
+
+;; cml perform callable slots are resolver-owned structural validation.
+(expect-resolve-fail-code '(package "test/resolve-boundary"
+			     (import "cora/lib/cml")
+			     (cora/lib/cml#perform [42 43 44]))
+			  'cml-perform-op-callable
+			  "resolver should reject definitely non-callable cml op slots")
+
+;; cml wrap mapper literal lambda arity is resolver-owned structural validation.
+(expect-resolve-fail-code '(package "test/resolve-boundary"
+			     (import "cora/lib/cml")
+			     (let op [(lambda () false)
+				      (lambda (k wrap) (k 1))
+				      (lambda (x) x)]
+			       (cora/lib/cml#wrap op (lambda (a b) a))))
+			  'cml-wrap-mapper-arity
+			  "resolver should reject cml wrap mapper literal arity mismatch")
+
+;; Dynamic mapper value remains accepted by resolver.
+(match (cora/lib/resolve#check '(package "test/resolve-boundary"
+				  (import "cora/lib/cml")
+				  (let op [(lambda () false)
+					   (lambda (k wrap) (k 1))
+					   (lambda (x) x)]
+				    (let mapper (lambda (a b) a)
+				      (cora/lib/cml#wrap op mapper)))))
+  ['ok] ()
+  _ (cora/init#throw "resolver should not over-reject dynamic mapper values"))
