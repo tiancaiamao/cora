@@ -33,7 +33,7 @@
     (handle-map-size hm)))
 
 ;; Static API checks for effectful modules to avoid side effects.
-(cora/lib/infer#check-type! '(cora/lib/cml#spawn (lambda () 1)) (tvar))
-(cora/lib/infer#check-type! '(chan-make) (tvar))
-(cora/lib/infer#check-type! '(async-dial "127.0.0.1:8080") (tvar))
-(cora/lib/infer#check-type! '(cora/lib/net#net-dial "127.0.0.1:8080") (tvar))
+(check-type! '(cora/lib/cml#spawn (lambda () 1)) (tvar))
+(check-type! '(chan-make) (tvar))
+(check-type! '(async-dial "127.0.0.1:8080") (tvar))
+(check-type! '(cora/lib/net#net-dial "127.0.0.1:8080") (tvar))

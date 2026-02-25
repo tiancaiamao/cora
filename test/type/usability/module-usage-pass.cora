@@ -7,8 +7,8 @@
 
 ;; Existing module APIs should type-check on valid call shapes.
 ;; Keep this static-only to avoid runtime side effects in smoke tests.
-(cora/lib/infer#check-type! '(chan-send ch 1) (tvar))
-(cora/lib/infer#check-type! '(chan-recv ch) (tvar))
-(cora/lib/infer#check-type! '(cml-active?) 'bool)
-(cora/lib/infer#check-type! '(async-dial "127.0.0.1:8080") (tvar))
-(cora/lib/infer#check-type! '(async-listen "127.0.0.1:8080") (tvar))
+(check-type! '(chan-send ch 1) (tvar))
+(check-type! '(chan-recv ch) (tvar))
+(check-type! '(cml-active?) 'bool)
+(check-type! '(async-dial "127.0.0.1:8080") (tvar))
+(check-type! '(async-listen "127.0.0.1:8080") (tvar))
