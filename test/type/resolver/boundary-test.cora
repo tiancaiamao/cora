@@ -10,13 +10,13 @@
 		    (cora/init#throw msg))
     _ (cora/init#throw msg)))
 
-;; try handler literal lambda arity is resolver-owned structural validation.
-(expect-resolve-fail-code '(package "test/resolve-boundary"
-			     (import "cora/lib/cml")
-			     (try (lambda () 1)
-				  (lambda (v) v)))
-			  'try-handler-arity
-			  "resolver should reject try handler literal arity mismatch")
+;; try handler arity is runtime/control-flow dependent; resolver should not over-reject.
+(match (cora/lib/resolve#check '(package "test/resolve-boundary"
+				  (import "cora/lib/cml")
+				  (try (lambda () 1)
+				       (lambda (v) v))))
+  ['ok] ()
+  _ (cora/init#throw "resolver should not reject try handler literal arity"))
 
 ;; cml perform op tuple shape is resolver-owned structural validation.
 (expect-resolve-fail-code '(package "test/resolve-boundary"
@@ -52,4 +52,3 @@
 				      (cora/lib/cml#wrap op mapper)))))
   ['ok] ()
   _ (cora/init#throw "resolver should not over-reject dynamic mapper values"))
-

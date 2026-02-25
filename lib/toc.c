@@ -2,58 +2,6 @@
 #include "runtime.h"
 
 static int packageID = -1;
-static void clofun205(struct Cora* co, int label, Obj *R);
-static void clofun204(struct Cora* co, int label, Obj *R);
-static void clofun203(struct Cora* co, int label, Obj *R);
-static void clofun202(struct Cora* co, int label, Obj *R);
-static void clofun201(struct Cora* co, int label, Obj *R);
-static void clofun200(struct Cora* co, int label, Obj *R);
-static void clofun199(struct Cora* co, int label, Obj *R);
-static void clofun198(struct Cora* co, int label, Obj *R);
-static void clofun197(struct Cora* co, int label, Obj *R);
-static void clofun196(struct Cora* co, int label, Obj *R);
-static void clofun195(struct Cora* co, int label, Obj *R);
-static void clofun194(struct Cora* co, int label, Obj *R);
-static void clofun193(struct Cora* co, int label, Obj *R);
-static void clofun192(struct Cora* co, int label, Obj *R);
-static void clofun191(struct Cora* co, int label, Obj *R);
-static void clofun190(struct Cora* co, int label, Obj *R);
-static void clofun189(struct Cora* co, int label, Obj *R);
-static void clofun188(struct Cora* co, int label, Obj *R);
-static void clofun187(struct Cora* co, int label, Obj *R);
-static void clofun186(struct Cora* co, int label, Obj *R);
-static void clofun185(struct Cora* co, int label, Obj *R);
-static void clofun184(struct Cora* co, int label, Obj *R);
-static void clofun183(struct Cora* co, int label, Obj *R);
-static void clofun182(struct Cora* co, int label, Obj *R);
-static void clofun181(struct Cora* co, int label, Obj *R);
-static void clofun180(struct Cora* co, int label, Obj *R);
-static void clofun179(struct Cora* co, int label, Obj *R);
-static void clofun178(struct Cora* co, int label, Obj *R);
-static void clofun177(struct Cora* co, int label, Obj *R);
-static void clofun176(struct Cora* co, int label, Obj *R);
-static void clofun175(struct Cora* co, int label, Obj *R);
-static void clofun174(struct Cora* co, int label, Obj *R);
-static void clofun173(struct Cora* co, int label, Obj *R);
-static void clofun172(struct Cora* co, int label, Obj *R);
-static void clofun171(struct Cora* co, int label, Obj *R);
-static void clofun170(struct Cora* co, int label, Obj *R);
-static void clofun169(struct Cora* co, int label, Obj *R);
-static void clofun168(struct Cora* co, int label, Obj *R);
-static void clofun167(struct Cora* co, int label, Obj *R);
-static void clofun166(struct Cora* co, int label, Obj *R);
-static void clofun165(struct Cora* co, int label, Obj *R);
-static void clofun164(struct Cora* co, int label, Obj *R);
-static void clofun163(struct Cora* co, int label, Obj *R);
-static void clofun162(struct Cora* co, int label, Obj *R);
-static void clofun161(struct Cora* co, int label, Obj *R);
-static void clofun160(struct Cora* co, int label, Obj *R);
-static void clofun159(struct Cora* co, int label, Obj *R);
-static void clofun158(struct Cora* co, int label, Obj *R);
-static void clofun157(struct Cora* co, int label, Obj *R);
-static void clofun156(struct Cora* co, int label, Obj *R);
-static void clofun155(struct Cora* co, int label, Obj *R);
-static void clofun154(struct Cora* co, int label, Obj *R);
 static void clofun153(struct Cora* co, int label, Obj *R);
 static void clofun152(struct Cora* co, int label, Obj *R);
 static void clofun151(struct Cora* co, int label, Obj *R);
@@ -303,19 +251,19 @@ __symbolTable[86] = bindSymbol(co, intern("cora/lib/toc#diff"));
 __symbolTable[87] = bindSymbol(co, intern("cora/lib/toc#union"));
 __symbolTable[88] = bindSymbol(co, intern("cora/init#boolean?"));
 __symbolTable[89] = bindSymbol(co, intern("cora/init#number?"));
-__symbolTable[90] = bindSymbol(co, intern("%const"));
-__symbolTable[91] = bindSymbol(co, intern("quote"));
-__symbolTable[92] = bindSymbol(co, intern("%global"));
-__symbolTable[93] = bindSymbol(co, intern("cora/lib/toc#add-symbol-to-list"));
-__symbolTable[94] = bindSymbol(co, intern("cora/init#elem?"));
-__symbolTable[95] = bindSymbol(co, intern("do"));
-__symbolTable[96] = bindSymbol(co, intern("let"));
-__symbolTable[97] = bindSymbol(co, intern("if"));
-__symbolTable[98] = bindSymbol(co, intern("cora/init#append"));
-__symbolTable[99] = bindSymbol(co, intern("lambda"));
-__symbolTable[100] = bindSymbol(co, intern("%builtin"));
-__symbolTable[101] = bindSymbol(co, intern("cora/init#length"));
-__symbolTable[102] = bindSymbol(co, intern("cora/init#map"));
+__symbolTable[90] = bindSymbol(co, intern("quote"));
+__symbolTable[91] = bindSymbol(co, intern("do"));
+__symbolTable[92] = bindSymbol(co, intern("let"));
+__symbolTable[93] = bindSymbol(co, intern("if"));
+__symbolTable[94] = bindSymbol(co, intern("cora/init#append"));
+__symbolTable[95] = bindSymbol(co, intern("lambda"));
+__symbolTable[96] = bindSymbol(co, intern("%builtin"));
+__symbolTable[97] = bindSymbol(co, intern("cora/init#length"));
+__symbolTable[98] = bindSymbol(co, intern("cora/init#map"));
+__symbolTable[99] = bindSymbol(co, intern("%global"));
+__symbolTable[100] = bindSymbol(co, intern("cora/lib/toc#add-symbol-to-list"));
+__symbolTable[101] = bindSymbol(co, intern("cora/init#elem?"));
+__symbolTable[102] = bindSymbol(co, intern("%const"));
 __symbolTable[103] = bindSymbol(co, intern("cora/lib/toc#parse"));
 __symbolTable[104] = bindSymbol(co, intern("cora/lib/toc#temp-list"));
 __symbolTable[105] = bindSymbol(co, intern("cora/init#cadr"));
@@ -351,194 +299,194 @@ __symbolTable[134] = bindSymbol(co, intern("cora/lib/toc#assq"));
 __symbolTable[135] = bindSymbol(co, intern("cora/lib/toc#*ns-export*"));
 __symbolTable[136] = bindSymbol(co, intern("cora/init#import"));
 addPackage(co, packageID, __symbolTable);
-co->ctx.fn = clofun205;
+co->ctx.fn = clofun153;
 co->ctx.label = 0;
 }
 
-static void clofun205(struct Cora* co, int label, Obj *R) {
+static void clofun153(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-saveCont(co, clofun205, 4, R);
+saveCont(co, clofun153, 4, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 136)), makeCString(co->gc, "cora/lib/toc/internal"));
 return;
 }
 case 1:
 {
-Obj x9223090566220561952= co->res;
-Obj x9223090566220571616 = primSet(co, getBinding(co, packageID, 34).name, makeNative(co->gc, 3, clofun154, 2, 0));
-Obj x9223090566220574272 = primSet(co, getBinding(co, packageID, 33).name, makeNative(co->gc, 3, clofun157, 2, 0));
-Obj x9223090566220595200 = primSet(co, getBinding(co, packageID, 32).name, makeNative(co->gc, 7, clofun159, 3, 0));
-Obj x9223090566220584864 = primSet(co, getBinding(co, packageID, 31).name, makeNative(co->gc, 4, clofun161, 3, 0));
-Obj x9223090566220572384 = primSet(co, getBinding(co, packageID, 29).name, makeNative(co->gc, 4, clofun164, 3, 0));
-Obj x9223090566220456128 = primSet(co, getBinding(co, packageID, 28).name, makeNative(co->gc, 2, clofun170, 1, 0));
-Obj x9223090566219550336 = primSet(co, getBinding(co, packageID, 23).name, makeNative(co->gc, 5, clofun179, 4, 0));
-Obj x9223090566219489088 = primSet(co, getBinding(co, packageID, 13).name, makeNative(co->gc, 2, clofun183, 1, 0));
-Obj x9223090566219202784 = primSet(co, getBinding(co, packageID, 12).name, makeNative(co->gc, 3, clofun189, 2, 0));
-Obj x9223090566219203936 = primSet(co, getBinding(co, packageID, 11).name, makeNative(co->gc, 3, clofun190, 2, 0));
-Obj x9223090566218780736 = primSet(co, getBinding(co, packageID, 8).name, makeNative(co->gc, 2, clofun199, 1, 0));
-Obj x9223090566218781312 = primSet(co, getBinding(co, packageID, 9).name, False);
-Obj x9223090566218782720 = primSet(co, getBinding(co, packageID, 7).name, makeNative(co->gc, 2, clofun200, 1, 0));
-Obj x9223090566218685760 = primSet(co, getBinding(co, packageID, 5).name, makeNative(co->gc, 2, clofun203, 1, 0));
-Obj x9223090566218518720 = primSet(co, getBinding(co, packageID, 2).name, makeNative(co->gc, 4, clofun204, 2, 0));
-coraReturn(co, x9223090566218518720);
+Obj _3522907_37= co->res;
+Obj _3522913_37 = primSet(co, getBinding(co, packageID, 34).name, makeNative(co->gc, 3, clofun111, 2, 0));
+Obj _3522919_37 = primSet(co, getBinding(co, packageID, 33).name, makeNative(co->gc, 3, clofun112, 2, 0));
+Obj _3522941_37 = primSet(co, getBinding(co, packageID, 32).name, makeNative(co->gc, 7, clofun114, 3, 0));
+Obj _3522960_37 = primSet(co, getBinding(co, packageID, 31).name, makeNative(co->gc, 4, clofun116, 3, 0));
+Obj _3522970_37 = primSet(co, getBinding(co, packageID, 29).name, makeNative(co->gc, 4, clofun119, 3, 0));
+Obj _3523011_37 = primSet(co, getBinding(co, packageID, 28).name, makeNative(co->gc, 2, clofun124, 1, 0));
+Obj _3523088_37 = primSet(co, getBinding(co, packageID, 23).name, makeNative(co->gc, 5, clofun131, 4, 0));
+Obj _3523113_37 = primSet(co, getBinding(co, packageID, 13).name, makeNative(co->gc, 2, clofun134, 1, 0));
+Obj _3523165_37 = primSet(co, getBinding(co, packageID, 12).name, makeNative(co->gc, 3, clofun139, 2, 0));
+Obj _3523167_37 = primSet(co, getBinding(co, packageID, 11).name, makeNative(co->gc, 3, clofun140, 2, 0));
+Obj _3523183_37 = primSet(co, getBinding(co, packageID, 8).name, makeNative(co->gc, 2, clofun148, 1, 0));
+Obj _3523184_37 = primSet(co, getBinding(co, packageID, 9).name, False);
+Obj _3523187_37 = primSet(co, getBinding(co, packageID, 7).name, makeNative(co->gc, 2, clofun149, 1, 0));
+Obj _3523202_37 = primSet(co, getBinding(co, packageID, 5).name, makeNative(co->gc, 2, clofun151, 1, 0));
+Obj _3523214_37 = primSet(co, getBinding(co, packageID, 2).name, makeNative(co->gc, 4, clofun152, 2, 0));
+coraReturn(co, _3523214_37);
 return;
 }
 case 2:
 {
-Obj x9223090566218952288= co->res;
-Obj x9223090566218952576 = primSet(co, getBinding(co, packageID, 135).name, Nil);
-Obj x9223090566218732640 = primSet(co, getBinding(co, packageID, 134).name, makeNative(co->gc, 3, clofun3, 2, 0));
-Obj x9223090566218735552 = primSet(co, getBinding(co, packageID, 132).name, makeNative(co->gc, 4, clofun6, 3, 0));
-Obj x9223090566218647456 = primSet(co, getBinding(co, packageID, 131).name, makeNative(co->gc, 4, clofun10, 3, 0));
-Obj x9223090566218648032 = primSet(co, getBinding(co, packageID, 130).name, makeNative(co->gc, 3, clofun11, 2, 0));
-Obj x9223090566218519872 = primSet(co, getBinding(co, packageID, 129).name, makeNative(co->gc, 3, clofun14, 2, 0));
-Obj x9223090566218520896 = makeCons(co->gc, makeCString(co->gc, "primSet"), Nil);
-Obj x9223090566218520928 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566218520896);
-Obj x9223090566218520960 = makeCons(co->gc, getBinding(co, packageID, 127).name, x9223090566218520928);
-Obj x9223090566218521760 = makeCons(co->gc, makeCString(co->gc, "PRIM_CAR"), Nil);
-Obj x9223090566218521792 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566218521760);
-Obj x9223090566218521824 = makeCons(co->gc, getBinding(co, packageID, 126).name, x9223090566218521792);
-Obj x9223090566218436608 = makeCons(co->gc, makeCString(co->gc, "PRIM_CDR"), Nil);
-Obj x9223090566218436640 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566218436608);
-Obj x9223090566218436672 = makeCons(co->gc, getBinding(co, packageID, 125).name, x9223090566218436640);
-Obj x9223090566220103680 = makeCons(co->gc, makeCString(co->gc, "makeCons"), Nil);
-Obj x9223090566220103712 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220103680);
-Obj x9223090566220103744 = makeCons(co->gc, getBinding(co, packageID, 124).name, x9223090566220103712);
-Obj x9223090566220104544 = makeCons(co->gc, makeCString(co->gc, "PRIM_ISCONS"), Nil);
-Obj x9223090566220104576 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566220104544);
-Obj x9223090566220104608 = makeCons(co->gc, getBinding(co, packageID, 123).name, x9223090566220104576);
-Obj x9223090566220105408 = makeCons(co->gc, makeCString(co->gc, "PRIM_ADD"), Nil);
-Obj x9223090566220105440 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220105408);
-Obj x9223090566220105472 = makeCons(co->gc, getBinding(co, packageID, 122).name, x9223090566220105440);
-Obj x9223090566220106272 = makeCons(co->gc, makeCString(co->gc, "PRIM_SUB"), Nil);
-Obj x9223090566220106304 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220106272);
-Obj x9223090566220106336 = makeCons(co->gc, getBinding(co, packageID, 121).name, x9223090566220106304);
-Obj x9223090566220107136 = makeCons(co->gc, makeCString(co->gc, "PRIM_MUL"), Nil);
-Obj x9223090566220107168 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220107136);
-Obj x9223090566220107200 = makeCons(co->gc, getBinding(co, packageID, 120).name, x9223090566220107168);
-Obj x9223090566220017888 = makeCons(co->gc, makeCString(co->gc, "primDiv"), Nil);
-Obj x9223090566220017920 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220017888);
-Obj x9223090566220017952 = makeCons(co->gc, getBinding(co, packageID, 119).name, x9223090566220017920);
-Obj x9223090566220018752 = makeCons(co->gc, makeCString(co->gc, "PRIM_EQ"), Nil);
-Obj x9223090566220018784 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220018752);
-Obj x9223090566220018816 = makeCons(co->gc, getBinding(co, packageID, 118).name, x9223090566220018784);
-Obj x9223090566220019616 = makeCons(co->gc, makeCString(co->gc, "PRIM_GT"), Nil);
-Obj x9223090566220019648 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220019616);
-Obj x9223090566220019680 = makeCons(co->gc, getBinding(co, packageID, 117).name, x9223090566220019648);
-Obj x9223090566220020480 = makeCons(co->gc, makeCString(co->gc, "PRIM_LT"), Nil);
-Obj x9223090566220020512 = makeCons(co->gc, MAKE_NUMBER(2), x9223090566220020480);
-Obj x9223090566220020544 = makeCons(co->gc, getBinding(co, packageID, 116).name, x9223090566220020512);
-Obj x9223090566220021344 = makeCons(co->gc, makeCString(co->gc, "primGenSym"), Nil);
-Obj x9223090566220021376 = makeCons(co->gc, MAKE_NUMBER(0), x9223090566220021344);
-Obj x9223090566220021408 = makeCons(co->gc, getBinding(co, packageID, 115).name, x9223090566220021376);
-Obj x9223090566219903424 = makeCons(co->gc, makeCString(co->gc, "primIsSymbol"), Nil);
-Obj x9223090566219903456 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566219903424);
-Obj x9223090566219903488 = makeCons(co->gc, getBinding(co, packageID, 114).name, x9223090566219903456);
-Obj x9223090566219904288 = makeCons(co->gc, makeCString(co->gc, "primNot"), Nil);
-Obj x9223090566219904320 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566219904288);
-Obj x9223090566219904352 = makeCons(co->gc, getBinding(co, packageID, 113).name, x9223090566219904320);
-Obj x9223090566219905152 = makeCons(co->gc, makeCString(co->gc, "primIsNumber"), Nil);
-Obj x9223090566219905184 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566219905152);
-Obj x9223090566219905216 = makeCons(co->gc, getBinding(co, packageID, 112).name, x9223090566219905184);
-Obj x9223090566219906016 = makeCons(co->gc, makeCString(co->gc, "primIsString"), Nil);
-Obj x9223090566219906048 = makeCons(co->gc, MAKE_NUMBER(1), x9223090566219906016);
-Obj x9223090566219906080 = makeCons(co->gc, getBinding(co, packageID, 111).name, x9223090566219906048);
-Obj x9223090566219906144 = makeCons(co->gc, x9223090566219906080, Nil);
-Obj x9223090566219906176 = makeCons(co->gc, x9223090566219905216, x9223090566219906144);
-Obj x9223090566219906208 = makeCons(co->gc, x9223090566219904352, x9223090566219906176);
-Obj x9223090566219906240 = makeCons(co->gc, x9223090566219903488, x9223090566219906208);
-Obj x9223090566219906272 = makeCons(co->gc, x9223090566220021408, x9223090566219906240);
-Obj x9223090566219906304 = makeCons(co->gc, x9223090566220020544, x9223090566219906272);
-Obj x9223090566219906336 = makeCons(co->gc, x9223090566220019680, x9223090566219906304);
-Obj x9223090566219906368 = makeCons(co->gc, x9223090566220018816, x9223090566219906336);
-Obj x9223090566219906400 = makeCons(co->gc, x9223090566220017952, x9223090566219906368);
-Obj x9223090566219906432 = makeCons(co->gc, x9223090566220107200, x9223090566219906400);
-Obj x9223090566219906464 = makeCons(co->gc, x9223090566220106336, x9223090566219906432);
-Obj x9223090566219906496 = makeCons(co->gc, x9223090566220105472, x9223090566219906464);
-Obj x9223090566219906528 = makeCons(co->gc, x9223090566220104608, x9223090566219906496);
-Obj x9223090566219906560 = makeCons(co->gc, x9223090566220103744, x9223090566219906528);
-Obj x9223090566219906592 = makeCons(co->gc, x9223090566218436672, x9223090566219906560);
-Obj x9223090566219906624 = makeCons(co->gc, x9223090566218521824, x9223090566219906592);
-Obj x9223090566219906656 = makeCons(co->gc, x9223090566218520960, x9223090566219906624);
-Obj x9223090566219906688 = primSet(co, getBinding(co, packageID, 128).name, x9223090566219906656);
-Obj x9223090566219719232 = primSet(co, getBinding(co, packageID, 110).name, makeNative(co->gc, 2, clofun15, 1, 0));
-Obj x9223090566219720288 = primSet(co, getBinding(co, packageID, 108).name, makeNative(co->gc, 2, clofun16, 1, 0));
-Obj x9223090566219721344 = primSet(co, getBinding(co, packageID, 106).name, makeNative(co->gc, 2, clofun17, 1, 0));
-Obj x9223090566219547392 = primSet(co, getBinding(co, packageID, 104).name, makeNative(co->gc, 3, clofun20, 2, 0));
-Obj x9223090566218784448 = primSet(co, getBinding(co, packageID, 103).name, makeNative(co->gc, 4, clofun34, 3, 0));
-Obj x9223090566218684096 = primSet(co, getBinding(co, packageID, 87).name, makeNative(co->gc, 3, clofun38, 2, 0));
-Obj x9223090566218648288 = primSet(co, getBinding(co, packageID, 86).name, makeNative(co->gc, 3, clofun42, 2, 0));
-Obj x9223090566220020352 = primSet(co, getBinding(co, packageID, 85).name, makeNative(co->gc, 2, clofun50, 1, 0));
-Obj x9223090566219092992 = primSet(co, getBinding(co, packageID, 82).name, makeNative(co->gc, 2, clofun63, 1, 0));
-Obj x9223090566218520000 = primSet(co, getBinding(co, packageID, 77).name, makeNative(co->gc, 3, clofun69, 2, 0));
-Obj x9223090566218521088 = primSet(co, getBinding(co, packageID, 76).name, makeNative(co->gc, 2, clofun70, 1, 0));
-Obj x9223090566219905664 = primSet(co, getBinding(co, packageID, 75).name, makeNative(co->gc, 3, clofun82, 2, 0));
-Obj x9223090566219518336 = primSet(co, getBinding(co, packageID, 74).name, makeNative(co->gc, 4, clofun87, 3, 0));
-Obj x9223090566219386304 = primSet(co, getBinding(co, packageID, 69).name, makeNative(co->gc, 3, clofun94, 2, 0));
-Obj x9223090566219092736 = primSet(co, getBinding(co, packageID, 67).name, makeNative(co->gc, 4, clofun100, 3, 0));
-Obj x9223090566218949792 = primSet(co, getBinding(co, packageID, 66).name, makeNative(co->gc, 5, clofun105, 4, 0));
-Obj x9223090566218951744 = primSet(co, getBinding(co, packageID, 64).name, makeNative(co->gc, 3, clofun107, 2, 0));
-Obj x9223090566218783264 = primSet(co, getBinding(co, packageID, 63).name, makeNative(co->gc, 2, clofun109, 1, 0));
-Obj x9223090566218438720 = primSet(co, getBinding(co, packageID, 62).name, makeNative(co->gc, 6, clofun113, 2, 0));
-Obj x9223090566218224736 = primSet(co, getBinding(co, packageID, 60).name, makeNative(co->gc, 4, clofun114, 2, 0));
-Obj x9223090566218226880 = primSet(co, getBinding(co, packageID, 72).name, makeNative(co->gc, 3, clofun115, 2, 0));
-Obj x9223090566217933728 = primSet(co, getBinding(co, packageID, 93).name, makeNative(co->gc, 4, clofun116, 2, 0));
-Obj x9223090566217935936 = primSet(co, getBinding(co, packageID, 57).name, makeNative(co->gc, 4, clofun117, 3, 0));
-Obj x9223090566217936512 = primSet(co, getBinding(co, packageID, 56).name, makeNative(co->gc, 3, clofun118, 2, 0));
-Obj x9223090566220449248 = primSet(co, getBinding(co, packageID, 55).name, makeNative(co->gc, 6, clofun120, 5, 0));
-Obj x9223090566220451648 = primSet(co, getBinding(co, packageID, 51).name, makeNative(co->gc, 6, clofun122, 5, 0));
-Obj x9223090566218732064 = primSet(co, getBinding(co, packageID, 52).name, makeNative(co->gc, 6, clofun136, 5, 0));
-Obj x9223090566218647040 = primSet(co, getBinding(co, packageID, 49).name, makeNative(co->gc, 6, clofun140, 5, 0));
-Obj x9223090566218439936 = primSet(co, getBinding(co, packageID, 46).name, makeNative(co->gc, 8, clofun142, 5, 0));
-Obj x9223090566218224000 = primSet(co, getBinding(co, packageID, 48).name, makeNative(co->gc, 3, clofun143, 2, 0));
-Obj x9223090566218226176 = primSet(co, getBinding(co, packageID, 45).name, makeNative(co->gc, 3, clofun144, 2, 0));
-Obj x9223090566218227104 = primSet(co, getBinding(co, packageID, 44).name, makeNative(co->gc, 3, clofun145, 2, 0));
-Obj x9223090566217932928 = primSet(co, getBinding(co, packageID, 43).name, makeNative(co->gc, 2, clofun146, 1, 0));
-Obj x9223090566217933760 = primSet(co, getBinding(co, packageID, 42).name, makeNative(co->gc, 2, clofun147, 1, 0));
-Obj x9223090566217934336 = primSet(co, getBinding(co, packageID, 41).name, makeNative(co->gc, 2, clofun148, 1, 0));
-Obj x9223090566217776992 = primSet(co, getBinding(co, packageID, 40).name, makeNative(co->gc, 3, clofun149, 1, 0));
-Obj x9223090566220560896 = primSet(co, getBinding(co, packageID, 38).name, makeNative(co->gc, 3, clofun152, 2, 0));
-saveCont(co, clofun205, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 37)), getBinding(co, packageID, 36).name, makeNative(co->gc, 2, clofun153, 1, 0));
+Obj _3521521_37= co->res;
+Obj _3521522_37 = primSet(co, getBinding(co, packageID, 135).name, Nil);
+Obj _3521537_37 = primSet(co, getBinding(co, packageID, 134).name, makeNative(co->gc, 3, clofun1, 2, 0));
+Obj _3521543_37 = primSet(co, getBinding(co, packageID, 132).name, makeNative(co->gc, 4, clofun2, 3, 0));
+Obj _3521553_37 = primSet(co, getBinding(co, packageID, 131).name, makeNative(co->gc, 4, clofun4, 3, 0));
+Obj _3521554_37 = primSet(co, getBinding(co, packageID, 130).name, makeNative(co->gc, 3, clofun5, 2, 0));
+Obj _3521561_37 = primSet(co, getBinding(co, packageID, 129).name, makeNative(co->gc, 3, clofun6, 2, 0));
+Obj _3521562_37 = makeCons(co->gc, makeCString(co->gc, "primSet"), Nil);
+Obj _3521563_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521562_37);
+Obj _3521564_37 = makeCons(co->gc, getBinding(co, packageID, 127).name, _3521563_37);
+Obj _3521565_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_CAR"), Nil);
+Obj _3521566_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521565_37);
+Obj _3521567_37 = makeCons(co->gc, getBinding(co, packageID, 126).name, _3521566_37);
+Obj _3521568_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_CDR"), Nil);
+Obj _3521569_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521568_37);
+Obj _3521570_37 = makeCons(co->gc, getBinding(co, packageID, 125).name, _3521569_37);
+Obj _3521571_37 = makeCons(co->gc, makeCString(co->gc, "makeCons"), Nil);
+Obj _3521572_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521571_37);
+Obj _3521573_37 = makeCons(co->gc, getBinding(co, packageID, 124).name, _3521572_37);
+Obj _3521574_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_ISCONS"), Nil);
+Obj _3521575_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521574_37);
+Obj _3521576_37 = makeCons(co->gc, getBinding(co, packageID, 123).name, _3521575_37);
+Obj _3521577_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_ADD"), Nil);
+Obj _3521578_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521577_37);
+Obj _3521579_37 = makeCons(co->gc, getBinding(co, packageID, 122).name, _3521578_37);
+Obj _3521580_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_SUB"), Nil);
+Obj _3521581_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521580_37);
+Obj _3521582_37 = makeCons(co->gc, getBinding(co, packageID, 121).name, _3521581_37);
+Obj _3521583_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_MUL"), Nil);
+Obj _3521584_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521583_37);
+Obj _3521585_37 = makeCons(co->gc, getBinding(co, packageID, 120).name, _3521584_37);
+Obj _3521586_37 = makeCons(co->gc, makeCString(co->gc, "primDiv"), Nil);
+Obj _3521587_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521586_37);
+Obj _3521588_37 = makeCons(co->gc, getBinding(co, packageID, 119).name, _3521587_37);
+Obj _3521589_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_EQ"), Nil);
+Obj _3521590_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521589_37);
+Obj _3521591_37 = makeCons(co->gc, getBinding(co, packageID, 118).name, _3521590_37);
+Obj _3521592_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_GT"), Nil);
+Obj _3521593_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521592_37);
+Obj _3521594_37 = makeCons(co->gc, getBinding(co, packageID, 117).name, _3521593_37);
+Obj _3521595_37 = makeCons(co->gc, makeCString(co->gc, "PRIM_LT"), Nil);
+Obj _3521596_37 = makeCons(co->gc, MAKE_NUMBER(2), _3521595_37);
+Obj _3521597_37 = makeCons(co->gc, getBinding(co, packageID, 116).name, _3521596_37);
+Obj _3521598_37 = makeCons(co->gc, makeCString(co->gc, "primGenSym"), Nil);
+Obj _3521599_37 = makeCons(co->gc, MAKE_NUMBER(0), _3521598_37);
+Obj _3521600_37 = makeCons(co->gc, getBinding(co, packageID, 115).name, _3521599_37);
+Obj _3521601_37 = makeCons(co->gc, makeCString(co->gc, "primIsSymbol"), Nil);
+Obj _3521602_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521601_37);
+Obj _3521603_37 = makeCons(co->gc, getBinding(co, packageID, 114).name, _3521602_37);
+Obj _3521604_37 = makeCons(co->gc, makeCString(co->gc, "primNot"), Nil);
+Obj _3521605_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521604_37);
+Obj _3521606_37 = makeCons(co->gc, getBinding(co, packageID, 113).name, _3521605_37);
+Obj _3521607_37 = makeCons(co->gc, makeCString(co->gc, "primIsNumber"), Nil);
+Obj _3521608_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521607_37);
+Obj _3521609_37 = makeCons(co->gc, getBinding(co, packageID, 112).name, _3521608_37);
+Obj _3521610_37 = makeCons(co->gc, makeCString(co->gc, "primIsString"), Nil);
+Obj _3521611_37 = makeCons(co->gc, MAKE_NUMBER(1), _3521610_37);
+Obj _3521612_37 = makeCons(co->gc, getBinding(co, packageID, 111).name, _3521611_37);
+Obj _3521613_37 = makeCons(co->gc, _3521612_37, Nil);
+Obj _3521614_37 = makeCons(co->gc, _3521609_37, _3521613_37);
+Obj _3521615_37 = makeCons(co->gc, _3521606_37, _3521614_37);
+Obj _3521616_37 = makeCons(co->gc, _3521603_37, _3521615_37);
+Obj _3521617_37 = makeCons(co->gc, _3521600_37, _3521616_37);
+Obj _3521618_37 = makeCons(co->gc, _3521597_37, _3521617_37);
+Obj _3521619_37 = makeCons(co->gc, _3521594_37, _3521618_37);
+Obj _3521620_37 = makeCons(co->gc, _3521591_37, _3521619_37);
+Obj _3521621_37 = makeCons(co->gc, _3521588_37, _3521620_37);
+Obj _3521622_37 = makeCons(co->gc, _3521585_37, _3521621_37);
+Obj _3521623_37 = makeCons(co->gc, _3521582_37, _3521622_37);
+Obj _3521624_37 = makeCons(co->gc, _3521579_37, _3521623_37);
+Obj _3521625_37 = makeCons(co->gc, _3521576_37, _3521624_37);
+Obj _3521626_37 = makeCons(co->gc, _3521573_37, _3521625_37);
+Obj _3521627_37 = makeCons(co->gc, _3521570_37, _3521626_37);
+Obj _3521628_37 = makeCons(co->gc, _3521567_37, _3521627_37);
+Obj _3521629_37 = makeCons(co->gc, _3521564_37, _3521628_37);
+Obj _3521630_37 = primSet(co, getBinding(co, packageID, 128).name, _3521629_37);
+Obj _3521634_37 = primSet(co, getBinding(co, packageID, 110).name, makeNative(co->gc, 2, clofun7, 1, 0));
+Obj _3521637_37 = primSet(co, getBinding(co, packageID, 108).name, makeNative(co->gc, 2, clofun8, 1, 0));
+Obj _3521640_37 = primSet(co, getBinding(co, packageID, 106).name, makeNative(co->gc, 2, clofun9, 1, 0));
+Obj _3521645_37 = primSet(co, getBinding(co, packageID, 104).name, makeNative(co->gc, 3, clofun10, 2, 0));
+Obj _3521843_37 = primSet(co, getBinding(co, packageID, 103).name, makeNative(co->gc, 4, clofun21, 3, 0));
+Obj _3521854_37 = primSet(co, getBinding(co, packageID, 87).name, makeNative(co->gc, 4, clofun23, 2, 0));
+Obj _3521865_37 = primSet(co, getBinding(co, packageID, 86).name, makeNative(co->gc, 4, clofun25, 2, 0));
+Obj _3521926_37 = primSet(co, getBinding(co, packageID, 85).name, makeNative(co->gc, 2, clofun32, 1, 0));
+Obj _3522101_37 = primSet(co, getBinding(co, packageID, 82).name, makeNative(co->gc, 2, clofun42, 1, 0));
+Obj _3522174_37 = primSet(co, getBinding(co, packageID, 77).name, makeNative(co->gc, 4, clofun45, 2, 0));
+Obj _3522177_37 = primSet(co, getBinding(co, packageID, 76).name, makeNative(co->gc, 2, clofun46, 1, 0));
+Obj _3522314_37 = primSet(co, getBinding(co, packageID, 75).name, makeNative(co->gc, 3, clofun55, 2, 0));
+Obj _3522337_37 = primSet(co, getBinding(co, packageID, 74).name, makeNative(co->gc, 4, clofun58, 3, 0));
+Obj _3522414_37 = primSet(co, getBinding(co, packageID, 69).name, makeNative(co->gc, 3, clofun62, 2, 0));
+Obj _3522445_37 = primSet(co, getBinding(co, packageID, 67).name, makeNative(co->gc, 4, clofun66, 3, 0));
+Obj _3522451_37 = primSet(co, getBinding(co, packageID, 66).name, makeNative(co->gc, 5, clofun69, 4, 0));
+Obj _3522456_37 = primSet(co, getBinding(co, packageID, 64).name, makeNative(co->gc, 3, clofun71, 2, 0));
+Obj _3522465_37 = primSet(co, getBinding(co, packageID, 63).name, makeNative(co->gc, 2, clofun73, 1, 0));
+Obj _3522516_37 = primSet(co, getBinding(co, packageID, 62).name, makeNative(co->gc, 6, clofun75, 2, 0));
+Obj _3522524_37 = primSet(co, getBinding(co, packageID, 60).name, makeNative(co->gc, 4, clofun76, 2, 0));
+Obj _3522531_37 = primSet(co, getBinding(co, packageID, 72).name, makeNative(co->gc, 3, clofun77, 2, 0));
+Obj _3522536_37 = primSet(co, getBinding(co, packageID, 100).name, makeNative(co->gc, 4, clofun78, 2, 0));
+Obj _3522542_37 = primSet(co, getBinding(co, packageID, 57).name, makeNative(co->gc, 4, clofun79, 3, 0));
+Obj _3522543_37 = primSet(co, getBinding(co, packageID, 56).name, makeNative(co->gc, 3, clofun80, 2, 0));
+Obj _3522550_37 = primSet(co, getBinding(co, packageID, 55).name, makeNative(co->gc, 6, clofun82, 5, 0));
+Obj _3522557_37 = primSet(co, getBinding(co, packageID, 51).name, makeNative(co->gc, 6, clofun84, 5, 0));
+Obj _3522844_37 = primSet(co, getBinding(co, packageID, 52).name, makeNative(co->gc, 6, clofun97, 5, 0));
+Obj _3522858_37 = primSet(co, getBinding(co, packageID, 49).name, makeNative(co->gc, 6, clofun99, 5, 0));
+Obj _3522880_37 = primSet(co, getBinding(co, packageID, 46).name, makeNative(co->gc, 8, clofun101, 5, 0));
+Obj _3522882_37 = primSet(co, getBinding(co, packageID, 48).name, makeNative(co->gc, 3, clofun102, 2, 0));
+Obj _3522886_37 = primSet(co, getBinding(co, packageID, 45).name, makeNative(co->gc, 3, clofun103, 2, 0));
+Obj _3522887_37 = primSet(co, getBinding(co, packageID, 44).name, makeNative(co->gc, 3, clofun104, 2, 0));
+Obj _3522888_37 = primSet(co, getBinding(co, packageID, 43).name, makeNative(co->gc, 2, clofun105, 1, 0));
+Obj _3522889_37 = primSet(co, getBinding(co, packageID, 42).name, makeNative(co->gc, 2, clofun106, 1, 0));
+Obj _3522890_37 = primSet(co, getBinding(co, packageID, 41).name, makeNative(co->gc, 2, clofun107, 1, 0));
+Obj _3522897_37 = primSet(co, getBinding(co, packageID, 40).name, makeNative(co->gc, 3, clofun108, 1, 0));
+Obj _3522904_37 = primSet(co, getBinding(co, packageID, 38).name, makeNative(co->gc, 3, clofun109, 2, 0));
+saveCont(co, clofun153, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 37)), getBinding(co, packageID, 36).name, makeNative(co->gc, 2, clofun110, 1, 0));
 return;
 }
 case 3:
 {
-Obj x9223090566218952032= co->res;
-saveCont(co, clofun205, 2, R);
+Obj _3521520_37= co->res;
+saveCont(co, clofun153, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 136)), makeCString(co->gc, "cora/lib/hash-h"));
 return;
 }
 case 4:
 {
-Obj x9223090566218951776= co->res;
-saveCont(co, clofun205, 3, R);
+Obj _3521519_37= co->res;
+saveCont(co, clofun153, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 136)), makeCString(co->gc, "cora/lib/io"));
 return;
 }
 }
 }
 
-static void clofun204(struct Cora* co, int label, Obj *R) {
+static void clofun152(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj from = R[1];
 Obj to = R[2];
-Obj x9223090566218645600 = primGenSym(co);
-Obj globals = x9223090566218645600;
-Obj x9223090566218646144 = primSet(co, globals, Nil);
+Obj _3523203_37 = primGenSym(co);
+Obj globals = _3523203_37;
+Obj _3523204_37 = primSet(co, globals, Nil);
 R[1] = from;
 R[2] = to;
 R[3] = globals;
-saveCont(co, clofun204, 9, R);
+saveCont(co, clofun152, 9, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 34)), globals);
 return;
 }
 case 1:
 {
-Obj x9223090566218649472= co->res;
+Obj _3523213_37= co->res;
 Obj stream = R[1];
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 0)), stream);
@@ -546,277 +494,263 @@ return;
 }
 case 2:
 {
-Obj x9223090566218649440= co->res;
+Obj _3523212_37= co->res;
 Obj bc = R[1];
 Obj stream = R[2];
 R[1] = stream;
-saveCont(co, clofun204, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 29)), stream, bc, x9223090566218649440);
+saveCont(co, clofun152, 1, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 29)), stream, bc, _3523212_37);
 return;
 }
 case 3:
 {
-Obj x9223090566218648640= co->res;
+Obj _3523211_37= co->res;
 Obj globals = R[1];
 Obj bc = R[2];
-Obj stream = x9223090566218648640;
+Obj stream = _3523211_37;
 R[1] = bc;
 R[2] = stream;
-saveCont(co, clofun204, 2, R);
+saveCont(co, clofun152, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), globals);
 return;
 }
 case 4:
 {
-Obj x9223090566218648384= co->res;
+Obj _3523210_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
-Obj bc = x9223090566218648384;
+Obj bc = _3523210_37;
 R[1] = globals;
 R[2] = bc;
-saveCont(co, clofun204, 3, R);
+saveCont(co, clofun152, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 1)), to);
 return;
 }
 case 5:
 {
-Obj x9223090566218648352= co->res;
-Obj x9223090566218646848 = R[1];
+Obj _3523209_37= co->res;
+Obj _3523205_37 = R[1];
 Obj to = R[2];
 Obj globals = R[3];
 R[1] = to;
 R[2] = globals;
-saveCont(co, clofun204, 4, R);
-coraCall1(co, x9223090566218646848, x9223090566218648352);
+saveCont(co, clofun152, 4, R);
+coraCall1(co, _3523205_37, _3523209_37);
 return;
 }
 case 6:
 {
-Obj x9223090566218648320= co->res;
-Obj x9223090566218646848 = R[1];
+Obj _3523208_37= co->res;
+Obj _3523205_37 = R[1];
 Obj to = R[2];
 Obj globals = R[3];
-R[1] = x9223090566218646848;
+R[1] = _3523205_37;
 R[2] = to;
 R[3] = globals;
-saveCont(co, clofun204, 5, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 3)), x9223090566218648320);
+saveCont(co, clofun152, 5, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 3)), _3523208_37);
 return;
 }
 case 7:
 {
-Obj x9223090566218648256= co->res;
-Obj x9223090566218646848 = R[1];
+Obj _3523207_37= co->res;
+Obj _3523205_37 = R[1];
 Obj to = R[2];
 Obj globals = R[3];
-R[1] = x9223090566218646848;
+R[1] = _3523205_37;
 R[2] = to;
 R[3] = globals;
-saveCont(co, clofun204, 6, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 8)), x9223090566218648256);
+saveCont(co, clofun152, 6, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 8)), _3523207_37);
 return;
 }
 case 8:
 {
-Obj x9223090566218648224= co->res;
-Obj x9223090566218646848 = R[1];
+Obj _3523206_37= co->res;
+Obj _3523205_37 = R[1];
 Obj to = R[2];
 Obj globals = R[3];
-R[1] = x9223090566218646848;
+R[1] = _3523205_37;
 R[2] = to;
 R[3] = globals;
-saveCont(co, clofun204, 7, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 5)), x9223090566218648224);
+saveCont(co, clofun152, 7, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 5)), _3523206_37);
 return;
 }
 case 9:
 {
-Obj x9223090566218646848= co->res;
+Obj _3523205_37= co->res;
 Obj from = R[1];
 Obj to = R[2];
 Obj globals = R[3];
-R[1] = x9223090566218646848;
+R[1] = _3523205_37;
 R[2] = to;
 R[3] = globals;
-saveCont(co, clofun204, 8, R);
+saveCont(co, clofun152, 8, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 7)), from);
 return;
 }
 }
 }
 
-static void clofun203(struct Cora* co, int label, Obj *R) {
+static void clofun151(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj sexp = R[1];
-Obj x9223090566218683904 = makeNative(co->gc, 2, clofun202, 0, 1, sexp);
-Obj x9223090566218732800 = PRIM_ISCONS(sexp);
-if (True == x9223090566218732800) {
-Obj x9223090566218733344 = PRIM_CAR(sexp);
-Obj x9223090566218733376 = PRIM_EQ(getBinding(co, packageID, 24).name, x9223090566218733344);
-if (True == x9223090566218733376) {
-Obj x9223090566218734208 = PRIM_CDR(sexp);
-Obj x9223090566218734240 = PRIM_ISCONS(x9223090566218734208);
-if (True == x9223090566218734240) {
-Obj x9223090566218735520 = PRIM_CDR(sexp);
-Obj x9223090566218735584 = PRIM_CAR(x9223090566218735520);
-Obj x9223090566218682592 = PRIM_EQ(makeCString(co->gc, "cora/lib/resolve"), x9223090566218735584);
-if (True == x9223090566218682592) {
-Obj x9223090566218684224 = PRIM_CDR(sexp);
-Obj x9223090566218684448 = PRIM_CDR(x9223090566218684224);
-Obj __ = x9223090566218684448;
+Obj _3521505_37 = makeNative(co->gc, 2, clofun150, 0, 1, sexp);
+Obj _3523192_37 = PRIM_ISCONS(sexp);
+if (True == _3523192_37) {
+Obj _3523193_37 = PRIM_CAR(sexp);
+Obj _3523194_37 = PRIM_EQ(getBinding(co, packageID, 24).name, _3523193_37);
+if (True == _3523194_37) {
+Obj _3523195_37 = PRIM_CDR(sexp);
+Obj _3523196_37 = PRIM_ISCONS(_3523195_37);
+if (True == _3523196_37) {
+Obj _3523197_37 = PRIM_CDR(sexp);
+Obj _3523198_37 = PRIM_CAR(_3523197_37);
+Obj _3523199_37 = PRIM_EQ(makeCString(co->gc, "cora/lib/resolve"), _3523198_37);
+if (True == _3523199_37) {
+Obj _3523200_37 = PRIM_CDR(sexp);
+Obj _3523201_37 = PRIM_CDR(_3523200_37);
 coraReturn(co, sexp);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683904);
+coraCall0(co, _3521505_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683904);
+coraCall0(co, _3521505_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683904);
+coraCall0(co, _3521505_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683904);
+coraCall0(co, _3521505_37);
 return;
 }
 }
 }
 }
 
-static void clofun202(struct Cora* co, int label, Obj *R) {
+static void clofun150(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684352 = makeNative(co->gc, 1, clofun201, 0, 0);
-Obj __ = closureRef(R[0], 0);
-saveCont(co, clofun202, 4, R);
+saveCont(co, clofun150, 4, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 136)), makeCString(co->gc, "cora/lib/resolve"));
 return;
 }
 case 1:
 {
-Obj x9223090566218732352= co->res;
+Obj _3523191_37= co->res;
 coraReturn(co, closureRef(R[0], 0));
 return;
 }
 case 2:
 {
-Obj x9223090566218732320= co->res;
-Obj x9223090566218732096 = R[1];
-saveCont(co, clofun202, 1, R);
-coraCall1(co, x9223090566218732096, x9223090566218732320);
+Obj _3523190_37= co->res;
+Obj _3523189_37 = R[1];
+saveCont(co, clofun150, 1, R);
+coraCall1(co, _3523189_37, _3523190_37);
 return;
 }
 case 3:
 {
-Obj x9223090566218732096= co->res;
-R[1] = x9223090566218732096;
-saveCont(co, clofun202, 2, R);
+Obj _3523189_37= co->res;
+R[1] = _3523189_37;
+saveCont(co, clofun150, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 3)), closureRef(R[0], 0));
 return;
 }
 case 4:
 {
-Obj x9223090566218784608= co->res;
-saveCont(co, clofun202, 3, R);
+Obj _3523188_37= co->res;
+saveCont(co, clofun150, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), getBinding(co, packageID, 4).name);
 return;
 }
 }
 }
 
-static void clofun201(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun200(struct Cora* co, int label, Obj *R) {
+static void clofun149(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj file_45path = R[1];
-saveCont(co, clofun200, 2, R);
+saveCont(co, clofun149, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 6)), file_45path);
 return;
 }
 case 1:
 {
-Obj x9223090566218782688= co->res;
+Obj _3523186_37= co->res;
 Obj sexp = R[1];
 coraReturn(co, sexp);
 return;
 }
 case 2:
 {
-Obj x9223090566218782368= co->res;
-Obj sexp = x9223090566218782368;
+Obj _3523185_37= co->res;
+Obj sexp = _3523185_37;
 R[1] = sexp;
-saveCont(co, clofun200, 1, R);
+saveCont(co, clofun149, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 28)), sexp);
 return;
 }
 }
 }
 
-static void clofun199(struct Cora* co, int label, Obj *R) {
+static void clofun148(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218682400 = R[1];
-Obj x9223090566218682432 = makeNative(co->gc, 1, clofun196, 0, 1, x9223090566218682400);
-Obj x9223090566218949440 = PRIM_ISCONS(x9223090566218682400);
-if (True == x9223090566218949440) {
-Obj x9223090566218950176 = PRIM_CAR(x9223090566218682400);
-Obj x9223090566218950208 = PRIM_EQ(getBinding(co, packageID, 24).name, x9223090566218950176);
-if (True == x9223090566218950208) {
-Obj x9223090566218950528 = PRIM_CDR(x9223090566218682400);
-Obj more = x9223090566218950528;
-Obj x9223090566218950976 = makeCons(co->gc, getBinding(co, packageID, 24).name, more);
+Obj _3521501_37 = R[1];
+Obj _3521502_37 = makeNative(co->gc, 1, clofun145, 0, 1, _3521501_37);
+Obj _3523178_37 = PRIM_ISCONS(_3521501_37);
+if (True == _3523178_37) {
+Obj _3523179_37 = PRIM_CAR(_3521501_37);
+Obj _3523180_37 = PRIM_EQ(getBinding(co, packageID, 24).name, _3523179_37);
+if (True == _3523180_37) {
+Obj _3523181_37 = PRIM_CDR(_3521501_37);
+Obj more = _3523181_37;
+Obj _3523182_37 = makeCons(co->gc, getBinding(co, packageID, 24).name, more);
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), x9223090566218950976, makeNative(co->gc, 2, clofun198, 1, 0));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), _3523182_37, makeNative(co->gc, 2, clofun147, 1, 0));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682432);
+coraCall0(co, _3521502_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682432);
+coraCall0(co, _3521502_37);
 return;
 }
 }
 }
 }
 
-static void clofun198(struct Cora* co, int label, Obj *R) {
+static void clofun147(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj body = R[1];
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), body, Nil, Nil, makeNative(co->gc, 3, clofun197, 2, 0));
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), body, Nil, Nil, makeNative(co->gc, 3, clofun146, 2, 0));
 return;
 }
 }
 }
 
-static void clofun197(struct Cora* co, int label, Obj *R) {
+static void clofun146(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -829,49 +763,49 @@ return;
 }
 }
 
-static void clofun196(struct Cora* co, int label, Obj *R) {
+static void clofun145(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683104 = makeNative(co->gc, 1, clofun193, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219093568 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219093568) {
-Obj x9223090566219094080 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219094240 = PRIM_EQ(getBinding(co, packageID, 25).name, x9223090566219094080);
-if (True == x9223090566219094240) {
-Obj x9223090566219094624 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566219094624;
-Obj x9223090566219095168 = makeCons(co->gc, getBinding(co, packageID, 25).name, more);
+Obj _3521503_37 = makeNative(co->gc, 1, clofun142, 0, 1, closureRef(R[0], 0));
+Obj _3523173_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523173_37) {
+Obj _3523174_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523175_37 = PRIM_EQ(getBinding(co, packageID, 25).name, _3523174_37);
+if (True == _3523175_37) {
+Obj _3523176_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523176_37;
+Obj _3523177_37 = makeCons(co->gc, getBinding(co, packageID, 25).name, more);
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), x9223090566219095168, makeNative(co->gc, 2, clofun195, 1, 0));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), _3523177_37, makeNative(co->gc, 2, clofun144, 1, 0));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683104);
+coraCall0(co, _3521503_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683104);
+coraCall0(co, _3521503_37);
 return;
 }
 }
 }
 }
 
-static void clofun195(struct Cora* co, int label, Obj *R) {
+static void clofun144(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj body = R[1];
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), body, Nil, Nil, makeNative(co->gc, 3, clofun194, 2, 0));
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), body, Nil, Nil, makeNative(co->gc, 3, clofun143, 2, 0));
 return;
 }
 }
 }
 
-static void clofun194(struct Cora* co, int label, Obj *R) {
+static void clofun143(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -884,21 +818,19 @@ return;
 }
 }
 
-static void clofun193(struct Cora* co, int label, Obj *R) {
+static void clofun142(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683680 = makeNative(co->gc, 1, clofun191, 0, 0);
-Obj single = closureRef(R[0], 0);
-Obj x9223090566219206208 = makeCons(co->gc, single, Nil);
+Obj _3523168_37 = makeCons(co->gc, closureRef(R[0], 0), Nil);
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), x9223090566219206208, Nil, Nil, makeNative(co->gc, 3, clofun192, 2, 1, single));
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), _3523168_37, Nil, Nil, makeNative(co->gc, 3, clofun141, 2, 1, closureRef(R[0], 0)));
 return;
 }
 }
 }
 
-static void clofun192(struct Cora* co, int label, Obj *R) {
+static void clofun141(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -906,42 +838,42 @@ Obj type = R[1];
 Obj code = R[2];
 R[1] = type;
 R[2] = code;
-saveCont(co, clofun192, 3, R);
+saveCont(co, clofun141, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 13)), closureRef(R[0], 0));
 return;
 }
 case 1:
 {
-Obj x9223090566219092960= co->res;
+Obj _3523171_37= co->res;
 Obj body = R[1];
-if (True == x9223090566219092960) {
+if (True == _3523171_37) {
 coraReturn(co, Nil);
 return;
 } else {
-Obj x9223090566219093216 = makeCons(co->gc, getBinding(co, packageID, 25).name, body);
-coraReturn(co, x9223090566219093216);
+Obj _3523172_37 = makeCons(co->gc, getBinding(co, packageID, 25).name, body);
+coraReturn(co, _3523172_37);
 return;
 }
 }
 case 2:
 {
-Obj x9223090566219092512= co->res;
-Obj body = x9223090566219092512;
+Obj _3523170_37= co->res;
+Obj body = _3523170_37;
 R[1] = body;
-saveCont(co, clofun192, 1, R);
+saveCont(co, clofun141, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), body);
 return;
 }
 case 3:
 {
-Obj x9223090566219092128= co->res;
+Obj _3523169_37= co->res;
 Obj type = R[1];
 Obj code = R[2];
-if (True == x9223090566219092128) {
+if (True == _3523169_37) {
 coraReturn(co, closureRef(R[0], 0));
 return;
 } else {
-saveCont(co, clofun192, 2, R);
+saveCont(co, clofun141, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 11)), type, code);
 return;
 }
@@ -949,18 +881,7 @@ return;
 }
 }
 
-static void clofun191(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun190(struct Cora* co, int label, Obj *R) {
+static void clofun140(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -968,18 +889,18 @@ Obj type = R[1];
 Obj code = R[2];
 R[1] = type;
 R[2] = code;
-saveCont(co, clofun190, 1, R);
+saveCont(co, clofun140, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 10)), getBinding(co, packageID, 9).name, False);
 return;
 }
 case 1:
 {
-Obj x9223090566219203712= co->res;
+Obj _3523166_37= co->res;
 Obj type = R[1];
 Obj code = R[2];
-if (True == x9223090566219203712) {
+if (True == _3523166_37) {
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), type, code);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), type, code);
 return;
 } else {
 coraReturn(co, code);
@@ -989,275 +910,257 @@ return;
 }
 }
 
-static void clofun189(struct Cora* co, int label, Obj *R) {
+static void clofun139(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683936 = R[1];
-Obj x9223090566218683968 = R[2];
-Obj x9223090566218684064 = makeNative(co->gc, 2, clofun188, 0, 2, x9223090566218683936, x9223090566218683968);
-Obj x9223090566219312480 = PRIM_ISCONS(x9223090566218683936);
-if (True == x9223090566219312480) {
-Obj x9223090566219276480 = PRIM_CAR(x9223090566218683936);
-Obj x9223090566219276608 = PRIM_EQ(getBinding(co, packageID, 24).name, x9223090566219276480);
-if (True == x9223090566219276608) {
-Obj x9223090566219277152 = PRIM_CDR(x9223090566218683936);
-Obj x9223090566219277184 = PRIM_ISCONS(x9223090566219277152);
-if (True == x9223090566219277184) {
-Obj x9223090566219278144 = PRIM_CDR(x9223090566218683936);
-Obj x9223090566219278176 = PRIM_CAR(x9223090566219278144);
-Obj name = x9223090566219278176;
-Obj x9223090566219278848 = PRIM_CDR(x9223090566218683936);
-Obj x9223090566219278880 = PRIM_CDR(x9223090566219278848);
-Obj more = x9223090566219278880;
-Obj k = x9223090566218683968;
+Obj _3521494_37 = R[1];
+Obj _3521495_37 = R[2];
+Obj _3521496_37 = makeNative(co->gc, 2, clofun138, 0, 2, _3521494_37, _3521495_37);
+Obj _3523153_37 = PRIM_ISCONS(_3521494_37);
+if (True == _3523153_37) {
+Obj _3523154_37 = PRIM_CAR(_3521494_37);
+Obj _3523155_37 = PRIM_EQ(getBinding(co, packageID, 24).name, _3523154_37);
+if (True == _3523155_37) {
+Obj _3523156_37 = PRIM_CDR(_3521494_37);
+Obj _3523157_37 = PRIM_ISCONS(_3523156_37);
+if (True == _3523157_37) {
+Obj _3523158_37 = PRIM_CDR(_3521494_37);
+Obj _3523159_37 = PRIM_CAR(_3523158_37);
+Obj name = _3523159_37;
+Obj _3523160_37 = PRIM_CDR(_3521494_37);
+Obj _3523161_37 = PRIM_CDR(_3523160_37);
+Obj more = _3523161_37;
 R[1] = name;
-saveCont(co, clofun189, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, k);
+saveCont(co, clofun139, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, _3521495_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684064);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218684064);
+coraCall0(co, _3521496_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684064);
+coraCall0(co, _3521496_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521496_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219279872= co->res;
+Obj _3523162_37= co->res;
 Obj name = R[1];
-Obj x9223090566219279968 = makeCons(co->gc, name, x9223090566219279872);
-Obj x9223090566219280000 = makeCons(co->gc, getBinding(co, packageID, 24).name, x9223090566219279968);
-coraReturn(co, x9223090566219280000);
+Obj _3523163_37 = makeCons(co->gc, name, _3523162_37);
+Obj _3523164_37 = makeCons(co->gc, getBinding(co, packageID, 24).name, _3523163_37);
+coraReturn(co, _3523164_37);
 return;
 }
 }
 }
 
-static void clofun188(struct Cora* co, int label, Obj *R) {
+static void clofun138(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684480 = makeNative(co->gc, 2, clofun187, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566219389568 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219389568) {
-Obj x9223090566219390336 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219390368 = PRIM_ISCONS(x9223090566219390336);
-if (True == x9223090566219390368) {
-Obj x9223090566219383360 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219383392 = PRIM_CAR(x9223090566219383360);
-Obj x9223090566219383424 = PRIM_EQ(getBinding(co, packageID, 27).name, x9223090566219383392);
-if (True == x9223090566219383424) {
-Obj x9223090566219384576 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219384608 = PRIM_CDR(x9223090566219384576);
-Obj x9223090566219384640 = PRIM_ISCONS(x9223090566219384608);
-if (True == x9223090566219384640) {
-Obj x9223090566219385536 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219385632 = PRIM_CDR(x9223090566219385536);
-Obj x9223090566219385664 = PRIM_CAR(x9223090566219385632);
-Obj pkg = x9223090566219385664;
-Obj x9223090566219309088 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219309120 = PRIM_CDR(x9223090566219309088);
-Obj x9223090566219309152 = PRIM_CDR(x9223090566219309120);
-Obj x9223090566219309184 = PRIM_EQ(Nil, x9223090566219309152);
-if (True == x9223090566219309184) {
-Obj x9223090566219309568 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566219309568;
-Obj k = closureRef(R[0], 1);
-Obj x9223090566219310560 = makeCons(co->gc, pkg, Nil);
-Obj x9223090566219310592 = makeCons(co->gc, getBinding(co, packageID, 27).name, x9223090566219310560);
-R[1] = x9223090566219310592;
-saveCont(co, clofun188, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, k);
+Obj _3521497_37 = makeNative(co->gc, 2, clofun137, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3523132_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523132_37) {
+Obj _3523133_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523134_37 = PRIM_ISCONS(_3523133_37);
+if (True == _3523134_37) {
+Obj _3523135_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523136_37 = PRIM_CAR(_3523135_37);
+Obj _3523137_37 = PRIM_EQ(getBinding(co, packageID, 27).name, _3523136_37);
+if (True == _3523137_37) {
+Obj _3523138_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523139_37 = PRIM_CDR(_3523138_37);
+Obj _3523140_37 = PRIM_ISCONS(_3523139_37);
+if (True == _3523140_37) {
+Obj _3523141_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523142_37 = PRIM_CDR(_3523141_37);
+Obj _3523143_37 = PRIM_CAR(_3523142_37);
+Obj pkg = _3523143_37;
+Obj _3523144_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523145_37 = PRIM_CDR(_3523144_37);
+Obj _3523146_37 = PRIM_CDR(_3523145_37);
+Obj _3523147_37 = PRIM_EQ(Nil, _3523146_37);
+if (True == _3523147_37) {
+Obj _3523148_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523148_37;
+Obj _3523149_37 = makeCons(co->gc, pkg, Nil);
+Obj _3523150_37 = makeCons(co->gc, getBinding(co, packageID, 27).name, _3523149_37);
+R[1] = _3523150_37;
+saveCont(co, clofun138, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684480);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218684480);
+coraCall0(co, _3521497_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684480);
+coraCall0(co, _3521497_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684480);
+coraCall0(co, _3521497_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684480);
+coraCall0(co, _3521497_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521497_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219310880= co->res;
-Obj x9223090566219310592 = R[1];
-Obj x9223090566219310912 = makeCons(co->gc, x9223090566219310592, x9223090566219310880);
-coraReturn(co, x9223090566219310912);
+Obj _3523151_37= co->res;
+Obj _3523150_37 = R[1];
+Obj _3523152_37 = makeCons(co->gc, _3523150_37, _3523151_37);
+coraReturn(co, _3523152_37);
 return;
 }
 }
 }
 
-static void clofun187(struct Cora* co, int label, Obj *R) {
+static void clofun137(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684992 = makeNative(co->gc, 1, clofun186, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566219408832 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219408832) {
-Obj x9223090566219409568 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219409600 = PRIM_ISCONS(x9223090566219409568);
-if (True == x9223090566219409600) {
-Obj x9223090566219410688 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219410720 = PRIM_CAR(x9223090566219410688);
-Obj x9223090566219410816 = PRIM_EQ(getBinding(co, packageID, 26).name, x9223090566219410720);
-if (True == x9223090566219410816) {
-Obj x9223090566219411360 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219411392 = PRIM_CDR(x9223090566219411360);
-Obj symbols = x9223090566219411392;
-Obj x9223090566219387360 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566219387360;
-Obj k = closureRef(R[0], 1);
-Obj x9223090566219388032 = makeCons(co->gc, getBinding(co, packageID, 26).name, symbols);
-R[1] = x9223090566219388032;
-saveCont(co, clofun187, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, k);
+Obj _3521498_37 = makeNative(co->gc, 1, clofun136, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3523120_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523120_37) {
+Obj _3523121_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523122_37 = PRIM_ISCONS(_3523121_37);
+if (True == _3523122_37) {
+Obj _3523123_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523124_37 = PRIM_CAR(_3523123_37);
+Obj _3523125_37 = PRIM_EQ(getBinding(co, packageID, 26).name, _3523124_37);
+if (True == _3523125_37) {
+Obj _3523126_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523127_37 = PRIM_CDR(_3523126_37);
+Obj symbols = _3523127_37;
+Obj _3523128_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523128_37;
+Obj _3523129_37 = makeCons(co->gc, getBinding(co, packageID, 26).name, symbols);
+R[1] = _3523129_37;
+saveCont(co, clofun137, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684992);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218684992);
+coraCall0(co, _3521498_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684992);
+coraCall0(co, _3521498_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521498_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219388416= co->res;
-Obj x9223090566219388032 = R[1];
-Obj x9223090566219388480 = makeCons(co->gc, x9223090566219388032, x9223090566219388416);
-coraReturn(co, x9223090566219388480);
+Obj _3523130_37= co->res;
+Obj _3523129_37 = R[1];
+Obj _3523131_37 = makeCons(co->gc, _3523129_37, _3523130_37);
+coraReturn(co, _3523131_37);
 return;
 }
 }
 }
 
-static void clofun186(struct Cora* co, int label, Obj *R) {
+static void clofun136(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218685344 = makeNative(co->gc, 1, clofun185, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566219459136 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219459136) {
-Obj x9223090566219459872 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219459904 = PRIM_EQ(getBinding(co, packageID, 25).name, x9223090566219459872);
-if (True == x9223090566219459904) {
-Obj x9223090566219460288 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566219460288;
-Obj k = closureRef(R[0], 1);
-saveCont(co, clofun186, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, k);
+Obj _3521499_37 = makeNative(co->gc, 1, clofun135, 0, 2, closureRef(R[0], 1), closureRef(R[0], 0));
+Obj _3523114_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523114_37) {
+Obj _3523115_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523116_37 = PRIM_EQ(getBinding(co, packageID, 25).name, _3523115_37);
+if (True == _3523116_37) {
+Obj _3523117_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523117_37;
+saveCont(co, clofun136, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 12)), more, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218685344);
+coraCall0(co, _3521499_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218685344);
+coraCall0(co, _3521499_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219407904= co->res;
-Obj x9223090566219407968 = makeCons(co->gc, getBinding(co, packageID, 25).name, x9223090566219407904);
-coraReturn(co, x9223090566219407968);
+Obj _3523118_37= co->res;
+Obj _3523119_37 = makeCons(co->gc, getBinding(co, packageID, 25).name, _3523118_37);
+coraReturn(co, _3523119_37);
 return;
 }
 }
 }
 
-static void clofun185(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218685600 = makeNative(co->gc, 1, clofun184, 0, 0);
-Obj other = closureRef(R[0], 0);
-Obj k = closureRef(R[0], 1);
-co->ctx.sp = R;
-coraCall1(co, k, other);
-return;
-}
-}
-}
-
-static void clofun184(struct Cora* co, int label, Obj *R) {
+static void clofun135(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall1(co, closureRef(R[0], 0), closureRef(R[0], 1));
 return;
 }
 }
 }
 
-static void clofun183(struct Cora* co, int label, Obj *R) {
+static void clofun134(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009952 = R[1];
-Obj x9223090566219009984 = makeNative(co->gc, 1, clofun182, 0, 1, x9223090566219009952);
-Obj x9223090566219492000 = PRIM_ISCONS(x9223090566219009952);
-if (True == x9223090566219492000) {
-Obj x9223090566219492832 = PRIM_CAR(x9223090566219009952);
-Obj x9223090566219492864 = PRIM_EQ(getBinding(co, packageID, 14).name, x9223090566219492832);
-if (True == x9223090566219492864) {
-Obj x9223090566219485504 = PRIM_CDR(x9223090566219009952);
-Obj x9223090566219485536 = PRIM_ISCONS(x9223090566219485504);
-if (True == x9223090566219485536) {
-Obj x9223090566219486272 = PRIM_CDR(x9223090566219009952);
-Obj x9223090566219486304 = PRIM_CAR(x9223090566219486272);
-Obj on = x9223090566219486304;
-Obj x9223090566219487392 = PRIM_CDR(x9223090566219009952);
-Obj x9223090566219487456 = PRIM_CDR(x9223090566219487392);
-Obj x9223090566219487488 = PRIM_EQ(Nil, x9223090566219487456);
-if (True == x9223090566219487488) {
-Obj x9223090566219488000 = PRIM_EQ(on, True);
-if (True == x9223090566219488000) {
+Obj _3521490_37 = R[1];
+Obj _3521491_37 = makeNative(co->gc, 1, clofun133, 0, 1, _3521490_37);
+Obj _3523101_37 = PRIM_ISCONS(_3521490_37);
+if (True == _3523101_37) {
+Obj _3523102_37 = PRIM_CAR(_3521490_37);
+Obj _3523103_37 = PRIM_EQ(getBinding(co, packageID, 14).name, _3523102_37);
+if (True == _3523103_37) {
+Obj _3523104_37 = PRIM_CDR(_3521490_37);
+Obj _3523105_37 = PRIM_ISCONS(_3523104_37);
+if (True == _3523105_37) {
+Obj _3523106_37 = PRIM_CDR(_3521490_37);
+Obj _3523107_37 = PRIM_CAR(_3523106_37);
+Obj on = _3523107_37;
+Obj _3523108_37 = PRIM_CDR(_3521490_37);
+Obj _3523109_37 = PRIM_CDR(_3523108_37);
+Obj _3523110_37 = PRIM_EQ(Nil, _3523109_37);
+if (True == _3523110_37) {
+Obj _3523111_37 = PRIM_EQ(on, True);
+if (True == _3523111_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x9223090566219488384 = PRIM_EQ(on, False);
-if (True == x9223090566219488384) {
+Obj _3523112_37 = PRIM_EQ(on, False);
+if (True == _3523112_37) {
 coraReturn(co, True);
 return;
 } else {
@@ -1267,55 +1170,55 @@ return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009984);
+coraCall0(co, _3521491_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009984);
+coraCall0(co, _3521491_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009984);
+coraCall0(co, _3521491_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009984);
+coraCall0(co, _3521491_37);
 return;
 }
 }
 }
 }
 
-static void clofun182(struct Cora* co, int label, Obj *R) {
+static void clofun133(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683040 = makeNative(co->gc, 1, clofun181, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219519456 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219519456) {
-Obj x9223090566219520128 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219520160 = PRIM_EQ(getBinding(co, packageID, 15).name, x9223090566219520128);
-if (True == x9223090566219520160) {
-Obj x9223090566219520864 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219520896 = PRIM_ISCONS(x9223090566219520864);
-if (True == x9223090566219520896) {
-Obj x9223090566219521408 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219521568 = PRIM_CAR(x9223090566219521408);
-Obj on = x9223090566219521568;
-Obj x9223090566219489856 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219489888 = PRIM_CDR(x9223090566219489856);
-Obj x9223090566219489920 = PRIM_EQ(Nil, x9223090566219489888);
-if (True == x9223090566219489920) {
-Obj x9223090566219490208 = PRIM_EQ(on, True);
-if (True == x9223090566219490208) {
+Obj _3521492_37 = makeNative(co->gc, 1, clofun132, 0, 0);
+Obj _3523089_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523089_37) {
+Obj _3523090_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523091_37 = PRIM_EQ(getBinding(co, packageID, 15).name, _3523090_37);
+if (True == _3523091_37) {
+Obj _3523092_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3523093_37 = PRIM_ISCONS(_3523092_37);
+if (True == _3523093_37) {
+Obj _3523094_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3523095_37 = PRIM_CAR(_3523094_37);
+Obj on = _3523095_37;
+Obj _3523096_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3523097_37 = PRIM_CDR(_3523096_37);
+Obj _3523098_37 = PRIM_EQ(Nil, _3523097_37);
+if (True == _3523098_37) {
+Obj _3523099_37 = PRIM_EQ(on, True);
+if (True == _3523099_37) {
 coraReturn(co, True);
 return;
 } else {
-Obj x9223090566219490656 = PRIM_EQ(on, False);
-if (True == x9223090566219490656) {
+Obj _3523100_37 = PRIM_EQ(on, False);
+if (True == _3523100_37) {
 coraReturn(co, True);
 return;
 } else {
@@ -1325,184 +1228,153 @@ return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683040);
+coraCall0(co, _3521492_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683040);
+coraCall0(co, _3521492_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683040);
+coraCall0(co, _3521492_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683040);
+coraCall0(co, _3521492_37);
 return;
 }
 }
 }
 }
 
-static void clofun181(struct Cora* co, int label, Obj *R) {
+static void clofun132(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683712 = makeNative(co->gc, 1, clofun180, 0, 0);
-Obj __ = closureRef(R[0], 0);
 coraReturn(co, False);
 return;
 }
 }
 }
 
-static void clofun180(struct Cora* co, int label, Obj *R) {
+static void clofun131(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+Obj _3521480_37 = R[1];
+Obj _3521481_37 = R[2];
+Obj _3521482_37 = R[3];
+Obj _3521483_37 = R[4];
+Obj _3523012_37 = PRIM_EQ(Nil, _3521480_37);
+if (True == _3523012_37) {
+R[1] = _3521482_37;
+R[2] = _3521483_37;
+saveCont(co, clofun131, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), _3521481_37);
 return;
-}
-}
-}
-
-static void clofun179(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219008000 = R[1];
-Obj x9223090566219008896 = R[2];
-Obj x9223090566219008960 = R[3];
-Obj x9223090566219009024 = R[4];
-Obj x9223090566219009728 = makeNative(co->gc, 1, clofun178, 0, 4, x9223090566219008000, x9223090566219008896, x9223090566219008960, x9223090566219009024);
-Obj x9223090566219548768 = PRIM_EQ(Nil, x9223090566219008000);
-if (True == x9223090566219548768) {
-Obj type = x9223090566219008896;
-Obj code = x9223090566219008960;
-Obj k = x9223090566219009024;
-R[1] = code;
-R[2] = k;
-saveCont(co, clofun179, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), type);
+} else {
+Obj _3521485_37 = makeNative(co->gc, 1, clofun129, 0, 4, _3521480_37, _3521481_37, _3521482_37, _3521483_37);
+Obj _3523069_37 = PRIM_ISCONS(_3521480_37);
+if (True == _3523069_37) {
+Obj _3523070_37 = PRIM_CAR(_3521480_37);
+Obj _3523071_37 = PRIM_ISCONS(_3523070_37);
+if (True == _3523071_37) {
+Obj _3523072_37 = PRIM_CAR(_3521480_37);
+Obj _3523073_37 = PRIM_CAR(_3523072_37);
+Obj _3523074_37 = PRIM_EQ(getBinding(co, packageID, 14).name, _3523073_37);
+if (True == _3523074_37) {
+Obj _3523075_37 = PRIM_CAR(_3521480_37);
+Obj _3523076_37 = PRIM_CDR(_3523075_37);
+Obj _3523077_37 = PRIM_ISCONS(_3523076_37);
+if (True == _3523077_37) {
+Obj _3523078_37 = PRIM_CAR(_3521480_37);
+Obj _3523079_37 = PRIM_CDR(_3523078_37);
+Obj _3523080_37 = PRIM_CAR(_3523079_37);
+Obj on = _3523080_37;
+Obj _3523081_37 = PRIM_CAR(_3521480_37);
+Obj _3523082_37 = PRIM_CDR(_3523081_37);
+Obj _3523083_37 = PRIM_CDR(_3523082_37);
+Obj _3523084_37 = PRIM_EQ(Nil, _3523083_37);
+if (True == _3523084_37) {
+Obj _3523085_37 = PRIM_CDR(_3521480_37);
+Obj more = _3523085_37;
+Obj _3521517_37 = makeNative(co->gc, 2, clofun130, 1, 5, more, _3521481_37, _3521482_37, _3521483_37, _3521485_37);
+Obj _3523086_37 = PRIM_EQ(on, True);
+if (True == _3523086_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521517_37, True);
+return;
+} else {
+Obj _3523087_37 = PRIM_EQ(on, False);
+if (True == _3523087_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521517_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009728);
+coraCall1(co, _3521517_37, False);
 return;
+}
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521485_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521485_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521485_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521485_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521485_37);
+return;
+}
 }
 }
 case 1:
 {
-Obj x9223090566219550080= co->res;
-Obj k = R[1];
-Obj x9223090566219549792 = R[2];
+Obj _3523014_37= co->res;
+Obj _3521483_37 = R[1];
+Obj _3523013_37 = R[2];
 co->ctx.sp = R;
-coraCall2(co, k, x9223090566219549792, x9223090566219550080);
+coraCall2(co, _3521483_37, _3523013_37, _3523014_37);
 return;
 }
 case 2:
 {
-Obj x9223090566219549792= co->res;
-Obj code = R[1];
-Obj k = R[2];
-R[1] = k;
-R[2] = x9223090566219549792;
-saveCont(co, clofun179, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), code);
+Obj _3523013_37= co->res;
+Obj _3521482_37 = R[1];
+Obj _3521483_37 = R[2];
+R[1] = _3521483_37;
+R[2] = _3523013_37;
+saveCont(co, clofun131, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), _3521482_37);
 return;
 }
 }
 }
 
-static void clofun178(struct Cora* co, int label, Obj *R) {
+static void clofun130(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683008 = makeNative(co->gc, 1, clofun176, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x9223090566219903840 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219903840) {
-Obj x9223090566219904448 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219904512 = PRIM_ISCONS(x9223090566219904448);
-if (True == x9223090566219904512) {
-Obj x9223090566219905280 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219905344 = PRIM_CAR(x9223090566219905280);
-Obj x9223090566219905376 = PRIM_EQ(getBinding(co, packageID, 14).name, x9223090566219905344);
-if (True == x9223090566219905376) {
-Obj x9223090566219906784 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219906816 = PRIM_CDR(x9223090566219906784);
-Obj x9223090566219906880 = PRIM_ISCONS(x9223090566219906816);
-if (True == x9223090566219906880) {
-Obj x9223090566219719392 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219719424 = PRIM_CDR(x9223090566219719392);
-Obj x9223090566219719488 = PRIM_CAR(x9223090566219719424);
-Obj on = x9223090566219719488;
-Obj x9223090566219720672 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219720704 = PRIM_CDR(x9223090566219720672);
-Obj x9223090566219720736 = PRIM_CDR(x9223090566219720704);
-Obj x9223090566219720800 = PRIM_EQ(Nil, x9223090566219720736);
-if (True == x9223090566219720800) {
-Obj x9223090566219721312 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566219721312;
-Obj type = closureRef(R[0], 1);
-Obj code = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-Obj x9223090566218734752 = makeNative(co->gc, 2, clofun177, 1, 5, more, type, code, k, x9223090566218683008);
-Obj x9223090566219547072 = PRIM_EQ(on, True);
-if (True == x9223090566219547072) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218734752, True);
-return;
-} else {
-Obj x9223090566219547488 = PRIM_EQ(on, False);
-if (True == x9223090566219547488) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218734752, True);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218734752, False);
-return;
-}
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683008);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683008);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683008);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683008);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683008);
-return;
-}
-}
-}
-}
-
-static void clofun177(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218734784 = R[1];
-if (True == x9223090566218734784) {
+Obj _3521518_37 = R[1];
+if (True == _3521518_37) {
 co->ctx.sp = R;
 coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
 return;
@@ -1515,91 +1387,88 @@ return;
 }
 }
 
-static void clofun176(struct Cora* co, int label, Obj *R) {
+static void clofun129(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684032 = makeNative(co->gc, 1, clofun174, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x9223090566220361024 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220361024) {
-Obj x9223090566220361696 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220103776 = PRIM_ISCONS(x9223090566220361696);
-if (True == x9223090566220103776) {
-Obj x9223090566220104736 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220104768 = PRIM_CAR(x9223090566220104736);
-Obj x9223090566220104896 = PRIM_EQ(getBinding(co, packageID, 15).name, x9223090566220104768);
-if (True == x9223090566220104896) {
-Obj x9223090566220105792 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220105824 = PRIM_CDR(x9223090566220105792);
-Obj x9223090566220105856 = PRIM_ISCONS(x9223090566220105824);
-if (True == x9223090566220105856) {
-Obj x9223090566220106912 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220107072 = PRIM_CDR(x9223090566220106912);
-Obj x9223090566220107104 = PRIM_CAR(x9223090566220107072);
-Obj on = x9223090566220107104;
-Obj x9223090566220018304 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220018336 = PRIM_CDR(x9223090566220018304);
-Obj x9223090566220018560 = PRIM_CDR(x9223090566220018336);
-Obj x9223090566220018592 = PRIM_EQ(Nil, x9223090566220018560);
-if (True == x9223090566220018592) {
-Obj x9223090566220018976 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566220018976;
-Obj type = closureRef(R[0], 1);
-Obj code = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-Obj x9223090566219205056 = makeNative(co->gc, 2, clofun175, 1, 5, more, type, code, k, x9223090566218684032);
-Obj x9223090566220020896 = PRIM_EQ(on, True);
-if (True == x9223090566220020896) {
+Obj _3521486_37 = makeNative(co->gc, 1, clofun127, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3523050_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523050_37) {
+Obj _3523051_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523052_37 = PRIM_ISCONS(_3523051_37);
+if (True == _3523052_37) {
+Obj _3523053_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523054_37 = PRIM_CAR(_3523053_37);
+Obj _3523055_37 = PRIM_EQ(getBinding(co, packageID, 15).name, _3523054_37);
+if (True == _3523055_37) {
+Obj _3523056_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523057_37 = PRIM_CDR(_3523056_37);
+Obj _3523058_37 = PRIM_ISCONS(_3523057_37);
+if (True == _3523058_37) {
+Obj _3523059_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523060_37 = PRIM_CDR(_3523059_37);
+Obj _3523061_37 = PRIM_CAR(_3523060_37);
+Obj on = _3523061_37;
+Obj _3523062_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523063_37 = PRIM_CDR(_3523062_37);
+Obj _3523064_37 = PRIM_CDR(_3523063_37);
+Obj _3523065_37 = PRIM_EQ(Nil, _3523064_37);
+if (True == _3523065_37) {
+Obj _3523066_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523066_37;
+Obj _3521515_37 = makeNative(co->gc, 2, clofun128, 1, 5, more, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), _3521486_37);
+Obj _3523067_37 = PRIM_EQ(on, True);
+if (True == _3523067_37) {
 co->ctx.sp = R;
-coraCall1(co, x9223090566219205056, True);
+coraCall1(co, _3521515_37, True);
 return;
 } else {
-Obj x9223090566220021504 = PRIM_EQ(on, False);
-if (True == x9223090566220021504) {
+Obj _3523068_37 = PRIM_EQ(on, False);
+if (True == _3523068_37) {
 co->ctx.sp = R;
-coraCall1(co, x9223090566219205056, True);
+coraCall1(co, _3521515_37, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, x9223090566219205056, False);
+coraCall1(co, _3521515_37, False);
 return;
 }
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684032);
+coraCall0(co, _3521486_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684032);
+coraCall0(co, _3521486_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684032);
+coraCall0(co, _3521486_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684032);
+coraCall0(co, _3521486_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684032);
+coraCall0(co, _3521486_37);
 return;
 }
 }
 }
 }
 
-static void clofun175(struct Cora* co, int label, Obj *R) {
+static void clofun128(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219205088 = R[1];
-if (True == x9223090566219205088) {
+Obj _3521516_37 = R[1];
+if (True == _3521516_37) {
 co->ctx.sp = R;
 coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
 return;
@@ -1612,319 +1481,296 @@ return;
 }
 }
 
-static void clofun174(struct Cora* co, int label, Obj *R) {
+static void clofun127(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684704 = makeNative(co->gc, 1, clofun173, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x9223090566220364448 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220364448) {
-Obj x9223090566220365248 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220365280 = PRIM_ISCONS(x9223090566220365248);
-if (True == x9223090566220365280) {
-Obj x9223090566220357920 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220357952 = PRIM_CAR(x9223090566220357920);
-Obj x9223090566220357984 = PRIM_EQ(getBinding(co, packageID, 16).name, x9223090566220357952);
-if (True == x9223090566220357984) {
-Obj x9223090566220358496 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220358528 = PRIM_CDR(x9223090566220358496);
-Obj exp = x9223090566220358528;
-Obj x9223090566220358848 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566220358848;
-Obj type = closureRef(R[0], 1);
-Obj code = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-Obj x9223090566220359904 = makeCons(co->gc, getBinding(co, packageID, 25).name, exp);
-Obj x9223090566220360032 = makeCons(co->gc, x9223090566220359904, type);
+Obj _3521487_37 = makeNative(co->gc, 1, clofun126, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3523039_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523039_37) {
+Obj _3523040_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523041_37 = PRIM_ISCONS(_3523040_37);
+if (True == _3523041_37) {
+Obj _3523042_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523043_37 = PRIM_CAR(_3523042_37);
+Obj _3523044_37 = PRIM_EQ(getBinding(co, packageID, 16).name, _3523043_37);
+if (True == _3523044_37) {
+Obj _3523045_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523046_37 = PRIM_CDR(_3523045_37);
+Obj exp = _3523046_37;
+Obj _3523047_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523047_37;
+Obj _3523048_37 = makeCons(co->gc, getBinding(co, packageID, 25).name, exp);
+Obj _3523049_37 = makeCons(co->gc, _3523048_37, closureRef(R[0], 1));
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, x9223090566220360032, code, k);
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, _3523049_37, closureRef(R[0], 2), closureRef(R[0], 3));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684704);
+coraCall0(co, _3521487_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684704);
+coraCall0(co, _3521487_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684704);
+coraCall0(co, _3521487_37);
 return;
 }
 }
 }
 }
 
-static void clofun173(struct Cora* co, int label, Obj *R) {
+static void clofun126(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218685184 = makeNative(co->gc, 1, clofun172, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
-Obj x9223090566220449952 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220449952) {
-Obj x9223090566220450400 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220450432 = PRIM_ISCONS(x9223090566220450400);
-if (True == x9223090566220450432) {
-Obj x9223090566220451168 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220451264 = PRIM_CAR(x9223090566220451168);
-Obj x9223090566220451296 = PRIM_EQ(getBinding(co, packageID, 18).name, x9223090566220451264);
-if (True == x9223090566220451296) {
-Obj x9223090566220361760 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220361792 = PRIM_CDR(x9223090566220361760);
-Obj exp = x9223090566220361792;
-Obj x9223090566220362080 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566220362080;
-Obj type = closureRef(R[0], 1);
-Obj code = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-Obj x9223090566220363264 = makeCons(co->gc, getBinding(co, packageID, 17).name, exp);
-Obj x9223090566220363328 = makeCons(co->gc, x9223090566220363264, type);
+Obj _3521488_37 = makeNative(co->gc, 1, clofun125, 0, 4, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3));
+Obj _3523028_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523028_37) {
+Obj _3523029_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523030_37 = PRIM_ISCONS(_3523029_37);
+if (True == _3523030_37) {
+Obj _3523031_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523032_37 = PRIM_CAR(_3523031_37);
+Obj _3523033_37 = PRIM_EQ(getBinding(co, packageID, 18).name, _3523032_37);
+if (True == _3523033_37) {
+Obj _3523034_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523035_37 = PRIM_CDR(_3523034_37);
+Obj exp = _3523035_37;
+Obj _3523036_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523036_37;
+Obj _3523037_37 = makeCons(co->gc, getBinding(co, packageID, 17).name, exp);
+Obj _3523038_37 = makeCons(co->gc, _3523037_37, closureRef(R[0], 1));
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, x9223090566220363328, code, k);
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, _3523038_37, closureRef(R[0], 2), closureRef(R[0], 3));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218685184);
+coraCall0(co, _3521488_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218685184);
+coraCall0(co, _3521488_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218685184);
+coraCall0(co, _3521488_37);
 return;
 }
 }
 }
 }
 
-static void clofun172(struct Cora* co, int label, Obj *R) {
+static void clofun125(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218685632 = makeNative(co->gc, 1, clofun171, 0, 0);
-Obj x9223090566220457888 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220457888) {
-Obj x9223090566220458144 = PRIM_CAR(closureRef(R[0], 0));
-Obj exp = x9223090566220458144;
-Obj x9223090566220458400 = PRIM_CDR(closureRef(R[0], 0));
-Obj more = x9223090566220458400;
-Obj type = closureRef(R[0], 1);
-Obj code = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-Obj x9223090566220448160 = makeCons(co->gc, exp, Nil);
-Obj x9223090566220448192 = makeCons(co->gc, getBinding(co, packageID, 20).name, x9223090566220448160);
-Obj x9223090566220448288 = makeCons(co->gc, x9223090566220448192, Nil);
-Obj x9223090566220448320 = makeCons(co->gc, getBinding(co, packageID, 21).name, x9223090566220448288);
-Obj x9223090566220448896 = makeCons(co->gc, getBinding(co, packageID, 19).name, Nil);
-Obj x9223090566220448992 = makeCons(co->gc, x9223090566220448896, Nil);
-Obj x9223090566220449024 = makeCons(co->gc, x9223090566220448320, x9223090566220448992);
-Obj x9223090566220449056 = makeCons(co->gc, getBinding(co, packageID, 22).name, x9223090566220449024);
-Obj x9223090566220449120 = makeCons(co->gc, x9223090566220449056, type);
-Obj x9223090566220449504 = makeCons(co->gc, exp, code);
+Obj _3523015_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3523015_37) {
+Obj _3523016_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj exp = _3523016_37;
+Obj _3523017_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj more = _3523017_37;
+Obj _3523018_37 = makeCons(co->gc, exp, Nil);
+Obj _3523019_37 = makeCons(co->gc, getBinding(co, packageID, 20).name, _3523018_37);
+Obj _3523020_37 = makeCons(co->gc, _3523019_37, Nil);
+Obj _3523021_37 = makeCons(co->gc, getBinding(co, packageID, 21).name, _3523020_37);
+Obj _3523022_37 = makeCons(co->gc, getBinding(co, packageID, 19).name, Nil);
+Obj _3523023_37 = makeCons(co->gc, _3523022_37, Nil);
+Obj _3523024_37 = makeCons(co->gc, _3523021_37, _3523023_37);
+Obj _3523025_37 = makeCons(co->gc, getBinding(co, packageID, 22).name, _3523024_37);
+Obj _3523026_37 = makeCons(co->gc, _3523025_37, closureRef(R[0], 1));
+Obj _3523027_37 = makeCons(co->gc, exp, closureRef(R[0], 2));
 co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, x9223090566220449120, x9223090566220449504, k);
+coraCall4(co, globalRef(co, getBinding(co, packageID, 23)), more, _3523026_37, _3523027_37, closureRef(R[0], 3));
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218685632);
-return;
-}
-}
-}
-}
-
-static void clofun171(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 }
+}
 
-static void clofun170(struct Cora* co, int label, Obj *R) {
+static void clofun124(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683296 = R[1];
-Obj x9223090566218683328 = makeNative(co->gc, 1, clofun169, 0, 1, x9223090566218683296);
-Obj x9223090566220461344 = PRIM_ISCONS(x9223090566218683296);
-if (True == x9223090566220461344) {
-Obj x9223090566220461920 = PRIM_CAR(x9223090566218683296);
-Obj x9223090566220461952 = PRIM_EQ(getBinding(co, packageID, 24).name, x9223090566220461920);
-if (True == x9223090566220461952) {
-Obj x9223090566220462432 = PRIM_CDR(x9223090566218683296);
-Obj x9223090566220462464 = PRIM_ISCONS(x9223090566220462432);
-if (True == x9223090566220462464) {
-Obj x9223090566220462976 = PRIM_CDR(x9223090566218683296);
-Obj x9223090566220463008 = PRIM_CAR(x9223090566220462976);
-Obj __ = x9223090566220463008;
-Obj x9223090566220463520 = PRIM_CDR(x9223090566218683296);
-Obj x9223090566220463552 = PRIM_CDR(x9223090566220463520);
-Obj remain = x9223090566220463552;
+Obj _3521474_37 = R[1];
+Obj _3521475_37 = makeNative(co->gc, 1, clofun123, 0, 1, _3521474_37);
+Obj _3523002_37 = PRIM_ISCONS(_3521474_37);
+if (True == _3523002_37) {
+Obj _3523003_37 = PRIM_CAR(_3521474_37);
+Obj _3523004_37 = PRIM_EQ(getBinding(co, packageID, 24).name, _3523003_37);
+if (True == _3523004_37) {
+Obj _3523005_37 = PRIM_CDR(_3521474_37);
+Obj _3523006_37 = PRIM_ISCONS(_3523005_37);
+if (True == _3523006_37) {
+Obj _3523007_37 = PRIM_CDR(_3521474_37);
+Obj _3523008_37 = PRIM_CAR(_3523007_37);
+Obj _3523009_37 = PRIM_CDR(_3521474_37);
+Obj _3523010_37 = PRIM_CDR(_3523009_37);
+Obj remain = _3523010_37;
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 28)), remain);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683328);
+coraCall0(co, _3521475_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683328);
+coraCall0(co, _3521475_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683328);
+coraCall0(co, _3521475_37);
 return;
 }
 }
 }
 }
 
-static void clofun169(struct Cora* co, int label, Obj *R) {
+static void clofun123(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683776 = makeNative(co->gc, 1, clofun168, 0, 1, closureRef(R[0], 0));
-Obj x9223090566220480096 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220480096) {
-Obj x9223090566220460128 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220460192 = PRIM_EQ(getBinding(co, packageID, 25).name, x9223090566220460128);
-if (True == x9223090566220460192) {
-Obj x9223090566220460512 = PRIM_CDR(closureRef(R[0], 0));
-Obj remain = x9223090566220460512;
+Obj _3521476_37 = makeNative(co->gc, 1, clofun122, 0, 1, closureRef(R[0], 0));
+Obj _3522998_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522998_37) {
+Obj _3522999_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3523000_37 = PRIM_EQ(getBinding(co, packageID, 25).name, _3522999_37);
+if (True == _3523000_37) {
+Obj _3523001_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj remain = _3523001_37;
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 28)), remain);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683776);
+coraCall0(co, _3521476_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683776);
+coraCall0(co, _3521476_37);
 return;
 }
 }
 }
 }
 
-static void clofun168(struct Cora* co, int label, Obj *R) {
+static void clofun122(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684000 = makeNative(co->gc, 2, clofun167, 0, 1, closureRef(R[0], 0));
-Obj x9223090566220476896 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220476896) {
-Obj x9223090566220477504 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220477536 = PRIM_ISCONS(x9223090566220477504);
-if (True == x9223090566220477536) {
-Obj x9223090566220478272 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220478304 = PRIM_CAR(x9223090566220478272);
-Obj x9223090566220478336 = PRIM_EQ(getBinding(co, packageID, 26).name, x9223090566220478304);
-if (True == x9223090566220478336) {
-Obj x9223090566220478784 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220478816 = PRIM_CDR(x9223090566220478784);
-Obj more = x9223090566220478816;
-Obj x9223090566220479168 = PRIM_CDR(closureRef(R[0], 0));
-Obj remain = x9223090566220479168;
+Obj _3521477_37 = makeNative(co->gc, 2, clofun121, 0, 1, closureRef(R[0], 0));
+Obj _3522989_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522989_37) {
+Obj _3522990_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522991_37 = PRIM_ISCONS(_3522990_37);
+if (True == _3522991_37) {
+Obj _3522992_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522993_37 = PRIM_CAR(_3522992_37);
+Obj _3522994_37 = PRIM_EQ(getBinding(co, packageID, 26).name, _3522993_37);
+if (True == _3522994_37) {
+Obj _3522995_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522996_37 = PRIM_CDR(_3522995_37);
+Obj _3522997_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj remain = _3522997_37;
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 28)), remain);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684000);
+coraCall0(co, _3521477_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684000);
+coraCall0(co, _3521477_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684000);
+coraCall0(co, _3521477_37);
 return;
 }
 }
 }
 }
 
-static void clofun167(struct Cora* co, int label, Obj *R) {
+static void clofun121(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684288 = makeNative(co->gc, 1, clofun166, 0, 1, closureRef(R[0], 0));
-Obj x9223090566220573952 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220573952) {
-Obj x9223090566220574432 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220574464 = PRIM_ISCONS(x9223090566220574432);
-if (True == x9223090566220574464) {
-Obj x9223090566220558688 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220558720 = PRIM_CAR(x9223090566220558688);
-Obj x9223090566220558752 = PRIM_EQ(getBinding(co, packageID, 27).name, x9223090566220558720);
-if (True == x9223090566220558752) {
-Obj x9223090566220559392 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220559424 = PRIM_CDR(x9223090566220559392);
-Obj x9223090566220559456 = PRIM_ISCONS(x9223090566220559424);
-if (True == x9223090566220559456) {
-Obj x9223090566220560064 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220560096 = PRIM_CDR(x9223090566220560064);
-Obj x9223090566220560128 = PRIM_CAR(x9223090566220560096);
-Obj pkg = x9223090566220560128;
-Obj x9223090566220561024 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220561056 = PRIM_CDR(x9223090566220561024);
-Obj x9223090566220561088 = PRIM_CDR(x9223090566220561056);
-Obj x9223090566220561120 = PRIM_EQ(Nil, x9223090566220561088);
-if (True == x9223090566220561120) {
-Obj x9223090566220561376 = PRIM_CDR(closureRef(R[0], 0));
-Obj remain = x9223090566220561376;
+Obj _3521478_37 = makeNative(co->gc, 1, clofun120, 0, 0);
+Obj _3522971_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522971_37) {
+Obj _3522972_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522973_37 = PRIM_ISCONS(_3522972_37);
+if (True == _3522973_37) {
+Obj _3522974_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522975_37 = PRIM_CAR(_3522974_37);
+Obj _3522976_37 = PRIM_EQ(getBinding(co, packageID, 27).name, _3522975_37);
+if (True == _3522976_37) {
+Obj _3522977_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522978_37 = PRIM_CDR(_3522977_37);
+Obj _3522979_37 = PRIM_ISCONS(_3522978_37);
+if (True == _3522979_37) {
+Obj _3522980_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522981_37 = PRIM_CDR(_3522980_37);
+Obj _3522982_37 = PRIM_CAR(_3522981_37);
+Obj pkg = _3522982_37;
+Obj _3522983_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522984_37 = PRIM_CDR(_3522983_37);
+Obj _3522985_37 = PRIM_CDR(_3522984_37);
+Obj _3522986_37 = PRIM_EQ(Nil, _3522985_37);
+if (True == _3522986_37) {
+Obj _3522987_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj remain = _3522987_37;
 R[1] = remain;
-saveCont(co, clofun167, 1, R);
+saveCont(co, clofun121, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 136)), pkg);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684288);
+coraCall0(co, _3521478_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684288);
+coraCall0(co, _3521478_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684288);
+coraCall0(co, _3521478_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684288);
+coraCall0(co, _3521478_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684288);
+coraCall0(co, _3521478_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220561664= co->res;
+Obj _3522988_37= co->res;
 Obj remain = R[1];
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 28)), remain);
@@ -1933,30 +1779,17 @@ return;
 }
 }
 
-static void clofun166(struct Cora* co, int label, Obj *R) {
+static void clofun120(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684672 = makeNative(co->gc, 1, clofun165, 0, 0);
-Obj __ = closureRef(R[0], 0);
 coraReturn(co, Nil);
 return;
 }
 }
 }
 
-static void clofun165(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun164(struct Cora* co, int label, Obj *R) {
+static void clofun119(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -1966,102 +1799,102 @@ Obj globals = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 7, R);
+saveCont(co, clofun119, 7, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "#include \"types.h\"\n"));
 return;
 }
 case 1:
 {
-Obj x9223090566220571872= co->res;
+Obj _3522969_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), makeNative(co->gc, 2, clofun163, 1, 2, to, globals), bc);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), makeNative(co->gc, 2, clofun118, 1, 2, to, globals), bc);
 return;
 }
 case 2:
 {
-Obj x9223090566220571840= co->res;
+Obj _3522968_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 31)), to, globals, x9223090566220571840);
+saveCont(co, clofun119, 1, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 31)), to, globals, _3522968_37);
 return;
 }
 case 3:
 {
-Obj x9223090566220571168= co->res;
+Obj _3522967_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 2, R);
+saveCont(co, clofun119, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 70)), bc);
 return;
 }
 case 4:
 {
-Obj x9223090566220570880= co->res;
+Obj _3522966_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 3, R);
+saveCont(co, clofun119, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "\n\n"));
 return;
 }
 case 5:
 {
-Obj x9223090566220586176= co->res;
+Obj _3522963_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), makeNative(co->gc, 2, clofun162, 1, 1, to), bc);
+saveCont(co, clofun119, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), makeNative(co->gc, 2, clofun117, 1, 1, to), bc);
 return;
 }
 case 6:
 {
-Obj x9223090566220585856= co->res;
+Obj _3522962_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 5, R);
+saveCont(co, clofun119, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "static int packageID = -1;\n"));
 return;
 }
 case 7:
 {
-Obj x9223090566220585536= co->res;
+Obj _3522961_37= co->res;
 Obj to = R[1];
 Obj globals = R[2];
 Obj bc = R[3];
 R[1] = to;
 R[2] = globals;
 R[3] = bc;
-saveCont(co, clofun164, 6, R);
+saveCont(co, clofun119, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "#include \"runtime.h\"\n\n"));
 return;
 }
 }
 }
 
-static void clofun163(struct Cora* co, int label, Obj *R) {
+static void clofun118(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2073,19 +1906,19 @@ return;
 }
 }
 
-static void clofun162(struct Cora* co, int label, Obj *R) {
+static void clofun117(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj group = R[1];
-Obj x9223090566220586976 = PRIM_CAR(group);
-saveCont(co, clofun162, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 45)), closureRef(R[0], 0), x9223090566220586976);
+Obj _3522964_37 = PRIM_CAR(group);
+saveCont(co, clofun117, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 45)), closureRef(R[0], 0), _3522964_37);
 return;
 }
 case 1:
 {
-Obj x9223090566220570624= co->res;
+Obj _3522965_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), makeCString(co->gc, ";\n"));
 return;
@@ -2093,7 +1926,7 @@ return;
 }
 }
 
-static void clofun161(struct Cora* co, int label, Obj *R) {
+static void clofun116(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2103,13 +1936,13 @@ Obj label = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 11, R);
+saveCont(co, clofun116, 11, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "void entry(struct Cora *co, int label, Obj *R) {\n"));
 return;
 }
 case 1:
 {
-Obj x9223090566220584608= co->res;
+Obj _3522959_37= co->res;
 Obj to = R[1];
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "co->ctx.label = 0;\n}\n\n"));
@@ -2117,126 +1950,126 @@ return;
 }
 case 2:
 {
-Obj x9223090566220584288= co->res;
+Obj _3522958_37= co->res;
 Obj to = R[1];
 R[1] = to;
-saveCont(co, clofun161, 1, R);
+saveCont(co, clofun116, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, ";\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220583968= co->res;
+Obj _3522957_37= co->res;
 Obj label = R[1];
 Obj to = R[2];
 R[1] = to;
-saveCont(co, clofun161, 2, R);
+saveCont(co, clofun116, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 48)), to, label);
 return;
 }
 case 4:
 {
-Obj x9223090566220583648= co->res;
+Obj _3522956_37= co->res;
 Obj label = R[1];
 Obj to = R[2];
 R[1] = label;
 R[2] = to;
-saveCont(co, clofun161, 3, R);
+saveCont(co, clofun116, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "co->ctx.fn = "));
 return;
 }
 case 5:
 {
-Obj x9223090566220583328= co->res;
+Obj _3522955_37= co->res;
 Obj label = R[1];
 Obj to = R[2];
 R[1] = label;
 R[2] = to;
-saveCont(co, clofun161, 4, R);
+saveCont(co, clofun116, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "addPackage(co, packageID, __symbolTable);\n"));
 return;
 }
 case 6:
 {
-Obj x9223090566220597408= co->res;
+Obj _3522947_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = label;
 R[2] = to;
-saveCont(co, clofun161, 5, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun160, 2, 1, to), MAKE_NUMBER(0), globals);
+saveCont(co, clofun116, 5, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun115, 2, 1, to), MAKE_NUMBER(0), globals);
 return;
 }
 case 7:
 {
-Obj x9223090566220597120= co->res;
+Obj _3522946_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 6, R);
+saveCont(co, clofun116, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, ");\n"));
 return;
 }
 case 8:
 {
-Obj x9223090566220597088= co->res;
+Obj _3522945_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 7, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), to, x9223090566220597088);
+saveCont(co, clofun116, 7, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), to, _3522945_37);
 return;
 }
 case 9:
 {
-Obj x9223090566220596544= co->res;
+Obj _3522944_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 8, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), globals);
+saveCont(co, clofun116, 8, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), globals);
 return;
 }
 case 10:
 {
-Obj x9223090566220596192= co->res;
+Obj _3522943_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 9, R);
+saveCont(co, clofun116, 9, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "Binding *__symbolTable = malloc(sizeof(Binding) * "));
 return;
 }
 case 11:
 {
-Obj x9223090566220595872= co->res;
+Obj _3522942_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun161, 10, R);
+saveCont(co, clofun116, 10, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "if (packageID == -1) { packageID = packageIDAlloc(); }\n"));
 return;
 }
 }
 }
 
-static void clofun160(struct Cora* co, int label, Obj *R) {
+static void clofun115(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2244,90 +2077,90 @@ Obj acc = R[1];
 Obj sym = R[2];
 R[1] = sym;
 R[2] = acc;
-saveCont(co, clofun160, 6, R);
+saveCont(co, clofun115, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), makeCString(co->gc, "__symbolTable["));
 return;
 }
 case 1:
 {
-Obj x9223090566220582944= co->res;
+Obj _3522953_37= co->res;
 Obj acc = R[1];
-Obj x9223090566220583200 = PRIM_ADD(acc, MAKE_NUMBER(1));
-coraReturn(co, x9223090566220583200);
+Obj _3522954_37 = PRIM_ADD(acc, MAKE_NUMBER(1));
+coraReturn(co, _3522954_37);
 return;
 }
 case 2:
 {
-Obj x9223090566220599040= co->res;
+Obj _3522952_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun160, 1, R);
+saveCont(co, clofun115, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), makeCString(co->gc, "\"));\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220599008= co->res;
+Obj _3522951_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun160, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), x9223090566220599008);
+saveCont(co, clofun115, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), _3522951_37);
 return;
 }
 case 4:
 {
-Obj x9223090566220598560= co->res;
+Obj _3522950_37= co->res;
 Obj sym = R[1];
 Obj acc = R[2];
 R[1] = acc;
-saveCont(co, clofun160, 3, R);
+saveCont(co, clofun115, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 30)), sym);
 return;
 }
 case 5:
 {
-Obj x9223090566220598272= co->res;
+Obj _3522949_37= co->res;
 Obj sym = R[1];
 Obj acc = R[2];
 R[1] = sym;
 R[2] = acc;
-saveCont(co, clofun160, 4, R);
+saveCont(co, clofun115, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 0), makeCString(co->gc, "] = bindSymbol(co, intern(\""));
 return;
 }
 case 6:
 {
-Obj x9223090566220597984= co->res;
+Obj _3522948_37= co->res;
 Obj sym = R[1];
 Obj acc = R[2];
 R[1] = sym;
 R[2] = acc;
-saveCont(co, clofun160, 5, R);
+saveCont(co, clofun115, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 0), acc);
 return;
 }
 }
 }
 
-static void clofun159(struct Cora* co, int label, Obj *R) {
+static void clofun114(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj to = R[1];
 Obj group = R[2];
 Obj globals = R[3];
-Obj x9223090566220583040 = PRIM_CAR(group);
-Obj label = x9223090566220583040;
+Obj _3522920_37 = PRIM_CAR(group);
+Obj label = _3522920_37;
 R[1] = globals;
 R[2] = label;
 R[3] = to;
-saveCont(co, clofun159, 13, R);
+saveCont(co, clofun114, 13, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), group);
 return;
 }
 case 1:
 {
-Obj x9223090566220597024= co->res;
+Obj _3522940_37= co->res;
 Obj to = R[1];
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "}\n\n"));
@@ -2335,28 +2168,28 @@ return;
 }
 case 2:
 {
-Obj x9223090566220596736= co->res;
+Obj _3522939_37= co->res;
 Obj to = R[1];
 R[1] = to;
-saveCont(co, clofun159, 1, R);
+saveCont(co, clofun114, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "}\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220596704= co->res;
+Obj _3522938_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj lam = R[3];
 Obj to = R[4];
 R[1] = to;
-saveCont(co, clofun159, 2, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun158, 2, 4, globals, label, lam, to), MAKE_NUMBER(1), x9223090566220596704);
+saveCont(co, clofun114, 2, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun113, 2, 4, globals, label, lam, to), MAKE_NUMBER(1), _3522938_37);
 return;
 }
 case 4:
 {
-Obj x9223090566220586016= co->res;
+Obj _3522930_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj lam = R[3];
@@ -2365,13 +2198,13 @@ R[1] = globals;
 R[2] = label;
 R[3] = lam;
 R[4] = to;
-saveCont(co, clofun159, 3, R);
+saveCont(co, clofun114, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), lam);
 return;
 }
 case 5:
 {
-Obj x9223090566220585728= co->res;
+Obj _3522929_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj lam = R[3];
@@ -2380,13 +2213,13 @@ R[1] = globals;
 R[2] = label;
 R[3] = lam;
 R[4] = to;
-saveCont(co, clofun159, 4, R);
+saveCont(co, clofun114, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "}\n"));
 return;
 }
 case 6:
 {
-Obj x9223090566220585344= co->res;
+Obj _3522928_37= co->res;
 Obj params = R[1];
 Obj first_45stmt = R[2];
 Obj globals = R[3];
@@ -2397,14 +2230,14 @@ R[1] = globals;
 R[2] = label;
 R[3] = lam;
 R[4] = to;
-saveCont(co, clofun159, 5, R);
+saveCont(co, clofun114, 5, R);
 Obj __args[5] = {globals, label, params, to, first_45stmt};
 coraCall(co, globalRef(co, getBinding(co, packageID, 52)), 5, __args);
 return;
 }
 case 7:
 {
-Obj x9223090566220584960= co->res;
+Obj _3522927_37= co->res;
 Obj params = R[1];
 Obj first_45stmt = R[2];
 Obj globals = R[3];
@@ -2417,14 +2250,14 @@ R[3] = globals;
 R[4] = label;
 R[5] = lam;
 R[6] = to;
-saveCont(co, clofun159, 6, R);
+saveCont(co, clofun114, 6, R);
 Obj __args[5] = {globals, label, Nil, to, params};
 coraCall(co, globalRef(co, getBinding(co, packageID, 51)), 5, __args);
 return;
 }
 case 8:
 {
-Obj x9223090566220584672= co->res;
+Obj _3522926_37= co->res;
 Obj params = R[1];
 Obj first_45stmt = R[2];
 Obj globals = R[3];
@@ -2437,13 +2270,13 @@ R[3] = globals;
 R[4] = label;
 R[5] = lam;
 R[6] = to;
-saveCont(co, clofun159, 7, R);
+saveCont(co, clofun114, 7, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, "case 0:\n{\n"));
 return;
 }
 case 9:
 {
-Obj x9223090566220584384= co->res;
+Obj _3522925_37= co->res;
 Obj params = R[1];
 Obj first_45stmt = R[2];
 Obj globals = R[3];
@@ -2456,13 +2289,13 @@ R[3] = globals;
 R[4] = label;
 R[5] = lam;
 R[6] = to;
-saveCont(co, clofun159, 8, R);
+saveCont(co, clofun114, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, " switch (label) {\n"));
 return;
 }
 case 10:
 {
-Obj x9223090566220584096= co->res;
+Obj _3522924_37= co->res;
 Obj params = R[1];
 Obj first_45stmt = R[2];
 Obj globals = R[3];
@@ -2475,65 +2308,65 @@ R[3] = globals;
 R[4] = label;
 R[5] = lam;
 R[6] = to;
-saveCont(co, clofun159, 9, R);
+saveCont(co, clofun114, 9, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), to, makeCString(co->gc, " {\n"));
 return;
 }
 case 11:
 {
-Obj x9223090566220583808= co->res;
+Obj _3522923_37= co->res;
 Obj params = R[1];
 Obj globals = R[2];
 Obj label = R[3];
 Obj lam = R[4];
 Obj to = R[5];
-Obj first_45stmt = x9223090566220583808;
+Obj first_45stmt = _3522923_37;
 R[1] = params;
 R[2] = first_45stmt;
 R[3] = globals;
 R[4] = label;
 R[5] = lam;
 R[6] = to;
-saveCont(co, clofun159, 10, R);
+saveCont(co, clofun114, 10, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 45)), to, label);
 return;
 }
 case 12:
 {
-Obj x9223090566220583552= co->res;
+Obj _3522922_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj lam = R[3];
 Obj to = R[4];
-Obj params = x9223090566220583552;
+Obj params = _3522922_37;
 R[1] = params;
 R[2] = globals;
 R[3] = label;
 R[4] = lam;
 R[5] = to;
-saveCont(co, clofun159, 11, R);
+saveCont(co, clofun114, 11, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 107)), lam);
 return;
 }
 case 13:
 {
-Obj x9223090566220583296= co->res;
+Obj _3522921_37= co->res;
 Obj globals = R[1];
 Obj label = R[2];
 Obj to = R[3];
-Obj lam = x9223090566220583296;
+Obj lam = _3522921_37;
 R[1] = globals;
 R[2] = label;
 R[3] = lam;
 R[4] = to;
-saveCont(co, clofun159, 12, R);
+saveCont(co, clofun114, 12, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), lam);
 return;
 }
 }
 }
 
-static void clofun158(struct Cora* co, int label, Obj *R) {
+static void clofun113(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2541,294 +2374,242 @@ Obj acc = R[1];
 Obj cont = R[2];
 R[1] = cont;
 R[2] = acc;
-saveCont(co, clofun158, 6, R);
+saveCont(co, clofun113, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "case "));
 return;
 }
 case 1:
 {
-Obj x9223090566220596224= co->res;
+Obj _3522936_37= co->res;
 Obj acc = R[1];
-Obj x9223090566220596448 = PRIM_ADD(acc, MAKE_NUMBER(1));
-coraReturn(co, x9223090566220596448);
+Obj _3522937_37 = PRIM_ADD(acc, MAKE_NUMBER(1));
+coraReturn(co, _3522937_37);
 return;
 }
 case 2:
 {
-Obj x9223090566220595936= co->res;
+Obj _3522935_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun158, 1, R);
+saveCont(co, clofun113, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "}\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220595840= co->res;
+Obj _3522934_37= co->res;
 Obj cont = R[1];
 Obj acc = R[2];
 R[1] = acc;
-saveCont(co, clofun158, 2, R);
-Obj __args[5] = {closureRef(R[0], 0), closureRef(R[0], 1), x9223090566220595840, closureRef(R[0], 3), cont};
+saveCont(co, clofun113, 2, R);
+Obj __args[5] = {closureRef(R[0], 0), closureRef(R[0], 1), _3522934_37, closureRef(R[0], 3), cont};
 coraCall(co, globalRef(co, getBinding(co, packageID, 46)), 5, __args);
 return;
 }
 case 4:
 {
-Obj x9223090566220595360= co->res;
+Obj _3522933_37= co->res;
 Obj cont = R[1];
 Obj acc = R[2];
 R[1] = cont;
 R[2] = acc;
-saveCont(co, clofun158, 3, R);
+saveCont(co, clofun113, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), closureRef(R[0], 2));
 return;
 }
 case 5:
 {
-Obj x9223090566220586880= co->res;
+Obj _3522932_37= co->res;
 Obj cont = R[1];
 Obj acc = R[2];
 R[1] = cont;
 R[2] = acc;
-saveCont(co, clofun158, 4, R);
+saveCont(co, clofun113, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, ":\n{\n"));
 return;
 }
 case 6:
 {
-Obj x9223090566220586592= co->res;
+Obj _3522931_37= co->res;
 Obj cont = R[1];
 Obj acc = R[2];
 R[1] = cont;
 R[2] = acc;
-saveCont(co, clofun158, 5, R);
+saveCont(co, clofun113, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 3), acc);
 return;
 }
 }
 }
 
-static void clofun157(struct Cora* co, int label, Obj *R) {
+static void clofun112(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009824 = R[1];
-Obj x9223090566219009856 = R[2];
-Obj x9223090566219009920 = makeNative(co->gc, 3, clofun156, 0, 2, x9223090566219009824, x9223090566219009856);
-Obj fn = x9223090566219009824;
-Obj x9223090566220574112 = PRIM_EQ(Nil, x9223090566219009856);
-if (True == x9223090566220574112) {
+Obj _3521470_37 = R[1];
+Obj _3521471_37 = R[2];
+Obj _3522914_37 = PRIM_EQ(Nil, _3521471_37);
+if (True == _3522914_37) {
 coraReturn(co, Nil);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009920);
-return;
-}
-}
-}
-}
-
-static void clofun156(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218682752 = makeNative(co->gc, 1, clofun155, 0, 0);
-Obj fn = closureRef(R[0], 0);
-Obj x9223090566220572672 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566220572672) {
-Obj x9223090566220572928 = PRIM_CAR(closureRef(R[0], 1));
-Obj x = x9223090566220572928;
-Obj x9223090566220573184 = PRIM_CDR(closureRef(R[0], 1));
-Obj y = x9223090566220573184;
-R[1] = fn;
+Obj _3522915_37 = PRIM_ISCONS(_3521471_37);
+if (True == _3522915_37) {
+Obj _3522916_37 = PRIM_CAR(_3521471_37);
+Obj x = _3522916_37;
+Obj _3522917_37 = PRIM_CDR(_3521471_37);
+Obj y = _3522917_37;
+R[1] = _3521470_37;
 R[2] = y;
-saveCont(co, clofun156, 1, R);
-coraCall1(co, fn, x);
+saveCont(co, clofun112, 1, R);
+coraCall1(co, _3521470_37, x);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682752);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566220573440= co->res;
-Obj fn = R[1];
-Obj y = R[2];
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), fn, y);
-return;
-}
-}
-}
-
-static void clofun155(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 }
+case 1:
+{
+Obj _3522918_37= co->res;
+Obj _3521470_37 = R[1];
+Obj y = R[2];
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 33)), _3521470_37, y);
+return;
+}
+}
+}
 
-static void clofun154(struct Cora* co, int label, Obj *R) {
+static void clofun111(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj globals = R[1];
 Obj exp = R[2];
 R[1] = exp;
-saveCont(co, clofun154, 5, R);
+saveCont(co, clofun111, 5, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 44)), globals);
 return;
 }
 case 1:
 {
-Obj x9223090566220571584= co->res;
+Obj _3522912_37= co->res;
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 40)), x9223090566220571584);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 40)), _3522912_37);
 return;
 }
 case 2:
 {
-Obj x9223090566220571552= co->res;
-saveCont(co, clofun154, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 41)), x9223090566220571552);
+Obj _3522911_37= co->res;
+saveCont(co, clofun111, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 41)), _3522911_37);
 return;
 }
 case 3:
 {
-Obj x9223090566220571520= co->res;
-saveCont(co, clofun154, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 42)), x9223090566220571520);
+Obj _3522910_37= co->res;
+saveCont(co, clofun111, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 42)), _3522910_37);
 return;
 }
 case 4:
 {
-Obj x9223090566220571488= co->res;
-saveCont(co, clofun154, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 43)), x9223090566220571488);
+Obj _3522909_37= co->res;
+saveCont(co, clofun111, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 43)), _3522909_37);
 return;
 }
 case 5:
 {
-Obj x9223090566220571424= co->res;
+Obj _3522908_37= co->res;
 Obj exp = R[1];
-saveCont(co, clofun154, 4, R);
-coraCall1(co, x9223090566220571424, exp);
+saveCont(co, clofun111, 4, R);
+coraCall1(co, _3522908_37, exp);
 return;
 }
 }
 }
 
-static void clofun153(struct Cora* co, int label, Obj *R) {
+static void clofun110(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-saveCont(co, clofun153, 2, R);
+saveCont(co, clofun110, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), exp);
 return;
 }
 case 1:
 {
-Obj x9223090566220561728= co->res;
+Obj _3522906_37= co->res;
 Obj obj = R[1];
-Obj fns = x9223090566220561728;
+Obj fns = _3522906_37;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 38)), obj, fns);
 return;
 }
 case 2:
 {
-Obj x9223090566220561472= co->res;
+Obj _3522905_37= co->res;
 Obj exp = R[1];
-Obj obj = x9223090566220561472;
+Obj obj = _3522905_37;
 R[1] = obj;
-saveCont(co, clofun153, 1, R);
+saveCont(co, clofun110, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 35)), exp);
 return;
 }
 }
 }
 
-static void clofun152(struct Cora* co, int label, Obj *R) {
+static void clofun109(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683200 = R[1];
-Obj x9223090566218683232 = R[2];
-Obj x9223090566218683264 = makeNative(co->gc, 1, clofun151, 0, 2, x9223090566218683200, x9223090566218683232);
-Obj obj = x9223090566218683200;
-Obj x9223090566220560736 = PRIM_EQ(Nil, x9223090566218683232);
-if (True == x9223090566220560736) {
-coraReturn(co, obj);
+Obj _3521466_37 = R[1];
+Obj _3521467_37 = R[2];
+Obj _3522898_37 = PRIM_EQ(Nil, _3521467_37);
+if (True == _3522898_37) {
+coraReturn(co, _3521466_37);
 return;
 } else {
+Obj _3522899_37 = PRIM_ISCONS(_3521467_37);
+if (True == _3522899_37) {
+Obj _3522900_37 = PRIM_CAR(_3521467_37);
+Obj hd = _3522900_37;
+Obj _3522901_37 = PRIM_CDR(_3521467_37);
+Obj more = _3522901_37;
+Obj _3522902_37 = makeCons(co->gc, _3521466_37, Nil);
+Obj _3522903_37 = makeCons(co->gc, hd, _3522902_37);
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683264);
-return;
-}
-}
-}
-}
-
-static void clofun151(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218683616 = makeNative(co->gc, 1, clofun150, 0, 0);
-Obj obj = closureRef(R[0], 0);
-Obj x9223090566220559104 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566220559104) {
-Obj x9223090566220559360 = PRIM_CAR(closureRef(R[0], 1));
-Obj hd = x9223090566220559360;
-Obj x9223090566220559616 = PRIM_CDR(closureRef(R[0], 1));
-Obj more = x9223090566220559616;
-Obj x9223090566220560192 = makeCons(co->gc, obj, Nil);
-Obj x9223090566220560224 = makeCons(co->gc, hd, x9223090566220560192);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 38)), x9223090566220560224, more);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 38)), _3522903_37, more);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683616);
-return;
-}
-}
-}
-}
-
-static void clofun150(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 }
+}
+}
 
-static void clofun149(struct Cora* co, int label, Obj *R) {
+static void clofun108(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj exp = R[1];
 R[1] = exp;
-saveCont(co, clofun149, 6, R);
+saveCont(co, clofun108, 6, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 39)), MAKE_NUMBER(2));
 return;
 }
 case 1:
 {
-Obj x9223090566217775360= co->res;
+Obj _3522896_37= co->res;
 Obj v = R[1];
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(1));
@@ -2836,60 +2617,60 @@ return;
 }
 case 2:
 {
-Obj x9223090566217936576= co->res;
+Obj _3522895_37= co->res;
 Obj v = R[1];
-Obj e2 = x9223090566217936576;
+Obj e2 = _3522895_37;
 R[1] = v;
-saveCont(co, clofun149, 1, R);
+saveCont(co, clofun108, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 60)), v, e2);
 return;
 }
 case 3:
 {
-Obj x9223090566217936256= co->res;
+Obj _3522894_37= co->res;
 Obj v = R[1];
-Obj e1 = x9223090566217936256;
+Obj e1 = _3522894_37;
 R[1] = v;
-saveCont(co, clofun149, 2, R);
+saveCont(co, clofun108, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 64)), Nil, e1);
 return;
 }
 case 4:
 {
-Obj x9223090566217935968= co->res;
+Obj _3522893_37= co->res;
 Obj exp = R[1];
 Obj v = R[2];
 R[1] = v;
-saveCont(co, clofun149, 3, R);
+saveCont(co, clofun108, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 62)), v, exp);
 return;
 }
 case 5:
 {
-Obj x9223090566217935584= co->res;
+Obj _3522892_37= co->res;
 Obj exp = R[1];
 Obj v = R[2];
 R[1] = exp;
 R[2] = v;
-saveCont(co, clofun149, 4, R);
+saveCont(co, clofun108, 4, R);
 coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(1), Nil);
 return;
 }
 case 6:
 {
-Obj x9223090566217935168= co->res;
+Obj _3522891_37= co->res;
 Obj exp = R[1];
-Obj v = x9223090566217935168;
+Obj v = _3522891_37;
 R[1] = exp;
 R[2] = v;
-saveCont(co, clofun149, 5, R);
+saveCont(co, clofun108, 5, R);
 coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(0), MAKE_NUMBER(0));
 return;
 }
 }
 }
 
-static void clofun148(struct Cora* co, int label, Obj *R) {
+static void clofun107(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2901,7 +2682,7 @@ return;
 }
 }
 
-static void clofun147(struct Cora* co, int label, Obj *R) {
+static void clofun106(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2913,7 +2694,7 @@ return;
 }
 }
 
-static void clofun146(struct Cora* co, int label, Obj *R) {
+static void clofun105(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2925,7 +2706,7 @@ return;
 }
 }
 
-static void clofun145(struct Cora* co, int label, Obj *R) {
+static void clofun104(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2938,7 +2719,7 @@ return;
 }
 }
 
-static void clofun144(struct Cora* co, int label, Obj *R) {
+static void clofun103(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2946,13 +2727,13 @@ Obj w = R[1];
 Obj label = R[2];
 R[1] = label;
 R[2] = w;
-saveCont(co, clofun144, 3, R);
+saveCont(co, clofun103, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, "static void "));
 return;
 }
 case 1:
 {
-Obj x9223090566218225760= co->res;
+Obj _3522885_37= co->res;
 Obj w = R[1];
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, ")"));
@@ -2960,27 +2741,27 @@ return;
 }
 case 2:
 {
-Obj x9223090566218225440= co->res;
+Obj _3522884_37= co->res;
 Obj w = R[1];
 R[1] = w;
-saveCont(co, clofun144, 1, R);
+saveCont(co, clofun103, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, "(struct Cora* co, int label, Obj *R"));
 return;
 }
 case 3:
 {
-Obj x9223090566218224960= co->res;
+Obj _3522883_37= co->res;
 Obj label = R[1];
 Obj w = R[2];
 R[1] = w;
-saveCont(co, clofun144, 2, R);
+saveCont(co, clofun103, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 48)), w, label);
 return;
 }
 }
 }
 
-static void clofun143(struct Cora* co, int label, Obj *R) {
+static void clofun102(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -2988,13 +2769,13 @@ Obj w = R[1];
 Obj label = R[2];
 R[1] = w;
 R[2] = label;
-saveCont(co, clofun143, 1, R);
+saveCont(co, clofun102, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, "clofun"));
 return;
 }
 case 1:
 {
-Obj x9223090566218223776= co->res;
+Obj _3522881_37= co->res;
 Obj w = R[1];
 Obj label = R[2];
 co->ctx.sp = R;
@@ -3004,150 +2785,146 @@ return;
 }
 }
 
-static void clofun142(struct Cora* co, int label, Obj *R) {
+static void clofun101(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009088 = R[1];
-Obj x9223090566219009312 = R[2];
-Obj x9223090566219009344 = R[3];
-Obj x9223090566219009376 = R[4];
-Obj x9223090566219009568 = R[5];
-Obj x9223090566219009664 = makeNative(co->gc, 1, clofun141, 0, 0);
-Obj globals = x9223090566219009088;
-Obj self = x9223090566219009312;
-Obj env = x9223090566219009344;
-Obj w = x9223090566219009376;
-Obj x9223090566218648768 = PRIM_ISCONS(x9223090566219009568);
-if (True == x9223090566218648768) {
-Obj x9223090566218649504 = PRIM_CAR(x9223090566219009568);
-Obj x9223090566218649536 = PRIM_EQ(getBinding(co, packageID, 68).name, x9223090566218649504);
-if (True == x9223090566218649536) {
-Obj x9223090566218518944 = PRIM_CDR(x9223090566219009568);
-Obj x9223090566218519008 = PRIM_ISCONS(x9223090566218518944);
-if (True == x9223090566218519008) {
-Obj x9223090566218519904 = PRIM_CDR(x9223090566219009568);
-Obj x9223090566218519936 = PRIM_CAR(x9223090566218519904);
-Obj var = x9223090566218519936;
-Obj x9223090566218520768 = PRIM_CDR(x9223090566219009568);
-Obj x9223090566218520832 = PRIM_CDR(x9223090566218520768);
-Obj x9223090566218521120 = PRIM_ISCONS(x9223090566218520832);
-if (True == x9223090566218521120) {
-Obj x9223090566218521888 = PRIM_CDR(x9223090566219009568);
-Obj x9223090566218521920 = PRIM_CDR(x9223090566218521888);
-Obj x9223090566218521952 = PRIM_CAR(x9223090566218521920);
-Obj body = x9223090566218521952;
-Obj x9223090566218522592 = PRIM_CDR(x9223090566219009568);
-Obj x9223090566218436768 = PRIM_CDR(x9223090566218522592);
-Obj x9223090566218436800 = PRIM_CDR(x9223090566218436768);
-Obj fvs = x9223090566218436800;
+Obj _3521460_37 = R[1];
+Obj _3521461_37 = R[2];
+Obj _3521462_37 = R[3];
+Obj _3521463_37 = R[4];
+Obj _3521464_37 = R[5];
+Obj _3521465_37 = makeNative(co->gc, 1, clofun100, 0, 0);
+Obj _3522859_37 = PRIM_ISCONS(_3521464_37);
+if (True == _3522859_37) {
+Obj _3522860_37 = PRIM_CAR(_3521464_37);
+Obj _3522861_37 = PRIM_EQ(getBinding(co, packageID, 68).name, _3522860_37);
+if (True == _3522861_37) {
+Obj _3522862_37 = PRIM_CDR(_3521464_37);
+Obj _3522863_37 = PRIM_ISCONS(_3522862_37);
+if (True == _3522863_37) {
+Obj _3522864_37 = PRIM_CDR(_3521464_37);
+Obj _3522865_37 = PRIM_CAR(_3522864_37);
+Obj var = _3522865_37;
+Obj _3522866_37 = PRIM_CDR(_3521464_37);
+Obj _3522867_37 = PRIM_CDR(_3522866_37);
+Obj _3522868_37 = PRIM_ISCONS(_3522867_37);
+if (True == _3522868_37) {
+Obj _3522869_37 = PRIM_CDR(_3521464_37);
+Obj _3522870_37 = PRIM_CDR(_3522869_37);
+Obj _3522871_37 = PRIM_CAR(_3522870_37);
+Obj body = _3522871_37;
+Obj _3522872_37 = PRIM_CDR(_3521464_37);
+Obj _3522873_37 = PRIM_CDR(_3522872_37);
+Obj _3522874_37 = PRIM_CDR(_3522873_37);
+Obj fvs = _3522874_37;
 R[1] = var;
 R[2] = fvs;
-R[3] = globals;
-R[4] = self;
-R[5] = env;
-R[6] = w;
+R[3] = _3521460_37;
+R[4] = _3521461_37;
+R[5] = _3521462_37;
+R[6] = _3521463_37;
 R[7] = body;
-saveCont(co, clofun142, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, "Obj "));
+saveCont(co, clofun101, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), _3521463_37, makeCString(co->gc, "Obj "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009664);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009664);
+coraCall0(co, _3521465_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009664);
+coraCall0(co, _3521465_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009664);
+coraCall0(co, _3521465_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521465_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218438816= co->res;
-Obj globals = R[1];
-Obj self = R[2];
-Obj env = R[3];
-Obj w = R[4];
+Obj _3522879_37= co->res;
+Obj _3521460_37 = R[1];
+Obj _3521461_37 = R[2];
+Obj _3521462_37 = R[3];
+Obj _3521463_37 = R[4];
 Obj body = R[5];
 co->ctx.sp = R;
-Obj __args[5] = {globals, self, env, w, body};
+Obj __args[5] = {_3521460_37, _3521461_37, _3521462_37, _3521463_37, body};
 coraCall(co, globalRef(co, getBinding(co, packageID, 52)), 5, __args);
 return;
 }
 case 2:
 {
-Obj x9223090566218438272= co->res;
+Obj _3522878_37= co->res;
 Obj fvs = R[1];
-Obj globals = R[2];
-Obj self = R[3];
-Obj env = R[4];
-Obj w = R[5];
+Obj _3521460_37 = R[2];
+Obj _3521461_37 = R[3];
+Obj _3521462_37 = R[4];
+Obj _3521463_37 = R[5];
 Obj body = R[6];
-R[1] = globals;
-R[2] = self;
-R[3] = env;
-R[4] = w;
+R[1] = _3521460_37;
+R[2] = _3521461_37;
+R[3] = _3521462_37;
+R[4] = _3521463_37;
 R[5] = body;
-saveCont(co, clofun142, 1, R);
-Obj __args[5] = {globals, self, env, w, fvs};
+saveCont(co, clofun101, 1, R);
+Obj __args[5] = {_3521460_37, _3521461_37, _3521462_37, _3521463_37, fvs};
 coraCall(co, globalRef(co, getBinding(co, packageID, 51)), 5, __args);
 return;
 }
 case 3:
 {
-Obj x9223090566218437952= co->res;
+Obj _3522877_37= co->res;
 Obj fvs = R[1];
-Obj globals = R[2];
-Obj self = R[3];
-Obj env = R[4];
-Obj w = R[5];
+Obj _3521460_37 = R[2];
+Obj _3521461_37 = R[3];
+Obj _3521462_37 = R[4];
+Obj _3521463_37 = R[5];
 Obj body = R[6];
 R[1] = fvs;
-R[2] = globals;
-R[3] = self;
-R[4] = env;
-R[5] = w;
+R[2] = _3521460_37;
+R[3] = _3521461_37;
+R[4] = _3521462_37;
+R[5] = _3521463_37;
 R[6] = body;
-saveCont(co, clofun142, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), w, makeCString(co->gc, "= co->res;\n"));
+saveCont(co, clofun101, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), _3521463_37, makeCString(co->gc, "= co->res;\n"));
 return;
 }
 case 4:
 {
-Obj x9223090566218437216= co->res;
+Obj _3522875_37= co->res;
 Obj var = R[1];
 Obj fvs = R[2];
-Obj globals = R[3];
-Obj self = R[4];
-Obj env = R[5];
-Obj w = R[6];
+Obj _3521460_37 = R[3];
+Obj _3521461_37 = R[4];
+Obj _3521462_37 = R[5];
+Obj _3521463_37 = R[6];
 Obj body = R[7];
-Obj x9223090566218437920 = PRIM_CAR(var);
+Obj _3522876_37 = PRIM_CAR(var);
 R[1] = fvs;
-R[2] = globals;
-R[3] = self;
-R[4] = env;
-R[5] = w;
+R[2] = _3521460_37;
+R[3] = _3521461_37;
+R[4] = _3521462_37;
+R[5] = _3521463_37;
 R[6] = body;
-saveCont(co, clofun142, 3, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 50)), w, x9223090566218437920);
+saveCont(co, clofun101, 3, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 50)), _3521463_37, _3522876_37);
 return;
 }
 }
 }
 
-static void clofun141(struct Cora* co, int label, Obj *R) {
+static void clofun100(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -3158,7 +2935,7 @@ return;
 }
 }
 
-static void clofun140(struct Cora* co, int label, Obj *R) {
+static void clofun99(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -3167,133 +2944,109 @@ Obj self = R[2];
 Obj env = R[3];
 Obj w = R[4];
 Obj l = R[5];
-Obj x9223090566218732768 = primGenSym(co);
-Obj generate_45inst_45list_45h = x9223090566218732768;
-Obj x9223090566218646560 = primSet(co, generate_45inst_45list_45h, makeNative(co->gc, 2, clofun139, 1, 5, globals, self, env, w, generate_45inst_45list_45h));
+Obj _3522845_37 = primGenSym(co);
+Obj generate_45inst_45list_45h = _3522845_37;
+Obj _3522856_37 = primSet(co, generate_45inst_45list_45h, makeNative(co->gc, 2, clofun98, 1, 5, globals, self, env, w, generate_45inst_45list_45h));
 R[1] = l;
-saveCont(co, clofun140, 1, R);
+saveCont(co, clofun99, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), generate_45inst_45list_45h);
 return;
 }
 case 1:
 {
-Obj x9223090566218646976= co->res;
+Obj _3522857_37= co->res;
 Obj l = R[1];
 co->ctx.sp = R;
-coraCall1(co, x9223090566218646976, l);
+coraCall1(co, _3522857_37, l);
 return;
 }
 }
 }
 
-static void clofun139(struct Cora* co, int label, Obj *R) {
+static void clofun98(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj x = R[1];
-Obj x9223090566219007136 = makeNative(co->gc, 2, clofun138, 0, 6, x, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4));
-Obj x9223090566218646400 = PRIM_EQ(Nil, x);
-if (True == x9223090566218646400) {
+Obj _3522846_37 = PRIM_EQ(Nil, x);
+if (True == _3522846_37) {
 coraReturn(co, Nil);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007136);
-return;
-}
-}
-}
-}
-
-static void clofun138(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219007360 = makeNative(co->gc, 1, clofun137, 0, 0);
-Obj x9223090566218734304 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218734304) {
-Obj x9223090566218734848 = PRIM_CAR(closureRef(R[0], 0));
-Obj a = x9223090566218734848;
-Obj x9223090566218735136 = PRIM_CDR(closureRef(R[0], 0));
-Obj b = x9223090566218735136;
+Obj _3522847_37 = PRIM_ISCONS(x);
+if (True == _3522847_37) {
+Obj _3522848_37 = PRIM_CAR(x);
+Obj a = _3522848_37;
+Obj _3522849_37 = PRIM_CDR(x);
+Obj b = _3522849_37;
 R[1] = b;
-saveCont(co, clofun138, 5, R);
-Obj __args[5] = {closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), a};
+saveCont(co, clofun98, 5, R);
+Obj __args[5] = {closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), a};
 coraCall(co, globalRef(co, getBinding(co, packageID, 52)), 5, __args);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007360);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566218685888= co->res;
-Obj b = R[1];
-co->ctx.sp = R;
-coraCall1(co, x9223090566218685888, b);
-return;
-}
-case 2:
-{
-Obj x9223090566218685248= co->res;
-Obj b = R[1];
-R[1] = b;
-saveCont(co, clofun138, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 5));
-return;
-}
-case 3:
-{
-Obj x9223090566218645504= co->res;
-Obj b = R[1];
-co->ctx.sp = R;
-coraCall1(co, x9223090566218645504, b);
-return;
-}
-case 4:
-{
-Obj x9223090566218684896= co->res;
-Obj b = R[1];
-Obj x9223090566218684928 = primNot(x9223090566218684896);
-if (True == x9223090566218684928) {
-R[1] = b;
-saveCont(co, clofun138, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 4), makeCString(co->gc, ", "));
-return;
-} else {
-Nil;
-R[1] = b;
-saveCont(co, clofun138, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 5));
-return;
-}
-}
-case 5:
-{
-Obj x9223090566218683168= co->res;
-Obj b = R[1];
-R[1] = b;
-saveCont(co, clofun138, 4, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), b);
-return;
-}
-}
-}
-
-static void clofun137(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 }
+case 1:
+{
+Obj _3522854_37= co->res;
+Obj b = R[1];
+co->ctx.sp = R;
+coraCall1(co, _3522854_37, b);
+return;
+}
+case 2:
+{
+Obj _3522853_37= co->res;
+Obj b = R[1];
+R[1] = b;
+saveCont(co, clofun98, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
+return;
+}
+case 3:
+{
+Obj _3522855_37= co->res;
+Obj b = R[1];
+co->ctx.sp = R;
+coraCall1(co, _3522855_37, b);
+return;
+}
+case 4:
+{
+Obj _3522851_37= co->res;
+Obj b = R[1];
+Obj _3522852_37 = primNot(_3522851_37);
+if (True == _3522852_37) {
+R[1] = b;
+saveCont(co, clofun98, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, ", "));
+return;
+} else {
+Nil;
+R[1] = b;
+saveCont(co, clofun98, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
+return;
+}
+}
+case 5:
+{
+Obj _3522850_37= co->res;
+Obj b = R[1];
+R[1] = b;
+saveCont(co, clofun98, 4, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), b);
+return;
+}
+}
+}
 
-static void clofun136(struct Cora* co, int label, Obj *R) {
+static void clofun97(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -3302,312 +3055,312 @@ Obj self = R[2];
 Obj env1 = R[3];
 Obj w = R[4];
 Obj x1 = R[5];
-Obj x9223090566220456288 = primGenSym(co);
-Obj generate_45inst_45h = x9223090566220456288;
-Obj x9223090566218784640 = primSet(co, generate_45inst_45h, makeNative(co->gc, 3, clofun135, 2, 4, self, generate_45inst_45h, globals, w));
+Obj _3522558_37 = primGenSym(co);
+Obj generate_45inst_45h = _3522558_37;
+Obj _3522842_37 = primSet(co, generate_45inst_45h, makeNative(co->gc, 3, clofun96, 2, 4, self, generate_45inst_45h, globals, w));
 R[1] = x1;
 R[2] = env1;
-saveCont(co, clofun136, 1, R);
+saveCont(co, clofun97, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), generate_45inst_45h);
 return;
 }
 case 1:
 {
-Obj x9223090566218731936= co->res;
+Obj _3522843_37= co->res;
 Obj x1 = R[1];
 Obj env1 = R[2];
 co->ctx.sp = R;
-coraCall2(co, x9223090566218731936, x1, env1);
+coraCall2(co, _3522843_37, x1, env1);
 return;
 }
 }
 }
 
-static void clofun135(struct Cora* co, int label, Obj *R) {
+static void clofun96(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
 Obj x2 = R[1];
 Obj env = R[2];
-Obj x9223090566220456864 = primIsSymbol(x2);
-if (True == x9223090566220456864) {
+Obj _3522559_37 = primIsSymbol(x2);
+if (True == _3522559_37) {
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 50)), closureRef(R[0], 3), x2);
 return;
 } else {
-Obj x9223090566219007968 = makeNative(co->gc, 2, clofun134, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), env, closureRef(R[0], 2), x2, closureRef(R[0], 3));
-Obj x9223090566218950912 = PRIM_ISCONS(x2);
-if (True == x9223090566218950912) {
-Obj x9223090566218951584 = PRIM_CAR(x2);
-Obj x9223090566218951808 = PRIM_EQ(getBinding(co, packageID, 92).name, x9223090566218951584);
-if (True == x9223090566218951808) {
-Obj x9223090566218952448 = PRIM_CDR(x2);
-Obj x9223090566218952480 = PRIM_ISCONS(x9223090566218952448);
-if (True == x9223090566218952480) {
-Obj x9223090566218781216 = PRIM_CDR(x2);
-Obj x9223090566218781248 = PRIM_CAR(x9223090566218781216);
-Obj x = x9223090566218781248;
-Obj x9223090566218782208 = PRIM_CDR(x2);
-Obj x9223090566218782272 = PRIM_CDR(x9223090566218782208);
-Obj x9223090566218782304 = PRIM_EQ(Nil, x9223090566218782272);
-if (True == x9223090566218782304) {
+Obj _3521446_37 = makeNative(co->gc, 2, clofun95, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), env, closureRef(R[0], 2), x2, closureRef(R[0], 3));
+Obj _3522829_37 = PRIM_ISCONS(x2);
+if (True == _3522829_37) {
+Obj _3522830_37 = PRIM_CAR(x2);
+Obj _3522831_37 = PRIM_EQ(getBinding(co, packageID, 99).name, _3522830_37);
+if (True == _3522831_37) {
+Obj _3522832_37 = PRIM_CDR(x2);
+Obj _3522833_37 = PRIM_ISCONS(_3522832_37);
+if (True == _3522833_37) {
+Obj _3522834_37 = PRIM_CDR(x2);
+Obj _3522835_37 = PRIM_CAR(_3522834_37);
+Obj x = _3522835_37;
+Obj _3522836_37 = PRIM_CDR(x2);
+Obj _3522837_37 = PRIM_CDR(_3522836_37);
+Obj _3522838_37 = PRIM_EQ(Nil, _3522837_37);
+if (True == _3522838_37) {
 R[1] = x;
-saveCont(co, clofun135, 3, R);
+saveCont(co, clofun96, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "globalRef(co, getBinding(co, packageID, "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007968);
+coraCall0(co, _3521446_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007968);
+coraCall0(co, _3521446_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007968);
+coraCall0(co, _3521446_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007968);
+coraCall0(co, _3521446_37);
 return;
 }
 }
 }
 case 1:
 {
-Obj x9223090566218783584= co->res;
+Obj _3522841_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "))"));
 return;
 }
 case 2:
 {
-Obj x9223090566218783552= co->res;
-saveCont(co, clofun135, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 3), x9223090566218783552);
+Obj _3522840_37= co->res;
+saveCont(co, clofun96, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 3), _3522840_37);
 return;
 }
 case 3:
 {
-Obj x9223090566218782624= co->res;
+Obj _3522839_37= co->res;
 Obj x = R[1];
-saveCont(co, clofun135, 2, R);
+saveCont(co, clofun96, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 56)), x, closureRef(R[0], 2));
 return;
 }
 }
 }
 
-static void clofun134(struct Cora* co, int label, Obj *R) {
+static void clofun95(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007424 = makeNative(co->gc, 2, clofun133, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 3), closureRef(R[0], 5));
-Obj x9223090566219093696 = PRIM_ISCONS(closureRef(R[0], 4));
-if (True == x9223090566219093696) {
-Obj x9223090566219094336 = PRIM_CAR(closureRef(R[0], 4));
-Obj x9223090566219094368 = PRIM_EQ(getBinding(co, packageID, 83).name, x9223090566219094336);
-if (True == x9223090566219094368) {
-Obj x9223090566219094848 = PRIM_CDR(closureRef(R[0], 4));
-Obj x9223090566219094880 = PRIM_ISCONS(x9223090566219094848);
-if (True == x9223090566219094880) {
-Obj x9223090566219095520 = PRIM_CDR(closureRef(R[0], 4));
-Obj x9223090566219095552 = PRIM_CAR(x9223090566219095520);
-Obj idx = x9223090566219095552;
-Obj x9223090566218948768 = PRIM_CDR(closureRef(R[0], 4));
-Obj x9223090566218948800 = PRIM_CDR(x9223090566218948768);
-Obj x9223090566218948832 = PRIM_EQ(Nil, x9223090566218948800);
-if (True == x9223090566218948832) {
+Obj _3521447_37 = makeNative(co->gc, 2, clofun94, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 3), closureRef(R[0], 5));
+Obj _3522817_37 = PRIM_ISCONS(closureRef(R[0], 4));
+if (True == _3522817_37) {
+Obj _3522818_37 = PRIM_CAR(closureRef(R[0], 4));
+Obj _3522819_37 = PRIM_EQ(getBinding(co, packageID, 83).name, _3522818_37);
+if (True == _3522819_37) {
+Obj _3522820_37 = PRIM_CDR(closureRef(R[0], 4));
+Obj _3522821_37 = PRIM_ISCONS(_3522820_37);
+if (True == _3522821_37) {
+Obj _3522822_37 = PRIM_CDR(closureRef(R[0], 4));
+Obj _3522823_37 = PRIM_CAR(_3522822_37);
+Obj idx = _3522823_37;
+Obj _3522824_37 = PRIM_CDR(closureRef(R[0], 4));
+Obj _3522825_37 = PRIM_CDR(_3522824_37);
+Obj _3522826_37 = PRIM_EQ(Nil, _3522825_37);
+if (True == _3522826_37) {
 R[1] = idx;
-saveCont(co, clofun134, 2, R);
+saveCont(co, clofun95, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "closureRef(R[0], "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007424);
+coraCall0(co, _3521447_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007424);
+coraCall0(co, _3521447_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007424);
+coraCall0(co, _3521447_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007424);
+coraCall0(co, _3521447_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218949696= co->res;
+Obj _3522828_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 2:
 {
-Obj x9223090566218949280= co->res;
+Obj _3522827_37= co->res;
 Obj idx = R[1];
-saveCont(co, clofun134, 1, R);
+saveCont(co, clofun95, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), idx);
 return;
 }
 }
 }
 
-static void clofun133(struct Cora* co, int label, Obj *R) {
+static void clofun94(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009216 = makeNative(co->gc, 4, clofun132, 0, 6, closureRef(R[0], 4), closureRef(R[0], 0), closureRef(R[0], 3), closureRef(R[0], 5), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj x9223090566219311616 = PRIM_ISCONS(closureRef(R[0], 3));
-if (True == x9223090566219311616) {
-Obj x9223090566219312384 = PRIM_CAR(closureRef(R[0], 3));
-Obj x9223090566219312416 = PRIM_EQ(getBinding(co, packageID, 90).name, x9223090566219312384);
-if (True == x9223090566219312416) {
-Obj x9223090566219312960 = PRIM_CDR(closureRef(R[0], 3));
-Obj x9223090566219312992 = PRIM_ISCONS(x9223090566219312960);
-if (True == x9223090566219312992) {
-Obj x9223090566219276864 = PRIM_CDR(closureRef(R[0], 3));
-Obj x9223090566219276896 = PRIM_CAR(x9223090566219276864);
-Obj x = x9223090566219276896;
-Obj x9223090566219277920 = PRIM_CDR(closureRef(R[0], 3));
-Obj x9223090566219277952 = PRIM_CDR(x9223090566219277920);
-Obj x9223090566219277984 = PRIM_EQ(Nil, x9223090566219277952);
-if (True == x9223090566219277984) {
-Obj x9223090566219278336 = primIsSymbol(x);
-if (True == x9223090566219278336) {
+Obj _3521448_37 = makeNative(co->gc, 4, clofun93, 0, 6, closureRef(R[0], 4), closureRef(R[0], 0), closureRef(R[0], 3), closureRef(R[0], 5), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3522793_37 = PRIM_ISCONS(closureRef(R[0], 3));
+if (True == _3522793_37) {
+Obj _3522794_37 = PRIM_CAR(closureRef(R[0], 3));
+Obj _3522795_37 = PRIM_EQ(getBinding(co, packageID, 102).name, _3522794_37);
+if (True == _3522795_37) {
+Obj _3522796_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3522797_37 = PRIM_ISCONS(_3522796_37);
+if (True == _3522797_37) {
+Obj _3522798_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3522799_37 = PRIM_CAR(_3522798_37);
+Obj x = _3522799_37;
+Obj _3522800_37 = PRIM_CDR(closureRef(R[0], 3));
+Obj _3522801_37 = PRIM_CDR(_3522800_37);
+Obj _3522802_37 = PRIM_EQ(Nil, _3522801_37);
+if (True == _3522802_37) {
+Obj _3522803_37 = primIsSymbol(x);
+if (True == _3522803_37) {
 R[1] = x;
-saveCont(co, clofun133, 3, R);
+saveCont(co, clofun94, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "getBinding(co, packageID, "));
 return;
 } else {
 R[1] = x;
-saveCont(co, clofun133, 9, R);
+saveCont(co, clofun94, 9, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 89)), x);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009216);
+coraCall0(co, _3521448_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009216);
+coraCall0(co, _3521448_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009216);
+coraCall0(co, _3521448_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009216);
+coraCall0(co, _3521448_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219279392= co->res;
+Obj _3522806_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ").name"));
 return;
 }
 case 2:
 {
-Obj x9223090566219279360= co->res;
-saveCont(co, clofun133, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), x9223090566219279360);
+Obj _3522805_37= co->res;
+saveCont(co, clofun94, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), _3522805_37);
 return;
 }
 case 3:
 {
-Obj x9223090566219278816= co->res;
+Obj _3522804_37= co->res;
 Obj x = R[1];
-saveCont(co, clofun133, 2, R);
+saveCont(co, clofun94, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 56)), x, closureRef(R[0], 4));
 return;
 }
 case 4:
 {
-Obj x9223090566219202976= co->res;
+Obj _3522809_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 5:
 {
-Obj x9223090566219202656= co->res;
+Obj _3522808_37= co->res;
 Obj x = R[1];
-saveCont(co, clofun133, 4, R);
+saveCont(co, clofun94, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), x);
 return;
 }
 case 6:
 {
-Obj x9223090566219204960= co->res;
+Obj _3522813_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "\")"));
 return;
 }
 case 7:
 {
-Obj x9223090566219204928= co->res;
-saveCont(co, clofun133, 6, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), x9223090566219204928);
+Obj _3522812_37= co->res;
+saveCont(co, clofun94, 6, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), _3522812_37);
 return;
 }
 case 8:
 {
-Obj x9223090566219204160= co->res;
+Obj _3522811_37= co->res;
 Obj x = R[1];
-saveCont(co, clofun133, 7, R);
+saveCont(co, clofun94, 7, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 47)), x);
 return;
 }
 case 9:
 {
-Obj x9223090566219280096= co->res;
+Obj _3522807_37= co->res;
 Obj x = R[1];
-if (True == x9223090566219280096) {
+if (True == _3522807_37) {
 R[1] = x;
-saveCont(co, clofun133, 5, R);
+saveCont(co, clofun94, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "MAKE_NUMBER("));
 return;
 } else {
-Obj x9223090566219203680 = primIsString(x);
-if (True == x9223090566219203680) {
+Obj _3522810_37 = primIsString(x);
+if (True == _3522810_37) {
 R[1] = x;
-saveCont(co, clofun133, 8, R);
+saveCont(co, clofun94, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "makeCString(co->gc, \""));
 return;
 } else {
-Obj x9223090566219205696 = PRIM_EQ(x, Nil);
-if (True == x9223090566219205696) {
+Obj _3522814_37 = PRIM_EQ(x, Nil);
+if (True == _3522814_37) {
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "Nil"));
 return;
 } else {
-Obj x9223090566219206240 = PRIM_EQ(x, True);
-if (True == x9223090566219206240) {
+Obj _3522815_37 = PRIM_EQ(x, True);
+if (True == _3522815_37) {
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "True"));
 return;
 } else {
-Obj x9223090566219092192 = PRIM_EQ(x, False);
-if (True == x9223090566219092192) {
+Obj _3522816_37 = PRIM_EQ(x, False);
+if (True == _3522816_37) {
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "False"));
 return;
@@ -3624,644 +3377,620 @@ return;
 }
 }
 
-static void clofun132(struct Cora* co, int label, Obj *R) {
+static void clofun93(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009696 = makeNative(co->gc, 3, clofun131, 0, 6, closureRef(R[0], 4), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 5), closureRef(R[0], 3));
-Obj x9223090566219409440 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219409440) {
-Obj x9223090566219410048 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219410080 = PRIM_EQ(getBinding(co, packageID, 96).name, x9223090566219410048);
-if (True == x9223090566219410080) {
-Obj x9223090566219410752 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219410784 = PRIM_ISCONS(x9223090566219410752);
-if (True == x9223090566219410784) {
-Obj x9223090566219411264 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219411296 = PRIM_CAR(x9223090566219411264);
-Obj a = x9223090566219411296;
-Obj x9223090566219387584 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219387616 = PRIM_CDR(x9223090566219387584);
-Obj x9223090566219387648 = PRIM_ISCONS(x9223090566219387616);
-if (True == x9223090566219387648) {
-Obj x9223090566219388512 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219388544 = PRIM_CDR(x9223090566219388512);
-Obj x9223090566219388576 = PRIM_CAR(x9223090566219388544);
-Obj b = x9223090566219388576;
-Obj x9223090566219389664 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219389696 = PRIM_CDR(x9223090566219389664);
-Obj x9223090566219389728 = PRIM_CDR(x9223090566219389696);
-Obj x9223090566219389760 = PRIM_ISCONS(x9223090566219389728);
-if (True == x9223090566219389760) {
-Obj x9223090566219390784 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219390816 = PRIM_CDR(x9223090566219390784);
-Obj x9223090566219390848 = PRIM_CDR(x9223090566219390816);
-Obj x9223090566219383008 = PRIM_CAR(x9223090566219390848);
-Obj c = x9223090566219383008;
-Obj x9223090566219384320 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219384352 = PRIM_CDR(x9223090566219384320);
-Obj x9223090566219384480 = PRIM_CDR(x9223090566219384352);
-Obj x9223090566219384512 = PRIM_CDR(x9223090566219384480);
-Obj x9223090566219384544 = PRIM_EQ(Nil, x9223090566219384512);
-if (True == x9223090566219384544) {
+Obj _3521449_37 = makeNative(co->gc, 3, clofun92, 0, 6, closureRef(R[0], 4), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 5), closureRef(R[0], 3));
+Obj _3522758_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3522758_37) {
+Obj _3522759_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3522760_37 = PRIM_EQ(getBinding(co, packageID, 92).name, _3522759_37);
+if (True == _3522760_37) {
+Obj _3522761_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522762_37 = PRIM_ISCONS(_3522761_37);
+if (True == _3522762_37) {
+Obj _3522763_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522764_37 = PRIM_CAR(_3522763_37);
+Obj a = _3522764_37;
+Obj _3522765_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522766_37 = PRIM_CDR(_3522765_37);
+Obj _3522767_37 = PRIM_ISCONS(_3522766_37);
+if (True == _3522767_37) {
+Obj _3522768_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522769_37 = PRIM_CDR(_3522768_37);
+Obj _3522770_37 = PRIM_CAR(_3522769_37);
+Obj b = _3522770_37;
+Obj _3522771_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522772_37 = PRIM_CDR(_3522771_37);
+Obj _3522773_37 = PRIM_CDR(_3522772_37);
+Obj _3522774_37 = PRIM_ISCONS(_3522773_37);
+if (True == _3522774_37) {
+Obj _3522775_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522776_37 = PRIM_CDR(_3522775_37);
+Obj _3522777_37 = PRIM_CDR(_3522776_37);
+Obj _3522778_37 = PRIM_CAR(_3522777_37);
+Obj c = _3522778_37;
+Obj _3522779_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522780_37 = PRIM_CDR(_3522779_37);
+Obj _3522781_37 = PRIM_CDR(_3522780_37);
+Obj _3522782_37 = PRIM_CDR(_3522781_37);
+Obj _3522783_37 = PRIM_EQ(Nil, _3522782_37);
+if (True == _3522783_37) {
 R[1] = b;
 R[2] = a;
 R[3] = c;
-saveCont(co, clofun132, 8, R);
+saveCont(co, clofun93, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 130)), a, closureRef(R[0], 5));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009696);
+coraCall0(co, _3521449_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219309728= co->res;
+Obj _3522791_37= co->res;
 Obj a = R[1];
 Obj c = R[2];
-Obj x9223090566219310176 = makeCons(co->gc, a, closureRef(R[0], 5));
+Obj _3522792_37 = makeCons(co->gc, a, closureRef(R[0], 5));
 co->ctx.sp = R;
-coraCall2(co, x9223090566219309728, c, x9223090566219310176);
+coraCall2(co, _3522791_37, c, _3522792_37);
 return;
 }
 case 2:
 {
-Obj x9223090566219309312= co->res;
+Obj _3522790_37= co->res;
 Obj a = R[1];
 Obj c = R[2];
 R[1] = a;
 R[2] = c;
-saveCont(co, clofun132, 1, R);
+saveCont(co, clofun93, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
 return;
 }
 case 3:
 {
-Obj x9223090566219386848= co->res;
+Obj _3522789_37= co->res;
 Obj a = R[1];
 Obj c = R[2];
 R[1] = a;
 R[2] = c;
-saveCont(co, clofun132, 2, R);
+saveCont(co, clofun93, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, ";\n"));
 return;
 }
 case 4:
 {
-Obj x9223090566219386752= co->res;
+Obj _3522788_37= co->res;
 Obj b = R[1];
 Obj a = R[2];
 Obj c = R[3];
 R[1] = a;
 R[2] = c;
-saveCont(co, clofun132, 3, R);
-coraCall2(co, x9223090566219386752, b, closureRef(R[0], 5));
+saveCont(co, clofun93, 3, R);
+coraCall2(co, _3522788_37, b, closureRef(R[0], 5));
 return;
 }
 case 5:
 {
-Obj x9223090566219386112= co->res;
+Obj _3522787_37= co->res;
 Obj b = R[1];
 Obj a = R[2];
 Obj c = R[3];
 R[1] = b;
 R[2] = a;
 R[3] = c;
-saveCont(co, clofun132, 4, R);
+saveCont(co, clofun93, 4, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
 return;
 }
 case 6:
 {
-Obj x9223090566219385728= co->res;
+Obj _3522786_37= co->res;
 Obj b = R[1];
 Obj a = R[2];
 Obj c = R[3];
 R[1] = b;
 R[2] = a;
 R[3] = c;
-saveCont(co, clofun132, 5, R);
+saveCont(co, clofun93, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, " = "));
 return;
 }
 case 7:
 {
-Obj x9223090566219385152= co->res;
+Obj _3522785_37= co->res;
 Obj b = R[1];
 Obj a = R[2];
 Obj c = R[3];
 R[1] = b;
 R[2] = a;
 R[3] = c;
-saveCont(co, clofun132, 6, R);
+saveCont(co, clofun93, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 50)), closureRef(R[0], 3), a);
 return;
 }
 case 8:
 {
-Obj x9223090566219384832= co->res;
+Obj _3522784_37= co->res;
 Obj b = R[1];
 Obj a = R[2];
 Obj c = R[3];
-Obj idx = x9223090566219384832;
 R[1] = b;
 R[2] = a;
 R[3] = c;
-saveCont(co, clofun132, 7, R);
+saveCont(co, clofun93, 7, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "Obj "));
 return;
 }
 }
 }
 
-static void clofun131(struct Cora* co, int label, Obj *R) {
+static void clofun92(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218682624 = makeNative(co->gc, 4, clofun130, 0, 6, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 0), closureRef(R[0], 4), closureRef(R[0], 5));
-Obj x9223090566219521696 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219521696) {
-Obj x9223090566219489376 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219489408 = PRIM_ISCONS(x9223090566219489376);
-if (True == x9223090566219489408) {
-Obj x9223090566219490368 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219490400 = PRIM_CAR(x9223090566219490368);
-Obj x9223090566219490432 = PRIM_EQ(getBinding(co, packageID, 100).name, x9223090566219490400);
-if (True == x9223090566219490432) {
-Obj x9223090566219491200 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219491232 = PRIM_CDR(x9223090566219491200);
-Obj x9223090566219491392 = PRIM_ISCONS(x9223090566219491232);
-if (True == x9223090566219491392) {
-Obj x9223090566219492224 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219492384 = PRIM_CDR(x9223090566219492224);
-Obj x9223090566219492416 = PRIM_CAR(x9223090566219492384);
-Obj f = x9223090566219492416;
-Obj x9223090566219485344 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219485376 = PRIM_CDR(x9223090566219485344);
-Obj x9223090566219485408 = PRIM_CDR(x9223090566219485376);
-Obj x9223090566219485440 = PRIM_EQ(Nil, x9223090566219485408);
-if (True == x9223090566219485440) {
-Obj x9223090566219485696 = PRIM_CDR(closureRef(R[0], 1));
-Obj args = x9223090566219485696;
+Obj _3521450_37 = makeNative(co->gc, 4, clofun91, 0, 6, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 0), closureRef(R[0], 4), closureRef(R[0], 5));
+Obj _3522728_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3522728_37) {
+Obj _3522729_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522730_37 = PRIM_ISCONS(_3522729_37);
+if (True == _3522730_37) {
+Obj _3522731_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522732_37 = PRIM_CAR(_3522731_37);
+Obj _3522733_37 = PRIM_EQ(getBinding(co, packageID, 96).name, _3522732_37);
+if (True == _3522733_37) {
+Obj _3522734_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522735_37 = PRIM_CDR(_3522734_37);
+Obj _3522736_37 = PRIM_ISCONS(_3522735_37);
+if (True == _3522736_37) {
+Obj _3522737_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522738_37 = PRIM_CDR(_3522737_37);
+Obj _3522739_37 = PRIM_CAR(_3522738_37);
+Obj f = _3522739_37;
+Obj _3522740_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522741_37 = PRIM_CDR(_3522740_37);
+Obj _3522742_37 = PRIM_CDR(_3522741_37);
+Obj _3522743_37 = PRIM_EQ(Nil, _3522742_37);
+if (True == _3522743_37) {
+Obj _3522744_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj args = _3522744_37;
 R[1] = f;
 R[2] = args;
-saveCont(co, clofun131, 12, R);
+saveCont(co, clofun92, 10, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 108)), f);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682624);
+coraCall0(co, _3521450_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682624);
+coraCall0(co, _3521450_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682624);
+coraCall0(co, _3521450_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682624);
+coraCall0(co, _3521450_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682624);
+coraCall0(co, _3521450_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219488032= co->res;
+Obj _3522749_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 2:
 {
-Obj x9223090566219487424= co->res;
+Obj _3522748_37= co->res;
 Obj args = R[1];
-saveCont(co, clofun131, 1, R);
+saveCont(co, clofun92, 1, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 3:
 {
-Obj x9223090566219456704= co->res;
+Obj _3522752_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 4:
 {
-Obj x9223090566219488896= co->res;
+Obj _3522751_37= co->res;
 Obj args = R[1];
-saveCont(co, clofun131, 3, R);
+saveCont(co, clofun92, 3, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 5:
 {
-Obj x9223090566219458272= co->res;
+Obj _3522755_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 6:
 {
-Obj x9223090566219457728= co->res;
+Obj _3522754_37= co->res;
 Obj args = R[1];
-saveCont(co, clofun131, 5, R);
+saveCont(co, clofun92, 5, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 7:
 {
-Obj x9223090566219459712= co->res;
+Obj _3522757_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 8:
 {
-Obj x9223090566219459072= co->res;
+Obj _3522756_37= co->res;
 Obj args = R[1];
-saveCont(co, clofun131, 7, R);
+saveCont(co, clofun92, 7, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 9:
 {
-Obj x9223090566219407680= co->res;
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
-return;
-}
-case 10:
-{
-Obj x9223090566219460192= co->res;
-Obj args = R[1];
-saveCont(co, clofun131, 9, R);
-Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
-coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
-return;
-}
-case 11:
-{
-Obj x9223090566219486464= co->res;
+Obj _3522746_37= co->res;
 Obj f = R[1];
 Obj args = R[2];
-Obj x9223090566219487104 = PRIM_EQ(f, getBinding(co, packageID, 127).name);
-if (True == x9223090566219487104) {
+Obj _3522747_37 = PRIM_EQ(f, getBinding(co, packageID, 127).name);
+if (True == _3522747_37) {
 R[1] = args;
-saveCont(co, clofun131, 2, R);
+saveCont(co, clofun92, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "(co, "));
 return;
 } else {
-Obj x9223090566219488640 = PRIM_EQ(f, getBinding(co, packageID, 115).name);
-if (True == x9223090566219488640) {
+Obj _3522750_37 = PRIM_EQ(f, getBinding(co, packageID, 115).name);
+if (True == _3522750_37) {
 R[1] = args;
-saveCont(co, clofun131, 4, R);
+saveCont(co, clofun92, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "(co"));
 return;
 } else {
-Obj x9223090566219457440 = PRIM_EQ(f, getBinding(co, packageID, 124).name);
-if (True == x9223090566219457440) {
+Obj _3522753_37 = PRIM_EQ(f, getBinding(co, packageID, 124).name);
+if (True == _3522753_37) {
 R[1] = args;
-saveCont(co, clofun131, 6, R);
+saveCont(co, clofun92, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "(co->gc, "));
 return;
 } else {
-if (True == True) {
 R[1] = args;
-saveCont(co, clofun131, 8, R);
+saveCont(co, clofun92, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "("));
 return;
-} else {
-R[1] = args;
-saveCont(co, clofun131, 10, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no cond match"));
-return;
 }
 }
 }
 }
-}
-case 12:
+case 10:
 {
-Obj x9223090566219486432= co->res;
+Obj _3522745_37= co->res;
 Obj f = R[1];
 Obj args = R[2];
 R[1] = f;
 R[2] = args;
-saveCont(co, clofun131, 11, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), x9223090566219486432);
+saveCont(co, clofun92, 9, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), _3522745_37);
 return;
 }
 }
 }
 
-static void clofun130(struct Cora* co, int label, Obj *R) {
+static void clofun91(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683072 = makeNative(co->gc, 5, clofun129, 0, 6, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 4), closureRef(R[0], 5));
-Obj x9223090566219906848 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219906848) {
-Obj x9223090566219718944 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219718976 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219718944);
-if (True == x9223090566219718976) {
-Obj x9223090566219719712 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219719744 = PRIM_ISCONS(x9223090566219719712);
-if (True == x9223090566219719744) {
-Obj x9223090566219720256 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219720416 = PRIM_CAR(x9223090566219720256);
-Obj a = x9223090566219720416;
-Obj x9223090566219721184 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219721216 = PRIM_CDR(x9223090566219721184);
-Obj x9223090566219721248 = PRIM_ISCONS(x9223090566219721216);
-if (True == x9223090566219721248) {
-Obj x9223090566219722048 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219722080 = PRIM_CDR(x9223090566219722048);
-Obj x9223090566219722112 = PRIM_CAR(x9223090566219722080);
-Obj b = x9223090566219722112;
-Obj x9223090566219546848 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219546912 = PRIM_CDR(x9223090566219546848);
-Obj x9223090566219546944 = PRIM_CDR(x9223090566219546912);
-Obj x9223090566219546976 = PRIM_ISCONS(x9223090566219546944);
-if (True == x9223090566219546976) {
-Obj x9223090566219547968 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219548000 = PRIM_CDR(x9223090566219547968);
-Obj x9223090566219548032 = PRIM_CDR(x9223090566219548000);
-Obj x9223090566219548064 = PRIM_CAR(x9223090566219548032);
-Obj c = x9223090566219548064;
-Obj x9223090566219549376 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219549504 = PRIM_CDR(x9223090566219549376);
-Obj x9223090566219549536 = PRIM_CDR(x9223090566219549504);
-Obj x9223090566219549568 = PRIM_CDR(x9223090566219549536);
-Obj x9223090566219549600 = PRIM_EQ(Nil, x9223090566219549568);
-if (True == x9223090566219549600) {
+Obj _3521451_37 = makeNative(co->gc, 5, clofun90, 0, 6, closureRef(R[0], 3), closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 4), closureRef(R[0], 5));
+Obj _3522693_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3522693_37) {
+Obj _3522694_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3522695_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3522694_37);
+if (True == _3522695_37) {
+Obj _3522696_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522697_37 = PRIM_ISCONS(_3522696_37);
+if (True == _3522697_37) {
+Obj _3522698_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522699_37 = PRIM_CAR(_3522698_37);
+Obj a = _3522699_37;
+Obj _3522700_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522701_37 = PRIM_CDR(_3522700_37);
+Obj _3522702_37 = PRIM_ISCONS(_3522701_37);
+if (True == _3522702_37) {
+Obj _3522703_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522704_37 = PRIM_CDR(_3522703_37);
+Obj _3522705_37 = PRIM_CAR(_3522704_37);
+Obj b = _3522705_37;
+Obj _3522706_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522707_37 = PRIM_CDR(_3522706_37);
+Obj _3522708_37 = PRIM_CDR(_3522707_37);
+Obj _3522709_37 = PRIM_ISCONS(_3522708_37);
+if (True == _3522709_37) {
+Obj _3522710_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522711_37 = PRIM_CDR(_3522710_37);
+Obj _3522712_37 = PRIM_CDR(_3522711_37);
+Obj _3522713_37 = PRIM_CAR(_3522712_37);
+Obj c = _3522713_37;
+Obj _3522714_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522715_37 = PRIM_CDR(_3522714_37);
+Obj _3522716_37 = PRIM_CDR(_3522715_37);
+Obj _3522717_37 = PRIM_CDR(_3522716_37);
+Obj _3522718_37 = PRIM_EQ(Nil, _3522717_37);
+if (True == _3522718_37) {
 R[1] = a;
 R[2] = b;
 R[3] = c;
-saveCont(co, clofun130, 9, R);
+saveCont(co, clofun91, 9, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "if (True == "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683072);
+coraCall0(co, _3521451_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219519936= co->res;
+Obj _3522727_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "}\n"));
 return;
 }
 case 2:
 {
-Obj x9223090566219519680= co->res;
+Obj _3522726_37= co->res;
 Obj c = R[1];
-saveCont(co, clofun130, 1, R);
-coraCall2(co, x9223090566219519680, c, closureRef(R[0], 4));
+saveCont(co, clofun91, 1, R);
+coraCall2(co, _3522726_37, c, closureRef(R[0], 4));
 return;
 }
 case 3:
 {
-Obj x9223090566219519296= co->res;
+Obj _3522725_37= co->res;
 Obj c = R[1];
 R[1] = c;
-saveCont(co, clofun130, 2, R);
+saveCont(co, clofun91, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 case 4:
 {
-Obj x9223090566219518880= co->res;
+Obj _3522724_37= co->res;
 Obj c = R[1];
 R[1] = c;
-saveCont(co, clofun130, 3, R);
+saveCont(co, clofun91, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "} else {\n"));
 return;
 }
 case 5:
 {
-Obj x9223090566219518784= co->res;
+Obj _3522723_37= co->res;
 Obj b = R[1];
 Obj c = R[2];
 R[1] = c;
-saveCont(co, clofun130, 4, R);
-coraCall2(co, x9223090566219518784, b, closureRef(R[0], 4));
+saveCont(co, clofun91, 4, R);
+coraCall2(co, _3522723_37, b, closureRef(R[0], 4));
 return;
 }
 case 6:
 {
-Obj x9223090566219518240= co->res;
+Obj _3522722_37= co->res;
 Obj b = R[1];
 Obj c = R[2];
 R[1] = b;
 R[2] = c;
-saveCont(co, clofun130, 5, R);
+saveCont(co, clofun91, 5, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 case 7:
 {
-Obj x9223090566219550528= co->res;
+Obj _3522721_37= co->res;
 Obj b = R[1];
 Obj c = R[2];
 R[1] = b;
 R[2] = c;
-saveCont(co, clofun130, 6, R);
+saveCont(co, clofun91, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ") {\n"));
 return;
 }
 case 8:
 {
-Obj x9223090566219550432= co->res;
+Obj _3522720_37= co->res;
 Obj a = R[1];
 Obj b = R[2];
 Obj c = R[3];
 R[1] = b;
 R[2] = c;
-saveCont(co, clofun130, 7, R);
-coraCall2(co, x9223090566219550432, a, closureRef(R[0], 4));
+saveCont(co, clofun91, 7, R);
+coraCall2(co, _3522720_37, a, closureRef(R[0], 4));
 return;
 }
 case 9:
 {
-Obj x9223090566219549888= co->res;
+Obj _3522719_37= co->res;
 Obj a = R[1];
 Obj b = R[2];
 Obj c = R[3];
 R[1] = a;
 R[2] = b;
 R[3] = c;
-saveCont(co, clofun130, 8, R);
+saveCont(co, clofun91, 8, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 }
 }
 
-static void clofun129(struct Cora* co, int label, Obj *R) {
+static void clofun90(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683552 = makeNative(co->gc, 3, clofun128, 0, 6, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 5), closureRef(R[0], 0), closureRef(R[0], 4));
-Obj x9223090566220359296 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566220359296) {
-Obj x9223090566220359936 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566220359968 = PRIM_EQ(getBinding(co, packageID, 84).name, x9223090566220359936);
-if (True == x9223090566220359968) {
-Obj x9223090566220360480 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220360512 = PRIM_ISCONS(x9223090566220360480);
-if (True == x9223090566220360512) {
-Obj x9223090566220361056 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220361088 = PRIM_CAR(x9223090566220361056);
-Obj label = x9223090566220361088;
-Obj x9223090566220103968 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220104000 = PRIM_CDR(x9223090566220103968);
-Obj x9223090566220104032 = PRIM_ISCONS(x9223090566220104000);
-if (True == x9223090566220104032) {
-Obj x9223090566220104800 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220104832 = PRIM_CDR(x9223090566220104800);
-Obj x9223090566220104864 = PRIM_CAR(x9223090566220104832);
-Obj nargs = x9223090566220104864;
-Obj x9223090566220106080 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220106112 = PRIM_CDR(x9223090566220106080);
-Obj x9223090566220106144 = PRIM_CDR(x9223090566220106112);
-Obj x9223090566220106176 = PRIM_ISCONS(x9223090566220106144);
-if (True == x9223090566220106176) {
-Obj x9223090566220107328 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220107360 = PRIM_CDR(x9223090566220107328);
-Obj x9223090566220107392 = PRIM_CDR(x9223090566220107360);
-Obj x9223090566220107424 = PRIM_CAR(x9223090566220107392);
-Obj nframe = x9223090566220107424;
-Obj x9223090566220018368 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566220018400 = PRIM_CDR(x9223090566220018368);
-Obj x9223090566220018432 = PRIM_CDR(x9223090566220018400);
-Obj x9223090566220018528 = PRIM_CDR(x9223090566220018432);
-Obj frees = x9223090566220018528;
+Obj _3521452_37 = makeNative(co->gc, 3, clofun89, 0, 6, closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 5), closureRef(R[0], 0), closureRef(R[0], 4));
+Obj _3522655_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3522655_37) {
+Obj _3522656_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3522657_37 = PRIM_EQ(getBinding(co, packageID, 84).name, _3522656_37);
+if (True == _3522657_37) {
+Obj _3522658_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522659_37 = PRIM_ISCONS(_3522658_37);
+if (True == _3522659_37) {
+Obj _3522660_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522661_37 = PRIM_CAR(_3522660_37);
+Obj label = _3522661_37;
+Obj _3522662_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522663_37 = PRIM_CDR(_3522662_37);
+Obj _3522664_37 = PRIM_ISCONS(_3522663_37);
+if (True == _3522664_37) {
+Obj _3522665_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522666_37 = PRIM_CDR(_3522665_37);
+Obj _3522667_37 = PRIM_CAR(_3522666_37);
+Obj nargs = _3522667_37;
+Obj _3522668_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522669_37 = PRIM_CDR(_3522668_37);
+Obj _3522670_37 = PRIM_CDR(_3522669_37);
+Obj _3522671_37 = PRIM_ISCONS(_3522670_37);
+if (True == _3522671_37) {
+Obj _3522672_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522673_37 = PRIM_CDR(_3522672_37);
+Obj _3522674_37 = PRIM_CDR(_3522673_37);
+Obj _3522675_37 = PRIM_CAR(_3522674_37);
+Obj nframe = _3522675_37;
+Obj _3522676_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3522677_37 = PRIM_CDR(_3522676_37);
+Obj _3522678_37 = PRIM_CDR(_3522677_37);
+Obj _3522679_37 = PRIM_CDR(_3522678_37);
+Obj frees = _3522679_37;
 R[1] = nframe;
 R[2] = label;
 R[3] = nargs;
 R[4] = frees;
-saveCont(co, clofun129, 12, R);
+saveCont(co, clofun90, 12, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "makeNative(co->gc, "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683552);
+coraCall0(co, _3521452_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683552);
+coraCall0(co, _3521452_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683552);
+coraCall0(co, _3521452_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683552);
+coraCall0(co, _3521452_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683552);
+coraCall0(co, _3521452_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219904576= co->res;
+Obj _3522692_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ")"));
 return;
 }
 case 2:
 {
-Obj x9223090566219904096= co->res;
+Obj _3522691_37= co->res;
 Obj frees = R[1];
-saveCont(co, clofun129, 1, R);
+saveCont(co, clofun90, 1, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), frees};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 3:
 {
-Obj x9223090566219903744= co->res;
+Obj _3522689_37= co->res;
 Obj frees = R[1];
-Obj x9223090566219903776 = primNot(x9223090566219903744);
-if (True == x9223090566219903776) {
+Obj _3522690_37 = primNot(_3522689_37);
+if (True == _3522690_37) {
 R[1] = frees;
-saveCont(co, clofun129, 2, R);
+saveCont(co, clofun90, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 } else {
@@ -4273,89 +4002,89 @@ return;
 }
 case 4:
 {
-Obj x9223090566219903168= co->res;
+Obj _3522688_37= co->res;
 Obj frees = R[1];
 R[1] = frees;
-saveCont(co, clofun129, 3, R);
+saveCont(co, clofun90, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), frees);
 return;
 }
 case 5:
 {
-Obj x9223090566219903136= co->res;
+Obj _3522687_37= co->res;
 Obj frees = R[1];
 R[1] = frees;
-saveCont(co, clofun129, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), x9223090566219903136);
+saveCont(co, clofun90, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), _3522687_37);
 return;
 }
 case 6:
 {
-Obj x9223090566220021472= co->res;
+Obj _3522686_37= co->res;
 Obj frees = R[1];
 R[1] = frees;
-saveCont(co, clofun129, 5, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), frees);
+saveCont(co, clofun90, 5, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), frees);
 return;
 }
 case 7:
 {
-Obj x9223090566220020928= co->res;
+Obj _3522685_37= co->res;
 Obj frees = R[1];
 R[1] = frees;
-saveCont(co, clofun129, 6, R);
+saveCont(co, clofun90, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 }
 case 8:
 {
-Obj x9223090566220020608= co->res;
+Obj _3522684_37= co->res;
 Obj nargs = R[1];
 Obj frees = R[2];
 R[1] = frees;
-saveCont(co, clofun129, 7, R);
+saveCont(co, clofun90, 7, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), nargs);
 return;
 }
 case 9:
 {
-Obj x9223090566220020192= co->res;
+Obj _3522683_37= co->res;
 Obj nargs = R[1];
 Obj frees = R[2];
 R[1] = nargs;
 R[2] = frees;
-saveCont(co, clofun129, 8, R);
+saveCont(co, clofun90, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 }
 case 10:
 {
-Obj x9223090566220019904= co->res;
+Obj _3522682_37= co->res;
 Obj label = R[1];
 Obj nargs = R[2];
 Obj frees = R[3];
 R[1] = nargs;
 R[2] = frees;
-saveCont(co, clofun129, 9, R);
+saveCont(co, clofun90, 9, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 48)), closureRef(R[0], 5), label);
 return;
 }
 case 11:
 {
-Obj x9223090566220019424= co->res;
+Obj _3522681_37= co->res;
 Obj label = R[1];
 Obj nargs = R[2];
 Obj frees = R[3];
 R[1] = label;
 R[2] = nargs;
 R[3] = frees;
-saveCont(co, clofun129, 10, R);
+saveCont(co, clofun90, 10, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 }
 case 12:
 {
-Obj x9223090566220018912= co->res;
+Obj _3522680_37= co->res;
 Obj nframe = R[1];
 Obj label = R[2];
 Obj nargs = R[3];
@@ -4363,550 +4092,549 @@ Obj frees = R[4];
 R[1] = label;
 R[2] = nargs;
 R[3] = frees;
-saveCont(co, clofun129, 11, R);
+saveCont(co, clofun90, 11, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), nframe);
 return;
 }
 }
 }
 
-static void clofun128(struct Cora* co, int label, Obj *R) {
+static void clofun89(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683872 = makeNative(co->gc, 2, clofun127, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 5), closureRef(R[0], 3));
-Obj x9223090566220450688 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566220450688) {
-Obj x9223090566220451200 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566220451232 = PRIM_EQ(getBinding(co, packageID, 95).name, x9223090566220451200);
-if (True == x9223090566220451232) {
-Obj x9223090566220451744 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220451776 = PRIM_ISCONS(x9223090566220451744);
-if (True == x9223090566220451776) {
-Obj x9223090566220362112 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220362144 = PRIM_CAR(x9223090566220362112);
-Obj a = x9223090566220362144;
-Obj x9223090566220362976 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220363008 = PRIM_CDR(x9223090566220362976);
-Obj x9223090566220363040 = PRIM_ISCONS(x9223090566220363008);
-if (True == x9223090566220363040) {
-Obj x9223090566220363840 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220363872 = PRIM_CDR(x9223090566220363840);
-Obj x9223090566220363904 = PRIM_CAR(x9223090566220363872);
-Obj b = x9223090566220363904;
-Obj x9223090566220365024 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220365056 = PRIM_CDR(x9223090566220365024);
-Obj x9223090566220365088 = PRIM_CDR(x9223090566220365056);
-Obj x9223090566220365120 = PRIM_EQ(Nil, x9223090566220365088);
-if (True == x9223090566220365120) {
+Obj _3521453_37 = makeNative(co->gc, 2, clofun88, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 5), closureRef(R[0], 3));
+Obj _3522634_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3522634_37) {
+Obj _3522635_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3522636_37 = PRIM_EQ(getBinding(co, packageID, 91).name, _3522635_37);
+if (True == _3522636_37) {
+Obj _3522637_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522638_37 = PRIM_ISCONS(_3522637_37);
+if (True == _3522638_37) {
+Obj _3522639_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522640_37 = PRIM_CAR(_3522639_37);
+Obj a = _3522640_37;
+Obj _3522641_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522642_37 = PRIM_CDR(_3522641_37);
+Obj _3522643_37 = PRIM_ISCONS(_3522642_37);
+if (True == _3522643_37) {
+Obj _3522644_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522645_37 = PRIM_CDR(_3522644_37);
+Obj _3522646_37 = PRIM_CAR(_3522645_37);
+Obj b = _3522646_37;
+Obj _3522647_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522648_37 = PRIM_CDR(_3522647_37);
+Obj _3522649_37 = PRIM_CDR(_3522648_37);
+Obj _3522650_37 = PRIM_EQ(Nil, _3522649_37);
+if (True == _3522650_37) {
 R[1] = a;
 R[2] = b;
-saveCont(co, clofun128, 4, R);
+saveCont(co, clofun89, 4, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683872);
+coraCall0(co, _3521453_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683872);
+coraCall0(co, _3521453_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683872);
+coraCall0(co, _3521453_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683872);
+coraCall0(co, _3521453_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218683872);
+coraCall0(co, _3521453_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220358176= co->res;
+Obj _3522654_37= co->res;
 Obj b = R[1];
 co->ctx.sp = R;
-coraCall2(co, x9223090566220358176, b, closureRef(R[0], 5));
+coraCall2(co, _3522654_37, b, closureRef(R[0], 5));
 return;
 }
 case 2:
 {
-Obj x9223090566220357824= co->res;
+Obj _3522653_37= co->res;
 Obj b = R[1];
 R[1] = b;
-saveCont(co, clofun128, 1, R);
+saveCont(co, clofun89, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 4));
 return;
 }
 case 3:
 {
-Obj x9223090566220365600= co->res;
+Obj _3522652_37= co->res;
 Obj b = R[1];
 R[1] = b;
-saveCont(co, clofun128, 2, R);
+saveCont(co, clofun89, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, ";\n"));
 return;
 }
 case 4:
 {
-Obj x9223090566220365504= co->res;
+Obj _3522651_37= co->res;
 Obj a = R[1];
 Obj b = R[2];
 R[1] = b;
-saveCont(co, clofun128, 3, R);
-coraCall2(co, x9223090566220365504, a, closureRef(R[0], 5));
+saveCont(co, clofun89, 3, R);
+coraCall2(co, _3522651_37, a, closureRef(R[0], 5));
 return;
 }
 }
 }
 
-static void clofun127(struct Cora* co, int label, Obj *R) {
+static void clofun88(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684128 = makeNative(co->gc, 2, clofun126, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5));
-Obj x9223090566220458528 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566220458528) {
-Obj x9223090566220458976 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566220459040 = PRIM_EQ(getBinding(co, packageID, 78).name, x9223090566220458976);
-if (True == x9223090566220459040) {
-Obj x9223090566220459488 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220459552 = PRIM_ISCONS(x9223090566220459488);
-if (True == x9223090566220459552) {
-Obj x9223090566220460000 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220447744 = PRIM_CAR(x9223090566220460000);
-Obj x = x9223090566220447744;
-Obj x9223090566220448416 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220448448 = PRIM_CDR(x9223090566220448416);
-Obj x9223090566220448480 = PRIM_EQ(Nil, x9223090566220448448);
-if (True == x9223090566220448480) {
+Obj _3521454_37 = makeNative(co->gc, 2, clofun87, 0, 6, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5));
+Obj _3522620_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3522620_37) {
+Obj _3522621_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3522622_37 = PRIM_EQ(getBinding(co, packageID, 78).name, _3522621_37);
+if (True == _3522622_37) {
+Obj _3522623_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522624_37 = PRIM_ISCONS(_3522623_37);
+if (True == _3522624_37) {
+Obj _3522625_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522626_37 = PRIM_CAR(_3522625_37);
+Obj x = _3522626_37;
+Obj _3522627_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522628_37 = PRIM_CDR(_3522627_37);
+Obj _3522629_37 = PRIM_EQ(Nil, _3522628_37);
+if (True == _3522629_37) {
 R[1] = x;
-saveCont(co, clofun127, 4, R);
+saveCont(co, clofun88, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "coraReturn(co, "));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684128);
+coraCall0(co, _3521454_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684128);
+coraCall0(co, _3521454_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684128);
+coraCall0(co, _3521454_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684128);
+coraCall0(co, _3521454_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220449664= co->res;
+Obj _3522633_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "return;\n"));
 return;
 }
 case 2:
 {
-Obj x9223090566220449376= co->res;
-saveCont(co, clofun127, 1, R);
+Obj _3522632_37= co->res;
+saveCont(co, clofun88, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ");\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220449280= co->res;
+Obj _3522631_37= co->res;
 Obj x = R[1];
-saveCont(co, clofun127, 2, R);
-coraCall2(co, x9223090566220449280, x, closureRef(R[0], 4));
+saveCont(co, clofun88, 2, R);
+coraCall2(co, _3522631_37, x, closureRef(R[0], 4));
 return;
 }
 case 4:
 {
-Obj x9223090566220448800= co->res;
+Obj _3522630_37= co->res;
 Obj x = R[1];
 R[1] = x;
-saveCont(co, clofun127, 3, R);
+saveCont(co, clofun88, 3, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 }
 }
 
-static void clofun126(struct Cora* co, int label, Obj *R) {
+static void clofun87(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684320 = makeNative(co->gc, 3, clofun125, 0, 6, closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5));
-Obj x9223090566220462752 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566220462752) {
-Obj x9223090566220463232 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566220463264 = PRIM_EQ(getBinding(co, packageID, 80).name, x9223090566220463232);
-if (True == x9223090566220463264) {
-Obj x9223090566220463744 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220463776 = PRIM_ISCONS(x9223090566220463744);
-if (True == x9223090566220463776) {
-Obj x9223090566220456032 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220456064 = PRIM_CAR(x9223090566220456032);
-Obj exp = x9223090566220456064;
-Obj x9223090566220456704 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566220456736 = PRIM_CDR(x9223090566220456704);
-Obj x9223090566220456768 = PRIM_EQ(Nil, x9223090566220456736);
-if (True == x9223090566220456768) {
+Obj _3521455_37 = makeNative(co->gc, 3, clofun86, 0, 6, closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5));
+Obj _3522607_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3522607_37) {
+Obj _3522608_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3522609_37 = PRIM_EQ(getBinding(co, packageID, 80).name, _3522608_37);
+if (True == _3522609_37) {
+Obj _3522610_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522611_37 = PRIM_ISCONS(_3522610_37);
+if (True == _3522611_37) {
+Obj _3522612_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522613_37 = PRIM_CAR(_3522612_37);
+Obj exp = _3522613_37;
+Obj _3522614_37 = PRIM_CDR(closureRef(R[0], 2));
+Obj _3522615_37 = PRIM_CDR(_3522614_37);
+Obj _3522616_37 = PRIM_EQ(Nil, _3522615_37);
+if (True == _3522616_37) {
 R[1] = exp;
-saveCont(co, clofun126, 3, R);
+saveCont(co, clofun87, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "co->ctx.sp = R;\n"));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684320);
+coraCall0(co, _3521455_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684320);
+coraCall0(co, _3521455_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684320);
+coraCall0(co, _3521455_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684320);
+coraCall0(co, _3521455_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220457568= co->res;
+Obj _3522619_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "return;\n"));
 return;
 }
 case 2:
 {
-Obj x9223090566220457472= co->res;
+Obj _3522618_37= co->res;
 Obj exp = R[1];
-saveCont(co, clofun126, 1, R);
-coraCall2(co, x9223090566220457472, exp, closureRef(R[0], 4));
+saveCont(co, clofun87, 1, R);
+coraCall2(co, _3522618_37, exp, closureRef(R[0], 4));
 return;
 }
 case 3:
 {
-Obj x9223090566220457088= co->res;
+Obj _3522617_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-saveCont(co, clofun126, 2, R);
+saveCont(co, clofun87, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 }
 }
 
-static void clofun125(struct Cora* co, int label, Obj *R) {
+static void clofun86(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684512 = makeNative(co->gc, 4, clofun124, 0, 6, closureRef(R[0], 0), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 5));
-Obj x9223090566220478496 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220478496) {
-Obj x9223090566220476416 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220476448 = PRIM_EQ(getBinding(co, packageID, 79).name, x9223090566220476416);
-if (True == x9223090566220476448) {
-Obj x9223090566220476928 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220476960 = PRIM_ISCONS(x9223090566220476928);
-if (True == x9223090566220476960) {
-Obj x9223090566220477440 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220477472 = PRIM_CAR(x9223090566220477440);
-Obj exp = x9223090566220477472;
-Obj x9223090566220478080 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220478112 = PRIM_CDR(x9223090566220478080);
-Obj x9223090566220478144 = PRIM_ISCONS(x9223090566220478112);
-if (True == x9223090566220478144) {
-Obj x9223090566220478944 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220478976 = PRIM_CDR(x9223090566220478944);
-Obj x9223090566220479008 = PRIM_CAR(x9223090566220478976);
-Obj label = x9223090566220479008;
-Obj x9223090566220479584 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220479616 = PRIM_CDR(x9223090566220479584);
-Obj x9223090566220479648 = PRIM_CDR(x9223090566220479616);
-Obj fvs = x9223090566220479648;
+Obj _3521456_37 = makeNative(co->gc, 4, clofun85, 0, 6, closureRef(R[0], 0), closureRef(R[0], 3), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 5));
+Obj _3522583_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522583_37) {
+Obj _3522584_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522585_37 = PRIM_EQ(getBinding(co, packageID, 79).name, _3522584_37);
+if (True == _3522585_37) {
+Obj _3522586_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522587_37 = PRIM_ISCONS(_3522586_37);
+if (True == _3522587_37) {
+Obj _3522588_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522589_37 = PRIM_CAR(_3522588_37);
+Obj exp = _3522589_37;
+Obj _3522590_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522591_37 = PRIM_CDR(_3522590_37);
+Obj _3522592_37 = PRIM_ISCONS(_3522591_37);
+if (True == _3522592_37) {
+Obj _3522593_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522594_37 = PRIM_CDR(_3522593_37);
+Obj _3522595_37 = PRIM_CAR(_3522594_37);
+Obj label = _3522595_37;
+Obj _3522596_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522597_37 = PRIM_CDR(_3522596_37);
+Obj _3522598_37 = PRIM_CDR(_3522597_37);
+Obj fvs = _3522598_37;
 R[1] = label;
 R[2] = exp;
-saveCont(co, clofun125, 8, R);
+saveCont(co, clofun86, 8, R);
 Obj __args[5] = {closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 4), closureRef(R[0], 5), fvs};
 coraCall(co, globalRef(co, getBinding(co, packageID, 55)), 5, __args);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684512);
+coraCall0(co, _3521456_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684512);
+coraCall0(co, _3521456_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684512);
+coraCall0(co, _3521456_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684512);
+coraCall0(co, _3521456_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220461664= co->res;
+Obj _3522606_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "return;\n"));
 return;
 }
 case 2:
 {
-Obj x9223090566220461536= co->res;
+Obj _3522605_37= co->res;
 Obj exp = R[1];
-saveCont(co, clofun125, 1, R);
-coraCall2(co, x9223090566220461536, exp, closureRef(R[0], 4));
+saveCont(co, clofun86, 1, R);
+coraCall2(co, _3522605_37, exp, closureRef(R[0], 4));
 return;
 }
 case 3:
 {
-Obj x9223090566220461120= co->res;
+Obj _3522604_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-saveCont(co, clofun125, 2, R);
+saveCont(co, clofun86, 2, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 3));
 return;
 }
 case 4:
 {
-Obj x9223090566220460800= co->res;
+Obj _3522603_37= co->res;
 Obj exp = R[1];
 R[1] = exp;
-saveCont(co, clofun125, 3, R);
+saveCont(co, clofun86, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", R);\n"));
 return;
 }
 case 5:
 {
-Obj x9223090566220460480= co->res;
+Obj _3522602_37= co->res;
 Obj label = R[1];
 Obj exp = R[2];
 R[1] = exp;
-saveCont(co, clofun125, 4, R);
+saveCont(co, clofun86, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), label);
 return;
 }
 case 6:
 {
-Obj x9223090566220460160= co->res;
+Obj _3522601_37= co->res;
 Obj label = R[1];
 Obj exp = R[2];
 R[1] = label;
 R[2] = exp;
-saveCont(co, clofun125, 5, R);
+saveCont(co, clofun86, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 }
 case 7:
 {
-Obj x9223090566220480320= co->res;
+Obj _3522600_37= co->res;
 Obj label = R[1];
 Obj exp = R[2];
 R[1] = label;
 R[2] = exp;
-saveCont(co, clofun125, 6, R);
+saveCont(co, clofun86, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 48)), closureRef(R[0], 5), closureRef(R[0], 2));
 return;
 }
 case 8:
 {
-Obj x9223090566220480032= co->res;
+Obj _3522599_37= co->res;
 Obj label = R[1];
 Obj exp = R[2];
 R[1] = label;
 R[2] = exp;
-saveCont(co, clofun125, 7, R);
+saveCont(co, clofun86, 7, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "saveCont(co, "));
 return;
 }
 }
 }
 
-static void clofun124(struct Cora* co, int label, Obj *R) {
+static void clofun85(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218684768 = makeNative(co->gc, 1, clofun123, 0, 0);
-Obj x9223090566220459008 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220459008) {
-Obj x9223090566220459264 = PRIM_CAR(closureRef(R[0], 0));
-Obj f = x9223090566220459264;
-Obj x9223090566220459520 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x9223090566220459520;
+Obj _3522560_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522560_37) {
+Obj _3522561_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3522561_37;
+Obj _3522562_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3522562_37;
 R[1] = f;
 R[2] = args;
-saveCont(co, clofun124, 18, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), args);
+saveCont(co, clofun85, 18, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), args);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218684768);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 case 1:
 {
-Obj x9223090566220462944= co->res;
+Obj _3522574_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", __args);\n"));
 return;
 }
 case 2:
 {
-Obj x9223090566220462656= co->res;
+Obj _3522573_37= co->res;
 Obj nargs = R[1];
-saveCont(co, clofun124, 1, R);
+saveCont(co, clofun85, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), nargs);
 return;
 }
 case 3:
 {
-Obj x9223090566220462368= co->res;
+Obj _3522572_37= co->res;
 Obj nargs = R[1];
 R[1] = nargs;
-saveCont(co, clofun124, 2, R);
+saveCont(co, clofun85, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 }
 case 4:
 {
-Obj x9223090566220462272= co->res;
+Obj _3522571_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 R[1] = nargs;
-saveCont(co, clofun124, 3, R);
-coraCall2(co, x9223090566220462272, f, closureRef(R[0], 4));
+saveCont(co, clofun85, 3, R);
+coraCall2(co, _3522571_37, f, closureRef(R[0], 4));
 return;
 }
 case 5:
 {
-Obj x9223090566220461888= co->res;
+Obj _3522570_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 R[1] = f;
 R[2] = nargs;
-saveCont(co, clofun124, 4, R);
+saveCont(co, clofun85, 4, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 1));
 return;
 }
 case 6:
 {
-Obj x9223090566220461600= co->res;
+Obj _3522569_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 R[1] = f;
 R[2] = nargs;
-saveCont(co, clofun124, 5, R);
+saveCont(co, clofun85, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "coraCall(co, "));
 return;
 }
 case 7:
 {
-Obj x9223090566220461312= co->res;
+Obj _3522568_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 R[1] = f;
 R[2] = nargs;
-saveCont(co, clofun124, 6, R);
+saveCont(co, clofun85, 6, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "};\n"));
 return;
 }
 case 8:
 {
-Obj x9223090566220460928= co->res;
+Obj _3522567_37= co->res;
 Obj args = R[1];
 Obj f = R[2];
 Obj nargs = R[3];
 R[1] = f;
 R[2] = nargs;
-saveCont(co, clofun124, 7, R);
+saveCont(co, clofun85, 7, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 9:
 {
-Obj x9223090566220460640= co->res;
+Obj _3522566_37= co->res;
 Obj args = R[1];
 Obj f = R[2];
 Obj nargs = R[3];
 R[1] = args;
 R[2] = f;
 R[3] = nargs;
-saveCont(co, clofun124, 8, R);
+saveCont(co, clofun85, 8, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "] = {"));
 return;
 }
 case 10:
 {
-Obj x9223090566220460352= co->res;
+Obj _3522565_37= co->res;
 Obj args = R[1];
 Obj f = R[2];
 Obj nargs = R[3];
 R[1] = args;
 R[2] = f;
 R[3] = nargs;
-saveCont(co, clofun124, 9, R);
+saveCont(co, clofun85, 9, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), nargs);
 return;
 }
 case 11:
 {
-Obj x9223090566220477728= co->res;
+Obj _3522582_37= co->res;
 co->ctx.sp = R;
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ");\n"));
 return;
 }
 case 12:
 {
-Obj x9223090566220477408= co->res;
+Obj _3522581_37= co->res;
 Obj args = R[1];
-saveCont(co, clofun124, 11, R);
+saveCont(co, clofun85, 11, R);
 Obj __args[5] = {closureRef(R[0], 2), closureRef(R[0], 3), closureRef(R[0], 4), closureRef(R[0], 5), args};
 coraCall(co, globalRef(co, getBinding(co, packageID, 49)), 5, __args);
 return;
 }
 case 13:
 {
-Obj x9223090566220476768= co->res;
+Obj _3522579_37= co->res;
 Obj nargs = R[1];
 Obj args = R[2];
-Obj x9223090566220477120 = PRIM_GT(nargs, MAKE_NUMBER(0));
-if (True == x9223090566220477120) {
+Obj _3522580_37 = PRIM_GT(nargs, MAKE_NUMBER(0));
+if (True == _3522580_37) {
 R[1] = args;
-saveCont(co, clofun124, 12, R);
+saveCont(co, clofun85, 12, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, ", "));
 return;
 } else {
@@ -4918,74 +4646,74 @@ return;
 }
 case 14:
 {
-Obj x9223090566220476672= co->res;
+Obj _3522578_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 Obj args = R[3];
 R[1] = nargs;
 R[2] = args;
-saveCont(co, clofun124, 13, R);
-coraCall2(co, x9223090566220476672, f, closureRef(R[0], 4));
+saveCont(co, clofun85, 13, R);
+coraCall2(co, _3522578_37, f, closureRef(R[0], 4));
 return;
 }
 case 15:
 {
-Obj x9223090566220464000= co->res;
+Obj _3522577_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 Obj args = R[3];
 R[1] = f;
 R[2] = nargs;
 R[3] = args;
-saveCont(co, clofun124, 14, R);
+saveCont(co, clofun85, 14, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), closureRef(R[0], 1));
 return;
 }
 case 16:
 {
-Obj x9223090566220463712= co->res;
+Obj _3522576_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 Obj args = R[3];
 R[1] = f;
 R[2] = nargs;
 R[3] = args;
-saveCont(co, clofun124, 15, R);
+saveCont(co, clofun85, 15, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "(co, "));
 return;
 }
 case 17:
 {
-Obj x9223090566220463424= co->res;
+Obj _3522575_37= co->res;
 Obj f = R[1];
 Obj nargs = R[2];
 Obj args = R[3];
 R[1] = f;
 R[2] = nargs;
 R[3] = args;
-saveCont(co, clofun124, 16, R);
+saveCont(co, clofun85, 16, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 5), nargs);
 return;
 }
 case 18:
 {
-Obj x9223090566220459776= co->res;
+Obj _3522563_37= co->res;
 Obj f = R[1];
 Obj args = R[2];
-Obj nargs = x9223090566220459776;
-Obj x9223090566220460064 = PRIM_GT(nargs, MAKE_NUMBER(4));
-if (True == x9223090566220460064) {
+Obj nargs = _3522563_37;
+Obj _3522564_37 = PRIM_GT(nargs, MAKE_NUMBER(4));
+if (True == _3522564_37) {
 R[1] = args;
 R[2] = f;
 R[3] = nargs;
-saveCont(co, clofun124, 10, R);
+saveCont(co, clofun85, 10, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "Obj __args["));
 return;
 } else {
 R[1] = f;
 R[2] = nargs;
 R[3] = args;
-saveCont(co, clofun124, 17, R);
+saveCont(co, clofun85, 17, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 5), makeCString(co->gc, "coraCall"));
 return;
 }
@@ -4993,18 +4721,7 @@ return;
 }
 }
 
-static void clofun123(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun122(struct Cora* co, int label, Obj *R) {
+static void clofun84(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5014,13 +4731,13 @@ Obj env = R[3];
 Obj w = R[4];
 Obj ls = R[5];
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun121, 2, 4, globals, self, env, w), MAKE_NUMBER(1), ls);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun83, 2, 4, globals, self, env, w), MAKE_NUMBER(1), ls);
 return;
 }
 }
 }
 
-static void clofun121(struct Cora* co, int label, Obj *R) {
+static void clofun83(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5028,52 +4745,52 @@ Obj acc = R[1];
 Obj v = R[2];
 R[1] = v;
 R[2] = acc;
-saveCont(co, clofun121, 5, R);
+saveCont(co, clofun83, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "Obj "));
 return;
 }
 case 1:
 {
-Obj x9223090566220451328= co->res;
+Obj _3522555_37= co->res;
 Obj acc = R[1];
-Obj x9223090566220451552 = PRIM_ADD(acc, MAKE_NUMBER(1));
-coraReturn(co, x9223090566220451552);
+Obj _3522556_37 = PRIM_ADD(acc, MAKE_NUMBER(1));
+coraReturn(co, _3522556_37);
 return;
 }
 case 2:
 {
-Obj x9223090566220451040= co->res;
+Obj _3522554_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun121, 1, R);
+saveCont(co, clofun83, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "];\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220450752= co->res;
+Obj _3522553_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun121, 2, R);
+saveCont(co, clofun83, 2, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 3), acc);
 return;
 }
 case 4:
 {
-Obj x9223090566220450464= co->res;
+Obj _3522552_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun121, 3, R);
+saveCont(co, clofun83, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, " = R["));
 return;
 }
 case 5:
 {
-Obj x9223090566220450080= co->res;
+Obj _3522551_37= co->res;
 Obj v = R[1];
 Obj acc = R[2];
 R[1] = acc;
-saveCont(co, clofun121, 4, R);
+saveCont(co, clofun83, 4, R);
 Obj __args[5] = {closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), v};
 coraCall(co, globalRef(co, getBinding(co, packageID, 52)), 5, __args);
 return;
@@ -5081,7 +4798,7 @@ return;
 }
 }
 
-static void clofun120(struct Cora* co, int label, Obj *R) {
+static void clofun82(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5091,13 +4808,13 @@ Obj env = R[3];
 Obj w = R[4];
 Obj ls = R[5];
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun119, 2, 4, globals, self, env, w), MAKE_NUMBER(1), ls);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun81, 2, 4, globals, self, env, w), MAKE_NUMBER(1), ls);
 return;
 }
 }
 }
 
-static void clofun119(struct Cora* co, int label, Obj *R) {
+static void clofun81(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5105,64 +4822,64 @@ Obj acc = R[1];
 Obj v = R[2];
 R[1] = v;
 R[2] = acc;
-saveCont(co, clofun119, 5, R);
+saveCont(co, clofun81, 5, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "R["));
 return;
 }
 case 1:
 {
-Obj x9223090566220448928= co->res;
+Obj _3522548_37= co->res;
 Obj acc = R[1];
-Obj x9223090566220449152 = PRIM_ADD(acc, MAKE_NUMBER(1));
-coraReturn(co, x9223090566220449152);
+Obj _3522549_37 = PRIM_ADD(acc, MAKE_NUMBER(1));
+coraReturn(co, _3522549_37);
 return;
 }
 case 2:
 {
-Obj x9223090566220448640= co->res;
+Obj _3522547_37= co->res;
 Obj acc = R[1];
 R[1] = acc;
-saveCont(co, clofun119, 1, R);
+saveCont(co, clofun81, 1, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, ";\n"));
 return;
 }
 case 3:
 {
-Obj x9223090566220448256= co->res;
+Obj _3522546_37= co->res;
 Obj v = R[1];
 Obj acc = R[2];
 R[1] = acc;
-saveCont(co, clofun119, 2, R);
+saveCont(co, clofun81, 2, R);
 Obj __args[5] = {closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 3), v};
 coraCall(co, globalRef(co, getBinding(co, packageID, 52)), 5, __args);
 return;
 }
 case 4:
 {
-Obj x9223090566220447968= co->res;
+Obj _3522545_37= co->res;
 Obj v = R[1];
 Obj acc = R[2];
 R[1] = v;
 R[2] = acc;
-saveCont(co, clofun119, 3, R);
+saveCont(co, clofun81, 3, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 54)), closureRef(R[0], 3), makeCString(co->gc, "] = "));
 return;
 }
 case 5:
 {
-Obj x9223090566217747712= co->res;
+Obj _3522544_37= co->res;
 Obj v = R[1];
 Obj acc = R[2];
 R[1] = v;
 R[2] = acc;
-saveCont(co, clofun119, 4, R);
+saveCont(co, clofun81, 4, R);
 coraCall2(co, globalRef(co, getBinding(co, packageID, 53)), closureRef(R[0], 3), acc);
 return;
 }
 }
 }
 
-static void clofun118(struct Cora* co, int label, Obj *R) {
+static void clofun80(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5175,7 +4892,7 @@ return;
 }
 }
 
-static void clofun117(struct Cora* co, int label, Obj *R) {
+static void clofun79(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -5185,1557 +4902,32 @@ Obj globals = R[3];
 R[1] = idx;
 R[2] = globals;
 R[3] = sym;
-saveCont(co, clofun117, 1, R);
+saveCont(co, clofun79, 1, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), globals);
 return;
 }
 case 1:
 {
-Obj x9223090566217934304= co->res;
+Obj _3522537_37= co->res;
 Obj idx = R[1];
 Obj globals = R[2];
 Obj sym = R[3];
-if (True == x9223090566217934304) {
+if (True == _3522537_37) {
 coraReturn(co, MAKE_NUMBER(-1));
 return;
 } else {
-Obj x9223090566217934944 = PRIM_CAR(globals);
-Obj x9223090566217934976 = PRIM_EQ(sym, x9223090566217934944);
-if (True == x9223090566217934976) {
+Obj _3522538_37 = PRIM_CAR(globals);
+Obj _3522539_37 = PRIM_EQ(sym, _3522538_37);
+if (True == _3522539_37) {
 coraReturn(co, idx);
 return;
 } else {
-if (True == True) {
-Obj x9223090566217935488 = PRIM_ADD(idx, MAKE_NUMBER(1));
-Obj x9223090566217935744 = PRIM_CDR(globals);
+Obj _3522540_37 = PRIM_ADD(idx, MAKE_NUMBER(1));
+Obj _3522541_37 = PRIM_CDR(globals);
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 57)), x9223090566217935488, sym, x9223090566217935744);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 57)), _3522540_37, sym, _3522541_37);
 return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no cond match"));
-return;
-}
-}
-}
-}
-}
-}
-
-static void clofun116(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj sym = R[1];
-Obj globals = R[2];
-R[1] = sym;
-R[2] = globals;
-saveCont(co, clofun116, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), globals);
-return;
-}
-case 1:
-{
-Obj x9223090566217933088= co->res;
-Obj sym = R[1];
-Obj val = R[2];
-Obj globals = R[3];
-if (True == x9223090566217933088) {
-coraReturn(co, Nil);
-return;
-} else {
-Obj x9223090566217933664 = makeCons(co->gc, sym, val);
-Obj x9223090566217933696 = primSet(co, globals, x9223090566217933664);
-coraReturn(co, x9223090566217933696);
-return;
-}
-}
-case 2:
-{
-Obj x9223090566217932800= co->res;
-Obj sym = R[1];
-Obj globals = R[2];
-Obj val = x9223090566217932800;
-R[1] = sym;
-R[2] = val;
-R[3] = globals;
-saveCont(co, clofun116, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), sym, val);
-return;
-}
-}
-}
-
-static void clofun115(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x = R[1];
-Obj k = R[2];
-Obj x9223090566218225504 = primGenSym(co);
-Obj tmp = x9223090566218225504;
-R[1] = x;
-R[2] = tmp;
-saveCont(co, clofun115, 1, R);
-coraCall1(co, k, tmp);
-return;
-}
-case 1:
-{
-Obj x9223090566218226688= co->res;
-Obj x = R[1];
-Obj tmp = R[2];
-Obj x9223090566218226752 = makeCons(co->gc, x9223090566218226688, Nil);
-Obj x9223090566218226784 = makeCons(co->gc, x, x9223090566218226752);
-Obj x9223090566218226816 = makeCons(co->gc, tmp, x9223090566218226784);
-Obj x9223090566218226848 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566218226816);
-coraReturn(co, x9223090566218226848);
-return;
-}
-}
-}
-
-static void clofun114(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj v = R[1];
-Obj val = R[2];
-R[1] = val;
-R[2] = v;
-saveCont(co, clofun114, 3, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(0));
-return;
-}
-case 1:
-{
-Obj x9223090566218224480= co->res;
-Obj v = R[1];
-Obj cur1 = R[2];
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(1), cur1);
-return;
-}
-case 2:
-{
-Obj x9223090566218439840= co->res;
-Obj val = R[1];
-Obj idx = R[2];
-Obj v = R[3];
-Obj cur = x9223090566218439840;
-Obj x9223090566218223616 = makeCons(co->gc, val, Nil);
-Obj x9223090566218223648 = makeCons(co->gc, idx, x9223090566218223616);
-Obj x9223090566218223712 = makeCons(co->gc, x9223090566218223648, cur);
-Obj cur1 = x9223090566218223712;
-Obj x9223090566218224448 = PRIM_ADD(idx, MAKE_NUMBER(1));
-R[1] = v;
-R[2] = cur1;
-saveCont(co, clofun114, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(0), x9223090566218224448);
-return;
-}
-case 3:
-{
-Obj x9223090566218439424= co->res;
-Obj val = R[1];
-Obj v = R[2];
-Obj idx = x9223090566218439424;
-R[1] = val;
-R[2] = idx;
-R[3] = v;
-saveCont(co, clofun114, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(1));
-return;
-}
-}
-}
-
-static void clofun113(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218682656 = R[1];
-Obj x9223090566218682688 = R[2];
-Obj x9223090566218682720 = makeNative(co->gc, 2, clofun112, 0, 2, x9223090566218682656, x9223090566218682688);
-Obj v = x9223090566218682656;
-Obj x9223090566218733056 = PRIM_ISCONS(x9223090566218682688);
-if (True == x9223090566218733056) {
-Obj x9223090566218733696 = PRIM_CAR(x9223090566218682688);
-Obj x9223090566218733728 = PRIM_EQ(getBinding(co, packageID, 84).name, x9223090566218733696);
-if (True == x9223090566218733728) {
-Obj x9223090566218734368 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218734400 = PRIM_ISCONS(x9223090566218734368);
-if (True == x9223090566218734400) {
-Obj x9223090566218735200 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218735232 = PRIM_CAR(x9223090566218735200);
-Obj x9223090566218735264 = PRIM_ISCONS(x9223090566218735232);
-if (True == x9223090566218735264) {
-Obj x9223090566218684608 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218684640 = PRIM_CAR(x9223090566218684608);
-Obj x9223090566218684736 = PRIM_CAR(x9223090566218684640);
-Obj x9223090566218684800 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566218684736);
-if (True == x9223090566218684800) {
-Obj x9223090566218685952 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218685984 = PRIM_CAR(x9223090566218685952);
-Obj x9223090566218686048 = PRIM_CDR(x9223090566218685984);
-Obj x9223090566218686080 = PRIM_ISCONS(x9223090566218686048);
-if (True == x9223090566218686080) {
-Obj x9223090566218646176 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218646208 = PRIM_CAR(x9223090566218646176);
-Obj x9223090566218646240 = PRIM_CDR(x9223090566218646208);
-Obj x9223090566218646272 = PRIM_CAR(x9223090566218646240);
-Obj params = x9223090566218646272;
-Obj x9223090566218647552 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218647584 = PRIM_CAR(x9223090566218647552);
-Obj x9223090566218647616 = PRIM_CDR(x9223090566218647584);
-Obj x9223090566218647648 = PRIM_CDR(x9223090566218647616);
-Obj x9223090566218647680 = PRIM_ISCONS(x9223090566218647648);
-if (True == x9223090566218647680) {
-Obj x9223090566218648800 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218648832 = PRIM_CAR(x9223090566218648800);
-Obj x9223090566218648864 = PRIM_CDR(x9223090566218648832);
-Obj x9223090566218648896 = PRIM_CDR(x9223090566218648864);
-Obj x9223090566218648928 = PRIM_CAR(x9223090566218648896);
-Obj body = x9223090566218648928;
-Obj x9223090566218519296 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218519328 = PRIM_CAR(x9223090566218519296);
-Obj x9223090566218519360 = PRIM_CDR(x9223090566218519328);
-Obj x9223090566218519392 = PRIM_CDR(x9223090566218519360);
-Obj x9223090566218519424 = PRIM_CDR(x9223090566218519392);
-Obj x9223090566218519456 = PRIM_EQ(Nil, x9223090566218519424);
-if (True == x9223090566218519456) {
-Obj x9223090566218520128 = PRIM_CDR(x9223090566218682688);
-Obj x9223090566218520160 = PRIM_CDR(x9223090566218520128);
-Obj fvs = x9223090566218520160;
-R[1] = v;
-R[2] = params;
-R[3] = fvs;
-saveCont(co, clofun113, 6, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 62)), v, body);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682720);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566218436928= co->res;
-Obj nframe = R[1];
-Obj fvs = R[2];
-Obj cur = R[3];
-Obj x9223090566218437280 = makeCons(co->gc, nframe, fvs);
-Obj x9223090566218437312 = makeCons(co->gc, x9223090566218436928, x9223090566218437280);
-Obj x9223090566218437376 = makeCons(co->gc, cur, x9223090566218437312);
-Obj x9223090566218437408 = makeCons(co->gc, getBinding(co, packageID, 84).name, x9223090566218437376);
-coraReturn(co, x9223090566218437408);
-return;
-}
-case 2:
-{
-Obj x9223090566218522016= co->res;
-Obj params = R[1];
-Obj nframe = R[2];
-Obj fvs = R[3];
-Obj cur = R[4];
-R[1] = nframe;
-R[2] = fvs;
-R[3] = cur;
-saveCont(co, clofun113, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), params);
-return;
-}
-case 3:
-{
-Obj x9223090566218521632= co->res;
-Obj v = R[1];
-Obj body2 = R[2];
-Obj params = R[3];
-Obj fvs = R[4];
-Obj cur = R[5];
-Obj nframe = x9223090566218521632;
-R[1] = params;
-R[2] = nframe;
-R[3] = fvs;
-R[4] = cur;
-saveCont(co, clofun113, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 60)), v, body2);
-return;
-}
-case 4:
-{
-Obj x9223090566218521376= co->res;
-Obj v = R[1];
-Obj params = R[2];
-Obj fvs = R[3];
-Obj cur = R[4];
-Obj body2 = x9223090566218521376;
-R[1] = v;
-R[2] = body2;
-R[3] = params;
-R[4] = fvs;
-R[5] = cur;
-saveCont(co, clofun113, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 63)), body2);
-return;
-}
-case 5:
-{
-Obj x9223090566218520800= co->res;
-Obj body1 = R[1];
-Obj v = R[2];
-Obj params = R[3];
-Obj fvs = R[4];
-Obj cur = x9223090566218520800;
-R[1] = v;
-R[2] = params;
-R[3] = fvs;
-R[4] = cur;
-saveCont(co, clofun113, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 64)), params, body1);
-return;
-}
-case 6:
-{
-Obj x9223090566218520448= co->res;
-Obj v = R[1];
-Obj params = R[2];
-Obj fvs = R[3];
-Obj body1 = x9223090566218520448;
-R[1] = body1;
-R[2] = v;
-R[3] = params;
-R[4] = fvs;
-saveCont(co, clofun113, 5, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(0));
-return;
-}
-}
-}
-
-static void clofun112(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218683392 = makeNative(co->gc, 1, clofun111, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj v = closureRef(R[0], 0);
-Obj f_45args = closureRef(R[0], 1);
-Obj x9223090566218732032 = PRIM_ISCONS(f_45args);
-if (True == x9223090566218732032) {
-R[1] = f_45args;
-saveCont(co, clofun112, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 62)), v);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683392);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566218732384= co->res;
-Obj f_45args = R[1];
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566218732384, f_45args);
-return;
-}
-}
-}
-
-static void clofun111(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219006816 = makeNative(co->gc, 1, clofun110, 0, 0);
-Obj v = closureRef(R[0], 0);
-Obj x = closureRef(R[0], 1);
-coraReturn(co, x);
-return;
-}
-}
-}
-
-static void clofun110(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun109(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj lam = R[1];
-R[1] = lam;
-saveCont(co, clofun109, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), lam);
-return;
-}
-case 1:
-{
-Obj x9223090566218783232= co->res;
-Obj x9223090566218782752 = R[1];
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun108, 2, 0), x9223090566218782752, x9223090566218783232);
-return;
-}
-case 2:
-{
-Obj x9223090566218780864= co->res;
-Obj lam = R[1];
-Obj nargs = x9223090566218780864;
-Obj x9223090566218782752 = PRIM_ADD(nargs, MAKE_NUMBER(1));
-R[1] = x9223090566218782752;
-saveCont(co, clofun109, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), lam);
-return;
-}
-case 3:
-{
-Obj x9223090566218780832= co->res;
-Obj lam = R[1];
-R[1] = lam;
-saveCont(co, clofun109, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), x9223090566218780832);
-return;
-}
-}
-}
-
-static void clofun108(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj acc = R[1];
-Obj x = R[2];
-R[1] = acc;
-saveCont(co, clofun108, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), x);
-return;
-}
-case 1:
-{
-Obj x9223090566218782112= co->res;
-Obj acc = R[1];
-Obj x9223090566218782176 = PRIM_ADD(x9223090566218782112, MAKE_NUMBER(1));
-Obj len = x9223090566218782176;
-Obj x9223090566218782496 = PRIM_GT(len, acc);
-if (True == x9223090566218782496) {
-coraReturn(co, len);
-return;
-} else {
-coraReturn(co, acc);
-return;
-}
-}
-case 2:
-{
-Obj x9223090566218782080= co->res;
-Obj acc = R[1];
-R[1] = acc;
-saveCont(co, clofun108, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), x9223090566218782080);
-return;
-}
-}
-}
-
-static void clofun107(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj params = R[1];
-Obj body = R[2];
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), body, Nil, makeNative(co->gc, 3, clofun106, 2, 1, params));
-return;
-}
-}
-}
-
-static void clofun106(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj body1 = R[1];
-Obj conts = R[2];
-R[1] = body1;
-saveCont(co, clofun106, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), conts);
-return;
-}
-case 1:
-{
-Obj x9223090566218951616= co->res;
-Obj body1 = R[1];
-Obj x9223090566218951648 = makeCons(co->gc, body1, x9223090566218951616);
-Obj x9223090566218951680 = makeCons(co->gc, closureRef(R[0], 0), x9223090566218951648);
-Obj x9223090566218951712 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566218951680);
-coraReturn(co, x9223090566218951712);
-return;
-}
-}
-}
-
-static void clofun105(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219008032 = R[1];
-Obj x9223090566219008064 = R[2];
-Obj x9223090566219008192 = R[3];
-Obj x9223090566219008320 = R[4];
-Obj x9223090566219008544 = makeNative(co->gc, 1, clofun104, 0, 4, x9223090566219008032, x9223090566219008064, x9223090566219008192, x9223090566219008320);
-Obj x9223090566218949120 = PRIM_EQ(Nil, x9223090566219008032);
-if (True == x9223090566218949120) {
-Obj conts = x9223090566219008064;
-Obj ret = x9223090566219008192;
-Obj k = x9223090566219008320;
-co->ctx.sp = R;
-coraCall2(co, k, ret, conts);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008544);
-return;
-}
-}
-}
-}
-
-static void clofun104(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009600 = makeNative(co->gc, 1, clofun101, 0, 0);
-Obj x9223090566219093888 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219093888) {
-Obj x9223090566219094272 = PRIM_CAR(closureRef(R[0], 0));
-Obj f = x9223090566219094272;
-Obj x9223090566219094528 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x9223090566219094528;
-Obj conts = closureRef(R[0], 1);
-Obj ret = closureRef(R[0], 2);
-Obj k = closureRef(R[0], 3);
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), f, conts, makeNative(co->gc, 3, clofun103, 2, 3, args, ret, k));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009600);
-return;
-}
-}
-}
-}
-
-static void clofun103(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj f1 = R[1];
-Obj conts1 = R[2];
-co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 66)), closureRef(R[0], 0), conts1, closureRef(R[0], 1), makeNative(co->gc, 3, clofun102, 2, 2, closureRef(R[0], 2), f1));
-return;
-}
-}
-}
-
-static void clofun102(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj args1 = R[1];
-Obj conts2 = R[2];
-Obj x9223090566219096032 = makeCons(co->gc, closureRef(R[0], 1), args1);
-co->ctx.sp = R;
-coraCall2(co, closureRef(R[0], 0), x9223090566219096032, conts2);
-return;
-}
-}
-}
-
-static void clofun101(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun100(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219007616 = R[1];
-Obj x9223090566219007680 = R[2];
-Obj x9223090566219007840 = R[3];
-Obj x9223090566219007936 = makeNative(co->gc, 1, clofun98, 0, 3, x9223090566219007616, x9223090566219007680, x9223090566219007840);
-Obj x = x9223090566219007616;
-Obj conts = x9223090566219007680;
-Obj k = x9223090566219007840;
-Obj x9223090566218949056 = makeNative(co->gc, 2, clofun99, 1, 4, k, x, conts, x9223090566219007936);
-Obj x9223090566219092352 = primIsSymbol(x);
-if (True == x9223090566219092352) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218949056, True);
-return;
-} else {
-R[1] = x9223090566218949056;
-saveCont(co, clofun100, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219092608= co->res;
-Obj x9223090566218949056 = R[1];
-if (True == x9223090566219092608) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218949056, True);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218949056, False);
-return;
-}
-}
-}
-}
-
-static void clofun99(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218949088 = R[1];
-if (True == x9223090566218949088) {
-co->ctx.sp = R;
-coraCall2(co, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, closureRef(R[0], 3));
-return;
-}
-}
-}
-}
-
-static void clofun98(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219008800 = makeNative(co->gc, 1, clofun96, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj x9223090566219311936 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219311936) {
-Obj x9223090566219312576 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219312608 = PRIM_EQ(getBinding(co, packageID, 79).name, x9223090566219312576);
-if (True == x9223090566219312608) {
-Obj x9223090566219313088 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219313120 = PRIM_ISCONS(x9223090566219313088);
-if (True == x9223090566219313120) {
-Obj x9223090566219276928 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219276960 = PRIM_CAR(x9223090566219276928);
-Obj exp = x9223090566219276960;
-Obj x9223090566219277792 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219277824 = PRIM_CDR(x9223090566219277792);
-Obj x9223090566219277856 = PRIM_ISCONS(x9223090566219277824);
-if (True == x9223090566219277856) {
-Obj x9223090566219278592 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219278624 = PRIM_CDR(x9223090566219278592);
-Obj x9223090566219278656 = PRIM_CAR(x9223090566219278624);
-Obj cont = x9223090566219278656;
-Obj x9223090566219279584 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219279616 = PRIM_CDR(x9223090566219279584);
-Obj x9223090566219279648 = PRIM_CDR(x9223090566219279616);
-Obj x9223090566219279680 = PRIM_EQ(Nil, x9223090566219279648);
-if (True == x9223090566219279680) {
-Obj conts = closureRef(R[0], 1);
-Obj k = closureRef(R[0], 2);
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), cont, conts, makeNative(co->gc, 4, clofun97, 2, 2, k, exp));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008800);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008800);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008800);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008800);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008800);
-return;
-}
-}
-}
-}
-
-static void clofun97(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj cont1 = R[1];
-Obj conts1 = R[2];
-R[1] = cont1;
-R[2] = conts1;
-saveCont(co, clofun97, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), cont1);
-return;
-}
-case 1:
-{
-Obj x9223090566219204320= co->res;
-Obj fvs = R[1];
-Obj cont1 = R[2];
-Obj conts1 = R[3];
-Obj x9223090566219204384 = PRIM_ADD(x9223090566219204320, MAKE_NUMBER(1));
-Obj x9223090566219204448 = makeCons(co->gc, x9223090566219204384, fvs);
-Obj x9223090566219204480 = makeCons(co->gc, closureRef(R[0], 1), x9223090566219204448);
-Obj x9223090566219204512 = makeCons(co->gc, getBinding(co, packageID, 79).name, x9223090566219204480);
-Obj x9223090566219204768 = makeCons(co->gc, cont1, conts1);
-co->ctx.sp = R;
-coraCall2(co, closureRef(R[0], 0), x9223090566219204512, x9223090566219204768);
-return;
-}
-case 2:
-{
-Obj x9223090566219202688= co->res;
-Obj cont1 = R[1];
-Obj conts1 = R[2];
-Obj fvs = x9223090566219202688;
-R[1] = fvs;
-R[2] = cont1;
-R[3] = conts1;
-saveCont(co, clofun97, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), conts1);
-return;
-}
-}
-}
-
-static void clofun96(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009760 = makeNative(co->gc, 1, clofun95, 0, 0);
-Obj x9223090566219309920 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219309920) {
-Obj x9223090566219310336 = PRIM_CAR(closureRef(R[0], 0));
-Obj f = x9223090566219310336;
-Obj x9223090566219310624 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x9223090566219310624;
-Obj conts = closureRef(R[0], 1);
-Obj k = closureRef(R[0], 2);
-Obj x9223090566219311360 = makeCons(co->gc, f, args);
-co->ctx.sp = R;
-coraCall4(co, globalRef(co, getBinding(co, packageID, 66)), x9223090566219311360, conts, Nil, k);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009760);
-return;
-}
-}
 }
-}
-
-static void clofun95(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun94(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219008384 = R[1];
-Obj x9223090566219008416 = R[2];
-Obj x9223090566219008512 = makeNative(co->gc, 1, clofun93, 0, 2, x9223090566219008384, x9223090566219008416);
-Obj __ = x9223090566219008384;
-Obj x = x9223090566219008416;
-R[1] = x;
-R[2] = x9223090566219008512;
-saveCont(co, clofun94, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
-return;
-}
-case 1:
-{
-Obj x9223090566219386144= co->res;
-Obj x = R[1];
-Obj x9223090566219008512 = R[2];
-if (True == x9223090566219386144) {
-coraReturn(co, x);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008512);
-return;
-}
-}
-}
-}
-
-static void clofun93(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009056 = makeNative(co->gc, 2, clofun92, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj var = closureRef(R[0], 1);
-Obj x9223090566219385472 = primIsSymbol(var);
-if (True == x9223090566219385472) {
-coraReturn(co, var);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009056);
-return;
-}
-}
-}
-}
-
-static void clofun92(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009408 = makeNative(co->gc, 4, clofun91, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566219411200 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219411200) {
-Obj x9223090566219387168 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219387328 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566219387168);
-if (True == x9223090566219387328) {
-Obj x9223090566219387808 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219387840 = PRIM_ISCONS(x9223090566219387808);
-if (True == x9223090566219387840) {
-Obj x9223090566219388320 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219388352 = PRIM_CAR(x9223090566219388320);
-Obj args = x9223090566219388352;
-Obj x9223090566219389088 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219389120 = PRIM_CDR(x9223090566219389088);
-Obj x9223090566219389152 = PRIM_ISCONS(x9223090566219389120);
-if (True == x9223090566219389152) {
-Obj x9223090566219389856 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219389888 = PRIM_CDR(x9223090566219389856);
-Obj x9223090566219389920 = PRIM_CAR(x9223090566219389888);
-Obj body = x9223090566219389920;
-Obj x9223090566219390944 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219382912 = PRIM_CDR(x9223090566219390944);
-Obj x9223090566219382944 = PRIM_CDR(x9223090566219382912);
-Obj x9223090566219382976 = PRIM_EQ(Nil, x9223090566219382944);
-if (True == x9223090566219382976) {
-R[1] = args;
-saveCont(co, clofun92, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), fvs, body);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009408);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009408);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009408);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009408);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009408);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219384000= co->res;
-Obj args = R[1];
-Obj x9223090566219384064 = makeCons(co->gc, x9223090566219384000, Nil);
-Obj x9223090566219384096 = makeCons(co->gc, args, x9223090566219384064);
-Obj x9223090566219384128 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566219384096);
-coraReturn(co, x9223090566219384128);
-return;
-}
-}
-}
-
-static void clofun91(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219010016 = makeNative(co->gc, 4, clofun90, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566219488832 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219488832) {
-Obj x9223090566219456544 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219456608 = PRIM_EQ(getBinding(co, packageID, 81).name, x9223090566219456544);
-if (True == x9223090566219456608) {
-Obj x9223090566219457280 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219457312 = PRIM_ISCONS(x9223090566219457280);
-if (True == x9223090566219457312) {
-Obj x9223090566219457792 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219457824 = PRIM_CAR(x9223090566219457792);
-Obj val = x9223090566219457824;
-Obj x9223090566219458496 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219458528 = PRIM_CDR(x9223090566219458496);
-Obj x9223090566219458624 = PRIM_ISCONS(x9223090566219458528);
-if (True == x9223090566219458624) {
-Obj x9223090566219459520 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219459552 = PRIM_CDR(x9223090566219459520);
-Obj x9223090566219459584 = PRIM_CAR(x9223090566219459552);
-Obj body = x9223090566219459584;
-Obj x9223090566219460576 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219407360 = PRIM_CDR(x9223090566219460576);
-Obj x9223090566219407392 = PRIM_CDR(x9223090566219407360);
-Obj x9223090566219407424 = PRIM_EQ(Nil, x9223090566219407392);
-if (True == x9223090566219407424) {
-R[1] = fvs;
-R[2] = body;
-R[3] = val;
-saveCont(co, clofun91, 5, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), body);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219010016);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219010016);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219010016);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219010016);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219010016);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219409824= co->res;
-Obj fvs2 = R[1];
-Obj val = R[2];
-Obj x9223090566219409888 = makeCons(co->gc, x9223090566219409824, fvs2);
-Obj x9223090566219409920 = makeCons(co->gc, val, x9223090566219409888);
-Obj x9223090566219409952 = makeCons(co->gc, getBinding(co, packageID, 68).name, x9223090566219409920);
-coraReturn(co, x9223090566219409952);
-return;
-}
-case 2:
-{
-Obj x9223090566219408736= co->res;
-Obj fvs1 = R[1];
-Obj body = R[2];
-Obj val = R[3];
-Obj fvs2 = x9223090566219408736;
-R[1] = fvs2;
-R[2] = val;
-saveCont(co, clofun91, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), fvs1, body);
-return;
-}
-case 3:
-{
-Obj x9223090566219408672= co->res;
-Obj fvs1 = R[1];
-Obj body = R[2];
-Obj val = R[3];
-R[1] = fvs1;
-R[2] = body;
-R[3] = val;
-saveCont(co, clofun91, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219408672, fvs1);
-return;
-}
-case 4:
-{
-Obj x9223090566219408128= co->res;
-Obj fvs = R[1];
-Obj body = R[2];
-Obj val = R[3];
-Obj fvs1 = x9223090566219408128;
-R[1] = fvs1;
-R[2] = body;
-R[3] = val;
-saveCont(co, clofun91, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), fvs);
-return;
-}
-case 5:
-{
-Obj x9223090566219407936= co->res;
-Obj fvs = R[1];
-Obj body = R[2];
-Obj val = R[3];
-R[1] = fvs;
-R[2] = body;
-R[3] = val;
-saveCont(co, clofun91, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), x9223090566219407936, val);
-return;
-}
-}
-}
-
-static void clofun90(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218682944 = makeNative(co->gc, 3, clofun89, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566219489600 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219489600) {
-Obj x9223090566219490240 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566219490272 = PRIM_EQ(getBinding(co, packageID, 79).name, x9223090566219490240);
-if (True == x9223090566219490272) {
-Obj x9223090566219490688 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219490784 = PRIM_ISCONS(x9223090566219490688);
-if (True == x9223090566219490784) {
-Obj x9223090566219491328 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219491360 = PRIM_CAR(x9223090566219491328);
-Obj exp = x9223090566219491360;
-Obj x9223090566219492096 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219492128 = PRIM_CDR(x9223090566219492096);
-Obj x9223090566219492160 = PRIM_ISCONS(x9223090566219492128);
-if (True == x9223090566219492160) {
-Obj x9223090566219492928 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219492960 = PRIM_CDR(x9223090566219492928);
-Obj x9223090566219492992 = PRIM_CAR(x9223090566219492960);
-Obj cont = x9223090566219492992;
-Obj x9223090566219485760 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566219485792 = PRIM_CDR(x9223090566219485760);
-Obj x9223090566219485824 = PRIM_CDR(x9223090566219485792);
-Obj x9223090566219485856 = PRIM_EQ(Nil, x9223090566219485824);
-if (True == x9223090566219485856) {
-R[1] = exp;
-R[2] = fvs;
-R[3] = cont;
-saveCont(co, clofun90, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), fvs);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682944);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682944);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682944);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682944);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682944);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219487520= co->res;
-Obj x9223090566219486944 = R[1];
-Obj x9223090566219487680 = makeCons(co->gc, x9223090566219487520, Nil);
-Obj x9223090566219487712 = makeCons(co->gc, x9223090566219486944, x9223090566219487680);
-Obj x9223090566219487744 = makeCons(co->gc, getBinding(co, packageID, 79).name, x9223090566219487712);
-coraReturn(co, x9223090566219487744);
-return;
-}
-case 2:
-{
-Obj x9223090566219486944= co->res;
-Obj fvs = R[1];
-Obj cont = R[2];
-R[1] = x9223090566219486944;
-saveCont(co, clofun90, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), fvs, cont);
-return;
-}
-case 3:
-{
-Obj x9223090566219486880= co->res;
-Obj exp = R[1];
-Obj fvs = R[2];
-Obj cont = R[3];
-R[1] = fvs;
-R[2] = cont;
-saveCont(co, clofun90, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219486880, exp);
-return;
-}
-}
-}
-
-static void clofun89(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218683360 = makeNative(co->gc, 1, clofun88, 0, 0);
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566219520416 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219520416) {
-Obj x9223090566219520800 = PRIM_CAR(closureRef(R[0], 1));
-Obj f = x9223090566219520800;
-Obj x9223090566219521088 = PRIM_CDR(closureRef(R[0], 1));
-Obj args = x9223090566219521088;
-R[1] = f;
-R[2] = args;
-saveCont(co, clofun89, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), fvs);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683360);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219521600= co->res;
-Obj f = R[1];
-Obj args = R[2];
-Obj x9223090566219521856 = makeCons(co->gc, f, args);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219521600, x9223090566219521856);
-return;
-}
-}
-}
-
-static void clofun88(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun87(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219006560 = R[1];
-Obj x9223090566219006592 = R[2];
-Obj x9223090566219006656 = R[3];
-Obj x9223090566219006784 = makeNative(co->gc, 1, clofun85, 0, 3, x9223090566219006560, x9223090566219006592, x9223090566219006656);
-Obj x9223090566219721408 = PRIM_EQ(Nil, x9223090566219006560);
-if (True == x9223090566219721408) {
-Obj ls = x9223090566219006592;
-Obj next = x9223090566219006656;
-R[1] = next;
-saveCont(co, clofun87, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), ls);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006784);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219518016= co->res;
-Obj x9223090566218733408 = R[1];
-Obj x9223090566219518176 = PRIM_EQ(x9223090566219518016, getBinding(co, packageID, 100).name);
-if (True == x9223090566219518176) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218733408, True);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218733408, False);
-return;
-}
-}
-case 2:
-{
-Obj x9223090566219550272= co->res;
-Obj exp = R[1];
-Obj x9223090566218733408 = R[2];
-if (True == x9223090566219550272) {
-R[1] = x9223090566218733408;
-saveCont(co, clofun87, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 70)), exp);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566218733408, False);
-return;
-}
-}
-case 3:
-{
-Obj x9223090566219721792= co->res;
-Obj next = R[1];
-Obj exp = x9223090566219721792;
-Obj x9223090566218733408 = makeNative(co->gc, 2, clofun86, 1, 2, exp, next);
-Obj x9223090566219550240 = PRIM_CAR(exp);
-R[1] = exp;
-R[2] = x9223090566218733408;
-saveCont(co, clofun87, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 71)), x9223090566219550240);
-return;
-}
-}
-}
-
-static void clofun86(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218733440 = R[1];
-if (True == x9223090566218733440) {
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 72)), closureRef(R[0], 0), closureRef(R[0], 1));
-return;
-} else {
-Obj x9223090566219722656 = PRIM_EQ(closureRef(R[0], 1), globalRef(co, getBinding(co, packageID, 76)));
-if (True == x9223090566219722656) {
-Obj x9223090566219547008 = makeCons(co->gc, closureRef(R[0], 0), Nil);
-Obj x9223090566219547040 = makeCons(co->gc, getBinding(co, packageID, 80).name, x9223090566219547008);
-coraReturn(co, x9223090566219547040);
-return;
-} else {
-if (True == True) {
-Obj x9223090566219547424 = primGenSym(co);
-Obj val = x9223090566219547424;
-Obj x9223090566219548736 = makeCons(co->gc, val, Nil);
-R[1] = x9223090566219548736;
-saveCont(co, clofun86, 1, R);
-coraCall1(co, closureRef(R[0], 1), val);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no cond match"));
-return;
-}
-}
-}
-}
-case 1:
-{
-Obj x9223090566219549120= co->res;
-Obj x9223090566219548736 = R[1];
-Obj x9223090566219549184 = makeCons(co->gc, x9223090566219549120, Nil);
-Obj x9223090566219549216 = makeCons(co->gc, x9223090566219548736, x9223090566219549184);
-Obj x9223090566219549248 = makeCons(co->gc, getBinding(co, packageID, 81).name, x9223090566219549216);
-Obj x9223090566219549408 = makeCons(co->gc, x9223090566219549248, Nil);
-Obj x9223090566219549440 = makeCons(co->gc, closureRef(R[0], 0), x9223090566219549408);
-Obj x9223090566219549472 = makeCons(co->gc, getBinding(co, packageID, 79).name, x9223090566219549440);
-coraReturn(co, x9223090566219549472);
-return;
-}
-}
-}
-
-static void clofun85(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219007584 = makeNative(co->gc, 1, clofun83, 0, 0);
-Obj x9223090566219719008 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219719008) {
-Obj x9223090566219719456 = PRIM_CAR(closureRef(R[0], 0));
-Obj hd = x9223090566219719456;
-Obj x9223090566219719776 = PRIM_CDR(closureRef(R[0], 0));
-Obj tl = x9223090566219719776;
-Obj ls = closureRef(R[0], 1);
-Obj next = closureRef(R[0], 2);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), hd, makeNative(co->gc, 2, clofun84, 1, 3, tl, ls, next));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007584);
-return;
-}
-}
-}
-}
-
-static void clofun84(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj hd1 = R[1];
-Obj x9223090566219720768 = makeCons(co->gc, hd1, closureRef(R[0], 1));
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 74)), closureRef(R[0], 0), x9223090566219720768, closureRef(R[0], 2));
-return;
-}
-}
-}
-
-static void clofun83(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun82(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219006272 = R[1];
-Obj x9223090566219006336 = R[2];
-Obj x9223090566219006368 = makeNative(co->gc, 3, clofun80, 0, 2, x9223090566219006272, x9223090566219006336);
-Obj x = x9223090566219006272;
-Obj next = x9223090566219006336;
-Obj x9223090566219311872 = makeNative(co->gc, 2, clofun81, 1, 3, next, x, x9223090566219006368);
-Obj x9223090566219905312 = primIsSymbol(x);
-if (True == x9223090566219905312) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219311872, True);
-return;
-} else {
-R[1] = x9223090566219311872;
-saveCont(co, clofun82, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219905632= co->res;
-Obj x9223090566219311872 = R[1];
-if (True == x9223090566219905632) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219311872, True);
-return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219311872, False);
-return;
-}
-}
-}
-}
-
-static void clofun81(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219311904 = R[1];
-if (True == x9223090566219311904) {
-co->ctx.sp = R;
-coraCall1(co, closureRef(R[0], 0), closureRef(R[0], 1));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, closureRef(R[0], 2));
-return;
-}
-}
-}
-}
-
-static void clofun80(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219007040 = makeNative(co->gc, 1, clofun79, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x = closureRef(R[0], 0);
-Obj __ = closureRef(R[0], 1);
-R[1] = x;
-R[2] = x9223090566219007040;
-saveCont(co, clofun80, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
-return;
-}
-case 1:
-{
-Obj x9223090566219903872= co->res;
-Obj x = R[1];
-Obj x9223090566219007040 = R[2];
-if (True == x9223090566219903872) {
-coraReturn(co, x);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007040);
-return;
-}
-}
-}
-}
-
-static void clofun79(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219007488 = makeNative(co->gc, 1, clofun77, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566220360672 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220360672) {
-Obj x9223090566220361216 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220361248 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566220361216);
-if (True == x9223090566220361248) {
-Obj x9223090566220103840 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220103872 = PRIM_ISCONS(x9223090566220103840);
-if (True == x9223090566220103872) {
-Obj x9223090566220104288 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220104320 = PRIM_CAR(x9223090566220104288);
-Obj a = x9223090566220104320;
-Obj x9223090566220105088 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220105120 = PRIM_CDR(x9223090566220105088);
-Obj x9223090566220105152 = PRIM_ISCONS(x9223090566220105120);
-if (True == x9223090566220105152) {
-Obj x9223090566220105888 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220105984 = PRIM_CDR(x9223090566220105888);
-Obj x9223090566220106016 = PRIM_CAR(x9223090566220105984);
-Obj b = x9223090566220106016;
-Obj x9223090566220106944 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220106976 = PRIM_CDR(x9223090566220106944);
-Obj x9223090566220107008 = PRIM_CDR(x9223090566220106976);
-Obj x9223090566220107040 = PRIM_ISCONS(x9223090566220107008);
-if (True == x9223090566220107040) {
-Obj x9223090566220017792 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220017824 = PRIM_CDR(x9223090566220017792);
-Obj x9223090566220017856 = PRIM_CDR(x9223090566220017824);
-Obj x9223090566220017984 = PRIM_CAR(x9223090566220017856);
-Obj c = x9223090566220017984;
-Obj x9223090566220019200 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220019232 = PRIM_CDR(x9223090566220019200);
-Obj x9223090566220019264 = PRIM_CDR(x9223090566220019232);
-Obj x9223090566220019296 = PRIM_CDR(x9223090566220019264);
-Obj x9223090566220019328 = PRIM_EQ(Nil, x9223090566220019296);
-if (True == x9223090566220019328) {
-Obj next = closureRef(R[0], 1);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), a, makeNative(co->gc, 3, clofun78, 1, 3, b, c, next));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007488);
-return;
 }
 }
 }
@@ -6745,32 +4937,41 @@ static void clofun78(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj ra = R[1];
-R[1] = ra;
+Obj sym = R[1];
+Obj globals = R[2];
+R[1] = sym;
+R[2] = globals;
 saveCont(co, clofun78, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 2));
+coraCall1(co, globalRef(co, getBinding(co, packageID, 58)), globals);
 return;
 }
 case 1:
 {
-Obj x9223090566220021152= co->res;
-Obj x9223090566220020736 = R[1];
-Obj ra = R[2];
-Obj x9223090566220021216 = makeCons(co->gc, x9223090566220021152, Nil);
-Obj x9223090566220021248 = makeCons(co->gc, x9223090566220020736, x9223090566220021216);
-Obj x9223090566220021280 = makeCons(co->gc, ra, x9223090566220021248);
-Obj x9223090566220021312 = makeCons(co->gc, getBinding(co, packageID, 97).name, x9223090566220021280);
-coraReturn(co, x9223090566220021312);
+Obj _3522533_37= co->res;
+Obj sym = R[1];
+Obj val = R[2];
+Obj globals = R[3];
+if (True == _3522533_37) {
+coraReturn(co, Nil);
 return;
+} else {
+Obj _3522534_37 = makeCons(co->gc, sym, val);
+Obj _3522535_37 = primSet(co, globals, _3522534_37);
+coraReturn(co, _3522535_37);
+return;
+}
 }
 case 2:
 {
-Obj x9223090566220020736= co->res;
-Obj ra = R[1];
-R[1] = x9223090566220020736;
-R[2] = ra;
+Obj _3522532_37= co->res;
+Obj sym = R[1];
+Obj globals = R[2];
+Obj val = _3522532_37;
+R[1] = sym;
+R[2] = val;
+R[3] = globals;
 saveCont(co, clofun78, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 1), closureRef(R[0], 2));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 101)), sym, val);
 return;
 }
 }
@@ -6780,60 +4981,27 @@ static void clofun77(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008288 = makeNative(co->gc, 1, clofun75, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566220361888 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220361888) {
-Obj x9223090566220362336 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220362496 = PRIM_EQ(getBinding(co, packageID, 95).name, x9223090566220362336);
-if (True == x9223090566220362496) {
-Obj x9223090566220362912 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220362944 = PRIM_ISCONS(x9223090566220362912);
-if (True == x9223090566220362944) {
-Obj x9223090566220363360 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220363552 = PRIM_CAR(x9223090566220363360);
-Obj a = x9223090566220363552;
-Obj x9223090566220364128 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220364160 = PRIM_CDR(x9223090566220364128);
-Obj x9223090566220364192 = PRIM_ISCONS(x9223090566220364160);
-if (True == x9223090566220364192) {
-Obj x9223090566220364768 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220364832 = PRIM_CDR(x9223090566220364768);
-Obj x9223090566220364992 = PRIM_CAR(x9223090566220364832);
-Obj b = x9223090566220364992;
-Obj x9223090566220357696 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220357728 = PRIM_CDR(x9223090566220357696);
-Obj x9223090566220357760 = PRIM_CDR(x9223090566220357728);
-Obj x9223090566220357792 = PRIM_EQ(Nil, x9223090566220357760);
-if (True == x9223090566220357792) {
-Obj next = closureRef(R[0], 1);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), a, makeNative(co->gc, 2, clofun76, 1, 2, b, next));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008288);
+Obj x = R[1];
+Obj k = R[2];
+Obj _3522525_37 = primGenSym(co);
+Obj tmp = _3522525_37;
+R[1] = x;
+R[2] = tmp;
+saveCont(co, clofun77, 1, R);
+coraCall1(co, k, tmp);
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008288);
+case 1:
+{
+Obj _3522526_37= co->res;
+Obj x = R[1];
+Obj tmp = R[2];
+Obj _3522527_37 = makeCons(co->gc, _3522526_37, Nil);
+Obj _3522528_37 = makeCons(co->gc, x, _3522527_37);
+Obj _3522529_37 = makeCons(co->gc, tmp, _3522528_37);
+Obj _3522530_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3522529_37);
+coraReturn(co, _3522530_37);
 return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008288);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008288);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008288);
-return;
-}
 }
 }
 }
@@ -6842,27 +5010,52 @@ static void clofun76(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj ra = R[1];
-Obj x9223090566220358400 = primIsSymbol(ra);
-if (True == x9223090566220358400) {
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj v = R[1];
+Obj val = R[2];
+R[1] = val;
+R[2] = v;
+saveCont(co, clofun76, 3, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(0));
 return;
-} else {
-R[1] = ra;
-saveCont(co, clofun76, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 1));
-return;
-}
 }
 case 1:
 {
-Obj x9223090566220359552= co->res;
-Obj ra = R[1];
-Obj x9223090566220359616 = makeCons(co->gc, x9223090566220359552, Nil);
-Obj x9223090566220359648 = makeCons(co->gc, ra, x9223090566220359616);
-Obj x9223090566220359680 = makeCons(co->gc, getBinding(co, packageID, 95).name, x9223090566220359648);
-coraReturn(co, x9223090566220359680);
+Obj _3522523_37= co->res;
+Obj v = R[1];
+Obj cur1 = R[2];
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(1), cur1);
+return;
+}
+case 2:
+{
+Obj _3522518_37= co->res;
+Obj val = R[1];
+Obj idx = R[2];
+Obj v = R[3];
+Obj cur = _3522518_37;
+Obj _3522519_37 = makeCons(co->gc, val, Nil);
+Obj _3522520_37 = makeCons(co->gc, idx, _3522519_37);
+Obj _3522521_37 = makeCons(co->gc, _3522520_37, cur);
+Obj cur1 = _3522521_37;
+Obj _3522522_37 = PRIM_ADD(idx, MAKE_NUMBER(1));
+R[1] = v;
+R[2] = cur1;
+saveCont(co, clofun76, 1, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 59)), v, MAKE_NUMBER(0), _3522522_37);
+return;
+}
+case 3:
+{
+Obj _3522517_37= co->res;
+Obj val = R[1];
+Obj v = R[2];
+Obj idx = _3522517_37;
+R[1] = val;
+R[2] = idx;
+R[3] = v;
+saveCont(co, clofun76, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), v, MAKE_NUMBER(1));
 return;
 }
 }
@@ -6872,76 +5065,196 @@ static void clofun75(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009184 = makeNative(co->gc, 4, clofun73, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566220358144 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220358144) {
-Obj x9223090566220358592 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220358624 = PRIM_EQ(getBinding(co, packageID, 96).name, x9223090566220358592);
-if (True == x9223090566220358624) {
-Obj x9223090566220359040 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220359072 = PRIM_ISCONS(x9223090566220359040);
-if (True == x9223090566220359072) {
-Obj x9223090566220359488 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220359520 = PRIM_CAR(x9223090566220359488);
-Obj a = x9223090566220359520;
-Obj x9223090566220360096 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220360128 = PRIM_CDR(x9223090566220360096);
-Obj x9223090566220360160 = PRIM_ISCONS(x9223090566220360128);
-if (True == x9223090566220360160) {
-Obj x9223090566220360736 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220360768 = PRIM_CDR(x9223090566220360736);
-Obj x9223090566220360800 = PRIM_CAR(x9223090566220360768);
-Obj b = x9223090566220360800;
-Obj x9223090566220361536 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220361568 = PRIM_CDR(x9223090566220361536);
-Obj x9223090566220361600 = PRIM_CDR(x9223090566220361568);
-Obj x9223090566220361632 = PRIM_ISCONS(x9223090566220361600);
-if (True == x9223090566220361632) {
-Obj x9223090566220362368 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220362400 = PRIM_CDR(x9223090566220362368);
-Obj x9223090566220362432 = PRIM_CDR(x9223090566220362400);
-Obj x9223090566220362464 = PRIM_CAR(x9223090566220362432);
-Obj c = x9223090566220362464;
-Obj x9223090566220363392 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220363424 = PRIM_CDR(x9223090566220363392);
-Obj x9223090566220363456 = PRIM_CDR(x9223090566220363424);
-Obj x9223090566220363488 = PRIM_CDR(x9223090566220363456);
-Obj x9223090566220363520 = PRIM_EQ(Nil, x9223090566220363488);
-if (True == x9223090566220363520) {
-Obj next = closureRef(R[0], 1);
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), b, makeNative(co->gc, 2, clofun74, 1, 3, a, c, next));
+Obj _3521441_37 = R[1];
+Obj _3521442_37 = R[2];
+Obj _3521443_37 = makeNative(co->gc, 1, clofun74, 0, 2, _3521441_37, _3521442_37);
+Obj _3522468_37 = PRIM_ISCONS(_3521442_37);
+if (True == _3522468_37) {
+Obj _3522469_37 = PRIM_CAR(_3521442_37);
+Obj _3522470_37 = PRIM_EQ(getBinding(co, packageID, 84).name, _3522469_37);
+if (True == _3522470_37) {
+Obj _3522471_37 = PRIM_CDR(_3521442_37);
+Obj _3522472_37 = PRIM_ISCONS(_3522471_37);
+if (True == _3522472_37) {
+Obj _3522473_37 = PRIM_CDR(_3521442_37);
+Obj _3522474_37 = PRIM_CAR(_3522473_37);
+Obj _3522475_37 = PRIM_ISCONS(_3522474_37);
+if (True == _3522475_37) {
+Obj _3522476_37 = PRIM_CDR(_3521442_37);
+Obj _3522477_37 = PRIM_CAR(_3522476_37);
+Obj _3522478_37 = PRIM_CAR(_3522477_37);
+Obj _3522479_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3522478_37);
+if (True == _3522479_37) {
+Obj _3522480_37 = PRIM_CDR(_3521442_37);
+Obj _3522481_37 = PRIM_CAR(_3522480_37);
+Obj _3522482_37 = PRIM_CDR(_3522481_37);
+Obj _3522483_37 = PRIM_ISCONS(_3522482_37);
+if (True == _3522483_37) {
+Obj _3522484_37 = PRIM_CDR(_3521442_37);
+Obj _3522485_37 = PRIM_CAR(_3522484_37);
+Obj _3522486_37 = PRIM_CDR(_3522485_37);
+Obj _3522487_37 = PRIM_CAR(_3522486_37);
+Obj params = _3522487_37;
+Obj _3522488_37 = PRIM_CDR(_3521442_37);
+Obj _3522489_37 = PRIM_CAR(_3522488_37);
+Obj _3522490_37 = PRIM_CDR(_3522489_37);
+Obj _3522491_37 = PRIM_CDR(_3522490_37);
+Obj _3522492_37 = PRIM_ISCONS(_3522491_37);
+if (True == _3522492_37) {
+Obj _3522493_37 = PRIM_CDR(_3521442_37);
+Obj _3522494_37 = PRIM_CAR(_3522493_37);
+Obj _3522495_37 = PRIM_CDR(_3522494_37);
+Obj _3522496_37 = PRIM_CDR(_3522495_37);
+Obj _3522497_37 = PRIM_CAR(_3522496_37);
+Obj body = _3522497_37;
+Obj _3522498_37 = PRIM_CDR(_3521442_37);
+Obj _3522499_37 = PRIM_CAR(_3522498_37);
+Obj _3522500_37 = PRIM_CDR(_3522499_37);
+Obj _3522501_37 = PRIM_CDR(_3522500_37);
+Obj _3522502_37 = PRIM_CDR(_3522501_37);
+Obj _3522503_37 = PRIM_EQ(Nil, _3522502_37);
+if (True == _3522503_37) {
+Obj _3522504_37 = PRIM_CDR(_3521442_37);
+Obj _3522505_37 = PRIM_CDR(_3522504_37);
+Obj fvs = _3522505_37;
+R[1] = _3521441_37;
+R[2] = params;
+R[3] = fvs;
+saveCont(co, clofun75, 6, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 62)), _3521441_37, body);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009184);
+coraCall0(co, _3521443_37);
 return;
 }
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521443_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521443_37);
+return;
+}
+}
+case 1:
+{
+Obj _3522511_37= co->res;
+Obj nframe = R[1];
+Obj fvs = R[2];
+Obj cur = R[3];
+Obj _3522512_37 = makeCons(co->gc, nframe, fvs);
+Obj _3522513_37 = makeCons(co->gc, _3522511_37, _3522512_37);
+Obj _3522514_37 = makeCons(co->gc, cur, _3522513_37);
+Obj _3522515_37 = makeCons(co->gc, getBinding(co, packageID, 84).name, _3522514_37);
+coraReturn(co, _3522515_37);
+return;
+}
+case 2:
+{
+Obj _3522510_37= co->res;
+Obj params = R[1];
+Obj nframe = R[2];
+Obj fvs = R[3];
+Obj cur = R[4];
+R[1] = nframe;
+R[2] = fvs;
+R[3] = cur;
+saveCont(co, clofun75, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), params);
+return;
+}
+case 3:
+{
+Obj _3522509_37= co->res;
+Obj _3521441_37 = R[1];
+Obj body2 = R[2];
+Obj params = R[3];
+Obj fvs = R[4];
+Obj cur = R[5];
+Obj nframe = _3522509_37;
+R[1] = params;
+R[2] = nframe;
+R[3] = fvs;
+R[4] = cur;
+saveCont(co, clofun75, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 60)), _3521441_37, body2);
+return;
+}
+case 4:
+{
+Obj _3522508_37= co->res;
+Obj _3521441_37 = R[1];
+Obj params = R[2];
+Obj fvs = R[3];
+Obj cur = R[4];
+Obj body2 = _3522508_37;
+R[1] = _3521441_37;
+R[2] = body2;
+R[3] = params;
+R[4] = fvs;
+R[5] = cur;
+saveCont(co, clofun75, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 63)), body2);
+return;
+}
+case 5:
+{
+Obj _3522507_37= co->res;
+Obj body1 = R[1];
+Obj _3521441_37 = R[2];
+Obj params = R[3];
+Obj fvs = R[4];
+Obj cur = _3522507_37;
+R[1] = _3521441_37;
+R[2] = params;
+R[3] = fvs;
+R[4] = cur;
+saveCont(co, clofun75, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 64)), params, body1);
+return;
+}
+case 6:
+{
+Obj _3522506_37= co->res;
+Obj _3521441_37 = R[1];
+Obj params = R[2];
+Obj fvs = R[3];
+Obj body1 = _3522506_37;
+R[1] = body1;
+R[2] = _3521441_37;
+R[3] = params;
+R[4] = fvs;
+saveCont(co, clofun75, 5, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 61)), _3521441_37, MAKE_NUMBER(0));
+return;
 }
 }
 }
@@ -6950,21 +5263,21 @@ static void clofun74(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj rb = R[1];
-R[1] = rb;
+Obj _3522466_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3522466_37) {
 saveCont(co, clofun74, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 1), closureRef(R[0], 2));
+coraCall1(co, globalRef(co, getBinding(co, packageID, 62)), closureRef(R[0], 0));
 return;
+} else {
+coraReturn(co, closureRef(R[0], 1));
+return;
+}
 }
 case 1:
 {
-Obj x9223090566220364800= co->res;
-Obj rb = R[1];
-Obj x9223090566220364864 = makeCons(co->gc, x9223090566220364800, Nil);
-Obj x9223090566220364896 = makeCons(co->gc, rb, x9223090566220364864);
-Obj x9223090566220364928 = makeCons(co->gc, closureRef(R[0], 0), x9223090566220364896);
-Obj x9223090566220364960 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566220364928);
-coraReturn(co, x9223090566220364960);
+Obj _3522467_37= co->res;
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522467_37, closureRef(R[0], 1));
 return;
 }
 }
@@ -6974,117 +5287,38 @@ static void clofun73(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009888 = makeNative(co->gc, 1, clofun72, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566218438656 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218438656) {
-Obj x9223090566218439104 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566218439136 = PRIM_EQ(getBinding(co, packageID, 84).name, x9223090566218439104);
-if (True == x9223090566218439136) {
-Obj x9223090566218439584 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218439616 = PRIM_ISCONS(x9223090566218439584);
-if (True == x9223090566218439616) {
-Obj x9223090566218440320 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218440352 = PRIM_CAR(x9223090566218440320);
-Obj x9223090566218440384 = PRIM_ISCONS(x9223090566218440352);
-if (True == x9223090566218440384) {
-Obj x9223090566218224224 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218224256 = PRIM_CAR(x9223090566218224224);
-Obj x9223090566218224288 = PRIM_CAR(x9223090566218224256);
-Obj x9223090566218224320 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566218224288);
-if (True == x9223090566218224320) {
-Obj x9223090566218225088 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218225120 = PRIM_CAR(x9223090566218225088);
-Obj x9223090566218225152 = PRIM_CDR(x9223090566218225120);
-Obj x9223090566218225184 = PRIM_ISCONS(x9223090566218225152);
-if (True == x9223090566218225184) {
-Obj x9223090566218226048 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218226080 = PRIM_CAR(x9223090566218226048);
-Obj x9223090566218226112 = PRIM_CDR(x9223090566218226080);
-Obj x9223090566218226144 = PRIM_CAR(x9223090566218226112);
-Obj args = x9223090566218226144;
-Obj x9223090566218227328 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218227360 = PRIM_CAR(x9223090566218227328);
-Obj x9223090566218227392 = PRIM_CDR(x9223090566218227360);
-Obj x9223090566218227424 = PRIM_CDR(x9223090566218227392);
-Obj x9223090566218227456 = PRIM_ISCONS(x9223090566218227424);
-if (True == x9223090566218227456) {
-Obj x9223090566217933440 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566217933472 = PRIM_CAR(x9223090566217933440);
-Obj x9223090566217933504 = PRIM_CDR(x9223090566217933472);
-Obj x9223090566217933536 = PRIM_CDR(x9223090566217933504);
-Obj x9223090566217933568 = PRIM_CAR(x9223090566217933536);
-Obj body = x9223090566217933568;
-Obj x9223090566217934656 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566217934688 = PRIM_CAR(x9223090566217934656);
-Obj x9223090566217934720 = PRIM_CDR(x9223090566217934688);
-Obj x9223090566217934752 = PRIM_CDR(x9223090566217934720);
-Obj x9223090566217934784 = PRIM_CDR(x9223090566217934752);
-Obj x9223090566217934816 = PRIM_EQ(Nil, x9223090566217934784);
-if (True == x9223090566217934816) {
-Obj x9223090566217935232 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566217935264 = PRIM_CDR(x9223090566217935232);
-Obj frees = x9223090566217935264;
-Obj next = closureRef(R[0], 1);
-R[1] = args;
-R[2] = frees;
-R[3] = next;
-saveCont(co, clofun73, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), body, globalRef(co, getBinding(co, packageID, 76)));
+Obj lam = R[1];
+R[1] = lam;
+saveCont(co, clofun73, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), lam);
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009888);
-return;
-}
 }
 case 1:
 {
-Obj x9223090566217936608= co->res;
-Obj args = R[1];
-Obj frees = R[2];
-Obj next = R[3];
-Obj x9223090566217936672 = makeCons(co->gc, x9223090566217936608, Nil);
-Obj x9223090566217936704 = makeCons(co->gc, args, x9223090566217936672);
-Obj x9223090566217936736 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566217936704);
-Obj x9223090566217936800 = makeCons(co->gc, x9223090566217936736, frees);
-Obj x9223090566217936832 = makeCons(co->gc, getBinding(co, packageID, 84).name, x9223090566217936800);
+Obj _3522464_37= co->res;
+Obj _3522463_37 = R[1];
 co->ctx.sp = R;
-coraCall1(co, next, x9223090566217936832);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), makeNative(co->gc, 3, clofun72, 2, 0), _3522463_37, _3522464_37);
+return;
+}
+case 2:
+{
+Obj _3522458_37= co->res;
+Obj lam = R[1];
+Obj nargs = _3522458_37;
+Obj _3522463_37 = PRIM_ADD(nargs, MAKE_NUMBER(1));
+R[1] = _3522463_37;
+saveCont(co, clofun73, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), lam);
+return;
+}
+case 3:
+{
+Obj _3522457_37= co->res;
+Obj lam = R[1];
+R[1] = lam;
+saveCont(co, clofun73, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), _3522457_37);
 return;
 }
 }
@@ -7094,23 +5328,36 @@ static void clofun72(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007808 = makeNative(co->gc, 1, clofun71, 0, 0);
-Obj x9223090566218437024 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218437024) {
-Obj x9223090566218437344 = PRIM_CAR(closureRef(R[0], 0));
-Obj f = x9223090566218437344;
-Obj x9223090566218437600 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x9223090566218437600;
-Obj next = closureRef(R[0], 1);
-Obj x9223090566218438112 = makeCons(co->gc, f, args);
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 74)), x9223090566218438112, Nil, next);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007808);
+Obj acc = R[1];
+Obj x = R[2];
+R[1] = acc;
+saveCont(co, clofun72, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), x);
 return;
 }
+case 1:
+{
+Obj _3522460_37= co->res;
+Obj acc = R[1];
+Obj _3522461_37 = PRIM_ADD(_3522460_37, MAKE_NUMBER(1));
+Obj len = _3522461_37;
+Obj _3522462_37 = PRIM_GT(len, acc);
+if (True == _3522462_37) {
+coraReturn(co, len);
+return;
+} else {
+coraReturn(co, acc);
+return;
+}
+}
+case 2:
+{
+Obj _3522459_37= co->res;
+Obj acc = R[1];
+R[1] = acc;
+saveCont(co, clofun72, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), _3522459_37);
+return;
 }
 }
 }
@@ -7119,8 +5366,10 @@ static void clofun71(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj params = R[1];
+Obj body = R[2];
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), body, Nil, makeNative(co->gc, 3, clofun70, 2, 1, params));
 return;
 }
 }
@@ -7130,10 +5379,21 @@ static void clofun70(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x = R[1];
-Obj x9223090566218520864 = makeCons(co->gc, x, Nil);
-Obj x9223090566218520992 = makeCons(co->gc, getBinding(co, packageID, 78).name, x9223090566218520864);
-coraReturn(co, x9223090566218520992);
+Obj body1 = R[1];
+Obj conts = R[2];
+R[1] = body1;
+saveCont(co, clofun70, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), conts);
+return;
+}
+case 1:
+{
+Obj _3522452_37= co->res;
+Obj body1 = R[1];
+Obj _3522453_37 = makeCons(co->gc, body1, _3522452_37);
+Obj _3522454_37 = makeCons(co->gc, closureRef(R[0], 0), _3522453_37);
+Obj _3522455_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3522454_37);
+coraReturn(co, _3522455_37);
 return;
 }
 }
@@ -7143,29 +5403,30 @@ static void clofun69(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006176 = R[1];
-Obj x9223090566219006208 = R[2];
-Obj x9223090566219006240 = makeNative(co->gc, 2, clofun68, 0, 2, x9223090566219006176, x9223090566219006208);
-Obj __ = x9223090566219006176;
-Obj x = x9223090566219006208;
-R[1] = x;
-R[2] = x9223090566219006240;
-saveCont(co, clofun69, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
+Obj _3521435_37 = R[1];
+Obj _3521436_37 = R[2];
+Obj _3521437_37 = R[3];
+Obj _3521438_37 = R[4];
+Obj _3522446_37 = PRIM_EQ(Nil, _3521435_37);
+if (True == _3522446_37) {
+co->ctx.sp = R;
+coraCall2(co, _3521438_37, _3521437_37, _3521436_37);
 return;
-}
-case 1:
-{
-Obj x9223090566218519808= co->res;
-Obj x = R[1];
-Obj x9223090566219006240 = R[2];
-if (True == x9223090566218519808) {
-coraReturn(co, x);
+} else {
+Obj _3522447_37 = PRIM_ISCONS(_3521435_37);
+if (True == _3522447_37) {
+Obj _3522448_37 = PRIM_CAR(_3521435_37);
+Obj f = _3522448_37;
+Obj _3522449_37 = PRIM_CDR(_3521435_37);
+Obj args = _3522449_37;
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), f, _3521436_37, makeNative(co->gc, 3, clofun68, 2, 3, args, _3521437_37, _3521438_37));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006240);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
+}
 }
 }
 }
@@ -7175,36 +5436,11 @@ static void clofun68(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006624 = makeNative(co->gc, 4, clofun67, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj var = closureRef(R[0], 1);
-Obj x9223090566218649056 = primIsSymbol(var);
-if (True == x9223090566218649056) {
-R[1] = var;
-saveCont(co, clofun68, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 130)), var, fvs);
-return;
-} else {
+Obj f1 = R[1];
+Obj conts1 = R[2];
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006624);
+coraCall4(co, globalRef(co, getBinding(co, packageID, 66)), closureRef(R[0], 0), conts1, closureRef(R[0], 1), makeNative(co->gc, 3, clofun67, 2, 2, closureRef(R[0], 2), f1));
 return;
-}
-}
-case 1:
-{
-Obj x9223090566218649408= co->res;
-Obj var = R[1];
-Obj pos = x9223090566218649408;
-Obj x9223090566218518656 = PRIM_EQ(MAKE_NUMBER(-1), pos);
-if (True == x9223090566218518656) {
-coraReturn(co, var);
-return;
-} else {
-Obj x9223090566218519168 = makeCons(co->gc, pos, Nil);
-Obj x9223090566218519200 = makeCons(co->gc, getBinding(co, packageID, 83).name, x9223090566218519168);
-coraReturn(co, x9223090566218519200);
-return;
-}
 }
 }
 }
@@ -7213,113 +5449,11 @@ static void clofun67(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007104 = makeNative(co->gc, 4, clofun66, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566218732960 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566218732960) {
-Obj x9223090566218733504 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566218733600 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566218733504);
-if (True == x9223090566218733600) {
-Obj x9223090566218734112 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218734144 = PRIM_ISCONS(x9223090566218734112);
-if (True == x9223090566218734144) {
-Obj x9223090566218734656 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218734688 = PRIM_CAR(x9223090566218734656);
-Obj args = x9223090566218734688;
-Obj x9223090566218735424 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218735456 = PRIM_CDR(x9223090566218735424);
-Obj x9223090566218735488 = PRIM_ISCONS(x9223090566218735456);
-if (True == x9223090566218735488) {
-Obj x9223090566218684256 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218684384 = PRIM_CDR(x9223090566218684256);
-Obj x9223090566218684416 = PRIM_CAR(x9223090566218684384);
-Obj body = x9223090566218684416;
-Obj x9223090566218685472 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218685536 = PRIM_CDR(x9223090566218685472);
-Obj x9223090566218685568 = PRIM_CDR(x9223090566218685536);
-Obj x9223090566218685664 = PRIM_EQ(Nil, x9223090566218685568);
-if (True == x9223090566218685664) {
-Obj x9223090566218645696 = makeCons(co->gc, body, Nil);
-Obj x9223090566218645728 = makeCons(co->gc, args, x9223090566218645696);
-Obj x9223090566218645760 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566218645728);
-R[1] = body;
-R[2] = args;
-R[3] = fvs;
-saveCont(co, clofun67, 4, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), x9223090566218645760);
-return;
-} else {
+Obj args1 = R[1];
+Obj conts2 = R[2];
+Obj _3522450_37 = makeCons(co->gc, closureRef(R[0], 1), args1);
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007104);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007104);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007104);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007104);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007104);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566218647872= co->res;
-Obj x9223090566218647392 = R[1];
-Obj x9223090566218647904 = makeCons(co->gc, x9223090566218647392, x9223090566218647872);
-Obj x9223090566218647936 = makeCons(co->gc, getBinding(co, packageID, 84).name, x9223090566218647904);
-coraReturn(co, x9223090566218647936);
-return;
-}
-case 2:
-{
-Obj x9223090566218647808= co->res;
-Obj fvs1 = R[1];
-Obj x9223090566218647392 = R[2];
-R[1] = x9223090566218647392;
-saveCont(co, clofun67, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566218647808, fvs1);
-return;
-}
-case 3:
-{
-Obj x9223090566218647200= co->res;
-Obj args = R[1];
-Obj fvs = R[2];
-Obj fvs1 = R[3];
-Obj x9223090566218647328 = makeCons(co->gc, x9223090566218647200, Nil);
-Obj x9223090566218647360 = makeCons(co->gc, args, x9223090566218647328);
-Obj x9223090566218647392 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566218647360);
-R[1] = fvs1;
-R[2] = x9223090566218647392;
-saveCont(co, clofun67, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 77)), fvs);
-return;
-}
-case 4:
-{
-Obj x9223090566218645792= co->res;
-Obj body = R[1];
-Obj args = R[2];
-Obj fvs = R[3];
-Obj fvs1 = x9223090566218645792;
-R[1] = args;
-R[2] = fvs;
-R[3] = fvs1;
-saveCont(co, clofun67, 3, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), fvs1, body);
+coraCall2(co, closureRef(R[0], 0), _3522450_37, conts2);
 return;
 }
 }
@@ -7329,103 +5463,35 @@ static void clofun66(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007872 = makeNative(co->gc, 3, clofun65, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566218948896 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566218948896) {
-Obj x9223090566218949472 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566218949504 = PRIM_EQ(getBinding(co, packageID, 96).name, x9223090566218949472);
-if (True == x9223090566218949504) {
-Obj x9223090566218949952 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218949984 = PRIM_ISCONS(x9223090566218949952);
-if (True == x9223090566218949984) {
-Obj x9223090566218950464 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218950496 = PRIM_CAR(x9223090566218950464);
-Obj a = x9223090566218950496;
-Obj x9223090566218951168 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218951200 = PRIM_CDR(x9223090566218951168);
-Obj x9223090566218951232 = PRIM_ISCONS(x9223090566218951200);
-if (True == x9223090566218951232) {
-Obj x9223090566218951904 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218952000 = PRIM_CDR(x9223090566218951904);
-Obj x9223090566218952064 = PRIM_CAR(x9223090566218952000);
-Obj b = x9223090566218952064;
-Obj x9223090566218780928 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218780960 = PRIM_CDR(x9223090566218780928);
-Obj x9223090566218781024 = PRIM_CDR(x9223090566218780960);
-Obj x9223090566218781056 = PRIM_ISCONS(x9223090566218781024);
-if (True == x9223090566218781056) {
-Obj x9223090566218781888 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218781920 = PRIM_CDR(x9223090566218781888);
-Obj x9223090566218781952 = PRIM_CDR(x9223090566218781920);
-Obj x9223090566218782016 = PRIM_CAR(x9223090566218781952);
-Obj c = x9223090566218782016;
-Obj x9223090566218783072 = PRIM_CDR(closureRef(R[0], 1));
-Obj x9223090566218783104 = PRIM_CDR(x9223090566218783072);
-Obj x9223090566218783136 = PRIM_CDR(x9223090566218783104);
-Obj x9223090566218783168 = PRIM_CDR(x9223090566218783136);
-Obj x9223090566218783200 = PRIM_EQ(Nil, x9223090566218783168);
-if (True == x9223090566218783200) {
-R[1] = fvs;
-R[2] = c;
-R[3] = a;
-saveCont(co, clofun66, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), fvs, b);
+Obj _3521429_37 = R[1];
+Obj _3521430_37 = R[2];
+Obj _3521431_37 = R[3];
+Obj _3521513_37 = makeNative(co->gc, 2, clofun65, 1, 3, _3521429_37, _3521430_37, _3521431_37);
+Obj _3522443_37 = primIsSymbol(_3521429_37);
+if (True == _3522443_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521513_37, True);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007872);
+R[1] = _3521513_37;
+saveCont(co, clofun66, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), _3521429_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218731552= co->res;
-Obj x9223090566218784256 = R[1];
-Obj a = R[2];
-Obj x9223090566218731616 = makeCons(co->gc, x9223090566218731552, Nil);
-Obj x9223090566218731648 = makeCons(co->gc, x9223090566218784256, x9223090566218731616);
-Obj x9223090566218731680 = makeCons(co->gc, a, x9223090566218731648);
-Obj x9223090566218731712 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566218731680);
-coraReturn(co, x9223090566218731712);
+Obj _3522444_37= co->res;
+Obj _3521513_37 = R[1];
+if (True == _3522444_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521513_37, True);
+return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, _3521513_37, False);
 return;
 }
-case 2:
-{
-Obj x9223090566218784256= co->res;
-Obj fvs = R[1];
-Obj c = R[2];
-Obj a = R[3];
-R[1] = x9223090566218784256;
-R[2] = a;
-saveCont(co, clofun66, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), fvs, c);
-return;
 }
 }
 }
@@ -7434,34 +5500,66 @@ static void clofun65(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008704 = makeNative(co->gc, 1, clofun64, 0, 0);
-Obj fvs = closureRef(R[0], 0);
-Obj x9223090566219094656 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566219094656) {
-Obj x9223090566219094912 = PRIM_CAR(closureRef(R[0], 1));
-Obj f = x9223090566219094912;
-Obj x9223090566219095200 = PRIM_CDR(closureRef(R[0], 1));
-Obj args = x9223090566219095200;
-R[1] = f;
-R[2] = args;
-saveCont(co, clofun65, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 77)), fvs);
+Obj _3521514_37 = R[1];
+if (True == _3521514_37) {
+co->ctx.sp = R;
+coraCall2(co, closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
+return;
+} else {
+Obj _3521433_37 = makeNative(co->gc, 1, clofun63, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3522419_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522419_37) {
+Obj _3522420_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522421_37 = PRIM_EQ(getBinding(co, packageID, 79).name, _3522420_37);
+if (True == _3522421_37) {
+Obj _3522422_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522423_37 = PRIM_ISCONS(_3522422_37);
+if (True == _3522423_37) {
+Obj _3522424_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522425_37 = PRIM_CAR(_3522424_37);
+Obj exp = _3522425_37;
+Obj _3522426_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522427_37 = PRIM_CDR(_3522426_37);
+Obj _3522428_37 = PRIM_ISCONS(_3522427_37);
+if (True == _3522428_37) {
+Obj _3522429_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522430_37 = PRIM_CDR(_3522429_37);
+Obj _3522431_37 = PRIM_CAR(_3522430_37);
+Obj cont = _3522431_37;
+Obj _3522432_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522433_37 = PRIM_CDR(_3522432_37);
+Obj _3522434_37 = PRIM_CDR(_3522433_37);
+Obj _3522435_37 = PRIM_EQ(Nil, _3522434_37);
+if (True == _3522435_37) {
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 67)), cont, closureRef(R[0], 1), makeNative(co->gc, 4, clofun64, 2, 2, closureRef(R[0], 2), exp));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008704);
+coraCall0(co, _3521433_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566219095680= co->res;
-Obj f = R[1];
-Obj args = R[2];
-Obj x9223090566219095936 = makeCons(co->gc, f, args);
+} else {
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219095680, x9223090566219095936);
+coraCall0(co, _3521433_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521433_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521433_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521433_37);
+return;
+}
+}
 }
 }
 }
@@ -7470,8 +5568,40 @@ static void clofun64(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj cont1 = R[1];
+Obj conts1 = R[2];
+R[1] = cont1;
+R[2] = conts1;
+saveCont(co, clofun64, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 65)), cont1);
+return;
+}
+case 1:
+{
+Obj _3522437_37= co->res;
+Obj fvs = R[1];
+Obj cont1 = R[2];
+Obj conts1 = R[3];
+Obj _3522438_37 = PRIM_ADD(_3522437_37, MAKE_NUMBER(1));
+Obj _3522439_37 = makeCons(co->gc, _3522438_37, fvs);
+Obj _3522440_37 = makeCons(co->gc, closureRef(R[0], 1), _3522439_37);
+Obj _3522441_37 = makeCons(co->gc, getBinding(co, packageID, 79).name, _3522440_37);
+Obj _3522442_37 = makeCons(co->gc, cont1, conts1);
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall2(co, closureRef(R[0], 0), _3522441_37, _3522442_37);
+return;
+}
+case 2:
+{
+Obj _3522436_37= co->res;
+Obj cont1 = R[1];
+Obj conts1 = R[2];
+Obj fvs = _3522436_37;
+R[1] = fvs;
+R[2] = cont1;
+R[3] = conts1;
+saveCont(co, clofun64, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), conts1);
 return;
 }
 }
@@ -7481,24 +5611,19 @@ static void clofun63(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008736 = R[1];
-Obj x9223090566219008768 = makeNative(co->gc, 1, clofun62, 0, 1, x9223090566219008736);
-Obj x = x9223090566219008736;
-R[1] = x9223090566219008768;
-saveCont(co, clofun63, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), x);
-return;
-}
-case 1:
-{
-Obj x9223090566219092832= co->res;
-Obj x9223090566219008768 = R[1];
-if (True == x9223090566219092832) {
-coraReturn(co, Nil);
+Obj _3522415_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522415_37) {
+Obj _3522416_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3522416_37;
+Obj _3522417_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3522417_37;
+Obj _3522418_37 = makeCons(co->gc, f, args);
+co->ctx.sp = R;
+coraCall4(co, globalRef(co, getBinding(co, packageID, 66)), _3522418_37, closureRef(R[0], 1), Nil, closureRef(R[0], 2));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008768);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
@@ -7509,17 +5634,93 @@ static void clofun62(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008992 = makeNative(co->gc, 2, clofun61, 0, 1, closureRef(R[0], 0));
-Obj x = closureRef(R[0], 0);
-Obj x9223090566219092000 = primIsSymbol(x);
-if (True == x9223090566219092000) {
-Obj x9223090566219092288 = makeCons(co->gc, x, Nil);
-coraReturn(co, x9223090566219092288);
+Obj _3521421_37 = R[1];
+Obj _3521422_37 = R[2];
+R[1] = _3521422_37;
+R[2] = _3521421_37;
+saveCont(co, clofun62, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), _3521422_37);
+return;
+}
+case 1:
+{
+Obj _3522410_37= co->res;
+Obj args = R[1];
+Obj _3522411_37 = makeCons(co->gc, _3522410_37, Nil);
+Obj _3522412_37 = makeCons(co->gc, args, _3522411_37);
+Obj _3522413_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3522412_37);
+coraReturn(co, _3522413_37);
+return;
+}
+case 2:
+{
+Obj _3522338_37= co->res;
+Obj _3521422_37 = R[1];
+Obj _3521421_37 = R[2];
+if (True == _3522338_37) {
+coraReturn(co, _3521422_37);
+return;
+} else {
+Obj _3522339_37 = primIsSymbol(_3521422_37);
+if (True == _3522339_37) {
+coraReturn(co, _3521422_37);
+return;
+} else {
+Obj _3521425_37 = makeNative(co->gc, 4, clofun61, 0, 2, _3521422_37, _3521421_37);
+Obj _3522393_37 = PRIM_ISCONS(_3521422_37);
+if (True == _3522393_37) {
+Obj _3522394_37 = PRIM_CAR(_3521422_37);
+Obj _3522395_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3522394_37);
+if (True == _3522395_37) {
+Obj _3522396_37 = PRIM_CDR(_3521422_37);
+Obj _3522397_37 = PRIM_ISCONS(_3522396_37);
+if (True == _3522397_37) {
+Obj _3522398_37 = PRIM_CDR(_3521422_37);
+Obj _3522399_37 = PRIM_CAR(_3522398_37);
+Obj args = _3522399_37;
+Obj _3522400_37 = PRIM_CDR(_3521422_37);
+Obj _3522401_37 = PRIM_CDR(_3522400_37);
+Obj _3522402_37 = PRIM_ISCONS(_3522401_37);
+if (True == _3522402_37) {
+Obj _3522403_37 = PRIM_CDR(_3521422_37);
+Obj _3522404_37 = PRIM_CDR(_3522403_37);
+Obj _3522405_37 = PRIM_CAR(_3522404_37);
+Obj body = _3522405_37;
+Obj _3522406_37 = PRIM_CDR(_3521422_37);
+Obj _3522407_37 = PRIM_CDR(_3522406_37);
+Obj _3522408_37 = PRIM_CDR(_3522407_37);
+Obj _3522409_37 = PRIM_EQ(Nil, _3522408_37);
+if (True == _3522409_37) {
+R[1] = args;
+saveCont(co, clofun62, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), _3521421_37, body);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008992);
+coraCall0(co, _3521425_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521425_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521425_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521425_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521425_37);
+return;
+}
+}
 }
 }
 }
@@ -7529,67 +5730,121 @@ static void clofun61(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009120 = makeNative(co->gc, 1, clofun60, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219279008 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219279008) {
-Obj x9223090566219279456 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219279488 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566219279456);
-if (True == x9223090566219279488) {
-Obj x9223090566219279904 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219279936 = PRIM_ISCONS(x9223090566219279904);
-if (True == x9223090566219279936) {
-Obj x9223090566219202560 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219202592 = PRIM_CAR(x9223090566219202560);
-Obj args = x9223090566219202592;
-Obj x9223090566219203328 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219203360 = PRIM_CDR(x9223090566219203328);
-Obj x9223090566219203392 = PRIM_ISCONS(x9223090566219203360);
-if (True == x9223090566219203392) {
-Obj x9223090566219203968 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219204000 = PRIM_CDR(x9223090566219203968);
-Obj x9223090566219204064 = PRIM_CAR(x9223090566219204000);
-Obj body = x9223090566219204064;
-Obj x9223090566219205024 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219205120 = PRIM_CDR(x9223090566219205024);
-Obj x9223090566219205152 = PRIM_CDR(x9223090566219205120);
-Obj x9223090566219205184 = PRIM_EQ(Nil, x9223090566219205152);
-if (True == x9223090566219205184) {
-R[1] = args;
-saveCont(co, clofun61, 1, R);
+Obj _3521426_37 = makeNative(co->gc, 3, clofun60, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522368_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522368_37) {
+Obj _3522369_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522370_37 = PRIM_EQ(getBinding(co, packageID, 81).name, _3522369_37);
+if (True == _3522370_37) {
+Obj _3522371_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522372_37 = PRIM_ISCONS(_3522371_37);
+if (True == _3522372_37) {
+Obj _3522373_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522374_37 = PRIM_CAR(_3522373_37);
+Obj val = _3522374_37;
+Obj _3522375_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522376_37 = PRIM_CDR(_3522375_37);
+Obj _3522377_37 = PRIM_ISCONS(_3522376_37);
+if (True == _3522377_37) {
+Obj _3522378_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522379_37 = PRIM_CDR(_3522378_37);
+Obj _3522380_37 = PRIM_CAR(_3522379_37);
+Obj body = _3522380_37;
+Obj _3522381_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522382_37 = PRIM_CDR(_3522381_37);
+Obj _3522383_37 = PRIM_CDR(_3522382_37);
+Obj _3522384_37 = PRIM_EQ(Nil, _3522383_37);
+if (True == _3522384_37) {
+R[1] = body;
+R[2] = val;
+saveCont(co, clofun61, 5, R);
 coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), body);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009120);
+coraCall0(co, _3521426_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009120);
+coraCall0(co, _3521426_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009120);
+coraCall0(co, _3521426_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009120);
+coraCall0(co, _3521426_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009120);
+coraCall0(co, _3521426_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219205568= co->res;
-Obj args = R[1];
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), x9223090566219205568, args);
+Obj _3522389_37= co->res;
+Obj fvs2 = R[1];
+Obj val = R[2];
+Obj _3522390_37 = makeCons(co->gc, _3522389_37, fvs2);
+Obj _3522391_37 = makeCons(co->gc, val, _3522390_37);
+Obj _3522392_37 = makeCons(co->gc, getBinding(co, packageID, 68).name, _3522391_37);
+coraReturn(co, _3522392_37);
+return;
+}
+case 2:
+{
+Obj _3522388_37= co->res;
+Obj fvs1 = R[1];
+Obj body = R[2];
+Obj val = R[3];
+Obj fvs2 = _3522388_37;
+R[1] = fvs2;
+R[2] = val;
+saveCont(co, clofun61, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), fvs1, body);
+return;
+}
+case 3:
+{
+Obj _3522387_37= co->res;
+Obj fvs1 = R[1];
+Obj body = R[2];
+Obj val = R[3];
+R[1] = fvs1;
+R[2] = body;
+R[3] = val;
+saveCont(co, clofun61, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522387_37, fvs1);
+return;
+}
+case 4:
+{
+Obj _3522386_37= co->res;
+Obj body = R[1];
+Obj val = R[2];
+Obj fvs1 = _3522386_37;
+R[1] = fvs1;
+R[2] = body;
+R[3] = val;
+saveCont(co, clofun61, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), closureRef(R[0], 1));
+return;
+}
+case 5:
+{
+Obj _3522385_37= co->res;
+Obj body = R[1];
+Obj val = R[2];
+R[1] = body;
+R[2] = val;
+saveCont(co, clofun61, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), _3522385_37, val);
 return;
 }
 }
@@ -7599,84 +5854,89 @@ static void clofun60(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009632 = makeNative(co->gc, 1, clofun59, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219384928 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219384928) {
-Obj x9223090566219385568 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219385600 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219385568);
-if (True == x9223090566219385600) {
-Obj x9223090566219386048 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219386080 = PRIM_ISCONS(x9223090566219386048);
-if (True == x9223090566219386080) {
-Obj x9223090566219386624 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219386656 = PRIM_CAR(x9223090566219386624);
-Obj x = x9223090566219386656;
-Obj x9223090566219309408 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219309440 = PRIM_CDR(x9223090566219309408);
-Obj x9223090566219309472 = PRIM_ISCONS(x9223090566219309440);
-if (True == x9223090566219309472) {
-Obj x9223090566219310080 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219310112 = PRIM_CDR(x9223090566219310080);
-Obj x9223090566219310144 = PRIM_CAR(x9223090566219310112);
-Obj y = x9223090566219310144;
-Obj x9223090566219310976 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219311008 = PRIM_CDR(x9223090566219310976);
-Obj x9223090566219311040 = PRIM_CDR(x9223090566219311008);
-Obj x9223090566219311104 = PRIM_ISCONS(x9223090566219311040);
-if (True == x9223090566219311104) {
-Obj x9223090566219312000 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219312032 = PRIM_CDR(x9223090566219312000);
-Obj x9223090566219312064 = PRIM_CDR(x9223090566219312032);
-Obj x9223090566219312096 = PRIM_CAR(x9223090566219312064);
-Obj z = x9223090566219312096;
-Obj x9223090566219276288 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219276320 = PRIM_CDR(x9223090566219276288);
-Obj x9223090566219276352 = PRIM_CDR(x9223090566219276320);
-Obj x9223090566219276384 = PRIM_CDR(x9223090566219276352);
-Obj x9223090566219276416 = PRIM_EQ(Nil, x9223090566219276384);
-if (True == x9223090566219276416) {
-Obj x9223090566219277664 = makeCons(co->gc, z, Nil);
-Obj x9223090566219277696 = makeCons(co->gc, y, x9223090566219277664);
-Obj x9223090566219277728 = makeCons(co->gc, x, x9223090566219277696);
-saveCont(co, clofun60, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), globalRef(co, getBinding(co, packageID, 82)), x9223090566219277728);
+Obj _3521427_37 = makeNative(co->gc, 3, clofun59, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522345_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522345_37) {
+Obj _3522346_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522347_37 = PRIM_EQ(getBinding(co, packageID, 79).name, _3522346_37);
+if (True == _3522347_37) {
+Obj _3522348_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522349_37 = PRIM_ISCONS(_3522348_37);
+if (True == _3522349_37) {
+Obj _3522350_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522351_37 = PRIM_CAR(_3522350_37);
+Obj exp = _3522351_37;
+Obj _3522352_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522353_37 = PRIM_CDR(_3522352_37);
+Obj _3522354_37 = PRIM_ISCONS(_3522353_37);
+if (True == _3522354_37) {
+Obj _3522355_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522356_37 = PRIM_CDR(_3522355_37);
+Obj _3522357_37 = PRIM_CAR(_3522356_37);
+Obj cont = _3522357_37;
+Obj _3522358_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522359_37 = PRIM_CDR(_3522358_37);
+Obj _3522360_37 = PRIM_CDR(_3522359_37);
+Obj _3522361_37 = PRIM_EQ(Nil, _3522360_37);
+if (True == _3522361_37) {
+R[1] = exp;
+R[2] = cont;
+saveCont(co, clofun60, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
+coraCall0(co, _3521427_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
+coraCall0(co, _3521427_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
+coraCall0(co, _3521427_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
+coraCall0(co, _3521427_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009632);
+coraCall0(co, _3521427_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219277760= co->res;
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, x9223090566219277760);
+Obj _3522364_37= co->res;
+Obj _3522363_37 = R[1];
+Obj _3522365_37 = makeCons(co->gc, _3522364_37, Nil);
+Obj _3522366_37 = makeCons(co->gc, _3522363_37, _3522365_37);
+Obj _3522367_37 = makeCons(co->gc, getBinding(co, packageID, 79).name, _3522366_37);
+coraReturn(co, _3522367_37);
+return;
+}
+case 2:
+{
+Obj _3522363_37= co->res;
+Obj cont = R[1];
+R[1] = _3522363_37;
+saveCont(co, clofun60, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 69)), closureRef(R[0], 1), cont);
+return;
+}
+case 3:
+{
+Obj _3522362_37= co->res;
+Obj exp = R[1];
+Obj cont = R[2];
+R[1] = cont;
+saveCont(co, clofun60, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522362_37, exp);
 return;
 }
 }
@@ -7686,67 +5946,31 @@ static void clofun59(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218682368 = makeNative(co->gc, 3, clofun58, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219387104 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219387104) {
-Obj x9223090566219387712 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219387744 = PRIM_EQ(getBinding(co, packageID, 95).name, x9223090566219387712);
-if (True == x9223090566219387744) {
-Obj x9223090566219388160 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219388192 = PRIM_ISCONS(x9223090566219388160);
-if (True == x9223090566219388192) {
-Obj x9223090566219388640 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219388672 = PRIM_CAR(x9223090566219388640);
-Obj x = x9223090566219388672;
-Obj x9223090566219389344 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219389376 = PRIM_CDR(x9223090566219389344);
-Obj x9223090566219389408 = PRIM_ISCONS(x9223090566219389376);
-if (True == x9223090566219389408) {
-Obj x9223090566219390016 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219390048 = PRIM_CDR(x9223090566219390016);
-Obj x9223090566219390080 = PRIM_CAR(x9223090566219390048);
-Obj y = x9223090566219390080;
-Obj x9223090566219382784 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219382816 = PRIM_CDR(x9223090566219382784);
-Obj x9223090566219382848 = PRIM_CDR(x9223090566219382816);
-Obj x9223090566219382880 = PRIM_EQ(Nil, x9223090566219382848);
-if (True == x9223090566219382880) {
-Obj x9223090566219383872 = makeCons(co->gc, y, Nil);
-Obj x9223090566219383904 = makeCons(co->gc, x, x9223090566219383872);
+Obj _3522340_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522340_37) {
+Obj _3522341_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3522341_37;
+Obj _3522342_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3522342_37;
+R[1] = f;
+R[2] = args;
 saveCont(co, clofun59, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), globalRef(co, getBinding(co, packageID, 82)), x9223090566219383904);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 69)), closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682368);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682368);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682368);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682368);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682368);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219383936= co->res;
+Obj _3522343_37= co->res;
+Obj f = R[1];
+Obj args = R[2];
+Obj _3522344_37 = makeCons(co->gc, f, args);
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, x9223090566219383936);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522343_37, _3522344_37);
 return;
 }
 }
@@ -7756,106 +5980,74 @@ static void clofun58(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218682848 = makeNative(co->gc, 1, clofun57, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219489152 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219489152) {
-Obj x9223090566219457056 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219457088 = PRIM_EQ(getBinding(co, packageID, 96).name, x9223090566219457056);
-if (True == x9223090566219457088) {
-Obj x9223090566219457504 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219457536 = PRIM_ISCONS(x9223090566219457504);
-if (True == x9223090566219457536) {
-Obj x9223090566219457952 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219457984 = PRIM_CAR(x9223090566219457952);
-Obj a = x9223090566219457984;
-Obj x9223090566219458656 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219458688 = PRIM_CDR(x9223090566219458656);
-Obj x9223090566219458720 = PRIM_ISCONS(x9223090566219458688);
-if (True == x9223090566219458720) {
-Obj x9223090566219459360 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219459392 = PRIM_CDR(x9223090566219459360);
-Obj x9223090566219459424 = PRIM_CAR(x9223090566219459392);
-Obj b = x9223090566219459424;
-Obj x9223090566219460320 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219460352 = PRIM_CDR(x9223090566219460320);
-Obj x9223090566219460384 = PRIM_CDR(x9223090566219460352);
-Obj x9223090566219460416 = PRIM_ISCONS(x9223090566219460384);
-if (True == x9223090566219460416) {
-Obj x9223090566219408000 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219408032 = PRIM_CDR(x9223090566219408000);
-Obj x9223090566219408064 = PRIM_CDR(x9223090566219408032);
-Obj x9223090566219408096 = PRIM_CAR(x9223090566219408064);
-Obj c = x9223090566219408096;
-Obj x9223090566219409280 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219409312 = PRIM_CDR(x9223090566219409280);
-Obj x9223090566219409344 = PRIM_CDR(x9223090566219409312);
-Obj x9223090566219409376 = PRIM_CDR(x9223090566219409344);
-Obj x9223090566219409408 = PRIM_EQ(Nil, x9223090566219409376);
-if (True == x9223090566219409408) {
-R[1] = c;
-R[2] = a;
+Obj _3521416_37 = R[1];
+Obj _3521417_37 = R[2];
+Obj _3521418_37 = R[3];
+Obj _3522315_37 = PRIM_EQ(Nil, _3521416_37);
+if (True == _3522315_37) {
+R[1] = _3521418_37;
 saveCont(co, clofun58, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), b);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 73)), _3521417_37);
+return;
+} else {
+Obj _3522333_37 = PRIM_ISCONS(_3521416_37);
+if (True == _3522333_37) {
+Obj _3522334_37 = PRIM_CAR(_3521416_37);
+Obj hd = _3522334_37;
+Obj _3522335_37 = PRIM_CDR(_3521416_37);
+Obj tl = _3522335_37;
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), hd, makeNative(co->gc, 2, clofun57, 1, 3, tl, _3521417_37, _3521418_37));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682848);
-return;
 }
 }
 case 1:
 {
-Obj x9223090566219410592= co->res;
-Obj x9223090566219409760 = R[1];
+Obj _3522331_37= co->res;
+Obj _3521511_37 = R[1];
+Obj _3522332_37 = PRIM_EQ(_3522331_37, getBinding(co, packageID, 96).name);
+if (True == _3522332_37) {
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), x9223090566219409760, x9223090566219410592);
+coraCall1(co, _3521511_37, True);
 return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, _3521511_37, False);
+return;
+}
 }
 case 2:
 {
-Obj x9223090566219410304= co->res;
-Obj a = R[1];
-Obj x9223090566219409760 = R[2];
-Obj x9223090566219410560 = makeCons(co->gc, a, Nil);
-R[1] = x9223090566219409760;
+Obj _3522330_37= co->res;
+Obj exp = R[1];
+Obj _3521511_37 = R[2];
+if (True == _3522330_37) {
+R[1] = _3521511_37;
 saveCont(co, clofun58, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), x9223090566219410304, x9223090566219410560);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 70)), exp);
 return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, _3521511_37, False);
+return;
+}
 }
 case 3:
 {
-Obj x9223090566219409760= co->res;
-Obj c = R[1];
-Obj a = R[2];
-R[1] = a;
-R[2] = x9223090566219409760;
+Obj _3522316_37= co->res;
+Obj _3521418_37 = R[1];
+Obj exp = _3522316_37;
+Obj _3521511_37 = makeNative(co->gc, 2, clofun56, 1, 2, exp, _3521418_37);
+Obj _3522329_37 = PRIM_CAR(exp);
+R[1] = exp;
+R[2] = _3521511_37;
 saveCont(co, clofun58, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), c);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 71)), _3522329_37);
 return;
 }
 }
@@ -7865,40 +6057,11 @@ static void clofun57(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006752 = makeNative(co->gc, 1, clofun56, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219485920 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219485920) {
-Obj x9223090566219486496 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219486528 = PRIM_EQ(getBinding(co, packageID, 84).name, x9223090566219486496);
-if (True == x9223090566219486528) {
-Obj x9223090566219487040 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219487072 = PRIM_ISCONS(x9223090566219487040);
-if (True == x9223090566219487072) {
-Obj x9223090566219487616 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219487648 = PRIM_CAR(x9223090566219487616);
-Obj lam = x9223090566219487648;
-Obj x9223090566219488064 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219488096 = PRIM_CDR(x9223090566219488064);
-Obj more = x9223090566219488096;
-Obj x9223090566219488480 = makeCons(co->gc, lam, more);
+Obj hd1 = R[1];
+Obj _3522336_37 = makeCons(co->gc, hd1, closureRef(R[0], 1));
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), x9223090566219488480);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 74)), closureRef(R[0], 0), _3522336_37, closureRef(R[0], 2));
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006752);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006752);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006752);
-return;
-}
 }
 }
 }
@@ -7907,45 +6070,41 @@ static void clofun56(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007328 = makeNative(co->gc, 1, clofun55, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219490752 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219490752) {
-Obj x9223090566219491264 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219491296 = PRIM_EQ(getBinding(co, packageID, 78).name, x9223090566219491264);
-if (True == x9223090566219491296) {
-Obj x9223090566219491712 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219491744 = PRIM_ISCONS(x9223090566219491712);
-if (True == x9223090566219491744) {
-Obj x9223090566219492320 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219492352 = PRIM_CAR(x9223090566219492320);
-Obj x = x9223090566219492352;
-Obj x9223090566219493024 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219493056 = PRIM_CDR(x9223090566219493024);
-Obj x9223090566219493088 = PRIM_EQ(Nil, x9223090566219493056);
-if (True == x9223090566219493088) {
+Obj _3521512_37 = R[1];
+if (True == _3521512_37) {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), x);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 72)), closureRef(R[0], 0), closureRef(R[0], 1));
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007328);
+Obj _3522317_37 = PRIM_EQ(closureRef(R[0], 1), globalRef(co, getBinding(co, packageID, 76)));
+if (True == _3522317_37) {
+Obj _3522318_37 = makeCons(co->gc, closureRef(R[0], 0), Nil);
+Obj _3522319_37 = makeCons(co->gc, getBinding(co, packageID, 80).name, _3522318_37);
+coraReturn(co, _3522319_37);
 return;
-}
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007328);
+Obj _3522320_37 = primGenSym(co);
+Obj val = _3522320_37;
+Obj _3522321_37 = makeCons(co->gc, val, Nil);
+R[1] = _3522321_37;
+saveCont(co, clofun56, 1, R);
+coraCall1(co, closureRef(R[0], 1), val);
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007328);
-return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007328);
-return;
 }
+case 1:
+{
+Obj _3522322_37= co->res;
+Obj _3522321_37 = R[1];
+Obj _3522323_37 = makeCons(co->gc, _3522322_37, Nil);
+Obj _3522324_37 = makeCons(co->gc, _3522321_37, _3522323_37);
+Obj _3522325_37 = makeCons(co->gc, getBinding(co, packageID, 81).name, _3522324_37);
+Obj _3522326_37 = makeCons(co->gc, _3522325_37, Nil);
+Obj _3522327_37 = makeCons(co->gc, closureRef(R[0], 0), _3522326_37);
+Obj _3522328_37 = makeCons(co->gc, getBinding(co, packageID, 79).name, _3522327_37);
+coraReturn(co, _3522328_37);
+return;
 }
 }
 }
@@ -7954,68 +6113,34 @@ static void clofun55(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007712 = makeNative(co->gc, 1, clofun54, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219550304 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219550304) {
-Obj x9223090566219518048 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219518080 = PRIM_EQ(getBinding(co, packageID, 79).name, x9223090566219518048);
-if (True == x9223090566219518080) {
-Obj x9223090566219518560 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219518592 = PRIM_ISCONS(x9223090566219518560);
-if (True == x9223090566219518592) {
-Obj x9223090566219519072 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219519104 = PRIM_CAR(x9223090566219519072);
-Obj exp = x9223090566219519104;
-Obj x9223090566219519712 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219519744 = PRIM_CDR(x9223090566219519712);
-Obj x9223090566219519840 = PRIM_ISCONS(x9223090566219519744);
-if (True == x9223090566219519840) {
-Obj x9223090566219520512 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219520544 = PRIM_CDR(x9223090566219520512);
-Obj x9223090566219520576 = PRIM_CAR(x9223090566219520544);
-Obj cont = x9223090566219520576;
-Obj x9223090566219521440 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219521472 = PRIM_CDR(x9223090566219521440);
-Obj x9223090566219521504 = PRIM_CDR(x9223090566219521472);
-Obj x9223090566219521536 = PRIM_EQ(Nil, x9223090566219521504);
-if (True == x9223090566219521536) {
-Obj x9223090566219489760 = makeCons(co->gc, cont, Nil);
-Obj x9223090566219489792 = makeCons(co->gc, exp, x9223090566219489760);
+Obj _3521407_37 = R[1];
+Obj _3521408_37 = R[2];
+Obj _3521509_37 = makeNative(co->gc, 2, clofun54, 1, 2, _3521407_37, _3521408_37);
+Obj _3522312_37 = primIsSymbol(_3521407_37);
+if (True == _3522312_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521509_37, True);
+return;
+} else {
+R[1] = _3521509_37;
 saveCont(co, clofun55, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), globalRef(co, getBinding(co, packageID, 82)), x9223090566219489792);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007712);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007712);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007712);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007712);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007712);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), _3521407_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219489824= co->res;
+Obj _3522313_37= co->res;
+Obj _3521509_37 = R[1];
+if (True == _3522313_37) {
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, x9223090566219489824);
+coraCall1(co, _3521509_37, True);
 return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, _3521509_37, False);
+return;
+}
 }
 }
 }
@@ -8024,44 +6149,93 @@ static void clofun54(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008224 = makeNative(co->gc, 2, clofun53, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219547264 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219547264) {
-Obj x9223090566219547744 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219547776 = PRIM_EQ(getBinding(co, packageID, 80).name, x9223090566219547744);
-if (True == x9223090566219547776) {
-Obj x9223090566219548192 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219548224 = PRIM_ISCONS(x9223090566219548192);
-if (True == x9223090566219548224) {
-Obj x9223090566219548640 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219548672 = PRIM_CAR(x9223090566219548640);
-Obj exp = x9223090566219548672;
-Obj x9223090566219549280 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219549312 = PRIM_CDR(x9223090566219549280);
-Obj x9223090566219549344 = PRIM_EQ(Nil, x9223090566219549312);
-if (True == x9223090566219549344) {
+Obj _3521510_37 = R[1];
+if (True == _3521510_37) {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), exp);
+coraCall1(co, closureRef(R[0], 1), closureRef(R[0], 0));
+return;
+} else {
+saveCont(co, clofun54, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), closureRef(R[0], 0));
+return;
+}
+}
+case 1:
+{
+Obj _3522178_37= co->res;
+if (True == _3522178_37) {
+coraReturn(co, closureRef(R[0], 0));
+return;
+} else {
+Obj _3521411_37 = makeNative(co->gc, 1, clofun52, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522280_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522280_37) {
+Obj _3522281_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522282_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3522281_37);
+if (True == _3522282_37) {
+Obj _3522283_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522284_37 = PRIM_ISCONS(_3522283_37);
+if (True == _3522284_37) {
+Obj _3522285_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522286_37 = PRIM_CAR(_3522285_37);
+Obj a = _3522286_37;
+Obj _3522287_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522288_37 = PRIM_CDR(_3522287_37);
+Obj _3522289_37 = PRIM_ISCONS(_3522288_37);
+if (True == _3522289_37) {
+Obj _3522290_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522291_37 = PRIM_CDR(_3522290_37);
+Obj _3522292_37 = PRIM_CAR(_3522291_37);
+Obj b = _3522292_37;
+Obj _3522293_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522294_37 = PRIM_CDR(_3522293_37);
+Obj _3522295_37 = PRIM_CDR(_3522294_37);
+Obj _3522296_37 = PRIM_ISCONS(_3522295_37);
+if (True == _3522296_37) {
+Obj _3522297_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522298_37 = PRIM_CDR(_3522297_37);
+Obj _3522299_37 = PRIM_CDR(_3522298_37);
+Obj _3522300_37 = PRIM_CAR(_3522299_37);
+Obj c = _3522300_37;
+Obj _3522301_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522302_37 = PRIM_CDR(_3522301_37);
+Obj _3522303_37 = PRIM_CDR(_3522302_37);
+Obj _3522304_37 = PRIM_CDR(_3522303_37);
+Obj _3522305_37 = PRIM_EQ(Nil, _3522304_37);
+if (True == _3522305_37) {
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), a, makeNative(co->gc, 3, clofun53, 1, 3, b, c, closureRef(R[0], 1)));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008224);
+coraCall0(co, _3521411_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008224);
+coraCall0(co, _3521411_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008224);
+coraCall0(co, _3521411_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008224);
+coraCall0(co, _3521411_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521411_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521411_37);
+return;
+}
 }
 }
 }
@@ -8071,67 +6245,32 @@ static void clofun53(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008672 = makeNative(co->gc, 1, clofun52, 0, 1, closureRef(R[0], 0));
-Obj x9223090566219905888 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219905888) {
-Obj x9223090566219907008 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566219907040 = PRIM_EQ(getBinding(co, packageID, 81).name, x9223090566219907008);
-if (True == x9223090566219907040) {
-Obj x9223090566219719040 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219719072 = PRIM_ISCONS(x9223090566219719040);
-if (True == x9223090566219719072) {
-Obj x9223090566219719616 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219719648 = PRIM_CAR(x9223090566219719616);
-Obj arg = x9223090566219719648;
-Obj x9223090566219720320 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219720352 = PRIM_CDR(x9223090566219720320);
-Obj x9223090566219720384 = PRIM_ISCONS(x9223090566219720352);
-if (True == x9223090566219720384) {
-Obj x9223090566219720992 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219721024 = PRIM_CDR(x9223090566219720992);
-Obj x9223090566219721056 = PRIM_CAR(x9223090566219721024);
-Obj body = x9223090566219721056;
-Obj x9223090566219721888 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566219721920 = PRIM_CDR(x9223090566219721888);
-Obj x9223090566219721952 = PRIM_CDR(x9223090566219721920);
-Obj x9223090566219721984 = PRIM_EQ(Nil, x9223090566219721952);
-if (True == x9223090566219721984) {
-R[1] = arg;
-saveCont(co, clofun53, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), body);
+Obj ra = R[1];
+R[1] = ra;
+saveCont(co, clofun53, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 2));
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008672);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008672);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008672);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008672);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008672);
-return;
-}
 }
 case 1:
 {
-Obj x9223090566219722336= co->res;
-Obj arg = R[1];
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), x9223090566219722336, arg);
+Obj _3522307_37= co->res;
+Obj _3522306_37 = R[1];
+Obj ra = R[2];
+Obj _3522308_37 = makeCons(co->gc, _3522307_37, Nil);
+Obj _3522309_37 = makeCons(co->gc, _3522306_37, _3522308_37);
+Obj _3522310_37 = makeCons(co->gc, ra, _3522309_37);
+Obj _3522311_37 = makeCons(co->gc, getBinding(co, packageID, 93).name, _3522310_37);
+coraReturn(co, _3522311_37);
+return;
+}
+case 2:
+{
+Obj _3522306_37= co->res;
+Obj ra = R[1];
+R[1] = _3522306_37;
+R[2] = ra;
+saveCont(co, clofun53, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 1), closureRef(R[0], 2));
 return;
 }
 }
@@ -8141,29 +6280,59 @@ static void clofun52(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009248 = makeNative(co->gc, 1, clofun51, 0, 0);
-Obj x9223090566219904128 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566219904128) {
-Obj x9223090566219904480 = PRIM_CAR(closureRef(R[0], 0));
-Obj f = x9223090566219904480;
-Obj x9223090566219904736 = PRIM_CDR(closureRef(R[0], 0));
-Obj args = x9223090566219904736;
-Obj x9223090566219905472 = makeCons(co->gc, f, args);
-saveCont(co, clofun52, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), globalRef(co, getBinding(co, packageID, 82)), x9223090566219905472);
+Obj _3521412_37 = makeNative(co->gc, 1, clofun50, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522258_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522258_37) {
+Obj _3522259_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522260_37 = PRIM_EQ(getBinding(co, packageID, 91).name, _3522259_37);
+if (True == _3522260_37) {
+Obj _3522261_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522262_37 = PRIM_ISCONS(_3522261_37);
+if (True == _3522262_37) {
+Obj _3522263_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522264_37 = PRIM_CAR(_3522263_37);
+Obj a = _3522264_37;
+Obj _3522265_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522266_37 = PRIM_CDR(_3522265_37);
+Obj _3522267_37 = PRIM_ISCONS(_3522266_37);
+if (True == _3522267_37) {
+Obj _3522268_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522269_37 = PRIM_CDR(_3522268_37);
+Obj _3522270_37 = PRIM_CAR(_3522269_37);
+Obj b = _3522270_37;
+Obj _3522271_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522272_37 = PRIM_CDR(_3522271_37);
+Obj _3522273_37 = PRIM_CDR(_3522272_37);
+Obj _3522274_37 = PRIM_EQ(Nil, _3522273_37);
+if (True == _3522274_37) {
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), a, makeNative(co->gc, 2, clofun51, 1, 2, b, closureRef(R[0], 1)));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009248);
+coraCall0(co, _3521412_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566219905504= co->res;
+} else {
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, x9223090566219905504);
+coraCall0(co, _3521412_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521412_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521412_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521412_37);
+return;
+}
 }
 }
 }
@@ -8172,8 +6341,27 @@ static void clofun51(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj ra = R[1];
+Obj _3522275_37 = primIsSymbol(ra);
+if (True == _3522275_37) {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 1));
+return;
+} else {
+R[1] = ra;
+saveCont(co, clofun51, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 0), closureRef(R[0], 1));
+return;
+}
+}
+case 1:
+{
+Obj _3522276_37= co->res;
+Obj ra = R[1];
+Obj _3522277_37 = makeCons(co->gc, _3522276_37, Nil);
+Obj _3522278_37 = makeCons(co->gc, ra, _3522277_37);
+Obj _3522279_37 = makeCons(co->gc, getBinding(co, packageID, 91).name, _3522278_37);
+coraReturn(co, _3522279_37);
 return;
 }
 }
@@ -8183,43 +6371,73 @@ static void clofun50(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008096 = R[1];
-Obj x9223090566219005984 = makeNative(co->gc, 1, clofun49, 0, 1, x9223090566219008096);
-Obj x9223090566220107584 = PRIM_ISCONS(x9223090566219008096);
-if (True == x9223090566220107584) {
-Obj x9223090566220018016 = PRIM_CAR(x9223090566219008096);
-Obj x9223090566220018048 = PRIM_EQ(getBinding(co, packageID, 90).name, x9223090566220018016);
-if (True == x9223090566220018048) {
-Obj x9223090566220018464 = PRIM_CDR(x9223090566219008096);
-Obj x9223090566220018496 = PRIM_ISCONS(x9223090566220018464);
-if (True == x9223090566220018496) {
-Obj x9223090566220019008 = PRIM_CDR(x9223090566219008096);
-Obj x9223090566220019040 = PRIM_CAR(x9223090566220019008);
-Obj x = x9223090566220019040;
-Obj x9223090566220019744 = PRIM_CDR(x9223090566219008096);
-Obj x9223090566220019776 = PRIM_CDR(x9223090566220019744);
-Obj x9223090566220019808 = PRIM_EQ(Nil, x9223090566220019776);
-if (True == x9223090566220019808) {
-coraReturn(co, True);
+Obj _3521413_37 = makeNative(co->gc, 3, clofun48, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522227_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522227_37) {
+Obj _3522228_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522229_37 = PRIM_EQ(getBinding(co, packageID, 92).name, _3522228_37);
+if (True == _3522229_37) {
+Obj _3522230_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522231_37 = PRIM_ISCONS(_3522230_37);
+if (True == _3522231_37) {
+Obj _3522232_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522233_37 = PRIM_CAR(_3522232_37);
+Obj a = _3522233_37;
+Obj _3522234_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522235_37 = PRIM_CDR(_3522234_37);
+Obj _3522236_37 = PRIM_ISCONS(_3522235_37);
+if (True == _3522236_37) {
+Obj _3522237_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522238_37 = PRIM_CDR(_3522237_37);
+Obj _3522239_37 = PRIM_CAR(_3522238_37);
+Obj b = _3522239_37;
+Obj _3522240_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522241_37 = PRIM_CDR(_3522240_37);
+Obj _3522242_37 = PRIM_CDR(_3522241_37);
+Obj _3522243_37 = PRIM_ISCONS(_3522242_37);
+if (True == _3522243_37) {
+Obj _3522244_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522245_37 = PRIM_CDR(_3522244_37);
+Obj _3522246_37 = PRIM_CDR(_3522245_37);
+Obj _3522247_37 = PRIM_CAR(_3522246_37);
+Obj c = _3522247_37;
+Obj _3522248_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522249_37 = PRIM_CDR(_3522248_37);
+Obj _3522250_37 = PRIM_CDR(_3522249_37);
+Obj _3522251_37 = PRIM_CDR(_3522250_37);
+Obj _3522252_37 = PRIM_EQ(Nil, _3522251_37);
+if (True == _3522252_37) {
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), b, makeNative(co->gc, 2, clofun49, 1, 3, a, c, closureRef(R[0], 1)));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219005984);
+coraCall0(co, _3521413_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219005984);
+coraCall0(co, _3521413_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219005984);
+coraCall0(co, _3521413_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219005984);
+coraCall0(co, _3521413_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521413_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521413_37);
 return;
 }
 }
@@ -8230,44 +6448,22 @@ static void clofun49(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006400 = makeNative(co->gc, 1, clofun48, 0, 1, closureRef(R[0], 0));
-Obj x9223090566220104384 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566220104384) {
-Obj x9223090566220104928 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566220104960 = PRIM_EQ(getBinding(co, packageID, 92).name, x9223090566220104928);
-if (True == x9223090566220104960) {
-Obj x9223090566220105376 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220105504 = PRIM_ISCONS(x9223090566220105376);
-if (True == x9223090566220105504) {
-Obj x9223090566220105920 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220105952 = PRIM_CAR(x9223090566220105920);
-Obj x = x9223090566220105952;
-Obj x9223090566220106656 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566220106688 = PRIM_CDR(x9223090566220106656);
-Obj x9223090566220106720 = PRIM_EQ(Nil, x9223090566220106688);
-if (True == x9223090566220106720) {
-coraReturn(co, True);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006400);
+Obj rb = R[1];
+R[1] = rb;
+saveCont(co, clofun49, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), closureRef(R[0], 1), closureRef(R[0], 2));
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006400);
+case 1:
+{
+Obj _3522253_37= co->res;
+Obj rb = R[1];
+Obj _3522254_37 = makeCons(co->gc, _3522253_37, Nil);
+Obj _3522255_37 = makeCons(co->gc, rb, _3522254_37);
+Obj _3522256_37 = makeCons(co->gc, closureRef(R[0], 0), _3522255_37);
+Obj _3522257_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3522256_37);
+coraReturn(co, _3522257_37);
 return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006400);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006400);
-return;
-}
 }
 }
 }
@@ -8276,44 +6472,115 @@ static void clofun48(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006848 = makeNative(co->gc, 1, clofun47, 0, 1, closureRef(R[0], 0));
-Obj x9223090566218224928 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218224928) {
-Obj x9223090566218225376 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566218225408 = PRIM_EQ(getBinding(co, packageID, 100).name, x9223090566218225376);
-if (True == x9223090566218225408) {
-Obj x9223090566218225824 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218225856 = PRIM_ISCONS(x9223090566218225824);
-if (True == x9223090566218225856) {
-Obj x9223090566218226272 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218226304 = PRIM_CAR(x9223090566218226272);
-Obj op = x9223090566218226304;
-Obj x9223090566218226912 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218226944 = PRIM_CDR(x9223090566218226912);
-Obj x9223090566218226976 = PRIM_EQ(Nil, x9223090566218226944);
-if (True == x9223090566218226976) {
-coraReturn(co, True);
+Obj _3521414_37 = makeNative(co->gc, 1, clofun47, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522183_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522183_37) {
+Obj _3522184_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522185_37 = PRIM_EQ(getBinding(co, packageID, 84).name, _3522184_37);
+if (True == _3522185_37) {
+Obj _3522186_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522187_37 = PRIM_ISCONS(_3522186_37);
+if (True == _3522187_37) {
+Obj _3522188_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522189_37 = PRIM_CAR(_3522188_37);
+Obj _3522190_37 = PRIM_ISCONS(_3522189_37);
+if (True == _3522190_37) {
+Obj _3522191_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522192_37 = PRIM_CAR(_3522191_37);
+Obj _3522193_37 = PRIM_CAR(_3522192_37);
+Obj _3522194_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3522193_37);
+if (True == _3522194_37) {
+Obj _3522195_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522196_37 = PRIM_CAR(_3522195_37);
+Obj _3522197_37 = PRIM_CDR(_3522196_37);
+Obj _3522198_37 = PRIM_ISCONS(_3522197_37);
+if (True == _3522198_37) {
+Obj _3522199_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522200_37 = PRIM_CAR(_3522199_37);
+Obj _3522201_37 = PRIM_CDR(_3522200_37);
+Obj _3522202_37 = PRIM_CAR(_3522201_37);
+Obj args = _3522202_37;
+Obj _3522203_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522204_37 = PRIM_CAR(_3522203_37);
+Obj _3522205_37 = PRIM_CDR(_3522204_37);
+Obj _3522206_37 = PRIM_CDR(_3522205_37);
+Obj _3522207_37 = PRIM_ISCONS(_3522206_37);
+if (True == _3522207_37) {
+Obj _3522208_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522209_37 = PRIM_CAR(_3522208_37);
+Obj _3522210_37 = PRIM_CDR(_3522209_37);
+Obj _3522211_37 = PRIM_CDR(_3522210_37);
+Obj _3522212_37 = PRIM_CAR(_3522211_37);
+Obj body = _3522212_37;
+Obj _3522213_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522214_37 = PRIM_CAR(_3522213_37);
+Obj _3522215_37 = PRIM_CDR(_3522214_37);
+Obj _3522216_37 = PRIM_CDR(_3522215_37);
+Obj _3522217_37 = PRIM_CDR(_3522216_37);
+Obj _3522218_37 = PRIM_EQ(Nil, _3522217_37);
+if (True == _3522218_37) {
+Obj _3522219_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522220_37 = PRIM_CDR(_3522219_37);
+Obj frees = _3522220_37;
+R[1] = args;
+R[2] = frees;
+saveCont(co, clofun48, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 75)), body, globalRef(co, getBinding(co, packageID, 76)));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006848);
+coraCall0(co, _3521414_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006848);
+coraCall0(co, _3521414_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006848);
+coraCall0(co, _3521414_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006848);
+coraCall0(co, _3521414_37);
 return;
 }
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521414_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521414_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521414_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521414_37);
+return;
+}
+}
+case 1:
+{
+Obj _3522221_37= co->res;
+Obj args = R[1];
+Obj frees = R[2];
+Obj _3522222_37 = makeCons(co->gc, _3522221_37, Nil);
+Obj _3522223_37 = makeCons(co->gc, args, _3522222_37);
+Obj _3522224_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3522223_37);
+Obj _3522225_37 = makeCons(co->gc, _3522224_37, frees);
+Obj _3522226_37 = makeCons(co->gc, getBinding(co, packageID, 84).name, _3522225_37);
+co->ctx.sp = R;
+coraCall1(co, closureRef(R[0], 1), _3522226_37);
+return;
 }
 }
 }
@@ -8322,42 +6589,19 @@ static void clofun47(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007392 = makeNative(co->gc, 1, clofun46, 0, 1, closureRef(R[0], 0));
-Obj x9223090566218439200 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218439200) {
-Obj x9223090566218439648 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566218439680 = PRIM_EQ(getBinding(co, packageID, 91).name, x9223090566218439648);
-if (True == x9223090566218439680) {
-Obj x9223090566218440096 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218440128 = PRIM_ISCONS(x9223090566218440096);
-if (True == x9223090566218440128) {
-Obj x9223090566218440544 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218440576 = PRIM_CAR(x9223090566218440544);
-Obj x = x9223090566218440576;
-Obj x9223090566218224096 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218224128 = PRIM_CDR(x9223090566218224096);
-Obj x9223090566218224160 = PRIM_EQ(Nil, x9223090566218224128);
-if (True == x9223090566218224160) {
-coraReturn(co, True);
+Obj _3522179_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522179_37) {
+Obj _3522180_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3522180_37;
+Obj _3522181_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3522181_37;
+Obj _3522182_37 = makeCons(co->gc, f, args);
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 74)), _3522182_37, Nil, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007392);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007392);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007392);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007392);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
@@ -8368,44 +6612,11 @@ static void clofun46(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007744 = makeNative(co->gc, 2, clofun45, 0, 1, closureRef(R[0], 0));
-Obj x9223090566218522176 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218522176) {
-Obj x9223090566218436704 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566218436736 = PRIM_EQ(getBinding(co, packageID, 83).name, x9223090566218436704);
-if (True == x9223090566218436736) {
-Obj x9223090566218437152 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218437184 = PRIM_ISCONS(x9223090566218437152);
-if (True == x9223090566218437184) {
-Obj x9223090566218437728 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218437760 = PRIM_CAR(x9223090566218437728);
-Obj __ = x9223090566218437760;
-Obj x9223090566218438368 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218438400 = PRIM_CDR(x9223090566218438368);
-Obj x9223090566218438432 = PRIM_EQ(Nil, x9223090566218438400);
-if (True == x9223090566218438432) {
-coraReturn(co, True);
+Obj x = R[1];
+Obj _3522175_37 = makeCons(co->gc, x, Nil);
+Obj _3522176_37 = makeCons(co->gc, getBinding(co, packageID, 78).name, _3522175_37);
+coraReturn(co, _3522176_37);
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007744);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007744);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007744);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007744);
-return;
-}
 }
 }
 }
@@ -8414,52 +6625,154 @@ static void clofun45(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008160 = makeNative(co->gc, 1, clofun44, 0, 1, closureRef(R[0], 0));
-Obj x9223090566218519072 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218519072) {
-Obj x9223090566218519520 = PRIM_CAR(closureRef(R[0], 0));
-Obj x9223090566218519552 = PRIM_EQ(getBinding(co, packageID, 84).name, x9223090566218519520);
-if (True == x9223090566218519552) {
-Obj x9223090566218520032 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218520064 = PRIM_ISCONS(x9223090566218520032);
-if (True == x9223090566218520064) {
-Obj x9223090566218520480 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218520512 = PRIM_CAR(x9223090566218520480);
-Obj label = x9223090566218520512;
-Obj x9223090566218521024 = PRIM_CDR(closureRef(R[0], 0));
-Obj x9223090566218521056 = PRIM_CDR(x9223090566218521024);
-Obj __ = x9223090566218521056;
-R[1] = x9223090566219008160;
-saveCont(co, clofun45, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 89)), label);
+Obj _3521400_37 = R[1];
+Obj _3521401_37 = R[2];
+R[1] = _3521401_37;
+R[2] = _3521400_37;
+saveCont(co, clofun45, 6, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), _3521401_37);
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008160);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008160);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008160);
-return;
-}
 }
 case 1:
 {
-Obj x9223090566218521312= co->res;
-Obj x9223090566219008160 = R[1];
-if (True == x9223090566218521312) {
-coraReturn(co, True);
+Obj _3522104_37= co->res;
+Obj _3521401_37 = R[1];
+Obj pos = _3522104_37;
+Obj _3522105_37 = PRIM_EQ(MAKE_NUMBER(-1), pos);
+if (True == _3522105_37) {
+coraReturn(co, _3521401_37);
+return;
+} else {
+Obj _3522106_37 = makeCons(co->gc, pos, Nil);
+Obj _3522107_37 = makeCons(co->gc, getBinding(co, packageID, 83).name, _3522106_37);
+coraReturn(co, _3522107_37);
+return;
+}
+}
+case 2:
+{
+Obj _3522171_37= co->res;
+Obj _3522169_37 = R[1];
+Obj _3522172_37 = makeCons(co->gc, _3522169_37, _3522171_37);
+Obj _3522173_37 = makeCons(co->gc, getBinding(co, packageID, 84).name, _3522172_37);
+coraReturn(co, _3522173_37);
+return;
+}
+case 3:
+{
+Obj _3522170_37= co->res;
+Obj fvs1 = R[1];
+Obj _3522169_37 = R[2];
+R[1] = _3522169_37;
+saveCont(co, clofun45, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522170_37, fvs1);
+return;
+}
+case 4:
+{
+Obj _3522166_37= co->res;
+Obj args = R[1];
+Obj _3521400_37 = R[2];
+Obj fvs1 = R[3];
+Obj _3522167_37 = makeCons(co->gc, _3522166_37, Nil);
+Obj _3522168_37 = makeCons(co->gc, args, _3522167_37);
+Obj _3522169_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3522168_37);
+R[1] = fvs1;
+R[2] = _3522169_37;
+saveCont(co, clofun45, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 77)), _3521400_37);
+return;
+}
+case 5:
+{
+Obj _3522165_37= co->res;
+Obj body = R[1];
+Obj args = R[2];
+Obj _3521400_37 = R[3];
+Obj fvs1 = _3522165_37;
+R[1] = args;
+R[2] = _3521400_37;
+R[3] = fvs1;
+saveCont(co, clofun45, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), fvs1, body);
+return;
+}
+case 6:
+{
+Obj _3522102_37= co->res;
+Obj _3521401_37 = R[1];
+Obj _3521400_37 = R[2];
+if (True == _3522102_37) {
+coraReturn(co, _3521401_37);
+return;
+} else {
+Obj _3522103_37 = primIsSymbol(_3521401_37);
+if (True == _3522103_37) {
+R[1] = _3521401_37;
+saveCont(co, clofun45, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 130)), _3521401_37, _3521400_37);
+return;
+} else {
+Obj _3521404_37 = makeNative(co->gc, 3, clofun44, 0, 2, _3521401_37, _3521400_37);
+Obj _3522145_37 = PRIM_ISCONS(_3521401_37);
+if (True == _3522145_37) {
+Obj _3522146_37 = PRIM_CAR(_3521401_37);
+Obj _3522147_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3522146_37);
+if (True == _3522147_37) {
+Obj _3522148_37 = PRIM_CDR(_3521401_37);
+Obj _3522149_37 = PRIM_ISCONS(_3522148_37);
+if (True == _3522149_37) {
+Obj _3522150_37 = PRIM_CDR(_3521401_37);
+Obj _3522151_37 = PRIM_CAR(_3522150_37);
+Obj args = _3522151_37;
+Obj _3522152_37 = PRIM_CDR(_3521401_37);
+Obj _3522153_37 = PRIM_CDR(_3522152_37);
+Obj _3522154_37 = PRIM_ISCONS(_3522153_37);
+if (True == _3522154_37) {
+Obj _3522155_37 = PRIM_CDR(_3521401_37);
+Obj _3522156_37 = PRIM_CDR(_3522155_37);
+Obj _3522157_37 = PRIM_CAR(_3522156_37);
+Obj body = _3522157_37;
+Obj _3522158_37 = PRIM_CDR(_3521401_37);
+Obj _3522159_37 = PRIM_CDR(_3522158_37);
+Obj _3522160_37 = PRIM_CDR(_3522159_37);
+Obj _3522161_37 = PRIM_EQ(Nil, _3522160_37);
+if (True == _3522161_37) {
+Obj _3522162_37 = makeCons(co->gc, body, Nil);
+Obj _3522163_37 = makeCons(co->gc, args, _3522162_37);
+Obj _3522164_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3522163_37);
+R[1] = body;
+R[2] = args;
+R[3] = _3521400_37;
+saveCont(co, clofun45, 5, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), _3522164_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008160);
+coraCall0(co, _3521404_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521404_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521404_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521404_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521404_37);
+return;
+}
+}
 }
 }
 }
@@ -8469,9 +6782,99 @@ static void clofun44(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008448 = makeNative(co->gc, 1, clofun43, 0, 0);
-Obj x = closureRef(R[0], 0);
-coraReturn(co, False);
+Obj _3521405_37 = makeNative(co->gc, 3, clofun43, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3522113_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522113_37) {
+Obj _3522114_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522115_37 = PRIM_EQ(getBinding(co, packageID, 92).name, _3522114_37);
+if (True == _3522115_37) {
+Obj _3522116_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522117_37 = PRIM_ISCONS(_3522116_37);
+if (True == _3522117_37) {
+Obj _3522118_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522119_37 = PRIM_CAR(_3522118_37);
+Obj a = _3522119_37;
+Obj _3522120_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522121_37 = PRIM_CDR(_3522120_37);
+Obj _3522122_37 = PRIM_ISCONS(_3522121_37);
+if (True == _3522122_37) {
+Obj _3522123_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522124_37 = PRIM_CDR(_3522123_37);
+Obj _3522125_37 = PRIM_CAR(_3522124_37);
+Obj b = _3522125_37;
+Obj _3522126_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522127_37 = PRIM_CDR(_3522126_37);
+Obj _3522128_37 = PRIM_CDR(_3522127_37);
+Obj _3522129_37 = PRIM_ISCONS(_3522128_37);
+if (True == _3522129_37) {
+Obj _3522130_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522131_37 = PRIM_CDR(_3522130_37);
+Obj _3522132_37 = PRIM_CDR(_3522131_37);
+Obj _3522133_37 = PRIM_CAR(_3522132_37);
+Obj c = _3522133_37;
+Obj _3522134_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522135_37 = PRIM_CDR(_3522134_37);
+Obj _3522136_37 = PRIM_CDR(_3522135_37);
+Obj _3522137_37 = PRIM_CDR(_3522136_37);
+Obj _3522138_37 = PRIM_EQ(Nil, _3522137_37);
+if (True == _3522138_37) {
+R[1] = c;
+R[2] = a;
+saveCont(co, clofun44, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), closureRef(R[0], 1), b);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521405_37);
+return;
+}
+}
+case 1:
+{
+Obj _3522140_37= co->res;
+Obj _3522139_37 = R[1];
+Obj a = R[2];
+Obj _3522141_37 = makeCons(co->gc, _3522140_37, Nil);
+Obj _3522142_37 = makeCons(co->gc, _3522139_37, _3522141_37);
+Obj _3522143_37 = makeCons(co->gc, a, _3522142_37);
+Obj _3522144_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3522143_37);
+coraReturn(co, _3522144_37);
+return;
+}
+case 2:
+{
+Obj _3522139_37= co->res;
+Obj c = R[1];
+Obj a = R[2];
+R[1] = _3522139_37;
+R[2] = a;
+saveCont(co, clofun44, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 77)), closureRef(R[0], 1), c);
 return;
 }
 }
@@ -8481,8 +6884,31 @@ static void clofun43(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3522108_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522108_37) {
+Obj _3522109_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3522109_37;
+Obj _3522110_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3522110_37;
+R[1] = f;
+R[2] = args;
+saveCont(co, clofun43, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 77)), closureRef(R[0], 1));
+return;
+} else {
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+return;
+}
+}
+case 1:
+{
+Obj _3522111_37= co->res;
+Obj f = R[1];
+Obj args = R[2];
+Obj _3522112_37 = makeCons(co->gc, f, args);
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3522111_37, _3522112_37);
 return;
 }
 }
@@ -8492,18 +6918,89 @@ static void clofun42(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007168 = R[1];
-Obj x9223090566219007200 = R[2];
-Obj x9223090566219007232 = makeNative(co->gc, 4, clofun41, 0, 2, x9223090566219007168, x9223090566219007200);
-Obj x9223090566218648064 = PRIM_EQ(Nil, x9223090566219007168);
-if (True == x9223090566218648064) {
-Obj __ = x9223090566219007200;
+Obj _3521387_37 = R[1];
+R[1] = _3521387_37;
+saveCont(co, clofun42, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 85)), _3521387_37);
+return;
+}
+case 1:
+{
+Obj _3522100_37= co->res;
+Obj args = R[1];
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), _3522100_37, args);
+return;
+}
+case 2:
+{
+Obj _3521927_37= co->res;
+Obj _3521387_37 = R[1];
+if (True == _3521927_37) {
 coraReturn(co, Nil);
 return;
 } else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007232);
+Obj _3521928_37 = primIsSymbol(_3521387_37);
+if (True == _3521928_37) {
+Obj _3521929_37 = makeCons(co->gc, _3521387_37, Nil);
+coraReturn(co, _3521929_37);
 return;
+} else {
+Obj _3521390_37 = makeNative(co->gc, 1, clofun41, 0, 1, _3521387_37);
+Obj _3522083_37 = PRIM_ISCONS(_3521387_37);
+if (True == _3522083_37) {
+Obj _3522084_37 = PRIM_CAR(_3521387_37);
+Obj _3522085_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3522084_37);
+if (True == _3522085_37) {
+Obj _3522086_37 = PRIM_CDR(_3521387_37);
+Obj _3522087_37 = PRIM_ISCONS(_3522086_37);
+if (True == _3522087_37) {
+Obj _3522088_37 = PRIM_CDR(_3521387_37);
+Obj _3522089_37 = PRIM_CAR(_3522088_37);
+Obj args = _3522089_37;
+Obj _3522090_37 = PRIM_CDR(_3521387_37);
+Obj _3522091_37 = PRIM_CDR(_3522090_37);
+Obj _3522092_37 = PRIM_ISCONS(_3522091_37);
+if (True == _3522092_37) {
+Obj _3522093_37 = PRIM_CDR(_3521387_37);
+Obj _3522094_37 = PRIM_CDR(_3522093_37);
+Obj _3522095_37 = PRIM_CAR(_3522094_37);
+Obj body = _3522095_37;
+Obj _3522096_37 = PRIM_CDR(_3521387_37);
+Obj _3522097_37 = PRIM_CDR(_3522096_37);
+Obj _3522098_37 = PRIM_CDR(_3522097_37);
+Obj _3522099_37 = PRIM_EQ(Nil, _3522098_37);
+if (True == _3522099_37) {
+R[1] = args;
+saveCont(co, clofun42, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), body);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521390_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521390_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521390_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521390_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521390_37);
+return;
+}
+}
 }
 }
 }
@@ -8513,41 +7010,85 @@ static void clofun41(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007456 = makeNative(co->gc, 2, clofun40, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566218646304 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218646304) {
-Obj x9223090566218646592 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x9223090566218646592;
-Obj x9223090566218646880 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x9223090566218646880;
-Obj s2 = closureRef(R[0], 1);
-R[1] = y;
-R[2] = s2;
-R[3] = x9223090566219007456;
+Obj _3521391_37 = makeNative(co->gc, 1, clofun40, 0, 1, closureRef(R[0], 0));
+Obj _3522053_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522053_37) {
+Obj _3522054_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522055_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3522054_37);
+if (True == _3522055_37) {
+Obj _3522056_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522057_37 = PRIM_ISCONS(_3522056_37);
+if (True == _3522057_37) {
+Obj _3522058_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522059_37 = PRIM_CAR(_3522058_37);
+Obj x = _3522059_37;
+Obj _3522060_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522061_37 = PRIM_CDR(_3522060_37);
+Obj _3522062_37 = PRIM_ISCONS(_3522061_37);
+if (True == _3522062_37) {
+Obj _3522063_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522064_37 = PRIM_CDR(_3522063_37);
+Obj _3522065_37 = PRIM_CAR(_3522064_37);
+Obj y = _3522065_37;
+Obj _3522066_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522067_37 = PRIM_CDR(_3522066_37);
+Obj _3522068_37 = PRIM_CDR(_3522067_37);
+Obj _3522069_37 = PRIM_ISCONS(_3522068_37);
+if (True == _3522069_37) {
+Obj _3522070_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522071_37 = PRIM_CDR(_3522070_37);
+Obj _3522072_37 = PRIM_CDR(_3522071_37);
+Obj _3522073_37 = PRIM_CAR(_3522072_37);
+Obj z = _3522073_37;
+Obj _3522074_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522075_37 = PRIM_CDR(_3522074_37);
+Obj _3522076_37 = PRIM_CDR(_3522075_37);
+Obj _3522077_37 = PRIM_CDR(_3522076_37);
+Obj _3522078_37 = PRIM_EQ(Nil, _3522077_37);
+if (True == _3522078_37) {
+Obj _3522079_37 = makeCons(co->gc, z, Nil);
+Obj _3522080_37 = makeCons(co->gc, y, _3522079_37);
+Obj _3522081_37 = makeCons(co->gc, x, _3522080_37);
 saveCont(co, clofun41, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), x, s2);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), globalRef(co, getBinding(co, packageID, 82)), _3522081_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007456);
+coraCall0(co, _3521391_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521391_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521391_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521391_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521391_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521391_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218647232= co->res;
-Obj y = R[1];
-Obj s2 = R[2];
-Obj x9223090566219007456 = R[3];
-if (True == x9223090566218647232) {
+Obj _3522082_37= co->res;
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), y, s2);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, _3522082_37);
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007456);
-return;
-}
 }
 }
 }
@@ -8556,30 +7097,67 @@ static void clofun40(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007776 = makeNative(co->gc, 1, clofun39, 0, 0);
-Obj x9223090566218685728 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218685728) {
-Obj x9223090566218686016 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x9223090566218686016;
-Obj x9223090566218686304 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x9223090566218686304;
-Obj s2 = closureRef(R[0], 1);
-R[1] = x;
+Obj _3521392_37 = makeNative(co->gc, 3, clofun39, 0, 1, closureRef(R[0], 0));
+Obj _3522033_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522033_37) {
+Obj _3522034_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522035_37 = PRIM_EQ(getBinding(co, packageID, 91).name, _3522034_37);
+if (True == _3522035_37) {
+Obj _3522036_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522037_37 = PRIM_ISCONS(_3522036_37);
+if (True == _3522037_37) {
+Obj _3522038_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522039_37 = PRIM_CAR(_3522038_37);
+Obj x = _3522039_37;
+Obj _3522040_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522041_37 = PRIM_CDR(_3522040_37);
+Obj _3522042_37 = PRIM_ISCONS(_3522041_37);
+if (True == _3522042_37) {
+Obj _3522043_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522044_37 = PRIM_CDR(_3522043_37);
+Obj _3522045_37 = PRIM_CAR(_3522044_37);
+Obj y = _3522045_37;
+Obj _3522046_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522047_37 = PRIM_CDR(_3522046_37);
+Obj _3522048_37 = PRIM_CDR(_3522047_37);
+Obj _3522049_37 = PRIM_EQ(Nil, _3522048_37);
+if (True == _3522049_37) {
+Obj _3522050_37 = makeCons(co->gc, y, Nil);
+Obj _3522051_37 = makeCons(co->gc, x, _3522050_37);
 saveCont(co, clofun40, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), y, s2);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), globalRef(co, getBinding(co, packageID, 82)), _3522051_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007776);
+coraCall0(co, _3521392_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521392_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521392_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521392_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521392_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218645856= co->res;
-Obj x = R[1];
-Obj x9223090566218645888 = makeCons(co->gc, x, x9223090566218645856);
-coraReturn(co, x9223090566218645888);
+Obj _3522052_37= co->res;
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, _3522052_37);
 return;
 }
 }
@@ -8589,8 +7167,106 @@ static void clofun39(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3521393_37 = makeNative(co->gc, 1, clofun38, 0, 1, closureRef(R[0], 0));
+Obj _3522003_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3522003_37) {
+Obj _3522004_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3522005_37 = PRIM_EQ(getBinding(co, packageID, 92).name, _3522004_37);
+if (True == _3522005_37) {
+Obj _3522006_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522007_37 = PRIM_ISCONS(_3522006_37);
+if (True == _3522007_37) {
+Obj _3522008_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522009_37 = PRIM_CAR(_3522008_37);
+Obj a = _3522009_37;
+Obj _3522010_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522011_37 = PRIM_CDR(_3522010_37);
+Obj _3522012_37 = PRIM_ISCONS(_3522011_37);
+if (True == _3522012_37) {
+Obj _3522013_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522014_37 = PRIM_CDR(_3522013_37);
+Obj _3522015_37 = PRIM_CAR(_3522014_37);
+Obj b = _3522015_37;
+Obj _3522016_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522017_37 = PRIM_CDR(_3522016_37);
+Obj _3522018_37 = PRIM_CDR(_3522017_37);
+Obj _3522019_37 = PRIM_ISCONS(_3522018_37);
+if (True == _3522019_37) {
+Obj _3522020_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522021_37 = PRIM_CDR(_3522020_37);
+Obj _3522022_37 = PRIM_CDR(_3522021_37);
+Obj _3522023_37 = PRIM_CAR(_3522022_37);
+Obj c = _3522023_37;
+Obj _3522024_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522025_37 = PRIM_CDR(_3522024_37);
+Obj _3522026_37 = PRIM_CDR(_3522025_37);
+Obj _3522027_37 = PRIM_CDR(_3522026_37);
+Obj _3522028_37 = PRIM_EQ(Nil, _3522027_37);
+if (True == _3522028_37) {
+R[1] = c;
+R[2] = a;
+saveCont(co, clofun39, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), b);
+return;
+} else {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall0(co, _3521393_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521393_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521393_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521393_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521393_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521393_37);
+return;
+}
+}
+case 1:
+{
+Obj _3522032_37= co->res;
+Obj _3522029_37 = R[1];
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), _3522029_37, _3522032_37);
+return;
+}
+case 2:
+{
+Obj _3522030_37= co->res;
+Obj a = R[1];
+Obj _3522029_37 = R[2];
+Obj _3522031_37 = makeCons(co->gc, a, Nil);
+R[1] = _3522029_37;
+saveCont(co, clofun39, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), _3522030_37, _3522031_37);
+return;
+}
+case 3:
+{
+Obj _3522029_37= co->res;
+Obj c = R[1];
+Obj a = R[2];
+R[1] = a;
+R[2] = _3522029_37;
+saveCont(co, clofun39, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), c);
 return;
 }
 }
@@ -8600,17 +7276,38 @@ static void clofun38(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006016 = R[1];
-Obj x9223090566219006048 = R[2];
-Obj x9223090566219006080 = makeNative(co->gc, 4, clofun37, 0, 2, x9223090566219006016, x9223090566219006048);
-Obj x9223090566218683424 = PRIM_EQ(Nil, x9223090566219006016);
-if (True == x9223090566218683424) {
-Obj s2 = x9223090566219006048;
-coraReturn(co, s2);
+Obj _3521394_37 = makeNative(co->gc, 1, clofun37, 0, 1, closureRef(R[0], 0));
+Obj _3521993_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521993_37) {
+Obj _3521994_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521995_37 = PRIM_EQ(getBinding(co, packageID, 84).name, _3521994_37);
+if (True == _3521995_37) {
+Obj _3521996_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521997_37 = PRIM_ISCONS(_3521996_37);
+if (True == _3521997_37) {
+Obj _3521998_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521999_37 = PRIM_CAR(_3521998_37);
+Obj lam = _3521999_37;
+Obj _3522000_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3522001_37 = PRIM_CDR(_3522000_37);
+Obj more = _3522001_37;
+Obj _3522002_37 = makeCons(co->gc, lam, more);
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), _3522002_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006080);
+coraCall0(co, _3521394_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521394_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521394_37);
 return;
 }
 }
@@ -8621,39 +7318,43 @@ static void clofun37(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006304 = makeNative(co->gc, 2, clofun36, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj x9223090566218733984 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218733984) {
-Obj x9223090566218734272 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x9223090566218734272;
-Obj x9223090566218734560 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x9223090566218734560;
-Obj s2 = closureRef(R[0], 1);
-R[1] = y;
-R[2] = s2;
-R[3] = x9223090566219006304;
-saveCont(co, clofun37, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), x, s2);
+Obj _3521395_37 = makeNative(co->gc, 1, clofun36, 0, 1, closureRef(R[0], 0));
+Obj _3521983_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521983_37) {
+Obj _3521984_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521985_37 = PRIM_EQ(getBinding(co, packageID, 78).name, _3521984_37);
+if (True == _3521985_37) {
+Obj _3521986_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521987_37 = PRIM_ISCONS(_3521986_37);
+if (True == _3521987_37) {
+Obj _3521988_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521989_37 = PRIM_CAR(_3521988_37);
+Obj x = _3521989_37;
+Obj _3521990_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521991_37 = PRIM_CDR(_3521990_37);
+Obj _3521992_37 = PRIM_EQ(Nil, _3521991_37);
+if (True == _3521992_37) {
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), x);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006304);
+coraCall0(co, _3521395_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566218735008= co->res;
-Obj y = R[1];
-Obj s2 = R[2];
-Obj x9223090566219006304 = R[3];
-if (True == x9223090566218735008) {
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), y, s2);
-return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006304);
+coraCall0(co, _3521395_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521395_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521395_37);
 return;
 }
 }
@@ -8664,30 +7365,67 @@ static void clofun36(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006720 = makeNative(co->gc, 1, clofun35, 0, 0);
-Obj x9223090566218732416 = PRIM_ISCONS(closureRef(R[0], 0));
-if (True == x9223090566218732416) {
-Obj x9223090566218732736 = PRIM_CAR(closureRef(R[0], 0));
-Obj x = x9223090566218732736;
-Obj x9223090566218732992 = PRIM_CDR(closureRef(R[0], 0));
-Obj y = x9223090566218732992;
-Obj s2 = closureRef(R[0], 1);
-R[1] = x;
+Obj _3521396_37 = makeNative(co->gc, 1, clofun35, 0, 1, closureRef(R[0], 0));
+Obj _3521963_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521963_37) {
+Obj _3521964_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521965_37 = PRIM_EQ(getBinding(co, packageID, 79).name, _3521964_37);
+if (True == _3521965_37) {
+Obj _3521966_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521967_37 = PRIM_ISCONS(_3521966_37);
+if (True == _3521967_37) {
+Obj _3521968_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521969_37 = PRIM_CAR(_3521968_37);
+Obj exp = _3521969_37;
+Obj _3521970_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521971_37 = PRIM_CDR(_3521970_37);
+Obj _3521972_37 = PRIM_ISCONS(_3521971_37);
+if (True == _3521972_37) {
+Obj _3521973_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521974_37 = PRIM_CDR(_3521973_37);
+Obj _3521975_37 = PRIM_CAR(_3521974_37);
+Obj cont = _3521975_37;
+Obj _3521976_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521977_37 = PRIM_CDR(_3521976_37);
+Obj _3521978_37 = PRIM_CDR(_3521977_37);
+Obj _3521979_37 = PRIM_EQ(Nil, _3521978_37);
+if (True == _3521979_37) {
+Obj _3521980_37 = makeCons(co->gc, cont, Nil);
+Obj _3521981_37 = makeCons(co->gc, exp, _3521980_37);
 saveCont(co, clofun36, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), y, s2);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), globalRef(co, getBinding(co, packageID, 82)), _3521981_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006720);
+coraCall0(co, _3521396_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521396_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521396_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521396_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521396_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566218733536= co->res;
-Obj x = R[1];
-Obj x9223090566218733568 = makeCons(co->gc, x, x9223090566218733536);
-coraReturn(co, x9223090566218733568);
+Obj _3521982_37= co->res;
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, _3521982_37);
 return;
 }
 }
@@ -8697,9 +7435,45 @@ static void clofun35(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3521397_37 = makeNative(co->gc, 2, clofun34, 0, 1, closureRef(R[0], 0));
+Obj _3521953_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521953_37) {
+Obj _3521954_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521955_37 = PRIM_EQ(getBinding(co, packageID, 80).name, _3521954_37);
+if (True == _3521955_37) {
+Obj _3521956_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521957_37 = PRIM_ISCONS(_3521956_37);
+if (True == _3521957_37) {
+Obj _3521958_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521959_37 = PRIM_CAR(_3521958_37);
+Obj exp = _3521959_37;
+Obj _3521960_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521961_37 = PRIM_CDR(_3521960_37);
+Obj _3521962_37 = PRIM_EQ(Nil, _3521961_37);
+if (True == _3521962_37) {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), exp);
 return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521397_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521397_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521397_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521397_37);
+return;
+}
 }
 }
 }
@@ -8708,73 +7482,68 @@ static void clofun34(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006912 = R[1];
-Obj x9223090566219006944 = R[2];
-Obj x9223090566219006976 = R[3];
-Obj x9223090566219007008 = makeNative(co->gc, 2, clofun32, 0, 3, x9223090566219006912, x9223090566219006944, x9223090566219006976);
-Obj __ = x9223090566219006912;
-Obj globals = x9223090566219006944;
-Obj x = x9223090566219006976;
-Obj x9223090566219385344 = makeNative(co->gc, 2, clofun33, 1, 2, x, x9223090566219007008);
-R[1] = x;
-R[2] = x9223090566219385344;
-saveCont(co, clofun34, 3, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 89)), x);
+Obj _3521398_37 = makeNative(co->gc, 1, clofun33, 0, 1, closureRef(R[0], 0));
+Obj _3521935_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521935_37) {
+Obj _3521936_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521937_37 = PRIM_EQ(getBinding(co, packageID, 81).name, _3521936_37);
+if (True == _3521937_37) {
+Obj _3521938_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521939_37 = PRIM_ISCONS(_3521938_37);
+if (True == _3521939_37) {
+Obj _3521940_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521941_37 = PRIM_CAR(_3521940_37);
+Obj arg = _3521941_37;
+Obj _3521942_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521943_37 = PRIM_CDR(_3521942_37);
+Obj _3521944_37 = PRIM_ISCONS(_3521943_37);
+if (True == _3521944_37) {
+Obj _3521945_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521946_37 = PRIM_CDR(_3521945_37);
+Obj _3521947_37 = PRIM_CAR(_3521946_37);
+Obj body = _3521947_37;
+Obj _3521948_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521949_37 = PRIM_CDR(_3521948_37);
+Obj _3521950_37 = PRIM_CDR(_3521949_37);
+Obj _3521951_37 = PRIM_EQ(Nil, _3521950_37);
+if (True == _3521951_37) {
+R[1] = arg;
+saveCont(co, clofun34, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 82)), body);
 return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521398_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521398_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521398_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521398_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521398_37);
+return;
+}
 }
 case 1:
 {
-Obj x9223090566218784416= co->res;
-Obj x9223090566219385344 = R[1];
-if (True == x9223090566218784416) {
+Obj _3521952_37= co->res;
+Obj arg = R[1];
 co->ctx.sp = R;
-coraCall1(co, x9223090566219385344, True);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), _3521952_37, arg);
 return;
-} else {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219385344, False);
-return;
-}
-}
-case 2:
-{
-Obj x9223090566218784096= co->res;
-Obj x = R[1];
-Obj x9223090566219385344 = R[2];
-if (True == x9223090566218784096) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219385344, True);
-return;
-} else {
-R[1] = x9223090566219385344;
-saveCont(co, clofun34, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), x);
-return;
-}
-}
-case 3:
-{
-Obj x9223090566218783520= co->res;
-Obj x = R[1];
-Obj x9223090566219385344 = R[2];
-if (True == x9223090566218783520) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219385344, True);
-return;
-} else {
-Obj x9223090566218783840 = primIsString(x);
-if (True == x9223090566218783840) {
-co->ctx.sp = R;
-coraCall1(co, x9223090566219385344, True);
-return;
-} else {
-R[1] = x;
-R[2] = x9223090566219385344;
-saveCont(co, clofun34, 2, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 88)), x);
-return;
-}
-}
 }
 }
 }
@@ -8783,17 +7552,28 @@ static void clofun33(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219385376 = R[1];
-if (True == x9223090566219385376) {
-Obj x9223090566218782848 = makeCons(co->gc, closureRef(R[0], 0), Nil);
-Obj x9223090566218782912 = makeCons(co->gc, getBinding(co, packageID, 90).name, x9223090566218782848);
-coraReturn(co, x9223090566218782912);
+Obj _3521930_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521930_37) {
+Obj _3521931_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj f = _3521931_37;
+Obj _3521932_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3521932_37;
+Obj _3521933_37 = makeCons(co->gc, f, args);
+saveCont(co, clofun33, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), globalRef(co, getBinding(co, packageID, 82)), _3521933_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, closureRef(R[0], 1));
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
+}
+case 1:
+{
+Obj _3521934_37= co->res;
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), globalRef(co, getBinding(co, packageID, 87)), Nil, _3521934_37);
+return;
 }
 }
 }
@@ -8802,57 +7582,44 @@ static void clofun32(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007264 = makeNative(co->gc, 3, clofun31, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj __ = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566218950560 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566218950560) {
-Obj x9223090566218951008 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566218951040 = PRIM_EQ(getBinding(co, packageID, 91).name, x9223090566218951008);
-if (True == x9223090566218951040) {
-Obj x9223090566218951456 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566218951488 = PRIM_ISCONS(x9223090566218951456);
-if (True == x9223090566218951488) {
-Obj x9223090566218951936 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566218951968 = PRIM_CAR(x9223090566218951936);
-Obj x = x9223090566218951968;
-Obj x9223090566218952672 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566218780672 = PRIM_CDR(x9223090566218952672);
-Obj x9223090566218780704 = PRIM_EQ(Nil, x9223090566218780672);
-if (True == x9223090566218780704) {
-R[1] = x;
-saveCont(co, clofun32, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 93)), x, globals);
+Obj _3521379_37 = R[1];
+Obj _3521380_37 = makeNative(co->gc, 1, clofun31, 0, 1, _3521379_37);
+Obj _3521916_37 = PRIM_ISCONS(_3521379_37);
+if (True == _3521916_37) {
+Obj _3521917_37 = PRIM_CAR(_3521379_37);
+Obj _3521918_37 = PRIM_EQ(getBinding(co, packageID, 102).name, _3521917_37);
+if (True == _3521918_37) {
+Obj _3521919_37 = PRIM_CDR(_3521379_37);
+Obj _3521920_37 = PRIM_ISCONS(_3521919_37);
+if (True == _3521920_37) {
+Obj _3521921_37 = PRIM_CDR(_3521379_37);
+Obj _3521922_37 = PRIM_CAR(_3521921_37);
+Obj _3521923_37 = PRIM_CDR(_3521379_37);
+Obj _3521924_37 = PRIM_CDR(_3521923_37);
+Obj _3521925_37 = PRIM_EQ(Nil, _3521924_37);
+if (True == _3521925_37) {
+coraReturn(co, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007264);
+coraCall0(co, _3521380_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007264);
+coraCall0(co, _3521380_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007264);
+coraCall0(co, _3521380_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007264);
+coraCall0(co, _3521380_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566218780992= co->res;
-Obj x = R[1];
-Obj x9223090566218781408 = makeCons(co->gc, x, Nil);
-Obj x9223090566218781440 = makeCons(co->gc, getBinding(co, packageID, 90).name, x9223090566218781408);
-coraReturn(co, x9223090566218781440);
-return;
 }
 }
 }
@@ -8861,44 +7628,41 @@ static void clofun31(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007648 = makeNative(co->gc, 4, clofun30, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x = closureRef(R[0], 2);
-Obj x9223090566218948960 = primIsSymbol(x);
-if (True == x9223090566218948960) {
-R[1] = globals;
-R[2] = x;
-saveCont(co, clofun31, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), x, env);
+Obj _3521381_37 = makeNative(co->gc, 1, clofun30, 0, 1, closureRef(R[0], 0));
+Obj _3521906_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521906_37) {
+Obj _3521907_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521908_37 = PRIM_EQ(getBinding(co, packageID, 99).name, _3521907_37);
+if (True == _3521908_37) {
+Obj _3521909_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521910_37 = PRIM_ISCONS(_3521909_37);
+if (True == _3521910_37) {
+Obj _3521911_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521912_37 = PRIM_CAR(_3521911_37);
+Obj _3521913_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521914_37 = PRIM_CDR(_3521913_37);
+Obj _3521915_37 = PRIM_EQ(Nil, _3521914_37);
+if (True == _3521915_37) {
+coraReturn(co, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007648);
+coraCall0(co, _3521381_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566218949600= co->res;
-Obj x = R[1];
-Obj x9223090566218950016 = makeCons(co->gc, x, Nil);
-Obj x9223090566218950048 = makeCons(co->gc, getBinding(co, packageID, 92).name, x9223090566218950016);
-coraReturn(co, x9223090566218950048);
-return;
-}
-case 2:
-{
-Obj x9223090566218949312= co->res;
-Obj globals = R[1];
-Obj x = R[2];
-if (True == x9223090566218949312) {
-coraReturn(co, x);
-return;
 } else {
-R[1] = x;
-saveCont(co, clofun31, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 93)), x, globals);
+co->ctx.sp = R;
+coraCall0(co, _3521381_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521381_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521381_37);
 return;
 }
 }
@@ -8909,85 +7673,43 @@ static void clofun30(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007904 = makeNative(co->gc, 1, clofun29, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219205376 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219205376) {
-Obj x9223090566219205824 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219205856 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566219205824);
-if (True == x9223090566219205856) {
-Obj x9223090566219206272 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219206304 = PRIM_ISCONS(x9223090566219206272);
-if (True == x9223090566219206304) {
-Obj x9223090566219092032 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219092064 = PRIM_CAR(x9223090566219092032);
-Obj args = x9223090566219092064;
-Obj x9223090566219092640 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219092672 = PRIM_CDR(x9223090566219092640);
-Obj x9223090566219092704 = PRIM_ISCONS(x9223090566219092672);
-if (True == x9223090566219092704) {
-Obj x9223090566219093280 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219093312 = PRIM_CDR(x9223090566219093280);
-Obj x9223090566219093344 = PRIM_CAR(x9223090566219093312);
-Obj body = x9223090566219093344;
-Obj x9223090566219094112 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219094144 = PRIM_CDR(x9223090566219094112);
-Obj x9223090566219094176 = PRIM_CDR(x9223090566219094144);
-Obj x9223090566219094208 = PRIM_EQ(Nil, x9223090566219094176);
-if (True == x9223090566219094208) {
-R[1] = globals;
-R[2] = body;
-R[3] = args;
-saveCont(co, clofun30, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), args, env);
+Obj _3521382_37 = makeNative(co->gc, 1, clofun29, 0, 1, closureRef(R[0], 0));
+Obj _3521896_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521896_37) {
+Obj _3521897_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521898_37 = PRIM_EQ(getBinding(co, packageID, 96).name, _3521897_37);
+if (True == _3521898_37) {
+Obj _3521899_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521900_37 = PRIM_ISCONS(_3521899_37);
+if (True == _3521900_37) {
+Obj _3521901_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521902_37 = PRIM_CAR(_3521901_37);
+Obj _3521903_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521904_37 = PRIM_CDR(_3521903_37);
+Obj _3521905_37 = PRIM_EQ(Nil, _3521904_37);
+if (True == _3521905_37) {
+coraReturn(co, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007904);
+coraCall0(co, _3521382_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007904);
+coraCall0(co, _3521382_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007904);
+coraCall0(co, _3521382_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007904);
+coraCall0(co, _3521382_37);
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007904);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566219095232= co->res;
-Obj args = R[1];
-Obj x9223090566219095296 = makeCons(co->gc, x9223090566219095232, Nil);
-Obj x9223090566219095328 = makeCons(co->gc, args, x9223090566219095296);
-Obj x9223090566219095360 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566219095328);
-coraReturn(co, x9223090566219095360);
-return;
-}
-case 2:
-{
-Obj x9223090566219095136= co->res;
-Obj globals = R[1];
-Obj body = R[2];
-Obj args = R[3];
-R[1] = args;
-saveCont(co, clofun30, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), x9223090566219095136, globals, body);
-return;
 }
 }
 }
@@ -8996,76 +7718,41 @@ static void clofun29(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008352 = makeNative(co->gc, 2, clofun28, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219311808 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219311808) {
-Obj x9223090566219312320 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219312352 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219312320);
-if (True == x9223090566219312352) {
-Obj x9223090566219312768 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219312800 = PRIM_ISCONS(x9223090566219312768);
-if (True == x9223090566219312800) {
-Obj x9223090566219276512 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219276544 = PRIM_CAR(x9223090566219276512);
-Obj x9223090566219276576 = PRIM_ISCONS(x9223090566219276544);
-if (True == x9223090566219276576) {
-Obj x9223090566219277344 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219277376 = PRIM_CAR(x9223090566219277344);
-Obj x9223090566219277408 = PRIM_CAR(x9223090566219277376);
-Obj x9223090566219277440 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219277408);
-if (True == x9223090566219277440) {
-Obj x9223090566219278016 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219278048 = PRIM_CAR(x9223090566219278016);
-Obj x9223090566219278080 = PRIM_CDR(x9223090566219278048);
-Obj exp1 = x9223090566219278080;
-Obj x9223090566219278496 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219278528 = PRIM_CDR(x9223090566219278496);
-Obj exp2 = x9223090566219278528;
-Obj x9223090566219278752 = primGenSym(co);
-Obj f = x9223090566219278752;
-Obj x9223090566219278976 = primGenSym(co);
-Obj v = x9223090566219278976;
-Obj x9223090566219280320 = makeCons(co->gc, v, Nil);
-Obj x9223090566219203104 = makeCons(co->gc, v, exp2);
-Obj x9223090566219203136 = makeCons(co->gc, getBinding(co, packageID, 97).name, x9223090566219203104);
-Obj x9223090566219203200 = makeCons(co->gc, x9223090566219203136, Nil);
-Obj x9223090566219203232 = makeCons(co->gc, x9223090566219280320, x9223090566219203200);
-Obj x9223090566219203264 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566219203232);
-Obj x9223090566219204032 = makeCons(co->gc, getBinding(co, packageID, 97).name, exp1);
-Obj x9223090566219204096 = makeCons(co->gc, x9223090566219204032, Nil);
-Obj x9223090566219204128 = makeCons(co->gc, f, x9223090566219204096);
-Obj x9223090566219204192 = makeCons(co->gc, x9223090566219204128, Nil);
-Obj x9223090566219204224 = makeCons(co->gc, x9223090566219203264, x9223090566219204192);
-Obj x9223090566219204256 = makeCons(co->gc, f, x9223090566219204224);
-Obj x9223090566219204288 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566219204256);
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, x9223090566219204288);
+Obj _3521383_37 = makeNative(co->gc, 1, clofun28, 0, 1, closureRef(R[0], 0));
+Obj _3521886_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521886_37) {
+Obj _3521887_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521888_37 = PRIM_EQ(getBinding(co, packageID, 90).name, _3521887_37);
+if (True == _3521888_37) {
+Obj _3521889_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521890_37 = PRIM_ISCONS(_3521889_37);
+if (True == _3521890_37) {
+Obj _3521891_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521892_37 = PRIM_CAR(_3521891_37);
+Obj _3521893_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521894_37 = PRIM_CDR(_3521893_37);
+Obj _3521895_37 = PRIM_EQ(Nil, _3521894_37);
+if (True == _3521895_37) {
+coraReturn(co, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008352);
+coraCall0(co, _3521383_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008352);
+coraCall0(co, _3521383_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008352);
+coraCall0(co, _3521383_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008352);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008352);
+coraCall0(co, _3521383_37);
 return;
 }
 }
@@ -9076,45 +7763,43 @@ static void clofun28(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008928 = makeNative(co->gc, 4, clofun27, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219309760 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219309760) {
-Obj x9223090566219310208 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219310240 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219310208);
-if (True == x9223090566219310240) {
-Obj x9223090566219310496 = PRIM_CDR(closureRef(R[0], 2));
-Obj args = x9223090566219310496;
-R[1] = args;
-saveCont(co, clofun28, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), env, globals);
+Obj _3521384_37 = makeNative(co->gc, 2, clofun27, 0, 1, closureRef(R[0], 0));
+Obj _3521876_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521876_37) {
+Obj _3521877_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521878_37 = PRIM_EQ(getBinding(co, packageID, 83).name, _3521877_37);
+if (True == _3521878_37) {
+Obj _3521879_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521880_37 = PRIM_ISCONS(_3521879_37);
+if (True == _3521880_37) {
+Obj _3521881_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521882_37 = PRIM_CAR(_3521881_37);
+Obj _3521883_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521884_37 = PRIM_CDR(_3521883_37);
+Obj _3521885_37 = PRIM_EQ(Nil, _3521884_37);
+if (True == _3521885_37) {
+coraReturn(co, True);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008928);
+coraCall0(co, _3521384_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008928);
+coraCall0(co, _3521384_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566219311136= co->res;
-Obj x9223090566219311168 = makeCons(co->gc, getBinding(co, packageID, 97).name, x9223090566219311136);
-coraReturn(co, x9223090566219311168);
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521384_37);
 return;
 }
-case 2:
-{
-Obj x9223090566219311072= co->res;
-Obj args = R[1];
-saveCont(co, clofun28, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219311072, args);
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521384_37);
 return;
+}
 }
 }
 }
@@ -9123,85 +7808,52 @@ static void clofun27(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009280 = makeNative(co->gc, 1, clofun26, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219389984 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219389984) {
-Obj x9223090566219390432 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219390464 = PRIM_EQ(getBinding(co, packageID, 95).name, x9223090566219390432);
-if (True == x9223090566219390464) {
-Obj x9223090566219390880 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219390912 = PRIM_ISCONS(x9223090566219390880);
-if (True == x9223090566219390912) {
-Obj x9223090566219383136 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219383168 = PRIM_CAR(x9223090566219383136);
-Obj x = x9223090566219383168;
-Obj x9223090566219383744 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219383776 = PRIM_CDR(x9223090566219383744);
-Obj x9223090566219383808 = PRIM_ISCONS(x9223090566219383776);
-if (True == x9223090566219383808) {
-Obj x9223090566219384384 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219384416 = PRIM_CDR(x9223090566219384384);
-Obj x9223090566219384448 = PRIM_CAR(x9223090566219384416);
-Obj y = x9223090566219384448;
-Obj x9223090566219385216 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219385248 = PRIM_CDR(x9223090566219385216);
-Obj x9223090566219385280 = PRIM_CDR(x9223090566219385248);
-Obj x9223090566219385312 = PRIM_EQ(Nil, x9223090566219385280);
-if (True == x9223090566219385312) {
-R[1] = env;
-R[2] = globals;
-R[3] = y;
-saveCont(co, clofun27, 2, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, x);
+Obj _3521385_37 = makeNative(co->gc, 1, clofun26, 0, 0);
+Obj _3521866_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521866_37) {
+Obj _3521867_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521868_37 = PRIM_EQ(getBinding(co, packageID, 84).name, _3521867_37);
+if (True == _3521868_37) {
+Obj _3521869_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521870_37 = PRIM_ISCONS(_3521869_37);
+if (True == _3521870_37) {
+Obj _3521871_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521872_37 = PRIM_CAR(_3521871_37);
+Obj label = _3521872_37;
+Obj _3521873_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521874_37 = PRIM_CDR(_3521873_37);
+R[1] = _3521385_37;
+saveCont(co, clofun27, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 89)), label);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009280);
+coraCall0(co, _3521385_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009280);
+coraCall0(co, _3521385_37);
 return;
 }
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009280);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009280);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009280);
+coraCall0(co, _3521385_37);
 return;
 }
 }
 case 1:
 {
-Obj x9223090566219386432= co->res;
-Obj x9223090566219385984 = R[1];
-Obj x9223090566219386496 = makeCons(co->gc, x9223090566219386432, Nil);
-Obj x9223090566219386528 = makeCons(co->gc, x9223090566219385984, x9223090566219386496);
-Obj x9223090566219386560 = makeCons(co->gc, getBinding(co, packageID, 95).name, x9223090566219386528);
-coraReturn(co, x9223090566219386560);
+Obj _3521875_37= co->res;
+Obj _3521385_37 = R[1];
+if (True == _3521875_37) {
+coraReturn(co, True);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521385_37);
 return;
 }
-case 2:
-{
-Obj x9223090566219385984= co->res;
-Obj env = R[1];
-Obj globals = R[2];
-Obj y = R[3];
-R[1] = x9223090566219385984;
-saveCont(co, clofun27, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, y);
-return;
 }
 }
 }
@@ -9210,29 +7862,8 @@ static void clofun26(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006528 = makeNative(co->gc, 5, clofun25, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219388448 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219388448) {
-Obj x9223090566219388896 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219388928 = PRIM_EQ(getBinding(co, packageID, 95).name, x9223090566219388896);
-if (True == x9223090566219388928) {
-Obj x9223090566219389184 = PRIM_CDR(closureRef(R[0], 2));
-Obj args = x9223090566219389184;
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "do expects exactly 2 expressions; use begin for multiple"));
+coraReturn(co, False);
 return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006528);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006528);
-return;
-}
 }
 }
 }
@@ -9241,107 +7872,48 @@ static void clofun25(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006880 = makeNative(co->gc, 1, clofun24, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219458112 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219458112) {
-Obj x9223090566219458560 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219458592 = PRIM_EQ(getBinding(co, packageID, 96).name, x9223090566219458560);
-if (True == x9223090566219458592) {
-Obj x9223090566219459008 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219459040 = PRIM_ISCONS(x9223090566219459008);
-if (True == x9223090566219459040) {
-Obj x9223090566219459456 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219459488 = PRIM_CAR(x9223090566219459456);
-Obj a = x9223090566219459488;
-Obj x9223090566219460064 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219460096 = PRIM_CDR(x9223090566219460064);
-Obj x9223090566219460128 = PRIM_ISCONS(x9223090566219460096);
-if (True == x9223090566219460128) {
-Obj x9223090566219407456 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219407488 = PRIM_CDR(x9223090566219407456);
-Obj x9223090566219407520 = PRIM_CAR(x9223090566219407488);
-Obj b = x9223090566219407520;
-Obj x9223090566219408256 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219408288 = PRIM_CDR(x9223090566219408256);
-Obj x9223090566219408320 = PRIM_CDR(x9223090566219408288);
-Obj x9223090566219408352 = PRIM_ISCONS(x9223090566219408320);
-if (True == x9223090566219408352) {
-Obj x9223090566219409088 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219409120 = PRIM_CDR(x9223090566219409088);
-Obj x9223090566219409152 = PRIM_CDR(x9223090566219409120);
-Obj x9223090566219409184 = PRIM_CAR(x9223090566219409152);
-Obj c = x9223090566219409184;
-Obj x9223090566219410112 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219410144 = PRIM_CDR(x9223090566219410112);
-Obj x9223090566219410176 = PRIM_CDR(x9223090566219410144);
-Obj x9223090566219410208 = PRIM_CDR(x9223090566219410176);
-Obj x9223090566219410240 = PRIM_EQ(Nil, x9223090566219410208);
-if (True == x9223090566219410240) {
-R[1] = env;
-R[2] = globals;
-R[3] = c;
-R[4] = a;
-saveCont(co, clofun25, 2, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, b);
+Obj _3521374_37 = R[1];
+Obj _3521375_37 = R[2];
+Obj _3521855_37 = PRIM_EQ(Nil, _3521374_37);
+if (True == _3521855_37) {
+coraReturn(co, Nil);
+return;
+} else {
+Obj _3521377_37 = makeNative(co->gc, 2, clofun24, 0, 2, _3521374_37, _3521375_37);
+Obj _3521861_37 = PRIM_ISCONS(_3521374_37);
+if (True == _3521861_37) {
+Obj _3521862_37 = PRIM_CAR(_3521374_37);
+Obj x = _3521862_37;
+Obj _3521863_37 = PRIM_CDR(_3521374_37);
+Obj y = _3521863_37;
+R[1] = y;
+R[2] = _3521375_37;
+R[3] = _3521377_37;
+saveCont(co, clofun25, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 101)), x, _3521375_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
+coraCall0(co, _3521377_37);
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219006880);
-return;
 }
 }
 case 1:
 {
-Obj x9223090566219387136= co->res;
-Obj x9223090566219411040 = R[1];
-Obj a = R[2];
-Obj x9223090566219387200 = makeCons(co->gc, x9223090566219387136, Nil);
-Obj x9223090566219387232 = makeCons(co->gc, x9223090566219411040, x9223090566219387200);
-Obj x9223090566219387264 = makeCons(co->gc, a, x9223090566219387232);
-Obj x9223090566219387296 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566219387264);
-coraReturn(co, x9223090566219387296);
+Obj _3521864_37= co->res;
+Obj y = R[1];
+Obj _3521375_37 = R[2];
+Obj _3521377_37 = R[3];
+if (True == _3521864_37) {
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), y, _3521375_37);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521377_37);
 return;
 }
-case 2:
-{
-Obj x9223090566219411040= co->res;
-Obj env = R[1];
-Obj globals = R[2];
-Obj c = R[3];
-Obj a = R[4];
-Obj x9223090566219387040 = makeCons(co->gc, a, env);
-R[1] = x9223090566219411040;
-R[2] = a;
-saveCont(co, clofun25, 1, R);
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), x9223090566219387040, globals, c);
-return;
 }
 }
 }
@@ -9350,89 +7922,29 @@ static void clofun24(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219007552 = makeNative(co->gc, 6, clofun23, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219490720 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219490720) {
-Obj x9223090566219491136 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219491168 = PRIM_ISCONS(x9223090566219491136);
-if (True == x9223090566219491168) {
-Obj x9223090566219491776 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219491808 = PRIM_CAR(x9223090566219491776);
-Obj x9223090566219491840 = PRIM_EQ(getBinding(co, packageID, 99).name, x9223090566219491808);
-if (True == x9223090566219491840) {
-Obj x9223090566219492256 = PRIM_CAR(closureRef(R[0], 2));
-Obj x9223090566219492288 = PRIM_CDR(x9223090566219492256);
-Obj exp1 = x9223090566219492288;
-Obj x9223090566219492704 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219492736 = PRIM_ISCONS(x9223090566219492704);
-if (True == x9223090566219492736) {
-Obj x9223090566219493312 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219493344 = PRIM_CAR(x9223090566219493312);
-Obj x9223090566219485184 = PRIM_ISCONS(x9223090566219493344);
-if (True == x9223090566219485184) {
-Obj x9223090566219485952 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219485984 = PRIM_CAR(x9223090566219485952);
-Obj x9223090566219486016 = PRIM_CAR(x9223090566219485984);
-Obj x9223090566219486048 = PRIM_EQ(getBinding(co, packageID, 97).name, x9223090566219486016);
-if (True == x9223090566219486048) {
-Obj x9223090566219486624 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219486656 = PRIM_CAR(x9223090566219486624);
-Obj x9223090566219486688 = PRIM_CDR(x9223090566219486656);
-Obj exp2 = x9223090566219486688;
-Obj x9223090566219487296 = PRIM_CDR(closureRef(R[0], 2));
-Obj x9223090566219487328 = PRIM_CDR(x9223090566219487296);
-Obj x9223090566219487360 = PRIM_EQ(Nil, x9223090566219487328);
-if (True == x9223090566219487360) {
-Obj x9223090566219487584 = primGenSym(co);
-Obj f = x9223090566219487584;
-Obj x9223090566219488576 = makeCons(co->gc, getBinding(co, packageID, 99).name, exp1);
-Obj x9223090566219456576 = makeCons(co->gc, getBinding(co, packageID, 97).name, exp2);
-Obj x9223090566219456640 = makeCons(co->gc, x9223090566219456576, Nil);
-Obj x9223090566219456672 = makeCons(co->gc, f, x9223090566219456640);
-Obj x9223090566219456736 = makeCons(co->gc, x9223090566219456672, Nil);
-Obj x9223090566219456768 = makeCons(co->gc, x9223090566219488576, x9223090566219456736);
-Obj x9223090566219456800 = makeCons(co->gc, f, x9223090566219456768);
-Obj x9223090566219456832 = makeCons(co->gc, getBinding(co, packageID, 96).name, x9223090566219456800);
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, x9223090566219456832);
+Obj _3521856_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521856_37) {
+Obj _3521857_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3521857_37;
+Obj _3521858_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3521858_37;
+R[1] = x;
+saveCont(co, clofun24, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 86)), y, closureRef(R[0], 1));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
-return;
 }
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
+case 1:
+{
+Obj _3521859_37= co->res;
+Obj x = R[1];
+Obj _3521860_37 = makeCons(co->gc, x, _3521859_37);
+coraReturn(co, _3521860_37);
 return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219007552);
-return;
-}
 }
 }
 }
@@ -9441,154 +7953,46 @@ static void clofun23(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008128 = makeNative(co->gc, 2, clofun22, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj x9223090566219550400 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566219550400) {
-Obj x9223090566219550656 = PRIM_CAR(closureRef(R[0], 2));
-Obj op = x9223090566219550656;
-Obj x9223090566219518144 = PRIM_CDR(closureRef(R[0], 2));
-Obj args = x9223090566219518144;
-R[1] = op;
-R[2] = args;
-R[3] = env;
-R[4] = globals;
-R[5] = x9223090566219008128;
-saveCont(co, clofun23, 7, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 110)), op);
+Obj _3521369_37 = R[1];
+Obj _3521370_37 = R[2];
+Obj _3521844_37 = PRIM_EQ(Nil, _3521369_37);
+if (True == _3521844_37) {
+coraReturn(co, _3521370_37);
+return;
+} else {
+Obj _3521372_37 = makeNative(co->gc, 2, clofun22, 0, 2, _3521369_37, _3521370_37);
+Obj _3521850_37 = PRIM_ISCONS(_3521369_37);
+if (True == _3521850_37) {
+Obj _3521851_37 = PRIM_CAR(_3521369_37);
+Obj x = _3521851_37;
+Obj _3521852_37 = PRIM_CDR(_3521369_37);
+Obj y = _3521852_37;
+R[1] = y;
+R[2] = _3521370_37;
+R[3] = _3521372_37;
+saveCont(co, clofun23, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 101)), x, _3521370_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008128);
+coraCall0(co, _3521372_37);
 return;
+}
 }
 }
 case 1:
 {
-Obj x9223090566219520288= co->res;
-Obj x9223090566219519808 = R[1];
-Obj x9223090566219520320 = makeCons(co->gc, x9223090566219519808, x9223090566219520288);
-coraReturn(co, x9223090566219520320);
-return;
-}
-case 2:
-{
-Obj x9223090566219520224= co->res;
-Obj args = R[1];
-Obj x9223090566219519808 = R[2];
-R[1] = x9223090566219519808;
-saveCont(co, clofun23, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219520224, args);
-return;
-}
-case 3:
-{
-Obj x9223090566219489568= co->res;
-Obj tmp = R[1];
-Obj env = R[2];
-Obj globals = R[3];
-Obj x9223090566219489632 = makeCons(co->gc, x9223090566219489568, Nil);
-Obj x9223090566219489664 = makeCons(co->gc, tmp, x9223090566219489632);
-Obj x9223090566219489696 = makeCons(co->gc, getBinding(co, packageID, 99).name, x9223090566219489664);
+Obj _3521853_37= co->res;
+Obj y = R[1];
+Obj _3521370_37 = R[2];
+Obj _3521372_37 = R[3];
+if (True == _3521853_37) {
 co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), env, globals, x9223090566219489696);
-return;
-}
-case 4:
-{
-Obj x9223090566219521120= co->res;
-Obj op = R[1];
-Obj args = R[2];
-Obj env = R[3];
-Obj globals = R[4];
-Obj tmp = x9223090566219521120;
-Obj x9223090566219489504 = makeCons(co->gc, op, args);
-R[1] = tmp;
-R[2] = env;
-R[3] = globals;
-saveCont(co, clofun23, 3, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), x9223090566219489504, tmp);
-return;
-}
-case 5:
-{
-Obj x9223090566219518912= co->res;
-Obj required = R[1];
-Obj op = R[2];
-Obj args = R[3];
-Obj env = R[4];
-Obj globals = R[5];
-Obj provided = x9223090566219518912;
-Obj x9223090566219519200 = PRIM_EQ(required, provided);
-if (True == x9223090566219519200) {
-Obj x9223090566219519776 = makeCons(co->gc, op, Nil);
-Obj x9223090566219519808 = makeCons(co->gc, getBinding(co, packageID, 100).name, x9223090566219519776);
-R[1] = args;
-R[2] = x9223090566219519808;
-saveCont(co, clofun23, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), env, globals);
-return;
-} else {
-Obj x9223090566219520608 = PRIM_GT(required, provided);
-if (True == x9223090566219520608) {
-Obj x9223090566219521056 = PRIM_SUB(required, provided);
-R[1] = op;
-R[2] = args;
-R[3] = env;
-R[4] = globals;
-saveCont(co, clofun23, 4, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 104)), x9223090566219521056, Nil);
-return;
-} else {
-if (True == True) {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "primitive call mismatch"));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), y, _3521370_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no cond match"));
-return;
-}
-}
-}
-}
-case 6:
-{
-Obj x9223090566219518656= co->res;
-Obj op = R[1];
-Obj args = R[2];
-Obj env = R[3];
-Obj globals = R[4];
-Obj required = x9223090566219518656;
-R[1] = required;
-R[2] = op;
-R[3] = args;
-R[4] = env;
-R[5] = globals;
-saveCont(co, clofun23, 5, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 101)), args);
-return;
-}
-case 7:
-{
-Obj x9223090566219518400= co->res;
-Obj op = R[1];
-Obj args = R[2];
-Obj env = R[3];
-Obj globals = R[4];
-Obj x9223090566219008128 = R[5];
-if (True == x9223090566219518400) {
-R[1] = op;
-R[2] = args;
-R[3] = env;
-R[4] = globals;
-saveCont(co, clofun23, 6, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 106)), op);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008128);
+coraCall0(co, _3521372_37);
 return;
 }
 }
@@ -9599,21 +8003,28 @@ static void clofun22(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008480 = makeNative(co->gc, 1, clofun21, 0, 0);
-Obj env = closureRef(R[0], 0);
-Obj globals = closureRef(R[0], 1);
-Obj ls = closureRef(R[0], 2);
-R[1] = ls;
+Obj _3521845_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521845_37) {
+Obj _3521846_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj x = _3521846_37;
+Obj _3521847_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3521847_37;
+R[1] = x;
 saveCont(co, clofun22, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), env, globals);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 87)), y, closureRef(R[0], 1));
 return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+return;
+}
 }
 case 1:
 {
-Obj x9223090566219549984= co->res;
-Obj ls = R[1];
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 102)), x9223090566219549984, ls);
+Obj _3521848_37= co->res;
+Obj x = R[1];
+Obj _3521849_37 = makeCons(co->gc, x, _3521848_37);
+coraReturn(co, _3521849_37);
 return;
 }
 }
@@ -9623,9 +8034,69 @@ static void clofun21(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+Obj _3521354_37 = R[1];
+Obj _3521355_37 = R[2];
+Obj _3521356_37 = R[3];
+Obj _3521507_37 = makeNative(co->gc, 2, clofun20, 1, 3, _3521354_37, _3521356_37, _3521355_37);
+R[1] = _3521356_37;
+R[2] = _3521507_37;
+saveCont(co, clofun21, 3, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 89)), _3521356_37);
 return;
+}
+case 1:
+{
+Obj _3521842_37= co->res;
+Obj _3521507_37 = R[1];
+if (True == _3521842_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521507_37, True);
+return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, _3521507_37, False);
+return;
+}
+}
+case 2:
+{
+Obj _3521841_37= co->res;
+Obj _3521356_37 = R[1];
+Obj _3521507_37 = R[2];
+if (True == _3521841_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521507_37, True);
+return;
+} else {
+R[1] = _3521507_37;
+saveCont(co, clofun21, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), _3521356_37);
+return;
+}
+}
+case 3:
+{
+Obj _3521839_37= co->res;
+Obj _3521356_37 = R[1];
+Obj _3521507_37 = R[2];
+if (True == _3521839_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521507_37, True);
+return;
+} else {
+Obj _3521840_37 = primIsString(_3521356_37);
+if (True == _3521840_37) {
+co->ctx.sp = R;
+coraCall1(co, _3521507_37, True);
+return;
+} else {
+R[1] = _3521356_37;
+R[2] = _3521507_37;
+saveCont(co, clofun21, 2, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 88)), _3521356_37);
+return;
+}
+}
 }
 }
 }
@@ -9634,19 +8105,63 @@ static void clofun20(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006432 = R[1];
-Obj x9223090566219006464 = R[2];
-Obj x9223090566219006496 = makeNative(co->gc, 1, clofun19, 0, 2, x9223090566219006432, x9223090566219006464);
-Obj x9223090566219547168 = PRIM_EQ(MAKE_NUMBER(0), x9223090566219006432);
-if (True == x9223090566219547168) {
-Obj res = x9223090566219006464;
-coraReturn(co, res);
+Obj _3521508_37 = R[1];
+if (True == _3521508_37) {
+Obj _3521646_37 = makeCons(co->gc, closureRef(R[0], 1), Nil);
+Obj _3521647_37 = makeCons(co->gc, getBinding(co, packageID, 102).name, _3521646_37);
+coraReturn(co, _3521647_37);
+return;
+} else {
+Obj _3521358_37 = makeNative(co->gc, 3, clofun19, 0, 3, closureRef(R[0], 1), closureRef(R[0], 0), closureRef(R[0], 2));
+Obj _3521826_37 = PRIM_ISCONS(closureRef(R[0], 1));
+if (True == _3521826_37) {
+Obj _3521827_37 = PRIM_CAR(closureRef(R[0], 1));
+Obj _3521828_37 = PRIM_EQ(getBinding(co, packageID, 90).name, _3521827_37);
+if (True == _3521828_37) {
+Obj _3521829_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3521830_37 = PRIM_ISCONS(_3521829_37);
+if (True == _3521830_37) {
+Obj _3521831_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3521832_37 = PRIM_CAR(_3521831_37);
+Obj x = _3521832_37;
+Obj _3521833_37 = PRIM_CDR(closureRef(R[0], 1));
+Obj _3521834_37 = PRIM_CDR(_3521833_37);
+Obj _3521835_37 = PRIM_EQ(Nil, _3521834_37);
+if (True == _3521835_37) {
+R[1] = x;
+saveCont(co, clofun20, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 100)), x, closureRef(R[0], 2));
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006496);
+coraCall0(co, _3521358_37);
 return;
 }
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521358_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521358_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521358_37);
+return;
+}
+}
+}
+case 1:
+{
+Obj _3521836_37= co->res;
+Obj x = R[1];
+Obj _3521837_37 = makeCons(co->gc, x, Nil);
+Obj _3521838_37 = makeCons(co->gc, getBinding(co, packageID, 102).name, _3521837_37);
+coraReturn(co, _3521838_37);
+return;
 }
 }
 }
@@ -9655,14 +8170,107 @@ static void clofun19(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006688 = makeNative(co->gc, 1, clofun18, 0, 0);
-Obj n = closureRef(R[0], 0);
-Obj res = closureRef(R[0], 1);
-Obj x9223090566219722592 = PRIM_SUB(n, MAKE_NUMBER(1));
-Obj x9223090566219546816 = primGenSym(co);
-Obj x9223090566219546880 = makeCons(co->gc, x9223090566219546816, res);
+Obj _3521648_37 = primIsSymbol(closureRef(R[0], 0));
+if (True == _3521648_37) {
+saveCont(co, clofun19, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 101)), closureRef(R[0], 0), closureRef(R[0], 1));
+return;
+} else {
+Obj _3521360_37 = makeNative(co->gc, 1, clofun18, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3521804_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521804_37) {
+Obj _3521805_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521806_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3521805_37);
+if (True == _3521806_37) {
+Obj _3521807_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521808_37 = PRIM_ISCONS(_3521807_37);
+if (True == _3521808_37) {
+Obj _3521809_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521810_37 = PRIM_CAR(_3521809_37);
+Obj args = _3521810_37;
+Obj _3521811_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521812_37 = PRIM_CDR(_3521811_37);
+Obj _3521813_37 = PRIM_ISCONS(_3521812_37);
+if (True == _3521813_37) {
+Obj _3521814_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521815_37 = PRIM_CDR(_3521814_37);
+Obj _3521816_37 = PRIM_CAR(_3521815_37);
+Obj body = _3521816_37;
+Obj _3521817_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521818_37 = PRIM_CDR(_3521817_37);
+Obj _3521819_37 = PRIM_CDR(_3521818_37);
+Obj _3521820_37 = PRIM_EQ(Nil, _3521819_37);
+if (True == _3521820_37) {
+R[1] = body;
+R[2] = args;
+saveCont(co, clofun19, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), args, closureRef(R[0], 1));
+return;
+} else {
 co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 104)), x9223090566219722592, x9223090566219546880);
+coraCall0(co, _3521360_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521360_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521360_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521360_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521360_37);
+return;
+}
+}
+}
+case 1:
+{
+Obj _3521650_37= co->res;
+Obj _3521651_37 = makeCons(co->gc, closureRef(R[0], 0), Nil);
+Obj _3521652_37 = makeCons(co->gc, getBinding(co, packageID, 99).name, _3521651_37);
+coraReturn(co, _3521652_37);
+return;
+}
+case 2:
+{
+Obj _3521649_37= co->res;
+if (True == _3521649_37) {
+coraReturn(co, closureRef(R[0], 0));
+return;
+} else {
+saveCont(co, clofun19, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 100)), closureRef(R[0], 0), closureRef(R[0], 2));
+return;
+}
+}
+case 3:
+{
+Obj _3521822_37= co->res;
+Obj args = R[1];
+Obj _3521823_37 = makeCons(co->gc, _3521822_37, Nil);
+Obj _3521824_37 = makeCons(co->gc, args, _3521823_37);
+Obj _3521825_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3521824_37);
+coraReturn(co, _3521825_37);
+return;
+}
+case 4:
+{
+Obj _3521821_37= co->res;
+Obj body = R[1];
+Obj args = R[2];
+R[1] = args;
+saveCont(co, clofun19, 3, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), _3521821_37, closureRef(R[0], 2), body);
 return;
 }
 }
@@ -9672,9 +8280,76 @@ static void clofun18(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3521361_37 = makeNative(co->gc, 2, clofun17, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3521772_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521772_37) {
+Obj _3521773_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521774_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3521773_37);
+if (True == _3521774_37) {
+Obj _3521775_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521776_37 = PRIM_ISCONS(_3521775_37);
+if (True == _3521776_37) {
+Obj _3521777_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521778_37 = PRIM_CAR(_3521777_37);
+Obj _3521779_37 = PRIM_ISCONS(_3521778_37);
+if (True == _3521779_37) {
+Obj _3521780_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521781_37 = PRIM_CAR(_3521780_37);
+Obj _3521782_37 = PRIM_CAR(_3521781_37);
+Obj _3521783_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3521782_37);
+if (True == _3521783_37) {
+Obj _3521784_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521785_37 = PRIM_CAR(_3521784_37);
+Obj _3521786_37 = PRIM_CDR(_3521785_37);
+Obj exp1 = _3521786_37;
+Obj _3521787_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521788_37 = PRIM_CDR(_3521787_37);
+Obj exp2 = _3521788_37;
+Obj _3521789_37 = primGenSym(co);
+Obj f = _3521789_37;
+Obj _3521790_37 = primGenSym(co);
+Obj v = _3521790_37;
+Obj _3521791_37 = makeCons(co->gc, v, Nil);
+Obj _3521792_37 = makeCons(co->gc, v, exp2);
+Obj _3521793_37 = makeCons(co->gc, getBinding(co, packageID, 93).name, _3521792_37);
+Obj _3521794_37 = makeCons(co->gc, _3521793_37, Nil);
+Obj _3521795_37 = makeCons(co->gc, _3521791_37, _3521794_37);
+Obj _3521796_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3521795_37);
+Obj _3521797_37 = makeCons(co->gc, getBinding(co, packageID, 93).name, exp1);
+Obj _3521798_37 = makeCons(co->gc, _3521797_37, Nil);
+Obj _3521799_37 = makeCons(co->gc, f, _3521798_37);
+Obj _3521800_37 = makeCons(co->gc, _3521799_37, Nil);
+Obj _3521801_37 = makeCons(co->gc, _3521796_37, _3521800_37);
+Obj _3521802_37 = makeCons(co->gc, f, _3521801_37);
+Obj _3521803_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3521802_37);
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), _3521803_37);
 return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521361_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521361_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521361_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521361_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521361_37);
+return;
+}
 }
 }
 }
@@ -9683,31 +8358,42 @@ static void clofun17(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x = R[1];
+Obj _3521362_37 = makeNative(co->gc, 2, clofun16, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3521765_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521765_37) {
+Obj _3521766_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521767_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3521766_37);
+if (True == _3521767_37) {
+Obj _3521768_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3521768_37;
+R[1] = args;
 saveCont(co, clofun17, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
-return;
-}
-case 1:
-{
-Obj x9223090566219721152= co->res;
-Obj find = R[1];
-if (True == x9223090566219721152) {
-coraReturn(co, makeCString(co->gc, "ERROR"));
+coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2));
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), find);
+coraCall0(co, _3521362_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521362_37);
 return;
 }
 }
+case 1:
+{
+Obj _3521770_37= co->res;
+Obj _3521771_37 = makeCons(co->gc, getBinding(co, packageID, 93).name, _3521770_37);
+coraReturn(co, _3521771_37);
+return;
+}
 case 2:
 {
-Obj x9223090566219720896= co->res;
-Obj find = x9223090566219720896;
-R[1] = find;
+Obj _3521769_37= co->res;
+Obj args = R[1];
 saveCont(co, clofun17, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), find);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3521769_37, args);
 return;
 }
 }
@@ -9717,31 +8403,78 @@ static void clofun16(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x = R[1];
+Obj _3521363_37 = makeNative(co->gc, 1, clofun15, 0, 3, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 0));
+Obj _3521743_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521743_37) {
+Obj _3521744_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521745_37 = PRIM_EQ(getBinding(co, packageID, 91).name, _3521744_37);
+if (True == _3521745_37) {
+Obj _3521746_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521747_37 = PRIM_ISCONS(_3521746_37);
+if (True == _3521747_37) {
+Obj _3521748_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521749_37 = PRIM_CAR(_3521748_37);
+Obj x = _3521749_37;
+Obj _3521750_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521751_37 = PRIM_CDR(_3521750_37);
+Obj _3521752_37 = PRIM_ISCONS(_3521751_37);
+if (True == _3521752_37) {
+Obj _3521753_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521754_37 = PRIM_CDR(_3521753_37);
+Obj _3521755_37 = PRIM_CAR(_3521754_37);
+Obj y = _3521755_37;
+Obj _3521756_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521757_37 = PRIM_CDR(_3521756_37);
+Obj _3521758_37 = PRIM_CDR(_3521757_37);
+Obj _3521759_37 = PRIM_EQ(Nil, _3521758_37);
+if (True == _3521759_37) {
+R[1] = y;
 saveCont(co, clofun16, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
-return;
-}
-case 1:
-{
-Obj x9223090566219720096= co->res;
-Obj find = R[1];
-if (True == x9223090566219720096) {
-coraReturn(co, makeCString(co->gc, "ERROR"));
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), x);
 return;
 } else {
 co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 107)), find);
+coraCall0(co, _3521363_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521363_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521363_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521363_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521363_37);
 return;
 }
 }
+case 1:
+{
+Obj _3521761_37= co->res;
+Obj _3521760_37 = R[1];
+Obj _3521762_37 = makeCons(co->gc, _3521761_37, Nil);
+Obj _3521763_37 = makeCons(co->gc, _3521760_37, _3521762_37);
+Obj _3521764_37 = makeCons(co->gc, getBinding(co, packageID, 91).name, _3521763_37);
+coraReturn(co, _3521764_37);
+return;
+}
 case 2:
 {
-Obj x9223090566219719840= co->res;
-Obj find = x9223090566219719840;
-R[1] = find;
+Obj _3521760_37= co->res;
+Obj y = R[1];
+R[1] = _3521760_37;
 saveCont(co, clofun16, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), find);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), y);
 return;
 }
 }
@@ -9751,24 +8484,26 @@ static void clofun15(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x = R[1];
-saveCont(co, clofun15, 2, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
+Obj _3521364_37 = makeNative(co->gc, 3, clofun14, 0, 3, closureRef(R[0], 2), closureRef(R[0], 0), closureRef(R[0], 1));
+Obj _3521739_37 = PRIM_ISCONS(closureRef(R[0], 2));
+if (True == _3521739_37) {
+Obj _3521740_37 = PRIM_CAR(closureRef(R[0], 2));
+Obj _3521741_37 = PRIM_EQ(getBinding(co, packageID, 91).name, _3521740_37);
+if (True == _3521741_37) {
+Obj _3521742_37 = PRIM_CDR(closureRef(R[0], 2));
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "do expects exactly 2 expressions; use begin for multiple"));
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521364_37);
 return;
 }
-case 1:
-{
-Obj x9223090566219719168= co->res;
-Obj x9223090566219719200 = primNot(x9223090566219719168);
-coraReturn(co, x9223090566219719200);
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521364_37);
 return;
 }
-case 2:
-{
-Obj x9223090566219719136= co->res;
-saveCont(co, clofun15, 1, R);
-coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), x9223090566219719136);
-return;
 }
 }
 }
@@ -9777,19 +8512,101 @@ static void clofun14(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566218683488 = R[1];
-Obj x9223090566218683520 = R[2];
-Obj x9223090566219005952 = makeNative(co->gc, 3, clofun13, 0, 2, x9223090566218683488, x9223090566218683520);
-Obj x = x9223090566218683488;
-Obj x9223090566218519712 = PRIM_EQ(Nil, x9223090566218683520);
-if (True == x9223090566218519712) {
-coraReturn(co, False);
+Obj _3521365_37 = makeNative(co->gc, 1, clofun13, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3521706_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521706_37) {
+Obj _3521707_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521708_37 = PRIM_EQ(getBinding(co, packageID, 92).name, _3521707_37);
+if (True == _3521708_37) {
+Obj _3521709_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521710_37 = PRIM_ISCONS(_3521709_37);
+if (True == _3521710_37) {
+Obj _3521711_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521712_37 = PRIM_CAR(_3521711_37);
+Obj a = _3521712_37;
+Obj _3521713_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521714_37 = PRIM_CDR(_3521713_37);
+Obj _3521715_37 = PRIM_ISCONS(_3521714_37);
+if (True == _3521715_37) {
+Obj _3521716_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521717_37 = PRIM_CDR(_3521716_37);
+Obj _3521718_37 = PRIM_CAR(_3521717_37);
+Obj b = _3521718_37;
+Obj _3521719_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521720_37 = PRIM_CDR(_3521719_37);
+Obj _3521721_37 = PRIM_CDR(_3521720_37);
+Obj _3521722_37 = PRIM_ISCONS(_3521721_37);
+if (True == _3521722_37) {
+Obj _3521723_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521724_37 = PRIM_CDR(_3521723_37);
+Obj _3521725_37 = PRIM_CDR(_3521724_37);
+Obj _3521726_37 = PRIM_CAR(_3521725_37);
+Obj c = _3521726_37;
+Obj _3521727_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521728_37 = PRIM_CDR(_3521727_37);
+Obj _3521729_37 = PRIM_CDR(_3521728_37);
+Obj _3521730_37 = PRIM_CDR(_3521729_37);
+Obj _3521731_37 = PRIM_EQ(Nil, _3521730_37);
+if (True == _3521731_37) {
+R[1] = c;
+R[2] = a;
+saveCont(co, clofun14, 2, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), b);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219005952);
+coraCall0(co, _3521365_37);
 return;
 }
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521365_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521365_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521365_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521365_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521365_37);
+return;
+}
+}
+case 1:
+{
+Obj _3521734_37= co->res;
+Obj _3521732_37 = R[1];
+Obj a = R[2];
+Obj _3521735_37 = makeCons(co->gc, _3521734_37, Nil);
+Obj _3521736_37 = makeCons(co->gc, _3521732_37, _3521735_37);
+Obj _3521737_37 = makeCons(co->gc, a, _3521736_37);
+Obj _3521738_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3521737_37);
+coraReturn(co, _3521738_37);
+return;
+}
+case 2:
+{
+Obj _3521732_37= co->res;
+Obj c = R[1];
+Obj a = R[2];
+Obj _3521733_37 = makeCons(co->gc, a, closureRef(R[0], 1));
+R[1] = _3521732_37;
+R[2] = a;
+saveCont(co, clofun14, 1, R);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), _3521733_37, closureRef(R[0], 2), c);
+return;
 }
 }
 }
@@ -9798,37 +8615,85 @@ static void clofun13(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219006144 = makeNative(co->gc, 1, clofun12, 0, 0);
-Obj x = closureRef(R[0], 0);
-Obj x9223090566218649088 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566218649088) {
-Obj x9223090566218649344 = PRIM_CAR(closureRef(R[0], 1));
-Obj hd = x9223090566218649344;
-Obj x9223090566218518528 = PRIM_CDR(closureRef(R[0], 1));
-Obj tl = x9223090566218518528;
-R[1] = x;
-R[2] = tl;
-saveCont(co, clofun13, 1, R);
-coraCall2(co, globalRef(co, getBinding(co, packageID, 130)), x, hd);
+Obj _3521366_37 = makeNative(co->gc, 4, clofun12, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
+Obj _3521674_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521674_37) {
+Obj _3521675_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521676_37 = PRIM_ISCONS(_3521675_37);
+if (True == _3521676_37) {
+Obj _3521677_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521678_37 = PRIM_CAR(_3521677_37);
+Obj _3521679_37 = PRIM_EQ(getBinding(co, packageID, 95).name, _3521678_37);
+if (True == _3521679_37) {
+Obj _3521680_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521681_37 = PRIM_CDR(_3521680_37);
+Obj exp1 = _3521681_37;
+Obj _3521682_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521683_37 = PRIM_ISCONS(_3521682_37);
+if (True == _3521683_37) {
+Obj _3521684_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521685_37 = PRIM_CAR(_3521684_37);
+Obj _3521686_37 = PRIM_ISCONS(_3521685_37);
+if (True == _3521686_37) {
+Obj _3521687_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521688_37 = PRIM_CAR(_3521687_37);
+Obj _3521689_37 = PRIM_CAR(_3521688_37);
+Obj _3521690_37 = PRIM_EQ(getBinding(co, packageID, 93).name, _3521689_37);
+if (True == _3521690_37) {
+Obj _3521691_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521692_37 = PRIM_CAR(_3521691_37);
+Obj _3521693_37 = PRIM_CDR(_3521692_37);
+Obj exp2 = _3521693_37;
+Obj _3521694_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj _3521695_37 = PRIM_CDR(_3521694_37);
+Obj _3521696_37 = PRIM_EQ(Nil, _3521695_37);
+if (True == _3521696_37) {
+Obj _3521697_37 = primGenSym(co);
+Obj f = _3521697_37;
+Obj _3521698_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, exp1);
+Obj _3521699_37 = makeCons(co->gc, getBinding(co, packageID, 93).name, exp2);
+Obj _3521700_37 = makeCons(co->gc, _3521699_37, Nil);
+Obj _3521701_37 = makeCons(co->gc, f, _3521700_37);
+Obj _3521702_37 = makeCons(co->gc, _3521701_37, Nil);
+Obj _3521703_37 = makeCons(co->gc, _3521698_37, _3521702_37);
+Obj _3521704_37 = makeCons(co->gc, f, _3521703_37);
+Obj _3521705_37 = makeCons(co->gc, getBinding(co, packageID, 92).name, _3521704_37);
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), _3521705_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219006144);
+coraCall0(co, _3521366_37);
 return;
 }
-}
-case 1:
-{
-Obj x9223090566218518976= co->res;
-Obj x = R[1];
-Obj tl = R[2];
-Obj x9223090566218519040 = PRIM_LT(x9223090566218518976, MAKE_NUMBER(0));
-if (True == x9223090566218519040) {
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 129)), x, tl);
-return;
 } else {
-coraReturn(co, True);
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521366_37);
 return;
 }
 }
@@ -9839,14 +8704,314 @@ static void clofun12(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3521367_37 = makeNative(co->gc, 1, clofun11, 0, 3, closureRef(R[0], 1), closureRef(R[0], 2), closureRef(R[0], 0));
+Obj _3521654_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521654_37) {
+Obj _3521655_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj op = _3521655_37;
+Obj _3521656_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj args = _3521656_37;
+R[1] = op;
+R[2] = args;
+R[3] = _3521367_37;
+saveCont(co, clofun12, 7, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 110)), op);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521367_37);
+return;
+}
+}
+case 1:
+{
+Obj _3521664_37= co->res;
+Obj _3521662_37 = R[1];
+Obj _3521665_37 = makeCons(co->gc, _3521662_37, _3521664_37);
+coraReturn(co, _3521665_37);
+return;
+}
+case 2:
+{
+Obj _3521663_37= co->res;
+Obj args = R[1];
+Obj _3521662_37 = R[2];
+R[1] = _3521662_37;
+saveCont(co, clofun12, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3521663_37, args);
+return;
+}
+case 3:
+{
+Obj _3521670_37= co->res;
+Obj tmp = R[1];
+Obj _3521671_37 = makeCons(co->gc, _3521670_37, Nil);
+Obj _3521672_37 = makeCons(co->gc, tmp, _3521671_37);
+Obj _3521673_37 = makeCons(co->gc, getBinding(co, packageID, 95).name, _3521672_37);
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2), _3521673_37);
+return;
+}
+case 4:
+{
+Obj _3521668_37= co->res;
+Obj op = R[1];
+Obj args = R[2];
+Obj tmp = _3521668_37;
+Obj _3521669_37 = makeCons(co->gc, op, args);
+R[1] = tmp;
+saveCont(co, clofun12, 3, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 94)), _3521669_37, tmp);
+return;
+}
+case 5:
+{
+Obj _3521659_37= co->res;
+Obj required = R[1];
+Obj op = R[2];
+Obj args = R[3];
+Obj provided = _3521659_37;
+Obj _3521660_37 = PRIM_EQ(required, provided);
+if (True == _3521660_37) {
+Obj _3521661_37 = makeCons(co->gc, op, Nil);
+Obj _3521662_37 = makeCons(co->gc, getBinding(co, packageID, 96).name, _3521661_37);
+R[1] = args;
+R[2] = _3521662_37;
+saveCont(co, clofun12, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 1), closureRef(R[0], 2));
+return;
+} else {
+Obj _3521666_37 = PRIM_GT(required, provided);
+if (True == _3521666_37) {
+Obj _3521667_37 = PRIM_SUB(required, provided);
+R[1] = op;
+R[2] = args;
+saveCont(co, clofun12, 4, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 104)), _3521667_37, Nil);
+return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "primitive call mismatch"));
+return;
+}
+}
+}
+case 6:
+{
+Obj _3521658_37= co->res;
+Obj op = R[1];
+Obj args = R[2];
+Obj required = _3521658_37;
+R[1] = required;
+R[2] = op;
+R[3] = args;
+saveCont(co, clofun12, 5, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 97)), args);
+return;
+}
+case 7:
+{
+Obj _3521657_37= co->res;
+Obj op = R[1];
+Obj args = R[2];
+Obj _3521367_37 = R[3];
+if (True == _3521657_37) {
+R[1] = op;
+R[2] = args;
+saveCont(co, clofun12, 6, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 106)), op);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521367_37);
+return;
+}
+}
+}
+}
+
+static void clofun11(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+saveCont(co, clofun11, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 103)), closureRef(R[0], 0), closureRef(R[0], 1));
+return;
+}
+case 1:
+{
+Obj _3521653_37= co->res;
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 98)), _3521653_37, closureRef(R[0], 2));
+return;
+}
+}
+}
+
+static void clofun10(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+Obj _3521350_37 = R[1];
+Obj _3521351_37 = R[2];
+Obj _3521641_37 = PRIM_EQ(MAKE_NUMBER(0), _3521350_37);
+if (True == _3521641_37) {
+coraReturn(co, _3521351_37);
+return;
+} else {
+Obj _3521642_37 = PRIM_SUB(_3521350_37, MAKE_NUMBER(1));
+Obj _3521643_37 = primGenSym(co);
+Obj _3521644_37 = makeCons(co->gc, _3521643_37, _3521351_37);
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 104)), _3521642_37, _3521644_37);
+return;
+}
+}
+}
+}
+
+static void clofun9(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+Obj x = R[1];
+saveCont(co, clofun9, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
+return;
+}
+case 1:
+{
+Obj _3521639_37= co->res;
+Obj find = R[1];
+if (True == _3521639_37) {
+coraReturn(co, makeCString(co->gc, "ERROR"));
+return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 105)), find);
+return;
+}
+}
+case 2:
+{
+Obj _3521638_37= co->res;
+Obj find = _3521638_37;
+R[1] = find;
+saveCont(co, clofun9, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), find);
+return;
+}
+}
+}
+
+static void clofun8(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+Obj x = R[1];
+saveCont(co, clofun8, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
+return;
+}
+case 1:
+{
+Obj _3521636_37= co->res;
+Obj find = R[1];
+if (True == _3521636_37) {
+coraReturn(co, makeCString(co->gc, "ERROR"));
+return;
+} else {
+co->ctx.sp = R;
+coraCall1(co, globalRef(co, getBinding(co, packageID, 107)), find);
+return;
+}
+}
+case 2:
+{
+Obj _3521635_37= co->res;
+Obj find = _3521635_37;
+R[1] = find;
+saveCont(co, clofun8, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), find);
+return;
+}
+}
+}
+
+static void clofun7(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+Obj x = R[1];
+saveCont(co, clofun7, 2, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), x, globalRef(co, getBinding(co, packageID, 128)));
+return;
+}
+case 1:
+{
+Obj _3521632_37= co->res;
+Obj _3521633_37 = primNot(_3521632_37);
+coraReturn(co, _3521633_37);
+return;
+}
+case 2:
+{
+Obj _3521631_37= co->res;
+saveCont(co, clofun7, 1, R);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 109)), _3521631_37);
+return;
+}
+}
+}
+
+static void clofun6(struct Cora* co, int label, Obj *R) {
+ switch (label) {
+case 0:
+{
+Obj _3521346_37 = R[1];
+Obj _3521347_37 = R[2];
+Obj _3521555_37 = PRIM_EQ(Nil, _3521347_37);
+if (True == _3521555_37) {
+coraReturn(co, False);
+return;
+} else {
+Obj _3521556_37 = PRIM_ISCONS(_3521347_37);
+if (True == _3521556_37) {
+Obj _3521557_37 = PRIM_CAR(_3521347_37);
+Obj hd = _3521557_37;
+Obj _3521558_37 = PRIM_CDR(_3521347_37);
+Obj tl = _3521558_37;
+R[1] = _3521346_37;
+R[2] = tl;
+saveCont(co, clofun6, 1, R);
+coraCall2(co, globalRef(co, getBinding(co, packageID, 130)), _3521346_37, hd);
+return;
+} else {
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
 }
+case 1:
+{
+Obj _3521559_37= co->res;
+Obj _3521346_37 = R[1];
+Obj tl = R[2];
+Obj _3521560_37 = PRIM_LT(_3521559_37, MAKE_NUMBER(0));
+if (True == _3521560_37) {
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 129)), _3521346_37, tl);
+return;
+} else {
+coraReturn(co, True);
+return;
+}
+}
+}
+}
 
-static void clofun11(struct Cora* co, int label, Obj *R) {
+static void clofun5(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
@@ -9859,163 +9024,39 @@ return;
 }
 }
 
-static void clofun10(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218682464 = R[1];
-Obj x9223090566218682496 = R[2];
-Obj x9223090566218682528 = R[3];
-Obj x9223090566218682560 = makeNative(co->gc, 1, clofun9, 0, 3, x9223090566218682464, x9223090566218682496, x9223090566218682528);
-Obj __ = x9223090566218682464;
-Obj x = x9223090566218682496;
-Obj x9223090566218647296 = PRIM_EQ(Nil, x9223090566218682528);
-if (True == x9223090566218647296) {
-coraReturn(co, MAKE_NUMBER(-1));
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682560);
-return;
-}
-}
-}
-}
-
-static void clofun9(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218682816 = makeNative(co->gc, 1, clofun8, 0, 3, closureRef(R[0], 0), closureRef(R[0], 1), closureRef(R[0], 2));
-Obj pos = closureRef(R[0], 0);
-Obj x = closureRef(R[0], 1);
-Obj x9223090566218645824 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566218645824) {
-Obj x9223090566218646080 = PRIM_CAR(closureRef(R[0], 2));
-Obj a = x9223090566218646080;
-Obj x9223090566218646336 = PRIM_CDR(closureRef(R[0], 2));
-Obj b = x9223090566218646336;
-Obj x9223090566218646624 = PRIM_EQ(x, a);
-if (True == x9223090566218646624) {
-coraReturn(co, pos);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682816);
-return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218682816);
-return;
-}
-}
-}
-}
-
-static void clofun8(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566218683136 = makeNative(co->gc, 1, clofun7, 0, 0);
-Obj pos = closureRef(R[0], 0);
-Obj x = closureRef(R[0], 1);
-Obj x9223090566218685216 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566218685216) {
-Obj x9223090566218685504 = PRIM_CAR(closureRef(R[0], 2));
-Obj a = x9223090566218685504;
-Obj x9223090566218685824 = PRIM_CDR(closureRef(R[0], 2));
-Obj b = x9223090566218685824;
-Obj x9223090566218686208 = PRIM_ADD(pos, MAKE_NUMBER(1));
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 131)), x9223090566218686208, x, b);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566218683136);
-return;
-}
-}
-}
-}
-
-static void clofun7(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
-return;
-}
-}
-}
-
-static void clofun6(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009440 = R[1];
-Obj x9223090566219009472 = R[2];
-Obj x9223090566219009504 = R[3];
-Obj x9223090566219009536 = makeNative(co->gc, 3, clofun5, 0, 3, x9223090566219009440, x9223090566219009472, x9223090566219009504);
-Obj f = x9223090566219009440;
-Obj acc = x9223090566219009472;
-Obj x9223090566218735392 = PRIM_EQ(Nil, x9223090566219009504);
-if (True == x9223090566218735392) {
-coraReturn(co, acc);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009536);
-return;
-}
-}
-}
-}
-
-static void clofun5(struct Cora* co, int label, Obj *R) {
- switch (label) {
-case 0:
-{
-Obj x9223090566219009792 = makeNative(co->gc, 1, clofun4, 0, 0);
-Obj f = closureRef(R[0], 0);
-Obj acc = closureRef(R[0], 1);
-Obj x9223090566218733824 = PRIM_ISCONS(closureRef(R[0], 2));
-if (True == x9223090566218733824) {
-Obj x9223090566218734080 = PRIM_CAR(closureRef(R[0], 2));
-Obj x = x9223090566218734080;
-Obj x9223090566218734336 = PRIM_CDR(closureRef(R[0], 2));
-Obj y = x9223090566218734336;
-R[1] = f;
-R[2] = y;
-saveCont(co, clofun5, 1, R);
-coraCall2(co, f, acc, x);
-return;
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219009792);
-return;
-}
-}
-case 1:
-{
-Obj x9223090566218734816= co->res;
-Obj f = R[1];
-Obj y = R[2];
-co->ctx.sp = R;
-coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), f, x9223090566218734816, y);
-return;
-}
-}
-}
-
 static void clofun4(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-co->ctx.sp = R;
-coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
+Obj _3521340_37 = R[1];
+Obj _3521341_37 = R[2];
+Obj _3521342_37 = R[3];
+Obj _3521544_37 = PRIM_EQ(Nil, _3521342_37);
+if (True == _3521544_37) {
+coraReturn(co, MAKE_NUMBER(-1));
 return;
+} else {
+Obj _3521344_37 = makeNative(co->gc, 1, clofun3, 0, 3, _3521342_37, _3521340_37, _3521341_37);
+Obj _3521549_37 = PRIM_ISCONS(_3521342_37);
+if (True == _3521549_37) {
+Obj _3521550_37 = PRIM_CAR(_3521342_37);
+Obj a = _3521550_37;
+Obj _3521551_37 = PRIM_CDR(_3521342_37);
+Obj _3521552_37 = PRIM_EQ(_3521341_37, a);
+if (True == _3521552_37) {
+coraReturn(co, _3521340_37);
+return;
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521344_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521344_37);
+return;
+}
+}
 }
 }
 }
@@ -10024,17 +9065,18 @@ static void clofun3(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008576 = R[1];
-Obj x9223090566219008608 = R[2];
-Obj x9223090566219008640 = makeNative(co->gc, 1, clofun2, 0, 2, x9223090566219008576, x9223090566219008608);
-Obj var = x9223090566219008576;
-Obj x9223090566218732480 = PRIM_EQ(Nil, x9223090566219008608);
-if (True == x9223090566218732480) {
-coraReturn(co, Nil);
+Obj _3521545_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521545_37) {
+Obj _3521546_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521547_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj b = _3521547_37;
+Obj _3521548_37 = PRIM_ADD(closureRef(R[0], 1), MAKE_NUMBER(1));
+co->ctx.sp = R;
+coraCall3(co, globalRef(co, getBinding(co, packageID, 131)), _3521548_37, closureRef(R[0], 2), b);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008640);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
 }
@@ -10045,41 +9087,40 @@ static void clofun2(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219008832 = makeNative(co->gc, 1, clofun1, 0, 2, closureRef(R[0], 0), closureRef(R[0], 1));
-Obj var = closureRef(R[0], 0);
-Obj x9223090566218782880 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566218782880) {
-Obj x9223090566218783296 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566218783328 = PRIM_ISCONS(x9223090566218783296);
-if (True == x9223090566218783328) {
-Obj x9223090566218783744 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566218783776 = PRIM_CAR(x9223090566218783744);
-Obj x = x9223090566218783776;
-Obj x9223090566218784192 = PRIM_CAR(closureRef(R[0], 1));
-Obj x9223090566218784224 = PRIM_CDR(x9223090566218784192);
-Obj y = x9223090566218784224;
-Obj x9223090566218784480 = PRIM_CDR(closureRef(R[0], 1));
-Obj __ = x9223090566218784480;
-Obj x9223090566218731520 = PRIM_EQ(var, x);
-if (True == x9223090566218731520) {
-Obj x9223090566218731744 = makeCons(co->gc, x, y);
-coraReturn(co, x9223090566218731744);
+Obj _3521335_37 = R[1];
+Obj _3521336_37 = R[2];
+Obj _3521337_37 = R[3];
+Obj _3521538_37 = PRIM_EQ(Nil, _3521337_37);
+if (True == _3521538_37) {
+coraReturn(co, _3521336_37);
+return;
+} else {
+Obj _3521539_37 = PRIM_ISCONS(_3521337_37);
+if (True == _3521539_37) {
+Obj _3521540_37 = PRIM_CAR(_3521337_37);
+Obj x = _3521540_37;
+Obj _3521541_37 = PRIM_CDR(_3521337_37);
+Obj y = _3521541_37;
+R[1] = _3521335_37;
+R[2] = y;
+saveCont(co, clofun2, 1, R);
+coraCall2(co, _3521335_37, _3521336_37, x);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008832);
+coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
 }
-} else {
+}
+}
+case 1:
+{
+Obj _3521542_37= co->res;
+Obj _3521335_37 = R[1];
+Obj y = R[2];
 co->ctx.sp = R;
-coraCall0(co, x9223090566219008832);
+coraCall3(co, globalRef(co, getBinding(co, packageID, 132)), _3521335_37, _3521542_37, y);
 return;
-}
-} else {
-co->ctx.sp = R;
-coraCall0(co, x9223090566219008832);
-return;
-}
 }
 }
 }
@@ -10088,21 +9129,46 @@ static void clofun1(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
-Obj x9223090566219009152 = makeNative(co->gc, 1, clofun0, 0, 0);
-Obj var = closureRef(R[0], 0);
-Obj x9223090566218781728 = PRIM_ISCONS(closureRef(R[0], 1));
-if (True == x9223090566218781728) {
-Obj x9223090566218781984 = PRIM_CAR(closureRef(R[0], 1));
-Obj __ = x9223090566218781984;
-Obj x9223090566218782240 = PRIM_CDR(closureRef(R[0], 1));
-Obj y = x9223090566218782240;
-co->ctx.sp = R;
-coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), var, y);
+Obj _3521330_37 = R[1];
+Obj _3521331_37 = R[2];
+Obj _3521523_37 = PRIM_EQ(Nil, _3521331_37);
+if (True == _3521523_37) {
+coraReturn(co, Nil);
+return;
+} else {
+Obj _3521333_37 = makeNative(co->gc, 1, clofun0, 0, 2, _3521331_37, _3521330_37);
+Obj _3521527_37 = PRIM_ISCONS(_3521331_37);
+if (True == _3521527_37) {
+Obj _3521528_37 = PRIM_CAR(_3521331_37);
+Obj _3521529_37 = PRIM_ISCONS(_3521528_37);
+if (True == _3521529_37) {
+Obj _3521530_37 = PRIM_CAR(_3521331_37);
+Obj _3521531_37 = PRIM_CAR(_3521530_37);
+Obj x = _3521531_37;
+Obj _3521532_37 = PRIM_CAR(_3521331_37);
+Obj _3521533_37 = PRIM_CDR(_3521532_37);
+Obj y = _3521533_37;
+Obj _3521534_37 = PRIM_CDR(_3521331_37);
+Obj _3521535_37 = PRIM_EQ(_3521330_37, x);
+if (True == _3521535_37) {
+Obj _3521536_37 = makeCons(co->gc, x, y);
+coraReturn(co, _3521536_37);
 return;
 } else {
 co->ctx.sp = R;
-coraCall0(co, x9223090566219009152);
+coraCall0(co, _3521333_37);
 return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521333_37);
+return;
+}
+} else {
+co->ctx.sp = R;
+coraCall0(co, _3521333_37);
+return;
+}
 }
 }
 }
@@ -10112,9 +9178,19 @@ static void clofun0(struct Cora* co, int label, Obj *R) {
  switch (label) {
 case 0:
 {
+Obj _3521524_37 = PRIM_ISCONS(closureRef(R[0], 0));
+if (True == _3521524_37) {
+Obj _3521525_37 = PRIM_CAR(closureRef(R[0], 0));
+Obj _3521526_37 = PRIM_CDR(closureRef(R[0], 0));
+Obj y = _3521526_37;
+co->ctx.sp = R;
+coraCall2(co, globalRef(co, getBinding(co, packageID, 134)), closureRef(R[0], 1), y);
+return;
+} else {
 co->ctx.sp = R;
 coraCall1(co, globalRef(co, getBinding(co, packageID, 133)), makeCString(co->gc, "no match-help found!"));
 return;
+}
 }
 }
 }

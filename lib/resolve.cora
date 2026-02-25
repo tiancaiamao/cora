@@ -176,11 +176,7 @@
                                              (lambda () (resolve-exp b env imports curmod)))
     ['try chunk handler] env imports curmod => (bind-ok (resolve-exp chunk env imports curmod)
                                                         (lambda ()
-                                                          (bind-ok (resolve-exp handler env imports curmod)
-                                                                   (lambda ()
-                                                                     (if (lambda-literal-arity-mismatch? handler 2)
-                                                                         ['fail ['try-handler-arity handler]]
-                                                                         ['ok])))))
+                                                          (resolve-exp handler env imports curmod)))
     ['let a b c] env imports curmod => (bind-ok (resolve-exp b env imports curmod)
                                                 (lambda () (resolve-exp c (cons a env) imports curmod)))
     ['set ['quote _sym] val] env imports curmod => (resolve-exp val env imports curmod)
