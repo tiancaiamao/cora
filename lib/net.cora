@@ -3,6 +3,7 @@
 ;; This is the user-facing API for network programming
 
 (package "cora/lib/net"
+  (import "cora/lib/infer")
   (import "cora/lib/cml")
   (import "cora/lib/string")
   (import "cora/lib/io")
@@ -15,6 +16,48 @@
     net-close
     make-bytes bytes-substring
     string->bytes bytes->string)
+
+  ;; Type declarations live with module implementation.
+  (declare 'net-listen
+				  ['string '-> (tvar)])
+  (declare 'cora/lib/net#net-listen
+				  ['string '-> (tvar)])
+  (declare 'net-dial
+				  ['string '-> (tvar)])
+  (declare 'cora/lib/net#net-dial
+				  ['string '-> (tvar)])
+  (declare 'net-accept
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/net#net-accept
+				  [(tvar) '-> (tvar)])
+  (declare 'net-recv
+				  [(tvar) '-> ['int '-> (tvar)]])
+  (declare 'cora/lib/net#net-recv
+				  [(tvar) '-> ['int '-> (tvar)]])
+  (declare 'net-send
+				  [(tvar) '-> ['string '-> 'int]])
+  (declare 'cora/lib/net#net-send
+				  [(tvar) '-> ['string '-> 'int]])
+  (declare 'net-close
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/net#net-close
+				  [(tvar) '-> (tvar)])
+  (declare 'make-bytes
+			  `(int -> string))
+  (declare 'cora/lib/net#make-bytes
+			  `(int -> string))
+  (declare 'bytes-substring
+			  `(string -> (int -> (int -> string))))
+  (declare 'cora/lib/net#bytes-substring
+			  `(string -> (int -> (int -> string))))
+  (declare 'string->bytes
+			  `(string -> string))
+  (declare 'cora/lib/net#string->bytes
+			  `(string -> string))
+  (declare 'bytes->string
+			  `(string -> string))
+  (declare 'cora/lib/net#bytes->string
+			  `(string -> string))
 
   ;; Compatibility helpers used by existing network tests/code.
   (defun make-bytes (size)

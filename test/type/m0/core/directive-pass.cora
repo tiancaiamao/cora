@@ -1,0 +1,14 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+(:type
+ (func type-check-for-fruit
+       ['quote x] ['fruit] env s => ['succ s] where (elem? x ['apple 'orange 'banana])
+       _ _ env s => ['fail])
+ (deftype 'fruit type-check-for-fruit))
+
+(:declare 'is-apple `((fruit) -> bool))
+(defun is-apple (x) (= x 'apple))
+
+(is-apple 'apple)

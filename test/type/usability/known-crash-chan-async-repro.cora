@@ -1,0 +1,8 @@
+(import "cora/lib/infer")
+
+;; Historical crash reproducer:
+;; n-ary do used to crash in eval2 path.
+;; It must now fail deterministically (no crash), because do is fixed-arity(2).
+(tc true)
+
+(do 1 2 3)

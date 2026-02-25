@@ -1,0 +1,18 @@
+(import "cora/lib/resolve")
+(import "cora/lib/cml")
+
+;; Imported and exported namespaced symbol is accepted.
+(match (cora/lib/resolve#check '(package "test/resolve"
+				 (import "cora/lib/cml")
+				 cora/lib/cml#wrap))
+  ['ok] ()
+  _ (cora/init#throw "resolve should accept imported/exported symbol"))
+
+;; Namespaced symbol from module not listed in import table is rejected.
+(match (cora/lib/resolve#check '(package "test/resolve"
+				 cora/lib/cml#wrap))
+  ['fail . _] ()
+  ['fail] ()
+  _ (cora/init#throw "resolve should reject unimported module symbol"))
+
+;; Export boundaries are handled by module runtime, not resolve pass.

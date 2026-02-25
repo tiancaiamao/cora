@@ -1,8 +1,32 @@
 ;; this is a dead simple hash, it doesn't support resize, and handle hash collision with seperate chaining
 ;; then seperate chaining is simply a assoc list
 (package "cora/lib/hash"
+  (import "cora/lib/infer")
   (import "cora/lib/hash-h")
   (export hash-make hash-get hash-count hash-set! hash-del!)
+  (tc true)
+
+  ;; Type declarations live with module implementation.
+  (:declare 'hash-make
+			  ['int '-> (tvar)])
+  (:declare 'cora/lib/hash#hash-make
+			  ['int '-> (tvar)])
+  (:declare 'hash-get
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (:declare 'cora/lib/hash#hash-get
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (:declare 'hash-count
+			  [(tvar) '-> 'int])
+  (:declare 'cora/lib/hash#hash-count
+			  [(tvar) '-> 'int])
+  (:declare 'hash-set!
+			  [(tvar) '-> [(tvar) '-> [(tvar) '-> (tvar)]]])
+  (:declare 'cora/lib/hash#hash-set!
+			  [(tvar) '-> [(tvar) '-> [(tvar) '-> (tvar)]]])
+  (:declare 'hash-del!
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (:declare 'cora/lib/hash#hash-del!
+			  [(tvar) '-> [(tvar) '-> (tvar)]])
 
   (func assoc
 	key [] => []

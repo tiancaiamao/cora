@@ -1,0 +1,42 @@
+(import "cora/lib/infer")
+(import "cora/lib/cml")
+(import "cora/lib/chan")
+(import "cora/lib/async")
+
+(defun tc-check (exp typ)
+  (cora/lib/infer#check-type exp typ () ()))
+
+(defun expect-succ (res msg)
+  (match res
+    ['succ . _] ()
+    _ (cora/init#throw msg)))
+
+(defun expect-fail (res msg)
+  (match res
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw msg)))
+
+;; async signatures
+(expect-succ (tc-check '(async-listen "127.0.0.1:8000") (tvar))
+	     "async-listen(string) should type-check")
+(expect-fail (tc-check '(async-listen 123) (tvar))
+	     "async-listen(non-string) should fail")
+
+(expect-succ (tc-check '(async-dial "127.0.0.1:8000") (tvar))
+	     "async-dial(string) should type-check")
+(expect-fail (tc-check '(async-dial false) (tvar))
+	     "async-dial(non-string) should fail")
+
+(expect-succ (tc-check '(async-recv sock "buf") (tvar))
+	     "async-recv(_,string) should type-check")
+(expect-fail (tc-check '(async-recv sock 1) (tvar))
+	     "async-recv(_,non-string) should fail")
+
+;; cml/chan signatures
+(expect-succ (tc-check '(cora/lib/cml#cml-active?) 'bool)
+	     "cml-active?() should type-check as bool")
+(expect-succ (tc-check '(chan-send ch 1) (tvar))
+	     "chan-send(_,_) should type-check")
+(expect-succ (tc-check '(chan-recv ch) (tvar))
+	     "chan-recv(_) should type-check")

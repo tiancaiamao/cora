@@ -1,0 +1,7 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+;; Runtime contract baseline: unhandled throw fails at runtime.
+;; This is not a required static error in 0.6.
+(throw 42)

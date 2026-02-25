@@ -2,7 +2,7 @@
   (import "cora/lib/sys")
   (import "cora/lib/io")
 
-  (export declare deftype check-type! tvar tc)
+  (export declare deftype check-type! tvar tc tc-mode)
 
   (defun append-tvar (l ret)
     (if (null? l)
@@ -26,9 +26,34 @@
 	  ret)))
 
   (def *type-env* ())
+  (def *typecheck-mode* 'compat)
+  (def *try-payload-stack* ())
 
   (defun declare (sym val)
     (def *type-env* (cons (cons sym val) *type-env*)))
+
+  (defun tc-mode (mode)
+    (if (or (= mode 'compat) (= mode 'strict))
+	(def *typecheck-mode* mode)
+	(cora/init#throw ['type-check-bad-mode mode])))
+
+  ;; Visibility/name resolution is handled by resolver pass.
+  ;; The type checker treats remaining untyped globals as dynamic.
+  (defun resolve-unbound-symbol (sym t s)
+    ['succ s])
+
+  (defun push-try-payload (t)
+    (def *try-payload-stack* (cons t *try-payload-stack*)))
+
+  (defun pop-try-payload ()
+    (if (null? *try-payload-stack*)
+	()
+	(def *try-payload-stack* (cdr *try-payload-stack*))))
+
+  (defun current-try-payload ()
+    (if (null? *try-payload-stack*)
+	false
+	(car *try-payload-stack*)))
 
   (set 'hd (car))
   (set 'tl (cdr))
@@ -48,7 +73,7 @@
 	[a '-> b] [c '-> d] s => (bind-s (unify a c s)
 					 (lambda (s1) (unify b d s1)))
 	['list a] ['list b] s => (unify a b s) ;; TODO: list should be changed to elems in *type-rule*
-	_ _ s => ['fail])
+	x y s => ['fail ['unify-mismatch x y]])
 
   (func occur?
 	'int _ => false
@@ -57,7 +82,7 @@
 	'symbol _ => false
 	[a '-> b] t => (or (occur? a t) (occur? b t))
 	x [a '-> b] => (or (occur? x a) (occur? x b)) where (number? x)
-	['list a] t => (occure? a t)
+	['list a] t => (occur? a t)
 	v t => (= v t))
 
   (func apply-subst
@@ -86,8 +111,6 @@
 	      (bind-s res
 		      (lambda (s1)
 			(begin
-			  (display s)
-			  (display " -- check set use any\n")
 			  (declare s (apply-subst t s1))
 			  res)))))
 	  (check-type v (cdr find) env subst))))
@@ -102,21 +125,35 @@
 		       (if (null? find)
 			   (let find1 (assq x *type-env*)
 			     (if (null? find1)
-				 (begin
-				   (display "unbound variable for")
-				   (display x)
-				   (display " skip check\n")
-				   ['succ s]) ;; variable not bound, skip check?
+				 (resolve-unbound-symbol x t s)
 				 (unify (cdr find1) t s)))
 			   (unify (cdr find) t s))) where (symbol? x)
+	['throw v] t env s => (let payload (current-try-payload)
+				   (if (= payload false)
+				       (check-type v (tvar) env s)
+				       (check-type v payload env s)))
+	['try chunk handler] t env s => (let payload (tvar)
+					     resume-arg (tvar)
+					     (begin
+					       (push-try-payload payload)
+					       (let chunk-res (check-type chunk ['-> t] env s)
+						 (begin
+						   (pop-try-payload)
+						   (bind-s chunk-res
+							   (lambda (s1)
+							     (check-type handler
+									 [payload '-> [resume-arg '-> t]]
+									 env s1)))))))
 	['if e1 e2 e3] t env s => (bind-s (check-type-h e1 'bool env s)
 							     (lambda (s1)
 							       (bind-s (check-type e2 t env s1)
 								       (lambda (s2)
 									 (check-type e3 t env s2)))))
-	['do e1 e2] t env s => (bind-s (check-type-h e1 (tvar) env s)
-							  (lambda (_)
-							    (check-type-h e2 t env s)))
+	['do e1 e2] t env s => (match (check-type-h e1 (tvar) env s)
+				      ['succ s1] (check-type-h e2 t env s1)
+				      ['fail] ['fail]
+				      ['fail . msg] ['fail . msg])
+	['do . args] t env s => ['fail ['do-arity args]]
 	['lambda () e] any env s => (let a (tvar)
 							 (bind-s (check-type e a env s)
 								 (lambda (s1)
@@ -145,7 +182,7 @@
 												  (not (or (= k a) (= k b)))))
 											      s3)])))))))
 	[f x . more] b env s => (check-type [[f x] . more] b env s)
-			   _ _ env s => ['fail])
+	exp t env s => ['fail ['unsupported-form exp t]])
 
   (def *type-rule* ())
   (defun deftype (sym fn)
@@ -205,18 +242,103 @@
   (declare 'cons? [(tvar) '-> 'bool])
   (declare '*type-env* ['list ['tuple 'symbol (tvar)]])
   (declare 'error [(tvar) '-> (tvar)])
+  (declare 'cora/init#throw [(tvar) '-> (tvar)])
   (declare 'import `(string -> ,(tvar)))
+
+  (defun unwrap-fail-msg (msg)
+    (if (and (pair? msg) (null? (cdr msg)))
+	(car msg)
+	msg))
+
+  (defun explain-fail-msg (msg)
+    (let payload (unwrap-fail-msg msg)
+      (match payload
+	['unify-mismatch expected actual]
+	['type-mismatch "cannot unify expected type with actual type" expected actual]
+	['unsupported-form exp typ]
+	['unsupported-form "no checker rule matches expression form under expected type" exp typ]
+	['do-arity args]
+	['do-arity "do expects exactly 2 expressions; use begin for multiple" args]
+	other
+	['unknown-type-failure "type check failed without a specialized reason" other])))
+
+  (defun declare-stdlib (sym fq typ)
+    (begin
+      (declare sym typ)
+      (declare fq typ)))
+
+  ;; io
+  (declare-stdlib 'display 'cora/lib/io#display (let a (tvar) [a '-> a]))
+  (declare-stdlib 'open-output-file 'cora/lib/io#open-output-file (let h (tvar) ['string '-> h]))
+  (declare-stdlib 'close-output-file 'cora/lib/io#close-output-file (let h (tvar) [h '-> 'int]))
+  (declare-stdlib 'read-all 'cora/lib/io#read-all (let h (tvar) [h '-> 'string]))
+  (declare-stdlib 'copy 'cora/lib/io#copy (let h1 (tvar) h2 (tvar) [h1 '-> [h2 '-> 'bool]]))
+  (declare-stdlib 'write-bytes 'cora/lib/io#write-bytes (let h (tvar) [h '-> ['string '-> 'int]]))
+
+  ;; string
+  (declare-stdlib 'string-slice 'cora/lib/string#string-slice `(string -> (int -> (int -> string))))
+  (declare-stdlib 'has-prefix? 'cora/lib/string#has-prefix? `(string -> (string -> bool)))
+  (declare-stdlib 'string-length 'cora/lib/string#string-length `(string -> int))
+  (declare-stdlib 'string-index 'cora/lib/string#string-index `(string -> (int -> string)))
+  (declare-stdlib 'compare 'cora/lib/string#compare `(string -> (string -> int)))
+  (declare-stdlib 'number->string 'cora/lib/string#number->string `(int -> string))
+  (declare-stdlib 'string-replace 'cora/lib/string#string-replace `(string -> (string -> (string -> string))))
+  (declare-stdlib 'string-split 'cora/lib/string#string-split `(string -> (string -> (list string))))
+  (declare-stdlib 'string-contain? 'cora/lib/string#string-contain? `(string -> (string -> bool)))
+  (declare-stdlib 'byte-ref 'cora/lib/string#byte-ref `(string -> (int -> int)))
+  (declare-stdlib 'string->list 'cora/lib/string#string->list `(string -> (list int)))
+  (declare-stdlib 'string-join 'cora/lib/string#string-join `((list string) -> (string -> string)))
+  (declare-stdlib 'string-trim 'cora/lib/string#string-trim `(string -> string))
+  (declare-stdlib 'string-trim-left 'cora/lib/string#string-trim-left `(string -> string))
+  (declare-stdlib 'string-trim-right 'cora/lib/string#string-trim-right `(string -> string))
+  (declare-stdlib 'has-suffix? 'cora/lib/string#has-suffix? `(string -> (string -> bool)))
+  (declare-stdlib 'string-upcase 'cora/lib/string#string-upcase `(string -> string))
+  (declare-stdlib 'string-downcase 'cora/lib/string#string-downcase `(string -> string))
+  (declare-stdlib 'memcpy 'cora/lib/string#memcpy `(string -> (int -> (string -> (int -> (int -> string))))))
+
+  ;; hash/rand
+  (declare-stdlib 'mod 'cora/lib/hash-h#mod `(int -> (int -> int)))
+  (declare-stdlib 'hash-to-number 'cora/lib/hash-h#hash-to-number (let a (tvar) [a '-> 'int]))
+  (declare-stdlib 'randN 'cora/lib/rand#randN `(int -> int))
+
+  ;; os
+  (declare-stdlib 'exec 'cora/lib/os#exec `((list string) -> int))
+  (declare-stdlib 'popen 'cora/lib/os#popen (let h (tvar) [['list 'string] '-> ['symbol '-> h]]))
+  (declare-stdlib 'pclose 'cora/lib/os#pclose (let h (tvar) [h '-> 'int]))
+  (declare-stdlib 'file-exists? 'cora/lib/os#file-exists? `(string -> bool))
+  (declare-stdlib 'file-is-directory? 'cora/lib/os#file-is-directory? `(string -> bool))
+  (declare-stdlib 'file-read-all 'cora/lib/os#file-read-all `(string -> string))
+  (declare-stdlib 'file-write-all 'cora/lib/os#file-write-all `(string -> (string -> int)))
+  (declare-stdlib 'delete-file 'cora/lib/os#delete-file `(string -> int))
+  (declare-stdlib 'create-directory 'cora/lib/os#create-directory `(string -> int))
+  (declare-stdlib 'list-directory 'cora/lib/os#list-directory `(string -> (list string)))
+
+  ;; json
+  (declare-stdlib 'json-load-file 'cora/lib/json#json-load-file (let j (tvar) ['string '-> j]))
+  (declare-stdlib 'json-typeof 'cora/lib/json#json-typeof (let j (tvar) [j '-> 'symbol]))
+  (declare-stdlib 'json-is-array? 'cora/lib/json#json-is-array? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-is-object? 'cora/lib/json#json-is-object? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-is-integer? 'cora/lib/json#json-is-integer? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-integer-value 'cora/lib/json#json-integer-value (let j (tvar) [j '-> 'int]))
+  (declare-stdlib 'json-is-real? 'cora/lib/json#json-is-real? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-is-string? 'cora/lib/json#json-is-string? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-string-value 'cora/lib/json#json-string-value (let j (tvar) [j '-> 'string]))
+  (declare-stdlib 'json-is-null? 'cora/lib/json#json-is-null? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-is-true? 'cora/lib/json#json-is-true? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-is-false? 'cora/lib/json#json-is-false? (let j (tvar) [j '-> 'bool]))
+  (declare-stdlib 'json-array-size 'cora/lib/json#json-array-size (let j (tvar) [j '-> 'int]))
+  (declare-stdlib 'json-array-get 'cora/lib/json#json-array-get (let j (tvar) a (tvar) [j '-> ['int '-> a]]))
+  (declare-stdlib 'json-object-size 'cora/lib/json#json-object-size (let j (tvar) [j '-> 'int]))
+  (declare-stdlib 'json-object-get 'cora/lib/json#json-object-get (let j (tvar) a (tvar) [j '-> ['string '-> a]]))
+
+  ;; cora-implemented stdlib modules (cml/chan/async/net) now declare
+  ;; their own signatures locally, close to implementation source.
 
   (defun check-type! (exp typ)
     (match (check-type exp typ () ())
       ['succ s] ['succ s]
-      ['fail] (begin
-		(display "exp=")
-		(display exp)
-		(display "\ntyp=")
-		(display typ)
-		(display "\n")
-		(error "type-check failed!"))))
+      ['fail] (cora/init#throw ['type-check-failed exp typ ['unknown-type-failure "type check failed" ()]])
+      ['fail . msg] (cora/init#throw ['type-check-failed exp typ (explain-fail-msg msg)])))
 
 
   ;; (func type-check-for-fruit

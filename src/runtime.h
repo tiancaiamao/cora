@@ -90,8 +90,7 @@ void coraCall(Cora *co, Obj fn, int nargs, Obj *args);
 
 static inline void
 coraCall0(Cora *co, Obj fn) {
-	struct scmNative *f = ptr(fn);
-	assert(f->head.type == scmHeadNative);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != 0) {
 		coraReturn(co, fn);
 		return;
@@ -104,8 +103,7 @@ coraCall0(Cora *co, Obj fn) {
 
 static inline void
 coraCall1(Cora *co, Obj fn, Obj arg1) {
-	struct scmNative *f = ptr(fn);
-	assert(f->head.type == scmHeadNative);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != 1) {
 		Obj args[1] = {arg1};
 		return coraCall(co, fn, 1, args);
@@ -119,8 +117,7 @@ coraCall1(Cora *co, Obj fn, Obj arg1) {
 
 static inline void
 coraCall2(Cora *co, Obj fn, Obj arg1, Obj arg2) {
-	struct scmNative *f = ptr(fn);
-	assert(f->head.type == scmHeadNative);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != 2) {
 		Obj args[2] = {arg1, arg2};
 		return coraCall(co, fn, 2, args);
@@ -135,8 +132,7 @@ coraCall2(Cora *co, Obj fn, Obj arg1, Obj arg2) {
 
 static inline void
 coraCall3(Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
-	struct scmNative *f = ptr(fn);
-	assert(f->head.type == scmHeadNative);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != 3) {
 		Obj args[3] = {arg1, arg2, arg3};
 		return coraCall(co, fn, 3, args);
@@ -156,8 +152,7 @@ coraCall3(Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3) {
 // Anyway, static inline should not care about parameter count.
 static inline void
 coraCall4(Cora *co, Obj fn, Obj arg1, Obj arg2, Obj arg3, Obj arg4) {
-	struct scmNative *f = ptr(fn);
-	assert(f->head.type == scmHeadNative);
+	struct scmNative *f = mustNative(fn);
 	if (f->required != 4) {
 		Obj args[4] = {arg1, arg2, arg3, arg4};
 		return coraCall(co, fn, 4, args);
@@ -234,11 +229,11 @@ static inline Obj
 globalRef(Cora *co, Binding bind) {
 	assert(bind.idx >= 0);
 	Obj v = vecGet(&co->globals, bind.idx);
-    if (v == Undef) {
-        strBuf s = ptr(bind.name);
-        printf("undefined global variable %s\n", toCStr(s));
-    }
-    return v;
+	if (v == Undef) {
+		strBuf s = ptr(bind.name);
+		fprintf(stderr, "undefined global variable %s\n", toCStr(s));
+	}
+	return v;
 }
 
 static inline void

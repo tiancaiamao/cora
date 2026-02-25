@@ -5,6 +5,7 @@
 ;; "Parallel Concurrent ML"          John Reppy
 
 (package "cora/lib/cml"
+  (import "cora/lib/infer")
   (import "cora/lib/queue")
   (import "cora/lib/rand")
   (import "cora/lib/sys")
@@ -14,6 +15,56 @@
 
   (export cml-entry cml-entry-init perform spawn yield wrap schedule schedule-once
       enqueue-task add-task-to-blocked cancel-blocked-handle cml-active?)
+
+  ;; Type declarations live with module implementation.
+  (declare 'perform
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/cml#perform
+				  [(tvar) '-> (tvar)])
+  (declare 'wrap
+				  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (declare 'cora/lib/cml#wrap
+				  [(tvar) '-> [(tvar) '-> (tvar)]])
+  (declare 'spawn
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'cora/lib/cml#spawn
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'yield
+				  ['-> (tvar)])
+  (declare 'cora/lib/cml#yield
+				  ['-> (tvar)])
+  (declare 'schedule
+				  ['-> (tvar)])
+  (declare 'cora/lib/cml#schedule
+				  ['-> (tvar)])
+  (declare 'schedule-once
+				  ['-> (tvar)])
+  (declare 'cora/lib/cml#schedule-once
+				  ['-> (tvar)])
+  (declare 'cml-entry
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'cora/lib/cml#cml-entry
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'cml-entry-init
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'cora/lib/cml#cml-entry-init
+				  [['-> (tvar)] '-> (tvar)])
+  (declare 'cml-active?
+			  ['-> 'bool])
+  (declare 'cora/lib/cml#cml-active?
+			  ['-> 'bool])
+  (declare 'add-task-to-blocked
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/cml#add-task-to-blocked
+				  [(tvar) '-> (tvar)])
+  (declare 'cancel-blocked-handle
+				  [(tvar) '-> 'bool])
+  (declare 'cora/lib/cml#cancel-blocked-handle
+				  [(tvar) '-> 'bool])
+  (declare 'enqueue-task
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/cml#enqueue-task
+				  [(tvar) '-> (tvar)])
 
   (def *blocked-coroutine* (handle-map-create))
 
@@ -146,6 +197,14 @@
 
   (defun default-wrap (x) x)
 
+  (defun definitely-not-callable? (v)
+    (or (number? v)
+	(boolean? v)
+	(string? v)
+	(symbol? v)
+	(null? v)
+	(cons? v)))
+
   ;; wrap an operation to get another operation.
   ;; fn receive the value of the operation.
   (func wrap
@@ -201,18 +260,21 @@
   ;; ;; 		   (lambda (v) ...))
   ;; ;; 	  (wrap (send ch2)
   ;; ;; 		   (lambda (v) ...))))
-  (defun perform (op)
-    (let try (car op)
-	 block (cadr op)
-	 wrap (caddr op)
-	 (let v (try)
-	      (if (= v false)
-		  (throw (lambda (k)
-			   (begin
-			    (block k wrap)
-			    ;; Yield to scheduler by enqueuing current continuation
-			    ;; and returning control to C layer (parallel mode)
-			    ;; or to schedule-loop (single-VM mode)
-			    )))
-		  (wrap v)))))
+  (func perform
+	[try block wrap] =>
+	(if (or (definitely-not-callable? try)
+		(definitely-not-callable? block)
+		(definitely-not-callable? wrap))
+	    (cora/init#throw ['cml-perform-bad-op [try block wrap]])
+	    (let v (try)
+		 (if (= v false)
+		     (throw (lambda (k)
+			      (begin
+			       (block k wrap)
+			       ;; Yield to scheduler by enqueuing current continuation
+			       ;; and returning control to C layer (parallel mode)
+			       ;; or to schedule-loop (single-VM mode)
+			       )))
+		     (wrap v))))
+	op => (cora/init#throw ['cml-perform-bad-op op]))
   )

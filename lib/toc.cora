@@ -66,6 +66,7 @@
 							     [f ['if . exp1]]]))
 	env globals ['if . args] => ['if . (map (parse env globals) args)]
 	env globals ['do x y] => ['do (parse env globals x) (parse env globals y)]
+	env globals ['do . args] => (error "do expects exactly 2 expressions; use begin for multiple")
 	env globals ['let a b c] => ['let a (parse env globals b) (parse (cons a env) globals c)]
 	;; macro rewrite to avoid code explosion during tailify-pass
 	env globals [['lambda . exp1] ['if . exp2]] => (let f (gensym)
@@ -618,11 +619,20 @@
 
   (func split-type-and-code
 	[] type code k => (k (reverse type) (reverse code))
+	[['tc on] . more] type code k => (split-type-and-code more type code k)
+	where (or (= on true) (= on false))
+	[['cora/lib/infer#tc on] . more] type code k => (split-type-and-code more type code k)
+	where (or (= on true) (= on false))
 	[[':type . exp] . more] type code k => (split-type-and-code more (cons ['begin . exp] type) code k)
 	[[':declare . exp] . more] type code k => (split-type-and-code more (cons ['declare . exp] type) code k)
 	[exp . more] type code k => (split-type-and-code more
 							 (cons ['cora/lib/infer#check-type! ['macroexpand (cons 'backquote (cons exp ()))] ['cora/lib/infer#tvar]] type)
 							 (cons exp code) k))
+
+  (func typecheck-directive?
+	['tc on] => (or (= on true) (= on false))
+	['cora/lib/infer#tc on] => (or (= on true) (= on false))
+	_ => false)
 
   (func extract-typecheck-body
 	['package name . more] k => ['package name . (extract-typecheck-body more k)]
@@ -632,7 +642,7 @@
 	other k => (k other))
 
   (defun generate-typecheck-code (type code)
-    (if cora/lib/infer#*typecheck*
+    (if (value-or 'cora/lib/infer#*typecheck* false)
 	(append type code)
 	code))
 
@@ -650,25 +660,37 @@
 									    (generate-typecheck-code type code)))))
 	single => (split-type-and-code [single] () ()
 				       (lambda (type code)
-					 ['begin . (generate-typecheck-code type code)])))
+					 (if (typecheck-directive? single)
+					     single
+					     (let body (generate-typecheck-code type code)
+					       (if (null? body)
+						   ()
+						   ['begin . body]))))))
 
   (set 'cora/lib/infer#*typecheck* false)
 
-  (defun preprocess (file-path)
+  (defun read-source (file-path)
     (let sexp (read-file-as-sexp file-path)
-      (let sexp1 (if (and (pair? sexp) (= 'begin (car sexp)))
-		     (cdr sexp)
-		     (cons sexp ()))
-	(begin
-	  (handle-import-eagerly sexp)
-	  (split-type-and-code-toplevel sexp)))))
+      (begin
+	(handle-import-eagerly sexp)
+	sexp)))
+
+  (defun resolve-source! (sexp)
+    (match sexp
+      ['package "cora/lib/resolve" . _] sexp
+      _ (begin
+	   (import "cora/lib/resolve")
+	   ((value 'cora/lib/resolve#check!) (macroexpand sexp))
+	   sexp)))
 
   (defun compile-to-c (from to)
     (let globals (gensym)
       (begin
 	(set globals ())
 	(let bc (-> from
-		    preprocess
+		    read-source
+		    resolve-source!
+		    split-type-and-code-toplevel
 		    macroexpand
 		    (compile globals))
 	  (let stream (open-output-file to)

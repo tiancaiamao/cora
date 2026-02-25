@@ -1,0 +1,18 @@
+(import "cora/lib/infer")
+
+;; Scope boundary: CML op runtime protocol shape is not a type-check concern.
+;; It should be handled by resolver/lowering/runtime validation.
+(let dynamic-perform-shape (cora/lib/infer#check-type
+			    '(cora/lib/cml#perform [42 43 44])
+			    (tvar) () ())
+  (match dynamic-perform-shape
+    ['succ _] ()
+    _ (cora/init#throw "type checker should not reject CML op shape")))
+
+;; Scope boundary: wrap mapper arity is also not checked by type checker.
+(let dynamic-wrap-arity (cora/lib/infer#check-type
+			 '(cora/lib/cml#wrap [1 2 3] (lambda (a b) a))
+			 (tvar) () ())
+  (match dynamic-wrap-arity
+    ['succ _] ()
+    _ (cora/init#throw "type checker should not reject wrap mapper arity")))

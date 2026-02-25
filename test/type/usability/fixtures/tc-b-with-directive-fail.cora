@@ -1,0 +1,8 @@
+(import "cora/lib/infer")
+
+;; Explicit tc ON in this unit: the bad call must fail at type-check phase.
+(tc true)
+(:declare 'id `(int -> int))
+(defun id (x) x)
+
+(id "x")

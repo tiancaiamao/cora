@@ -1,5 +1,6 @@
 (package "cora/lib/handle-map"
 
+    (import "cora/lib/infer")
     (import "cora/lib/define-record")
     (import "cora/lib/stack")
     (import "cora/lib/io")
@@ -10,6 +11,28 @@
         handle-map-get
         handle-map-delete
         handle-map-size)
+
+    ;; Type declarations live with module implementation.
+    (declare 'handle-map-create
+                            ['-> (tvar)])
+    (declare 'cora/lib/handle-map#handle-map-create
+                            ['-> (tvar)])
+    (declare 'handle-map-add
+                            [(tvar) '-> [(tvar) '-> 'int]])
+    (declare 'cora/lib/handle-map#handle-map-add
+                            [(tvar) '-> [(tvar) '-> 'int]])
+    (declare 'handle-map-get
+                            [(tvar) '-> ['int '-> (tvar)]])
+    (declare 'cora/lib/handle-map#handle-map-get
+                            [(tvar) '-> ['int '-> (tvar)]])
+    (declare 'handle-map-delete
+                            [(tvar) '-> ['int '-> (tvar)]])
+    (declare 'cora/lib/handle-map#handle-map-delete
+                            [(tvar) '-> ['int '-> (tvar)]])
+    (declare 'handle-map-size
+                            [(tvar) '-> 'int])
+    (declare 'cora/lib/handle-map#handle-map-size
+                            [(tvar) '-> 'int])
 
     (define-record <handle-map>
         (make-handle-map)

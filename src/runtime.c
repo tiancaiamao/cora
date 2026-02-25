@@ -626,11 +626,89 @@ getCoraPath() {
 
 static volatile int unique = 1;
 
+static inline bool
+isSymbolNamed(Obj o, const char *name) {
+	return issymbol(o) && eq(o, intern((char *)name));
+}
+
+static void
+scanTcDirectiveInForm(Obj form, bool *seen, bool *enabled);
+
+static void
+scanTcDirectiveInList(Obj forms, bool *seen, bool *enabled) {
+	for (Obj p = forms; iscons(p); p = cdr(p)) {
+		scanTcDirectiveInForm(car(p), seen, enabled);
+	}
+}
+
+static void
+scanTcDirectiveInForm(Obj form, bool *seen, bool *enabled) {
+	if (!iscons(form)) {
+		return;
+	}
+
+	Obj head = car(form);
+	Obj tail = cdr(form);
+
+	if (isSymbolNamed(head, "tc") || isSymbolNamed(head, "cora/lib/infer#tc")) {
+		if (iscons(tail) && cdr(tail) == Nil) {
+			Obj on = car(tail);
+			if (on == True || on == False) {
+				*seen = true;
+				*enabled = (on == True);
+			}
+		}
+		return;
+	}
+
+	if (isSymbolNamed(head, "begin")) {
+		scanTcDirectiveInList(tail, seen, enabled);
+		return;
+	}
+
+	// (package "name" . body)
+	if (isSymbolNamed(head, "package") && iscons(tail)) {
+		scanTcDirectiveInList(cdr(tail), seen, enabled);
+		return;
+	}
+}
+
+static bool
+detectTypecheckDirective(Cora *co, Obj filePath) {
+	str path = stringStr(filePath);
+	FILE *f = fopen(path.str, "r");
+	if (f == NULL) {
+		return false;
+	}
+
+	bool seen = false;
+	bool enabled = false;
+	int err = 0;
+	while (true) {
+		Obj form = sexpRead(co->gc, f, &err);
+		if (err == 1) {
+			break;
+		}
+		scanTcDirectiveInForm(form, &seen, &enabled);
+	}
+	fclose(f);
+
+	// Module/unit-local default is OFF unless explicitly enabled.
+	return seen ? enabled : false;
+}
+
 static void
 builtinLoad(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinLoad");
 	// (load "file-path.cora")
 	Obj filePath = R[1];
+	bool tcEnabled = detectTypecheckDirective(co, filePath);
+	Binding tcBind = bindSymbol(co, intern("cora/lib/infer#*typecheck*"));
+	Obj prevTc = globalRef(co, tcBind);
+	if (prevTc == Undef) {
+		prevTc = False;
+	}
+	globalSet(co, tcBind, tcEnabled ? True : False);
 	Obj arg1 = filePath;
 	strBuf filePathCopy = strDup(stringStr(filePath));
 	const int BUFSIZE = 512;
@@ -643,6 +721,7 @@ builtinLoad(Cora *co, int label, Obj *R) {
 	Obj fn = globalRef(co, bind);
 	coraCall2(co, fn, arg1, arg2);
 	coraRun(co);
+	globalSet(co, tcBind, prevTc);
 	// TODO: check res?
 	// Obj res = co->args[1];
 	str filePathStr = toStr(filePathCopy);
@@ -1045,7 +1124,12 @@ continuationAsClosure(Cora *co, int label, Obj *R) {
 static void
 builtinThrow(Cora *co, int label, Obj *R) {
 	TRACE_SCOPE("builtinThrow");
-    assert(vecLen(&co->trystack) > 0);
+	if (vecLen(&co->trystack) == 0) {
+		fprintf(stderr, "unhandled throw: ");
+		sexpWrite(stderr, R[1]);
+		fprintf(stderr, "\n");
+		exit(1);
+	}
 	struct tryMark mark = vecPop(&co->trystack);
 	Obj v = R[1];
 

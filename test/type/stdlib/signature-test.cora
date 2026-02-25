@@ -1,0 +1,45 @@
+(import "cora/lib/infer")
+
+(defun check (exp typ)
+  (cora/lib/infer#check-type exp typ () ()))
+
+(defun expect-succ (res msg)
+  (match res
+    ['succ . _] ()
+    _ (cora/init#throw msg)))
+
+(defun expect-fail (res msg)
+  (match res
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw msg)))
+
+(expect-succ (check '(string-length "abc") 'int)
+	     "string-length(string) should type-check")
+(expect-fail (check '(string-length 1) 'int)
+	     "string-length(non-string) should fail")
+
+(expect-succ (check '(cora/lib/string#has-prefix? "abc" "a") 'bool)
+	     "has-prefix?(string,string) should type-check")
+(expect-fail (check '(cora/lib/string#has-prefix? "abc" 1) 'bool)
+	     "has-prefix?(string,non-string) should fail")
+
+(expect-succ (check '(randN 10) 'int)
+	     "randN(int) should type-check")
+(expect-fail (check '(randN "10") 'int)
+	     "randN(non-int) should fail")
+
+(expect-succ (check '(mod 7 3) 'int)
+	     "mod(int,int) should type-check")
+(expect-fail (check '(mod 7 "3") 'int)
+	     "mod(int,non-int) should fail")
+
+(expect-succ (check '(file-exists? "README.md") 'bool)
+	     "file-exists?(string) should type-check")
+(expect-fail (check '(file-exists? 123) 'bool)
+	     "file-exists?(non-string) should fail")
+
+(expect-succ (check '(json-object-get data "k") (tvar))
+	     "json-object-get(_,string) should type-check")
+(expect-fail (check '(json-object-get data 1) (tvar))
+	     "json-object-get(_,non-string) should fail")

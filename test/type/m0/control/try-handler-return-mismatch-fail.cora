@@ -1,0 +1,10 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+;; M0 contract: handler result must match chunk result type.
+(let x (try (lambda ()
+              (+ 1 2))
+            (lambda (v resume)
+              "bad"))
+  x)

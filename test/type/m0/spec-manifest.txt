@@ -1,0 +1,6 @@
+# status|expected|path|description
+active|pass|test/type/m0/core/directive-pass.cora|Existing directive/deftype happy path
+active|fail|test/type/m0/core/directive-fail.cora|Existing directive negative case
+active|fail|test/type/m0/control/throw-outside-try-fail.cora|Runtime baseline: unhandled throw should fail
+active|pass|test/type/m0/control/try-resume-polymorphic-pass.cora|Resume can accept arbitrary value for throw-site continuation
+active|fail|test/type/m0/control/try-handler-return-mismatch-fail.cora|handler/chunk result type mismatch should fail

@@ -305,5 +305,5 @@ printObj(FILE *to, Obj o) {
 
 void
 sexpWrite(FILE *out, Obj o) {
-	printObj(stdout, o);
+	printObj(out, o);
 }

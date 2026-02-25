@@ -1,0 +1,39 @@
+(import "cora/lib/infer")
+(tc true)
+
+;; Import stdlib modules under tc mode to validate compatibility.
+(import "cora/lib/queue")
+(import "cora/lib/stack")
+(import "cora/lib/hash")
+(import "cora/lib/handle-map")
+(import "cora/lib/cml")
+(import "cora/lib/chan")
+(import "cora/lib/async")
+(import "cora/lib/net")
+
+;; Runtime-light smoke on pure data modules.
+(let q (queue-make)
+  (begin
+    (enqueue q 1)
+    (dequeue q)))
+
+(let s (stack-create)
+  (begin
+    (stack-push! s 1)
+    (stack-pop! s)))
+
+(let h (hash-make 8)
+  (begin
+    (hash-set! h 'k 1)
+    (hash-get h 'k)))
+
+(let hm (handle-map-create)
+  (begin
+    (handle-map-add hm 1)
+    (handle-map-size hm)))
+
+;; Static API checks for effectful modules to avoid side effects.
+(cora/lib/infer#check-type! '(cora/lib/cml#spawn (lambda () 1)) (tvar))
+(cora/lib/infer#check-type! '(chan-make) (tvar))
+(cora/lib/infer#check-type! '(async-dial "127.0.0.1:8080") (tvar))
+(cora/lib/infer#check-type! '(cora/lib/net#net-dial "127.0.0.1:8080") (tvar))

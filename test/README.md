@@ -13,6 +13,9 @@ make test
 # Run core tests only (legacy behavior)
 make test-core
 
+# Run type-system tests only
+make test-type
+
 # Run all basic tests
 ./cora test/script.cora
 
@@ -68,6 +71,23 @@ Tests Cora performance and correctness.
 - `coroutine1m.cora` - Create 1 million coroutines
 - `array1.cora` - Array operations
 - `stackoverflow.cora` - Stack overflow test
+
+---
+
+### `/type/` - Type System Tests
+
+Tests type inference/type directives/type-check interception behavior.
+
+**How to run:**
+```bash
+./test/type/run-tests.sh
+```
+
+Additional usability coverage:
+- `test/type/usability/` validates checker behavior on existing module APIs (`cml/chan/async/net`).
+- `test/type/resolver/` validates resolver-owned structural checks (module visibility, CML op shape/arity guards).
+- `test/type/usability/known-crash-chan-async-repro.cora` is a crash-regression sentinel for invalid n-ary `do` (expected failure without crash).
+- `test/type/usability/run-known-crash-repro.sh` runs the same sentinel in isolation and asserts "fail but no crash".
 
 ---
 
@@ -202,9 +222,10 @@ Bootstrap test verifying compiler self-hosting capability.
 ### By Type
 
 1. **Unit Tests** (`/t/`): Test individual language features
-2. **Integration Tests** (`parallel/`, `poller/`): Test multiple components working together
-3. **Performance Tests** (`/benchmark/`): Test performance and scalability
-4. **Regression Tests**: Prevent previously fixed bugs from reappearing
+2. **Type Tests** (`/type/`): Type inference and directive behavior
+3. **Integration Tests** (`parallel/`, `poller/`): Test multiple components working together
+4. **Performance Tests** (`/benchmark/`): Test performance and scalability
+5. **Regression Tests**: Prevent previously fixed bugs from reappearing
 
 ### By Priority
 
@@ -248,8 +269,9 @@ find test -name '*.dSYM' -type d -exec rm -rf {} +
 ### Adding New Tests
 
 1. Unit tests: Add `.cora` and corresponding `.result` files to `/t/` directory
-2. Feature tests: Add `.cora` files to `test/` root directory
-3. Poller tests: Add `poller-test-XX-*.cora` files to `/poller/` directory
+2. Type tests: Add `.cora` files to `/type/` directory and update `type/run-tests.sh`
+3. Feature tests: Add `.cora` files to `test/` root directory
+4. Poller tests: Add `poller-test-XX-*.cora` files to `/poller/` directory
 
 ### Test Naming Conventions
 

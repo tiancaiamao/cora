@@ -4,6 +4,7 @@
 ;;   ['ok value] | ['err message]
 
 (package "cora/lib/async"
+  (import "cora/lib/infer")
   (import "cora/lib/cml")
   (import "cora/lib/io")
   (import "cora/lib/string")
@@ -17,6 +18,40 @@
     async-accept
     async-conn-close
     poller-init poller-shutdown)
+
+  ;; Type declarations live with module implementation.
+  (declare 'async-listen
+				  ['string '-> (tvar)])
+  (declare 'cora/lib/async#async-listen
+				  ['string '-> (tvar)])
+  (declare 'async-dial
+				  ['string '-> (tvar)])
+  (declare 'cora/lib/async#async-dial
+				  ['string '-> (tvar)])
+  (declare 'async-accept
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/async#async-accept
+				  [(tvar) '-> (tvar)])
+  (declare 'async-recv
+				  [(tvar) '-> ['string '-> (tvar)]])
+  (declare 'cora/lib/async#async-recv
+				  [(tvar) '-> ['string '-> (tvar)]])
+  (declare 'async-send
+				  [(tvar) '-> ['string '-> (tvar)]])
+  (declare 'cora/lib/async#async-send
+				  [(tvar) '-> ['string '-> (tvar)]])
+  (declare 'async-conn-close
+				  [(tvar) '-> (tvar)])
+  (declare 'cora/lib/async#async-conn-close
+				  [(tvar) '-> (tvar)])
+  (declare 'poller-init
+				  ['-> (tvar)])
+  (declare 'cora/lib/async#poller-init
+				  ['-> (tvar)])
+  (declare 'poller-shutdown
+				  ['-> (tvar)])
+  (declare 'cora/lib/async#poller-shutdown
+				  ['-> (tvar)])
 
   (def *async-sock-map* ())
 

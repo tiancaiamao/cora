@@ -1,0 +1,9 @@
+(import "cora/lib/infer")
+(import "cora/lib/cml")
+(import "cora/lib/chan")
+(import "cora/lib/async")
+
+(tc true)
+
+;; Existing module APIs should be intercepted by type checker on obvious misuse.
+(async-dial 123)

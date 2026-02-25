@@ -1,8 +1,31 @@
 (package "cora/lib/stack"
+    (import "cora/lib/infer")
     (import "cora/lib/let-loop")
     (import "cora/lib/define-record")
 
     (export stack-create stack-push! stack-pop! stack-size stack->data)
+
+    ;; Type declarations live with module implementation.
+    (declare 'stack-create
+                            ['-> (tvar)])
+    (declare 'cora/lib/stack#stack-create
+                            ['-> (tvar)])
+    (declare 'stack-push!
+                            [(tvar) '-> [(tvar) '-> 'int]])
+    (declare 'cora/lib/stack#stack-push!
+                            [(tvar) '-> [(tvar) '-> 'int]])
+    (declare 'stack-pop!
+                            [(tvar) '-> (tvar)])
+    (declare 'cora/lib/stack#stack-pop!
+                            [(tvar) '-> (tvar)])
+    (declare 'stack-size
+                            [(tvar) '-> 'int])
+    (declare 'cora/lib/stack#stack-size
+                            [(tvar) '-> 'int])
+    (declare 'stack->data
+                            [(tvar) '-> (tvar)])
+    (declare 'cora/lib/stack#stack->data
+                            [(tvar) '-> (tvar)])
 
     (define-record <stack>
         (make-stack)

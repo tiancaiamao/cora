@@ -1,0 +1,7 @@
+(import "cora/lib/infer")
+
+;; Current unit keeps tc OFF.
+(tc false)
+
+;; Loaded unit explicitly enables tc and must fail by itself.
+(load "test/type/usability/fixtures/tc-b-with-directive-fail.cora")

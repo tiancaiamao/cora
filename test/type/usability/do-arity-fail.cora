@@ -1,0 +1,6 @@
+(import "cora/lib/infer")
+
+(tc true)
+
+;; do with fewer than 2 expressions should fail deterministically (no crash).
+(do 1)

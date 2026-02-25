@@ -1,0 +1,37 @@
+(import "cora/lib/infer")
+
+;; Basic happy path: payload flows to handler, resume is callable.
+(check-type! '(try (lambda () (+ (throw 42) 1))
+		   (lambda (v resume) (resume (+ v 1))))
+	     (tvar))
+
+;; Payload type mismatch should fail: v is int from (throw 42), not bool.
+(let payload-mismatch (cora/lib/infer#check-type
+		       '(try (lambda () (throw 42))
+			     (lambda (v resume) (if v 1 2)))
+		       (tvar) () ())
+  (match payload-mismatch
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw "try payload mismatch should fail")))
+
+;; Scope boundary: handler literal arity is not a type-check error.
+(let handler-arity-dynamic (cora/lib/infer#check-type
+			    '(try (lambda () 1)
+				  (lambda (v) v))
+			    (tvar) () ())
+  (match handler-arity-dynamic
+    ['succ _] ()
+    _ (cora/init#throw "type checker should not reject handler arity")))
+
+;; try chunk must be a thunk (() -> T).
+(let chunk-not-thunk (cora/lib/infer#check-type
+		      '(try 1 (lambda (v resume) v))
+		      (tvar) () ())
+  (match chunk-not-thunk
+    ['fail] ()
+    ['fail . _] ()
+    _ (cora/init#throw "try chunk must be a thunk")))
+
+;; throw outside try remains a runtime concern, not static rejection.
+(check-type! '(throw "outside-try") (tvar))
